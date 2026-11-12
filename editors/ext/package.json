@@ -1,0 +1,24 @@
+{
+  "name": "vintagecoder",
+  "displayName": "VintageCoder",
+  "description": "Assembler-Unterstützung für C64 und Atari 8-Bit (Language Server vc-lsp)",
+  "version": "0.1.0",
+  "publisher": "vintagecoder",
+  "license": "GPL-3.0-or-later",
+  "engines": { "vscode": "^1.80.0" },
+  "main": "./extension.js",
+  "activationEvents": ["onLanguage:vcasm"],
+  "contributes": {
+    "languages": [{ "id": "vcasm", "aliases": ["VintageCoder Assembler"], "extensions": [".asm", ".inc"], "configuration": "./language-configuration.json" },
+      { "id": "json", "extensions": [".vcprj", ".vcchar", ".vcsprite", ".vcpmg", ".vcscreen", ".vctiles", ".vcsong", ".vcpal", ".vcplay", ".vctest"] }],
+    "configuration": {
+      "title": "VintageCoder",
+      "properties": {
+        "vintagecoder.serverPath": { "type": "string", "default": "vc-lsp", "description": "Pfad zum Language Server (target/debug/vc-lsp)" },
+        "vintagecoder.dataDir": { "type": "string", "default": "", "description": "Pfad zur Hardware-Datenbank (data/); leer = automatisch suchen" },
+        "vintagecoder.target": { "type": "string", "default": "c64", "description": "Standard-Zielsystem, wenn die Datei kein .target enthält" }
+      }
+    }
+  },
+  "dependencies": { "vscode-languageclient": "^9.0.0" }
+}

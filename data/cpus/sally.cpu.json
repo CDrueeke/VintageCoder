@@ -1,0 +1,6 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/cpu-1.json",
+  "id": "sally",
+  "extends": "nmos6502",
+  "features": ["illegal.stable", "illegal.unstable", "halt"]
+}

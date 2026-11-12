@@ -1,0 +1,213 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-STREAMS 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-streams \- Bild\-, Ton\- und Debug\-Ströme der Ultimate 64 empfangen
+.SH ÜBERSICHT
+.B vcc streams shot \-\-host <host> \-\-out <datei.png> [optionen]
+.br
+.B vcc streams listen \-\-host <host> <lied.vcsong> [optionen]
+.br
+.B vcc streams probe \-\-host <host> [optionen]
+.br
+.B vcc streams trace \-\-host <host> [optionen]
+.br
+.SH BESCHREIBUNG
+Bild\-, Ton\- und Debug\-Ströme der Ultimate 64 empfangen
+.PP
+Arbeitet mit den Datenströmen (Data Streams) einer Ultimate 64 im Netz. Die Unterbefehle starten die Ströme, werten sie aus und stoppen sie wieder. Sie ändern weder die Konfiguration des Geräts noch den Flash.
+.SH OPTIONEN
+.SS Form shot
+ein Bild der Ultimate als PNG speichern
+.PP
+.PP
+\fBGerät\fR
+.TP
+\fB\-\-host\fR \fIhost\fR
+Adresse der Ultimate 64. Erforderlich.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-out\fR \fIdatei.png\fR
+Zieldatei des Bildes. Erforderlich.
+.TP
+\fB\-\-password\fR \fIpw\fR
+Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.
+.TP
+\fB\-\-multicast\fR
+Empfängt die Ströme per Multicast.
+.SS Form listen
+Lied über den echten SID der Ultimate anhören
+.PP
+.TP
+\fIlied.vcsong\fR
+Lied, das als Abspielprogramm geladen wird.
+.PP
+\fBGerät\fR
+.TP
+\fB\-\-host\fR \fIhost\fR
+Adresse der Ultimate 64. Erforderlich.
+.TP
+\fB\-\-password\fR \fIpw\fR
+Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.
+.TP
+\fB\-\-multicast\fR
+Empfängt die Ströme per Multicast.
+.PP
+\fBWiedergabe\fR
+.TP
+\fB\-\-secs\fR \fIsekunden\fR
+Dauer der Wiedergabe in Sekunden; Werte außerhalb von 2 bis 120 werden darauf begrenzt. Standard: 6.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-wav\fR \fIdatei.wav\fR
+Schreibt den empfangenen Ton als WAV\-Datei (Quellrate).
+.TP
+\fB\-\-ntsc\fR
+Baut das Abspielprogramm und rechnet die Rate für NTSC statt PAL.
+.TP
+\fB\-\-keep\fR
+Lässt die Ultimate nach dem Hören laufen, statt sie zurückzusetzen.
+.SS Form probe
+Ströme starten, Pakete zählen, Rate und Verluste ausgeben
+.PP
+.PP
+\fBGerät\fR
+.TP
+\fB\-\-host\fR \fIhost\fR
+Adresse der Ultimate 64. Erforderlich.
+.TP
+\fB\-\-password\fR \fIpw\fR
+Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.
+.TP
+\fB\-\-multicast\fR
+Empfängt die Ströme per Multicast.
+.TP
+\fB\-\-video\fR
+Prüft den Bildstrom. Ohne \-\-video, \-\-audio und \-\-debug werden Bild und Ton geprüft.
+.TP
+\fB\-\-audio\fR
+Prüft den Tonstrom.
+.TP
+\fB\-\-debug\fR
+Prüft den Debug\-Strom. Läuft nie zugleich mit dem Bildstrom.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-secs\fR \fIsekunden\fR
+Dauer der Messung in Sekunden; Werte außerhalb von 2 bis 60 werden darauf begrenzt. Standard: 5.
+.TP
+\fB\-\-record\fR \fIordner\fR
+Schreibt die empfangenen Pakete je Strom in eine .bin\-Datei in diesem Ordner.
+.TP
+\fB\-\-count\fR \fIanzahl\fR
+Höchstzahl der Pakete je Strom bei \-\-record. Standard: 400.
+.SS Form trace
+Debug\-Strom (6510 Only) auswerten und zusammenfassen
+.PP
+.PP
+\fBGerät\fR
+.TP
+\fB\-\-host\fR \fIhost\fR
+Adresse der Ultimate 64. Am Gerät muss der Debug\-Strom\-Modus 6510 Only stehen. Erforderlich.
+.TP
+\fB\-\-password\fR \fIpw\fR
+Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.
+.TP
+\fB\-\-multicast\fR
+Empfängt die Ströme per Multicast.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-secs\fR \fIsekunden\fR
+Dauer der Aufzeichnung in Sekunden; Werte außerhalb von 1 bis 300 werden darauf begrenzt. Standard: 5.
+.PP
+\fBAuswertung\fR
+.TP
+\fB\-\-debug\fR \fIdatei.vcdbg\fR
+Debug\-Datei des Programms: ordnet Befehle Quellzeilen zu, nennt nicht erreichte Zeilen und macht Symbole in \-\-measure nutzbar.
+.TP
+\fB\-\-measure\fR \fIA:B\fR
+Misst die Zyklen von Adresse A bis Adresse B. Adressen als $1234, 0x1234, Dezimalzahl oder Symbol der .vcdbg. Mehrfach möglich.
+.TP
+\fB\-\-cpu\fR \fIid\fR
+CPU\-Beschreibung für die Befehlstabelle. Der 45GS02 wird nicht ausgewertet. Standard: 6510.
+.TP
+\fB\-\-out\fR \fIdatei\fR
+Schreibt alle aufgezeichneten Befehle in diese Datei.
+.TP
+\fB\-\-tail\fR \fIanzahl\fR
+Anzahl der zuletzt ausgeführten Befehle in der Ausgabe. Standard: 10.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SH BEISPIELE
+Bild speichern:
+.PP
+.RS 8
+.nf
+vcc streams shot \-\-host 192.168.1.64 \-\-out bild.png
+.fi
+.RE
+sechs Sekunden hören und als WAV sichern:
+.PP
+.RS 8
+.nf
+vcc streams listen \-\-host 192.168.1.64 lied.vcsong \-\-wav lied.wav
+.fi
+.RE
+Bild und Ton fünf Sekunden prüfen:
+.PP
+.RS 8
+.nf
+vcc streams probe \-\-host 192.168.1.64
+.fi
+.RE
+Debug\-Strom prüfen:
+.PP
+.RS 8
+.nf
+vcc streams probe \-\-host 192.168.1.64 \-\-debug \-\-secs 10
+.fi
+.RE
+fünf Sekunden aufzeichnen:
+.PP
+.RS 8
+.nf
+vcc streams trace \-\-host 192.168.1.64
+.fi
+.RE
+Zyklen zwischen zwei Adressen messen:
+.PP
+.RS 8
+.nf
+vcc streams trace \-\-host 192.168.1.64 \-\-measure $0810:$0820 \-\-secs 3
+.fi
+.RE
+mit Quellzeilen und Befehlsprotokoll:
+.PP
+.RS 8
+.nf
+vcc streams trace \-\-host 192.168.1.64 \-\-debug build/prog.vcdbg \-\-out ablauf.txt
+.fi
+.RE
+.SH HINWEISE
+Wartet höchstens 5 Sekunden auf ein vollständiges Bild.
+.PP
+Lädt das Abspielprogramm auf die Ultimate und setzt sie dabei zurück; ihr laufender Zustand geht verloren.
+.PP
+Gibt zuletzt Pakete, Verluste und Pufferstatistik aus.
+.PP
+\-\-video zusammen mit \-\-debug ist ein Fehler.
+.PP
+Je Strom erscheinen Zustand, Pakete (je Sekunde, Mbit/s), fehlende und verworfene Pakete sowie Neustarts.
+.PP
+Hält den Bildstrom an, solange der Debug\-Strom läuft.
+.PP
+Die Ausgabe nennt Zyklen, Befehle (IRQ, NMI), Befehlserkennung, Paketverluste, Abdeckung, SID/VIC\-Schreibzugriffe und die letzten Befehle.
+.PP
+.SH RÜCKGABEWERT
+0 = Bild gespeichert, 1 = kein Bild empfangen oder Fehler, 2 = unbekannte Option
+.SH SIEHE AUCH
+vcc(1), vcc\-test(1)

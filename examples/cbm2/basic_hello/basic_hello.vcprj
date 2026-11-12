@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "CBM-II: Natives BASIC",
+    "description": "BASIC ohne Zeilennummern mit Labels (@name); Ladeadresse $0003 (nur BASIC, Assembler braucht Bankbehandlung)"
+  },
+  "targets": [
+    { "id": "cbm2", "system": "cbm2", "variant": "pal", "cpu": "nmos6502", "illegals": "deny", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["cbm2"], "kind": "basic", "files": ["hello.bas"] }
+  ],
+  "main": "hello.bas"
+}

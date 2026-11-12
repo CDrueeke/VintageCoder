@@ -1,0 +1,6 @@
+; ERZEUGT von tools/gen.py: eigene Zeichen (Multicolor-Textmodus: je Byte 4 Pixel zu 2 Bit; 00 Hintergrund $D021, 01 $D022, 10 $D023, 11 Farb-RAM)
+gfx_chars:   ; Zeichen 64 (Stein links), 65 (Stein rechts), 66 (Wand), 67 (Block fuer das Titellogo); alle Multicolor
+        .byte $15, $1f, $1f, $1f, $1f, $1f, $2a, $00
+        .byte $54, $f8, $f8, $f8, $f8, $f8, $a8, $00
+        .byte $55, $7e, $7e, $7e, $7e, $7e, $7e, $aa
+        .byte $55, $7e, $7e, $7e, $7e, $7e, $7e, $aa

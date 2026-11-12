@@ -1,0 +1,81 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-ADD 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-add \- Dateien und Ordner ins Projekt übernehmen
+.SH ÜBERSICHT
+.B vcc add <datei|ordner>… [optionen]
+.br
+.SH BESCHREIBUNG
+Dateien und Ordner ins Projekt übernehmen
+.PP
+Übernimmt Dateien wie das Ablegen in der IDE: erkennt die Art, wählt Kategorie und Zielordner aus rules und layout der Projektdatei, kopiert die Datei und trägt sie in assets ein. Liegt die Quelle schon im Projektordner, bleibt sie dort und wird nur eingetragen.
+.PP
+Ordner werden rekursiv übernommen und behalten ihre Unterordner; versteckte Dateien, target und node_modules bleiben draußen, höchstens 5000 Dateien je Ordner.
+.SH OPTIONEN
+.TP
+\fIdatei|ordner\fR
+Dateien oder Ordner, die übernommen werden. Mehrfach möglich.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-into\fR \fIprojekt\fR
+Projektordner oder .vcprj\-Datei. Standard: ..
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ, ohne ..). Überschreibt den Ordner der Kategorie; bei Ordnern wird die Unterordnerstruktur angehängt. Standard: Ordner der Kategorie aus layout.
+.TP
+\fB\-\-flat\fR
+Dateien aus Ordnern ohne Unterordner ablegen, jede in den Ordner ihrer Kategorie (oder \-\-dir).
+.PP
+\fBEintrag\fR
+.TP
+\fB\-\-category\fR \fIkategorie\fR
+Kategorie für alle Dateien (Quelltext, Text/Doku, Binärdaten, Grafikrohdaten, Zeichensatz roh). Werte: source, text, binary, graphics, charset. Standard: aus rules, Dateiname und Inhalt erkannt.
+.TP
+\fB\-\-description\fR \fItext\fR
+Beschreibung, die in assets mit eingetragen wird.
+.TP
+\fB\-\-conflict\fR \fIregel\fR
+Verhalten, wenn am Ziel schon eine andere Datei mit diesem Namen liegt: unter neuem Namen ablegen (name_2), ersetzen oder überspringen. Werte: rename, replace, skip. Standard: rename.
+.TP
+\fB\-\-dry\-run\fR
+Nur anzeigen, was geschehen würde (Zielzustand, Ziel, Art, Kategorie); nichts kopieren, Projektdatei unverändert.
+.SH BEISPIELE
+Datei übernehmen:
+.PP
+.RS 8
+.nf
+vcc add sprites.bin \-\-into spiel
+.fi
+.RE
+Ordner mit Struktur übernehmen:
+.PP
+.RS 8
+.nf
+vcc add bilder \-\-category graphics \-\-into spiel
+.fi
+.RE
+Ordner flach in einen Zielordner:
+.PP
+.RS 8
+.nf
+vcc add musik \-\-flat \-\-dir data/musik \-\-description "Titelmusik"
+.fi
+.RE
+nur ansehen:
+.PP
+.RS 8
+.nf
+vcc add bilder \-\-into spiel \-\-dry\-run
+.fi
+.RE
+.SH HINWEISE
+Fehlt im Projektordner eine .vcprj, bricht der Befehl ab. Fehler bei einzelnen Dateien ergeben Exit\-Code 1; die übrigen werden trotzdem übernommen.
+.PP
+Disketten\-Images, PRG und XEX nimmt vcc import auf.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-organize(1), vcc\-import(1), vcc\-new(1)

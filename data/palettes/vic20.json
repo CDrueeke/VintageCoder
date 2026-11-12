@@ -1,0 +1,4 @@
+{
+ "_comment": "VIC-I-Palette nach Colodore (PAL), Farben 0..15 (Zeichenfarbe 0-7, Hintergrund/Hilfsfarbe 0-15); Quelle: VICE VIC20/colodore_vic.vpl",
+ "colors": ["#000000", "#ffffff", "#6d2327", "#a0fef8", "#8e3c97", "#7eda75", "#252390", "#ffff86", "#a4643b", "#ffc8a1", "#f2a7ab", "#dbffff", "#ffb4ff", "#d7ffce", "#9d9aff", "#ffffc9"]
+}

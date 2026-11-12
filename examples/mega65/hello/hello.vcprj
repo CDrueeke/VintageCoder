@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "project": {
+    "name": "MEGA65: hello",
+    "description": "Einstieg 45GS02/VIC-IV: roter Rahmen, 32-Bit-Zeiger und Q-Befehl"
+  },
+  "targets": [
+    {
+      "id": "mega65",
+      "system": "mega65",
+      "cpu": "45gs02",
+      "illegals": "deny",
+      "emulator": "xemu"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "mega65"
+      ],
+      "kind": "asm",
+      "files": [
+        "hello.asm"
+      ]
+    }
+  ],
+  "main": "hello.asm"
+}

@@ -1,0 +1,60 @@
+name: Fehlermeldung
+description: Etwas funktioniert nicht wie erwartet
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für die Meldung! VintageCoder ist in der Alpha-Phase. Die Angaben unten stehen auch in der Feedback-Funktion der Anwendung (*Hilfe ▸ Feedback senden …* oder `vcc feedback`); du kannst sie von dort übernehmen. Bitte lade keine ROMs oder andere urheberrechtlich geschützte Dateien hoch.
+  - type: input
+    id: version
+    attributes:
+      label: Version und Commit
+      description: Aus der Feedback-Funktion oder `vcc --version`
+      placeholder: "VintageCoder 0.1.0 (Commit abc1234)"
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Betriebssystem
+      description: Name, Version und Architektur
+      placeholder: "macOS 27.2 arm64 / Windows 11 x86_64 / Debian 13 x86_64"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installationsart
+      options:
+        - macOS-Programmpaket (.dmg)
+        - Windows-Installer
+        - Linux-Paket (.deb)
+        - Linux-Paket (.rpm)
+        - Linux-Archiv (.tar.gz)
+        - Quellbau (cargo)
+        - Weiß ich nicht
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Zielsystem des Projekts
+      placeholder: "c64, atari8, mega65, plus4 …"
+  - type: textarea
+    id: what
+    attributes:
+      label: Was ist passiert?
+      description: Was hast du getan, was hast du erwartet, was geschah stattdessen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen
+      description: Wenn möglich mit kleinem Quelltext oder Beispielprojekt; Fehlermeldungen im Wortlaut.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Weiteres
+      description: Emulator und Version, Ausschnitt aus dem Debug-Protokoll (vorher durchsehen), Screenshots.

@@ -1,0 +1,729 @@
+{
+ "program": "vice-xvic",
+ "label": "VICE xvic (VC-20)",
+ "kinds": [
+  "xvic"
+ ],
+ "verified": "x64sc/x128/xplus4/xvic -help, VICE 3.10 (gtk3, macOS arm64)",
+ "groups": [
+  {
+   "id": "run",
+   "label": "Ablauf"
+  },
+  {
+   "id": "video",
+   "label": "Bild"
+  },
+  {
+   "id": "sound",
+   "label": "Ton"
+  },
+  {
+   "id": "drives",
+   "label": "Laufwerk und Start von Datei"
+  },
+  {
+   "id": "input",
+   "label": "Eingabe"
+  },
+  {
+   "id": "debug",
+   "label": "Monitor und Fehlersuche"
+  },
+  {
+   "id": "logging",
+   "label": "Protokoll und Einstellungen"
+  }
+ ],
+ "reserved": [
+  "-autostart",
+  "-cartcrt",
+  "-cartA",
+  "-cart2",
+  "-cart4",
+  "-cart6",
+  "-cartB",
+  "-memory",
+  "-8",
+  "-binarymonitor",
+  "-binarymonitoraddress",
+  "+confirmonexit"
+ ],
+ "params": [
+  {
+   "id": "filter",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICfilter",
+   "label": "Darstellungsfilter",
+   "hint": "Wie das Bild skaliert wird: ohne Filter, mit CRT-Nachbildung oder Scale2x.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keiner"
+    },
+    {
+     "value": "1",
+     "label": "CRT-Emulation"
+    },
+    {
+     "value": "2",
+     "label": "Scale2x"
+    }
+   ]
+  },
+  {
+   "id": "borders",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICborders",
+   "label": "Rahmen",
+   "hint": "Wie viel vom Bildschirmrand sichtbar ist.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "normal"
+    },
+    {
+     "value": "1",
+     "label": "voll"
+    },
+    {
+     "value": "2",
+     "label": "Debug (Raster sichtbar)"
+    },
+    {
+     "value": "3",
+     "label": "ohne Rahmen"
+    }
+   ]
+  },
+  {
+   "id": "pal",
+   "group": "video",
+   "type": "switch",
+   "flag": "-pal",
+   "label": "PAL-Takt",
+   "hint": "Verwendet den PAL-Synchronfaktor.",
+   "conflicts": [
+    "ntsc"
+   ]
+  },
+  {
+   "id": "ntsc",
+   "group": "video",
+   "type": "switch",
+   "flag": "-ntsc",
+   "label": "NTSC-Takt",
+   "hint": "Verwendet den NTSC-Synchronfaktor.",
+   "conflicts": [
+    "pal"
+   ]
+  },
+  {
+   "id": "drive8type",
+   "group": "drives",
+   "type": "choice",
+   "flag": "-drive8type",
+   "label": "Laufwerkstyp (Unit 8)",
+   "hint": "Welches Diskettenlaufwerk als Unit 8 nachgebildet wird.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "kein Laufwerk"
+    },
+    {
+     "value": "1540",
+     "label": "CBM 1540"
+    },
+    {
+     "value": "1541",
+     "label": "CBM 1541"
+    },
+    {
+     "value": "1542",
+     "label": "CBM 1541-II"
+    },
+    {
+     "value": "1570",
+     "label": "CBM 1570"
+    },
+    {
+     "value": "1571",
+     "label": "CBM 1571"
+    },
+    {
+     "value": "1581",
+     "label": "CBM 1581"
+    }
+   ]
+  },
+  {
+   "id": "model",
+   "group": "run",
+   "type": "choice",
+   "flag": "-model",
+   "label": "VC-20-Modell",
+   "hint": "Welches Modell nachgebildet wird.",
+   "choices": [
+    {
+     "value": "vic20",
+     "label": "VC-20"
+    },
+    {
+     "value": "vic20pal",
+     "label": "VC-20 (PAL)"
+    },
+    {
+     "value": "vic20ntsc",
+     "label": "VC-20 (NTSC)"
+    },
+    {
+     "value": "vic21",
+     "label": "VIC-21"
+    }
+   ]
+  },
+  {
+   "id": "cartA",
+   "group": "drives",
+   "type": "file",
+   "flag": "-cartA",
+   "label": "Modulabbild bei $A000",
+   "hint": "4 oder 8 KB ROM-Abbild im Bereich $A000.",
+   "example": "{output}"
+  },
+  {
+   "id": "cart2",
+   "group": "drives",
+   "type": "file",
+   "flag": "-cart2",
+   "label": "Modulabbild bei $2000",
+   "hint": "4, 8 oder 16 KB ROM-Abbild im Bereich $2000.",
+   "example": "{output}"
+  },
+  {
+   "id": "cartcrt",
+   "group": "drives",
+   "type": "file",
+   "flag": "-cartcrt",
+   "label": "Modul (CRT)",
+   "hint": "Steckt ein Modulabbild im CRT-Format ein.",
+   "example": "{output}"
+  },
+  {
+   "id": "speed",
+   "group": "run",
+   "type": "number",
+   "flag": "-speed",
+   "label": "Geschwindigkeit in Prozent",
+   "hint": "Begrenzt die Emulation auf diesen Wert (100 = Originaltempo). Eine negative Zahl begrenzt auf so viele Bilder pro Sekunde.",
+   "default": "100",
+   "example": "200",
+   "conflicts": [
+    "warp"
+   ]
+  },
+  {
+   "id": "warp",
+   "group": "run",
+   "type": "switch",
+   "flag": "-warp",
+   "label": "Warp-Modus beim Start",
+   "hint": "Startet im Warp-Modus: die Emulation läuft so schnell wie möglich.",
+   "off_flag": "+warp",
+   "default": "aus",
+   "conflicts": [
+    "speed"
+   ]
+  },
+  {
+   "id": "autostart_warp",
+   "group": "run",
+   "type": "switch",
+   "flag": "-autostart-warp",
+   "label": "Warp beim Autostart",
+   "hint": "Schaltet den Warp-Modus nur während des Autostarts ein, bis das Programm geladen ist.",
+   "off_flag": "+autostart-warp"
+  },
+  {
+   "id": "pauseonsettings",
+   "group": "run",
+   "type": "switch",
+   "flag": "-pauseonsettings",
+   "label": "Pause im Einstellungsdialog",
+   "hint": "Hält die Emulation an, solange der Einstellungsdialog von VICE offen ist.",
+   "off_flag": "+pauseonsettings"
+  },
+  {
+   "id": "confirmonexit",
+   "group": "run",
+   "type": "switch",
+   "flag": "-confirmonexit",
+   "label": "Beenden bestätigen",
+   "hint": "Fragt vor dem Beenden von VICE nach.",
+   "off_flag": "+confirmonexit"
+  },
+  {
+   "id": "maximized",
+   "group": "run",
+   "type": "switch",
+   "flag": "-maximized",
+   "label": "Maximiert starten",
+   "hint": "Öffnet das Fenster maximiert.",
+   "off_flag": "+maximized"
+  },
+  {
+   "id": "minimized",
+   "group": "run",
+   "type": "switch",
+   "flag": "-minimized",
+   "label": "Minimiert starten",
+   "hint": "Öffnet das Fenster minimiert.",
+   "off_flag": "+minimized"
+  },
+  {
+   "id": "jamaction",
+   "group": "run",
+   "type": "choice",
+   "flag": "-jamaction",
+   "label": "Aktion bei CPU-JAM",
+   "hint": "Was VICE tut, wenn die CPU an einem ungültigen Opcode hängen bleibt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "Nachfragen"
+    },
+    {
+     "value": "1",
+     "label": "Weiterlaufen"
+    },
+    {
+     "value": "2",
+     "label": "Monitor öffnen"
+    },
+    {
+     "value": "3",
+     "label": "Reset"
+    },
+    {
+     "value": "4",
+     "label": "Neustart (Power Cycle)"
+    },
+    {
+     "value": "5",
+     "label": "Emulator beenden"
+    }
+   ],
+   "default": "0"
+  },
+  {
+   "id": "limitcycles",
+   "group": "run",
+   "type": "number",
+   "flag": "-limitcycles",
+   "label": "Zyklenlimit",
+   "hint": "Beendet VICE mit Fehler, wenn nach so vielen Zyklen noch nicht Schluss ist (für automatische Tests).",
+   "min": 1
+  },
+  {
+   "id": "ramstart",
+   "group": "run",
+   "type": "number",
+   "flag": "-raminitstartvalue",
+   "label": "Anfangswert des RAM",
+   "hint": "Wert der allerersten RAM-Adresse nach dem Einschalten; der Rest folgt dem Muster von VICE.",
+   "example": "0",
+   "min": 0,
+   "max": 255
+  },
+  {
+   "id": "seed",
+   "group": "run",
+   "type": "number",
+   "flag": "-seed",
+   "label": "Zufallszahl-Startwert",
+   "hint": "Fester Startwert des Zufallsgenerators, damit Läufe reproduzierbar sind (zur Fehlersuche).",
+   "min": 0
+  },
+  {
+   "id": "saveres",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-saveres",
+   "label": "Einstellungen beim Beenden speichern",
+   "hint": "VICE schreibt seine Einstellungen beim Beenden in die Datei vicerc.",
+   "off_flag": "+saveres"
+  },
+  {
+   "id": "config",
+   "group": "logging",
+   "type": "file",
+   "flag": "-config",
+   "label": "Konfigurationsdatei",
+   "hint": "Verwendet diese Konfigurationsdatei von VICE statt der Standarddatei.",
+   "example": "{project_dir}/vice.cfg"
+  },
+  {
+   "id": "addconfig",
+   "group": "logging",
+   "type": "file",
+   "flag": "-addconfig",
+   "label": "Zusatz-Konfiguration",
+   "hint": "Lädt diese Datei zusätzlich zur Konfiguration (nur Ressourcen, die dort stehen).",
+   "example": "{project_dir}/extra.cfg"
+  },
+  {
+   "id": "default",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-default",
+   "label": "Standardeinstellungen laden",
+   "hint": "Setzt alle Einstellungen von VICE auf die Werkseinstellung zurück, bevor weitere Parameter wirken."
+  },
+  {
+   "id": "silent",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-silent",
+   "label": "Keine Ausgabe",
+   "hint": "Unterdrückt alle Meldungen außer Fehlern.",
+   "conflicts": [
+    "verbose",
+    "debug"
+   ]
+  },
+  {
+   "id": "verbose",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-verbose",
+   "label": "Ausführliche Ausgabe",
+   "hint": "Gibt mehr Meldungen aus.",
+   "conflicts": [
+    "silent"
+   ]
+  },
+  {
+   "id": "debug",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-debug",
+   "label": "Debug-Ausgabe",
+   "hint": "Gibt ausführliche Fehlersuch-Meldungen aus.",
+   "conflicts": [
+    "silent"
+   ]
+  },
+  {
+   "id": "logfile",
+   "group": "logging",
+   "type": "file",
+   "flag": "-logfile",
+   "label": "Protokolldatei",
+   "hint": "Name der Protokolldatei; mit „In Datei protokollieren“ wird sie geschrieben.",
+   "example": "{project_dir}/vice.log"
+  },
+  {
+   "id": "logtofile",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-logtofile",
+   "label": "In Datei protokollieren",
+   "hint": "Schreibt das Protokoll in die Protokolldatei.",
+   "off_flag": "+logtofile"
+  },
+  {
+   "id": "logtostdout",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-logtostdout",
+   "label": "Protokoll auf die Standardausgabe",
+   "hint": "Gibt das Protokoll auf stdout aus.",
+   "off_flag": "+logtostdout"
+  },
+  {
+   "id": "exitscreenshot",
+   "group": "logging",
+   "type": "file",
+   "flag": "-exitscreenshot",
+   "label": "Bildschirmfoto beim Beenden",
+   "hint": "Speichert beim Beenden ein Bildschirmfoto unter diesem Namen (nützlich für automatische Tests).",
+   "example": "{project_dir}/build/{project}.png"
+  },
+  {
+   "id": "sound",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-sound",
+   "label": "Ton an",
+   "hint": "Schaltet die Tonausgabe ein oder aus.",
+   "off_flag": "+sound",
+   "default": "an"
+  },
+  {
+   "id": "soundrate",
+   "group": "sound",
+   "type": "number",
+   "flag": "-soundrate",
+   "label": "Abtastrate (Hz)",
+   "hint": "Abtastrate der Tonausgabe in Hertz.",
+   "example": "48000",
+   "min": 8000,
+   "max": 192000
+  },
+  {
+   "id": "soundbufsize",
+   "group": "sound",
+   "type": "number",
+   "flag": "-soundbufsize",
+   "label": "Tonpuffer (ms)",
+   "hint": "Größe des Tonpuffers in Millisekunden; größer vermeidet Knacken, kleiner verkürzt die Verzögerung.",
+   "example": "100",
+   "min": 1
+  },
+  {
+   "id": "soundoutput",
+   "group": "sound",
+   "type": "choice",
+   "flag": "-soundoutput",
+   "label": "Ausgabeart",
+   "hint": "Mono oder Stereo.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "System entscheidet"
+    },
+    {
+     "value": "1",
+     "label": "immer Mono"
+    },
+    {
+     "value": "2",
+     "label": "immer Stereo"
+    }
+   ]
+  },
+  {
+   "id": "drivesound",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-drivesound",
+   "label": "Laufwerksgeräusche",
+   "hint": "Spielt die Geräusche des Diskettenlaufwerks ab.",
+   "off_flag": "+drivesound"
+  },
+  {
+   "id": "trapdevice8",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-trapdevice8",
+   "label": "Schnelles Laden (Traps)",
+   "hint": "Beschleunigt Laden und Speichern, indem die Kernal-Routinen abgefangen werden (virtuelles Laufwerk).",
+   "off_flag": "+trapdevice8"
+  },
+  {
+   "id": "basicload",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-basicload",
+   "label": "Autostart: an den BASIC-Anfang laden",
+   "hint": "Lädt Dateien von Diskette beim Autostart an den BASIC-Anfang (ohne „,1“).",
+   "off_flag": "+basicload"
+  },
+  {
+   "id": "autostartwithcolon",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-autostartwithcolon",
+   "label": "Autostart mit „RUN:“",
+   "hint": "Verwendet beim Autostart „RUN:“ mit Doppelpunkt statt „RUN“.",
+   "off_flag": "+autostartwithcolon"
+  },
+  {
+   "id": "autostart_tde",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-autostart-handle-tde",
+   "label": "Autostart: Laufwerkemulation anpassen",
+   "hint": "Schaltet beim Autostart die genaue Laufwerkemulation (True Drive Emulation) passend zum Programm.",
+   "off_flag": "+autostart-handle-tde"
+  },
+  {
+   "id": "autostartprgmode",
+   "group": "drives",
+   "type": "choice",
+   "flag": "-autostartprgmode",
+   "label": "Autostart-Art für PRG",
+   "hint": "Wie ein PRG beim Autostart in den Speicher kommt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "virtuelles Dateisystem"
+    },
+    {
+     "value": "1",
+     "label": "direkt einspielen"
+    },
+    {
+     "value": "2",
+     "label": "Diskimage"
+    }
+   ]
+  },
+  {
+   "id": "autostart_delay",
+   "group": "drives",
+   "type": "number",
+   "flag": "-autostart-delay",
+   "label": "Autostart-Verzögerung (s)",
+   "hint": "Wartezeit vor dem Autostart in Sekunden; 0 = Standard.",
+   "min": 0
+  },
+  {
+   "id": "disk9",
+   "group": "drives",
+   "type": "file",
+   "flag": "-9",
+   "label": "Diskimage in Laufwerk 9",
+   "hint": "Legt dieses Image in Laufwerk 9 ein.",
+   "example": "{disk}"
+  },
+  {
+   "id": "tape",
+   "group": "drives",
+   "type": "file",
+   "flag": "-1",
+   "label": "Band (Datasette)",
+   "hint": "Legt dieses Bandimage in die Datasette ein."
+  },
+  {
+   "id": "joydev1",
+   "group": "input",
+   "type": "choice",
+   "flag": "-joydev1",
+   "label": "Joystick",
+   "hint": "Welches Gerät den Joystickport bedient.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keines"
+    },
+    {
+     "value": "1",
+     "label": "Ziffernblock"
+    },
+    {
+     "value": "2",
+     "label": "Tastensatz 1"
+    },
+    {
+     "value": "3",
+     "label": "Tastensatz 2"
+    }
+   ]
+  },
+  {
+   "id": "keymap",
+   "group": "input",
+   "type": "choice",
+   "flag": "-keymap",
+   "label": "Tastaturbelegung",
+   "hint": "Welche Tastaturtabelle VICE benutzt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "symbolisch"
+    },
+    {
+     "value": "1",
+     "label": "positionsgetreu"
+    },
+    {
+     "value": "2",
+     "label": "symbolisch (eigene)"
+    },
+    {
+     "value": "3",
+     "label": "positionsgetreu (eigene)"
+    }
+   ]
+  },
+  {
+   "id": "mouse",
+   "group": "input",
+   "type": "switch",
+   "flag": "-mouse",
+   "label": "Maus einfangen",
+   "hint": "Fängt die Maus im Fenster ein.",
+   "off_flag": "+mouse"
+  },
+  {
+   "id": "keybuf",
+   "group": "input",
+   "type": "text",
+   "flag": "-keybuf",
+   "label": "Tastaturpuffer füllen",
+   "hint": "Schreibt diese Zeichen beim Start in den Tastaturpuffer, z. B. einen Befehl, der das Programm startet.",
+   "example": "RUN:\\n"
+  },
+  {
+   "id": "moncommands",
+   "group": "debug",
+   "type": "file",
+   "flag": "-moncommands",
+   "label": "Monitor-Befehle aus Datei",
+   "hint": "Führt beim Start die Befehle dieser Datei im VICE-Monitor aus (z. B. Haltepunkte oder geladene Labels).",
+   "example": "{symbols}"
+  },
+  {
+   "id": "initbreak",
+   "group": "debug",
+   "type": "text",
+   "flag": "-initbreak",
+   "label": "Anfänglicher Haltepunkt",
+   "hint": "Hält den Monitor an: bei einer Adresse, bei „ready“ (BASIC-Eingabe) oder bei „reset“.",
+   "example": "0x{start}"
+  },
+  {
+   "id": "remotemonitor",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-remotemonitor",
+   "label": "Textmonitor im Netz",
+   "hint": "Öffnet den Monitor von VICE als Netzwerkdienst (Standard 127.0.0.1:6510).",
+   "off_flag": "+remotemonitor"
+  },
+  {
+   "id": "remotemonitoraddress",
+   "group": "debug",
+   "type": "text",
+   "flag": "-remotemonitoraddress",
+   "label": "Adresse des Textmonitors",
+   "hint": "Lokale Adresse, an die der Textmonitor gebunden wird.",
+   "example": "ip4://127.0.0.1:6510",
+   "requires": [
+    "remotemonitor"
+   ]
+  },
+  {
+   "id": "nativemonitor",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-nativemonitor",
+   "label": "Monitor im Terminal",
+   "hint": "Verwendet den Monitor im Betriebssystem-Terminal statt im Fenster.",
+   "off_flag": "+nativemonitor"
+  }
+ ],
+ "debug_reserved": [
+  "-binarymonitor",
+  "+binarymonitor",
+  "-binarymonitoraddress <value>",
+  "-confirmonexit",
+  "+confirmonexit",
+  "-autostart <value>",
+  "-autoload <value>",
+  "-cartcrt <value>"
+ ]
+}

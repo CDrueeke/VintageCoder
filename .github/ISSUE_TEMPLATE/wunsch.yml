@@ -1,0 +1,29 @@
+name: Funktionswunsch
+description: Eine Idee oder Verbesserung vorschlagen
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Danke für den Vorschlag! VintageCoder wird von einer Einzelperson betreut; es gibt keine Zusage, dass ein Wunsch umgesetzt wird.
+  - type: input
+    id: system
+    attributes:
+      label: Betroffenes System oder Bereich
+      placeholder: "z. B. C64, Assembler, Debugger, Sprite-Editor, Kommandozeile"
+  - type: textarea
+    id: wish
+    attributes:
+      label: Was soll möglich sein?
+      description: Beschreibe, was du erreichen willst, nicht nur, wie es aussehen soll.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Wozu brauchst du das?
+      description: Ein Beispiel aus deiner Arbeit hilft bei der Einordnung.
+  - type: textarea
+    id: alt
+    attributes:
+      label: Behelf heute
+      description: Wie löst du es bisher?

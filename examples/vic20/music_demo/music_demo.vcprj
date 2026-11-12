@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VC-20: music_demo",
+    "description": "VIC-I-Musik aus dem Tracker (3 Töne + Rauschen)"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "unexpanded",
+      "cpu": "nmos6502",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "music_demo.asm"
+      ]
+    }
+  ],
+  "main": "music_demo.asm"
+}

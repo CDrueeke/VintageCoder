@@ -1,0 +1,31 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "pet",
+    "name": "Commodore PET / CBM (2001, 3000, 4000, 8000)",
+    "cpu": "nmos6502",
+    "chips": ["crtc", "petpia1", "petpia2", "petvia"],
+    "verified": "spike-ungeprueft"
+  },
+  "variants": {
+    "pal":  { "clockHz": 1000000, "note": "50-Hz-Geräte (Europa); Zeilen und Zyklen je Zeile hängen vom Modell ab (Textbildschirm ohne Rasterzeilen-Programmierung), nicht angegeben" },
+    "ntsc": { "clockHz": 1000000, "note": "60-Hz-Geräte; Zeilen und Zyklen je Zeile nicht angegeben" }
+  },
+  "basic": { "dialect": "cbm_v2", "loadAddr": "$0401" },
+  "regions": [
+    { "name": "zeropage",   "start": "$0000", "end": "$00FF", "kind": "ram", "note": "kein Prozessorport (kein 6510); BASIC- und KERNAL-Zeiger" },
+    { "name": "stack",      "start": "$0100", "end": "$01FF", "kind": "ram" },
+    { "name": "system",     "start": "$0200", "end": "$03FF", "kind": "ram", "note": "Systemvariablen, Kassettenpuffer #1 ($027A) und #2 ($033A)" },
+    { "name": "basic",      "start": "$0401", "end": "$7FFF", "kind": "ram", "note": "BASIC-Programme ab $0401; je nach Modell 4 bis 32 KB RAM" },
+    { "name": "screen",     "start": "$8000", "end": "$87FF", "kind": "ram", "note": "Bildschirmspeicher: 1000 Byte bei 40 Spalten, 2000 Byte bei 80 Spalten; keine Farbe" },
+    { "name": "rom_9",      "start": "$9000", "end": "$9FFF", "kind": "rom",  "note": "Erweiterungs-ROM-Sockel (Programmiermodule)" },
+    { "name": "rom_a",      "start": "$A000", "end": "$AFFF", "kind": "rom",  "note": "Erweiterungs-ROM-Sockel" },
+    { "name": "basic_rom",  "start": "$B000", "end": "$DFFF", "kind": "rom",  "note": "BASIC 2/4 (BASIC 1: ab $C000)" },
+    { "name": "editor_rom", "start": "$E000", "end": "$E7FF", "kind": "rom",  "note": "Bildschirm-Editor" },
+    { "name": "io",         "start": "$E800", "end": "$EFFF", "kind": "io",   "note": "PIA 1 $E810, PIA 2 $E820, VIA $E840, CRTC $E880 (ab 8032)" },
+    { "name": "kernal_rom", "start": "$F000", "end": "$FFFF", "kind": "rom" }
+  ],
+  "outputs": [
+    { "format": "prg", "extension": "prg", "loadAddrHeader": true }
+  ]
+}

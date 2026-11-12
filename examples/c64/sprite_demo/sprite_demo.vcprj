@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: sprite_demo",
+    "description": "Sprite aus dem Sprite-Editor"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "sprite_demo.asm"
+      ]
+    }
+  ],
+  "main": "sprite_demo.asm"
+}

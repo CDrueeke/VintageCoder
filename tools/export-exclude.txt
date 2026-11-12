@@ -1,0 +1,12 @@
+# Dateien, die nur ins private Entwicklungs-Repository gehoeren und beim Export (tools/export-public.sh) entfernt werden.
+# Eine Datei oder ein Muster (fnmatch auf den Pfad ab Wurzel) je Zeile; `#` beginnt einen Kommentar.
+
+# Lauf auf dem eigenen Rechner des Projekts (self-hosted Runner): im oeffentlichen Repository darf fremder Code
+# (Pull Requests) nie auf einem eigenen Rechner laufen. Die oeffentliche Pruefung steht in ci.yml.
+.github/workflows/ci-local.yml
+
+# Entwicklungsnotizen und interne Pruefprotokolle (Versuche, Messungen, Checklisten fuer eigene Test-VMs): nur privat.
+docs/test-vorversuch.md
+docs/test-trap-modus.md
+docs/test-debug-strom.md
+docs/linux-vm-checkliste.md

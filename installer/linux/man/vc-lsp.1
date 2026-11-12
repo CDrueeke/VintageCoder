@@ -1,0 +1,30 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VC\-LSP 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vc\-lsp \- Language Server für VintageCoder\-Assembler
+.SH ÜBERSICHT
+.B vc\-lsp [\-\-help] [\-\-version]
+.SH BESCHREIBUNG
+Spricht das Language Server Protocol über Standardeingabe und Standardausgabe. Er wird normalerweise vom Editor gestartet, nicht von Hand: ohne Eingabe wartet er auf Nachrichten und gibt nichts aus.
+.PP
+Im Editor als Server mit dem Befehl vc\-lsp ohne Argumente für Dateien mit der Endung .asm einbinden.
+.SH OPTIONEN
+.TP
+\fB\-h, \-\-help\fR
+Hilfe anzeigen.
+.TP
+\fB\-V, \-\-version\fR
+Version anzeigen.
+.SH BEISPIELE
+Version anzeigen:
+.PP
+.RS 8
+.nf
+vc\-lsp \-\-version
+.fi
+.RE
+.SH RÜCKGABEWERT
+0 nach geordnetem Beenden (shutdown, exit), sonst 1; 2 bei unbekannter Option.
+.SH SIEHE AUCH
+vcc(1)

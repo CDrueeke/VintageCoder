@@ -1,0 +1,173 @@
+{
+  "command": "test",
+  "group": "testen",
+  "summary": "Tests aus *.vctest prüfen und im Emulator oder auf Hardware ausführen",
+  "description": [
+    "Sucht unter dem Pfad alle Dateien *.vctest und führt zuerst ihre statischen Prüfungen aus. Mit --backend laufen zusätzlich die Einträge unter \"tests\": im Emulator (vice, atari800, fujisan, xemu) oder auf echter Hardware (u64, m65). Ohne --backend erscheinen diese Tests als übersprungen.",
+    "Vorher bauen (vcc build): der Läufer lädt das gebaute Programm. Testdateien mit \"mode\": \"mailbox\" prüfen sich selbst und werden über das Postfach im RAM gelesen, solche mit \"mode\": \"measure\" messen Zyklen (nur auf der Ultimate 64).",
+    "Ergebnisse je Test: OK, FEHLER, HINWEIS, ZEIT (Zeitüberschreitung), ÜBERSPR. Am Ende steht eine Zusammenfassung."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc test [ordner|datei.vctest] [optionen]",
+      "args": [
+        {
+          "name": "ordner|datei.vctest",
+          "required": false,
+          "repeat": false,
+          "help": "Ordner (wird nach *.vctest durchsucht) oder einzelne Testdatei; Standard ist der Arbeitsordner."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "lauf",
+          "label": "Ausführung"
+        },
+        {
+          "id": "hardware",
+          "label": "Hardware"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Auswertung und Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--backend",
+          "short": "",
+          "value": "name",
+          "group": "lauf",
+          "help": "Führt die Tests zusätzlich dynamisch aus: vice, atari800 und xemu als Emulator, u64 und m65 auf echter Hardware (mit Adresse bzw. Schnittstelle und Sicherheitsabfrage).",
+          "default": "",
+          "default_text": "keiner (nur statische Prüfungen)",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--filter",
+          "short": "",
+          "value": "text",
+          "group": "lauf",
+          "help": "Führt nur die dynamischen Tests aus, die zum Text passen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--prologue",
+          "short": "",
+          "value": "",
+          "group": "lauf",
+          "help": "Erzwingt den Vorspann in der Falle auch bei VICE, um den Weg der Adapter ohne Flag-Zugriff zu prüfen (Trap-Modus).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--poll",
+          "short": "",
+          "value": "",
+          "group": "lauf",
+          "help": "Postfach-Tests: liest das Postfach alle 100 ms, statt an der Endlosschleife von test_end anzuhalten.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "hardware",
+          "help": "Netzwerkpasswort der Ultimate 64; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "hardware",
+          "help": "Beantwortet die Sicherheitsabfrage vor einem Lauf auf Hardware mit Ja. Ohne Terminal ist --yes Pflicht.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--strict",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Macht jeden Hinweis zum Fehler.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--junit",
+          "short": "",
+          "value": "datei.xml",
+          "group": "ausgabe",
+          "help": "Schreibt das Ergebnis zusätzlich als JUnit-XML.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ausgabe",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "statische Prüfungen eines Projekts",
+          "cmd": "vcc test examples/c64/tests_demo"
+        },
+        {
+          "title": "zusätzlich in VICE ausführen",
+          "cmd": "vcc test examples/c64/tests_demo --backend vice"
+        },
+        {
+          "title": "nur passende Tests im atari800",
+          "cmd": "vcc test examples/atari/prallball --backend atari800 --filter ball"
+        },
+        {
+          "title": "Ergebnis als JUnit-XML schreiben",
+          "cmd": "vcc test examples/mega65/prallball --junit ergebnis.xml"
+        }
+      ],
+      "notes": [
+        "--backend nimmt vice, atari800, fujisan, xemu (auch mit Version einer portabel installierten Ausgabe, z. B. vice@3.9), u64:HOST[:PORT] oder m65:SCHNITTSTELLE[@BAUD]; jeder andere Wert ist ein Fehler. u64 und m65 ohne Adresse werden abgelehnt.",
+        "atari800 kennt nur das Ziel atari8, Xemu nur mega65. VICE läuft für c64 (x64sc), c128 (x128), plus4 (xplus4) und vic20 (xvic).",
+        "Auf Hardware gehen Reset, Programm laden und Speicher beschreiben den laufenden Zustand des Geräts verloren. Dort laufen nur Postfach-Tests (\"mode\": \"mailbox\") und Zyklenmessungen; Trap-Tests werden übersprungen. Zyklenmessungen brauchen u64:HOST und am Gerät den Debug-Stream-Modus 6510 Only.",
+        "Ohne gefundene *.vctest endet der Befehl fehlerfrei."
+      ],
+      "exit": {
+        "0": "alle bestanden (Hinweise und übersprungene Tests zählen nicht)",
+        "1": "ein Test fehlgeschlagen, eine Testdatei fehlerhaft oder Zeitüberschreitung; auch Pfad oder Datenordner nicht gefunden, ungültiges --backend, Hardware-Abfrage abgelehnt",
+        "2": "unbekannte Option"
+      },
+      "see_also": [
+        "build",
+        "streams"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VC-20: PRALLBALL (8 KB)",
+    "description": "Ball-und-Schlaeger-Spiel fuer den VC-20 mit 8-KB-Erweiterung: Zeichen-Sprites, 22 Levels, Joystick/Tastatur, Bestenliste"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "8k",
+      "cpu": "nmos6502",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

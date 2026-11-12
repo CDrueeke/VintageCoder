@@ -1,0 +1,135 @@
+{
+  "command": "basic",
+  "group": "bauen",
+  "summary": "BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben",
+  "description": [
+    "Ohne weitere Angabe übersetzt vcc basic ein natives BASIC-Programm (Zeilennummern optional, Sprungmarken @name) in das Speicherformat des Zielsystems: PRG bei Commodore, SAVE-Format (.bas) beim Atari. Die Formen --tokenize und --detokenize arbeiten nur auf der Ebene der Token; vcc basic ast gibt den Syntaxbaum aus.",
+    "Die Dateien liegen im Ordner data; er wird über --data-dir, VC_DATA, den Ort des Programms oder den Arbeitsordner gefunden."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc basic <datei.bas|datei.lst|datei.tur> [optionen]",
+      "summary": "natives BASIC zu PRG (Commodore) oder BAS (Atari) übersetzen",
+      "args": [
+        { "name": "datei", "required": true, "repeat": false, "help": "Quelltext. Die Endungen .bas, .lst und .tur (oder --plain) wählen das native BASIC; .sbas ist abgeschaltet." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Zielsystem und Dialekt" },
+        { "id": "ausgabe", "label": "Ausgabe und Nummerierung" },
+        { "id": "alt", "label": "Nur für Quelltext mit anderer Endung (strukturiertes BASIC)" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet, cbm2 oder atari8.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC-Dialekt (Datei in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic oder turbo_basic_xl.", "default": "", "default_text": "Dialekt des Zielsystems", "repeat": false, "required": false },
+        { "flag": "--memory", "short": "", "value": "ausbau", "group": "ziel", "help": "Speicherausbau des Ziels; bestimmt die BASIC-Startadresse. Gibt es nur beim VC-20 (unexpanded, 3k, 8k, 16k, 24k, 35k); andere Ziele ignorieren die Angabe.", "default": "", "default_text": "Vorgabe des Ziels (VC-20: unexpanded)", "repeat": false, "required": false },
+        { "flag": "--plain", "short": "", "value": "", "group": "ziel", "help": "Quelltext als natives BASIC lesen, auch bei einer anderen Endung als .bas, .lst und .tur.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "ausgabe", "group": "ausgabe", "help": "Ausgabedatei. Bei natives BASIC darf sie nicht die Quelldatei sein.", "default": "", "default_text": "Quellname mit .prg (Commodore) bzw. .bas (Atari)", "repeat": false, "required": false },
+        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-I", "short": "", "value": "ordner", "group": "alt", "help": "Suchordner für eingebundene Dateien; der erste ist auch die Wurzel für Maschinencode-Einbindungen.", "default": "", "default_text": "Arbeitsordner (Wurzel)", "repeat": true, "required": false },
+        { "flag": "-D", "short": "", "value": "NAME=zahl", "group": "alt", "help": "Konstante für den Quelltext setzen.", "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--pack", "short": "", "value": "", "group": "alt", "help": "Zeilen zusammenfassen (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--map", "short": "", "value": "datei", "group": "alt", "help": "Zuordnung Quellname zu BASIC-Name und Marke zu Zeile in eine Textdatei schreiben (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--labels", "short": "", "value": "datei", "group": "alt", "help": "VICE-Labeldatei lesen; ihre Adressen stehen im Quelltext als Konstanten asm.name (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "C64-Programm mit Sprungmarken übersetzen", "cmd": "vcc basic examples/c64/basic_native/sterne.bas -o sterne.prg" },
+        { "title": "Atari-BASIC-Programm übersetzen", "cmd": "vcc basic examples/atari/basic_native/farben.bas --target atari8 -o farben.bas" },
+        { "title": "Turbo BASIC XL übersetzen", "cmd": "vcc basic examples/atari/turbo_basic/balken.tur --target atari8 --dialect turbo_basic_xl -o balken.bas" },
+        { "title": "VC-20 mit 8-KB-Erweiterung", "cmd": "vcc basic examples/c64/basic_native/sterne.bas --target vic20 --memory 8k -o sterne.prg" }
+      ],
+      "notes": [
+        "Es werden die Marken (@name = Zeile n) und bei #longnames die Zuordnung der langen Namen ausgegeben. Eine .sbas-Datei wird abgelehnt.",
+        "Die Optionen -I, -D, --pack, --map und --labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne --plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt."
+      ],
+      "see_also": ["basic2asm", "import", "build"]
+    },
+    {
+      "id": "tokenize",
+      "usage": "vcc basic --tokenize <liste.lst> [optionen]",
+      "summary": "klassisch nummeriertes Listing tokenisieren",
+      "args": [
+        { "name": "liste", "required": true, "repeat": false, "help": "Listing mit Zeilennummern in jeder Zeile, ohne Marken und ohne Direktiven." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Zielsystem und Dialekt" },
+        { "id": "ausgabe", "label": "Ausgabe" }
+      ],
+      "options": [
+        { "flag": "--tokenize", "short": "", "value": "", "group": "ziel", "help": "Schaltet auf diese Form um.", "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets); bestimmt Dialekt und Ladeadresse.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC-Dialekt (Datei in data/basic).", "default": "", "default_text": "Dialekt des Zielsystems", "repeat": false, "required": false },
+        { "flag": "--memory", "short": "", "value": "ausbau", "group": "ziel", "help": "Speicherausbau des Ziels; bestimmt die Ladeadresse (VC-20: unexpanded, 3k, 8k, 16k, 24k, 35k).", "default": "", "default_text": "Vorgabe des Ziels", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "ausgabe", "group": "ausgabe", "help": "Ausgabedatei.", "default": "", "default_text": "Quellname mit .prg (Commodore) bzw. .bas (Atari)", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Listing zu PRG tokenisieren", "cmd": "vcc basic --tokenize liste.lst --target c64 -o liste.prg" }
+      ],
+      "notes": [
+        "Eine Zeile ohne Zeilennummer ist ein Fehler (B100). Für Quelltext mit Marken und Direktiven die Form ohne --tokenize verwenden."
+      ],
+      "see_also": ["basic"]
+    },
+    {
+      "id": "detokenize",
+      "usage": "vcc basic --detokenize <datei.prg> [optionen]",
+      "summary": "PRG oder Atari-SAVE-Datei als Listing ausgeben",
+      "args": [
+        { "name": "datei", "required": true, "repeat": false, "help": "Commodore-PRG oder Atari-BASIC-Datei im SAVE-Format." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Zielsystem und Dialekt" },
+        { "id": "ausgabe", "label": "Ausgabe" }
+      ],
+      "options": [
+        { "flag": "--detokenize", "short": "", "value": "", "group": "ziel", "help": "Schaltet auf diese Form um.", "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets). Für Atari-Dateien atari8 angeben; ohne Angabe gilt das Commodore-PRG-Format.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC-Dialekt (Datei in data/basic); die Wortliste für die Rückübersetzung der Token.", "default": "", "default_text": "Dialekt des Zielsystems", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
+        { "flag": "--structured", "short": "", "value": "", "group": "ausgabe", "help": "Statt des klassischen Listings Text mit Marken (@L10) ausgeben; nur Commodore.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "ausgabe", "group": "ausgabe", "help": "Listing in eine Datei schreiben.", "default": "", "default_text": "Ausgabe auf stdout", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "PRG als Listing lesen", "cmd": "vcc basic --detokenize sterne.prg" },
+        { "title": "Atari-Datei in eine Textdatei zurückwandeln", "cmd": "vcc basic --detokenize farben.bas --target atari8 -o farben.lst" }
+      ],
+      "notes": [
+        "Schlüsselwörter erscheinen bei Commodore klein, beim Atari groß; Steuerzeichen stehen als {clr} usw. Beginnt die Datei mit zwei Nullbytes, weist die Fehlermeldung auf --target atari8 hin."
+      ],
+      "see_also": ["basic", "import"]
+    },
+    {
+      "id": "ast",
+      "usage": "vcc basic ast <datei.bas> [optionen]",
+      "summary": "Syntaxbaum eines BASIC-Programms ausgeben",
+      "args": [
+        { "name": "datei.bas", "required": true, "repeat": false, "help": "BASIC-Quelltext (derselbe Leser wie bei basic2asm)." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Zielsystem" },
+        { "id": "ausgabe", "label": "Ausgabeform" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem; bestimmt den BASIC-Dialekt.", "choices": ["c64", "c128", "plus4", "mega65", "atari8"], "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--turbo", "short": "", "value": "", "group": "ziel", "help": "Quelltext als Turbo BASIC XL lesen (nur Ziel atari8).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
+        { "flag": "--json", "short": "", "value": "", "group": "ausgabe", "help": "Baum als JSON ausgeben (Zeilen, Anweisungen, Ausdrücke; Zeichenketten als Bytelisten).", "default": "", "default_text": "Rust-Debug-Ausgabe der Zeilen", "repeat": false, "required": false },
+        { "flag": "--roundtrip", "short": "", "value": "", "group": "ausgabe", "help": "Baum als kanonischen Text ausgeben, wieder einlesen und E191 melden, wenn nicht derselbe Baum entsteht. Hat Vorrang vor --json.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Syntaxbaum als JSON", "cmd": "vcc basic ast examples/c64/basic_native/sterne.bas --json", "run": true },
+        { "title": "Rundreise prüfen", "cmd": "vcc basic ast examples/c64/basic_native/sterne.bas --roundtrip", "run": true }
+      ],
+      "notes": [
+        "Der Aufruf nutzt den Parser von basic2asm; dessen übrige Optionen (-o, --map, --stage, --float, --int-div, --style, --runtime, --no-track-line, --no-rem, --check) werden angenommen, haben hier aber keine Wirkung.",
+        "Anweisungen, die der Konverter nicht übersetzt (OPEN, LOAD …), lassen sich nicht zurückschreiben (E190)."
+      ],
+      "exit": { "0": "Baum ausgegeben bzw. Rundreise in Ordnung", "1": "Fehler im Quelltext oder Rundreise nicht in Ordnung" },
+      "see_also": ["basic2asm"]
+    }
+  ]
+}

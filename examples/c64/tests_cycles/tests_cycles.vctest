@@ -1,0 +1,8 @@
+{
+  "kind": "test", "target": "c64", "program": "build/tests_cycles.prg", "mode": "measure",
+  "static": [ { "check": "size", "max": "$0100" } ],
+  "tests": [
+    { "name": "Warteschleife: höchstens 1284 Zyklen", "from": "messen", "to": "ende", "max": 1284, "timeoutMs": 10000 },
+    { "name": "Warteschleife: Budget 1283 ist zu knapp (muss fehlschlagen)", "from": "messen", "to": "ende", "max": 1283, "level": "hint", "timeoutMs": 10000 }
+  ]
+}

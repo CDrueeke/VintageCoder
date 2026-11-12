@@ -1,0 +1,42 @@
+{
+  "command": "migrate",
+  "group": "projekte",
+  "summary": "Projekt vom alten Dateischema auf das neue umstellen",
+  "description": [
+    "Benennt Dateien im alten Schema (*.asset.json) in <name>.vc<art> um, verschiebt assets/ nach graphics/ bzw. music/ und build/assets/ nach build/export/. Verweise in Quelltexten, Includes und Assets werden mitgezogen. Ausgegeben wird jede Umbenennung; build/export/ entsteht beim nächsten Bauen neu."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc migrate [projektordner]",
+      "args": [
+        {
+          "name": "projektordner",
+          "required": false,
+          "repeat": false,
+          "help": "Wurzel des Projekts; Standard ist der Arbeitsordner."
+        }
+      ],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "Projekt im Arbeitsordner umstellen",
+          "cmd": "vcc migrate"
+        },
+        {
+          "title": "bestimmtes Projekt umstellen",
+          "cmd": "vcc migrate examples/c64/tests_demo"
+        }
+      ],
+      "notes": [
+        "Gibt es nichts umzustellen, lautet die Ausgabe: nichts umzustellen.",
+        "Der Befehl kennt keine Optionen; das erste Argument gilt als Ordner."
+      ],
+      "see_also": [
+        "build"
+      ]
+    }
+  ]
+}

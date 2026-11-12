@@ -1,0 +1,291 @@
+{
+  "command": "asm",
+  "group": "bauen",
+  "summary": "Assembler-Quelltext übersetzen",
+  "description": [
+    "Übersetzt eine einzelne Assembler-Datei und schreibt das Ergebnis im gewählten Ausgabeformat. Das Zielsystem kommt aus --target (Standard c64); ohne --cpu gilt die CPU des Ziels.",
+    "Steht im Quelltext .cartridge, entsteht ohne --format ein Modul (crt beim C64, car beim Atari, vic20cart beim VC-20), sonst das Standardformat des Ziels. Ohne -o heißt die Ausgabe wie der Quelltext, mit der Endung des Formats. Ein ganzes Projekt baut vcc build."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc asm <datei.asm> [optionen]",
+      "summary": "",
+      "args": [
+        {
+          "name": "datei.asm",
+          "required": true,
+          "repeat": false,
+          "help": "Assembler-Quelltext."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel und Ausgabe"
+        },
+        {
+          "id": "modul",
+          "label": "Module"
+        },
+        {
+          "id": "quelle",
+          "label": "Quelltext"
+        },
+        {
+          "id": "zusatz",
+          "label": "Zusatzdateien"
+        },
+        {
+          "id": "sonst",
+          "label": "Sonstiges"
+        }
+      ],
+      "options": [
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "datei",
+          "group": "ziel",
+          "help": "Ausgabedatei.",
+          "choices": [],
+          "default": "",
+          "default_text": "Quelltextname mit der Endung des Formats",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ziel",
+          "help": "Zielsystem: bestimmt CPU, Chip-Symbole, Textcode und Standardformat.",
+          "choices": [
+            "atari8",
+            "c128",
+            "c64",
+            "cbm2",
+            "mega65",
+            "pet",
+            "plus4",
+            "vic20"
+          ],
+          "default": "c64",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "cpu",
+          "group": "ziel",
+          "help": "CPU-Befehlssatz, wenn er vom Ziel abweicht.",
+          "choices": [
+            "45gs02",
+            "6510",
+            "7501",
+            "8502",
+            "nmos6502",
+            "sally"
+          ],
+          "default": "",
+          "default_text": "CPU des Zielsystems",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--format",
+          "short": "",
+          "value": "format",
+          "group": "ziel",
+          "help": "Ausgabeformat. d64, d71 und d81 packen das Programm als einzige Datei in ein neues Diskettenabbild; a0, 20, 40 und 60 erzeugen ein VC-20-Modul für den jeweiligen Speicherblock.",
+          "choices": [
+            "prg",
+            "bin",
+            "xex",
+            "crt",
+            "car",
+            "rom",
+            "d64",
+            "d71",
+            "d81",
+            "vic20cart",
+            "a0",
+            "20",
+            "40",
+            "60"
+          ],
+          "default": "",
+          "default_text": "Standardformat des Zielsystems; mit .cartridge im Quelltext ein Modul",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--memory",
+          "short": "",
+          "value": "ausbau",
+          "group": "ziel",
+          "help": "Speicherausbau des VC-20; bestimmt BASIC-Start, Bildschirm- und Farbspeicher. Bei anderen Zielen ohne Wirkung.",
+          "choices": [
+            "unexpanded",
+            "3k",
+            "8k",
+            "16k",
+            "24k",
+            "35k"
+          ],
+          "default": "",
+          "default_text": "unexpanded (nur VC-20)",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cart",
+          "short": "",
+          "value": "typ",
+          "group": "modul",
+          "help": "Modultyp für crt, car und rom; ersetzt die Angabe von .cartridge im Quelltext.",
+          "choices": [
+            "normal",
+            "8k",
+            "16k",
+            "ocean",
+            "magicdesk",
+            "easyflash",
+            "actionreplay",
+            "ar",
+            "ultimax",
+            "xegs"
+          ],
+          "default": "",
+          "default_text": "C64: normal; Atari: aus dem Code abgeleitet",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--illegals",
+          "short": "",
+          "value": "regel",
+          "group": "quelle",
+          "help": "Umgang mit undokumentierten Befehlen: deny meldet Fehler, warn eine Warnung, allow nichts.",
+          "choices": [
+            "deny",
+            "warn",
+            "allow"
+          ],
+          "default": "warn",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "-I",
+          "short": "",
+          "value": "ordner",
+          "group": "quelle",
+          "help": "Zusätzlicher Suchordner für Include-Dateien; data/sys wird immer zuletzt durchsucht.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "-D",
+          "short": "",
+          "value": "name[=zahl]",
+          "group": "quelle",
+          "help": "Definiert eine Konstante für .if und .ifdef. Ohne =zahl gilt 1; Zahlen als 42, $2a, 0x2a oder %101010.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--labels",
+          "short": "",
+          "value": "datei.vs",
+          "group": "zusatz",
+          "help": "Schreibt die Labels als VICE-Labeldatei.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "datei.vcdbg",
+          "group": "zusatz",
+          "help": "Schreibt die Debug-Information (für Debugger und Tests).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--listing",
+          "short": "",
+          "value": "datei.lst",
+          "group": "zusatz",
+          "help": "Schreibt das Listing mit Adressen und Bytes.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "sonst",
+          "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "übersetzen (Ziel C64)",
+          "cmd": "vcc asm examples/c64/border/border.asm -o border.prg"
+        },
+        {
+          "title": "MEGA65-Programm mit Testkonstante",
+          "cmd": "vcc asm examples/mega65/prallball/prallball.asm -o prallball.prg --target mega65 --cpu 45gs02 --illegals deny -D START_HIRES=1"
+        },
+        {
+          "title": "Atari-Programm als XEX",
+          "cmd": "vcc asm examples/atari/colorbars/colorbars.asm -o colorbars.xex --target atari8 --format xex"
+        },
+        {
+          "title": "C64-Modul mit mehreren Bänken",
+          "cmd": "vcc asm examples/c64/cart_demo/cart_demo.asm -o cart_oc.crt --format crt --cart ocean -D OCEAN=1 --labels cart_oc.vs"
+        }
+      ],
+      "notes": [
+        "Ein anderer Wert bei --format erzeugt eine PRG-Datei mit dieser Endung. --cart und --cpu werden erst beim Übersetzen geprüft und melden dann einen Fehler.",
+        "Bei Modulen füllt der Assembler ungenutzte Bereiche mit $FF auf; die Bänke kommen aus .bank und .org im Quelltext.",
+        "Ein VC-20-Modul bei $A000 braucht im Quelltext die Kennung A0CBM bei $A004."
+      ],
+      "exit": {
+        "0": "übersetzt (Warnungen möglich)",
+        "1": "Fehler im Quelltext, beim Schreiben oder in einem Optionswert",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "build",
+        "dis",
+        "inc"
+      ]
+    }
+  ]
+}

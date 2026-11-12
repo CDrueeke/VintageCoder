@@ -1,0 +1,100 @@
+name: CI
+
+# Öffentliche CI (läuft nur im öffentlichen Repository, siehe `if` an den Jobs).
+# Regeln für dieses Repository:
+#   * Nur von GitHub gestellte Rechner (macos-latest, ubuntu-latest, windows-latest). NIE ein eigener (self-hosted) Runner:
+#     Pull Requests aus Forks führen den Workflow-Code aus, auf einem eigenen Rechner wäre das fremder Code auf dem Rechner des Betreibers.
+#   * Auslöser `pull_request`, nie `pull_request_target`; keine Geheimnisse; nur Lesezugriff auf den Inhalt.
+#   * Der Lauf auf dem eigenen Rechner des Projekts steht in `ci-local.yml` (nur Entwicklungs-Repository, nie bei Pull Requests,
+#     wird beim Export ins öffentliche Repository weggelassen).
+# macOS ist die Pflichtprüfung. Linux läuft mit, ist aber noch nicht als Pflicht abgesichert. Windows läuft nur von Hand („Run workflow“).
+#
+# Im privaten Entwicklungs-Repository überspringen alle Jobs dieser Datei sich (Bedingung auf den Repository-Namen):
+# dort läuft stattdessen `ci-local.yml`, und es werden keine GitHub-Minuten verbraucht. Die Läufe erscheinen dort als „übersprungen“.
+# Wird das öffentliche Repository umbenannt, die Bedingung `github.repository == 'CDrueeke/VintageCoder'` in allen Jobs anpassen.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: never
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  macos:
+    name: Bauen und Testen (macos-latest)
+    if: github.repository == 'CDrueeke/VintageCoder'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Bauen
+        run: cargo build --workspace --all-targets
+      - name: Testen
+        run: cargo test --workspace
+        # Tests mit Emulatoren oder Original-ROMs überspringen sich selbst (VC_EMU_TESTS, VC_LIVE_ORACLE, VC_SBAS_EXAMPLES).
+      # Release-Auswahl: FEATURES.md ↔ Registry ↔ Dateisystem, Skripttests, dann je Testauswahl
+      # (tools/testdata/*.md) ein Staging mit gebauten Beispielen, Verbotsscan und Prüfung der Anbindungen/Zielsysteme mit dem Staging-vcc.
+      - name: Release-Auswahl prüfen
+        run: |
+          python3 tools/release.py check
+          python3 -m unittest tools.test_release
+          python3 -m unittest tools.test_linux_pkg
+          python3 -m unittest tools.test_export_check
+      - name: Staging je Testauswahl
+        run: python3 tools/ci_staging.py --bin-dir target/debug
+
+  linux:
+    name: Bauen und Testen (ubuntu-latest)
+    if: github.repository == 'CDrueeke/VintageCoder'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Linux wird mitgeprüft, ist aber noch nicht als Pflicht abgesichert
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Systembibliotheken
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libasound2-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Bauen
+        run: cargo build --workspace --all-targets
+      - name: Testen
+        run: cargo test --workspace
+      - name: Release-Auswahl prüfen
+        run: |
+          python3 tools/release.py check
+          python3 -m unittest tools.test_release
+          python3 -m unittest tools.test_linux_pkg
+          python3 -m unittest tools.test_export_check
+      - name: Staging je Testauswahl
+        run: python3 tools/ci_staging.py --bin-dir target/debug
+
+  windows:
+    name: Bauen und Testen (windows-latest, von Hand)
+    if: github.repository == 'CDrueeke/VintageCoder' && github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    timeout-minutes: 60
+    # Windows wird mitgeprüft, ist aber noch nicht als Pflicht abgesichert
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Bauen
+        run: cargo build --workspace --all-targets
+      - name: Testen
+        run: cargo test --workspace

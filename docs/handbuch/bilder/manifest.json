@@ -1,0 +1,2309 @@
+{
+ "hinweis": "id, kapitel, alt, caption, aufnahme (Befehl), marken: Koordinaten in Rohpixeln der Rohaufnahme. Rohbilder (bilder/roh/) liegen nicht im Repository, siehe werkzeug/README.md. Neu beschriften: swift werkzeug/annotate.swift docs/handbuch",
+ "bilder": [
+  {
+   "id": "ui-gesamt",
+   "kapitel": "oberflaeche",
+   "alt": "Hauptfenster der IDE im Dunkelmodus: links der Projektbaum, in der Mitte der Quelltext einer Assembler-Datei, rechts die Gliederung, unten die Ausgabe.",
+   "caption": "Das Hauptfenster im Überblick.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/music_demo music_demo.asm \"\" 60  (VC_THEME=dark)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 108,
+     "y": 217,
+     "w": 485,
+     "h": 627,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 615,
+     "y": 217,
+     "w": 1590,
+     "h": 1000,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2212,
+     "y": 160,
+     "w": 588,
+     "h": 1440,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 615,
+     "y": 1231,
+     "w": 1590,
+     "h": 433,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 60,
+     "y": 1676,
+     "w": 2740,
+     "h": 38,
+     "nr": 5
+    },
+    {
+     "typ": "rahmen",
+     "x": 2558,
+     "y": 82,
+     "w": 232,
+     "h": 56,
+     "nr": 6
+    }
+   ]
+  },
+  {
+   "id": "editor-syntax",
+   "kapitel": "editor",
+   "alt": "Assembler-Quelltext mit farbiger Syntaxhervorhebung, Zeilennummern und Gliederung rechts.",
+   "caption": "Der Editor färbt Befehle, Zahlen, Beschriftungen und Kommentare unterschiedlich.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-vervollstaendigung",
+   "kapitel": "editor",
+   "alt": "Vorschlagsliste unter der Eingabemarke mit Namen aus der Systembibliothek und kurzer Erklärung.",
+   "caption": "Vervollständigung beim Tippen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"complete\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-falten",
+   "kapitel": "editor",
+   "alt": "Eingeklappter Block mit der Markierung „3 Zeilen“ hinter dem Label.",
+   "caption": "Blöcke lassen sich einklappen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"fold\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-kontextmenue",
+   "kapitel": "editor",
+   "alt": "Kontextmenü mit Ausschneiden, Haltepunkt setzen, Hilfe zum Befehl, Datei öffnen und Falten.",
+   "caption": "Das Kontextmenü im Editor.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"ctxmenu\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-zeichenwaehler",
+   "kapitel": "editor",
+   "alt": "Dialog „Zeichen einfügen“ mit dem Zeichenraster des C64-Zeichensatzes.",
+   "caption": "Der Zeichenwähler fügt Bildschirmzeichen als Wert oder Text ein.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"charpick\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-hilfe-f1",
+   "kapitel": "editor",
+   "alt": "Hilfe-Reiter mit dem Thema Debugger.",
+   "caption": "Die eingebaute Hilfe öffnet sich mit F1.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"showhelp\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "editor-suchen",
+   "kapitel": "editor",
+   "alt": "Seitenleiste „Suche“ mit Treffern für „lda“ in zwei Dateien.",
+   "caption": "Die Projektsuche listet alle Treffer.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"sidesearch\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "bauprotokoll",
+   "kapitel": "bauen-starten",
+   "alt": "Bauprotokoll mit grünem Haken, Schritten und Größe der erzeugten Datei.",
+   "caption": "Das Bauprotokoll nach erfolgreichem Bauen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"build\" 120  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "befehlspalette",
+   "kapitel": "oberflaeche",
+   "alt": "Befehlspalette mit Suchfeld und Liste von Befehlen und Tastenkürzeln.",
+   "caption": "Die Befehlspalette findet jeden Befehl.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"palette\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "einstellungen",
+   "kapitel": "03",
+   "alt": "Reiter Einstellungen, Seite „Allgemein“: Farbschema Dunkel, Hell oder System, Oberflächengröße und Speicherort der Einstellungsdatei.",
+   "caption": "Einstellungen: Seite „Allgemein“.",
+   "aufnahme": "VC_SET_PAGE=general werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "marken": []
+  },
+  {
+   "id": "projekt-einstellungen",
+   "kapitel": "projekte",
+   "alt": "Reiter mit den Einstellungen des Projekts.",
+   "caption": "Die Projekt-Einstellungen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"projed\" 60  (VC_THEME=dark)",
+   "marken": []
+  },
+  {
+   "id": "memory-map",
+   "kapitel": "09 · 19",
+   "alt": "Memory Map des Projekts sprite_demo nach dem Bauen, Ansicht „256 Seiten“ mit Legende und Segment-Inspektor.",
+   "caption": "Die Memory Map zeigt die Belegung des Speichers.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/sprite_demo sprite_demo.asm projbuild,showmm 200",
+   "marken": []
+  },
+  {
+   "id": "debug-ueberblick",
+   "kapitel": "09",
+   "alt": "Debug-Arbeitsplatz, angehalten in Zeile 18 von farbwechsel.asm: oben Befehlsleiste mit Weiter, Schritt, Über und Anhalte-Marke, in der Mitte der Quelltext mit markierter Zeile, rechts Register, unten der Disassembler.",
+   "caption": "Der Debugger im Überblick.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=disasm  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 1100,
+     "y": 62,
+     "w": 940,
+     "h": 90,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 210,
+     "w": 1590,
+     "h": 1010,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2212,
+     "y": 160,
+     "w": 588,
+     "h": 1250,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 1230,
+     "w": 1580,
+     "h": 440,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "willkommen-seite",
+   "kapitel": "01 · 00 · 04",
+   "alt": "Willkommensseite ohne geöffnetes Projekt: links Knöpfe für neues oder vorhandenes Projekt und die Liste der zuletzt geöffneten Projekte, rechts erkannte Emulatoren, ROM-Status und Schnellreferenz.",
+   "caption": "Die Willkommensseite nach dem Start.",
+   "aufnahme": "werkzeug/shot.sh <ziel> - \"\" \"\" 60  (neutrales HOME, Liste „Zuletzt geöffnet“ aus Symlinks unter /tmp/demo/Retro)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 120,
+     "y": 300,
+     "w": 1960,
+     "h": 240,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 120,
+     "y": 640,
+     "w": 1990,
+     "h": 540,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2150,
+     "y": 260,
+     "w": 640,
+     "h": 820,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2150,
+     "y": 1090,
+     "w": 640,
+     "h": 290,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "wizard-system",
+   "kapitel": "02",
+   "alt": "Dialog „Neues Projekt erstellen“: links die Zielsysteme, in der Mitte die Vorlagen für Assembler oder BASIC, rechts die Projekt-Details.",
+   "caption": "Der Projekt-Assistent: Zielsystem, Vorlage und Details.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp 60",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 200,
+     "y": 230,
+     "w": 500,
+     "h": 900,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 770,
+     "y": 236,
+     "w": 1050,
+     "h": 950,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1876,
+     "y": 236,
+     "w": 664,
+     "h": 1114,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2190,
+     "y": 1590,
+     "w": 410,
+     "h": 100,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "wizard-sprache",
+   "kapitel": "02",
+   "alt": "Projekt-Assistent mit gewähltem VC-20: Vorlagen für Assembler und BASIC sowie Hinweis auf fehlende ROM-Dateien.",
+   "caption": "Zielsystem VC-20 im Projekt-Assistenten.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp,wizvic 90",
+   "marken": []
+  },
+  {
+   "id": "wizard-details",
+   "kapitel": "00 · 02",
+   "alt": "Projekt-Assistent mit Atari-BASIC-Vorlage: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette und Projektstruktur.",
+   "caption": "Die Projekt-Details für ein BASIC-Projekt.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp,wizbasic 90  (VC_WIN=1500x1150; Spalte „Dateistruktur“ bleibt abgeschnitten, siehe OFFEN.md)",
+   "marken": []
+  },
+  {
+   "id": "einstellungen-emulator",
+   "kapitel": "installation",
+   "alt": "Einstellungen, Seite „Zielsysteme und Hardware“ mit gewähltem C64, konfiguriertem Emulator VICE x64sc und Startparametern.",
+   "caption": "Einstellungen: Emulator je Zielsystem.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "marken": []
+  },
+  {
+   "id": "einstellungen-roms",
+   "kapitel": "installation",
+   "alt": "Einstellungen, Seite „ROMs“: ROM-Ordner, Portabler Modus und Status von Kernal, BASIC und Zeichensatz (Fehlt, solange keine Dateien abgelegt sind).",
+   "caption": "Einstellungen: ROM-Ordner und Status.",
+   "aufnahme": "VC_SET_PAGE=roms werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "marken": []
+  },
+  {
+   "id": "argumente",
+   "kapitel": "08",
+   "alt": "Einstellungen mit aufgeklappten Startparametern des Emulators VICE x64sc, gruppiert, mit gesetzten Werten.",
+   "caption": "Startparameter des Emulators.",
+   "aufnahme": "VC_SET_ARGS=1 werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "marken": []
+  },
+  {
+   "id": "ui-zonen",
+   "kapitel": "03",
+   "alt": "Hauptfenster mit ausgeblendeter Seitenleiste und ausgeblendetem Inspektor: der Editor nutzt die ganze Breite.",
+   "caption": "Zonen lassen sich ausblenden.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm zones 60",
+   "marken": []
+  },
+  {
+   "id": "datei-neu-dialog",
+   "kapitel": "04",
+   "alt": "Dialog „Neue Datei“ mit Namensfeld.",
+   "caption": "Eine neue Datei anlegen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgnew 60",
+   "marken": []
+  },
+  {
+   "id": "datei-umbenennen-dialog",
+   "kapitel": "04",
+   "alt": "Dialog „Datei umbenennen“ für lib/vic2.inc mit neuem Namen vic2_neu.inc und angehaktem „Code anpassen“: ein Pfad in einem Quelltext wird mitgeändert.",
+   "caption": "Eine Datei umbenennen und den Code anpassen.",
+   "aufnahme": "VC_RENAME_FROM=lib/vic2.inc VC_RENAME_TO=vic2_neu.inc werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgren 60",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 1060,
+     "y": 859,
+     "w": 672,
+     "h": 116,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "drag-drop-rueckfrage",
+   "kapitel": "04",
+   "alt": "Dialog „Dateien ins Projekt übernehmen“ mit zwei abgelegten Dateien, Kategorie und Zielordner je Datei.",
+   "caption": "Abgelegte Dateien werden mit Rückfrage übernommen.",
+   "aufnahme": "VC_DROP=/tmp/demo/drop/font.bin:/tmp/demo/drop/notizen.txt werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dropfiles 60",
+   "marken": []
+  },
+  {
+   "id": "projekt-uebersicht",
+   "kapitel": "04",
+   "alt": "Reiter „Übersicht“ des Projekts mit Speicher, Diskette, Grafik und Klang, letztem Build und Quellenliste.",
+   "caption": "Die Projekt-Übersicht.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm projbuild,showov 150",
+   "marken": []
+  },
+  {
+   "id": "bauen-knopf",
+   "kapitel": "02 · 08",
+   "alt": "Ausschnitt der Befehlsleiste: Feld „Auf:“ mit Zielsystem und Emulator sowie die Knöpfe Starten, Debuggen und Bauen.",
+   "caption": "Die Knöpfe zum Bauen und Starten.",
+   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 520,
+     "y": 8,
+     "w": 570,
+     "h": 52,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1104,
+     "y": 8,
+     "w": 224,
+     "h": 52,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1345,
+     "y": 8,
+     "w": 263,
+     "h": 52,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 1627,
+     "y": 8,
+     "w": 209,
+     "h": 52,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "ui-reiter",
+   "kapitel": "03",
+   "alt": "Reiterleiste mit Dateiart-Marke ASM, orangem Punkt für ungespeicherte Änderungen und Schließen-Kreuz.",
+   "caption": "Reiter im Editor.",
+   "aufnahme": "Ausschnitt aus editor-vervollstaendigung (werkzeug/ausschnitte.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 244,
+     "y": 10,
+     "w": 60,
+     "h": 40,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 480,
+     "y": 16,
+     "w": 30,
+     "h": 28,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 530,
+     "y": 12,
+     "w": 34,
+     "h": 36,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "projektbaum",
+   "kapitel": "04",
+   "alt": "Projektbaum mit Ordner lib/, Startprogramm mit Stern und Projektdatei sowie Umschalter Ordner oder Nach Art.",
+   "caption": "Der Projektbaum.",
+   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 25,
+     "y": 178,
+     "w": 40,
+     "h": 38,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 44,
+     "y": 416,
+     "w": 92,
+     "h": 40,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 28,
+     "y": 230,
+     "w": 270,
+     "h": 52,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 44,
+     "y": 472,
+     "w": 270,
+     "h": 34,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "ui-modus-code",
+   "kapitel": "03",
+   "alt": "Rechte Seite im Code-Arbeitsplatz: Inspektor mit Gliederung, Memory Map, Referenz und Fußpanel mit Ausgabe, Bauprotokoll, Probleme, Tests.",
+   "caption": "Der Code-Arbeitsplatz.",
+   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
+   "marken": []
+  },
+  {
+   "id": "ui-modus-debug",
+   "kapitel": "03",
+   "alt": "Rechte Seite im Debug-Arbeitsplatz: Register, Beobachten, Haltepunkte und Fußpanel mit Disassembler, Speicher, Emulator.",
+   "caption": "Der Debug-Arbeitsplatz.",
+   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte.sh)",
+   "marken": []
+  },
+  {
+   "id": "theme-hell-dunkel",
+   "kapitel": "03",
+   "alt": "Dasselbe Fenster links im Dunkelmodus, rechts im Hellmodus, durch eine Diagonale getrennt.",
+   "caption": "Dunkel und Hell.",
+   "aufnahme": "werkzeug/ausschnitte.sh (split.swift)",
+   "marken": []
+  },
+  {
+   "id": "roms-einrichten",
+   "kapitel": "installation",
+   "alt": "Assistent „ROMs einrichten“, Schritt 2 „Dateien ablegen“: Ablagezone, ROM-Ordner mit Knöpfen „Ordner öffnen“ und „Neu prüfen“.",
+   "caption": "ROM-Dateien in den ROM-Ordner legen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm romwiz2 60",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 950,
+     "y": 645,
+     "w": 820,
+     "h": 40,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 955,
+     "y": 855,
+     "w": 870,
+     "h": 165,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1431,
+     "y": 790,
+     "w": 200,
+     "h": 40,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "editor-ersetzen",
+   "kapitel": "05",
+   "alt": "Suchleiste über dem Editor mit Suchtext „lda“, Ersetzen-Feld und Knöpfen Zurück, Weiter, Ersetzen.",
+   "caption": "Suchen und Ersetzen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm findrep 60",
+   "marken": []
+  },
+  {
+   "id": "editor-gehe-zu",
+   "kapitel": "05",
+   "alt": "Leiste „Gehe zu Zeile“ mit eingegebener Zeile 7 und der Angabe „von 39“.",
+   "caption": "Zu einer Zeile springen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm goto 60",
+   "marken": []
+  },
+  {
+   "id": "editor-referenz",
+   "kapitel": "05",
+   "alt": "Referenz-Reiter zum Befehl SEI am Cursor: Erklärung, Adressierung, Opcode und Zyklen.",
+   "caption": "Die Referenz zum Befehl am Cursor.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm ref,showref 60",
+   "marken": []
+  },
+  {
+   "id": "debug-haltepunkt-gutter",
+   "kapitel": "09",
+   "alt": "Ausschnitt der Editor-Rinne: roter Punkt neben der Adresse und Zeilennummer 18 markiert den Haltepunkt.",
+   "caption": "Der rote Punkt in der Rinne ist ein Haltepunkt.",
+   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 8,
+     "y": 60,
+     "w": 40,
+     "h": 42,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "debug-pc-zeile",
+   "kapitel": "09",
+   "alt": "Ausschnitt des Editors: die Zeile, an der das Programm angehalten hat, ist mit einem hellen Streifen unterlegt.",
+   "caption": "Der helle Streifen zeigt, wo das Programm steht.",
+   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 0,
+     "y": 62,
+     "w": 800,
+     "h": 38,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "debug-register",
+   "kapitel": "09",
+   "alt": "Reiter Register im Inspektor: Programmzähler, A, X, Y, Stapelzeiger, Flag-Leiste und aufgeklapptes Chip-Register vic2.",
+   "caption": "Die Register der CPU.",
+   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 12,
+     "y": 232,
+     "w": 110,
+     "h": 95,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 132,
+     "y": 232,
+     "w": 274,
+     "h": 95,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 409,
+     "y": 232,
+     "w": 92,
+     "h": 95,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 15,
+     "y": 352,
+     "w": 490,
+     "h": 50,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 50,
+     "y": 488,
+     "w": 205,
+     "h": 50,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "debug-disassembler",
+   "kapitel": "09",
+   "alt": "Fußpanel Disassembler: Spalten Adresse, Bytes, Befehl, Zyklen; die Zeile des Programmzählers ist markiert und trägt einen roten Haltepunkt.",
+   "caption": "Der Disassembler zeigt die Maschinenbefehle ab dem Programmzähler.",
+   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 5,
+     "y": 132,
+     "w": 1565,
+     "h": 45,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 14,
+     "y": 138,
+     "w": 32,
+     "h": 32,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 50,
+     "y": 82,
+     "w": 950,
+     "h": 30,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "debug-speicher",
+   "kapitel": "09",
+   "alt": "Fußpanel Speicher mit Adressfeld, Knöpfen Lesen, −256 und +256 und einem Hexdump.",
+   "caption": "Der Speicher als Hexdump.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=memory  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "debug-beobachten",
+   "kapitel": "09",
+   "alt": "Reiter Beobachten mit den drei Ausdrücken a, [ZAEHLER] und [$d020] und ihren Werten.",
+   "caption": "Beobachten: Ausdrücke mit ihrem aktuellen Wert.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=watch VC_WATCH='a;[ZAEHLER];[$d020]' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "debug-bedingung",
+   "kapitel": "09",
+   "alt": "Reiter Haltepunkte: ein Haltepunkt mit Bedingung [$fb] == 9 an naechste_farbe und der Bereich „Neu“ mit Art, Adresse, Bedingung.",
+   "caption": "Ein bedingter Haltepunkt.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=breaks VC_POINT='exec,0817,0817,[$fb] == 9' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "debug-datenhaltepunkt",
+   "kapitel": "09",
+   "alt": "Reiter Haltepunkte mit einem Schreib-Haltepunkt auf $00FB (ZAEHLER), der als getroffen angezeigt wird.",
+   "caption": "Ein Datenhaltepunkt hält bei jedem Schreiben.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=breaks VC_POINT_LATE=1 VC_POINT='write,00fb,00fb' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "debug-momentaufnahme",
+   "kapitel": "09",
+   "alt": "Fußpanel Momentaufnahme: Vorschau des Textbildschirms, erkannte Adressen und Häkchen für Bildschirm und Zeichensatz.",
+   "caption": "Eine Momentaufnahme sichert Bildschirm, Zeichensatz und Sprites aus dem laufenden Programm.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=snapshot werkzeug/shot.sh <ziel> c64/sprite_demo sprite_demo.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "emulator-reiter",
+   "kapitel": "08 · 09",
+   "alt": "Fußpanel Emulator mit dem Bild des angehaltenen C64, Knöpfen Bild holen, Zeitlupen-Live, Als PNG speichern, In Zwischenablage, Als Projektbild setzen und dem Feld „Text einspeisen“.",
+   "caption": "Der Emulator-Reiter zeigt das Bild des laufenden Systems.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=emulator  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "live-bild",
+   "kapitel": "09",
+   "alt": "Reiter Live-Bild mit dem Hinweis „Keine Ultimate 64 eingerichtet“.",
+   "caption": "Das Live-Bild braucht eine eingerichtete Ultimate 64.",
+   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=live  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "marken": []
+  },
+  {
+   "id": "tests-panel",
+   "kapitel": "10",
+   "alt": "Fußpanel Tests nach einem Lauf mit VICE: 5 bestanden, Statische Prüfungen mit Größe, Segment-Überlappung und Zyklen.",
+   "caption": "Das Testfenster nach erfolgreichem Lauf.",
+   "aufnahme": "werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm tests 500",
+   "marken": []
+  },
+  {
+   "id": "tests-ergebnis",
+   "kapitel": "10",
+   "alt": "Fußpanel Tests mit einem fehlgeschlagenen Test und der Detailanzeige mit erwartetem und gemessenem Wert.",
+   "caption": "Ein fehlgeschlagener Test.",
+   "aufnahme": "werkzeug/shot.sh <ziel> /tmp/demo/Retro2/farbwechsel farbwechsel.asm tests 500  (Erwartung absichtlich falsch)",
+   "marken": []
+  },
+  {
+   "id": "zeichensatz-ueberblick",
+   "kapitel": "12",
+   "alt": "Zeichensatz-Editor mit font.vcchar: links die Zeichenmatrix, in der Mitte die 8×8-Zeichenfläche, rechts Pixelwerte und Farben, unten der Export-Streifen.",
+   "caption": "Der Zeichensatz-Editor.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/font.vcchar werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 480,
+     "y": 455,
+     "w": 450,
+     "h": 709,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 944,
+     "y": 420,
+     "w": 577,
+     "h": 575,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 424,
+     "w": 367,
+     "h": 459,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 808,
+     "w": 106,
+     "h": 71,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 480,
+     "y": 1299,
+     "w": 2047,
+     "h": 39,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "zeichensatz-multicolor",
+   "kapitel": "12",
+   "alt": "Zeichensatz-Editor mit einem neuen Multicolor-Zeichensatz (Profil c64.char.multicolor).",
+   "caption": "Ein Multicolor-Zeichensatz.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/bunt.vcchar werkzeug/shot.sh <ziel> /tmp/demo/Retro/gfx \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 416,
+     "w": 367,
+     "h": 229,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "zeichensatz-mega65-farbe",
+   "kapitel": "12",
+   "alt": "Zeichensatz-Editor für einen MEGA65-Vollfarb-Zeichensatz (mega65.char.fcm) mit gemaltem Zeichen.",
+   "caption": "Ein Vollfarb-Zeichensatz auf dem MEGA65.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/voll.vcchar werkzeug/shot.sh <ziel> /tmp/demo/Retro/pal \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 455,
+     "w": 291,
+     "h": 593,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "sprite-c64",
+   "kapitel": "13",
+   "alt": "Sprite-Editor mit hero.vcsprite: links die Frame-Liste, in der Mitte die Zeichenfläche, rechts Modus, Pixelwerte, VIC-II-Flags und Farben, unten das Animationsfeld und der Export-Streifen.",
+   "caption": "Der Sprite-Editor mit einem Multicolor-Sprite.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/hero.vcsprite werkzeug/shot.sh <ziel> c64/sprite_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 490,
+     "y": 420,
+     "w": 198,
+     "h": 282,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 702,
+     "y": 420,
+     "w": 900,
+     "h": 790,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 580,
+     "w": 368,
+     "h": 230,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 980,
+     "w": 368,
+     "h": 222,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 690,
+     "y": 1245,
+     "w": 1840,
+     "h": 40,
+     "nr": 6
+    }
+   ]
+  },
+  {
+   "id": "sprite-c64-multicolor",
+   "kapitel": "13",
+   "alt": "Rechte Spalte des Sprite-Editors: Modus dieses Frames (Hires oder Multicolor), Pixelwerte mit $D025 und $D026 und die VIC-II-Sprite-Flags.",
+   "caption": "Modus, Pixelwerte und Flags eines Frames.",
+   "aufnahme": "Ausschnitt aus sprite-c64 (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 9,
+     "y": 4,
+     "w": 367,
+     "h": 106,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 9,
+     "y": 166,
+     "w": 367,
+     "h": 229,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 9,
+     "y": 404,
+     "w": 367,
+     "h": 88,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "sprite-atari-pmg",
+   "kapitel": "13",
+   "alt": "Player/Missile-Editor mit ship.vcpmg: links die Player P0 bis P3, in der Mitte die Zeichenfläche, rechts Farben, Breite, Priorität und Videonorm.",
+   "caption": "Der Player/Missile-Editor für den Atari.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/ship.vcpmg werkzeug/shot.sh <ziel> atari/pmg_ship \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 450,
+     "w": 152,
+     "h": 406,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 891,
+     "w": 318,
+     "h": 300,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2153,
+     "y": 591,
+     "w": 335,
+     "h": 152,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "bildschirm-editor",
+   "kapitel": "14",
+   "alt": "Bildschirm-Editor mit title.vcscreen: der Textbildschirm, rechts die Zeichenauswahl, darunter Farben, unten der Export-Streifen.",
+   "caption": "Der Bildschirm-Editor.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/title.vcscreen werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 491,
+     "y": 376,
+     "w": 1309,
+     "h": 835,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 2065,
+     "y": 462,
+     "w": 462,
+     "h": 626,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2065,
+     "y": 1089,
+     "w": 462,
+     "h": 99,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2065,
+     "y": 1196,
+     "w": 462,
+     "h": 85,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 480,
+     "y": 1299,
+     "w": 2047,
+     "h": 39,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "kachel-editor",
+   "kapitel": "14",
+   "alt": "Kachel-Editor mit level_tiles.vctiles: links die Kachelliste mit Verwendung, in der Mitte die große Kachel, rechts Farbe, Eigenschaften und Zeichenwähler.",
+   "caption": "Der Kachel-Editor.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/level_tiles.vctiles werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 420,
+     "w": 279,
+     "h": 420,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1168,
+     "y": 420,
+     "w": 484,
+     "h": 480,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2051,
+     "y": 900,
+     "w": 462,
+     "h": 374,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2051,
+     "y": 498,
+     "w": 462,
+     "h": 282,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "kachel-bank",
+   "kapitel": "14",
+   "alt": "Rechte Spalte des Kachel-Editors: Zeichensatz-Auswahl und Zeichenraster der Kachelbank.",
+   "caption": "Zeichensatz und Bank der Kacheln.",
+   "aufnahme": "Ausschnitt aus kachel-editor (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 16,
+     "y": 23,
+     "w": 300,
+     "h": 85,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 74,
+     "y": 500,
+     "w": 415,
+     "h": 28,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "kachel-karte",
+   "kapitel": "14",
+   "alt": "Karten-Editor (Screen-Bank) im Kachelmodus mit level.vcscreen: Kachelpalette, Karte, Größe und Ursprung rechts.",
+   "caption": "Der Karten-Editor.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/level.vcscreen werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 775,
+     "y": 383,
+     "w": 124,
+     "h": 32,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 392,
+     "w": 222,
+     "h": 116,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 775,
+     "y": 517,
+     "w": 1135,
+     "h": 701,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 2065,
+     "y": 842,
+     "w": 462,
+     "h": 64,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 2065,
+     "y": 918,
+     "w": 462,
+     "h": 342,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "palette-mega65",
+   "kapitel": "15",
+   "alt": "Paletten-Editor für MEGA65 mit 256 Farbfeldern, Eintrag 0 gewählt, Hexfeld und Knöpfen Speichern, Exportieren, In Code einfügen, Standardpalette.",
+   "caption": "Die 256-Farben-Palette des MEGA65.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/pal65.vcpal werkzeug/shot.sh <ziel> mega65/pal_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 476,
+     "y": 321,
+     "w": 960,
+     "h": 956,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1669,
+     "y": 339,
+     "w": 64,
+     "h": 42,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1744,
+     "y": 339,
+     "w": 424,
+     "h": 35,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 1052,
+     "y": 258,
+     "w": 180,
+     "h": 39,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "palette-atari",
+   "kapitel": "15",
+   "alt": "Rechte Spalte des Player/Missile-Editors: Videonorm PAL oder NTSC und die 128 Farbfelder der Atari-Palette.",
+   "caption": "Die Atari-Farben im PMG-Editor (der Atari hat keinen eigenen Paletten-Editor).",
+   "aufnahme": "Ausschnitt aus sprite-atari-pmg (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 49,
+     "y": 339,
+     "w": 124,
+     "h": 71,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 49,
+     "y": 461,
+     "w": 321,
+     "h": 304,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "tracker-ueberblick",
+   "kapitel": "16",
+   "alt": "Tracker mit tune.vcsong: Reihenfolge und Patterns links, Raster mit drei Stimmen in der Mitte, Klaviertastatur, Instrumente mit Hüllkurve rechts, Export-Streifen unten.",
+   "caption": "Der Tracker für den SID.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune.vcsong werkzeug/shot.sh <ziel> c64/music_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 450,
+     "w": 261,
+     "h": 565,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 776,
+     "y": 455,
+     "w": 611,
+     "h": 741,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 2135,
+     "y": 450,
+     "w": 388,
+     "h": 750,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 305,
+     "w": 2029,
+     "h": 42,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 771,
+     "y": 1301,
+     "w": 265,
+     "h": 39,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "tracker-muster",
+   "kapitel": "16",
+   "alt": "Ausschnitt des Raster mit drei Stimmen und Cursor auf C-4 00 in Stimme 1.",
+   "caption": "Das Muster-Raster.",
+   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 62,
+     "y": 157,
+     "w": 180,
+     "h": 28,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 62,
+     "y": 5,
+     "w": 547,
+     "h": 113,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "tracker-instrument",
+   "kapitel": "16",
+   "alt": "Rechte Spalte des Trackers: Instrumentliste, Wellenform, Pulsbreite und ADSR-Regler.",
+   "caption": "Instrumente: Wellenform und ADSR.",
+   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 9,
+     "y": 71,
+     "w": 265,
+     "h": 185,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 30,
+     "y": 379,
+     "w": 353,
+     "h": 212,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "tracker-huellkurve",
+   "kapitel": "16",
+   "alt": "Hüllkurven-Plot des gewählten Instruments mit Decay, Sustain und Release.",
+   "caption": "Die Hüllkurve.",
+   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 11,
+     "y": 14,
+     "w": 381,
+     "h": 127,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "tracker-hoerprobe",
+   "kapitel": "16",
+   "alt": "Tracker während der Wiedergabe: Oszilloskope und Pegel der Stimmen, aufleuchtende Zellen, Klaviertastatur mit gedrückten Tasten.",
+   "caption": "Der Tracker spielt den Song.",
+   "aufnahme": "VC_TRK_PLAY=1 VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune.vcsong werkzeug/shot.sh <ziel> c64/music_demo \"\" embed 400 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 829,
+     "y": 455,
+     "w": 547,
+     "h": 113,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 829,
+     "y": 605,
+     "w": 180,
+     "h": 32,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 776,
+     "y": 1211,
+     "w": 1138,
+     "h": 85,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "tracker-pokey",
+   "kapitel": "16",
+   "alt": "Tracker für den Atari mit atune.vcsong: POKEY-Instrument mit Verzerrung und 16 Lautstärkewerten.",
+   "caption": "Der Tracker für den POKEY.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/atune.vcsong werkzeug/shot.sh <ziel> atari/music_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 2111,
+     "y": 784,
+     "w": 152,
+     "h": 35,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 2111,
+     "y": 858,
+     "w": 346,
+     "h": 176,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "play-tracker",
+   "kapitel": "17",
+   "alt": "PLAY-Tracker des MEGA65 mit tune_play.vcplay: sechs Stimmen, Hüllkurvenliste rechts, Abspielen, Tempo und Lautstärke oben.",
+   "caption": "Der PLAY-Tracker.",
+   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune_play.vcplay werkzeug/shot.sh <ziel> mega65/play_demo \"\" embed 220 e",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 489,
+     "y": 367,
+     "w": 1168,
+     "h": 829,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 2135,
+     "y": 358,
+     "w": 388,
+     "h": 300,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1352,
+     "y": 304,
+     "w": 416,
+     "h": 42,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 1196,
+     "y": 304,
+     "w": 145,
+     "h": 42,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "disk-studio",
+   "kapitel": "18",
+   "alt": "Disk-Studio mit disk.d64: Verzeichnis, Belegungskarte der Spuren und Sektor-Inspektor, unten die Übernahmeleiste.",
+   "caption": "Das Disk-Studio.",
+   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk 120",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 99,
+     "y": 329,
+     "w": 1239,
+     "h": 1095,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1370,
+     "y": 329,
+     "w": 1331,
+     "h": 684,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1370,
+     "y": 1079,
+     "w": 1331,
+     "h": 371,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 99,
+     "y": 1496,
+     "w": 2306,
+     "h": 119,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "disk-validieren",
+   "kapitel": "18",
+   "alt": "Disk-Studio nach „Validieren“: grüne Meldung, dass keine Fehler gefunden wurden.",
+   "caption": "Eine Diskette validieren.",
+   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk,diskval 150",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 2067,
+     "y": 186,
+     "w": 161,
+     "h": 53,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 99,
+     "y": 333,
+     "w": 2602,
+     "h": 76,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "segmente-baenke",
+   "kapitel": "18",
+   "alt": "Memory Map des Projekts cart_demo nach dem Bauen mit Segment-Inspektor.",
+   "caption": "Segmente und Bänke in der Memory Map.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/cart_demo \"\" projbuild,showmm 200",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 2214,
+     "y": 576,
+     "w": 578,
+     "h": 568,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 2214,
+     "y": 1235,
+     "w": 576,
+     "h": 428,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "rom-verzeichnis",
+   "kapitel": "18",
+   "alt": "Einstellungen, Seite „ROMs“: ROM-Ordner, Status je Rolle und Knöpfe Ordner öffnen und Neu prüfen. (Die Ablagezone liegt unterhalb des sichtbaren Teils der Seite und ist nicht im Bild; die Marke 2 fehlt deshalb.)",
+   "caption": "ROM-Verzeichnis und Status.",
+   "aufnahme": "Kopie von einstellungen-roms",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 641,
+     "y": 725,
+     "w": 1548,
+     "h": 469,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1318,
+     "y": 441,
+     "w": 408,
+     "h": 53,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "kuerzel-karte",
+   "kapitel": "20",
+   "alt": "Übersichtskarte der wichtigsten Tastenkürzel in Gruppen: Bauen und Starten, Debugger, Dateien, Bearbeiten und Suchen, Ansicht.",
+   "caption": "Die wichtigsten Tastenkürzel.",
+   "aufnahme": "gerendert: werkzeug/kuerzel-karte.swift (kein Screenshot)",
+   "marken": []
+  },
+  {
+   "id": "projekt-neu-ergebnis",
+   "kapitel": "02",
+   "alt": "Frisch angelegtes Projekt hallo: Projektbaum mit src/c64/main.asm und hallo.vcprj, main.asm im Editor, Befehlsleiste vollständig sichtbar.",
+   "caption": "Das neue Projekt direkt nach dem Anlegen.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "marken": []
+  },
+  {
+   "id": "asm-erstes-programm",
+   "kapitel": "06",
+   "alt": "Quelltext „Mein erstes Programm“ im Editor: roter Rahmen und Gruß „hallo“ (nur die IDE-Hälfte; das Emulatorbild ist nicht Teil dieser Aufnahme).",
+   "caption": "Das erste Assembler-Programm im Editor.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "marken": []
+  },
+  {
+   "id": "ausgabe-panel",
+   "kapitel": "08",
+   "alt": "Reiter Ausgabe nach Bauen und Starten: „Build OK“, Startzeile des Emulators und Hinweise zu nicht gefundenen ROMs.",
+   "caption": "Die Ausgabe nach Bauen und Starten.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel) (Demo runit,showout)",
+   "marken": []
+  },
+  {
+   "id": "asm-fehler",
+   "kapitel": "06",
+   "alt": "Quelltext mit rot unterstrichener Zeile „jmp ende“ und Reiter Probleme mit der Meldung E202: unbekanntes Symbol „ende“.",
+   "caption": "Eine Fehlermeldung lesen.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "marken": []
+  },
+  {
+   "id": "editor-fehlerzeile",
+   "kapitel": "05",
+   "alt": "Zeile „sta vic2.bordr“ mit Tippfehler: rote Wellenlinie und rote Zeilennummer.",
+   "caption": "Ein Tippfehler wird im Editor markiert.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "marken": []
+  },
+  {
+   "id": "basic-marken",
+   "kapitel": "07",
+   "alt": "BASIC-Quelltext zaehler.bas ohne Zeilennummern mit Sprungmarke @ende und dem erzeugten Bauprotokoll.",
+   "caption": "BASIC mit Sprungmarken statt Zeilennummern.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "marken": []
+  },
+  {
+   "id": "basic-langenamen",
+   "kapitel": "07",
+   "alt": "BASIC-Quelltext mit #longnames und langen Variablennamen, darunter das Bauprotokoll (die Tabelle der Kurznamen liegt unterhalb des sichtbaren Teils).",
+   "caption": "Lange Variablennamen in BASIC.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/basic_langenamen punkte.bas build 300",
+   "marken": []
+  },
+  {
+   "id": "basic-nach-asm",
+   "kapitel": "07",
+   "alt": "Dialog „Nach Assembler konvertieren“ mit Ausgabedatei, Zielsystem C64 und Optionen für die Umwandlung.",
+   "caption": "BASIC in Assembler umwandeln.",
+   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel) (Demo dlgb2a)",
+   "marken": []
+  },
+  {
+   "id": "zeichensatz-standard",
+   "kapitel": "12",
+   "alt": "Dialog „Standardzeichensatz hinzufügen“ mit den Zeichensätzen des Zielsystems und der Option, sie einzubetten.",
+   "caption": "Einen Standardzeichensatz hinzufügen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> c64/standard_charsets \"\" dlgstd 60",
+   "marken": []
+  },
+  {
+   "id": "zeichensatz-png-import",
+   "kapitel": "12",
+   "alt": "Dialog „Zeichensatz aus PNG-Raster“ mit Profil, Name und dem Haken „Dunkle Pixel sind gesetzt“.",
+   "caption": "Einen Zeichensatz aus einem PNG-Raster importieren.",
+   "aufnahme": "VC_SHEET=/tmp/demo/raster.png werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgsheet 60",
+   "marken": []
+  },
+  {
+   "id": "system-vergleich-c64",
+   "kapitel": "19",
+   "alt": "C64-Projekt border im Debug-Arbeitsplatz: Quelltext, Register und der Emulator-Reiter mit dem Bild des C64.",
+   "caption": "Ein C64-Projekt mit Quelltext und Emulator-Bild.",
+   "aufnahme": "VC_BP_LINE=11 VC_DBG_TAB=emulator werkzeug/shot.sh <ziel> c64/border border.asm bp,debug,dbgtab 960",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 520,
+     "y": 78,
+     "w": 570,
+     "h": 52,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 210,
+     "w": 1590,
+     "h": 1010,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 1230,
+     "w": 1580,
+     "h": 440,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "system-vergleich-atari",
+   "kapitel": "19",
+   "alt": "Atari-Projekt colorbars im Code-Arbeitsplatz: Quelltext mit ANTIC und GTIA, Bauprotokoll mit colorbars.xex.",
+   "caption": "Ein Atari-Projekt nach dem Bauen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> atari/colorbars colorbars.asm build 300",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 520,
+     "y": 78,
+     "w": 570,
+     "h": 52,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 210,
+     "w": 1590,
+     "h": 1010,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 1230,
+     "w": 1580,
+     "h": 440,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "system-vergleich-mega65",
+   "kapitel": "19",
+   "alt": "MEGA65-Projekt hello im Code-Arbeitsplatz: Quelltext mit Makro mega65_enable_vic4, Bauprotokoll mit hello.prg.",
+   "caption": "Ein MEGA65-Projekt nach dem Bauen.",
+   "aufnahme": "werkzeug/shot.sh <ziel> mega65/hello hello.asm build 300",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 520,
+     "y": 78,
+     "w": 570,
+     "h": 52,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 210,
+     "w": 1590,
+     "h": 1010,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 620,
+     "y": 1230,
+     "w": 1580,
+     "h": 440,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "emulator-bild-projektbild",
+   "kapitel": "08",
+   "alt": "Ausschnitt der Knopfleiste im Emulator-Reiter mit „Als Projektbild setzen“ (die Willkommensseite mit Projektbild ist nicht abgebildet).",
+   "caption": "Das Emulator-Bild als Projektbild setzen.",
+   "aufnahme": "Ausschnitt aus system-vergleich-c64 (werkzeug/ausschnitte3.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 293,
+     "y": 87,
+     "w": 308,
+     "h": 41,
+     "nr": 1
+    }
+   ]
+  },
+  {
+   "id": "probleme-panel",
+   "kapitel": "08",
+   "alt": "Reiter Probleme mit einem Fehler (E202: unbekanntes Symbol „ende“) und Zeilenangabe.",
+   "caption": "Der Reiter Probleme.",
+   "aufnahme": "Kopie von asm-fehler",
+   "marken": []
+  },
+  {
+   "id": "disk-neu",
+   "kapitel": "18",
+   "alt": "Fenster „Neue Diskette“ über dem Disk-Studio: Formatwahl D64, D71, D81 oder ATR, Name und ID, Knöpfe Anlegen und Abbrechen.",
+   "caption": "Eine neue Diskette anlegen.",
+   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk,disknew 150 (Etappe 5)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 1027,
+     "y": 767,
+     "w": 747,
+     "h": 52,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1027,
+     "y": 849,
+     "w": 429,
+     "h": 97,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "grafik-exportieren",
+   "kapitel": "11",
+   "alt": "Export-Dialog über dem Sprite-Studio: Ausgabeformat Assembler, Name hero, Vorschau des Quelltexts und die Knöpfe Im Emulator testen, In Projekt speichern, In aktiven Code einfügen.",
+   "caption": "Der Export-Dialog.",
+   "aufnahme": "werkzeug/aufnahmen-5.sh (Demo embed,dlgexport)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 40,
+     "y": 170,
+     "w": 520,
+     "h": 48,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 36,
+     "y": 232,
+     "w": 300,
+     "h": 36,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 36,
+     "y": 410,
+     "w": 940,
+     "h": 400,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 36,
+     "y": 880,
+     "w": 700,
+     "h": 44,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "editor-zweiter-bereich",
+   "kapitel": "05",
+   "alt": "Editor mit zwei Bereichen nebeneinander: links rasterbars.asm, rechts lib/vic2.inc.",
+   "caption": "Ein zweiter Editorbereich.",
+   "aufnahme": "VC_SPLIT=lib/vic2.inc werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm split 120 (Etappe 5)",
+   "marken": []
+  },
+  {
+   "id": "asm-makro",
+   "kapitel": "06",
+   "alt": "Links der Quelltext mit dem Makro farbe, rechts das Listing main.lst, in dem jeder Aufruf zu drei Befehlen wird.",
+   "caption": "Ein Makro wird bei jedem Aufruf eingesetzt.",
+   "aufnahme": "VC_SPLIT=build/main.lst VC_SPLIT_AT=300 werkzeug/shot.sh <ziel> /tmp/demo/Retro/makro src/c64/main.asm projbuild,split 360 (Etappe 5, Code aus Kapitel 06)",
+   "marken": []
+  },
+  {
+   "id": "sprite-animation",
+   "kapitel": "13",
+   "alt": "Animationsfeld des Sprite-Editors mit der Animation anim: Ablauf „Hin und zurück“, drei Schritte mit Frame und Dauer.",
+   "caption": "Eine Sprite-Animation.",
+   "aufnahme": "werkzeug/aufnahmen-5.sh (Fixture: sprite_demo mit einer in hero.vcsprite ergänzten Animation)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 700,
+     "y": 1040,
+     "w": 1360,
+     "h": 36,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 700,
+     "y": 1090,
+     "w": 1400,
+     "h": 180,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 830,
+     "y": 1184,
+     "w": 400,
+     "h": 36,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "tracker-sid-pokey",
+   "kapitel": "16",
+   "alt": "Dialog „Song aus anderem System übernehmen“ im Atari-Tracker: Neuer Name, Quelle tune.vcsong und die Umwandlung SID (C64) nach POKEY (Atari).",
+   "caption": "Einen C64-Song für den POKEY umwandeln.",
+   "aufnahme": "VC_TRK_DLG=convert VC_PICK=/tmp/demo/tune.vcsong, Studio atari/music_demo (werkzeug/aufnahmen-6.sh)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 1256,
+     "y": 836,
+     "w": 492,
+     "h": 28,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1256,
+     "y": 868,
+     "w": 492,
+     "h": 28,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "tracker-import-rmt",
+   "kapitel": "16",
+   "alt": "Dialog „RMT-Modul importieren“ im Atari-Tracker mit Namensfeld und den Knöpfen OK und Abbrechen (Platzhalterdatei demo.rmt, importiert wird nichts).",
+   "caption": "Ein RMT-Modul importieren.",
+   "aufnahme": "VC_TRK_DLG=rmt VC_PICK=/tmp/demo/demo.rmt (werkzeug/aufnahmen-6.sh)",
+   "marken": []
+  },
+  {
+   "id": "start-splash",
+   "kapitel": "installation",
+   "alt": "Startbildschirm von VintageCoder mit Name, Version und Alpha-Marke, einem orangen Hinweiskasten zum Alpha-Stand, einem blauen Kasten mit dem Haftungsausschluss, einem Haken „Beim nächsten Start nicht mehr anzeigen“ und dem Knopf „Verstanden, los geht’s“.",
+   "caption": "Der Startbildschirm: erst lesen, dann bestätigen.",
+   "aufnahme": "VC_DEMO=splash (VC_WIN=1400x860), werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 386,
+     "y": 314,
+     "w": 628,
+     "h": 96,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 386,
+     "y": 426,
+     "w": 628,
+     "h": 160,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 386,
+     "y": 606,
+     "w": 552,
+     "h": 22,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 824,
+     "y": 644,
+     "w": 190,
+     "h": 32,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "assistent-weg-waehlen",
+   "kapitel": "installation",
+   "alt": "Konfigurationsassistent, Schritt 1 von 7: links die Schrittleiste, rechts zwei Karten „Schnelleinrichtung“ (empfohlen, gewählt) und „Alles selbst einstellen“, darunter drei Hinweise zu Datenschutz und Änderbarkeit.",
+   "caption": "Willkommen: Schnelleinrichtung oder „Alles selbst einstellen“.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=welcome VC_WIN=1500x950, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 174,
+     "y": 175,
+     "w": 216,
+     "h": 380,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 197,
+     "w": 435,
+     "h": 132,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 871,
+     "y": 197,
+     "w": 435,
+     "h": 130,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 345,
+     "w": 724,
+     "h": 74,
+     "nr": 4
+    },
+    {
+     "typ": "rahmen",
+     "x": 1262,
+     "y": 830,
+     "w": 62,
+     "h": 26,
+     "nr": 5
+    }
+   ]
+  },
+  {
+   "id": "assistent-design",
+   "kapitel": "installation",
+   "alt": "Assistent, Schritt „Design und Größe“: drei Karten Dunkel, Hell und System, Regler für Oberfläche und Editorschrift, eine Vorschau mit Assembler-Zeilen und eine Lesbarkeitsprüfung der Farben.",
+   "caption": "Design und Größe wirken sofort.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=design, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 197,
+     "w": 648,
+     "h": 145,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 357,
+     "w": 886,
+     "h": 98,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 470,
+     "w": 886,
+     "h": 100,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 583,
+     "w": 886,
+     "h": 222,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "assistent-systeme",
+   "kapitel": "installation",
+   "alt": "Assistent, Schritt „Welche Systeme nutzt du?“: Kacheln für C64, C128, C16/Plus/4, VC-20, Atari 800 XL/XE und MEGA65 mit Haken „verwenden“ und der Meldung, ob der Emulator gefunden wurde.",
+   "caption": "Zielsysteme wählen; die Chips zeigen, ob ein Emulator gefunden wurde.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=systems, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 222,
+     "w": 270,
+     "h": 104,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 536,
+     "y": 288,
+     "w": 95,
+     "h": 26,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 200,
+     "w": 160,
+     "h": 18,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "assistent-toolchain",
+   "kapitel": "installation",
+   "alt": "Assistent, Schritt „Toolchain“: Tabelle mit eingebautem Assembler und dem gefundenen VICE x64sc samt Fundort, darunter der Installationshinweis mit Reitern für macOS, Windows und Linux und den Knöpfen „Pfad wählen“ und „Erneut suchen“.",
+   "caption": "Toolchain: was gefunden wurde, und Hilfe für das, was fehlt.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=toolchain, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 197,
+     "w": 886,
+     "h": 140,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 697,
+     "y": 269,
+     "w": 80,
+     "h": 28,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 351,
+     "w": 886,
+     "h": 205,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 439,
+     "y": 471,
+     "w": 226,
+     "h": 24,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "assistent-projekte",
+   "kapitel": "installation",
+   "alt": "Assistent, Schritt „Projekte und Beispiele“: Eingabefeld für das Basisverzeichnis der Projekte mit Knopf „Durchsuchen“ und Chip „Ordner wird neu angelegt“, darunter der Haken zum Kopieren der mitgelieferten Beispiele.",
+   "caption": "Projektordner und Beispiele.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=projects, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 439,
+     "y": 257,
+     "w": 653,
+     "h": 26,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 439,
+     "y": 287,
+     "w": 160,
+     "h": 26,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 439,
+     "y": 400,
+     "w": 262,
+     "h": 22,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "assistent-zusammenfassung",
+   "kapitel": "installation",
+   "alt": "Assistent, Schritt „Zusammenfassung: was wird geändert?“: links die Änderungsliste mit Haken je Eintrag, rechts die Kästen „Wird geschrieben nach“ und „Sicherheitsnetz“, unten der Knopf „Übernehmen“.",
+   "caption": "Die Änderungsliste: geschrieben wird erst nach „Übernehmen“.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=summary, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 197,
+     "w": 610,
+     "h": 185,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 1050,
+     "y": 197,
+     "w": 260,
+     "h": 125,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1050,
+     "y": 334,
+     "w": 260,
+     "h": 150,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 1223,
+     "y": 830,
+     "w": 100,
+     "h": 26,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "assistent-fertig",
+   "kapitel": "installation",
+   "alt": "Assistent, letzter Schritt „Fertig“: Zeile mit dem eingerichteten System, vier Karten (Beispiel starten, Neues Projekt, Handbuch öffnen, Assistent erneut starten) und der Kasten „Konfiguration sichern“.",
+   "caption": "Fertig: wie es weitergeht.",
+   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=done, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 267,
+     "w": 880,
+     "h": 62,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 342,
+     "w": 886,
+     "h": 90,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 1264,
+     "y": 830,
+     "w": 60,
+     "h": 26,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "assistent-wiederaufruf",
+   "kapitel": "installation",
+   "alt": "Assistent im Wiederaufruf („Konfiguration prüfen“): links die Schrittleiste mit Statusmarken „Problem“, rechts der gespeicherte Stand, eine Liste der Probleme mit „Schritt öffnen“, die Teil-Assistenten und die Knöpfe zum Exportieren, Importieren und Zurücksetzen.",
+   "caption": "Wiederaufruf: Statusmarken, Probleme und Teil-Assistenten.",
+   "aufnahme": "VC_WIZ_MODE=recall VC_WIZ_STEP=welcome mit vorbereiteter settings.json, werkzeug/aufnahmen-7.sh",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 336,
+     "y": 353,
+     "w": 52,
+     "h": 20,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 392,
+     "w": 886,
+     "h": 102,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 556,
+     "w": 520,
+     "h": 26,
+     "nr": 3
+    },
+    {
+     "typ": "rahmen",
+     "x": 426,
+     "y": 640,
+     "w": 598,
+     "h": 26,
+     "nr": 4
+    }
+   ]
+  },
+  {
+   "id": "include-ziehen",
+   "kapitel": "editor",
+   "alt": "Eine Datei „level.bin“ wird aus dem Projektbaum in den Quelltext gezogen: eine orange Linie zeigt die Einfügestelle zwischen zwei Zeilen, am Mauszeiger steht die künftige Zeile .incbin \"data/level.bin\".",
+   "caption": "Beim Ziehen zeigen Linie und Vorschau, was entsteht.",
+   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 72,
+     "y": 247,
+     "w": 225,
+     "h": 24,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 432,
+     "y": 484,
+     "w": 662,
+     "h": 6,
+     "nr": 2
+    },
+    {
+     "typ": "rahmen",
+     "x": 712,
+     "y": 497,
+     "w": 206,
+     "h": 52,
+     "nr": 3
+    }
+   ]
+  },
+  {
+   "id": "include-eingefuegt",
+   "kapitel": "editor",
+   "alt": "Nach dem Loslassen steht die Zeile .incbin \"data/level.bin\" im Quelltext; unten erscheint eine Leiste mit der Zeile und dem Knopf „Rückgängig“.",
+   "caption": "Die eingefügte Zeile und die Leiste mit „Rückgängig“.",
+   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 432,
+     "y": 484,
+     "w": 662,
+     "h": 20,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 523,
+     "y": 783,
+     "w": 356,
+     "h": 38,
+     "nr": 2
+    }
+   ]
+  },
+  {
+   "id": "include-abgelehnt",
+   "kapitel": "editor",
+   "alt": "Ziehen der Projektdatei rasterbars.vcprj in den Quelltext: am Mauszeiger steht in Rot „Projektdatei und Diskettenimages lassen sich nicht in Quelltext einbinden“.",
+   "caption": "Abgelehnt: Projektdateien lassen sich nicht einbinden.",
+   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
+   "marken": [
+    {
+     "typ": "rahmen",
+     "x": 54,
+     "y": 361,
+     "w": 243,
+     "h": 24,
+     "nr": 1
+    },
+    {
+     "typ": "rahmen",
+     "x": 712,
+     "y": 497,
+     "w": 330,
+     "h": 60,
+     "nr": 2
+    }
+   ]
+  }
+ ]
+}

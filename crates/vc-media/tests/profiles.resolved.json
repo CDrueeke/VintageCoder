@@ -1,0 +1,683 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/profile-1.json",
+  "profiles": [
+    {
+      "id": "c64.sprite.hires",
+      "kind": "sprite",
+      "name": "C64 Sprite hires 24×21",
+      "target": "c64",
+      "width": 24,
+      "height": 21,
+      "bpp": 1,
+      "block": 64,
+      "aspect": 1,
+      "values": [
+        "transparent",
+        "Sprite-Farbe"
+      ],
+      "defaultColors": {
+        "sprite": 1
+      }
+    },
+    {
+      "id": "c64.sprite.multicolor",
+      "kind": "sprite",
+      "name": "C64 Sprite multicolor 12×21",
+      "target": "c64",
+      "width": 12,
+      "height": 21,
+      "bpp": 2,
+      "block": 64,
+      "aspect": 2,
+      "values": [
+        "transparent",
+        "Multicolor 1 ($D025)",
+        "Sprite-Farbe",
+        "Multicolor 2 ($D026)"
+      ],
+      "defaultColors": {
+        "sprite": 7,
+        "mc1": 2,
+        "mc2": 6
+      }
+    },
+    {
+      "id": "atari.pmg.single",
+      "kind": "pmg",
+      "name": "Atari PMG Einzelzeile (8 Pixel breit)",
+      "target": "atari8",
+      "width": 8,
+      "height": 32,
+      "heightEditable": true,
+      "bpp": 1,
+      "block": 256,
+      "aspect": 1,
+      "frames": 4,
+      "frameNames": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "values": [
+        "transparent",
+        "Spielerfarbe"
+      ],
+      "defaultColors": {
+        "P0": 62,
+        "P1": 134,
+        "P2": 196,
+        "P3": 14
+      }
+    },
+    {
+      "id": "c64.char.hires",
+      "kind": "charset",
+      "name": "C64 Zeichensatz hires 8×8",
+      "target": "c64",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 256,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 6
+      }
+    },
+    {
+      "id": "c128.char.hires",
+      "kind": "charset",
+      "name": "C128 Zeichensatz hires 8×8 (40 Spalten)",
+      "target": "c128",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 256,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 6
+      }
+    },
+    {
+      "id": "c128.char.vdc",
+      "kind": "charset",
+      "name": "C128 Zeichensatz VDC 8×16 (80 Spalten)",
+      "target": "c128",
+      "width": 8,
+      "height": 16,
+      "bpp": 1,
+      "count": 256,
+      "block": 16,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 15,
+        "bg": 0
+      }
+    },
+    {
+      "id": "plus4.char.hires",
+      "kind": "charset",
+      "name": "Plus/4 Zeichensatz hires 8×8",
+      "target": "plus4",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 256,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 6
+      }
+    },
+    {
+      "id": "plus4.char.multicolor",
+      "kind": "charset",
+      "name": "Plus/4 Zeichensatz multicolor 4×8 (TED, gilt für alle Zeichen)",
+      "target": "plus4",
+      "width": 4,
+      "height": 8,
+      "bpp": 2,
+      "count": 256,
+      "block": 8,
+      "aspect": 2,
+      "values": [
+        "Hintergrund (Farbe 0, $FF15)",
+        "Farbe 1 ($FF16)",
+        "Farbe 2 ($FF17)",
+        "Zeichenfarbe (Farb-RAM)"
+      ],
+      "defaultColors": {
+        "fg": 113,
+        "bg": 0,
+        "mc1": 34,
+        "mc2": 42
+      }
+    },
+    {
+      "id": "vic20.char.hires",
+      "kind": "charset",
+      "name": "VC-20 Zeichensatz hires 8×8",
+      "target": "vic20",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 256,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 0,
+        "bg": 1
+      }
+    },
+    {
+      "id": "vic20.char.multicolor",
+      "kind": "charset",
+      "name": "VC-20 Zeichensatz multicolor 4×8",
+      "target": "vic20",
+      "width": 4,
+      "height": 8,
+      "bpp": 2,
+      "count": 256,
+      "block": 8,
+      "aspect": 2,
+      "values": [
+        "Hintergrund",
+        "Rahmen",
+        "Zeichenfarbe",
+        "Hilfsfarbe"
+      ],
+      "defaultColors": {
+        "bg": 1,
+        "mc1": 3,
+        "mc2": 0,
+        "fg": 2
+      }
+    },
+    {
+      "id": "vic20.char.hires16",
+      "kind": "charset",
+      "name": "VC-20 Zeichensatz hires 8×16",
+      "target": "vic20",
+      "width": 8,
+      "height": 16,
+      "bpp": 1,
+      "count": 256,
+      "block": 16,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 0,
+        "bg": 1
+      }
+    },
+    {
+      "id": "c64.char.multicolor",
+      "kind": "charset",
+      "name": "C64 Zeichensatz multicolor 4×8",
+      "target": "c64",
+      "width": 4,
+      "height": 8,
+      "bpp": 2,
+      "count": 256,
+      "block": 8,
+      "aspect": 2,
+      "values": [
+        "Hintergrund",
+        "Multicolor 1",
+        "Multicolor 2",
+        "Zeichenfarbe"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 6,
+        "mc1": 2,
+        "mc2": 5
+      }
+    },
+    {
+      "id": "atari.char.antic2",
+      "kind": "charset",
+      "name": "Atari Zeichensatz ANTIC 2 (128 Zeichen)",
+      "target": "atari8",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 128,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 14,
+        "bg": 0
+      }
+    },
+    {
+      "id": "atari.char.antic4",
+      "kind": "charset",
+      "name": "Atari Zeichensatz ANTIC 4 (128 Zeichen, Mehrfarb 4×8)",
+      "target": "atari8",
+      "width": 4,
+      "height": 8,
+      "bpp": 2,
+      "count": 128,
+      "block": 8,
+      "aspect": 2,
+      "values": [
+        "Hintergrund",
+        "Farbe 0 (COLPF0)",
+        "Farbe 1 (COLPF1)",
+        "Farbe 2 (COLPF2; Zeichenbit 7: COLPF3)"
+      ],
+      "defaultColors": {
+        "fg": 14,
+        "bg": 0,
+        "mc1": 34,
+        "mc2": 42
+      }
+    },
+    {
+      "id": "vic20.screen.text",
+      "kind": "screen",
+      "name": "VC-20 Textbildschirm 22×23",
+      "target": "vic20",
+      "width": 22,
+      "height": 23,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 3,
+        "bg": 1,
+        "fg": 0
+      }
+    },
+    {
+      "id": "c64.screen.text",
+      "kind": "screen",
+      "name": "C64 Textbildschirm 40×25",
+      "target": "c64",
+      "width": 40,
+      "height": 25,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6,
+        "fg": 1
+      }
+    },
+    {
+      "id": "atari.screen.antic2",
+      "kind": "screen",
+      "name": "Atari Textbildschirm ANTIC 2 (40×24)",
+      "target": "atari8",
+      "width": 40,
+      "height": 24,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 14
+      }
+    },
+    {
+      "id": "plus4.screen.text",
+      "kind": "screen",
+      "name": "Plus/4 Textbildschirm 40×25 (TED)",
+      "target": "plus4",
+      "width": 40,
+      "height": 24,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 113
+      }
+    },
+    {
+      "id": "c64.tilemap.2x2",
+      "kind": "tilemap",
+      "name": "C64 Kacheln 2×2 Zeichen",
+      "target": "c64",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "width": 20,
+      "height": 12,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6
+      }
+    },
+    {
+      "id": "vic20.tilemap.2x2",
+      "kind": "tilemap",
+      "name": "VC-20 Kacheln 2×2 Zeichen",
+      "target": "vic20",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "width": 11,
+      "height": 11,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 3,
+        "bg": 1,
+        "fg": 0
+      }
+    },
+    {
+      "id": "atari.tilemap.2x2",
+      "kind": "tilemap",
+      "name": "Atari Kacheln 2×2 Zeichen",
+      "target": "atari8",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "width": 20,
+      "height": 12,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 14
+      }
+    },
+    {
+      "id": "plus4.tilemap.2x2",
+      "kind": "tilemap",
+      "name": "Plus/4 Kacheln 2×2 Zeichen",
+      "target": "plus4",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "width": 20,
+      "height": 12,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 113
+      }
+    },
+    {
+      "id": "c64.tileset",
+      "kind": "tileset",
+      "name": "C64 Kachelsatz (Größe B×H je Satz, Farb-RAM)",
+      "target": "c64",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6
+      }
+    },
+    {
+      "id": "vic20.tileset",
+      "kind": "tileset",
+      "name": "VC-20 Kachelsatz",
+      "target": "vic20",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 3,
+        "bg": 1,
+        "fg": 0
+      }
+    },
+    {
+      "id": "atari.tileset",
+      "kind": "tileset",
+      "name": "Atari Kachelsatz (Farbwahl über Zeichenbit 7)",
+      "target": "atari8",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 14
+      }
+    },
+    {
+      "id": "plus4.tileset",
+      "kind": "tileset",
+      "name": "Plus/4 Kachelsatz",
+      "target": "plus4",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "colorRam": false,
+      "defaultColors": {
+        "bg": 0,
+        "fg": 113
+      }
+    },
+    {
+      "id": "c64.sid.song",
+      "kind": "song",
+      "name": "C64 SID-Song (3 Stimmen)",
+      "target": "c64",
+      "chip": "sid",
+      "channels": 3,
+      "rows": 32,
+      "clock": {
+        "pal": 985248,
+        "ntsc": 1022727
+      }
+    },
+    {
+      "id": "atari.pokey.song",
+      "kind": "song",
+      "name": "Atari POKEY-Song (4 Stimmen)",
+      "target": "atari8",
+      "chip": "pokey",
+      "channels": 4,
+      "rows": 32,
+      "clock": {
+        "pal": 1773447,
+        "ntsc": 1789790
+      }
+    },
+    {
+      "id": "mega65.sid4.song",
+      "kind": "song",
+      "name": "MEGA65 4×SID-Song (12 Stimmen)",
+      "target": "mega65",
+      "chip": "sid",
+      "channels": 12,
+      "rows": 32,
+      "clock": {
+        "pal": 985248,
+        "ntsc": 1022727
+      }
+    },
+    {
+      "id": "plus4.ted.song",
+      "kind": "song",
+      "name": "Plus/4 TED-Song (2 Stimmen)",
+      "target": "plus4",
+      "chip": "ted",
+      "channels": 2,
+      "rows": 32,
+      "clock": {
+        "pal": 886724,
+        "ntsc": 894886
+      }
+    },
+    {
+      "id": "vic20.vic.song",
+      "kind": "song",
+      "name": "VC-20 VIC-Song (3 Töne + Rauschen)",
+      "target": "vic20",
+      "chip": "vic",
+      "channels": 4,
+      "rows": 32,
+      "clock": {
+        "pal": 1108405,
+        "ntsc": 1022727
+      }
+    },
+    {
+      "id": "mega65.char.fcm",
+      "kind": "charset",
+      "name": "MEGA65 Zeichensatz Vollfarbmodus 8×8, 256 Farben (VIC-IV FCM)",
+      "target": "mega65",
+      "width": 8,
+      "height": 8,
+      "bpp": 8,
+      "digits": 2,
+      "count": 256,
+      "block": 64,
+      "aspect": 1,
+      "values": [
+        "Palettenfarbe 0–255"
+      ],
+      "defaultColors": {
+        "palette": ""
+      }
+    },
+    {
+      "id": "mega65.char.multicolor",
+      "kind": "charset",
+      "name": "MEGA65 Zeichensatz multicolor 4×8 (VIC-II-Modus)",
+      "target": "mega65",
+      "width": 4,
+      "height": 8,
+      "bpp": 2,
+      "count": 256,
+      "block": 8,
+      "aspect": 2,
+      "values": [
+        "Hintergrund",
+        "Multicolor 1",
+        "Multicolor 2",
+        "Zeichenfarbe"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 6,
+        "mc1": 2,
+        "mc2": 5
+      }
+    },
+    {
+      "id": "mega65.screen.text",
+      "kind": "screen",
+      "name": "MEGA65 Textbildschirm 40×25 (VIC-II-Modus)",
+      "target": "mega65",
+      "width": 40,
+      "height": 25,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6,
+        "fg": 1
+      }
+    },
+    {
+      "id": "mega65.tilemap.2x2",
+      "kind": "tilemap",
+      "name": "MEGA65 Kacheln 2×2 Zeichen (VIC-II-Modus)",
+      "target": "mega65",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "width": 20,
+      "height": 12,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6
+      }
+    },
+    {
+      "id": "mega65.tileset",
+      "kind": "tileset",
+      "name": "MEGA65 Kachelsatz (VIC-II-Modus)",
+      "target": "mega65",
+      "tileWidth": 2,
+      "tileHeight": 2,
+      "colorRam": true,
+      "defaultColors": {
+        "border": 14,
+        "bg": 6
+      }
+    },
+    {
+      "id": "mega65.sprite.hires",
+      "kind": "sprite",
+      "name": "MEGA65 Sprite hires 24×21 (VIC-II-Modus)",
+      "target": "mega65",
+      "width": 24,
+      "height": 21,
+      "bpp": 1,
+      "block": 64,
+      "aspect": 1,
+      "values": [
+        "transparent",
+        "Sprite-Farbe"
+      ],
+      "defaultColors": {
+        "sprite": 1
+      }
+    },
+    {
+      "id": "mega65.sprite.multicolor",
+      "kind": "sprite",
+      "name": "MEGA65 Sprite multicolor 12×21 (VIC-II-Modus)",
+      "target": "mega65",
+      "width": 12,
+      "height": 21,
+      "bpp": 2,
+      "block": 64,
+      "aspect": 2,
+      "values": [
+        "transparent",
+        "Multicolor 1 ($D025)",
+        "Sprite-Farbe",
+        "Multicolor 2 ($D026)"
+      ],
+      "defaultColors": {
+        "sprite": 7,
+        "mc1": 2,
+        "mc2": 6
+      }
+    },
+    {
+      "id": "mega65.palette",
+      "kind": "palette",
+      "name": "MEGA65 Palette (256 Farben, 8 Bit je Kanal)",
+      "target": "mega65",
+      "count": 256
+    },
+    {
+      "id": "mega65.play",
+      "kind": "play",
+      "name": "MEGA65 PLAY-Tracker (BASIC-65-Befehl PLAY, 6 Stimmen)",
+      "target": "mega65",
+      "voices": 6,
+      "rows": 32
+    }
+  ]
+}

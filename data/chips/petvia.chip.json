@@ -1,0 +1,24 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "petvia",
+  "name": "VIA 6522 (PET: Benutzeranschluss, Ton über Schieberegister, IEEE-Steuerleitungen)",
+  "window": {"space": "cpu16", "start": "$E840", "end": "$E84F"},
+  "regs": [
+    {"name": "orb", "addr": "$E840", "access": "rw", "doc": "Port B: IEEE-Steuerleitungen, Bildschirm-Synchronisation (Bit 5)"},
+    {"name": "ora", "addr": "$E841", "access": "rw", "doc": "Port A: Benutzeranschluss"},
+    {"name": "ddrb", "addr": "$E842", "access": "rw", "doc": "Datenrichtung B"},
+    {"name": "ddra", "addr": "$E843", "access": "rw", "doc": "Datenrichtung A"},
+    {"name": "t1c_lo", "addr": "$E844", "access": "rw", "doc": "Timer 1 Zähler Low"},
+    {"name": "t1c_hi", "addr": "$E845", "access": "rw", "doc": "Timer 1 Zähler High"},
+    {"name": "t1l_lo", "addr": "$E846", "access": "rw", "doc": "Timer 1 Latch Low"},
+    {"name": "t1l_hi", "addr": "$E847", "access": "rw", "doc": "Timer 1 Latch High"},
+    {"name": "t2c_lo", "addr": "$E848", "access": "rw", "doc": "Timer 2 Zähler Low"},
+    {"name": "t2c_hi", "addr": "$E849", "access": "rw", "doc": "Timer 2 Zähler High"},
+    {"name": "sr", "addr": "$E84A", "access": "rw", "doc": "Schieberegister (Tonausgabe an CB2)"},
+    {"name": "acr", "addr": "$E84B", "access": "rw", "doc": "Hilfssteuerregister"},
+    {"name": "pcr", "addr": "$E84C", "access": "rw", "doc": "Peripherie-Steuerregister"},
+    {"name": "ifr", "addr": "$E84D", "access": "rw", "doc": "Interrupt-Flags"},
+    {"name": "ier", "addr": "$E84E", "access": "rw", "doc": "Interrupt-Freigabe"},
+    {"name": "ora_nh", "addr": "$E84F", "access": "rw", "doc": "Port A (ohne Handshake)"}
+  ]
+}

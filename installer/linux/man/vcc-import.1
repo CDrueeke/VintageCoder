@@ -1,0 +1,149 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-IMPORT 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-import \- Programme und Dateien von Disketten oder einzeln ins Projekt holen
+.SH ÜBERSICHT
+.B vcc import <image.d64|d71|d81|atr> [\-\-data\-dir <pfad>]
+.br
+.B vcc import <image.d64|d71|d81|atr> (<NAME>... | \-\-all) [\-\-into <projektordner>] [\-\-dir <ordner>] [\-\-asm [\-\-cpu <id>]] [\-\-raw] [\-\-no\-basic]
+.br
+.B vcc import <datei.prg|datei.xex|datei.bas> [\-\-into <projektordner>] [\-\-dir <ordner>] [\-\-asm [\-\-cpu <id>]] [\-\-raw] [\-\-no\-basic]
+.br
+.SH BESCHREIBUNG
+Programme und Dateien von Disketten oder einzeln ins Projekt holen
+.PP
+Übernimmt Dateien aus Diskettenimages (D64, D71, D81, ATR) oder einzelne PRG\-, XEX\- und BASIC\-Dateien in einen Projektordner. Ohne Namen und ohne `\-\-all` zeigt der Befehl nur das Verzeichnis.
+.SH OPTIONEN
+.SS Form verzeichnis
+Inhaltsverzeichnis eines Images zeigen
+.PP
+.TP
+\fIimage\fR
+Diskettenimage (Endung d64, d71, d81 oder atr).
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form image
+Dateien aus einem Image ins Projekt übernehmen
+.PP
+.TP
+\fIimage\fR
+Diskettenimage (Endung d64, d71, d81 oder atr).
+.TP
+\fINAME\fR
+Dateiname auf der Diskette (Groß\-/Kleinschreibung egal); statt dessen \-\-all. (optional) Mehrfach möglich.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-all\fR
+Übernimmt alle Dateien des Images.
+.TP
+\fB\-\-into\fR \fIprojektordner\fR
+Projektordner, in den die Dateien übernommen werden. Standard: ..
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Unterordner im Projekt, in den die Dateien geschrieben werden. Standard: import.
+.PP
+\fBUmwandlung\fR
+.TP
+\fB\-\-asm\fR
+Legt für Maschinenprogramme zusätzlich einen disassemblierten Quelltext (.asm) an. Das ist rein mechanisch, Daten erscheinen als Befehle.
+.TP
+\fB\-\-cpu\fR \fIid\fR
+Prozessor für das Disassemblieren mit \-\-asm (Name einer Datei in data/cpus). Standard: 6510, bei Atari\-Programmen sally.
+.TP
+\fB\-\-raw\fR
+Behält zusätzlich die unveränderte Originaldatei, wenn ein BASIC\-Programm als Quelltext übernommen wird.
+.TP
+\fB\-\-no\-basic\fR
+Erkennt BASIC nicht und kopiert die Dateien unverändert.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form datei
+einzelnes Programm ins Projekt übernehmen
+.PP
+.TP
+\fIdatei\fR
+PRG\-, XEX\- oder BASIC\-Datei (kein Diskettenimage).
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-into\fR \fIprojektordner\fR
+Projektordner, in den die Dateien übernommen werden. Standard: ..
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Unterordner im Projekt, in den die Dateien geschrieben werden. Standard: import.
+.PP
+\fBUmwandlung\fR
+.TP
+\fB\-\-asm\fR
+Legt für Maschinenprogramme zusätzlich einen disassemblierten Quelltext (.asm) an. Das ist rein mechanisch, Daten erscheinen als Befehle.
+.TP
+\fB\-\-cpu\fR \fIid\fR
+Prozessor für das Disassemblieren mit \-\-asm (Name einer Datei in data/cpus). Standard: 6510, bei Atari\-Programmen sally.
+.TP
+\fB\-\-raw\fR
+Behält zusätzlich die unveränderte Originaldatei, wenn ein BASIC\-Programm als Quelltext übernommen wird.
+.TP
+\fB\-\-no\-basic\fR
+Erkennt BASIC nicht und kopiert die Dateien unverändert.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SH BEISPIELE
+Verzeichnis anzeigen:
+.PP
+.RS 8
+.nf
+vcc import spiel.d64
+.fi
+.RE
+eine Datei übernehmen:
+.PP
+.RS 8
+.nf
+vcc import spiel.d64 JUMPRUN \-\-into meinprojekt
+.fi
+.RE
+alle Dateien mit Quelltext:
+.PP
+.RS 8
+.nf
+vcc import spiel.atr \-\-all \-\-asm \-\-dir quellen
+.fi
+.RE
+Atari\-Programm mit Quelltext:
+.PP
+.RS 8
+.nf
+vcc import jumprun.xex \-\-asm \-\-into meinprojekt
+.fi
+.RE
+BASIC\-Programm übernehmen:
+.PP
+.RS 8
+.nf
+vcc import sterne.prg \-\-into meinprojekt
+.fi
+.RE
+.SH HINWEISE
+Zeigt je Datei Name, Art, Größe, Ladeadresse und bei erkannten BASIC\-Programmen Dialekt und Zeilenzahl (nur mit Hardware\-Datenbank). Es wird nichts geschrieben.
+.PP
+BASIC\-Programme werden als lesbarer .bas\-Quelltext übernommen. Vorhandene Dateien im Zielordner bleiben erhalten (der neue Dateiname bekommt ein Suffix _2, _3 ...).
+.PP
+Der Exit\-Code ist 1, wenn eine Datei nicht übernommen werden konnte oder ein Name nicht auf der Diskette steht.
+.PP
+Eine Datei gilt als Atari\-Programm, wenn sie eine XEX\-Kennung hat oder eine tokenisierte Atari\-BASIC\-Datei (.bas) ist. Als Programm gilt sie außerdem bei der Endung .prg.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-disk(1), vcc\-dis(1), vcc\-add(1), vcc\-basic(1)

@@ -1,0 +1,15 @@
+[package]
+name = "vc-roms"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "vc_roms"
+path = "src/lib.rs"
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+serde.workspace = true
+serde_json.workspace = true
+miniz_oxide = { version = "0.8", default-features = false, features = ["with-alloc"] }

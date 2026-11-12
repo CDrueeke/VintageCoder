@@ -1,0 +1,24 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "via1",
+  "name": "VIA 6522 #1 (NMI, Userport, Joystick, serieller Bus)",
+  "window": {"space": "cpu16", "start": "$9110", "end": "$911F"},
+  "regs": [
+    {"name": "orb", "addr": "$9110", "access": "rw", "doc": "Port B: Userport"},
+    {"name": "ora", "addr": "$9111", "access": "rw", "doc": "Port A: Joystick, Kassettentaste, serielle Leitungen"},
+    {"name": "ddrb", "addr": "$9112", "access": "rw", "doc": "Datenrichtung B"},
+    {"name": "ddra", "addr": "$9113", "access": "rw", "doc": "Datenrichtung A"},
+    {"name": "t1c_lo", "addr": "$9114", "access": "rw", "doc": "Timer 1 Zähler Low"},
+    {"name": "t1c_hi", "addr": "$9115", "access": "rw", "doc": "Timer 1 Zähler High"},
+    {"name": "t1l_lo", "addr": "$9116", "access": "rw", "doc": "Timer 1 Latch Low"},
+    {"name": "t1l_hi", "addr": "$9117", "access": "rw", "doc": "Timer 1 Latch High"},
+    {"name": "t2c_lo", "addr": "$9118", "access": "rw", "doc": "Timer 2 Zähler Low"},
+    {"name": "t2c_hi", "addr": "$9119", "access": "rw", "doc": "Timer 2 Zähler High"},
+    {"name": "sr", "addr": "$911A", "access": "rw", "doc": "Schieberegister"},
+    {"name": "acr", "addr": "$911B", "access": "rw", "doc": "Hilfssteuerregister"},
+    {"name": "pcr", "addr": "$911C", "access": "rw", "doc": "Peripherie-Steuerregister"},
+    {"name": "ifr", "addr": "$911D", "access": "rw", "doc": "Interrupt-Flags"},
+    {"name": "ier", "addr": "$911E", "access": "rw", "doc": "Interrupt-Freigabe"},
+    {"name": "ora_nh", "addr": "$911F", "access": "rw", "doc": "Port A (ohne Handshake)"}
+  ]
+}

@@ -1,0 +1,505 @@
+{
+  "command": "streams",
+  "group": "testen",
+  "summary": "Bild-, Ton- und Debug-Ströme der Ultimate 64 empfangen",
+  "description": [
+    "Arbeitet mit den Datenströmen (Data Streams) einer Ultimate 64 im Netz. Die Unterbefehle starten die Ströme, werten sie aus und stoppen sie wieder. Sie ändern weder die Konfiguration des Geräts noch den Flash."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "shot",
+      "usage": "vcc streams shot --host <host> --out <datei.png> [optionen]",
+      "summary": "ein Bild der Ultimate als PNG speichern",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Gerät"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Adresse der Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--out",
+          "short": "",
+          "value": "datei.png",
+          "group": "ausgabe",
+          "help": "Zieldatei des Bildes.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Empfängt die Ströme per Multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Bild speichern",
+          "cmd": "vcc streams shot --host 192.168.1.64 --out bild.png"
+        }
+      ],
+      "notes": [
+        "Wartet höchstens 5 Sekunden auf ein vollständiges Bild."
+      ],
+      "exit": {
+        "0": "Bild gespeichert",
+        "1": "kein Bild empfangen oder Fehler",
+        "2": "unbekannte Option"
+      },
+      "see_also": []
+    },
+    {
+      "id": "listen",
+      "usage": "vcc streams listen --host <host> <lied.vcsong> [optionen]",
+      "summary": "Lied über den echten SID der Ultimate anhören",
+      "args": [
+        {
+          "name": "lied.vcsong",
+          "required": true,
+          "repeat": false,
+          "help": "Lied, das als Abspielprogramm geladen wird."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Gerät"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        },
+        {
+          "id": "abspiel",
+          "label": "Wiedergabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Adresse der Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Empfängt die Ströme per Multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "sekunden",
+          "group": "abspiel",
+          "help": "Dauer der Wiedergabe in Sekunden; Werte außerhalb von 2 bis 120 werden darauf begrenzt.",
+          "default": "6",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--wav",
+          "short": "",
+          "value": "datei.wav",
+          "group": "ausgabe",
+          "help": "Schreibt den empfangenen Ton als WAV-Datei (Quellrate).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--ntsc",
+          "short": "",
+          "value": "",
+          "group": "abspiel",
+          "help": "Baut das Abspielprogramm und rechnet die Rate für NTSC statt PAL.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--keep",
+          "short": "",
+          "value": "",
+          "group": "abspiel",
+          "help": "Lässt die Ultimate nach dem Hören laufen, statt sie zurückzusetzen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "sechs Sekunden hören und als WAV sichern",
+          "cmd": "vcc streams listen --host 192.168.1.64 lied.vcsong --wav lied.wav"
+        }
+      ],
+      "notes": [
+        "Lädt das Abspielprogramm auf die Ultimate und setzt sie dabei zurück; ihr laufender Zustand geht verloren.",
+        "Gibt zuletzt Pakete, Verluste und Pufferstatistik aus."
+      ],
+      "exit": {
+        "0": "Ton empfangen",
+        "1": "Fehler oder keine Pakete empfangen",
+        "2": "unbekannte Option"
+      },
+      "see_also": []
+    },
+    {
+      "id": "probe",
+      "usage": "vcc streams probe --host <host> [optionen]",
+      "summary": "Ströme starten, Pakete zählen, Rate und Verluste ausgeben",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Gerät"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Adresse der Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Empfängt die Ströme per Multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--video",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Prüft den Bildstrom. Ohne --video, --audio und --debug werden Bild und Ton geprüft.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--audio",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Prüft den Tonstrom.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Prüft den Debug-Strom. Läuft nie zugleich mit dem Bildstrom.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "sekunden",
+          "group": "ausgabe",
+          "help": "Dauer der Messung in Sekunden; Werte außerhalb von 2 bis 60 werden darauf begrenzt.",
+          "default": "5",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--record",
+          "short": "",
+          "value": "ordner",
+          "group": "ausgabe",
+          "help": "Schreibt die empfangenen Pakete je Strom in eine .bin-Datei in diesem Ordner.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--count",
+          "short": "",
+          "value": "anzahl",
+          "group": "ausgabe",
+          "help": "Höchstzahl der Pakete je Strom bei --record.",
+          "default": "400",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Bild und Ton fünf Sekunden prüfen",
+          "cmd": "vcc streams probe --host 192.168.1.64"
+        },
+        {
+          "title": "Debug-Strom prüfen",
+          "cmd": "vcc streams probe --host 192.168.1.64 --debug --secs 10"
+        }
+      ],
+      "notes": [
+        "--video zusammen mit --debug ist ein Fehler.",
+        "Je Strom erscheinen Zustand, Pakete (je Sekunde, Mbit/s), fehlende und verworfene Pakete sowie Neustarts."
+      ],
+      "exit": {
+        "0": "Ströme liefen ohne Fehler",
+        "1": "Fehler bei einem Strom, bei --host oder bei der Aufzeichnung",
+        "2": "unbekannte Option oder Unterbefehl"
+      },
+      "see_also": []
+    },
+    {
+      "id": "trace",
+      "usage": "vcc streams trace --host <host> [optionen]",
+      "summary": "Debug-Strom (6510 Only) auswerten und zusammenfassen",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Gerät"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        },
+        {
+          "id": "auswertung",
+          "label": "Auswertung"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Adresse der Ultimate 64. Am Gerät muss der Debug-Strom-Modus 6510 Only stehen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Netzwerkpasswort; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Empfängt die Ströme per Multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "sekunden",
+          "group": "ausgabe",
+          "help": "Dauer der Aufzeichnung in Sekunden; Werte außerhalb von 1 bis 300 werden darauf begrenzt.",
+          "default": "5",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "datei.vcdbg",
+          "group": "auswertung",
+          "help": "Debug-Datei des Programms: ordnet Befehle Quellzeilen zu, nennt nicht erreichte Zeilen und macht Symbole in --measure nutzbar.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--measure",
+          "short": "",
+          "value": "A:B",
+          "group": "auswertung",
+          "help": "Misst die Zyklen von Adresse A bis Adresse B. Adressen als $1234, 0x1234, Dezimalzahl oder Symbol der .vcdbg.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "auswertung",
+          "help": "CPU-Beschreibung für die Befehlstabelle. Der 45GS02 wird nicht ausgewertet.",
+          "default": "6510",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--out",
+          "short": "",
+          "value": "datei",
+          "group": "ausgabe",
+          "help": "Schreibt alle aufgezeichneten Befehle in diese Datei.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--tail",
+          "short": "",
+          "value": "anzahl",
+          "group": "ausgabe",
+          "help": "Anzahl der zuletzt ausgeführten Befehle in der Ausgabe.",
+          "default": "10",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "auswertung",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "fünf Sekunden aufzeichnen",
+          "cmd": "vcc streams trace --host 192.168.1.64"
+        },
+        {
+          "title": "Zyklen zwischen zwei Adressen messen",
+          "cmd": "vcc streams trace --host 192.168.1.64 --measure $0810:$0820 --secs 3"
+        },
+        {
+          "title": "mit Quellzeilen und Befehlsprotokoll",
+          "cmd": "vcc streams trace --host 192.168.1.64 --debug build/prog.vcdbg --out ablauf.txt"
+        }
+      ],
+      "notes": [
+        "Hält den Bildstrom an, solange der Debug-Strom läuft.",
+        "Die Ausgabe nennt Zyklen, Befehle (IRQ, NMI), Befehlserkennung, Paketverluste, Abdeckung, SID/VIC-Schreibzugriffe und die letzten Befehle."
+      ],
+      "exit": {
+        "0": "Auswertung ausgegeben",
+        "1": "Fehler im Strom, nicht unterstützter Modus, Datei nicht lesbar oder schreibbar, ungültige Adresse",
+        "2": "unbekannte Option"
+      },
+      "see_also": [
+        "test"
+      ]
+    }
+  ]
+}

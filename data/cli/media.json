@@ -1,0 +1,1181 @@
+{
+  "command": "media",
+  "group": "daten",
+  "summary": "Sprites, Zeichensätze, Songs und andere Mediendateien bearbeiten",
+  "description": [
+    "Arbeitet mit den Mediendateien eines Projekts (graphics/NAME.vcsprite, .vcpmg, .vcchar, .vcscreen, .vctiles, .vcpal; music/NAME.vcsong, .vcplay). Der Projektordner ist der aktuelle Ordner."
+  ],
+  "aliases": [
+    "asset"
+  ],
+  "forms": [
+    {
+      "id": "new",
+      "usage": "vcc media new <name> --profile <id> [--dir <ordner>] [--blank]",
+      "summary": "neue Mediendatei nach einem Profil anlegen",
+      "args": [
+        {
+          "name": "name",
+          "required": true,
+          "repeat": false,
+          "help": "Name der Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Profil, das Art und Aufbau bestimmt (Sprite, Zeichensatz, Screen, Kacheln, Song, Palette ...).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--blank",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Legt einen Zeichensatz leer an, statt mit einem Verweis auf den Standardzeichensatz des Systems.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Zeichensatz anlegen",
+          "cmd": "vcc media new font --profile c64.char.hires"
+        },
+        {
+          "title": "leeren Zeichensatz in Unterordner",
+          "cmd": "vcc media new spiel --profile c64.char.hires --blank --dir graphics/fonts"
+        },
+        {
+          "title": "Multicolor-Sprite",
+          "cmd": "vcc media new hero --profile c64.sprite.multicolor"
+        }
+      ],
+      "notes": [
+        "Ein neuer Zeichensatz beginnt mit einem Verweis auf den Standardzeichensatz des Systems in deinem ROM; --blank legt ihn leer an.",
+        "Hat der Ordner eine .vcprj, muss das Zielsystem des Profils zu den Systemen des Projekts passen.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "new",
+        "add"
+      ]
+    },
+    {
+      "id": "import-sprite",
+      "usage": "vcc media import-sprite <quelle> --name <name> [--profile <id>] [--offset <n>] [--count <n>] [--mode hires|multicolor] [--frame <n>] [--dir <ordner>]",
+      "summary": "Sprites aus SPD, Rohdaten oder anderem Sprite-Asset übernehmen",
+      "args": [
+        {
+          "name": "quelle",
+          "required": true,
+          "repeat": false,
+          "help": "SPD-Datei (.spd), Sprite-Datei (.vcsprite, .vcpmg) oder Rohdaten in 64-Byte-Blöcken (.bin, .prg ...)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "roh",
+          "label": "Rohdaten und Auswahl"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zielprofil (ein Sprite- oder PMG-Profil).",
+          "choices": [],
+          "default": "c64.sprite.hires",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--offset",
+          "short": "",
+          "value": "n",
+          "group": "roh",
+          "help": "Rohdaten: Byte-Offset des ersten Sprites (dezimal, $hex, 0xhex oder %binär). Bei .prg kommen die zwei Bytes der Ladeadresse dazu.",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--count",
+          "short": "",
+          "value": "n",
+          "group": "roh",
+          "help": "Rohdaten: Zahl der Sprites; 0 heißt alle vollständigen Blöcke ab dem Offset (höchstens 256).",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--mode",
+          "short": "",
+          "value": "modus",
+          "group": "roh",
+          "help": "Rohdaten: Modus der Sprites; multicolor kürzer mc.",
+          "choices": [
+            "hires",
+            "multicolor",
+            "mc"
+          ],
+          "default": "",
+          "default_text": "Modus des Zielprofils",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--frame",
+          "short": "",
+          "value": "n",
+          "group": "roh",
+          "help": "Beim Wechsel zu Atari-PMG: Nummer des Quell-Sprites (0-basiert), das übernommen wird.",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "SPD-Datei übernehmen",
+          "cmd": "vcc media import-sprite figuren.spd --name figuren"
+        },
+        {
+          "title": "Rohdaten, fünf Multicolor-Sprites",
+          "cmd": "vcc media import-sprite sprites.bin --name raw --offset 0 --count 5 --mode multicolor"
+        },
+        {
+          "title": "C64-Sprite als Atari-PMG",
+          "cmd": "vcc media import-sprite graphics/hero.vcsprite --name hero_pmg --profile atari.pmg.single --frame 0"
+        }
+      ],
+      "notes": [
+        "Sprite-Import in Profile anderer Systeme als C64 wird nur für PMG (Atari) unterstützt. Die Ausgabe nennt Pfad und Zahl der Frames, Hinweise stehen auf stderr.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "import-song",
+      "usage": "vcc media import-song <quelle> --name <name> [--profile <id>] [--song <n>] [--seconds <n>] [--dir <ordner>]",
+      "summary": "Song aus GoatTracker, SID oder Song-Datei übernehmen",
+      "args": [
+        {
+          "name": "quelle",
+          "required": true,
+          "repeat": false,
+          "help": "GoatTracker-Song (.sng), SID-Datei (.sid) oder Song-Datei (.vcsong) eines Projekts."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "sid",
+          "label": "SID-Dateien"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zielprofil des Songs (anderer Chip: Umwandlung).",
+          "choices": [],
+          "default": "c64.sid.song",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--song",
+          "short": "",
+          "value": "n",
+          "group": "sid",
+          "help": "SID-Datei: Nummer des Subtunes (ab 1); 0 nimmt den Startsong der Datei.",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--seconds",
+          "short": "",
+          "value": "n",
+          "group": "sid",
+          "help": "SID-Datei: Sekunden, die von der Spielroutine aufgenommen werden.",
+          "choices": [],
+          "default": "30",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "GoatTracker-Song",
+          "cmd": "vcc media import-song lied.sng --name lied"
+        },
+        {
+          "title": "SID aufnehmen (20 Sekunden, Subtune 2)",
+          "cmd": "vcc media import-song musik.sid --name musik --song 2 --seconds 20"
+        },
+        {
+          "title": "Song für den MEGA65 übernehmen",
+          "cmd": "vcc media import-song music/tune.vcsong --name tune4 --profile mega65.sid4.song"
+        }
+      ],
+      "notes": [
+        "Bei gleichem Chip wird der Song übernommen (Stimmen werden aufgefüllt, wenn das Ziel mehr hat), sonst umgewandelt. Hinweise stehen auf stderr.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "convert",
+      "usage": "vcc media convert <song.vcsong> --profile <id> --name <name> [--dir <ordner>]",
+      "summary": "Song in das Profil eines anderen Chips umwandeln",
+      "args": [
+        {
+          "name": "song.vcsong",
+          "required": true,
+          "repeat": false,
+          "help": "Song-Datei im Projekt."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zielprofil mit anderem Chip (z. B. atari.pokey.song).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "C64-Song für POKEY",
+          "cmd": "vcc media convert music/tune.vcsong --profile atari.pokey.song --name tune_pokey"
+        }
+      ],
+      "notes": [
+        "Haben Quelle und Ziel denselben Chip, bricht der Befehl ab; dafür gibt es `import-song`. Hinweise zur Umwandlung (gekürzte Hüllkurven, verschobene Oktaven) stehen auf stderr.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "import-rmt",
+      "usage": "vcc media import-rmt <modul.rmt> --name <name> [--dir <ordner>]",
+      "summary": "RMT-Modul als POKEY-Song übernehmen",
+      "args": [
+        {
+          "name": "modul.rmt",
+          "required": true,
+          "repeat": false,
+          "help": "RMT-Modul (Raster Music Tracker) im Projekt."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "RMT-Modul übernehmen",
+          "cmd": "vcc media import-rmt tune_pokey.rmt --name pokey"
+        }
+      ],
+      "notes": [
+        "Das Ergebnis hat immer das Profil atari.pokey.song. Hinweise stehen auf stderr.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "import-rom",
+      "usage": "vcc media import-rom <rom> --profile <id> --name <name> [--offset <n>] [--dir <ordner>]",
+      "summary": "Zeichensatz aus einem ROM-Abbild übernehmen",
+      "args": [
+        {
+          "name": "rom",
+          "required": true,
+          "repeat": false,
+          "help": "ROM-Abbild (beliebiger Pfad)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zeichensatzprofil des Ziels.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--offset",
+          "short": "",
+          "value": "n",
+          "group": "ziel",
+          "help": "Byte-Offset des Zeichensatzes im Abbild (dezimal, $hex, 0xhex oder %binär).",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "zweiten C64-Zeichensatz aus chargen.bin",
+          "cmd": "vcc media import-rom chargen.bin --profile c64.char.hires --offset 0x800 --name klein"
+        }
+      ],
+      "notes": [
+        "Fehlen --profile oder --name, nennt der Befehl auf stderr, was erkannt wurde (Größe, Prüfsumme), und listet passende Profile und Offsets (Exit-Code 2).",
+        "ROM-Abbilder von Originalgeräten sind urheberrechtlich geschützt; die Kopie enthält die Original-Zeichen. Für ein Projekt, das veröffentlicht wird, besser `std-charset` (Verweis).",
+        "Der Zeichensatz liegt als .vcchar im Zielordner (Standard graphics).",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "exit": {
+        "0": "fehlerfrei",
+        "1": "Fehler",
+        "2": "falscher Aufruf (auch: --profile oder --name fehlt)"
+      },
+      "see_also": [
+        "roms"
+      ]
+    },
+    {
+      "id": "std-charset-liste",
+      "usage": "vcc media std-charset",
+      "summary": "Quellen für Standardzeichensätze mit Status auflisten",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Quellen anzeigen",
+          "cmd": "vcc media std-charset"
+        }
+      ],
+      "notes": [
+        "Je Zeile, durch Tabulator getrennt: Verweis, Profil, System, Status des ROMs, Beschreibung."
+      ],
+      "see_also": [
+        "roms"
+      ]
+    },
+    {
+      "id": "std-charset",
+      "usage": "vcc media std-charset <verweis> [--profile <id>] [--copy] [--dir <ordner>]",
+      "summary": "Standardzeichensatz als Verweis oder Kopie ins Projekt legen",
+      "args": [
+        {
+          "name": "verweis",
+          "required": true,
+          "repeat": false,
+          "help": "ROM-Verweis der Form rom:system/rolle#satz, z. B. rom:c64/chargen#upper."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zeichensatzprofil.",
+          "choices": [],
+          "default": "",
+          "default_text": "das Profil, das die Liste für den Verweis nennt",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--copy",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Bettet die Zeichen in die Datei ein (Format 1) und schreibt nach graphics/standard/, statt nur einen Verweis zu speichern.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt; ohne --copy.",
+          "choices": [],
+          "default": "graphics",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Verweis auf den C64-Zeichensatz",
+          "cmd": "vcc media std-charset rom:c64/chargen#upper --profile c64.char.hires"
+        },
+        {
+          "title": "Zeichen einbetten",
+          "cmd": "vcc media std-charset rom:c64/chargen#upper --profile c64.char.hires --copy"
+        }
+      ],
+      "notes": [
+        "Die Datei heißt <system>_<satz>.vcchar. Ohne --copy steht nur der Verweis in der Datei, die Originalzeichen bleiben im ROM des Benutzers. Eingebettete Kopien sind nicht zum Einchecken oder Weitergeben gedacht.",
+        "Fehlt das ROM, wird die Datei trotzdem angelegt; ein Hinweis steht auf stderr.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "roms"
+      ]
+    },
+    {
+      "id": "import-sheet",
+      "usage": "vcc media import-sheet <raster.png> --profile <id> --name <name> [--invert] [--dir <ordner>]",
+      "summary": "Zeichensatz aus einem PNG-Raster übernehmen",
+      "args": [
+        {
+          "name": "raster.png",
+          "required": true,
+          "repeat": false,
+          "help": "PNG mit 16 Zeichen je Zeile in Leserichtung (ganzzahlig vergrößert erlaubt)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--profile",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "Zeichensatzprofil mit 1 Bit je Pixel oder MEGA65-Vollfarbe.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--name",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und -.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--invert",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Dunkle Pixel gelten als gesetzt statt heller.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Zielordner im Projekt (relativ zum aktuellen Ordner).",
+          "choices": [],
+          "default": "",
+          "default_text": "Standardordner der Art: music für Songs, sonst graphics",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Raster als Zeichensatz",
+          "cmd": "vcc media import-sheet font.png --profile c64.char.hires --name font"
+        },
+        {
+          "title": "dunkle Zeichen auf hellem Grund",
+          "cmd": "vcc media import-sheet font.png --profile c64.char.hires --name font2 --invert"
+        }
+      ],
+      "notes": [
+        "Das Bild muss zu 16 Spalten passen und ein ganzzahliges Vielfaches der Zeichengröße haben (128 x 128 Pixel bei 256 Zeichen zu 8 x 8). Transparente Pixel zählen als nicht gesetzt.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).",
+        "Profil-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "export-sheet",
+      "usage": "vcc media export-sheet <zeichensatz.vcchar> <ausgabe.png>",
+      "summary": "Zeichensatz als PNG-Raster schreiben",
+      "args": [
+        {
+          "name": "zeichensatz.vcchar",
+          "required": true,
+          "repeat": false,
+          "help": "Zeichensatz im Projekt."
+        },
+        {
+          "name": "ausgabe.png",
+          "required": true,
+          "repeat": false,
+          "help": "Zieldatei."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Zeichensatz als Bild",
+          "cmd": "vcc media export-sheet graphics/font.vcchar font.png"
+        }
+      ],
+      "notes": [
+        "Das Raster hat 16 Zeichen je Zeile, weiß auf schwarz, 1:1. Nur Zeichensätze mit 1 Bit je Pixel und MEGA65-Vollfarbe.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "import",
+      "usage": "vcc media import <datei> <bild.png> [--frame <n>] [--system <pal|ntsc>] [--keep-colors]",
+      "summary": "PNG-Bild in einen Frame von Sprite, PMG oder Zeichensatz einlesen",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "Mediendatei im Projekt (.vcsprite, .vcpmg oder .vcchar) mit eingebetteten Frames."
+        },
+        {
+          "name": "bild.png",
+          "required": true,
+          "repeat": false,
+          "help": "PNG; wird auf die Frame-Größe skaliert, Pixel unter 50 % Deckkraft sind transparent."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--frame",
+          "short": "",
+          "value": "n",
+          "group": "ziel",
+          "help": "Nummer des Frames, der überschrieben wird (0-basiert).",
+          "choices": [],
+          "default": "0",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--system",
+          "short": "",
+          "value": "norm",
+          "group": "ziel",
+          "help": "Videonorm der Palette, pal oder ntsc; wirkt nur beim Atari.",
+          "choices": [],
+          "default": "pal",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--keep-colors",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Behält die Farben der Datei und rundet die Bildfarben darauf; sonst werden die Farben der Datei aus dem Bild bestimmt.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Bild in Sprite-Frame 0",
+          "cmd": "vcc media import graphics/hero.vcsprite hero.png"
+        },
+        {
+          "title": "mit festen Farben, Frame 2",
+          "cmd": "vcc media import graphics/hero.vcsprite hero.png --frame 2 --keep-colors"
+        }
+      ],
+      "notes": [
+        "Nur für Profile mit höchstens 16 Farben. Passt das Bild nicht in die darstellbaren Farben, meldet der Befehl einen Farbkonflikt und rundet auf die nächstliegenden Farben; die ersetzten Farben stehen in der Ausgabe.",
+        "Die Datei wird an Ort und Stelle geändert.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
+      ],
+      "see_also": [
+        "media"
+      ]
+    },
+    {
+      "id": "export",
+      "usage": "vcc media export <datei> [--format <asm|inc|bin|prg|data|sbas|rmt|bas>] [--label <name>] [--address <adresse>]",
+      "summary": "Mediendatei als Assembler, Binärdaten oder BASIC-DATA ausgeben",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "Mediendatei im Projekt (.vcsprite, .vcpmg, .vcchar, .vcscreen, .vctiles, .vcpal, .vcsong, .vcplay)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--format",
+          "short": "",
+          "value": "format",
+          "group": "ziel",
+          "help": "Ausgabeformat: asm (.byte-Daten und .const), inc (nur .const für Länge und, mit --address, Adresse), bin, prg (mit Ladeadresse, braucht --address), data (BASIC-DATA mit @label), sbas (DATA für strukturiertes BASIC). POKEY-Songs: asm oder rmt; PLAY-Songs: bas oder data.",
+          "choices": [
+            "asm",
+            "inc",
+            "bin",
+            "prg",
+            "data",
+            "sbas",
+            "rmt",
+            "bas"
+          ],
+          "default": "asm",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--label",
+          "short": "",
+          "value": "name",
+          "group": "ziel",
+          "help": "Marke der Daten im Quelltext; Teile bekommen ein Suffix.",
+          "choices": [],
+          "default": "",
+          "default_text": "Name der Datei, - durch _ ersetzt",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--address",
+          "short": "",
+          "value": "adresse",
+          "group": "ziel",
+          "help": "Ladeadresse für prg, Adresse für inc, bei rmt Ladeadresse des Moduls ($hex, 0xhex oder dezimal).",
+          "choices": [],
+          "default": "",
+          "default_text": "bei rmt: $4000",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Zeichensatz als Assembler",
+          "cmd": "vcc media export graphics/font.vcchar --format asm"
+        },
+        {
+          "title": "Sprite als PRG bei $2000",
+          "cmd": "vcc media export graphics/hero.vcsprite --format prg --address 0x2000"
+        },
+        {
+          "title": "Song als BASIC-DATA",
+          "cmd": "vcc media export music/tune.vcsong --format data --label tune"
+        },
+        {
+          "title": "POKEY-Song als RMT-Modul",
+          "cmd": "vcc media export music/tune_pokey.vcsong --format rmt --address 0x4000"
+        }
+      ],
+      "notes": [
+        "Die Dateien entstehen in build/export/; der Befehl gibt Pfad und Größe je Datei aus. Bei der Ausgabe in mehreren Teilen (Screens: chars/attrs, Kacheln: tiles/map/colors) gibt es je Teil eine Datei bzw. einen Abschnitt.",
+        "Beim Bauen werden veraltete Mediendateien ohnehin als asm und data nach build/export/ geschrieben.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
+      ],
+      "see_also": [
+        "build",
+        "asm"
+      ]
+    },
+    {
+      "id": "migrate-tiles",
+      "usage": "vcc media migrate-tiles",
+      "summary": "alte Kachelkarten in Kachelsatz und Screen-Bank umwandeln",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Projekt umstellen",
+          "cmd": "vcc media migrate-tiles"
+        }
+      ],
+      "notes": [
+        "Sucht im aktuellen Projektordner nach alten Kachelkarten (*.vctiles der Art tilemap). Dateien eines Ordners mit gleichem Kachelsatz ergeben einen Kachelsatz und eine Screen-Bank. Die alten Dateien werden entfernt.",
+        "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
+      ],
+      "see_also": [
+        "migrate"
+      ]
+    }
+  ]
+}

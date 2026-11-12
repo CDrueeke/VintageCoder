@@ -1,0 +1,58 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VINTAGECODER 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vintagecoder \- grafische Entwicklungsumgebung für Retro\-Systeme
+.SH ÜBERSICHT
+.B vintagecoder [projekt\-ordner | datei.vcprj | datei.asm | datei.bas]
+.SH BESCHREIBUNG
+Öffnet die IDE. Ohne Argument erscheint der Startbildschirm, mit einem Pfad das Projekt oder die Datei.
+.SH OPTIONEN
+.TP
+\fB\-h, \-\-help\fR
+Hilfe anzeigen.
+.TP
+\fB\-V, \-\-version\fR
+Version anzeigen.
+.SH UMGEBUNG
+.TP
+\fBVC_DATA\fR
+Ordner der Hardware\-Datenbank (data).
+.TP
+\fBVC_ROMS\fR
+ROM\-Ordner des Benutzers.
+.TP
+\fBVC_XEMU\fR
+Pfad zum Xemu\-Programm.
+.TP
+\fBVC_XEMU_SD\fR
+Ordner mit MEGA65.ROM für Xemu.
+.TP
+\fBVC_WIN\fR
+Fenstergröße, z. B. 1400x860.
+.SH BEISPIELE
+Startbildschirm:
+.PP
+.RS 8
+.nf
+vintagecoder
+.fi
+.RE
+Projekt öffnen:
+.PP
+.RS 8
+.nf
+vintagecoder spiel
+.fi
+.RE
+Quelltext öffnen:
+.PP
+.RS 8
+.nf
+vintagecoder prog.asm
+.fi
+.RE
+.SH RÜCKGABEWERT
+0 nach normalem Beenden.
+.SH SIEHE AUCH
+vcc(1)

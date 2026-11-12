@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "vdc",
+  "name": "VDC 8563/8568 (80 Spalten)",
+  "window": {
+    "space": "cpu16",
+    "start": "$D600",
+    "end": "$D601"
+  },
+  "regs": [
+    {"name": "addr", "addr": "$D600", "access": "rw", "doc": "Adress-/Statusregister (Bit 7 = bereit)"},
+    {"name": "data", "addr": "$D601", "access": "rw", "doc": "Datenregister (Register wie in $D600 gewählt)"}
+  ]
+}

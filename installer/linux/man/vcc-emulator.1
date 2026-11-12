@@ -1,0 +1,93 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-EMULATOR 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-emulator \- Emulatoren anzeigen, finden und portabel installieren
+.SH ÜBERSICHT
+.B vcc emulator list
+.br
+.B vcc emulator status [emulator]
+.br
+.B vcc emulator install <emulator[@version]> [optionen]
+.br
+.SH BESCHREIBUNG
+Emulatoren anzeigen, finden und portabel installieren
+.PP
+Zeigt die Emulatoren, die VintageCoder nutzt (VICE, atari800, Altirra, Xemu, Fujisan), mit Homepage, Lizenz und Rolle. `install` lädt auf ausdrücklichen Aufruf eine feste Version von der Seite des Projekts, prüft die SHA\-256\-Summe und packt sie unterhalb von VintageCoder aus (`emulators/<Emulator>/<Version>` im Konfigurationsordner). Es wird nichts mitgeliefert und nichts ohne diesen Aufruf geladen.
+.SH OPTIONEN
+.SS Form list
+die Emulatoren des Katalogs mit Homepage und Rolle zeigen
+.PP
+.SS Form status
+zeigen, was gefunden wird (alle Quellen) und was sich installieren lässt
+.PP
+.TP
+\fIemulator\fR
+Kennung (vice, atari800, altirra, xemu, fujisan) oder Sorte (x64sc, x128 …); ohne Angabe alle. (optional)
+.SS Form install
+eine feste Version laden, prüfen und portabel installieren
+.PP
+.TP
+\fIemulator[@version]\fR
+Kennung (vice, atari800, altirra, xemu, fujisan) oder Sorte (x64sc, x128 …), optional mit Version (vice@3.9). Ohne Version gilt die Vorgabe (die neueste).
+.TP
+\fB\-\-dry\-run\fR
+Zeigt nur Paket, Adresse, Prüfsumme und Zielordner an, ohne etwas zu laden.
+.SH BEISPIELE
+alle Emulatoren auflisten:
+.PP
+.RS 8
+.nf
+vcc emulator list
+.fi
+.RE
+alle Emulatoren prüfen:
+.PP
+.RS 8
+.nf
+vcc emulator status
+.fi
+.RE
+einen Emulator prüfen:
+.PP
+.RS 8
+.nf
+vcc emulator status atari800
+.fi
+.RE
+anzeigen, was geladen würde:
+.PP
+.RS 8
+.nf
+vcc emulator install atari800 \-\-dry\-run
+.fi
+.RE
+Fujisan laden und installieren:
+.PP
+.RS 8
+.nf
+vcc emulator install fujisan
+.fi
+.RE
+eine ältere Version daneben installieren:
+.PP
+.RS 8
+.nf
+vcc emulator install vice@3.9
+.fi
+.RE
+.SH HINWEISE
+Automatisch gilt: Pfad aus den Einstellungen, sonst das, was PATH und die üblichen Programmordner bieten, zuletzt die neueste portabel installierte Version.
+.PP
+Nutzt `curl` und `tar` des Systems (Windows 10/11 und Linux bringen sie mit). Wo es kein portables Paket gibt (z. B. macOS, VICE unter Linux), nennt der Befehl die Download\-Seite.
+.PP
+Ist die Version schon installiert, geschieht nichts. Stimmt die Prüfsumme nicht, wird die Datei gelöscht und nichts ausgepackt.
+.PP
+Bei der automatischen Suche kommen die portabel installierten Programme nach PATH und den üblichen Programmordnern; ein Pfad in den Einstellungen und eine mit `@version` gewählte Version gehen vor.
+.PP
+Mehrere Versionen eines Emulators liegen nebeneinander. `vcc emulator status` zeigt alle gefundenen Quellen (portabel und System) und die ladbaren Versionen; `vcc test \-\-backend vice@3.9` nutzt eine bestimmte.
+.PP
+.SH RÜCKGABEWERT
+0 = installiert oder schon vorhanden, 1 = Fehler (Netz, Prüfsumme, Auspacken, kein Paket), 2 = unbekannter Emulator
+.SH SIEHE AUCH
+vcc(1), vcc\-test(1)

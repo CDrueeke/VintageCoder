@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: cart_demo",
+    "description": "Atari-Modul (CAR): 8 KB oder, mit -D XEGS=1, XEGS-Modul mit Bankumschaltung"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "cart_demo.asm"
+      ]
+    }
+  ],
+  "main": "cart_demo.asm"
+}

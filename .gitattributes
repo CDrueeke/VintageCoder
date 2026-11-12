@@ -1,0 +1,17 @@
+# Zeilenenden: Quelltexte, Daten und erzeugte Includes bleiben auf allen Systemen LF (Tests vergleichen Dateien byteweise)
+*.inc text eol=lf
+*.asm text eol=lf
+*.sbas text eol=lf
+*.json text eol=lf
+*.vcprj text eol=lf
+*.vcchar text eol=lf
+*.vcsprite text eol=lf
+*.vcpmg text eol=lf
+*.vcscreen text eol=lf
+*.vctiles text eol=lf
+*.vcsong text eol=lf
+*.vcpal text eol=lf
+*.vcplay text eol=lf
+*.vctest text eol=lf
+*.rs text eol=lf
+*.md text eol=lf

@@ -1,0 +1,1007 @@
+{
+ "program": "vice-x64sc",
+ "label": "VICE x64sc (C64)",
+ "kinds": [
+  "x64sc"
+ ],
+ "verified": "x64sc/x128/xplus4/xvic -help, VICE 3.10 (gtk3, macOS arm64)",
+ "groups": [
+  {
+   "id": "run",
+   "label": "Ablauf"
+  },
+  {
+   "id": "video",
+   "label": "Bild"
+  },
+  {
+   "id": "sound",
+   "label": "Ton"
+  },
+  {
+   "id": "drives",
+   "label": "Laufwerk und Start von Datei"
+  },
+  {
+   "id": "input",
+   "label": "Eingabe"
+  },
+  {
+   "id": "debug",
+   "label": "Monitor und Fehlersuche"
+  },
+  {
+   "id": "logging",
+   "label": "Protokoll und Einstellungen"
+  }
+ ],
+ "reserved": [
+  "-autostart",
+  "-cartcrt",
+  "-cartA",
+  "-cart2",
+  "-cart4",
+  "-cart6",
+  "-cartB",
+  "-memory",
+  "-8",
+  "-binarymonitor",
+  "-binarymonitoraddress",
+  "+confirmonexit"
+ ],
+ "params": [
+  {
+   "id": "filter",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICIIfilter",
+   "label": "Darstellungsfilter",
+   "hint": "Wie das Bild skaliert wird: ohne Filter, mit CRT-Nachbildung oder Scale2x.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keiner"
+    },
+    {
+     "value": "1",
+     "label": "CRT-Emulation"
+    },
+    {
+     "value": "2",
+     "label": "Scale2x"
+    }
+   ]
+  },
+  {
+   "id": "borders",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICIIborders",
+   "label": "Rahmen",
+   "hint": "Wie viel vom Bildschirmrand sichtbar ist.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "normal"
+    },
+    {
+     "value": "1",
+     "label": "voll"
+    },
+    {
+     "value": "2",
+     "label": "Debug (Raster sichtbar)"
+    },
+    {
+     "value": "3",
+     "label": "ohne Rahmen"
+    }
+   ]
+  },
+  {
+   "id": "dsize",
+   "group": "video",
+   "type": "switch",
+   "flag": "-VICIIdsize",
+   "label": "Doppelte Größe",
+   "hint": "Zeichnet das Bild doppelt so groß.",
+   "off_flag": "+VICIIdsize"
+  },
+  {
+   "id": "dscan",
+   "group": "video",
+   "type": "switch",
+   "flag": "-VICIIdscan",
+   "label": "Doppelte Zeilen (Scanlines)",
+   "hint": "Zeichnet jede Rasterzeile doppelt.",
+   "off_flag": "+VICIIdscan"
+  },
+  {
+   "id": "vsync",
+   "group": "video",
+   "type": "switch",
+   "flag": "-VICIIvsync",
+   "label": "Vertikale Synchronisation",
+   "hint": "Gleicht die Ausgabe mit dem Bildwechsel des Monitors ab und verhindert Zerreißen.",
+   "off_flag": "+VICIIvsync"
+  },
+  {
+   "id": "aspectmode",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICIIaspectmode",
+   "label": "Seitenverhältnis",
+   "hint": "Wie das Seitenverhältnis des Bildes bestimmt wird.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "aus"
+    },
+    {
+     "value": "1",
+     "label": "eigenes"
+    },
+    {
+     "value": "2",
+     "label": "wahrheitsgetreu"
+    }
+   ]
+  },
+  {
+   "id": "aspect",
+   "group": "video",
+   "type": "number",
+   "flag": "-VICIIaspect",
+   "label": "Eigenes Seitenverhältnis",
+   "hint": "Verhältnis zwischen 0,5 und 2,0 (nur mit „eigenes“).",
+   "example": "1.0",
+   "min": 0.5,
+   "max": 2.0,
+   "requires": [
+    "aspectmode"
+   ]
+  },
+  {
+   "id": "audioleak",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-VICIIaudioleak",
+   "label": "Audio-Übersprechen",
+   "hint": "Bildet das Übersprechen des VIC-II auf den Ton nach.",
+   "off_flag": "+VICIIaudioleak"
+  },
+  {
+   "id": "pal",
+   "group": "video",
+   "type": "switch",
+   "flag": "-pal",
+   "label": "PAL-Takt",
+   "hint": "Verwendet den PAL-Synchronfaktor.",
+   "conflicts": [
+    "ntsc"
+   ]
+  },
+  {
+   "id": "ntsc",
+   "group": "video",
+   "type": "switch",
+   "flag": "-ntsc",
+   "label": "NTSC-Takt",
+   "hint": "Verwendet den NTSC-Synchronfaktor.",
+   "conflicts": [
+    "pal"
+   ]
+  },
+  {
+   "id": "sidextra",
+   "group": "sound",
+   "type": "choice",
+   "flag": "-sidextra",
+   "label": "Zusätzliche SIDs",
+   "hint": "Anzahl weiterer SID-Chips (0 bis 3).",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keine"
+    },
+    {
+     "value": "1",
+     "label": "1"
+    },
+    {
+     "value": "2",
+     "label": "2"
+    },
+    {
+     "value": "3",
+     "label": "3"
+    }
+   ]
+  },
+  {
+   "id": "sid2address",
+   "group": "sound",
+   "type": "text",
+   "flag": "-sid2address",
+   "label": "Adresse des 2. SID",
+   "hint": "Basisadresse des zweiten SID, z. B. 0xD420.",
+   "example": "0xD420",
+   "requires": [
+    "sidextra"
+   ]
+  },
+  {
+   "id": "sid3address",
+   "group": "sound",
+   "type": "text",
+   "flag": "-sid3address",
+   "label": "Adresse des 3. SID",
+   "hint": "Basisadresse des dritten SID, z. B. 0xD440.",
+   "example": "0xD440",
+   "requires": [
+    "sidextra"
+   ]
+  },
+  {
+   "id": "reu",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-reu",
+   "label": "RAM-Erweiterung (REU)",
+   "hint": "Schaltet die RAM Expansion Unit ein.",
+   "off_flag": "+reu"
+  },
+  {
+   "id": "reusize",
+   "group": "drives",
+   "type": "choice",
+   "flag": "-reusize",
+   "label": "REU-Größe",
+   "hint": "Größe der RAM-Erweiterung.",
+   "choices": [
+    {
+     "value": "128",
+     "label": "128 KB"
+    },
+    {
+     "value": "256",
+     "label": "256 KB"
+    },
+    {
+     "value": "512",
+     "label": "512 KB"
+    },
+    {
+     "value": "1024",
+     "label": "1024 KB"
+    },
+    {
+     "value": "2048",
+     "label": "2048 KB"
+    },
+    {
+     "value": "4096",
+     "label": "4096 KB"
+    },
+    {
+     "value": "8192",
+     "label": "8192 KB"
+    },
+    {
+     "value": "16384",
+     "label": "16384 KB"
+    }
+   ],
+   "requires": [
+    "reu"
+   ]
+  },
+  {
+   "id": "cartcrt",
+   "group": "drives",
+   "type": "file",
+   "flag": "-cartcrt",
+   "label": "Modul (CRT)",
+   "hint": "Steckt ein Modulabbild im CRT-Format ein.",
+   "example": "{output}"
+  },
+  {
+   "id": "drive8type",
+   "group": "drives",
+   "type": "choice",
+   "flag": "-drive8type",
+   "label": "Laufwerkstyp (Unit 8)",
+   "hint": "Welches Diskettenlaufwerk als Unit 8 nachgebildet wird.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "kein Laufwerk"
+    },
+    {
+     "value": "1540",
+     "label": "CBM 1540"
+    },
+    {
+     "value": "1541",
+     "label": "CBM 1541"
+    },
+    {
+     "value": "1542",
+     "label": "CBM 1541-II"
+    },
+    {
+     "value": "1570",
+     "label": "CBM 1570"
+    },
+    {
+     "value": "1571",
+     "label": "CBM 1571"
+    },
+    {
+     "value": "1581",
+     "label": "CBM 1581"
+    }
+   ]
+  },
+  {
+   "id": "model",
+   "group": "run",
+   "type": "choice",
+   "flag": "-model",
+   "label": "C64-Modell",
+   "hint": "Welches C64-Modell nachgebildet wird (Videonorm, VIC-II und SID gehören dazu).",
+   "choices": [
+    {
+     "value": "c64",
+     "label": "C64 (PAL, alt)"
+    },
+    {
+     "value": "c64c",
+     "label": "C64C (PAL)"
+    },
+    {
+     "value": "c64old",
+     "label": "C64 alt (PAL)"
+    },
+    {
+     "value": "ntsc",
+     "label": "C64 (NTSC)"
+    },
+    {
+     "value": "newntsc",
+     "label": "C64C (NTSC)"
+    },
+    {
+     "value": "oldntsc",
+     "label": "C64 alt (NTSC)"
+    },
+    {
+     "value": "drean",
+     "label": "Drean (PAL-N)"
+    },
+    {
+     "value": "jap",
+     "label": "Japan"
+    },
+    {
+     "value": "c64gs",
+     "label": "C64 GS"
+    },
+    {
+     "value": "pet64",
+     "label": "PET 64"
+    },
+    {
+     "value": "ultimax",
+     "label": "Ultimax"
+    }
+   ]
+  },
+  {
+   "id": "viciimodel",
+   "group": "video",
+   "type": "choice",
+   "flag": "-VICIImodel",
+   "label": "VIC-II-Modell",
+   "hint": "Chipmodell des VIC-II.",
+   "choices": [
+    {
+     "value": "6569",
+     "label": "6569 (PAL)"
+    },
+    {
+     "value": "6569r1",
+     "label": "6569 R1 (PAL)"
+    },
+    {
+     "value": "8565",
+     "label": "8565 (PAL, neu)"
+    },
+    {
+     "value": "6567",
+     "label": "6567 (NTSC)"
+    },
+    {
+     "value": "8562",
+     "label": "8562 (NTSC, neu)"
+    },
+    {
+     "value": "6567r56a",
+     "label": "6567 R56A (NTSC, alt)"
+    },
+    {
+     "value": "6572",
+     "label": "6572 (PAL-N)"
+    }
+   ]
+  },
+  {
+   "id": "speed",
+   "group": "run",
+   "type": "number",
+   "flag": "-speed",
+   "label": "Geschwindigkeit in Prozent",
+   "hint": "Begrenzt die Emulation auf diesen Wert (100 = Originaltempo). Eine negative Zahl begrenzt auf so viele Bilder pro Sekunde.",
+   "default": "100",
+   "example": "200",
+   "conflicts": [
+    "warp"
+   ]
+  },
+  {
+   "id": "warp",
+   "group": "run",
+   "type": "switch",
+   "flag": "-warp",
+   "label": "Warp-Modus beim Start",
+   "hint": "Startet im Warp-Modus: die Emulation läuft so schnell wie möglich.",
+   "off_flag": "+warp",
+   "default": "aus",
+   "conflicts": [
+    "speed"
+   ]
+  },
+  {
+   "id": "autostart_warp",
+   "group": "run",
+   "type": "switch",
+   "flag": "-autostart-warp",
+   "label": "Warp beim Autostart",
+   "hint": "Schaltet den Warp-Modus nur während des Autostarts ein, bis das Programm geladen ist.",
+   "off_flag": "+autostart-warp"
+  },
+  {
+   "id": "pauseonsettings",
+   "group": "run",
+   "type": "switch",
+   "flag": "-pauseonsettings",
+   "label": "Pause im Einstellungsdialog",
+   "hint": "Hält die Emulation an, solange der Einstellungsdialog von VICE offen ist.",
+   "off_flag": "+pauseonsettings"
+  },
+  {
+   "id": "confirmonexit",
+   "group": "run",
+   "type": "switch",
+   "flag": "-confirmonexit",
+   "label": "Beenden bestätigen",
+   "hint": "Fragt vor dem Beenden von VICE nach.",
+   "off_flag": "+confirmonexit"
+  },
+  {
+   "id": "maximized",
+   "group": "run",
+   "type": "switch",
+   "flag": "-maximized",
+   "label": "Maximiert starten",
+   "hint": "Öffnet das Fenster maximiert.",
+   "off_flag": "+maximized"
+  },
+  {
+   "id": "minimized",
+   "group": "run",
+   "type": "switch",
+   "flag": "-minimized",
+   "label": "Minimiert starten",
+   "hint": "Öffnet das Fenster minimiert.",
+   "off_flag": "+minimized"
+  },
+  {
+   "id": "jamaction",
+   "group": "run",
+   "type": "choice",
+   "flag": "-jamaction",
+   "label": "Aktion bei CPU-JAM",
+   "hint": "Was VICE tut, wenn die CPU an einem ungültigen Opcode hängen bleibt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "Nachfragen"
+    },
+    {
+     "value": "1",
+     "label": "Weiterlaufen"
+    },
+    {
+     "value": "2",
+     "label": "Monitor öffnen"
+    },
+    {
+     "value": "3",
+     "label": "Reset"
+    },
+    {
+     "value": "4",
+     "label": "Neustart (Power Cycle)"
+    },
+    {
+     "value": "5",
+     "label": "Emulator beenden"
+    }
+   ],
+   "default": "0"
+  },
+  {
+   "id": "limitcycles",
+   "group": "run",
+   "type": "number",
+   "flag": "-limitcycles",
+   "label": "Zyklenlimit",
+   "hint": "Beendet VICE mit Fehler, wenn nach so vielen Zyklen noch nicht Schluss ist (für automatische Tests).",
+   "min": 1
+  },
+  {
+   "id": "ramstart",
+   "group": "run",
+   "type": "number",
+   "flag": "-raminitstartvalue",
+   "label": "Anfangswert des RAM",
+   "hint": "Wert der allerersten RAM-Adresse nach dem Einschalten; der Rest folgt dem Muster von VICE.",
+   "example": "0",
+   "min": 0,
+   "max": 255
+  },
+  {
+   "id": "seed",
+   "group": "run",
+   "type": "number",
+   "flag": "-seed",
+   "label": "Zufallszahl-Startwert",
+   "hint": "Fester Startwert des Zufallsgenerators, damit Läufe reproduzierbar sind (zur Fehlersuche).",
+   "min": 0
+  },
+  {
+   "id": "saveres",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-saveres",
+   "label": "Einstellungen beim Beenden speichern",
+   "hint": "VICE schreibt seine Einstellungen beim Beenden in die Datei vicerc.",
+   "off_flag": "+saveres"
+  },
+  {
+   "id": "config",
+   "group": "logging",
+   "type": "file",
+   "flag": "-config",
+   "label": "Konfigurationsdatei",
+   "hint": "Verwendet diese Konfigurationsdatei von VICE statt der Standarddatei.",
+   "example": "{project_dir}/vice.cfg"
+  },
+  {
+   "id": "addconfig",
+   "group": "logging",
+   "type": "file",
+   "flag": "-addconfig",
+   "label": "Zusatz-Konfiguration",
+   "hint": "Lädt diese Datei zusätzlich zur Konfiguration (nur Ressourcen, die dort stehen).",
+   "example": "{project_dir}/extra.cfg"
+  },
+  {
+   "id": "default",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-default",
+   "label": "Standardeinstellungen laden",
+   "hint": "Setzt alle Einstellungen von VICE auf die Werkseinstellung zurück, bevor weitere Parameter wirken."
+  },
+  {
+   "id": "silent",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-silent",
+   "label": "Keine Ausgabe",
+   "hint": "Unterdrückt alle Meldungen außer Fehlern.",
+   "conflicts": [
+    "verbose",
+    "debug"
+   ]
+  },
+  {
+   "id": "verbose",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-verbose",
+   "label": "Ausführliche Ausgabe",
+   "hint": "Gibt mehr Meldungen aus.",
+   "conflicts": [
+    "silent"
+   ]
+  },
+  {
+   "id": "debug",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-debug",
+   "label": "Debug-Ausgabe",
+   "hint": "Gibt ausführliche Fehlersuch-Meldungen aus.",
+   "conflicts": [
+    "silent"
+   ]
+  },
+  {
+   "id": "logfile",
+   "group": "logging",
+   "type": "file",
+   "flag": "-logfile",
+   "label": "Protokolldatei",
+   "hint": "Name der Protokolldatei; mit „In Datei protokollieren“ wird sie geschrieben.",
+   "example": "{project_dir}/vice.log"
+  },
+  {
+   "id": "logtofile",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-logtofile",
+   "label": "In Datei protokollieren",
+   "hint": "Schreibt das Protokoll in die Protokolldatei.",
+   "off_flag": "+logtofile"
+  },
+  {
+   "id": "logtostdout",
+   "group": "logging",
+   "type": "switch",
+   "flag": "-logtostdout",
+   "label": "Protokoll auf die Standardausgabe",
+   "hint": "Gibt das Protokoll auf stdout aus.",
+   "off_flag": "+logtostdout"
+  },
+  {
+   "id": "exitscreenshot",
+   "group": "logging",
+   "type": "file",
+   "flag": "-exitscreenshot",
+   "label": "Bildschirmfoto beim Beenden",
+   "hint": "Speichert beim Beenden ein Bildschirmfoto unter diesem Namen (nützlich für automatische Tests).",
+   "example": "{project_dir}/build/{project}.png"
+  },
+  {
+   "id": "sound",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-sound",
+   "label": "Ton an",
+   "hint": "Schaltet die Tonausgabe ein oder aus.",
+   "off_flag": "+sound",
+   "default": "an"
+  },
+  {
+   "id": "soundrate",
+   "group": "sound",
+   "type": "number",
+   "flag": "-soundrate",
+   "label": "Abtastrate (Hz)",
+   "hint": "Abtastrate der Tonausgabe in Hertz.",
+   "example": "48000",
+   "min": 8000,
+   "max": 192000
+  },
+  {
+   "id": "soundbufsize",
+   "group": "sound",
+   "type": "number",
+   "flag": "-soundbufsize",
+   "label": "Tonpuffer (ms)",
+   "hint": "Größe des Tonpuffers in Millisekunden; größer vermeidet Knacken, kleiner verkürzt die Verzögerung.",
+   "example": "100",
+   "min": 1
+  },
+  {
+   "id": "soundoutput",
+   "group": "sound",
+   "type": "choice",
+   "flag": "-soundoutput",
+   "label": "Ausgabeart",
+   "hint": "Mono oder Stereo.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "System entscheidet"
+    },
+    {
+     "value": "1",
+     "label": "immer Mono"
+    },
+    {
+     "value": "2",
+     "label": "immer Stereo"
+    }
+   ]
+  },
+  {
+   "id": "sidengine",
+   "group": "sound",
+   "type": "choice",
+   "flag": "-sidengine",
+   "label": "SID-Engine",
+   "hint": "Wie der SID berechnet wird: FastSID ist schnell, ReSID genau.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "FastSID"
+    },
+    {
+     "value": "1",
+     "label": "ReSID"
+    }
+   ],
+   "conflicts": [
+    "sidenginemodel"
+   ]
+  },
+  {
+   "id": "sidenginemodel",
+   "group": "sound",
+   "type": "choice",
+   "flag": "-sidenginemodel",
+   "label": "SID-Engine und Modell",
+   "hint": "Engine und Chipmodell in einem Schritt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "FastSID 6581"
+    },
+    {
+     "value": "1",
+     "label": "FastSID 8580"
+    },
+    {
+     "value": "256",
+     "label": "ReSID 6581"
+    },
+    {
+     "value": "257",
+     "label": "ReSID 8580"
+    },
+    {
+     "value": "258",
+     "label": "ReSID 8580 mit Digiboost"
+    }
+   ],
+   "conflicts": [
+    "sidengine"
+   ]
+  },
+  {
+   "id": "drivesound",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-drivesound",
+   "label": "Laufwerksgeräusche",
+   "hint": "Spielt die Geräusche des Diskettenlaufwerks ab.",
+   "off_flag": "+drivesound"
+  },
+  {
+   "id": "trapdevice8",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-trapdevice8",
+   "label": "Schnelles Laden (Traps)",
+   "hint": "Beschleunigt Laden und Speichern, indem die Kernal-Routinen abgefangen werden (virtuelles Laufwerk).",
+   "off_flag": "+trapdevice8"
+  },
+  {
+   "id": "basicload",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-basicload",
+   "label": "Autostart: an den BASIC-Anfang laden",
+   "hint": "Lädt Dateien von Diskette beim Autostart an den BASIC-Anfang (ohne „,1“).",
+   "off_flag": "+basicload"
+  },
+  {
+   "id": "autostartwithcolon",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-autostartwithcolon",
+   "label": "Autostart mit „RUN:“",
+   "hint": "Verwendet beim Autostart „RUN:“ mit Doppelpunkt statt „RUN“.",
+   "off_flag": "+autostartwithcolon"
+  },
+  {
+   "id": "autostart_tde",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-autostart-handle-tde",
+   "label": "Autostart: Laufwerkemulation anpassen",
+   "hint": "Schaltet beim Autostart die genaue Laufwerkemulation (True Drive Emulation) passend zum Programm.",
+   "off_flag": "+autostart-handle-tde"
+  },
+  {
+   "id": "autostartprgmode",
+   "group": "drives",
+   "type": "choice",
+   "flag": "-autostartprgmode",
+   "label": "Autostart-Art für PRG",
+   "hint": "Wie ein PRG beim Autostart in den Speicher kommt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "virtuelles Dateisystem"
+    },
+    {
+     "value": "1",
+     "label": "direkt einspielen"
+    },
+    {
+     "value": "2",
+     "label": "Diskimage"
+    }
+   ]
+  },
+  {
+   "id": "autostart_delay",
+   "group": "drives",
+   "type": "number",
+   "flag": "-autostart-delay",
+   "label": "Autostart-Verzögerung (s)",
+   "hint": "Wartezeit vor dem Autostart in Sekunden; 0 = Standard.",
+   "min": 0
+  },
+  {
+   "id": "disk9",
+   "group": "drives",
+   "type": "file",
+   "flag": "-9",
+   "label": "Diskimage in Laufwerk 9",
+   "hint": "Legt dieses Image in Laufwerk 9 ein.",
+   "example": "{disk}"
+  },
+  {
+   "id": "tape",
+   "group": "drives",
+   "type": "file",
+   "flag": "-1",
+   "label": "Band (Datasette)",
+   "hint": "Legt dieses Bandimage in die Datasette ein."
+  },
+  {
+   "id": "joydev1",
+   "group": "input",
+   "type": "choice",
+   "flag": "-joydev1",
+   "label": "Joystick, Port 1",
+   "hint": "Welches Gerät den Joystickport bedient.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keines"
+    },
+    {
+     "value": "1",
+     "label": "Ziffernblock"
+    },
+    {
+     "value": "2",
+     "label": "Tastensatz 1"
+    },
+    {
+     "value": "3",
+     "label": "Tastensatz 2"
+    }
+   ]
+  },
+  {
+   "id": "keymap",
+   "group": "input",
+   "type": "choice",
+   "flag": "-keymap",
+   "label": "Tastaturbelegung",
+   "hint": "Welche Tastaturtabelle VICE benutzt.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "symbolisch"
+    },
+    {
+     "value": "1",
+     "label": "positionsgetreu"
+    },
+    {
+     "value": "2",
+     "label": "symbolisch (eigene)"
+    },
+    {
+     "value": "3",
+     "label": "positionsgetreu (eigene)"
+    }
+   ]
+  },
+  {
+   "id": "mouse",
+   "group": "input",
+   "type": "switch",
+   "flag": "-mouse",
+   "label": "Maus einfangen",
+   "hint": "Fängt die Maus im Fenster ein.",
+   "off_flag": "+mouse"
+  },
+  {
+   "id": "keybuf",
+   "group": "input",
+   "type": "text",
+   "flag": "-keybuf",
+   "label": "Tastaturpuffer füllen",
+   "hint": "Schreibt diese Zeichen beim Start in den Tastaturpuffer, z. B. einen Befehl, der das Programm startet.",
+   "example": "RUN:\\n"
+  },
+  {
+   "id": "moncommands",
+   "group": "debug",
+   "type": "file",
+   "flag": "-moncommands",
+   "label": "Monitor-Befehle aus Datei",
+   "hint": "Führt beim Start die Befehle dieser Datei im VICE-Monitor aus (z. B. Haltepunkte oder geladene Labels).",
+   "example": "{symbols}"
+  },
+  {
+   "id": "initbreak",
+   "group": "debug",
+   "type": "text",
+   "flag": "-initbreak",
+   "label": "Anfänglicher Haltepunkt",
+   "hint": "Hält den Monitor an: bei einer Adresse, bei „ready“ (BASIC-Eingabe) oder bei „reset“.",
+   "example": "0x{start}"
+  },
+  {
+   "id": "remotemonitor",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-remotemonitor",
+   "label": "Textmonitor im Netz",
+   "hint": "Öffnet den Monitor von VICE als Netzwerkdienst (Standard 127.0.0.1:6510).",
+   "off_flag": "+remotemonitor"
+  },
+  {
+   "id": "remotemonitoraddress",
+   "group": "debug",
+   "type": "text",
+   "flag": "-remotemonitoraddress",
+   "label": "Adresse des Textmonitors",
+   "hint": "Lokale Adresse, an die der Textmonitor gebunden wird.",
+   "example": "ip4://127.0.0.1:6510",
+   "requires": [
+    "remotemonitor"
+   ]
+  },
+  {
+   "id": "nativemonitor",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-nativemonitor",
+   "label": "Monitor im Terminal",
+   "hint": "Verwendet den Monitor im Betriebssystem-Terminal statt im Fenster.",
+   "off_flag": "+nativemonitor"
+  }
+ ],
+ "debug_reserved": [
+  "-binarymonitor",
+  "+binarymonitor",
+  "-binarymonitoraddress <value>",
+  "-confirmonexit",
+  "+confirmonexit",
+  "-autostart <value>",
+  "-autoload <value>",
+  "-cartcrt <value>"
+ ]
+}

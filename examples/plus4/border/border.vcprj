@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: border",
+    "description": "Rahmenfarbe im Takt der Rasterzeile ändern"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "border.asm"
+      ]
+    }
+  ],
+  "main": "border.asm"
+}

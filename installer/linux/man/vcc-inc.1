@@ -1,0 +1,43 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-INC 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-inc \- Include\-Datei mit Hardwarekonstanten ausgeben
+.SH ÜBERSICHT
+.B vcc inc \-\-target <system> [optionen]
+.br
+.SH BESCHREIBUNG
+Include\-Datei mit Hardwarekonstanten ausgeben
+.PP
+Erzeugt aus der Hardware\-Datenbank (data/chips) eine Include\-Datei mit den Registern der Chips des Zielsystems als .const\-Zeilen. Ohne \-o geht der Text auf die Standardausgabe.
+.SH OPTIONEN
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem, dessen Chips ausgegeben werden. Werte: atari8, c128, c64, cbm2, mega65, pet, plus4, vic20. Erforderlich.
+.TP
+\fB\-o\fR \fIdatei.inc\fR
+Ausgabedatei; ohne die Option erscheint der Text auf dem Bildschirm.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data); ersetzt VC_DATA und die automatische Suche.
+.SH BEISPIELE
+C64\-Konstanten ausgeben:
+.PP
+.RS 8
+.nf
+vcc inc \-\-target c64
+.fi
+.RE
+Atari\-Konstanten in eine Datei:
+.PP
+.RS 8
+.nf
+vcc inc \-\-target atari8 \-o atari.inc
+.fi
+.RE
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-asm(1)

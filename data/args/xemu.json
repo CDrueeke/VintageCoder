@@ -1,0 +1,380 @@
+{
+ "program": "xemu",
+ "label": "Xemu (MEGA65)",
+ "kinds": [
+  "xemu"
+ ],
+ "verified": "xmega65 -h, Xemu master 40dfef0d (20260129, macOS)",
+ "groups": [
+  {
+   "id": "run",
+   "label": "Ablauf"
+  },
+  {
+   "id": "video",
+   "label": "Bild"
+  },
+  {
+   "id": "sound",
+   "label": "Ton"
+  },
+  {
+   "id": "system",
+   "label": "Maschine"
+  },
+  {
+   "id": "input",
+   "label": "Eingabe"
+  },
+  {
+   "id": "drives",
+   "label": "Laufwerke und Karte"
+  },
+  {
+   "id": "debug",
+   "label": "Fehlersuche"
+  }
+ ],
+ "reserved": [
+  "-besure",
+  "-rom",
+  "-uartmon",
+  "-prg",
+  "-prgmode"
+ ],
+ "params": [
+  {
+   "id": "fullscreen",
+   "group": "video",
+   "type": "switch",
+   "flag": "-fullscreen",
+   "label": "Vollbild",
+   "hint": "Startet im Vollbild."
+  },
+  {
+   "id": "fullborders",
+   "group": "video",
+   "type": "switch",
+   "flag": "-fullborders",
+   "label": "Voller Bildrand",
+   "hint": "Zeigt den Bildrand ungeschnitten."
+  },
+  {
+   "id": "driveled",
+   "group": "video",
+   "type": "switch",
+   "flag": "-driveled",
+   "label": "Laufwerk-LED",
+   "hint": "Zeichnet die Laufwerk-LED oben rechts ins Bild."
+  },
+  {
+   "id": "showscanlines",
+   "group": "video",
+   "type": "switch",
+   "flag": "-showscanlines",
+   "label": "Scanlines in V200-Modi",
+   "hint": "Zeigt Scanlines in den V200-Modi."
+  },
+  {
+   "id": "videostd",
+   "group": "video",
+   "type": "choice",
+   "flag": "-videostd",
+   "label": "Videonorm",
+   "hint": "Videonorm beim Start und Reset.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "PAL"
+    },
+    {
+     "value": "1",
+     "label": "NTSC"
+    },
+    {
+     "value": "-1",
+     "label": "Vorgabe des Hyppo"
+    }
+   ]
+  },
+  {
+   "id": "coloureffect",
+   "group": "video",
+   "type": "choice",
+   "flag": "-coloureffect",
+   "label": "Farbeffekt",
+   "hint": "Farbeffekt der Ausgabe.",
+   "choices": [
+    {
+     "value": "0",
+     "label": "keiner"
+    },
+    {
+     "value": "1",
+     "label": "Graustufen"
+    },
+    {
+     "value": "2",
+     "label": "grüner Monitor"
+    }
+   ]
+  },
+  {
+   "id": "sdlrenderquality",
+   "group": "video",
+   "type": "number",
+   "flag": "-sdlrenderquality",
+   "label": "Skalierungsqualität (SDL)",
+   "hint": "Qualität der Skalierung: 0, 1 oder 2.",
+   "min": 0,
+   "max": 2
+  },
+  {
+   "id": "winpos",
+   "group": "video",
+   "type": "text",
+   "flag": "-winpos",
+   "label": "Fensterposition",
+   "hint": "Position des Fensters als x,y.",
+   "example": "100,100"
+  },
+  {
+   "id": "nosound",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-nosound",
+   "label": "Ton aus",
+   "hint": "Schaltet die Tonausgabe ab.",
+   "conflicts": [
+    "mastervolume"
+   ]
+  },
+  {
+   "id": "mastervolume",
+   "group": "sound",
+   "type": "number",
+   "flag": "-mastervolume",
+   "label": "Gesamtlautstärke",
+   "hint": "Endlautstärke (100 = voll, 0 = stumm).",
+   "example": "80",
+   "min": 0,
+   "max": 100,
+   "conflicts": [
+    "nosound"
+   ]
+  },
+  {
+   "id": "noopl3",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-noopl3",
+   "label": "OPL3 aus",
+   "hint": "Schaltet die OPL3-Nachbildung ab."
+  },
+  {
+   "id": "model",
+   "group": "system",
+   "type": "number",
+   "flag": "-model",
+   "label": "MEGA65-Modell",
+   "hint": "Kennung des nachgebildeten MEGA65-Modells.",
+   "min": 0
+  },
+  {
+   "id": "fastclock",
+   "group": "system",
+   "type": "number",
+   "flag": "-fastclock",
+   "label": "Takt im Schnellmodus (MHz)",
+   "hint": "Takt des MEGA65 im schnellen Modus.",
+   "example": "40",
+   "min": 1
+  },
+  {
+   "id": "fastboot",
+   "group": "system",
+   "type": "switch",
+   "flag": "-fastboot",
+   "label": "Schneller Start",
+   "hint": "Versucht beim Hochfahren den schlaflosen (schnellsten) Emulationsmodus."
+  },
+  {
+   "id": "sleepless",
+   "group": "system",
+   "type": "switch",
+   "flag": "-sleepless",
+   "label": "Höchste Geschwindigkeit",
+   "hint": "Maximale Emulationsgeschwindigkeit (zum Testen)."
+  },
+  {
+   "id": "go64",
+   "group": "system",
+   "type": "switch",
+   "flag": "-go64",
+   "label": "In den C64-Modus",
+   "hint": "Wechselt nach dem Start in den C64-Modus (mit Eintippen, kombinierbar mit „Autoload“)."
+  },
+  {
+   "id": "autoload",
+   "group": "system",
+   "type": "switch",
+   "flag": "-autoload",
+   "label": "Erstes Programm der Diskette starten",
+   "hint": "Lädt und startet das erste Programm von der Diskette (mit Eintippen)."
+  },
+  {
+   "id": "joyport",
+   "group": "input",
+   "type": "choice",
+   "flag": "-joyport",
+   "label": "Joystickport",
+   "hint": "Welcher Joystickport standardmäßig nachgebildet wird.",
+   "choices": [
+    {
+     "value": "1",
+     "label": "Port 1"
+    },
+    {
+     "value": "2",
+     "label": "Port 2"
+    }
+   ]
+  },
+  {
+   "id": "curskeyjoy",
+   "group": "input",
+   "type": "switch",
+   "flag": "-curskeyjoy",
+   "label": "Cursortasten als Joystick",
+   "hint": "Die Cursortasten ersetzen den Joystick; im BASIC lässt sich dann der Cursor nicht mehr bewegen."
+  },
+  {
+   "id": "nomouseemu",
+   "group": "input",
+   "type": "switch",
+   "flag": "-nomouseemu",
+   "label": "Keine Mausnachbildung",
+   "hint": "Schaltet die Mausnachbildung ab."
+  },
+  {
+   "id": "allowmousegrab",
+   "group": "input",
+   "type": "switch",
+   "flag": "-allowmousegrab",
+   "label": "Maus mit Linksklick einfangen",
+   "hint": "Erlaubt das Einfangen der Maus per Linksklick."
+  },
+  {
+   "id": "d81",
+   "group": "drives",
+   "type": "file",
+   "flag": "-8",
+   "label": "D81-Image in Laufwerk 8",
+   "hint": "Externes D81-Image (nicht auf der SD-Karte) in Laufwerk 8.",
+   "example": "{disk}"
+  },
+  {
+   "id": "d81_9",
+   "group": "drives",
+   "type": "file",
+   "flag": "-9",
+   "label": "D81-Image in Laufwerk 9",
+   "hint": "Externes D81-Image in Laufwerk 9."
+  },
+  {
+   "id": "sdimg",
+   "group": "drives",
+   "type": "file",
+   "flag": "-sdimg",
+   "label": "SD-Karten-Image",
+   "hint": "Pfad des SD-Karten-Images, das statt des Standards verwendet wird."
+  },
+  {
+   "id": "cart",
+   "group": "drives",
+   "type": "file",
+   "flag": "-cart",
+   "label": "Modul",
+   "hint": "Lädt eine Moduldatei.",
+   "example": "{output}"
+  },
+  {
+   "id": "initattic",
+   "group": "drives",
+   "type": "file",
+   "flag": "-initattic",
+   "label": "Attic-RAM vorbelegen",
+   "hint": "Füllt das Attic-RAM mit dem Inhalt einer Datei."
+  },
+  {
+   "id": "headless",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-headless",
+   "label": "Ohne Fenster",
+   "hint": "Läuft ohne Fenster (für Tests)."
+  },
+  {
+   "id": "besure",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-besure",
+   "label": "Rückfragen unterdrücken",
+   "hint": "Überspringt die Rückfrage „Sicher?“ bei Reset und Beenden."
+  },
+  {
+   "id": "screenshot",
+   "group": "debug",
+   "type": "file",
+   "flag": "-screenshot",
+   "label": "Bildschirmfoto beim Beenden",
+   "hint": "Speichert beim Beenden ein Bild als PNG.",
+   "example": "{project_dir}/build/{project}.png"
+  },
+  {
+   "id": "dumpmem",
+   "group": "debug",
+   "type": "file",
+   "flag": "-dumpmem",
+   "label": "Speicher beim Beenden sichern",
+   "hint": "Schreibt beim Beenden den Speicherinhalt in diese Datei."
+  },
+  {
+   "id": "dumpscreen",
+   "group": "debug",
+   "type": "file",
+   "flag": "-dumpscreen",
+   "label": "Bildschirmtext beim Beenden sichern",
+   "hint": "Schreibt beim Beenden den Bildschirminhalt als Text in diese Datei."
+  },
+  {
+   "id": "hyperserialfile",
+   "group": "debug",
+   "type": "file",
+   "flag": "-hyperserialfile",
+   "label": "Serielle Hypervisor-Ausgabe in Datei",
+   "hint": "Schreibt die serielle Ausgabe des Hypervisors in diese Datei."
+  },
+  {
+   "id": "hyperdebug",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-hyperdebug",
+   "label": "Hypervisor-Debug",
+   "hint": "Sehr langsamer, gesprächiger Debugmodus des Hypervisors."
+  },
+  {
+   "id": "matrixstart",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-matrixstart",
+   "label": "Matrix-Modus beim Start",
+   "hint": "Startet mit aktiviertem Matrix-Modus (Monitor)."
+  }
+ ],
+ "debug_reserved": [
+  "-uartmon <value>",
+  "-besure",
+  "-rom <value>"
+ ]
+}

@@ -1,0 +1,12 @@
+# Bau-Image fuer Linux-Pakete (.rpm) auf openSUSE Tumbleweed: Rust (rustup), rpmbuild, Python 3 und die Entwicklungsbibliotheken der IDE.
+# Image: vc-build-opensuse   (Aufbau und Aufruf: Makefile, tools/linux-build.sh)
+#   docker build --platform linux/amd64 -t vc-build-opensuse -f tools/docker/Dockerfile.opensuse tools/docker
+FROM opensuse/tumbleweed
+ENV LANG=C.UTF-8 RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo PATH=/opt/cargo/bin:$PATH
+RUN zypper --non-interactive install -y gcc gcc-c++ make pkg-config curl git python3 rpm-build tar gzip xz \
+      alsa-devel libxkbcommon-devel wayland-devel libX11-devel libXcursor-devel libXrandr-devel libXi-devel \
+      Mesa-libGL-devel Mesa-libEGL-devel \
+    && zypper clean --all
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable \
+    && chmod -R a+rwX /opt/rustup /opt/cargo
+WORKDIR /src

@@ -1,0 +1,104 @@
+{
+  "systems": {
+    "c64": {
+      "label": "Commodore 64",
+      "target": {
+        "id": "c64",
+        "system": "c64",
+        "variant": "pal",
+        "cpu": "6510",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "c128": {
+      "label": "Commodore 128",
+      "target": {
+        "id": "c128",
+        "system": "c128",
+        "variant": "pal",
+        "cpu": "8502",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "plus4": {
+      "label": "Commodore Plus/4",
+      "target": {
+        "id": "plus4",
+        "system": "plus4",
+        "variant": "pal",
+        "cpu": "7501",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "c16": {
+      "label": "Commodore 16 / 116",
+      "target": {
+        "id": "c16",
+        "system": "c16",
+        "variant": "pal",
+        "cpu": "7501",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "vic20": {
+      "label": "Commodore VC-20",
+      "target": {
+        "id": "vic20",
+        "system": "vic20",
+        "variant": "pal",
+        "memory": "unexpanded",
+        "cpu": "nmos6502",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "atari8": {
+      "label": "Atari 8-Bit",
+      "target": {
+        "id": "atari8",
+        "system": "atari8",
+        "model": "800xl",
+        "variant": "pal",
+        "cpu": "sally",
+        "illegals": "deny",
+        "emulator": "atari800"
+      }
+    },
+    "mega65": {
+      "label": "MEGA65",
+      "target": {
+        "id": "mega65",
+        "system": "mega65",
+        "cpu": "45gs02",
+        "illegals": "deny",
+        "emulator": "xemu"
+      }
+    },
+    "pet": {
+      "label": "Commodore PET / CBM",
+      "target": {
+        "id": "pet",
+        "system": "pet",
+        "variant": "pal",
+        "cpu": "nmos6502",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    },
+    "cbm2": {
+      "label": "Commodore CBM-II (nur BASIC)",
+      "target": {
+        "id": "cbm2",
+        "system": "cbm2",
+        "variant": "pal",
+        "cpu": "nmos6502",
+        "illegals": "warn",
+        "emulator": "vice"
+      }
+    }
+  }
+}

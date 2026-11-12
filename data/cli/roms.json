@@ -1,0 +1,549 @@
+{
+  "command": "roms",
+  "group": "daten",
+  "summary": "ROM-Dateien anzeigen, prüfen und importieren",
+  "description": [
+    "Verwaltet die ROM-Abbilder, die Emulatoren und Prüfungen brauchen. Systeme sind c64, c128, vic20, plus4, atari8 und mega65; eine Rolle ist eine einzelne ROM eines Systems (z. B. c64/kernal). Der ROM-Ordner lässt sich mit VC_ROMS ersetzen."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "list",
+      "usage": "vcc roms list [system] [optionen]",
+      "summary": "Status je System und Rolle anzeigen",
+      "args": [
+        {
+          "name": "system",
+          "required": false,
+          "repeat": false,
+          "help": "Nur dieses System anzeigen."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "suche",
+          "label": "Suche"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Gibt die Liste als JSON aus.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--foreign",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Sucht auch in ROM-Ordnern anderer Programme.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--project",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Projektordner, in dem zuerst nach ROMs gesucht wird.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "alle Systeme",
+          "cmd": "vcc roms list"
+        },
+        {
+          "title": "nur C64 als JSON",
+          "cmd": "vcc roms list c64 --json"
+        }
+      ],
+      "notes": [
+        "Ein Status ist Erkannt, Unbekannte Revision, Ersatz (frei), Fehlt oder Nicht benutzbar."
+      ],
+      "see_also": [
+        "roms"
+      ]
+    },
+    {
+      "id": "check",
+      "usage": "vcc roms check [system ...] [optionen]",
+      "summary": "prüfen, ob die erforderlichen ROMs vorhanden sind",
+      "args": [
+        {
+          "name": "system",
+          "required": false,
+          "repeat": true,
+          "help": "Zu prüfende Systeme; ohne Angabe alle."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "suche",
+          "label": "Suche"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--foreign",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Sucht auch in ROM-Ordnern anderer Programme.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--project",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Projektordner, in dem zuerst nach ROMs gesucht wird.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "alle Systeme prüfen",
+          "cmd": "vcc roms check"
+        },
+        {
+          "title": "C64 und Atari prüfen",
+          "cmd": "vcc roms check c64 atari8"
+        }
+      ],
+      "notes": [
+        "Ersatz-ROMs gelten als vorhanden. Fehlt etwas und liegen passende Dateien in anderen Programmen, nennt die Ausgabe vcc roms import --from-others."
+      ],
+      "exit": {
+        "0": "alle erforderlichen ROMs vorhanden",
+        "1": "eine erforderliche ROM fehlt",
+        "2": "unbekanntes System"
+      },
+      "see_also": []
+    },
+    {
+      "id": "path",
+      "usage": "vcc roms path <system/rolle> [optionen]",
+      "summary": "Pfad der benutzten ROM-Datei ausgeben",
+      "args": [
+        {
+          "name": "system/rolle",
+          "required": true,
+          "repeat": false,
+          "help": "System und Rolle, z. B. c64/kernal."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "suche",
+          "label": "Suche"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--foreign",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Sucht auch in ROM-Ordnern anderer Programme.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--project",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Projektordner, in dem zuerst nach ROMs gesucht wird.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Pfad des C64-KERNAL",
+          "cmd": "vcc roms path c64/kernal"
+        }
+      ],
+      "exit": {
+        "0": "Pfad ausgegeben",
+        "1": "die Datei fehlt oder ist nicht benutzbar",
+        "2": "Angabe nicht in der Form system/rolle"
+      },
+      "see_also": []
+    },
+    {
+      "id": "where",
+      "usage": "vcc roms where [optionen]",
+      "summary": "ROM-Ordner, Suchorte und portablen Modus anzeigen",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "suche",
+          "label": "Suche"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--foreign",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Sucht auch in ROM-Ordnern anderer Programme.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--project",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Projektordner, in dem zuerst nach ROMs gesucht wird.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Suchorte anzeigen",
+          "cmd": "vcc roms where"
+        },
+        {
+          "title": "mit ROMs anderer Programme",
+          "cmd": "vcc roms where --foreign"
+        }
+      ],
+      "notes": [
+        "Zeigt Schreibziel, Benutzerordner, portablen Modus, Zwischenspeicher und die gesuchten Orte in der Reihenfolge der Suche."
+      ],
+      "see_also": []
+    },
+    {
+      "id": "import",
+      "usage": "vcc roms import <datei|ordner> ... [optionen]",
+      "summary": "erkannte ROMs in den ROM-Ordner kopieren",
+      "args": [
+        {
+          "name": "datei|ordner",
+          "required": true,
+          "repeat": true,
+          "help": "Dateien oder Ordner mit ROM-Abbildern; entfällt bei --from-others."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "suche",
+          "label": "Suche"
+        },
+        {
+          "id": "import",
+          "label": "Import"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--system",
+          "short": "",
+          "value": "system",
+          "group": "import",
+          "help": "Ordnet die Dateien diesem System zu, statt es zu erkennen.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--from-others",
+          "short": "",
+          "value": "",
+          "group": "import",
+          "help": "Übernimmt passende ROMs aus Ordnern anderer Programme statt aus Dateien.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "import",
+          "help": "Kopiert wirklich; ohne --yes zeigt der Befehl nur die Vorschau.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--foreign",
+          "short": "",
+          "value": "",
+          "group": "suche",
+          "help": "Sucht auch in ROM-Ordnern anderer Programme.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--project",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Projektordner, in dem zuerst nach ROMs gesucht wird.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "suche",
+          "help": "Ordner der Hardware-Datenbank.",
+          "default": "",
+          "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Vorschau für einen Ordner",
+          "cmd": "vcc roms import ~/Downloads/c64roms"
+        },
+        {
+          "title": "ROMs anderer Programme übernehmen",
+          "cmd": "vcc roms import --from-others --yes"
+        }
+      ],
+      "notes": [
+        "Ohne --yes wird nichts kopiert."
+      ],
+      "exit": {
+        "0": "Vorschau ausgegeben oder kopiert",
+        "1": "Kopieren fehlgeschlagen",
+        "2": "keine Dateien angegeben"
+      },
+      "see_also": []
+    },
+    {
+      "id": "emit-known",
+      "usage": "vcc roms emit-known [optionen]",
+      "summary": "Einträge für data/roms/known.json aus echten Dateien erzeugen",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "tabelle",
+          "label": "Tabelle"
+        },
+        {
+          "id": "eintrag",
+          "label": "Eintrag (hinter --file)"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--into",
+          "short": "",
+          "value": "datei.json",
+          "group": "tabelle",
+          "help": "Schreibt in diese Tabelle (wird gelesen und ergänzt, falls sie existiert); ohne Angabe nach stdout.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--vice",
+          "short": "",
+          "value": "ordner",
+          "group": "tabelle",
+          "help": "Übernimmt die ROMs aus einem VICE-Datenordner.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--merge-json",
+          "short": "",
+          "value": "datei.json",
+          "group": "tabelle",
+          "help": "Fügt Einträge aus einer JSON-Liste im Format von known.json hinzu.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--file",
+          "short": "",
+          "value": "datei",
+          "group": "eintrag",
+          "help": "Beginnt einen Eintrag für diese ROM-Datei; die folgenden Optionen gehören dazu.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--as",
+          "short": "",
+          "value": "system/rolle",
+          "group": "eintrag",
+          "help": "System und Rolle des Eintrags.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--rev",
+          "short": "",
+          "value": "rev",
+          "group": "eintrag",
+          "help": "Revision des Eintrags.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--free",
+          "short": "",
+          "value": "",
+          "group": "eintrag",
+          "help": "Markiert die ROM als frei (Ersatz-ROM).",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--default",
+          "short": "",
+          "value": "",
+          "group": "eintrag",
+          "help": "Markiert die Revision als Standard der Rolle.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--note",
+          "short": "",
+          "value": "text",
+          "group": "eintrag",
+          "help": "Anmerkung zum Eintrag.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--set",
+          "short": "",
+          "value": "name:offset:size:profile[:text]",
+          "group": "eintrag",
+          "help": "Benennt einen Bereich der ROM (Offset, Größe, Profil).",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "aus VICE-Daten in eine Tabelle",
+          "cmd": "vcc roms emit-known --vice /usr/lib/vice --into known.json"
+        },
+        {
+          "title": "eine Datei eintragen",
+          "cmd": "vcc roms emit-known --file kernal.bin --as c64/kernal --rev 901227-03 --into known.json"
+        }
+      ],
+      "notes": [
+        "Werkzeug für die Pflege der Datenbank. --as, --rev, --free, --default, --note und --set gelten für das davor stehende --file; --as ist je --file Pflicht."
+      ],
+      "exit": {
+        "0": "Tabelle ausgegeben oder geschrieben",
+        "1": "mindestens ein Eintrag fehlgeschlagen",
+        "2": "Option ohne vorangehendes --file oder unbekannte Option"
+      },
+      "see_also": []
+    }
+  ]
+}

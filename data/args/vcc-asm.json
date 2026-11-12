@@ -1,0 +1,59 @@
+{
+ "program": "vcc-asm",
+ "label": "Assembler (vc-asm)",
+ "kinds": [
+  "vcc-asm"
+ ],
+ "strict": true,
+ "verified": "vcc --help (vcc asm): --illegals, -I und -D; Verhalten in vc_ide::args::apply_asm und den Tests",
+ "groups": [
+  {
+   "id": "asm",
+   "label": "Assembler"
+  }
+ ],
+ "reserved": [],
+ "params": [
+  {
+   "id": "illegals",
+   "group": "asm",
+   "type": "choice",
+   "flag": "--illegals",
+   "label": "Illegale Opcodes",
+   "hint": "Wie der Assembler mit illegalen (undokumentierten) 6502-Befehlen umgeht.",
+   "choices": [
+    {
+     "value": "deny",
+     "label": "verbieten (Fehler)"
+    },
+    {
+     "value": "warn",
+     "label": "warnen"
+    },
+    {
+     "value": "allow",
+     "label": "erlauben"
+    }
+   ],
+   "default": "warn"
+  },
+  {
+   "id": "include",
+   "group": "asm",
+   "type": "text",
+   "flag": "-I",
+   "label": "Include-Ordner",
+   "hint": "Zusätzlicher Suchordner für .include und .incbin; nach dem Projektordner, vor den Systemdateien. Weitere Ordner im freien Feld mit je einem eigenen -I.",
+   "example": "{project_dir}/inc"
+  },
+  {
+   "id": "define",
+   "group": "asm",
+   "type": "text",
+   "flag": "-D",
+   "label": "Konstante",
+   "hint": "Legt eine Konstante NAME=Zahl für alle Quellen an (z. B. DEBUG=1 für .if DEBUG). Weitere im freien Feld mit je einem eigenen -D.",
+   "example": "DEBUG=1"
+  }
+ ]
+}

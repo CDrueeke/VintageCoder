@@ -1,0 +1,20 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "dmagic",
+  "name": "DMAgic (F018B) / Enhanced DMA",
+  "window": {
+    "space": "cpu16",
+    "start": "$D700",
+    "end": "$D70F"
+  },
+  "_comment": "Quelle: MEGA65/mega65-core iomap.txt; erzeugt von tools/gen_chips_mega65.py",
+  "regs": [
+    {"name": "addrlsbtrig", "addr": "$D700", "access": "rw", "doc": "DMAgic DMA list address LSB (bits 0 - 7), trigger DMA when written."},
+    {"name": "addrmsb", "addr": "$D701", "access": "rw", "doc": "DMA list address high byte (bits 8 - 15)."},
+    {"name": "addrmb", "addr": "$D704", "access": "rw", "doc": "DMA list address mega-byte (bits 20 - 27). Overlaps with ADDRBANK!"},
+    {"name": "etrig", "addr": "$D705", "access": "rw", "doc": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list address specified as 28-bit flat address (uses DMA option"},
+    {"name": "etrigmapd", "addr": "$D706", "access": "rw", "doc": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list in current CPU memory map (uses DMA option list)"},
+    {"name": "etriginline", "addr": "$D707", "access": "rw", "doc": "Trigger Enhanced DMAgic job inline (i.e., beginning at PC value, and setting PC to end of job when done)"},
+    {"name": "addrlsb", "addr": "$D70E", "access": "rw", "doc": "DMA list address low byte (bits 0 - 7) WITHOUT STARTING A DMA JOB (used by Hypervisor for unfreezing DMA-using tasks)"}
+  ]
+}

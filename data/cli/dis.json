@@ -1,0 +1,98 @@
+{
+  "command": "dis",
+  "group": "daten",
+  "summary": "Maschinenprogramm disassemblieren",
+  "description": [
+    "Gibt das Disassemblat auf der Standardausgabe aus: Adresse, Bytes und Befehl je Zeile; undokumentierte Befehle tragen den Zusatz „undokumentiert“.",
+    "Bei .prg steht die Startadresse im Dateikopf. Atari-XEX-Dateien (Endung .xex oder .com, oder Kopf $FFFF) werden Segment für Segment mit ihren Adressen ausgegeben. Bei anderen Dateien gilt Adresse 0, wenn --start fehlt."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc dis <datei> [optionen]",
+      "summary": "",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "Programmdatei (.prg, .xex, .bin)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "dis",
+          "label": "Disassemblieren"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--start",
+          "short": "",
+          "value": "adresse",
+          "group": "dis",
+          "help": "Startadresse des Abbilds. Die Datei wird dann als rohe Bytes gelesen: bei .prg zählt der Kopf mit, bei XEX entfällt die Segmentaufteilung.",
+          "choices": [],
+          "default": "",
+          "default_text": "Ladeadresse bei .prg; Segmentadressen bei XEX; sonst 0",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "cpu",
+          "group": "dis",
+          "help": "CPU-Befehlssatz.",
+          "choices": [
+            "45gs02",
+            "6510",
+            "7501",
+            "8502",
+            "nmos6502",
+            "sally"
+          ],
+          "default": "6510",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "dis",
+          "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "C64-Programm disassemblieren",
+          "cmd": "vcc dis border.prg"
+        },
+        {
+          "title": "MEGA65-Programm mit 45GS02",
+          "cmd": "vcc dis prallball.prg --cpu 45gs02"
+        },
+        {
+          "title": "rohes Abbild ab Adresse",
+          "cmd": "vcc dis kernal.bin --start $e000"
+        }
+      ],
+      "notes": [
+        "Adressen sind Zahlen wie 49152, $c000, 0xc000 oder %1100; eine ungültige Zahl bei --start wird übergangen.",
+        "Die Erkennung von .prg beachtet die Groß- und Kleinschreibung der Endung."
+      ],
+      "see_also": [
+        "asm",
+        "import"
+      ]
+    }
+  ]
+}

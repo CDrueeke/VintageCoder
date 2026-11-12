@@ -1,0 +1,34 @@
+{
+  "program": "vcc",
+  "summary": "Assembler, BASIC, Medien und Tests für Retro-Systeme",
+  "intro": "vcc ist das Kommandozeilenwerkzeug von VintageCoder. Es übersetzt Assembler und BASIC für C64, C128, Plus/4, VC-20, Atari 8 Bit und MEGA65, legt Projekte an, baut Disketten und führt Tests aus.",
+  "groups": [
+    { "id": "bauen", "label": "Programme bauen" },
+    { "id": "projekte", "label": "Projekte" },
+    { "id": "daten", "label": "Medien und Daten" },
+    { "id": "testen", "label": "Testen und Messen" },
+    { "id": "hilfe", "label": "Hilfe und Rückmeldung" }
+  ],
+  "overview_examples": [
+    { "title": "neues C64-Projekt", "cmd": "vcc new spiel --target c64" },
+    { "title": "übersetzen (das Ziel steht im Quelltext)", "cmd": "vcc asm prog.asm -o prog.prg" },
+    { "title": "Emulator-Tests", "cmd": "vcc test --backend vice" }
+  ],
+  "env": [
+    { "name": "VC_DATA", "help": "Ordner der Hardware-Datenbank (data); sonst neben dem Programm oder im Arbeitsordner." },
+    { "name": "VC_ROMS", "help": "ROM-Ordner des Benutzers (statt roms/ im Konfigurationsordner)." },
+    { "name": "VC_XEMU", "help": "Pfad zum Xemu-Programm (MEGA65-Emulator)." },
+    { "name": "VC_XEMU_SD", "help": "Ordner mit MEGA65.ROM für Xemu." },
+    { "name": "VC_XEMU_ARGS", "help": "zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt." },
+    { "name": "VC_STRUCTURES", "help": "Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner)." },
+    { "name": "VC_DEBUG_LOG", "help": "Debug-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc." },
+    { "name": "VC_WIN", "help": "Fenstergröße der IDE, z. B. 1400x860 (nur vintagecoder)." },
+    { "name": "COLUMNS", "help": "Breite für den Zeilenumbruch der Hilfe (Standard: 100)." },
+    { "name": "NO_COLOR", "help": "keine Farben in der Ausgabe der Hilfe." }
+  ],
+  "exit": [
+    { "code": "0", "help": "fehlerfrei" },
+    { "code": "1", "help": "Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung)" },
+    { "code": "2", "help": "falscher Aufruf (unbekannter Befehl oder unbekannte Option)" }
+  ]
+}

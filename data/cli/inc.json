@@ -1,0 +1,84 @@
+{
+  "command": "inc",
+  "group": "daten",
+  "summary": "Include-Datei mit Hardwarekonstanten ausgeben",
+  "description": [
+    "Erzeugt aus der Hardware-Datenbank (data/chips) eine Include-Datei mit den Registern der Chips des Zielsystems als .const-Zeilen. Ohne -o geht der Text auf die Standardausgabe."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc inc --target <system> [optionen]",
+      "summary": "",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "inc",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "inc",
+          "help": "Zielsystem, dessen Chips ausgegeben werden.",
+          "choices": [
+            "atari8",
+            "c128",
+            "c64",
+            "cbm2",
+            "mega65",
+            "pet",
+            "plus4",
+            "vic20"
+          ],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "datei.inc",
+          "group": "inc",
+          "help": "Ausgabedatei; ohne die Option erscheint der Text auf dem Bildschirm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "inc",
+          "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "C64-Konstanten ausgeben",
+          "cmd": "vcc inc --target c64",
+          "run": true
+        },
+        {
+          "title": "Atari-Konstanten in eine Datei",
+          "cmd": "vcc inc --target atari8 -o atari.inc"
+        }
+      ],
+      "see_also": [
+        "asm"
+      ]
+    }
+  ]
+}

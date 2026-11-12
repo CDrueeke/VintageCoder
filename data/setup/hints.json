@@ -1,0 +1,23 @@
+[
+  { "program": "vice", "os": "macos", "package_manager": "brew", "command": "brew install vice", "url": "https://vice-emu.sourceforge.io/", "note": "Alternativ das fertige Paket von der Webseite (Ordner nach /Applications ziehen)." },
+  { "program": "vice", "os": "windows", "package_manager": "", "command": "", "url": "https://vice-emu.sourceforge.io/", "note": "Das ZIP von der Webseite entpacken; den Pfad zu x64sc.exe unter „Pfad wählen“ eintragen." },
+  { "program": "vice", "os": "linux", "package_manager": "apt", "command": "sudo apt install vice", "url": "https://vice-emu.sourceforge.io/", "note": "Debian und Ubuntu." },
+  { "program": "vice", "os": "linux", "package_manager": "dnf", "command": "sudo dnf install vice", "url": "https://vice-emu.sourceforge.io/", "note": "Fedora: das Paket liegt bei RPM Fusion; dort zuerst das Repository einrichten." },
+  { "program": "vice", "os": "linux", "package_manager": "zypper", "command": "sudo zypper install vice", "url": "https://vice-emu.sourceforge.io/", "note": "openSUSE: das Paket liegt im Repository Packman." },
+  { "program": "vice", "os": "linux", "package_manager": "flatpak", "command": "flatpak install flathub net.sf.VICE", "url": "https://flathub.org/apps/net.sf.VICE", "note": "Ein Flatpak liegt nicht im PATH; den Fundort „flatpak run net.sf.VICE“ bitte unter „Pfad wählen“ prüfen." },
+
+  { "program": "atari800", "os": "macos", "package_manager": "brew", "command": "brew install atari800", "url": "https://atari800.github.io/", "note": "" },
+  { "program": "atari800", "os": "windows", "package_manager": "", "command": "", "url": "https://atari800.github.io/", "note": "Unter Windows nutzt VintageCoder bevorzugt Altirra; atari800 ist die Alternative." },
+  { "program": "atari800", "os": "linux", "package_manager": "apt", "command": "sudo apt install atari800", "url": "https://atari800.github.io/", "note": "Debian und Ubuntu." },
+  { "program": "atari800", "os": "linux", "package_manager": "dnf", "command": "sudo dnf install atari800", "url": "https://atari800.github.io/", "note": "Fedora." },
+  { "program": "atari800", "os": "linux", "package_manager": "zypper", "command": "sudo zypper install atari800", "url": "https://atari800.github.io/", "note": "openSUSE." },
+  { "program": "atari800", "os": "linux", "package_manager": "flatpak", "command": "flatpak install flathub com.atari800.Atari800", "url": "https://atari800.github.io/", "note": "Nicht auf einer Maschine geprüft; den Namen des Flatpaks bitte vor dem Kopieren auf Flathub nachsehen." },
+
+  { "program": "xemu", "os": "macos", "package_manager": "", "command": "", "url": "https://github.com/lgblgblgb/xemu", "note": "Die fertige Version „xmega65“ von der Webseite laden; macOS fragt beim ersten Start nach (Rechtsklick ▸ Öffnen)." },
+  { "program": "xemu", "os": "windows", "package_manager": "", "command": "", "url": "https://github.com/lgblgblgb/xemu", "note": "Das fertige Paket „xmega65“ von der Webseite entpacken und den Pfad unter „Pfad wählen“ eintragen." },
+  { "program": "xemu", "os": "linux", "package_manager": "", "command": "", "url": "https://github.com/lgblgblgb/xemu", "note": "Je nach Verteilung als Paket oder zum Selbstbauen; die Webseite beschreibt beide Wege." },
+
+  { "program": "altirra", "os": "windows", "package_manager": "", "command": "", "url": "https://www.virtualdub.org/altirra.html", "note": "Das ZIP entpacken; Altirra64.exe ist das 64-Bit-Programm." },
+
+  { "program": "serial", "os": "linux", "package_manager": "", "command": "sudo usermod -aG dialout $USER", "url": "", "note": "Gibt deinem Benutzer Zugriff auf serielle Schnittstellen (MEGA65). Danach ab- und wieder anmelden. Auf manchen Verteilungen heißt die Gruppe uucp. VintageCoder führt diesen Befehl nie selbst aus." }
+]

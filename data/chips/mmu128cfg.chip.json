@@ -1,0 +1,17 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "mmu128cfg",
+  "name": "MMU-Konfigurationsregister ($FF00)",
+  "window": {
+    "space": "cpu16",
+    "start": "$FF00",
+    "end": "$FF04"
+  },
+  "regs": [
+    {"name": "cr_mirror", "addr": "$FF00", "access": "rw", "doc": "Konfigurationsregister (Spiegel von $D500)"},
+    {"name": "lcra", "addr": "$FF01", "access": "w", "doc": "Konfiguration A laden"},
+    {"name": "lcrb", "addr": "$FF02", "access": "w", "doc": "Konfiguration B laden"},
+    {"name": "lcrc", "addr": "$FF03", "access": "w", "doc": "Konfiguration C laden"},
+    {"name": "lcrd", "addr": "$FF04", "access": "w", "doc": "Konfiguration D laden"}
+  ]
+}

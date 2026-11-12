@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: jumprun",
+    "description": "Hugo & Gumbo: selbstlaufende Jump-and-Run-Demo (Assembler, POKEY, Player-Missile-Grafik)"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "jumprun.asm"
+      ]
+    }
+  ],
+  "main": "jumprun.asm"
+}

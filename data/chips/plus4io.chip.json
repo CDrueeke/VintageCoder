@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "plus4io",
+  "name": "Plus/4 Tastatur- und Joystickport",
+  "window": {
+    "space": "cpu16",
+    "start": "$FD10",
+    "end": "$FD3F"
+  },
+  "regs": [
+    {"name": "port6529", "addr": "$FD10", "access": "rw", "doc": "6529-Port (Kassettentaste, Zusatz)"},
+    {"name": "keyscan", "addr": "$FD30", "access": "rw", "doc": "Tastaturmatrix: Spaltenauswahl; Bit 2 Joystick-Auswahl"}
+  ]
+}

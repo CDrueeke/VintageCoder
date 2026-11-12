@@ -1,0 +1,7 @@
+; ERZEUGT von tools/gen.py: eigene Zeichen (einfarbig, 1 Bit je Pixel)
+gfx_chars:   ; Zeichen 64 (Stein links), 65 (Stein rechts), 66 (Wand), 67 (Block fuer das Titellogo), danach der volle Block (Zeichen 127)
+        .byte $7f, $7f, $7f, $7f, $7f, $7f, $7f, $00
+        .byte $fe, $fe, $fe, $fe, $fe, $fe, $fe, $00
+        .byte $ff, $81, $81, $81, $81, $81, $81, $ff
+        .byte $7e, $ff, $ff, $ff, $ff, $ff, $ff, $7e
+        .byte $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff

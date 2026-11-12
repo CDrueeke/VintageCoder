@@ -1,0 +1,24 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "cia1",
+  "name": "CIA 6526 1",
+  "window": {"space": "cpu16", "start": "$DC00", "end": "$DC0F"},
+  "regs": [
+    {"name": "pra", "addr": "$DC00", "access": "rw", "doc": "Port A"},
+    {"name": "prb", "addr": "$DC01", "access": "rw", "doc": "Port B"},
+    {"name": "ddra", "addr": "$DC02", "access": "rw", "doc": "Datenrichtung A"},
+    {"name": "ddrb", "addr": "$DC03", "access": "rw", "doc": "Datenrichtung B"},
+    {"name": "ta_lo", "addr": "$DC04", "access": "rw", "doc": "Timer A Low"},
+    {"name": "ta_hi", "addr": "$DC05", "access": "rw", "doc": "Timer A High"},
+    {"name": "tb_lo", "addr": "$DC06", "access": "rw", "doc": "Timer B Low"},
+    {"name": "tb_hi", "addr": "$DC07", "access": "rw", "doc": "Timer B High"},
+    {"name": "tod_10ths", "addr": "$DC08", "access": "rw", "doc": "Uhr: Zehntelsekunden"},
+    {"name": "tod_sec", "addr": "$DC09", "access": "rw", "doc": "Uhr: Sekunden"},
+    {"name": "tod_min", "addr": "$DC0A", "access": "rw", "doc": "Uhr: Minuten"},
+    {"name": "tod_hr", "addr": "$DC0B", "access": "rw", "doc": "Uhr: Stunden"},
+    {"name": "sdr", "addr": "$DC0C", "access": "rw", "doc": "Serielles Datenregister"},
+    {"name": "icr", "addr": "$DC0D", "access": "rw", "doc": "Interrupt-Steuerung"},
+    {"name": "cra", "addr": "$DC0E", "access": "rw", "doc": "Steuerregister A"},
+    {"name": "crb", "addr": "$DC0F", "access": "rw", "doc": "Steuerregister B"}
+  ]
+}

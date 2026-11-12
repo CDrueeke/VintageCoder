@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: standard_charsets",
+    "description": "Standardzeichensätze, OpenROMs und Momentaufnahmen"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": []
+}

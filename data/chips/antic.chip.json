@@ -1,0 +1,23 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "antic",
+  "name": "ANTIC",
+  "window": {"space": "cpu16", "start": "$D400", "end": "$D40F"},
+  "regs": [
+    {"name": "dmactl", "addr": "$D400", "access": "w", "doc": "DMA-Steuerung", "bits": [{"name": "PFW", "bit": 0, "width": 2, "doc": "Playfield-Breite (0=aus, 1=schmal, 2=normal, 3=breit)"}, {"name": "MISSILE", "bit": 2, "doc": "Missile-DMA"}, {"name": "PLAYER", "bit": 3, "doc": "Spieler-DMA"}, {"name": "ONELINE", "bit": 4, "doc": "Einzeilige PM-Auflösung"}, {"name": "DLIST", "bit": 5, "doc": "Display-List-DMA"}]},
+    {"name": "chactl", "addr": "$D401", "access": "w", "doc": "Zeichensatz-Steuerung"},
+    {"name": "dlistl", "addr": "$D402", "access": "w", "doc": "Display-List-Adresse (Low)"},
+    {"name": "dlisth", "addr": "$D403", "access": "w", "doc": "Display-List-Adresse (High)"},
+    {"name": "hscrol", "addr": "$D404", "access": "w", "doc": "Horizontales Scrollen"},
+    {"name": "vscrol", "addr": "$D405", "access": "w", "doc": "Vertikales Scrollen"},
+    {"name": "pmbase", "addr": "$D407", "access": "w", "doc": "PMG-Basisadresse (High-Byte)"},
+    {"name": "chbase", "addr": "$D409", "access": "w", "doc": "Zeichensatz-Basisadresse (High-Byte)"},
+    {"name": "wsync", "addr": "$D40A", "access": "w", "doc": "Auf Zeilenende warten"},
+    {"name": "nmien", "addr": "$D40E", "access": "w", "doc": "NMI-Freigabe", "bits": [{"name": "VBI", "bit": 6, "doc": "Vertical-Blank-NMI"}, {"name": "DLI", "bit": 7, "doc": "Display-List-NMI"}]},
+    {"name": "nmires", "addr": "$D40F", "access": "w", "doc": "NMI-Status löschen"},
+    {"name": "vcount", "addr": "$D40B", "access": "r", "doc": "Vertikaler Zeilenzähler (Zeile / 2)"},
+    {"name": "penh", "addr": "$D40C", "access": "r", "doc": "Lichtgriffel horizontal"},
+    {"name": "penv", "addr": "$D40D", "access": "r", "doc": "Lichtgriffel vertikal"},
+    {"name": "nmist", "addr": "$D40F", "access": "r", "doc": "NMI-Status"}
+  ]
+}

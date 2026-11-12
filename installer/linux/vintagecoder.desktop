@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=VintageCoder
+GenericName=IDE für 8-Bit-Systeme
+Comment=Assembler- und BASIC-Entwicklung für C64, Atari, VC-20, Plus/4 und MEGA65
+Exec=vintagecoder %f
+Icon=vintagecoder
+Terminal=false
+Categories=Development;IDE;
+StartupWMClass=vintagecoder

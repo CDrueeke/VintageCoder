@@ -1,0 +1,109 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "atari8",
+    "name": "Atari 8-Bit (400/800/XL/XE)",
+    "cpu": "sally",
+    "textEncoding": "atari",
+    "chips": ["antic", "gtia", "pokey", "pia", "os"],
+    "testMailbox": "$0600",
+    "testMailboxNote": "Postfach der Tests (Postfach-Modus, 8 Byte): Seite 6, für Anwendungen frei",
+    "verified": "emulator-tested"
+  },
+  "models": {
+    "800xl": { "ram": 65536, "os": "xl", "basicRom": true },
+    "130xe": { "ram": 131072, "os": "xl", "basicRom": true, "banking": "portb-xe" },
+    "800":   { "ram": 49152, "os": "b",  "basicRom": false }
+  },
+  "variants": {
+    "pal":  { "clockHz": 1773447, "linesPerFrame": 312, "cyclesPerLine": 114 },
+    "ntsc": { "clockHz": 1789773, "linesPerFrame": 262, "cyclesPerLine": 114 }
+  },
+  "basic": { "dialect": "atari_basic" },
+  "regions": [
+    { "name": "zeropage",   "start": "$0000", "end": "$00FF", "kind": "ram", "note": "$00-$7F OS/BASIC, $80-$FF frei (ohne BASIC)" },
+    { "name": "os_vectors", "start": "$0200", "end": "$03FF", "kind": "ram" },
+    { "name": "user_ram",   "start": "$0600", "end": "$06FF", "kind": "ram", "note": "Seite 6: frei für Anwender" },
+    { "name": "basic_rom",  "start": "$A000", "end": "$BFFF", "kind": "rom" },
+    { "name": "io",         "start": "$D000", "end": "$D7FF", "kind": "io" },
+    { "name": "os_rom",     "start": "$C000", "end": "$FFFF", "kind": "rom" }
+  ],
+  "banking": {
+    "source": "Atari XL/XE Hardware Manual und OS-Handbuch (PIA PORTB $D301, Speicherplan XL/XE); Bitnamen und Register wie data/chips/pia.chip.json und data/sys/atari8bit/os.asm. Der Atari 800 (OS B) hat kein PORTB-Banking und bekommt keine Presets. Ausgelassen: Presets, bei denen ANTIC (Bit 5 = 0) die Erweiterungsbank sieht, denn der Seitenplan zeigt die Sicht der CPU.",
+    "register": {"name": "PORTB", "addr": "$D301",
+      "bits": [
+        {"bit": 0, "name": "OSROM", "hint": "1: Betriebssystem-ROM an ($C000-$CFFF, $D800-$FFFF); 0: dort RAM"},
+        {"bit": 1, "name": "BASIC", "hint": "0: BASIC-ROM bei $A000-$BFFF an; 1: dort RAM"},
+        {"bit": 2, "name": "BANK0", "hint": "130XE: Bankwahl, niederwertiges Bit"},
+        {"bit": 3, "name": "BANK1", "hint": "130XE: Bankwahl, höherwertiges Bit"},
+        {"bit": 4, "name": "CPUBANK", "hint": "130XE: 0 = CPU sieht die gewählte Erweiterungsbank bei $4000-$7FFF"},
+        {"bit": 5, "name": "ANTICBANK", "hint": "130XE: 0 = ANTIC sieht die gewählte Erweiterungsbank bei $4000-$7FFF"},
+        {"bit": 7, "name": "SELFTEST", "hint": "0: Selbsttest-ROM bei $5000-$57FF (nur mit OSROM = 1)"}
+      ]},
+    "default": "ff",
+    "presets": [
+      {"id": "ff", "name": "OS an, BASIC aus", "value": "$FF", "models": ["800xl", "130xe"], "note": "Normalzustand mit Assembler-Programmen",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"}
+        ]},
+      {"id": "fd", "name": "OS an, BASIC an", "value": "$FD", "models": ["800xl", "130xe"], "note": "Normalzustand mit BASIC-Modul",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$A000", "end": "$BFFF", "kind": "basic_rom"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"}
+        ]},
+      {"id": "7f", "name": "OS an, Selbsttest", "value": "$7F", "models": ["800xl", "130xe"],
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$5000", "end": "$57FF", "kind": "rom", "note": "Selbsttest-ROM"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"}
+        ]},
+      {"id": "fe", "name": "OS aus, BASIC aus (RAM unter dem OS)", "value": "$FE", "models": ["800xl", "130xe"], "note": "Nur E/A bleibt sichtbar; Interruptvektoren bei $FFFA liegen im RAM",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"}
+        ]},
+      {"id": "fc", "name": "OS aus, BASIC an", "value": "$FC", "models": ["800xl", "130xe"],
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$A000", "end": "$BFFF", "kind": "basic_rom"}
+        ]},
+      {"id": "e3", "name": "Erweiterungsbank 0 für die CPU", "value": "$E3", "models": ["130xe"], "note": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"},
+          {"start": "$4000", "end": "$7FFF", "kind": "ram", "note": "Erweiterungsbank 0 (Zugriff der CPU, Bit 4 = 0)"}
+        ]},
+      {"id": "e7", "name": "Erweiterungsbank 1 für die CPU", "value": "$E7", "models": ["130xe"], "note": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"},
+          {"start": "$4000", "end": "$7FFF", "kind": "ram", "note": "Erweiterungsbank 1 (Zugriff der CPU, Bit 4 = 0)"}
+        ]},
+      {"id": "eb", "name": "Erweiterungsbank 2 für die CPU", "value": "$EB", "models": ["130xe"], "note": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"},
+          {"start": "$4000", "end": "$7FFF", "kind": "ram", "note": "Erweiterungsbank 2 (Zugriff der CPU, Bit 4 = 0)"}
+        ]},
+      {"id": "ef", "name": "Erweiterungsbank 3 für die CPU", "value": "$EF", "models": ["130xe"], "note": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+        "regions": [
+          {"start": "$D000", "end": "$D7FF", "kind": "io", "note": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Betriebssystem"},
+          {"start": "$D800", "end": "$FFFF", "kind": "kernal_rom", "note": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF"},
+          {"start": "$4000", "end": "$7FFF", "kind": "ram", "note": "Erweiterungsbank 3 (Zugriff der CPU, Bit 4 = 0)"}
+        ]}
+    ]
+  },
+  "outputs": [
+    { "format": "xex", "extension": "xex" },
+    { "format": "atr", "extension": "atr" },
+    { "format": "bin", "extension": "bin" }
+  ]
+}

@@ -1,0 +1,40 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-MIGRATE 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-migrate \- Projekt vom alten Dateischema auf das neue umstellen
+.SH ÜBERSICHT
+.B vcc migrate [projektordner]
+.br
+.SH BESCHREIBUNG
+Projekt vom alten Dateischema auf das neue umstellen
+.PP
+Benennt Dateien im alten Schema (*.asset.json) in <name>.vc<art> um, verschiebt assets/ nach graphics/ bzw. music/ und build/assets/ nach build/export/. Verweise in Quelltexten, Includes und Assets werden mitgezogen. Ausgegeben wird jede Umbenennung; build/export/ entsteht beim nächsten Bauen neu.
+.SH OPTIONEN
+.TP
+\fIprojektordner\fR
+Wurzel des Projekts; Standard ist der Arbeitsordner. (optional)
+.SH BEISPIELE
+Projekt im Arbeitsordner umstellen:
+.PP
+.RS 8
+.nf
+vcc migrate
+.fi
+.RE
+bestimmtes Projekt umstellen:
+.PP
+.RS 8
+.nf
+vcc migrate examples/c64/tests_demo
+.fi
+.RE
+.SH HINWEISE
+Gibt es nichts umzustellen, lautet die Ausgabe: nichts umzustellen.
+.PP
+Der Befehl kennt keine Optionen; das erste Argument gilt als Ordner.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-build(1)

@@ -1,0 +1,413 @@
+{
+ "$comment": "Kurzhilfe zu BASIC-Wörtern (natives BASIC aller Systeme, Schwerpunkt C64 CBM V2 und Atari BASIC) und zu den Zusätzen des Übersetzers (#include, #longnames); Schlüssel in Großbuchstaben. Ein Beispiel mit mehreren Zeilen zeigt gleichwertige Schreibweisen.",
+ "keywords": {
+  "PRINT": {
+   "text": "Gibt Text und Zahlen aus. `;` hängt direkt an, `,` springt zur nächsten Spalte.",
+   "example": "print \"Summe=\"; total"
+  },
+  "INPUT": {
+   "text": "Liest eine Eingabe in eine Variable.",
+   "example": "input \"Name\"; n$"
+  },
+  "GET": {
+   "text": "Liest eine einzelne Taste (ohne Warten) in eine Variable.",
+   "example": "get a$"
+  },
+  "LET": {
+   "text": "Zuweisung (das Wort `let` ist optional).",
+   "example": "let x = 5"
+  },
+  "IF": {
+   "text": "Bedingte Ausführung: `if bedingung then anweisung`. Statt einer Anweisung darf eine Zeilennummer oder Marke stehen. Mehrzeilig mit `else`/`endif` nur in Turbo BASIC XL; BASIC 3.5/7/65 kennen `else` in einer Zeile.",
+   "example": "if x > 3 then print \"groß\"\nif x > 3 then @gross\nif x > 3 then @gross else @klein"
+  },
+  "THEN": {
+   "text": "Folgt auf `if`; danach eine Anweisung, eine Zeilennummer oder eine Marke.",
+   "example": "if a = 1 then goto @ende\nif a = 1 then @ende\nif a = 1 then 200"
+  },
+  "ELSE": {
+   "text": "BASIC 3.5/7/65: Alternative in derselben Zeile (`if … then … else …`). Turbo BASIC XL: Alternative des mehrzeiligen `if` bis `endif`. BASIC V2 und Atari BASIC kennen `else` nicht.",
+   "example": "if a then print \"ja\" else print \"nein\""
+  },
+  "FOR": {
+   "text": "Zählschleife: `for i = 1 to 10 [step n]` … `next`.",
+   "example": "for i = 1 to 10"
+  },
+  "TO": {
+   "text": "Obergrenze der `for`-Schleife.",
+   "example": "for i = 1 to 10"
+  },
+  "STEP": {
+   "text": "Schrittweite der `for`-Schleife (auch negativ).",
+   "example": "for i = 10 to 1 step -1"
+  },
+  "NEXT": {
+   "text": "Ende der `for`-Schleife; optional mit Variablenname.",
+   "example": "next i"
+  },
+  "GOTO": {
+   "text": "Springt zu einer Zeile. Mit Marke (`@name:` am Zeilenanfang) braucht es keine Zeilennummern; der Bau setzt die Nummer ein.",
+   "example": "goto @start\ngoto 100"
+  },
+  "GOSUB": {
+   "text": "Ruft ein Unterprogramm auf; Rückkehr mit `return`. Ziel als Marke oder Zeilennummer.",
+   "example": "gosub @zeichnen\ngosub 9000"
+  },
+  "RETURN": {
+   "text": "Kehrt aus einem Unterprogramm zurück.",
+   "example": "return"
+  },
+  "ON": {
+   "text": "Verzweigung nach Wert: `on x goto a, b, c` (x = 1, 2, 3) oder `on x gosub …`. Ziele als Marken oder Zeilennummern.",
+   "example": "on x goto @a, @b, @c\non x gosub 100, 200, 300"
+  },
+  "END": {
+   "text": "Beendet das Programm.",
+   "example": "end"
+  },
+  "STOP": {
+   "text": "Hält das Programm an (mit Meldung); mit `cont` weiter.",
+   "example": "stop"
+  },
+  "REM": {
+   "text": "Kommentar bis zum Zeilenende; bleibt im Programm. Ein `;` am Zeilenanfang ist ein Kommentar, der nicht ins Programm kommt (Turbo BASIC XL: auch `'`).",
+   "example": "rem hinweis\n; hinweis (nicht im Programm)"
+  },
+  "DIM": {
+   "text": "Legt Felder (Arrays) an: `dim a(10)`, `dim n$(5)`. Einmal je Feld.",
+   "example": "dim t(99)"
+  },
+  "READ": {
+   "text": "Liest den nächsten Wert aus `data`-Zeilen.",
+   "example": "read v"
+  },
+  "DATA": {
+   "text": "Enthält Werte für `read`, der Reihe nach über alle `data`-Zeilen. Exportierte Assets (Sprites, Zeichensätze) kommen als `data` per `#include`; in `data` wird `@name` nicht ersetzt.",
+   "example": "data 1, 2, 3"
+  },
+  "RESTORE": {
+   "text": "Setzt den `data`-Zeiger zurück. Mit Zeile (`restore @daten`) auf C128, Plus/4, MEGA65 und Atari; BASIC V2 (C64, VC-20) kennt nur `restore` ohne Zeile.",
+   "example": "restore\nrestore @daten"
+  },
+  "POKE": {
+   "text": "Schreibt ein Byte in den Speicher: `poke adresse, wert` (0–255).",
+   "example": "poke 53280, 0"
+  },
+  "PEEK": {
+   "text": "Liest ein Byte aus dem Speicher: `peek(adresse)`.",
+   "example": "a = peek(197)"
+  },
+  "SYS": {
+   "text": "Ruft ein Maschinenprogramm auf (C64: `sys adresse`).",
+   "example": "sys 2061"
+  },
+  "USR": {
+   "text": "Ruft ein Maschinenprogramm auf und liefert einen Wert zurück: `x = usr(adresse [, wert])`.",
+   "example": "x = usr(1536)"
+  },
+  "WAIT": {
+   "text": "Wartet, bis ein Speicherbit gesetzt ist: `wait adresse, maske [, xor]`.",
+   "example": "wait 197, 64"
+  },
+  "OPEN": {
+   "text": "Öffnet eine Datei/ein Gerät. C64: `open lfn, gerät, sa, \"name\"`; Atari: `open #n, modus, 0, \"D:NAME\"`.",
+   "example": "open 1, 8, 2, \"daten,s,w\""
+  },
+  "CLOSE": {
+   "text": "Schließt eine Datei.",
+   "example": "close 1"
+  },
+  "LOAD": {
+   "text": "Lädt ein Programm; `,8,1` lädt an die gespeicherte Adresse.",
+   "example": "load \"name\", 8, 1"
+  },
+  "SAVE": {
+   "text": "Speichert das Programm.",
+   "example": "save \"name\", 8"
+  },
+  "RUN": {
+   "text": "Startet das Programm (löscht Variablen).",
+   "example": "run"
+  },
+  "LIST": {
+   "text": "Listet das Programm.",
+   "example": "list"
+  },
+  "NEW": {
+   "text": "Löscht das Programm.",
+   "example": "new"
+  },
+  "CLR": {
+   "text": "Löscht alle Variablen.",
+   "example": "clr"
+  },
+  "CONT": {
+   "text": "Setzt ein mit STOP/END angehaltenes Programm fort.",
+   "example": "cont"
+  },
+  "DEF": {
+   "text": "Definiert eine Funktion: `def fn f(x) = x * 2`.",
+   "example": "def fn q(x) = x * x"
+  },
+  "FN": {
+   "text": "Ruft eine mit `def fn` definierte Funktion auf.",
+   "example": "y = fn q(3)"
+  },
+  "INT": {
+   "text": "Ganzzahliger Anteil (rundet nach unten).",
+   "example": "int(3.7)"
+  },
+  "ABS": {
+   "text": "Betrag.",
+   "example": "abs(-3)"
+  },
+  "SGN": {
+   "text": "Vorzeichen: -1, 0 oder 1.",
+   "example": "sgn(x)"
+  },
+  "SQR": {
+   "text": "Quadratwurzel.",
+   "example": "sqr(16)"
+  },
+  "RND": {
+   "text": "Zufallszahl 0 ≤ x < 1. C64: `rnd(1)`, `rnd(-ti)` zum Initialisieren.",
+   "example": "r = int(rnd(1) * 6) + 1"
+  },
+  "SIN": {
+   "text": "Sinus (Bogenmaß).",
+   "example": "sin(x)"
+  },
+  "COS": {
+   "text": "Kosinus (Bogenmaß).",
+   "example": "cos(x)"
+  },
+  "TAN": {
+   "text": "Tangens.",
+   "example": "tan(x)"
+  },
+  "ATN": {
+   "text": "Arkustangens.",
+   "example": "atn(x)"
+  },
+  "LOG": {
+   "text": "Natürlicher Logarithmus.",
+   "example": "log(x)"
+  },
+  "EXP": {
+   "text": "e hoch x.",
+   "example": "exp(x)"
+  },
+  "LEN": {
+   "text": "Länge einer Zeichenkette.",
+   "example": "len(a$)"
+  },
+  "LEFT$": {
+   "text": "Linker Teil: `left$(a$, n)`.",
+   "example": "left$(a$, 3)"
+  },
+  "RIGHT$": {
+   "text": "Rechter Teil: `right$(a$, n)`.",
+   "example": "right$(a$, 3)"
+  },
+  "MID$": {
+   "text": "Teil ab Position: `mid$(a$, start [, n])` (Start bei 1).",
+   "example": "mid$(a$, 2, 3)"
+  },
+  "STR$": {
+   "text": "Zahl in Text umwandeln.",
+   "example": "str$(42)"
+  },
+  "VAL": {
+   "text": "Text in Zahl umwandeln.",
+   "example": "val(\"42\")"
+  },
+  "CHR$": {
+   "text": "Zeichen zu einem Code.",
+   "example": "chr$(65)"
+  },
+  "ASC": {
+   "text": "Code des ersten Zeichens.",
+   "example": "asc(\"A\")"
+  },
+  "TAB": {
+   "text": "Spalte in `print` (C64: `tab(n)`).",
+   "example": "print tab(10); \"x\""
+  },
+  "SPC": {
+   "text": "Leerzeichen in `print`.",
+   "example": "print spc(5); \"x\""
+  },
+  "FRE": {
+   "text": "Freier Speicher: `fre(0)`.",
+   "example": "print fre(0)"
+  },
+  "POS": {
+   "text": "Aktuelle Cursor-Spalte.",
+   "example": "pos(0)"
+  },
+  "AND": {
+   "text": "Logisches/bitweises UND.",
+   "example": "if a and b then"
+  },
+  "OR": {
+   "text": "Logisches/bitweises ODER.",
+   "example": "if a or b then"
+  },
+  "NOT": {
+   "text": "Logisches NICHT.",
+   "example": "if not a then"
+  },
+  "GRAPHICS": {
+   "text": "Atari: wählt den Grafikmodus: `graphics 0` = Text, `graphics 8` = Hires.",
+   "example": "graphics 0"
+  },
+  "COLOR": {
+   "text": "Atari: Zeichenfarbe für `plot`/`drawto`. C128, Plus/4: `color quelle, farbe` setzt Bildschirm- und Rahmenfarben (Quelle 0 = Hintergrund, 4 = Rahmen).",
+   "example": "color 1\ncolor 4, 2"
+  },
+  "SETCOLOR": {
+   "text": "Atari: `setcolor register, farbton, helligkeit`.",
+   "example": "setcolor 2, 0, 0"
+  },
+  "PLOT": {
+   "text": "Atari: Punkt setzen.",
+   "example": "plot 10, 10"
+  },
+  "DRAWTO": {
+   "text": "Atari: Linie vom letzten Punkt.",
+   "example": "drawto 50, 20"
+  },
+  "POSITION": {
+   "text": "Atari: Cursor positionieren.",
+   "example": "position 5, 5"
+  },
+  "SOUND": {
+   "text": "Atari: `sound stimme, tonhöhe, verzerrung, lautstärke`.",
+   "example": "sound 0, 100, 10, 8"
+  },
+  "TRAP": {
+   "text": "Fehler abfangen: springt bei einem Fehler zur Zeile (Atari, C128, Plus/4, MEGA65). Ziel als Marke oder Zeilennummer.",
+   "example": "trap @fehler\ntrap 1000"
+  },
+  "BYE": {
+   "text": "Atari: zurück zum Selbsttest.",
+   "example": "bye"
+  },
+  "DOS": {
+   "text": "Atari: ins DOS.",
+   "example": "dos"
+  },
+  "XIO": {
+   "text": "Atari: erweiterte E/A-Operation.",
+   "example": "xio 254, #1, 0, 0, \"D:\""
+  },
+  "PUT": {
+   "text": "Atari: ein Byte an ein Gerät senden.",
+   "example": "put #1, 65"
+  },
+  "NOTE": {
+   "text": "Atari: aktuelle Dateiposition lesen.",
+   "example": "note #1, s, b"
+  },
+  "POINT": {
+   "text": "Atari: Dateiposition setzen.",
+   "example": "point #1, s, b"
+  },
+  "WHILE": {
+   "text": "Turbo BASIC XL: Schleife mit Bedingung am Anfang, `while bedingung` … `wend`. BASIC 3.5/7/65: `do while bedingung` … `loop`.",
+   "example": "while n < 10\n  n = n + 1\nwend"
+  },
+  "WEND": {
+   "text": "Turbo BASIC XL: Ende von `while`.",
+   "example": "wend"
+  },
+  "REPEAT": {
+   "text": "Turbo BASIC XL: Schleife mit Bedingung am Ende, `repeat` … `until bedingung`.",
+   "example": "repeat\n  n = n + 1\nuntil n = 5"
+  },
+  "UNTIL": {
+   "text": "Turbo BASIC XL: Ende von `repeat`. BASIC 3.5/7/65: Bedingung bei `do until` und `loop until`.",
+   "example": "until n = 5\nloop until n = 5"
+  },
+  "ENDIF": {
+   "text": "Turbo BASIC XL: Ende des mehrzeiligen `if`.",
+   "example": "endif"
+  },
+  "DO": {
+   "text": "BASIC 3.5/7/65 und Turbo BASIC XL: Schleife ohne Zeilennummern-Sprung, `do [while|until bedingung]` … `loop [while|until bedingung]`. BASIC V2 und Atari BASIC haben kein `do`; dort springst du mit einer Marke zurück.",
+   "example": "do\n  n = n + 1\nloop until n = 5\ndo while n < 3\nloop"
+  },
+  "LOOP": {
+   "text": "Ende von `do`; optional mit `while` oder `until` und einer Bedingung.",
+   "example": "loop\nloop until n = 0\nloop while n > 0"
+  },
+  "EXIT": {
+   "text": "BASIC 3.5/7/65 und Turbo BASIC XL: verlässt die innerste `do`-Schleife (Turbo BASIC XL: auch `while` und `repeat`).",
+   "example": "if n > 5 then exit"
+  },
+  "PROC": {
+   "text": "Turbo BASIC XL: Prozedur `proc name` … `endproc`, aufgerufen mit `exec name`. Andere Dialekte haben kein `proc`; dort nimmst du `gosub @name` und `return`.",
+   "example": "proc zeichne\n  ? \"x\"\nendproc\nexec zeichne"
+  },
+  "ENDPROC": {
+   "text": "Turbo BASIC XL: Ende einer Prozedur.",
+   "example": "endproc"
+  },
+  "EXEC": {
+   "text": "Turbo BASIC XL: ruft eine Prozedur auf (`exec name`); `on x exec a, b` wählt nach Wert.",
+   "example": "exec zeichne"
+  },
+  "INCLUDE": {
+   "text": "Direktive des Übersetzers (kein BASIC-Befehl): `#include \"datei.bas\"` in einer eigenen Zeile fügt die Datei beim Bauen ein. Pfad relativ zur einbindenden Datei. Für Assets (Sprites, Zeichensätze, Songs) steht `build/export/<name>.data.bas` zur Verfügung.",
+   "example": "#include \"teile/ausgabe.bas\"\n#include \"build/export/hero.data.bas\""
+  },
+  "LONGNAMES": {
+   "text": "Direktive des Übersetzers: `#longnames` in einer eigenen Zeile erlaubt lange Variablennamen. Auf C64, VC-20, C128, Plus/4 und MEGA65 unterscheidet BASIC nur 2 Zeichen; der Bau bildet lange Namen auf freie Kurznamen ab und warnt bei Kollisionen (W313).",
+   "example": "#longnames\npunkte = 10\npunkt = 5"
+  },
+  "GRAPHIC": {
+   "text": "C128, Plus/4, MEGA65: Grafikmodus wählen und optional löschen: `graphic modus [, löschen]` (0 = Text, 1 = Hires, 2 = Hires geteilt, 3 = Multicolor, 4 = Multicolor geteilt).",
+   "example": "graphic 1, 1\ngraphic 0, 1"
+  },
+  "CIRCLE": {
+   "text": "C128, Plus/4, MEGA65: Kreis oder Ellipse: `circle farbe, x, y, xradius [, yradius]`.",
+   "example": "circle 1, 160, 100, 60"
+  },
+  "BOX": {
+   "text": "C128, Plus/4, MEGA65: Rechteck: `box farbe, x1, y1, x2, y2`.",
+   "example": "box 1, 10, 10, 100, 60"
+  },
+  "DRAW": {
+   "text": "C128, Plus/4: Punkt oder Linie: `draw farbe, x1, y1 [to x2, y2]`.",
+   "example": "draw 1, 10, 10 to 100, 80"
+  },
+  "SPRITE": {
+   "text": "C128, MEGA65: Sprite einschalten und einstellen: `sprite nummer, ein, farbe, vorrang, …`.",
+   "example": "sprite 1, 1, 2"
+  },
+  "BORDER": {
+   "text": "MEGA65: Rahmenfarbe setzen (`border farbe`). Entsprechend `background` und `foreground`.",
+   "example": "border 0\nbackground 0\nforeground 1"
+  },
+  "TRON": {
+   "text": "C128, Plus/4, MEGA65: schaltet die Zeilenverfolgung ein (`troff` aus).",
+   "example": "tron\ntroff"
+  },
+  "SCNCLR": {
+   "text": "C128, Plus/4, MEGA65: löscht den Bildschirm.",
+   "example": "scnclr"
+  },
+  "SLEEP": {
+   "text": "C128, MEGA65: wartet die angegebene Zahl Sekunden.",
+   "example": "sleep 3"
+  },
+  "DPOKE": {
+   "text": "Turbo BASIC XL: schreibt ein 16-Bit-Wort in den Speicher (`dpoke adresse, wert`).",
+   "example": "dpoke 560, 1536"
+  },
+  "TIME": {
+   "text": "Turbo BASIC XL: Zähler der Bildschirmuhr (`time`, auch `time$`).",
+   "example": "t = time"
+  }
+ }
+}

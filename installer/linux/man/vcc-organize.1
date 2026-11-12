@@ -1,0 +1,73 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-ORGANIZE 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-organize \- Projektdateien nach der Projektstruktur umsortieren
+.SH ÜBERSICHT
+.B vcc organize [projekt] [optionen]
+.br
+.SH BESCHREIBUNG
+Projektdateien nach der Projektstruktur umsortieren
+.PP
+Verschiebt Dateien des Projekts in die Ordner, die rules, layout und assets der Projektdatei vorgeben. Pfade in .include/.incbin der Quelltexte und die Projektdatei werden nachgeführt. Vorher entsteht eine Sicherung in .vcbackup/.
+.PP
+Es bleiben: Programme der Quellgruppen, Startprogramm, Disketten\-Dateien, Studio\-Dateien (ohne Ordner für studio in layout), .vctest\-Dateien (außer in einem Ordner mit Rolle Tests), die Projektdatei, README, LICENSE, CHANGELOG und Dateien im Zielordner. Ist das Ziel belegt, wird die Datei übersprungen.
+.PP
+Nach dem Verschieben baut ein Prüfbau das Projekt neu und vergleicht die Ergebnisdateien mit denen von vorher; weichen sie ab, endet der Befehl mit Exit\-Code 1.
+.SH OPTIONEN
+.TP
+\fIprojekt\fR
+Projektordner oder .vcprj\-Datei; Standard ist der Arbeitsordner. (optional)
+.PP
+\fBAblauf\fR
+.TP
+\fB\-\-dry\-run\fR
+Geplante Verschiebungen und anzupassende Quelltexte anzeigen; nichts ändern.
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Ohne Rückfrage ausführen. Ohne Terminal ist \-\-yes nötig, sonst ändert der Befehl nichts. Standard: Rückfrage im Terminal.
+.PP
+\fBUmfang\fR
+.TP
+\fB\-\-subdirs\fR
+Auch Dateien in Unterordnern umordnen, nicht nur die im Projektordner. Standard: nur Projektordner.
+.TP
+\fB\-\-no\-rewrite\fR
+Pfade in .include/.incbin der Quelltexte nicht anpassen. Standard: Pfade werden angepasst.
+.TP
+\fB\-\-no\-check\fR
+Prüfbau vor und nach dem Verschieben auslassen. Standard: Prüfbau läuft.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data) für den Prüfbau. Wird sie nicht gefunden, entfällt der Prüfbau mit Hinweis. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SH BEISPIELE
+ansehen, was verschoben würde:
+.PP
+.RS 8
+.nf
+vcc organize spiel \-\-dry\-run
+.fi
+.RE
+mit Rückfrage ausführen:
+.PP
+.RS 8
+.nf
+vcc organize spiel
+.fi
+.RE
+ohne Rückfrage, auch Unterordner:
+.PP
+.RS 8
+.nf
+vcc organize spiel \-\-subdirs \-\-yes
+.fi
+.RE
+.SH HINWEISE
+Bei Abweichung im Prüfbau: Dateien aus .vcbackup/<Zeit>/ zurückkopieren und die in moves.txt genannten Dateien zurückverschieben. Die letzten fünf Sicherungen bleiben erhalten.
+.PP
+Ohne zu verschiebende Dateien meldet der Befehl „Nichts zu ordnen.“
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei oder abgebrochen, 1 = Fehler, fehlende Bestätigung ohne Terminal oder abweichender Prüfbau
+.SH SIEHE AUCH
+vcc(1), vcc\-add(1), vcc\-new(1), vcc\-build(1)

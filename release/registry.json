@@ -1,0 +1,191 @@
+{
+  "_comment": "Technik der Release-Auswahl (nicht Teil des Pakets). Die Auswahl selbst steht nur in FEATURES.md. Pruefung: python3 tools/release.py check. Erste Fassung aus 'tools/release.py bootstrap', danach von Hand gepflegt.",
+  "format": 1,
+  "features": {
+    "IDE-APP": {
+      "kind": "ide",
+      "id": "ide",
+      "needs": [],
+      "files": []
+    },
+
+    "STU-SPRITE":  { "kind": "studio", "id": "sprite", "help": ["sprite", "sprites"],  "needs": ["IDE-APP"] },
+    "STU-CHAR":    { "kind": "studio", "id": "char", "help": ["charset", "zeichensatz"],    "needs": ["IDE-APP"] },
+    "STU-SCREEN":  { "kind": "studio", "id": "screen", "help": ["screen", "bildschirm-kacheln"],  "needs": ["IDE-APP"] },
+    "STU-TILES":   { "kind": "studio", "id": "tiles", "help": ["tiles", "bildschirm-kacheln"],   "needs": ["IDE-APP"],
+                     "soft": [["STU-CHAR", "Kachelsaetze verweisen auf Zeichensaetze"], ["STU-SCREEN", "Screen-Banks verweisen auf Bildschirme"]] },
+    "STU-PALETTE": { "kind": "studio", "id": "palette", "help": ["paletten"], "needs": ["IDE-APP"],
+                     "needs_any": ["SYS-C64", "SYS-C128", "SYS-PLUS4", "SYS-C16", "SYS-VC20", "SYS-ATARI", "SYS-MEGA65"] },
+    "STU-TRACKER": { "kind": "studio", "id": "tracker", "help": ["tracker", "envelope"], "needs": ["IDE-APP"],
+                     "needs_any": ["SYS-C64", "SYS-C128", "SYS-MEGA65", "SYS-ATARI"] },
+    "STU-PLAY":    { "kind": "studio", "id": "play", "help": ["play", "play-tracker"],    "needs": ["IDE-APP"],
+                     "needs_any": ["SYS-C64", "SYS-C128", "SYS-MEGA65", "SYS-ATARI"] },
+    "STU-DISK":    { "kind": "studio", "id": "disk", "help": ["disks", "disk-studio"],    "needs": ["IDE-APP"] },
+    "STU-MEMMAP":  { "kind": "studio", "id": "memmap", "help": ["memmap"],  "needs": ["IDE-APP"] },
+    "STU-EXTRACT": { "kind": "studio", "id": "extract", "help": [], "needs": ["IDE-APP"] },
+
+    "EMU-VICE":     { "kind": "link", "help": ["emulators"], "id": "vice", "needs_any": ["SYS-C64", "SYS-C128", "SYS-VC20", "SYS-PLUS4", "SYS-C16", "SYS-PET", "SYS-CBM2"],
+                      "files": ["data/args/vice-*.json"] },
+    "EMU-ATARI800": { "kind": "link", "help": ["emulators"], "id": "atari800", "needs": ["SYS-ATARI"], "files": ["data/args/atari800.json"] },
+    "EMU-ALTIRRA":  { "kind": "link", "help": ["emulators"], "id": "altirra",  "needs": ["SYS-ATARI"], "files": ["data/args/altirra.json"] },
+    "EMU-FUJISAN":  { "kind": "link", "help": ["emulators"], "id": "fujisan",  "needs": ["SYS-ATARI"], "files": [] },
+    "EMU-XEMU":     { "kind": "link", "help": ["emulators"], "id": "xemu",     "needs": ["SYS-MEGA65"], "files": ["data/args/xemu.json"] },
+    "HW-ULTIMATE":  { "kind": "link", "id": "ultimate", "needs": ["SYS-C64"], "files": [] },
+    "HW-MEGA65":    { "kind": "link", "id": "mega65",   "needs": ["SYS-MEGA65"], "files": [] },
+
+    "SYS-C64": {
+      "kind": "target", "id": "c64", "example_dir": "c64",
+      "files": [
+        "data/targets/c64.target.json",
+        "data/sys/c64/**",
+        "data/chips/{vic2,sid,cia1,cia2}.chip.json",
+        "data/cpus/6510.cpu.json",
+        "data/basic/cbm_v2.dialect.json",
+        "data/palettes/c64.json",
+        "data/templates/*/c64.*", "data/templates/player/c64_sid.asm"
+      ]
+    },
+    "SYS-C128": {
+      "kind": "target", "id": "c128", "example_dir": "c128",
+      "files": [
+        "data/targets/c128.target.json",
+        "data/sys/c128/**",
+        "data/sys/c64/hardware.asm",
+        "data/chips/{vic2,vic2e,vdc,sid,cia1,cia2,mmu128,mmu128cfg}.chip.json",
+        "data/cpus/8502.cpu.json",
+        "data/basic/basic7.dialect.json",
+        "data/palettes/c64.json",
+        "data/templates/*/c128.*"
+      ]
+    },
+    "SYS-MEGA65": {
+      "kind": "target", "id": "mega65", "example_dir": "mega65",
+      "files": [
+        "data/targets/mega65.target.json",
+        "data/sys/mega65/**",
+        "data/sys/c64/hardware.asm",
+        "data/chips/{vic2,vic4,dmagic,mega65,sid,sid2,sid3,sid4,cia1,cia2}.chip.json",
+        "data/cpus/45gs02.cpu.json",
+        "data/basic/basic65.dialect.json",
+        "data/mega65/**",
+        "data/templates/*/mega65.*"
+      ]
+    },
+    "SYS-PLUS4": {
+      "kind": "target", "id": "plus4", "example_dir": "plus4",
+      "files": [
+        "data/targets/plus4.target.json",
+        "data/sys/plus4/**",
+        "data/chips/{ted,acia6551,plus4io}.chip.json",
+        "data/cpus/7501.cpu.json",
+        "data/basic/basic35.dialect.json",
+        "data/palettes/c64.json",
+        "data/templates/*/plus4.*"
+      ]
+    },
+    "SYS-C16": {
+      "kind": "target", "id": "c16", "example_dir": "c16",
+      "needs": ["SYS-PLUS4"],
+      "files": [
+        "data/targets/c16.target.json",
+        "data/templates/*/c16.*"
+      ]
+    },
+    "SYS-VC20": {
+      "kind": "target", "id": "vic20", "example_dir": "vic20",
+      "files": [
+        "data/targets/vic20.target.json",
+        "data/sys/vic20/**",
+        "data/chips/{vic1,via1,via2}.chip.json",
+        "data/basic/cbm_v2.dialect.json",
+        "data/palettes/vic20.json",
+        "data/templates/*/vic20.*"
+      ]
+    },
+    "SYS-ATARI": {
+      "kind": "target", "id": "atari8", "example_dir": "atari",
+      "files": [
+        "data/targets/atari8.target.json",
+        "data/sys/atari8bit/**",
+        "data/chips/{antic,gtia,pokey,pia,os}.chip.json",
+        "data/cpus/sally.cpu.json",
+        "data/basic/{atari_basic,turbo_basic_xl}.dialect.json",
+        "data/palettes/atari.json",
+        "data/boot/xex-boot.asm",
+        "data/templates/*/atari8.*"
+      ]
+    },
+    "SYS-PET": {
+      "kind": "target", "id": "pet", "example_dir": "pet",
+      "files": [
+        "data/targets/pet.target.json",
+        "data/sys/pet/**",
+        "data/chips/{crtc,petpia1,petpia2,petvia}.chip.json",
+        "data/basic/cbm_v2.dialect.json",
+        "data/templates/*/pet.*"
+      ]
+    },
+    "SYS-CBM2": {
+      "kind": "target", "id": "cbm2", "example_dir": "cbm2",
+      "files": [
+        "data/targets/cbm2.target.json",
+        "data/chips/{cbm2crtc,cbm2sid,cia1,cbm2tpi1,cbm2tpi2}.chip.json",
+        "data/basic/cbm_v2.dialect.json",
+        "data/templates/*/cbm2.*"
+      ]
+    },
+
+    "EX-HELLO": {
+      "kind": "examples",
+      "projects": ["pet/hello", "pet/basic_hello", "cbm2/basic_hello", "mega65/hello", "mega65/cputest",
+                   "*/basic_native", "c64/basic_langenamen", "atari/turbo_basic", "*/border"]
+    },
+    "EX-JUMPRUN": {
+      "kind": "examples",
+      "projects": ["*/jumprun"],
+      "shared": ["examples/common/jumprun/**"]
+    },
+    "EX-PRALLBALL": {
+      "kind": "examples",
+      "projects": ["*/prallball", "c128/prallball_vdc"]
+    },
+    "EX-DEMOS": {
+      "kind": "examples",
+      "projects": ["*/cart_demo", "atari/colorbars", "*/gfx_demo", "*/music_demo", "atari/palette0", "atari/palette1",
+                   "atari/pmg_ship", "atari/regs_test", "*/standard_charsets", "atari/text_demo", "*/tiles_demo",
+                   "c128/vdc_hires_proto", "c64/rasterbars", "c64/sprite_demo", "c64/tests_cycles", "c64/tests_demo", "mega65/pal_demo", "mega65/play_demo"],
+      "nobuild": ["atari/pmg_ship", "*/standard_charsets", "mega65/play_demo"]
+    }
+  },
+
+  "core": [
+    "data/cli/**",
+    "data/sys/common/**",
+    "data/cpus/nmos6502.cpu.json",
+    "data/args/vcc-asm.json",
+    "data/help/**",
+    "data/roms/**",
+    "data/profile/**",
+    "data/palettes/index.json",
+    "data/templates/index.json",
+    "data/templates/structures.json",
+    "data/templates/systems.json",
+    "data/templates/player/music.inc"
+  ],
+  "never": ["data/sys/vcs2600/**"],
+
+  "root_files": ["LICENSE", "THIRD-PARTY-NOTICES.md", "README.md"],
+  "root_dirs": ["docs", "editors"],
+  "ide_files": ["crates/vc-app/assets/fonts/Inter-OFL.txt", "crates/vc-app/assets/fonts/JetBrainsMono-OFL.txt"],
+
+  "examples_ignore": ["examples/c64/lib/**"],
+  "examples_exclude_dirs": ["rom", "snapshot", "dump", "build"],
+
+  "notes": ["BAS-B2A", "ASM-CART", "ASM-45GS02"],
+
+  "preview_ok": ["SYS-PET", "SYS-CBM2"],
+  "forbidden_ide_words_parts": [["Inte", "lliJ"], ["CL", "ion"], ["Rust", "Rover"], ["PyC", "harm"], ["WebS", "torm"], ["Ecl", "ipse"], ["Sub", "lime"], ["Visual", " Studio"], ["VS", " Code"], ["VSC", "ode"], ["Neo", "vim"], ["Em", "acs"], ["Xc", "ode"]],
+
+  "ide_words_allow_technical": ["editors/ext/"],
+  "forbidden_emulator_files": ["x64sc", "x64", "x128", "xplus4", "xvic", "xpet", "xcbm2", "xcbm5x0", "atari800", "altirra", "altirra64", "fujisan", "xmega65", "xemu"]
+}

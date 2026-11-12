@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "vic2e",
+  "name": "VIC-IIe (C128-Erweiterung)",
+  "window": {
+    "space": "cpu16",
+    "start": "$D02F",
+    "end": "$D030"
+  },
+  "regs": [
+    {"name": "keys", "addr": "$D02F", "access": "rw", "doc": "Zusätzliche Tastaturleitungen K0-K2 (Bit 0-2)"},
+    {"name": "clk", "addr": "$D030", "access": "rw", "doc": "Bit 0: 2-MHz-Modus (VIC-Bildschirm aus); Bit 1: Test"}
+  ]
+}

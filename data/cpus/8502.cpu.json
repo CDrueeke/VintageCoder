@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/cpu-1.json",
+  "id": "8502",
+  "extends": "nmos6502",
+  "features": [
+    "illegal.stable",
+    "illegal.unstable"
+  ],
+  "port": {
+    "ddr": "$00",
+    "data": "$01",
+    "bits": 6
+  }
+}

@@ -1,0 +1,23 @@
+/target
+*.vcprj.local.json
+
+# Kopien der Standardzeichensätze in Projekten (urheberrechtlich geschützt): lokal anlegen, nicht einchecken
+**/graphics/standard/
+# Momentaufnahmen und Speicherauszüge können Original-Zeichensätze enthalten
+**/graphics/snapshot/
+**/graphics/dump/
+
+# Installer-Ausgabe
+/installer/output
+
+# macOS und Build-Ausgaben
+.DS_Store
+/build/
+**/build/
+
+# Lokale Arbeitsdateien (nicht im Repository)
+/assets/
+
+# Eigene ROM-Dateien neben dem Programm (portabler Modus) oder im Arbeitsbaum: nie einchecken
+/roms/
+.claude/

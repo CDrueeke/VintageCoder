@@ -1,0 +1,12 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "petpia2",
+  "name": "PIA 6520 #2 (PET: IEEE-488-Datenleitungen)",
+  "window": {"space": "cpu16", "start": "$E820", "end": "$E823"},
+  "regs": [
+    {"name": "porta", "addr": "$E820", "access": "rw", "doc": "Port A: IEEE-488-Daten (Eingang)"},
+    {"name": "cra", "addr": "$E821", "access": "rw", "doc": "Steuerregister A (CA1: NDAC-Eingang, CA2: NDAC-Ausgang)"},
+    {"name": "portb", "addr": "$E822", "access": "rw", "doc": "Port B: IEEE-488-Daten (Ausgang)"},
+    {"name": "crb", "addr": "$E823", "access": "rw", "doc": "Steuerregister B (CB1: SRQ-Eingang, CB2: DAV-Ausgang)"}
+  ]
+}

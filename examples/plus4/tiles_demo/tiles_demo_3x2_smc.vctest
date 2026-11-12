@@ -1,0 +1,241 @@
+{
+ "kind": "test",
+ "target": "plus4",
+ "program": "build/tiles_demo_3x2_smc.prg",
+ "trap": "$0340",
+ "static": [
+  {
+   "check": "overlap"
+  },
+  {
+   "check": "zeropage",
+   "forbid": "$02-$21"
+  },
+  {
+   "check": "cycles",
+   "label": "tile_put",
+   "max": 190,
+   "level": "error"
+  }
+ ],
+ "tests": [
+  {
+   "name": "screen_draw 1: Bildschirm und Farb-RAM = Referenz",
+   "call": "t_screen1",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "screen_draw 1: Stichproben links oben / rechts unten",
+   "call": "t_screen1_nocheck",
+   "expect": [
+    "[$0c00] == 31",
+    "[$0800] == 85",
+    "[$0c01] == 34",
+    "[$0801] == 85",
+    "[$0c02] == 37",
+    "[$0802] == 85",
+    "[$0c28] == 40",
+    "[$0828] == 85",
+    "[$0c29] == 43",
+    "[$0829] == 85",
+    "[$0c2a] == 46",
+    "[$082a] == 85",
+    "[$0ef1] == 45",
+    "[$0af1] == 93",
+    "[$0ef2] == 48",
+    "[$0af2] == 93",
+    "[$0ef3] == 51",
+    "[$0af3] == 93",
+    "[$0f19] == 54",
+    "[$0b19] == 93",
+    "[$0f1a] == 57",
+    "[$0b1a] == 93",
+    "[$0f1b] == 60",
+    "[$0b1b] == 93"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "screen_draw_rows 3..5 von Screen 2: nur diese Zeilen (Referenz)",
+   "call": "t_rows",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_draw, tile_draw_color, tile_fill (Referenz)",
+   "call": "t_macros",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_put dreimal (Referenz)",
+   "call": "t_puts",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_put: Kachel 5 nach (2,3)",
+   "setup": {
+    "a": "5",
+    "x": 2,
+    "y": 3
+   },
+   "call": "tile_put",
+   "expect": [
+    "[$0cf6] == 52",
+    "[$08f6] == 62",
+    "[$0cf7] == 55",
+    "[$08f7] == 62",
+    "[$0cf8] == 58",
+    "[$08f8] == 62",
+    "[$0d1e] == 61",
+    "[$091e] == 62",
+    "[$0d1f] == 64",
+    "[$091f] == 62",
+    "[$0d20] == 67",
+    "[$0920] == 62"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_put: Kachel 0 nach (11,9)",
+   "setup": {
+    "a": "0",
+    "x": 11,
+    "y": 9
+   },
+   "call": "tile_put",
+   "expect": [
+    "[$0ef1] == 17",
+    "[$0af1] == 113",
+    "[$0ef2] == 20",
+    "[$0af2] == 113",
+    "[$0ef3] == 23",
+    "[$0af3] == 113",
+    "[$0f19] == 26",
+    "[$0b19] == 113",
+    "[$0f1a] == 29",
+    "[$0b1a] == 113",
+    "[$0f1b] == 32",
+    "[$0b1b] == 113"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_put: Kachel 3 nach (0,0)",
+   "setup": {
+    "a": "3",
+    "x": 0,
+    "y": 0
+   },
+   "call": "tile_put",
+   "expect": [
+    "[$0c00] == 38",
+    "[$0800] == 111",
+    "[$0c01] == 41",
+    "[$0801] == 111",
+    "[$0c02] == 44",
+    "[$0802] == 111",
+    "[$0c28] == 47",
+    "[$0828] == 111",
+    "[$0c29] == 50",
+    "[$0829] == 111",
+    "[$0c2a] == 53",
+    "[$082a] == 111"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "screen_map_get (0,0) von Screen 1 = 2",
+   "setup": {
+    "x": 0,
+    "y": 0
+   },
+   "call": "t_map_get",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_prop (0,0) von Screen 1 = 1",
+   "setup": {
+    "x": 0,
+    "y": 0
+   },
+   "call": "t_prop",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "screen_map_get (11,9) von Screen 1 = 4",
+   "setup": {
+    "x": 11,
+    "y": 9
+   },
+   "call": "t_map_get",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_prop (11,9) von Screen 1 = 4",
+   "setup": {
+    "x": 11,
+    "y": 9
+   },
+   "call": "t_prop",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "screen_map_get (3,4) von Screen 1 = 1",
+   "setup": {
+    "x": 3,
+    "y": 4
+   },
+   "call": "t_map_get",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_prop (3,4) von Screen 1 = 1",
+   "setup": {
+    "x": 3,
+    "y": 4
+   },
+   "call": "t_prop",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "TILE_MAPRAM: Karte von Screen 1 liegt nach screen_select bei $3000",
+   "call": "t_screen1_nocheck",
+   "expect": [
+    "[$3000] == 2",
+    "[$3001] == 4",
+    "[$300d] == 2",
+    "[$3077] == 4"
+   ],
+   "timeoutMs": 20000
+  }
+ ]
+}

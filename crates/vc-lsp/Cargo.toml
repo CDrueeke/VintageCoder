@@ -1,0 +1,19 @@
+[package]
+name = "vc-lsp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "vc_lsp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vc-lsp"
+path = "src/main.rs"
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+vc-asm = { path = "../vc-asm" }
+serde_json.workspace = true

@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "PET: Natives BASIC",
+    "description": "BASIC ohne Zeilennummern mit Labels (@name); Text klein schreiben (erscheint als Großbuchstaben)"
+  },
+  "targets": [
+    { "id": "pet", "system": "pet", "variant": "pal", "cpu": "nmos6502", "illegals": "deny", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["pet"], "kind": "basic", "files": ["hello.bas"] }
+  ],
+  "main": "hello.bas"
+}

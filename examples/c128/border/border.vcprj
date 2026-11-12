@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C128: border",
+    "description": "Rahmenfarbe im Takt der Rasterzeile ändern"
+  },
+  "targets": [
+    {
+      "id": "c128",
+      "system": "c128",
+      "variant": "pal",
+      "cpu": "8502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c128"
+      ],
+      "kind": "asm",
+      "files": [
+        "border.asm"
+      ]
+    }
+  ],
+  "main": "border.asm"
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "os",
+  "name": "Atari-OS-Variablen",
+  "window": {"space": "cpu16", "start": "$0000", "end": "$02FF"},
+  "regs": [
+    {"name": "vdslst", "addr": "$0200", "access": "rw", "doc": "DLI-Vektor"},
+    {"name": "vvblki", "addr": "$0222", "access": "rw", "doc": "Immediate-VBI-Vektor"},
+    {"name": "vvblkd", "addr": "$0224", "access": "rw", "doc": "Deferred-VBI-Vektor"},
+    {"name": "vimirq", "addr": "$0216", "access": "rw", "doc": "IRQ-Vektor"},
+    {"name": "sdmctl", "addr": "$022F", "access": "rw", "doc": "DMACTL-Schatten"},
+    {"name": "sdlstl", "addr": "$0230", "access": "rw", "doc": "Display-List-Schatten (Low)"},
+    {"name": "sdlsth", "addr": "$0231", "access": "rw", "doc": "Display-List-Schatten (High)"},
+    {"name": "gprior", "addr": "$026F", "access": "rw", "doc": "PRIOR-Schatten"},
+    {"name": "pcolr0", "addr": "$02C0", "access": "rw", "doc": "COLPM0-Schatten"},
+    {"name": "pcolr1", "addr": "$02C1", "access": "rw", "doc": "COLPM1-Schatten"},
+    {"name": "pcolr2", "addr": "$02C2", "access": "rw", "doc": "COLPM2-Schatten"},
+    {"name": "pcolr3", "addr": "$02C3", "access": "rw", "doc": "COLPM3-Schatten"},
+    {"name": "color0", "addr": "$02C4", "access": "rw", "doc": "COLPF0-Schatten"},
+    {"name": "color1", "addr": "$02C5", "access": "rw", "doc": "COLPF1-Schatten"},
+    {"name": "color2", "addr": "$02C6", "access": "rw", "doc": "COLPF2-Schatten"},
+    {"name": "color3", "addr": "$02C7", "access": "rw", "doc": "COLPF3-Schatten"},
+    {"name": "color4", "addr": "$02C8", "access": "rw", "doc": "COLBK-Schatten"},
+    {"name": "runad", "addr": "$02E0", "access": "rw", "doc": "Startadresse (XEX)"},
+    {"name": "initad", "addr": "$02E2", "access": "rw", "doc": "Init-Adresse (XEX)"},
+    {"name": "memtop", "addr": "$02E5", "access": "rw", "doc": "Obergrenze des freien Speichers"},
+    {"name": "ch", "addr": "$02FC", "access": "rw", "doc": "Letzter Tastencode"},
+    {"name": "rtclok", "addr": "$0012", "access": "rw", "doc": "Systemuhr (3 Byte, 50/60 Hz)"},
+    {"name": "atract", "addr": "$004D", "access": "rw", "doc": "Attract-Modus-Zähler"},
+    {"name": "coldst", "addr": "$0244", "access": "rw", "doc": "Kaltstart-Flag"},
+    {"name": "ramtop", "addr": "$006A", "access": "rw", "doc": "Obergrenze RAM (Seiten)"}
+  ]
+}

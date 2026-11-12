@@ -1,0 +1,86 @@
+{
+  "command": "debuglog",
+  "group": "hilfe",
+  "summary": "Debug-Protokoll der IDE auswerten",
+  "description": [
+    "Fasst die Protokolldatei zusammen, die VintageCoder schreibt, wenn das Debug-Protokoll eingeschaltet ist (Einstellungen ▸ Allgemein oder Umgebungsvariable VC_DEBUG_LOG). Die Datei besteht aus JSON-Zeilen (ts, seq, kind, msg); die erste Zeile enthält Version und Installation. Die Ausgabe nennt Programm, Zahl und Art der Einträge, Abstürze, Fehler und Warnungen sowie die letzten Ereignisse vor dem Ende.",
+    "Ohne Datei gilt die Standarddatei logs/vintagecoder.log im Konfigurationsordner. Der Befehl liest nur und sendet nichts."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc debuglog [datei.log] [optionen]",
+      "args": [
+        {
+          "name": "datei.log",
+          "required": false,
+          "repeat": false,
+          "help": "Protokolldatei; Standard ist die Datei im Konfigurationsordner (oder VC_DEBUG_LOG, falls ein Pfad)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Zusammenfassung maschinenlesbar als JSON ausgeben.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--tail",
+          "short": "",
+          "value": "n",
+          "group": "ausgabe",
+          "help": "Anzahl der letzten Ereignisse, die gezeigt werden.",
+          "default": "",
+          "default_text": "20",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--path",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Nur den Pfad der Standarddatei ausgeben.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Standardprotokoll zusammenfassen",
+          "cmd": "vcc debuglog"
+        },
+        {
+          "title": "Datei aus einer Rückmeldung auswerten, maschinenlesbar",
+          "cmd": "vcc debuglog fehler.log --json"
+        },
+        {
+          "title": "Pfad der Standarddatei anzeigen",
+          "cmd": "vcc debuglog --path"
+        }
+      ],
+      "notes": [
+        "Zeilen, die kein gültiger Eintrag sind (etwa eine beim Absturz abgeschnittene), werden gezählt und übersprungen.",
+        "Beim Wechsel der Datei (5 MB) bleibt eine Vorgängerdatei mit der Endung .log.1."
+      ],
+      "see_also": [
+        "feedback"
+      ]
+    }
+  ]
+}

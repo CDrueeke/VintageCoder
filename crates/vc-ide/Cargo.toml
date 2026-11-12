@@ -1,0 +1,23 @@
+[package]
+name = "vc-ide"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "vc_ide"
+path = "src/lib.rs"
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+vc-asm = { path = "../vc-asm" }
+vc-basic = { path = "../vc-basic" }
+vc-lsp = { path = "../vc-lsp" }
+vc-emu = { path = "../vc-emu" }
+vc-media = { path = "../vc-media" }
+vc-disk = { path = "../vc-disk" }
+vc-roms = { path = "../vc-roms" }
+serde_json.workspace = true
+serde.workspace = true
+image = { version = "0.25", default-features = false, features = ["png"] }

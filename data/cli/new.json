@@ -1,0 +1,61 @@
+{
+  "command": "new",
+  "group": "projekte",
+  "summary": "Neues Projekt aus einer Vorlage anlegen",
+  "description": [
+    "Legt den Ordner an (falls nötig), schreibt die Projektdatei <name>.vcprj und die Quelltexte der Vorlage, je Zielsystem unter src/<system>/. Der Ordner darf noch keine .vcprj enthalten.",
+    "Mit --structure kommen die Ordner und das Layout einer Projektstruktur dazu. vcc new --list zeigt Vorlagen, Varianten und Projektstrukturen mit den möglichen Zielsystemen."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc new <ordner> [optionen]",
+      "args": [
+        { "name": "ordner", "required": true, "repeat": false, "help": "Projektordner; sein Name ist der Projektname, wenn --name fehlt. Entfällt bei --list." }
+      ],
+      "option_groups": [
+        { "id": "projekt", "label": "Projekt" },
+        { "id": "sonst", "label": "Weitere" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system[,system…]", "group": "projekt",
+          "help": "Zielsysteme, durch Komma getrennt. Jedes bekommt eigene Quellen unter src/<system>/. Die Vorlage muss das System kennen.",
+          "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--template", "short": "", "value": "vorlage", "group": "projekt",
+          "help": "Dateivorlage: Assemblerprogramm, BASIC ohne Zeilennummern oder nur Projektdatei mit src/.",
+          "choices": ["asm-hello", "basic-hello", "empty"],
+          "default": "asm-hello", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--variant", "short": "", "value": "variante", "group": "projekt",
+          "help": "Variante der Vorlage. cartridge erzeugt ein 8-KB-Modul statt eines Programms (nur asm-hello; c64, atari8, vic20).",
+          "choices": ["cartridge"],
+          "default": "", "default_text": "keine", "repeat": false, "required": false },
+        { "flag": "--structure", "short": "", "value": "struktur", "group": "projekt",
+          "help": "Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich.",
+          "choices": ["einfach", "standard", "gross", "mehrsystem", "bibliothek", "spiel"],
+          "default": "", "default_text": "keine", "repeat": false, "required": false },
+        { "flag": "--name", "short": "", "value": "name", "group": "projekt",
+          "help": "Projektname (Buchstaben, Ziffern, _ und -, höchstens 48 Zeichen); bestimmt den Namen der .vcprj.",
+          "default": "", "default_text": "Name des Ordners", "repeat": false, "required": false },
+        { "flag": "--list", "short": "", "value": "", "group": "sonst",
+          "help": "Projektstrukturen, Vorlagen und Varianten mit ihren Zielsystemen auflisten; legt nichts an.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "sonst",
+          "help": "Ordner der Hardware-Datenbank (data).",
+          "default": "", "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "einfaches C64-Projekt", "cmd": "vcc new spiel --target c64" },
+        { "title": "ein Projekt für mehrere Ziele", "cmd": "vcc new multi --target c64,atari8" },
+        { "title": "BASIC-Projekt mit Projektstruktur", "cmd": "vcc new demo --target c64,vic20 --template basic-hello --structure mehrsystem" },
+        { "title": "Steckmodul für den VC-20", "cmd": "vcc new modul --target vic20 --variant cartridge" },
+        { "title": "Vorlagen und Strukturen auflisten", "cmd": "vcc new --list" }
+      ],
+      "notes": [
+        "Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet und cbm2.",
+        "Ausgegeben werden die angelegten Ordner und Dateien."
+      ],
+      "see_also": ["add", "organize", "build"]
+    }
+  ]
+}

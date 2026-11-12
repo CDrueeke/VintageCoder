@@ -1,0 +1,234 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-BASIC 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-basic \- BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
+.SH ÜBERSICHT
+.B vcc basic <datei.bas|datei.lst|datei.tur> [optionen]
+.br
+.B vcc basic \-\-tokenize <liste.lst> [optionen]
+.br
+.B vcc basic \-\-detokenize <datei.prg> [optionen]
+.br
+.B vcc basic ast <datei.bas> [optionen]
+.br
+.SH BESCHREIBUNG
+BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
+.PP
+Ohne weitere Angabe übersetzt vcc basic ein natives BASIC\-Programm (Zeilennummern optional, Sprungmarken @name) in das Speicherformat des Zielsystems: PRG bei Commodore, SAVE\-Format (.bas) beim Atari. Die Formen \-\-tokenize und \-\-detokenize arbeiten nur auf der Ebene der Token; vcc basic ast gibt den Syntaxbaum aus.
+.PP
+Die Dateien liegen im Ordner data; er wird über \-\-data\-dir, VC_DATA, den Ort des Programms oder den Arbeitsordner gefunden.
+.SH OPTIONEN
+.SS Grundform
+natives BASIC zu PRG (Commodore) oder BAS (Atari) übersetzen
+.PP
+.TP
+\fIdatei\fR
+Quelltext. Die Endungen .bas, .lst und .tur (oder \-\-plain) wählen das native BASIC; .sbas ist abgeschaltet.
+.PP
+\fBZielsystem und Dialekt\fR
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet, cbm2 oder atari8. Standard: c64.
+.TP
+\fB\-\-dialect\fR \fIid\fR
+BASIC\-Dialekt (Datei in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic oder turbo_basic_xl. Standard: Dialekt des Zielsystems.
+.TP
+\fB\-\-memory\fR \fIausbau\fR
+Speicherausbau des Ziels; bestimmt die BASIC\-Startadresse. Gibt es nur beim VC\-20 (unexpanded, 3k, 8k, 16k, 24k, 35k); andere Ziele ignorieren die Angabe. Standard: Vorgabe des Ziels (VC\-20: unexpanded).
+.TP
+\fB\-\-plain\fR
+Quelltext als natives BASIC lesen, auch bei einer anderen Endung als .bas, .lst und .tur.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBAusgabe und Nummerierung\fR
+.TP
+\fB\-o\fR \fIausgabe\fR
+Ausgabedatei. Bei natives BASIC darf sie nicht die Quelldatei sein. Standard: Quellname mit .prg (Commodore) bzw. .bas (Atari).
+.TP
+\fB\-\-start\fR \fIn\fR
+Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. Standard: 10.
+.TP
+\fB\-\-step\fR \fIn\fR
+Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. Standard: 10.
+.PP
+\fBNur für Quelltext mit anderer Endung (strukturiertes BASIC)\fR
+.TP
+\fB\-I\fR \fIordner\fR
+Suchordner für eingebundene Dateien; der erste ist auch die Wurzel für Maschinencode\-Einbindungen. Standard: Arbeitsordner (Wurzel). Mehrfach möglich.
+.TP
+\fB\-D\fR \fINAME=zahl\fR
+Konstante für den Quelltext setzen. Mehrfach möglich.
+.TP
+\fB\-\-pack\fR
+Zeilen zusammenfassen (nur Commodore).
+.TP
+\fB\-\-map\fR \fIdatei\fR
+Zuordnung Quellname zu BASIC\-Name und Marke zu Zeile in eine Textdatei schreiben (nur Commodore).
+.TP
+\fB\-\-labels\fR \fIdatei\fR
+VICE\-Labeldatei lesen; ihre Adressen stehen im Quelltext als Konstanten asm.name (nur Commodore).
+.SS Form tokenize
+klassisch nummeriertes Listing tokenisieren
+.PP
+.TP
+\fIliste\fR
+Listing mit Zeilennummern in jeder Zeile, ohne Marken und ohne Direktiven.
+.PP
+\fBZielsystem und Dialekt\fR
+.TP
+\fB\-\-tokenize\fR
+Schaltet auf diese Form um. Erforderlich.
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem (Datei in data/targets); bestimmt Dialekt und Ladeadresse. Standard: c64.
+.TP
+\fB\-\-dialect\fR \fIid\fR
+BASIC\-Dialekt (Datei in data/basic). Standard: Dialekt des Zielsystems.
+.TP
+\fB\-\-memory\fR \fIausbau\fR
+Speicherausbau des Ziels; bestimmt die Ladeadresse (VC\-20: unexpanded, 3k, 8k, 16k, 24k, 35k). Standard: Vorgabe des Ziels.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-o\fR \fIausgabe\fR
+Ausgabedatei. Standard: Quellname mit .prg (Commodore) bzw. .bas (Atari).
+.SS Form detokenize
+PRG oder Atari\-SAVE\-Datei als Listing ausgeben
+.PP
+.TP
+\fIdatei\fR
+Commodore\-PRG oder Atari\-BASIC\-Datei im SAVE\-Format.
+.PP
+\fBZielsystem und Dialekt\fR
+.TP
+\fB\-\-detokenize\fR
+Schaltet auf diese Form um. Erforderlich.
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem (Datei in data/targets). Für Atari\-Dateien atari8 angeben; ohne Angabe gilt das Commodore\-PRG\-Format. Standard: c64.
+.TP
+\fB\-\-dialect\fR \fIid\fR
+BASIC\-Dialekt (Datei in data/basic); die Wortliste für die Rückübersetzung der Token. Standard: Dialekt des Zielsystems.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-structured\fR
+Statt des klassischen Listings Text mit Marken (@L10) ausgeben; nur Commodore.
+.TP
+\fB\-o\fR \fIausgabe\fR
+Listing in eine Datei schreiben. Standard: Ausgabe auf stdout.
+.SS Form ast
+Syntaxbaum eines BASIC\-Programms ausgeben
+.PP
+.TP
+\fIdatei.bas\fR
+BASIC\-Quelltext (derselbe Leser wie bei basic2asm).
+.PP
+\fBZielsystem\fR
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem; bestimmt den BASIC\-Dialekt. Werte: c64, c128, plus4, mega65, atari8. Standard: c64.
+.TP
+\fB\-\-turbo\fR
+Quelltext als Turbo BASIC XL lesen (nur Ziel atari8).
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBAusgabeform\fR
+.TP
+\fB\-\-json\fR
+Baum als JSON ausgeben (Zeilen, Anweisungen, Ausdrücke; Zeichenketten als Bytelisten). Standard: Rust\-Debug\-Ausgabe der Zeilen.
+.TP
+\fB\-\-roundtrip\fR
+Baum als kanonischen Text ausgeben, wieder einlesen und E191 melden, wenn nicht derselbe Baum entsteht. Hat Vorrang vor \-\-json.
+.SH BEISPIELE
+C64\-Programm mit Sprungmarken übersetzen:
+.PP
+.RS 8
+.nf
+vcc basic examples/c64/basic_native/sterne.bas \-o sterne.prg
+.fi
+.RE
+Atari\-BASIC\-Programm übersetzen:
+.PP
+.RS 8
+.nf
+vcc basic examples/atari/basic_native/farben.bas \-\-target atari8 \-o farben.bas
+.fi
+.RE
+Turbo BASIC XL übersetzen:
+.PP
+.RS 8
+.nf
+vcc basic examples/atari/turbo_basic/balken.tur \-\-target atari8 \-\-dialect turbo_basic_xl \-o balken.bas
+.fi
+.RE
+VC\-20 mit 8\-KB\-Erweiterung:
+.PP
+.RS 8
+.nf
+vcc basic examples/c64/basic_native/sterne.bas \-\-target vic20 \-\-memory 8k \-o sterne.prg
+.fi
+.RE
+Listing zu PRG tokenisieren:
+.PP
+.RS 8
+.nf
+vcc basic \-\-tokenize liste.lst \-\-target c64 \-o liste.prg
+.fi
+.RE
+PRG als Listing lesen:
+.PP
+.RS 8
+.nf
+vcc basic \-\-detokenize sterne.prg
+.fi
+.RE
+Atari\-Datei in eine Textdatei zurückwandeln:
+.PP
+.RS 8
+.nf
+vcc basic \-\-detokenize farben.bas \-\-target atari8 \-o farben.lst
+.fi
+.RE
+Syntaxbaum als JSON:
+.PP
+.RS 8
+.nf
+vcc basic ast examples/c64/basic_native/sterne.bas \-\-json
+.fi
+.RE
+Rundreise prüfen:
+.PP
+.RS 8
+.nf
+vcc basic ast examples/c64/basic_native/sterne.bas \-\-roundtrip
+.fi
+.RE
+.SH HINWEISE
+Es werden die Marken (@name = Zeile n) und bei #longnames die Zuordnung der langen Namen ausgegeben. Eine .sbas\-Datei wird abgelehnt.
+.PP
+Die Optionen \-I, \-D, \-\-pack, \-\-map und \-\-labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne \-\-plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt.
+.PP
+Eine Zeile ohne Zeilennummer ist ein Fehler (B100). Für Quelltext mit Marken und Direktiven die Form ohne \-\-tokenize verwenden.
+.PP
+Schlüsselwörter erscheinen bei Commodore klein, beim Atari groß; Steuerzeichen stehen als {clr} usw. Beginnt die Datei mit zwei Nullbytes, weist die Fehlermeldung auf \-\-target atari8 hin.
+.PP
+Der Aufruf nutzt den Parser von basic2asm; dessen übrige Optionen (\-o, \-\-map, \-\-stage, \-\-float, \-\-int\-div, \-\-style, \-\-runtime, \-\-no\-track\-line, \-\-no\-rem, \-\-check) werden angenommen, haben hier aber keine Wirkung.
+.PP
+Anweisungen, die der Konverter nicht übersetzt (OPEN, LOAD …), lassen sich nicht zurückschreiben (E190).
+.PP
+.SH RÜCKGABEWERT
+0 = Baum ausgegeben bzw. Rundreise in Ordnung, 1 = Fehler im Quelltext oder Rundreise nicht in Ordnung
+.SH SIEHE AUCH
+vcc(1), vcc\-basic2asm(1), vcc\-import(1), vcc\-build(1), vcc\-basic(1)

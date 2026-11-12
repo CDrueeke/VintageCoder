@@ -1,0 +1,88 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-NEW 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-new \- Neues Projekt aus einer Vorlage anlegen
+.SH ÜBERSICHT
+.B vcc new <ordner> [optionen]
+.br
+.SH BESCHREIBUNG
+Neues Projekt aus einer Vorlage anlegen
+.PP
+Legt den Ordner an (falls nötig), schreibt die Projektdatei <name>.vcprj und die Quelltexte der Vorlage, je Zielsystem unter src/<system>/. Der Ordner darf noch keine .vcprj enthalten.
+.PP
+Mit \-\-structure kommen die Ordner und das Layout einer Projektstruktur dazu. vcc new \-\-list zeigt Vorlagen, Varianten und Projektstrukturen mit den möglichen Zielsystemen.
+.SH OPTIONEN
+.TP
+\fIordner\fR
+Projektordner; sein Name ist der Projektname, wenn \-\-name fehlt. Entfällt bei \-\-list.
+.PP
+\fBProjekt\fR
+.TP
+\fB\-\-target\fR \fIsystem[,system…]\fR
+Zielsysteme, durch Komma getrennt. Jedes bekommt eigene Quellen unter src/<system>/. Die Vorlage muss das System kennen. Standard: c64.
+.TP
+\fB\-\-template\fR \fIvorlage\fR
+Dateivorlage: Assemblerprogramm, BASIC ohne Zeilennummern oder nur Projektdatei mit src/. Werte: asm\-hello, basic\-hello, empty. Standard: asm\-hello.
+.TP
+\fB\-\-variant\fR \fIvariante\fR
+Variante der Vorlage. cartridge erzeugt ein 8\-KB\-Modul statt eines Programms (nur asm\-hello; c64, atari8, vic20). Werte: cartridge. Standard: keine.
+.TP
+\fB\-\-structure\fR \fIstruktur\fR
+Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Werte: einfach, standard, gross, mehrsystem, bibliothek, spiel. Standard: keine.
+.TP
+\fB\-\-name\fR \fIname\fR
+Projektname (Buchstaben, Ziffern, _ und \-, höchstens 48 Zeichen); bestimmt den Namen der .vcprj. Standard: Name des Ordners.
+.PP
+\fBWeitere\fR
+.TP
+\fB\-\-list\fR
+Projektstrukturen, Vorlagen und Varianten mit ihren Zielsystemen auflisten; legt nichts an.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data). Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SH BEISPIELE
+einfaches C64\-Projekt:
+.PP
+.RS 8
+.nf
+vcc new spiel \-\-target c64
+.fi
+.RE
+ein Projekt für mehrere Ziele:
+.PP
+.RS 8
+.nf
+vcc new multi \-\-target c64,atari8
+.fi
+.RE
+BASIC\-Projekt mit Projektstruktur:
+.PP
+.RS 8
+.nf
+vcc new demo \-\-target c64,vic20 \-\-template basic\-hello \-\-structure mehrsystem
+.fi
+.RE
+Steckmodul für den VC\-20:
+.PP
+.RS 8
+.nf
+vcc new modul \-\-target vic20 \-\-variant cartridge
+.fi
+.RE
+Vorlagen und Strukturen auflisten:
+.PP
+.RS 8
+.nf
+vcc new \-\-list
+.fi
+.RE
+.SH HINWEISE
+Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm\-hello zusätzlich für pet, basic\-hello für pet und cbm2.
+.PP
+Ausgegeben werden die angelegten Ordner und Dateien.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-add(1), vcc\-organize(1), vcc\-build(1)

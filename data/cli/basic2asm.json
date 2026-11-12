@@ -1,0 +1,50 @@
+{
+  "command": "basic2asm",
+  "group": "bauen",
+  "summary": "BASIC-Programm in Assembler-Quelltext umwandeln",
+  "description": [
+    "Übersetzt ein BASIC-Programm in lesbaren Assembler-Quelltext, der als Maschinenprogramm läuft. Jede BASIC-Zeile wird ein Abschnitt mit dem Original als Kommentar und dem Label L<Zeile>. Neben der .asm-Datei entsteht eine Zeilenkarte (JSON) für den Debugger.",
+    "Der Konverter wählt die kleinste Stufe, die das Programm braucht: 1 = Ganzzahl, 2 = Fließkomma, 3 = Zeichenketten. --stage setzt die Obergrenze."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc basic2asm <datei.bas> [optionen]",
+      "args": [
+        { "name": "datei.bas", "required": true, "repeat": false, "help": "BASIC-Quelltext." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Zielsystem" },
+        { "id": "umfang", "label": "Umfang und Stil" },
+        { "id": "ausgabe", "label": "Ausgabe" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem; legt Startadresse, Prozessor und BASIC-Dialekt fest. Auf dem MEGA65 gibt es kein Fließkomma (E331).", "choices": ["c64", "c128", "plus4", "mega65", "atari8"], "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--turbo", "short": "", "value": "", "group": "ziel", "help": "Quelltext als Turbo BASIC XL lesen (nur Ziel atari8, sonst E344); Blöcke wie WHILE/WEND, PROC/EXEC werden zu Sprüngen.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data); bei --runtime embed auch die Quelle der Laufzeit.", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
+        { "flag": "--stage", "short": "", "value": "1|2|3", "group": "umfang", "help": "Höchste zugelassene Stufe; gewählt wird die kleinste, die das Programm braucht. Andere Zahlen als 1 bis 3 melden E300.", "default": "3", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--float", "short": "", "value": "", "group": "umfang", "help": "Fließkomma-Laufzeit auch dann einbinden, wenn das Programm sie nicht braucht.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--int-div", "short": "", "value": "", "group": "umfang", "help": "/ als ganzzahlige Division übersetzen; sonst braucht es Stufe 2.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--style", "short": "", "value": "stil", "group": "umfang", "help": "compact: jede Operation ruft eine Laufzeitroutine. inline: einfache Ganzzahlausdrücke stehen als direkte 6502-Befehle da (länger im Quelltext, kürzer in der Laufzeit).", "choices": ["compact", "inline"], "default": "compact", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--runtime", "short": "", "value": "art", "group": "umfang", "help": "include: die Laufzeit kommt per #include aus data/sys. embed: sie wird in die Ergebnisdatei kopiert, die dann ohne Include-Ordner übersetzbar ist.", "choices": ["include", "embed"], "default": "include", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-track-line", "short": "", "value": "", "group": "umfang", "help": "Keine Zeilennummer zur Laufzeit mitführen: kleiner, aber Fehlermeldungen ohne Zeile.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-rem", "short": "", "value": "", "group": "umfang", "help": "Zeilen, die nur aus REM bestehen, nicht übernehmen.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "datei.asm", "group": "ausgabe", "help": "Ausgabedatei mit dem Assembler-Quelltext.", "default": "", "default_text": "Quellname mit .asm", "repeat": false, "required": false },
+        { "flag": "--map", "short": "", "value": "datei.json", "group": "ausgabe", "help": "Zeilenkarte: BASIC-Zeile, Quelltextzeile und Label im Assembler.", "default": "", "default_text": "Quellname mit .b2a.json", "repeat": false, "required": false },
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Nur prüfen und Stufe und Zeilenzahl melden; es werden keine Dateien geschrieben.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "einfach umwandeln", "cmd": "vcc basic2asm examples/c64/basic_native/sterne.bas -o sterne.asm" },
+        { "title": "für den Atari umwandeln", "cmd": "vcc basic2asm examples/atari/basic_native/farben.bas --target atari8 -o farben.asm" },
+        { "title": "Turbo BASIC XL mit Stufenobergrenze", "cmd": "vcc basic2asm examples/atari/turbo_basic/balken.tur --target atari8 --turbo --stage 2 -o balken.asm" },
+        { "title": "nur prüfen", "cmd": "vcc basic2asm examples/c64/basic_native/sterne.bas --check", "run": true }
+      ],
+      "notes": [
+        "Befehle, die der Konverter nicht übersetzt (OPEN, LOAD, LIST, NEW …), werden gemeldet (E311), nicht still ersetzt. Beim Atari kommt immer der Hinweis I150 zu den Zahlen.",
+        "Der Syntaxbaum lässt sich mit vcc basic ast ausgeben."
+      ],
+      "see_also": ["basic", "asm"]
+    }
+  ]
+}

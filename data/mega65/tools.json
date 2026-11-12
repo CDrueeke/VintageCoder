@@ -1,0 +1,28 @@
+{
+  "_hinweis": "UNGEPRÜFT: Diese Aufrufzeilen stammen aus dem MEGA65-Wiki und GitHub-Beiträgen, nicht aus einem Test am Gerät (Konzept-MEGA65-Netzwerk.md, Abschnitt 8). Optionen von etherload (BETA) und mega65_ftp können sich ändern. Beim ersten Test am Gerät mit --help gegenprüfen und hier anpassen.",
+  "_platzhalter": "{iface} Netzwerkschnittstelle, {file} lokale Datei, {image} Pfad des Diskimages auf der SD-Karte, {dir} Ordner auf der SD-Karte, {localdir} lokaler Ordner, {name} Dateiname. Das Wort {iface_args} wird durch iface_args ersetzt, wenn eine Schnittstelle eingetragen ist, sonst entfällt es.",
+  "etherload": {
+    "exe": "etherload",
+    "iface_args": ["-i", "{iface}"],
+    "run": ["{iface_args}", "-r", "{file}"],
+    "load": ["{iface_args}", "{file}"],
+    "mount": ["{iface_args}", "-m", "{image}"],
+    "mount_run": ["{iface_args}", "-m", "{image}", "-r", "{file}"],
+    "timeout_s": 90
+  },
+  "mega65_ftp": {
+    "exe": "mega65_ftp",
+    "iface_args": ["-i", "{iface}"],
+    "base": ["-e", "{iface_args}"],
+    "mkdir": "mkdir {dir}",
+    "put": ["cd {dir}", "lcd {localdir}", "put {name}", "quit"],
+    "put_root": ["lcd {localdir}", "put {name}", "quit"],
+    "dir": ["dir", "quit"],
+    "timeout_s": 300,
+    "test_timeout_s": 20
+  },
+  "hinweise": {
+    "nicht_erreichbar": "Keine Antwort vom MEGA65. Prüfen: Fernzugriff mit Shift+£ einschalten (gilt nur bis zum nächsten Reset), DIP-Schalter 2 auf ON, gültige MAC-Adresse (ALT beim Einschalten, 1, NETWORK), Core 0.96 oder neuer, PC und MEGA65 im selben Netz (am sichersten direktes Kabel; WLAN und Firmennetze blockieren IPv6 Link-Local oft).",
+    "schnittstelle": "Netzwerkschnittstelle des PCs prüfen (macOS z. B. en0, Linux eth0/enp3s0, Windows der Index); die Adresse fe80::… braucht die Schnittstelle."
+  }
+}

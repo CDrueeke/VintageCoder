@@ -1,0 +1,24 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "mmu128",
+  "name": "MMU 8722 (C128)",
+  "window": {
+    "space": "cpu16",
+    "start": "$D500",
+    "end": "$D50B"
+  },
+  "regs": [
+    {"name": "cr", "addr": "$D500", "access": "rw", "doc": "Konfiguration (Bank, ROM-Auswahl, E/A)"},
+    {"name": "pcra", "addr": "$D501", "access": "rw", "doc": "Vorkonfiguration A"},
+    {"name": "pcrb", "addr": "$D502", "access": "rw", "doc": "Vorkonfiguration B"},
+    {"name": "pcrc", "addr": "$D503", "access": "rw", "doc": "Vorkonfiguration C"},
+    {"name": "pcrd", "addr": "$D504", "access": "rw", "doc": "Vorkonfiguration D"},
+    {"name": "mcr", "addr": "$D505", "access": "rw", "doc": "Modus (40/80-Spalten, C64-Modus, 8502/Z80)"},
+    {"name": "rcr", "addr": "$D506", "access": "rw", "doc": "RAM-Konfiguration (Common RAM, VIC-Bank)"},
+    {"name": "p0l", "addr": "$D507", "access": "rw", "doc": "Zeropage-Zeiger Low"},
+    {"name": "p0h", "addr": "$D508", "access": "rw", "doc": "Zeropage-Zeiger High"},
+    {"name": "p1l", "addr": "$D509", "access": "rw", "doc": "Stack-Zeiger Low"},
+    {"name": "p1h", "addr": "$D50A", "access": "rw", "doc": "Stack-Zeiger High"},
+    {"name": "vr", "addr": "$D50B", "access": "r", "doc": "Version"}
+  ]
+}

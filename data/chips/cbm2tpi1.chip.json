@@ -1,0 +1,16 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "cbm2tpi1",
+  "name": "TPI 6525 #1 (CBM-II: IEEE-488, Interrupt-Steuerung)",
+  "window": {"space": "cpu16", "start": "$DE00", "end": "$DE07"},
+  "regs": [
+    {"name": "pa", "addr": "$DE00", "access": "rw", "doc": "Port A"},
+    {"name": "pb", "addr": "$DE01", "access": "rw", "doc": "Port B"},
+    {"name": "pc", "addr": "$DE02", "access": "rw", "doc": "Port C (Interrupt-Eingänge im Interruptmodus)"},
+    {"name": "ddra", "addr": "$DE03", "access": "rw", "doc": "Datenrichtung A"},
+    {"name": "ddrb", "addr": "$DE04", "access": "rw", "doc": "Datenrichtung B"},
+    {"name": "ddrc", "addr": "$DE05", "access": "rw", "doc": "Datenrichtung C"},
+    {"name": "cr", "addr": "$DE06", "access": "rw", "doc": "Steuerregister (Betriebsart)"},
+    {"name": "air", "addr": "$DE07", "access": "rw", "doc": "Aktives Interruptregister"}
+  ]
+}

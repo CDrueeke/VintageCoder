@@ -1,0 +1,142 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "c128",
+    "name": "Commodore 128 (C128-Modus)",
+    "cpu": "8502",
+    "compatible": ["c64"],
+    "testMailbox": "$0B00",
+    "testMailboxNote": "Postfach der Tests (Postfach-Modus, 8 Byte): Kassettenpuffer $0B00-$0BFF, frei solange kein Band benutzt wird",
+    "chips": [
+      "vic2",
+      "vic2e",
+      "sid",
+      "cia1",
+      "cia2",
+      "mmu128",
+      "mmu128cfg",
+      "vdc"
+    ],
+    "verified": "tables-from-docs",
+    "_comment": "Programme starten im C128-Modus (BASIC 7.0 ab $1C01, Bank 0 mit ROM/E/A laut MMU). C64-Modus: Target c64."
+  },
+  "variants": {
+    "pal": {
+      "clockHz": 985248,
+      "linesPerFrame": 312,
+      "cyclesPerLine": 63
+    },
+    "ntsc": {
+      "clockHz": 1022727,
+      "linesPerFrame": 263,
+      "cyclesPerLine": 65
+    }
+  },
+  "basic": {
+    "dialect": "basic7",
+    "loadAddr": "$1C01"
+  },
+  "regions": [
+    {
+      "name": "ram",
+      "start": "$0000",
+      "end": "$FFFF",
+      "kind": "ram",
+      "note": "Bank 0 (64 KB); ROM/E/A je nach MMU-Konfiguration überlagert"
+    },
+    {
+      "name": "zeropage",
+      "start": "$0000",
+      "end": "$00FF",
+      "kind": "ram",
+      "note": "$00/$01: Prozessorport"
+    },
+    {
+      "name": "screen",
+      "start": "$0400",
+      "end": "$07E7",
+      "kind": "ram",
+      "note": "40-Spalten-Bildschirm"
+    },
+    {
+      "name": "basic7",
+      "start": "$1C01",
+      "end": "$BFFF",
+      "kind": "ram",
+      "note": "BASIC-7.0-Programme beginnen bei $1C01"
+    },
+    {
+      "name": "io",
+      "start": "$D000",
+      "end": "$DFFF",
+      "kind": "io",
+      "note": "VIC-IIe, SID, MMU, VDC, CIA (bei E/A-Sicht)"
+    },
+    {
+      "name": "kernal_rom",
+      "start": "$C000",
+      "end": "$FFFF",
+      "kind": "rom",
+      "note": "Kernal/BASIC-Hälfte je nach MMU"
+    }
+  ],
+  "banking": {
+    "source": "Commodore 128 Programmer's Reference Guide (MMU-Konfigurationsregister $D500/$FF00, Speicherplan C128-Modus). Die Wertebezeichnungen $00, $3E, $3F, $7E, $7F stehen in data/sys/c128/hardware.asm (MMUCFG_*), $01 und $0E ergeben sich aus den Bitbedeutungen. Seite $FF enthält zusätzlich die MMU-Register $FF00-$FF04 (immer sichtbar) und gilt hier als ROM bzw. RAM der Konfiguration. Vorkonfigurationen (PCRA-PCRD) und RCR bleiben unberücksichtigt.",
+    "register": {"name": "MMU-Konfigurationsregister (CR)", "addr": "$FF00",
+      "bits": [
+        {"bit": 0, "name": "IO", "hint": "0: E/A-Block bei $D000-$DFFF; 1: dort Zeichen-ROM (bei System-ROM) bzw. ROM/RAM"},
+        {"bit": 1, "name": "ROM_LOW", "hint": "$4000-$7FFF: 0 = BASIC-7.0-ROM (unten), 1 = RAM"},
+        {"bit": 2, "name": "ROM_MID0", "hint": "$8000-$BFFF, Bit 0 der Auswahl: 00 = System-ROM (BASIC oben, Monitor), 01 = internes Funktions-ROM, 10 = externes Funktions-ROM, 11 = RAM"},
+        {"bit": 3, "name": "ROM_MID1", "hint": "$8000-$BFFF, Bit 1 der Auswahl"},
+        {"bit": 4, "name": "ROM_HIGH0", "hint": "$C000-$FFFF, Bit 0 der Auswahl: 00 = System-ROM (Editor, Zeichen-ROM/E/A, KERNAL), 01 = internes Funktions-ROM, 10 = externes Funktions-ROM, 11 = RAM"},
+        {"bit": 5, "name": "ROM_HIGH1", "hint": "$C000-$FFFF, Bit 1 der Auswahl"},
+        {"bit": 6, "name": "BANK", "hint": "RAM-Bank 0 oder 1 für den gesamten sichtbaren RAM"}
+      ]},
+    "default": "00",
+    "presets": [
+      {"id": "00", "name": "Standard (System-ROM und E/A)", "value": "$00", "note": "Bank 0 mit allen System-ROMs",
+        "regions": [
+          {"start": "$4000", "end": "$7FFF", "kind": "basic_rom", "note": "BASIC 7.0 unten"},
+          {"start": "$8000", "end": "$AFFF", "kind": "basic_rom", "note": "BASIC 7.0 oben"},
+          {"start": "$B000", "end": "$BFFF", "kind": "rom", "note": "Maschinensprachemonitor"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Bildschirmeditor"},
+          {"start": "$D000", "end": "$DFFF", "kind": "io"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "01", "name": "System-ROM mit Zeichen-ROM", "value": "$01", "note": "Wie $00, aber Zeichen-ROM statt E/A bei $D000",
+        "regions": [
+          {"start": "$4000", "end": "$7FFF", "kind": "basic_rom", "note": "BASIC 7.0 unten"},
+          {"start": "$8000", "end": "$AFFF", "kind": "basic_rom", "note": "BASIC 7.0 oben"},
+          {"start": "$B000", "end": "$BFFF", "kind": "rom", "note": "Maschinensprachemonitor"},
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Bildschirmeditor"},
+          {"start": "$D000", "end": "$DFFF", "kind": "char_rom"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "0e", "name": "RAM mit Kernal und E/A (BASIC aus)", "value": "$0E", "note": "Bank 0; RAM bei $4000-$BFFF, Kernal-ROM bleibt",
+        "regions": [
+          {"start": "$C000", "end": "$CFFF", "kind": "kernal_rom", "note": "Bildschirmeditor"},
+          {"start": "$D000", "end": "$DFFF", "kind": "io"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "3e", "name": "Bank 0: RAM mit E/A", "value": "$3E", "note": "Bank 0; nur E/A über dem RAM",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "io"}
+        ]},
+      {"id": "3f", "name": "Bank 0: alles RAM", "value": "$3F",
+        "regions": []},
+      {"id": "7e", "name": "Bank 1: RAM mit E/A", "value": "$7E", "note": "Bank 1; der untere gemeinsame RAM-Bereich bleibt Bank 0 (Größe: RCR $D506)",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "io"}
+        ]},
+      {"id": "7f", "name": "Bank 1: alles RAM", "value": "$7F", "note": "Bank 1; der untere gemeinsame RAM-Bereich bleibt Bank 0 (Größe: RCR $D506)",
+        "regions": []}
+    ]
+  },
+  "outputs": [
+    {
+      "format": "prg",
+      "extension": "prg",
+      "loadAddrHeader": true
+    }
+  ]
+}

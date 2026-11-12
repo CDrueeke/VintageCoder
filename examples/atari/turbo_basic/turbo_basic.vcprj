@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: Turbo BASIC XL",
+    "description": "Turbo BASIC XL ohne Zeilennummern: PROC/EXEC, WHILE, REPEAT, mehrzeiliges IF (zum Starten wird Turbo BASIC XL benötigt)"
+  },
+  "targets": [
+    { "id": "atari8", "system": "atari8", "model": "800xl", "variant": "pal", "cpu": "sally", "illegals": "deny", "emulator": "atari800" }
+  ],
+  "sources": [
+    { "targets": ["atari8"], "kind": "basic", "dialect": "turbo_basic_xl", "files": ["balken.tur"] }
+  ],
+  "main": "balken.tur"
+}

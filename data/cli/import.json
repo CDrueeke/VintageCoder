@@ -1,0 +1,337 @@
+{
+  "command": "import",
+  "group": "daten",
+  "summary": "Programme und Dateien von Disketten oder einzeln ins Projekt holen",
+  "description": [
+    "Übernimmt Dateien aus Diskettenimages (D64, D71, D81, ATR) oder einzelne PRG-, XEX- und BASIC-Dateien in einen Projektordner. Ohne Namen und ohne `--all` zeigt der Befehl nur das Verzeichnis."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "verzeichnis",
+      "usage": "vcc import <image.d64|d71|d81|atr> [--data-dir <pfad>]",
+      "summary": "Inhaltsverzeichnis eines Images zeigen",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "Diskettenimage (Endung d64, d71, d81 oder atr)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Verzeichnis anzeigen",
+          "cmd": "vcc import spiel.d64"
+        }
+      ],
+      "notes": [
+        "Zeigt je Datei Name, Art, Größe, Ladeadresse und bei erkannten BASIC-Programmen Dialekt und Zeilenzahl (nur mit Hardware-Datenbank). Es wird nichts geschrieben."
+      ],
+      "see_also": [
+        "disk"
+      ]
+    },
+    {
+      "id": "image",
+      "usage": "vcc import <image.d64|d71|d81|atr> (<NAME>... | --all) [--into <projektordner>] [--dir <ordner>] [--asm [--cpu <id>]] [--raw] [--no-basic]",
+      "summary": "Dateien aus einem Image ins Projekt übernehmen",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "Diskettenimage (Endung d64, d71, d81 oder atr)."
+        },
+        {
+          "name": "NAME",
+          "required": false,
+          "repeat": true,
+          "help": "Dateiname auf der Diskette (Groß-/Kleinschreibung egal); statt dessen --all."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "umwandlung",
+          "label": "Umwandlung"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--all",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Übernimmt alle Dateien des Images.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--into",
+          "short": "",
+          "value": "projektordner",
+          "group": "ziel",
+          "help": "Projektordner, in den die Dateien übernommen werden.",
+          "choices": [],
+          "default": ".",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Unterordner im Projekt, in den die Dateien geschrieben werden.",
+          "choices": [],
+          "default": "import",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--asm",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Legt für Maschinenprogramme zusätzlich einen disassemblierten Quelltext (.asm) an. Das ist rein mechanisch, Daten erscheinen als Befehle.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "umwandlung",
+          "help": "Prozessor für das Disassemblieren mit --asm (Name einer Datei in data/cpus).",
+          "choices": [],
+          "default": "",
+          "default_text": "6510, bei Atari-Programmen sally",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--raw",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Behält zusätzlich die unveränderte Originaldatei, wenn ein BASIC-Programm als Quelltext übernommen wird.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--no-basic",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Erkennt BASIC nicht und kopiert die Dateien unverändert.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "eine Datei übernehmen",
+          "cmd": "vcc import spiel.d64 JUMPRUN --into meinprojekt"
+        },
+        {
+          "title": "alle Dateien mit Quelltext",
+          "cmd": "vcc import spiel.atr --all --asm --dir quellen"
+        }
+      ],
+      "notes": [
+        "BASIC-Programme werden als lesbarer .bas-Quelltext übernommen. Vorhandene Dateien im Zielordner bleiben erhalten (der neue Dateiname bekommt ein Suffix _2, _3 ...).",
+        "Der Exit-Code ist 1, wenn eine Datei nicht übernommen werden konnte oder ein Name nicht auf der Diskette steht."
+      ],
+      "see_also": [
+        "disk",
+        "dis",
+        "add"
+      ]
+    },
+    {
+      "id": "datei",
+      "usage": "vcc import <datei.prg|datei.xex|datei.bas> [--into <projektordner>] [--dir <ordner>] [--asm [--cpu <id>]] [--raw] [--no-basic]",
+      "summary": "einzelnes Programm ins Projekt übernehmen",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "PRG-, XEX- oder BASIC-Datei (kein Diskettenimage)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Ziel"
+        },
+        {
+          "id": "umwandlung",
+          "label": "Umwandlung"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--into",
+          "short": "",
+          "value": "projektordner",
+          "group": "ziel",
+          "help": "Projektordner, in den die Dateien übernommen werden.",
+          "choices": [],
+          "default": ".",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Unterordner im Projekt, in den die Dateien geschrieben werden.",
+          "choices": [],
+          "default": "import",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--asm",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Legt für Maschinenprogramme zusätzlich einen disassemblierten Quelltext (.asm) an. Das ist rein mechanisch, Daten erscheinen als Befehle.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "umwandlung",
+          "help": "Prozessor für das Disassemblieren mit --asm (Name einer Datei in data/cpus).",
+          "choices": [],
+          "default": "",
+          "default_text": "6510, bei Atari-Programmen sally",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--raw",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Behält zusätzlich die unveränderte Originaldatei, wenn ein BASIC-Programm als Quelltext übernommen wird.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--no-basic",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Erkennt BASIC nicht und kopiert die Dateien unverändert.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "pfad",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank; sonst VC_DATA oder neben dem Programm.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Atari-Programm mit Quelltext",
+          "cmd": "vcc import jumprun.xex --asm --into meinprojekt"
+        },
+        {
+          "title": "BASIC-Programm übernehmen",
+          "cmd": "vcc import sterne.prg --into meinprojekt"
+        }
+      ],
+      "notes": [
+        "Eine Datei gilt als Atari-Programm, wenn sie eine XEX-Kennung hat oder eine tokenisierte Atari-BASIC-Datei (.bas) ist. Als Programm gilt sie außerdem bei der Endung .prg."
+      ],
+      "see_also": [
+        "dis",
+        "basic",
+        "add"
+      ]
+    }
+  ]
+}

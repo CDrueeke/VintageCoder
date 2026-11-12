@@ -1,0 +1,32 @@
+[package]
+name = "vc-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "VintageCoder Native: egui-Oberfläche (Machbarkeitsprobe)"
+
+[[bin]]
+name = "vintagecoder"
+path = "src/main.rs"
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+vc-asm = { path = "../vc-asm" }
+vc-ide = { path = "../vc-ide" }
+vc-basic = { path = "../vc-basic" }
+vc-media = { path = "../vc-media" }
+vc-emu = { path = "../vc-emu" }
+vc-lsp = { path = "../vc-lsp" }
+vc-disk = { path = "../vc-disk" }
+vc-roms = { path = "../vc-roms" }
+serde_json = { workspace = true }
+eframe = "0.36"
+egui_dock = { version = "0.21", features = ["serde"] }
+serde = { workspace = true }
+rfd = "0.17"
+cpal = "0.18"
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+muda = "0.17"

@@ -1,0 +1,79 @@
+{
+  "command": "feedback",
+  "group": "hilfe",
+  "summary": "Rückmeldung per E-Mail mit Angaben zur Installation vorbereiten",
+  "description": [
+    "Stellt Betreff und Text einer Mail an vintagecoder@drueeke.de zusammen: Version, Commit, Betriebssystem, Architektur, Installationsart und -ordner, Datenordner, Konfigurationsordner, Release-Auswahl und – mit --target – das Zielsystem. Pfade im persönlichen Ordner stehen als ~, Projektnamen kommen nicht vor.",
+    "Ohne --open wird nur ausgegeben, was in der Mail stünde. Mit --open öffnet das Betriebssystem das Standard-Mailprogramm mit vorausgefülltem Betreff und Text; gesendet wird erst, wenn du dort auf Senden klickst. Fehlerbeschreibung, Screenshots und Anhänge ergänzt du dort selbst. Es gibt keinen Netzzugriff und keine Telemetrie."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc feedback [optionen]",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--open",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Die Mail im Standard-Mailprogramm öffnen (macOS open, Windows rundll32, Linux xdg-open).",
+          "default": "",
+          "default_text": "nur ausgeben",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Alles maschinenlesbar als JSON ausgeben (Betreff, Text, Link, Einzelangaben).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ausgabe",
+          "help": "Zielsystem des Projekts in die Angaben aufnehmen, z. B. c64.",
+          "default": "",
+          "default_text": "kein Zielsystem",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "ansehen, was in der Mail stünde",
+          "cmd": "vcc feedback"
+        },
+        {
+          "title": "Mail im Mailprogramm öffnen",
+          "cmd": "vcc feedback --open"
+        },
+        {
+          "title": "als JSON, mit Zielsystem",
+          "cmd": "vcc feedback --json --target c64"
+        }
+      ],
+      "notes": [
+        "Der mailto-Link ist auf rund 1900 Zeichen begrenzt (Windows verarbeitet etwa 2000). Passt die Mail nicht hinein, fehlen die entbehrlichen Angaben, und der Text sagt, welche; die Ausgabe mit --json enthält den vollständigen Text als body_full.",
+        "Mit --open ohne Mailprogramm endet der Befehl mit Fehlercode 1; Betreff und Text stehen dann trotzdem in der Ausgabe."
+      ],
+      "see_also": [
+        "emulator"
+      ]
+    }
+  ]
+}

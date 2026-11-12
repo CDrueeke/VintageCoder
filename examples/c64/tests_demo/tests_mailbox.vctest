@@ -1,0 +1,10 @@
+{
+  "kind": "test", "target": "c64", "program": "build/tests_mailbox.prg", "mode": "mailbox",
+  "static": [
+    { "check": "size", "max": "$0100" },
+    { "check": "overlap" }
+  ],
+  "tests": [
+    { "name": "double, plus3 und Speicher (Selbsttest)", "timeoutMs": 20000 }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: Lange BASIC-Namen",
+    "description": "BASIC V2 mit langen Variablennamen (#longnames): beim Bauen werden sie auf die zwei Zeichen des C64 abgebildet"
+  },
+  "targets": [
+    { "id": "c64", "system": "c64", "variant": "pal", "cpu": "6510", "illegals": "warn", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["c64"], "kind": "basic", "files": ["punkte.bas"] }
+  ],
+  "main": "punkte.bas"
+}

@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: standard_charsets",
+    "description": "Standardzeichensatz des Atari"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": []
+}

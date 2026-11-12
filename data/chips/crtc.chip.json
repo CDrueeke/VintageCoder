@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "crtc",
+  "name": "CRTC 6545 (PET/CBM ab 8032, CBM-II 6x0/7x0): Adress- und Datenregister",
+  "window": {"space": "cpu16", "start": "$E880", "end": "$E881"},
+  "regs": [
+    {"name": "addr", "addr": "$E880", "access": "w", "doc": "Registernummer (0-17), die Zugriffe auf data meinen"},
+    {"name": "data", "addr": "$E881", "access": "rw", "doc": "Wert des gewählten CRTC-Registers (R12/R13 Startadresse, R14/R15 Cursor)"}
+  ]
+}

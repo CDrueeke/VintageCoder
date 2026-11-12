@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "project": {
+    "name": "MEGA65: music_demo",
+    "description": "Vier SIDs: 12-stimmige Musik"
+  },
+  "targets": [
+    {
+      "id": "mega65",
+      "system": "mega65",
+      "cpu": "45gs02",
+      "illegals": "deny",
+      "emulator": "xemu"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "mega65"
+      ],
+      "kind": "asm",
+      "files": [
+        "music_demo.asm"
+      ]
+    }
+  ],
+  "main": "music_demo.asm"
+}

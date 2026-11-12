@@ -1,0 +1,534 @@
+{
+ "program": "atari800",
+ "label": "atari800 (Atari 8 Bit)",
+ "kinds": [
+  "atari800"
+ ],
+ "verified": "atari800 -help, Version 7.2.1 (Homebrew, macOS)",
+ "groups": [
+  {
+   "id": "run",
+   "label": "Ablauf"
+  },
+  {
+   "id": "system",
+   "label": "Maschine und Speicher"
+  },
+  {
+   "id": "video",
+   "label": "Bild"
+  },
+  {
+   "id": "sound",
+   "label": "Ton"
+  },
+  {
+   "id": "input",
+   "label": "Eingabe"
+  },
+  {
+   "id": "debug",
+   "label": "Monitor und Fehlersuche"
+  },
+  {
+   "id": "drives",
+   "label": "Dateien und Laufwerke"
+  }
+ ],
+ "reserved": [
+  "-xl",
+  "-pal",
+  "-ntsc",
+  "-nobasic",
+  "-basic",
+  "-run",
+  "-cart",
+  "-xlxe_rom",
+  "-no-autosave-config",
+  "-monitor"
+ ],
+ "params": [
+  {
+   "id": "turbo",
+   "group": "run",
+   "type": "switch",
+   "flag": "-turbo",
+   "label": "Turbo",
+   "hint": "Lässt den Atari so schnell wie möglich laufen."
+  },
+  {
+   "id": "refresh",
+   "group": "run",
+   "type": "number",
+   "flag": "-refresh",
+   "label": "Bildwiederholrate",
+   "hint": "Zeigt nur jedes n-te Bild: 1 = jedes Bild, 2 = jedes zweite usw.",
+   "default": "1",
+   "min": 1
+  },
+  {
+   "id": "autosave",
+   "group": "run",
+   "type": "switch",
+   "flag": "-autosave-config",
+   "label": "Einstellungen beim Beenden speichern",
+   "hint": "Schreibt die Einstellungen beim Beenden in die Konfigurationsdatei.",
+   "off_flag": "-no-autosave-config"
+  },
+  {
+   "id": "config",
+   "group": "run",
+   "type": "file",
+   "flag": "-config",
+   "label": "Konfigurationsdatei",
+   "hint": "Verwendet diese Konfigurationsdatei statt ~/.atari800.cfg.",
+   "example": "{project_dir}/atari800.cfg"
+  },
+  {
+   "id": "mapram",
+   "group": "system",
+   "type": "switch",
+   "flag": "-mapram",
+   "label": "MapRAM (XL/XE)",
+   "hint": "Schaltet den RAM unter dem ROM-Bereich (MapRAM) für XL/XE ein.",
+   "off_flag": "-no-mapram"
+  },
+  {
+   "id": "stereo",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-stereo",
+   "label": "Zwei POKEYs (Stereo)",
+   "hint": "Bildet zwei POKEY-Chips nach.",
+   "off_flag": "-nostereo"
+  },
+  {
+   "id": "sound",
+   "group": "sound",
+   "type": "switch",
+   "flag": "-sound",
+   "label": "Ton an",
+   "hint": "Schaltet die Tonausgabe ein oder aus.",
+   "off_flag": "-nosound",
+   "default": "an"
+  },
+  {
+   "id": "volume",
+   "group": "sound",
+   "type": "number",
+   "flag": "-volume",
+   "label": "Lautstärke (0 bis 100)",
+   "hint": "Lautstärke der Tonausgabe.",
+   "example": "80",
+   "min": 0,
+   "max": 100
+  },
+  {
+   "id": "dsprate",
+   "group": "sound",
+   "type": "number",
+   "flag": "-dsprate",
+   "label": "Abtastrate (Hz)",
+   "hint": "Abtastrate der Tonausgabe in Hertz.",
+   "example": "44100",
+   "min": 8000
+  },
+  {
+   "id": "snddelay",
+   "group": "sound",
+   "type": "number",
+   "flag": "-snddelay",
+   "label": "Tonverzögerung (ms)",
+   "hint": "Zielverzögerung des Tons in Millisekunden.",
+   "example": "40",
+   "min": 0
+  },
+  {
+   "id": "fullscreen",
+   "group": "video",
+   "type": "switch",
+   "flag": "-fullscreen",
+   "label": "Vollbild",
+   "hint": "Startet im Vollbild.",
+   "off_flag": "-windowed"
+  },
+  {
+   "id": "artif",
+   "group": "video",
+   "type": "choice",
+   "flag": "-artif",
+   "label": "Artefaktfarben",
+   "hint": "Modus der Farbartefakte in Hochauflösung (0 = aus).",
+   "choices": [
+    {
+     "value": "0",
+     "label": "aus"
+    },
+    {
+     "value": "1",
+     "label": "1"
+    },
+    {
+     "value": "2",
+     "label": "2"
+    },
+    {
+     "value": "3",
+     "label": "3"
+    },
+    {
+     "value": "4",
+     "label": "4"
+    }
+   ]
+  },
+  {
+   "id": "ntsc_artif",
+   "group": "video",
+   "type": "choice",
+   "flag": "-ntsc-artif",
+   "label": "NTSC-Artefakte",
+   "hint": "Art der Videoartefakte bei NTSC.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "keine"
+    },
+    {
+     "value": "ntsc-old",
+     "label": "alt"
+    },
+    {
+     "value": "ntsc-new",
+     "label": "neu"
+    },
+    {
+     "value": "ntsc-full",
+     "label": "voll"
+    }
+   ]
+  },
+  {
+   "id": "pal_artif",
+   "group": "video",
+   "type": "choice",
+   "flag": "-pal-artif",
+   "label": "PAL-Artefakte",
+   "hint": "Art der Videoartefakte bei PAL.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "keine"
+    },
+    {
+     "value": "pal-simple",
+     "label": "einfach"
+    },
+    {
+     "value": "pal-blend",
+     "label": "Mischung"
+    }
+   ]
+  },
+  {
+   "id": "colors_preset",
+   "group": "video",
+   "type": "choice",
+   "flag": "-colors-preset",
+   "label": "Farbvoreinstellung",
+   "hint": "Vorgegebene Farbanpassung.",
+   "choices": [
+    {
+     "value": "standard",
+     "label": "Standard"
+    },
+    {
+     "value": "deep-black",
+     "label": "Tiefschwarz"
+    },
+    {
+     "value": "vibrant",
+     "label": "Lebhaft"
+    }
+   ]
+  },
+  {
+   "id": "stretch",
+   "group": "video",
+   "type": "choice",
+   "flag": "-stretch",
+   "label": "Skalierung",
+   "hint": "Wie das Bild gestreckt wird.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "keine"
+    },
+    {
+     "value": "integral",
+     "label": "ganzzahlig"
+    },
+    {
+     "value": "full",
+     "label": "voll"
+    }
+   ]
+  },
+  {
+   "id": "image_aspect",
+   "group": "video",
+   "type": "choice",
+   "flag": "-image-aspect",
+   "label": "Seitenverhältnis",
+   "hint": "Seitenverhältnis des Bildes.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "keines"
+    },
+    {
+     "value": "square-pixels",
+     "label": "quadratische Pixel"
+    },
+    {
+     "value": "real",
+     "label": "wie am Fernseher"
+    }
+   ]
+  },
+  {
+   "id": "vsync",
+   "group": "video",
+   "type": "switch",
+   "flag": "-vsync",
+   "label": "Vertikale Synchronisation",
+   "hint": "Gleicht die Ausgabe mit dem Bildwechsel des Monitors ab.",
+   "off_flag": "-no-vsync"
+  },
+  {
+   "id": "showspeed",
+   "group": "video",
+   "type": "switch",
+   "flag": "-showspeed",
+   "label": "Geschwindigkeit anzeigen",
+   "hint": "Zeigt die tatsächliche Geschwindigkeit in Prozent an."
+  },
+  {
+   "id": "win_width",
+   "group": "video",
+   "type": "number",
+   "flag": "-win-width",
+   "label": "Fensterbreite",
+   "hint": "Breite des Fensters in Pixeln.",
+   "min": 1
+  },
+  {
+   "id": "win_height",
+   "group": "video",
+   "type": "number",
+   "flag": "-win-height",
+   "label": "Fensterhöhe",
+   "hint": "Höhe des Fensters in Pixeln.",
+   "min": 1
+  },
+  {
+   "id": "mouse",
+   "group": "input",
+   "type": "choice",
+   "flag": "-mouse",
+   "label": "Maus",
+   "hint": "Welches Gerät die Maus nachbildet.",
+   "choices": [
+    {
+     "value": "off",
+     "label": "keine"
+    },
+    {
+     "value": "pad",
+     "label": "Paddles"
+    },
+    {
+     "value": "touch",
+     "label": "Touch Tablet"
+    },
+    {
+     "value": "koala",
+     "label": "Koala Pad"
+    },
+    {
+     "value": "pen",
+     "label": "Lichtgriffel"
+    },
+    {
+     "value": "gun",
+     "label": "Lightgun"
+    },
+    {
+     "value": "amiga",
+     "label": "Amiga-Maus"
+    },
+    {
+     "value": "st",
+     "label": "Atari-ST-Maus"
+    },
+    {
+     "value": "trak",
+     "label": "Trak-Ball"
+    },
+    {
+     "value": "joy",
+     "label": "Joystick"
+    }
+   ]
+  },
+  {
+   "id": "nojoystick",
+   "group": "input",
+   "type": "switch",
+   "flag": "-nojoystick",
+   "label": "Joystick aus",
+   "hint": "Schaltet die Joystickunterstützung ab.",
+   "conflicts": [
+    "kbdjoy0",
+    "kbdjoy1"
+   ]
+  },
+  {
+   "id": "kbdjoy0",
+   "group": "input",
+   "type": "switch",
+   "flag": "-kbdjoy0",
+   "label": "Tastatur als Joystick 0",
+   "hint": "Die Tastatur bedient Joystickport 0.",
+   "off_flag": "-no-kbdjoy0"
+  },
+  {
+   "id": "kbdjoy1",
+   "group": "input",
+   "type": "switch",
+   "flag": "-kbdjoy1",
+   "label": "Tastatur als Joystick 1",
+   "hint": "Die Tastatur bedient Joystickport 1.",
+   "off_flag": "-no-kbdjoy1"
+  },
+  {
+   "id": "grabmouse",
+   "group": "input",
+   "type": "switch",
+   "flag": "-grabmouse",
+   "label": "Maus einfangen",
+   "hint": "Hält den Mauszeiger im Fenster."
+  },
+  {
+   "id": "bbrk",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-bbrk",
+   "label": "Halt bei BRK",
+   "hint": "Hält den Monitor an, wenn ein BRK-Befehl ausgeführt wird."
+  },
+  {
+   "id": "bpc",
+   "group": "debug",
+   "type": "text",
+   "flag": "-bpc",
+   "label": "Haltepunkt bei Adresse",
+   "hint": "Hält den Monitor an, wenn der Programmzähler diese Adresse (hexadezimal) erreicht.",
+   "example": "{start}"
+  },
+  {
+   "id": "label_file",
+   "group": "debug",
+   "type": "file",
+   "flag": "-label-file",
+   "label": "Label-Datei für den Monitor",
+   "hint": "Lädt Labels aus dieser Datei in den Monitor des atari800.",
+   "example": "{symbols}"
+  },
+  {
+   "id": "monitor",
+   "group": "debug",
+   "type": "switch",
+   "flag": "-monitor",
+   "label": "Im Monitor starten",
+   "hint": "Startet den Emulator direkt im Monitor (Textkonsole)."
+  },
+  {
+   "id": "record",
+   "group": "debug",
+   "type": "file",
+   "flag": "-record",
+   "label": "Eingaben aufzeichnen",
+   "hint": "Schreibt alle Eingaben in diese Datei.",
+   "example": "{project_dir}/build/{project}.rec"
+  },
+  {
+   "id": "playback",
+   "group": "debug",
+   "type": "file",
+   "flag": "-playback",
+   "label": "Eingaben abspielen",
+   "hint": "Spielt zuvor aufgezeichnete Eingaben aus dieser Datei ab.",
+   "example": "{project_dir}/build/{project}.rec"
+  },
+  {
+   "id": "screenshots",
+   "group": "debug",
+   "type": "file",
+   "flag": "-screenshots",
+   "label": "Muster für Bildschirmfotos",
+   "hint": "Dateiname bzw. Muster für Bildschirmfotos.",
+   "example": "{project_dir}/build/{project}"
+  },
+  {
+   "id": "tape",
+   "group": "drives",
+   "type": "file",
+   "flag": "-tape",
+   "label": "Kassettenimage",
+   "hint": "Legt dieses Kassettenimage ein."
+  },
+  {
+   "id": "boottape",
+   "group": "drives",
+   "type": "file",
+   "flag": "-boottape",
+   "label": "Kassette einlegen und booten",
+   "hint": "Legt das Kassettenimage ein und bootet davon."
+  },
+  {
+   "id": "h1",
+   "group": "drives",
+   "type": "file",
+   "flag": "-H1",
+   "label": "Ordner für H1:",
+   "hint": "Ordner des Hosts, der als Gerät H1: erscheint.",
+   "example": "{project_dir}"
+  },
+  {
+   "id": "hpath",
+   "group": "drives",
+   "type": "file",
+   "flag": "-Hpath",
+   "label": "Ordner für H:-Programme",
+   "hint": "Ordner für Atari-Programme auf dem Host-Gerät H:.",
+   "example": "{project_dir}/build"
+  },
+  {
+   "id": "hreadonly",
+   "group": "drives",
+   "type": "switch",
+   "flag": "-hreadonly",
+   "label": "H: schreibgeschützt",
+   "hint": "Das Host-Gerät H: ist schreibgeschützt.",
+   "off_flag": "-hreadwrite"
+  }
+ ],
+ "debug_reserved": [
+  "-monitor",
+  "-no-autosave-config",
+  "-autosave-config",
+  "-run <value>",
+  "-cart <value>"
+ ]
+}

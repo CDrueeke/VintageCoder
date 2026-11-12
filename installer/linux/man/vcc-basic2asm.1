@@ -1,0 +1,101 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-BASIC2ASM 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-basic2asm \- BASIC\-Programm in Assembler\-Quelltext umwandeln
+.SH ÜBERSICHT
+.B vcc basic2asm <datei.bas> [optionen]
+.br
+.SH BESCHREIBUNG
+BASIC\-Programm in Assembler\-Quelltext umwandeln
+.PP
+Übersetzt ein BASIC\-Programm in lesbaren Assembler\-Quelltext, der als Maschinenprogramm läuft. Jede BASIC\-Zeile wird ein Abschnitt mit dem Original als Kommentar und dem Label L<Zeile>. Neben der .asm\-Datei entsteht eine Zeilenkarte (JSON) für den Debugger.
+.PP
+Der Konverter wählt die kleinste Stufe, die das Programm braucht: 1 = Ganzzahl, 2 = Fließkomma, 3 = Zeichenketten. \-\-stage setzt die Obergrenze.
+.SH OPTIONEN
+.TP
+\fIdatei.bas\fR
+BASIC\-Quelltext.
+.PP
+\fBZielsystem\fR
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem; legt Startadresse, Prozessor und BASIC\-Dialekt fest. Auf dem MEGA65 gibt es kein Fließkomma (E331). Werte: c64, c128, plus4, mega65, atari8. Standard: c64.
+.TP
+\fB\-\-turbo\fR
+Quelltext als Turbo BASIC XL lesen (nur Ziel atari8, sonst E344); Blöcke wie WHILE/WEND, PROC/EXEC werden zu Sprüngen.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data); bei \-\-runtime embed auch die Quelle der Laufzeit. Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBUmfang und Stil\fR
+.TP
+\fB\-\-stage\fR \fI1|2|3\fR
+Höchste zugelassene Stufe; gewählt wird die kleinste, die das Programm braucht. Andere Zahlen als 1 bis 3 melden E300. Standard: 3.
+.TP
+\fB\-\-float\fR
+Fließkomma\-Laufzeit auch dann einbinden, wenn das Programm sie nicht braucht.
+.TP
+\fB\-\-int\-div\fR
+/ als ganzzahlige Division übersetzen; sonst braucht es Stufe 2.
+.TP
+\fB\-\-style\fR \fIstil\fR
+compact: jede Operation ruft eine Laufzeitroutine. inline: einfache Ganzzahlausdrücke stehen als direkte 6502\-Befehle da (länger im Quelltext, kürzer in der Laufzeit). Werte: compact, inline. Standard: compact.
+.TP
+\fB\-\-runtime\fR \fIart\fR
+include: die Laufzeit kommt per #include aus data/sys. embed: sie wird in die Ergebnisdatei kopiert, die dann ohne Include\-Ordner übersetzbar ist. Werte: include, embed. Standard: include.
+.TP
+\fB\-\-no\-track\-line\fR
+Keine Zeilennummer zur Laufzeit mitführen: kleiner, aber Fehlermeldungen ohne Zeile.
+.TP
+\fB\-\-no\-rem\fR
+Zeilen, die nur aus REM bestehen, nicht übernehmen.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-o\fR \fIdatei.asm\fR
+Ausgabedatei mit dem Assembler\-Quelltext. Standard: Quellname mit .asm.
+.TP
+\fB\-\-map\fR \fIdatei.json\fR
+Zeilenkarte: BASIC\-Zeile, Quelltextzeile und Label im Assembler. Standard: Quellname mit .b2a.json.
+.TP
+\fB\-\-check\fR
+Nur prüfen und Stufe und Zeilenzahl melden; es werden keine Dateien geschrieben.
+.SH BEISPIELE
+einfach umwandeln:
+.PP
+.RS 8
+.nf
+vcc basic2asm examples/c64/basic_native/sterne.bas \-o sterne.asm
+.fi
+.RE
+für den Atari umwandeln:
+.PP
+.RS 8
+.nf
+vcc basic2asm examples/atari/basic_native/farben.bas \-\-target atari8 \-o farben.asm
+.fi
+.RE
+Turbo BASIC XL mit Stufenobergrenze:
+.PP
+.RS 8
+.nf
+vcc basic2asm examples/atari/turbo_basic/balken.tur \-\-target atari8 \-\-turbo \-\-stage 2 \-o balken.asm
+.fi
+.RE
+nur prüfen:
+.PP
+.RS 8
+.nf
+vcc basic2asm examples/c64/basic_native/sterne.bas \-\-check
+.fi
+.RE
+.SH HINWEISE
+Befehle, die der Konverter nicht übersetzt (OPEN, LOAD, LIST, NEW …), werden gemeldet (E311), nicht still ersetzt. Beim Atari kommt immer der Hinweis I150 zu den Zahlen.
+.PP
+Der Syntaxbaum lässt sich mit vcc basic ast ausgeben.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-basic(1), vcc\-asm(1)

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "vic20",
+    "name": "Commodore VC-20 (VIC-20)",
+    "cpu": "nmos6502",
+    "chips": ["vic1", "via1", "via2"],
+    "verified": "tables-from-docs"
+  },
+  "variants": {
+    "pal":  { "clockHz": 1108405, "linesPerFrame": 312, "cyclesPerLine": 71 },
+    "ntsc": { "clockHz": 1022727, "linesPerFrame": 261, "cyclesPerLine": 65 }
+  },
+  "basic": { "dialect": "cbm_v2", "loadAddr": "$1001" },
+  "memory": {
+    "default": "unexpanded",
+    "configs": {
+      "unexpanded": { "label": "Grundgerät (5 KB)",              "basicLoad": "$1001", "screen": "$1E00", "colorRam": "$9600", "vice": "none" },
+      "3k":         { "label": "+3 KB ($0400–$0FFF)",             "basicLoad": "$0401", "screen": "$1E00", "colorRam": "$9600", "vice": "3k" },
+      "8k":         { "label": "+8 KB (Block 1: $2000–$3FFF)",    "basicLoad": "$1201", "screen": "$1000", "colorRam": "$9400", "vice": "8k" },
+      "16k":        { "label": "+16 KB ($2000–$5FFF)",            "basicLoad": "$1201", "screen": "$1000", "colorRam": "$9400", "vice": "16k" },
+      "24k":        { "label": "+24 KB ($2000–$7FFF)",            "basicLoad": "$1201", "screen": "$1000", "colorRam": "$9400", "vice": "24k" },
+      "35k":        { "label": "+27 KB, voll ausgebaut (35 KB)",  "basicLoad": "$1201", "screen": "$1000", "colorRam": "$9400", "vice": "all" }
+    }
+  },
+  "regions": [
+    { "name": "zeropage",    "start": "$0000", "end": "$00FF", "kind": "ram", "note": "KERNAL- und BASIC-Zeiger" },
+    { "name": "ram_system",  "start": "$0100", "end": "$03FF", "kind": "ram", "note": "Stapel, KERNAL-Variablen, Kassettenpuffer" },
+    { "name": "ram_3k",      "start": "$0400", "end": "$0FFF", "kind": "ram", "note": "nur mit 3-KB-Erweiterung" },
+    { "name": "ram_user",    "start": "$1000", "end": "$1FFF", "kind": "ram", "note": "Grundgerät: BASIC ab $1001, Bildschirm $1E00" },
+    { "name": "ram_block1",  "start": "$2000", "end": "$3FFF", "kind": "ram", "note": "Erweiterung Block 1 (8 KB)" },
+    { "name": "ram_block2",  "start": "$4000", "end": "$5FFF", "kind": "ram", "note": "Erweiterung Block 2 (8 KB)" },
+    { "name": "ram_block3",  "start": "$6000", "end": "$7FFF", "kind": "ram", "note": "Erweiterung Block 3 (8 KB)" },
+    { "name": "char_rom",    "start": "$8000", "end": "$8FFF", "kind": "rom", "note": "Zeichensatz" },
+    { "name": "io",          "start": "$9000", "end": "$93FF", "kind": "io",  "note": "VIC-I $9000, VIA #1 $9110, VIA #2 $9120" },
+    { "name": "color_ram",   "start": "$9400", "end": "$97FF", "kind": "ram", "note": "Farb-RAM (nur 4 Bit); Grundgerät: $9600" },
+    { "name": "block5",      "start": "$A000", "end": "$BFFF", "kind": "rom", "note": "Steckmodul (Cartridge)" },
+    { "name": "basic_rom",   "start": "$C000", "end": "$DFFF", "kind": "rom" },
+    { "name": "kernal_rom",  "start": "$E000", "end": "$FFFF", "kind": "rom" }
+  ],
+  "outputs": [
+    { "format": "prg", "extension": "prg", "loadAddrHeader": true }
+  ]
+}

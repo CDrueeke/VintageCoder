@@ -1,0 +1,38 @@
+{
+  "kind": "test", "target": "c64", "program": "build/tests_demo.prg",
+  "static": [
+    { "check": "size", "segment": "", "max": "$0100" },
+    { "check": "size", "max": 1000, "maxEnd": "$1000" },
+    { "check": "zeropage", "forbid": "$02-$1f" },
+    { "check": "overlap" },
+    { "check": "cycles", "block": "irq" },
+    { "check": "cycles", "label": "irq_handler", "max": 24, "level": "error" },
+    { "check": "cycles", "label": "next_color", "max": 20 },
+    { "check": "cycles", "label": "next_color", "max": 18 },
+    { "check": "cycles", "label": "clear_text", "max": 100 },
+    { "check": "cycles", "label": "start", "max": 100 },
+    { "check": "expr", "name": "Programm endet vor $2000", "expr": "size(\"\") < $2000 - $0801" }
+  ],
+  "tests": [
+    { "name": "next_color: 15 wird 0",
+      "setup": { "mem": { "$fb": 15 } },
+      "call": "next_color",
+      "expect": [ "[$fb] == 0" ],
+      "cycles": { "max": 20 } },
+    { "name": "next_color: 3 wird 4",
+      "setup": { "mem": { "$fb": 3 } },
+      "call": "next_color",
+      "expect": [ "[$fb] == 4", "a == 3", "!fz" ],
+      "cycles": { "max": 20 } },
+    { "name": "irq_handler setzt die Rahmenfarbe",
+      "setup": { "mem": { "$fb": 7 }, "a": "$55" },
+      "call": "irq_handler", "return": "rti",
+      "expect": [ "([$d020] & 15) == 7", "a == $55" ],
+      "cycles": { "max": 24 } },
+    { "name": "clear_text füllt die erste Bildschirmzeile",
+      "setup": { "mem": { "$0400": [1, 2, 3], "$04ff": 9 } },
+      "call": "clear_text",
+      "expect": [ "[$0400] == $20", "[$0402] == $20", "[$04ff] == $20", "x == 0", "fz" ],
+      "cycles": { "max": 3100 } }
+  ]
+}

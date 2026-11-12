@@ -1,0 +1,12 @@
+# Bau-Image fuer Linux-Pakete (.rpm) auf Fedora: Rust (rustup), rpmbuild, Python 3 und die Entwicklungsbibliotheken der IDE.
+# Image: vc-build-fedora   (Aufbau und Aufruf: Makefile, tools/linux-build.sh)
+#   docker build --platform linux/amd64 -t vc-build-fedora -f tools/docker/Dockerfile.fedora tools/docker
+FROM fedora:latest
+ENV LANG=C.UTF-8 RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo PATH=/opt/cargo/bin:$PATH
+RUN dnf install -y gcc gcc-c++ make pkgconf-pkg-config curl git python3 rpm-build tar gzip xz \
+      alsa-lib-devel libxkbcommon-devel wayland-devel libX11-devel libXcursor-devel libXrandr-devel libXi-devel \
+      mesa-libGL-devel mesa-libEGL-devel \
+    && dnf clean all
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable \
+    && chmod -R a+rwX /opt/rustup /opt/cargo
+WORKDIR /src

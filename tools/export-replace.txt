@@ -1,0 +1,5 @@
+# Dateien, die im oeffentlichen Export durch eine andere Fassung ersetzt werden (tools/export-public.sh, Unterbefehl `replace`).
+# Je Zeile `QUELLE ZIEL` (Pfade ab Wurzel); QUELLE wird nach ZIEL verschoben und ueberschreibt es. `#` beginnt einen Kommentar.
+
+# Das ausfuehrliche Entwicklungstagebuch (CHANGELOG.md) bleibt im privaten Entwicklungs-Repository; oeffentlich steht die Anwenderfassung.
+release/CHANGELOG.public.md CHANGELOG.md

@@ -1,0 +1,9 @@
+[package]
+name = "vc-emu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+socket2 = { version = "0.6", features = ["all"] }
+serde_json.workspace = true

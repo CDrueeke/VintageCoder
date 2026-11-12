@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: farbwechsel",
+    "description": "Übungsprogramm für Debugger und Tests"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "farbwechsel.asm"
+      ]
+    }
+  ],
+  "main": "farbwechsel.asm"
+}

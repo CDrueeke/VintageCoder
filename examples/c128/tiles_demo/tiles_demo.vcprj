@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C128: tiles_demo",
+    "description": "Kachel-Bibliothek #include <c128/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger- und SMC-Version, Test mit vcc test"
+  },
+  "targets": [
+    {
+      "id": "c128",
+      "system": "c128",
+      "variant": "pal",
+      "cpu": "8502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c128"
+      ],
+      "kind": "asm",
+      "files": [
+        "tiles_demo_3x2_ptr.asm",
+        "tiles_demo_3x2_smc.asm",
+        "tiles_demo_2x2_ptr.asm",
+        "tiles_demo_2x2_smc.asm"
+      ]
+    }
+  ],
+  "main": "tiles_demo_3x2_ptr.asm"
+}

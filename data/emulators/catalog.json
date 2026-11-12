@@ -1,0 +1,528 @@
+{
+  "_comment": "Katalog der Emulatoren für Hilfe, Einstellungen und den portablen Download (vcc emulator install). Pakete: feste Versionen, SHA-256 geprüft (aus der Release-Seite bzw. am geladenen Paket berechnet am 2026-11-11). Je Betriebssystem und Architektur gilt das ERSTE Paket eines Emulators als Vorgabe (neueste Version), weitere sind ältere Versionen zur Auswahl. Ohne sha256 wird nichts geladen. Der Download geschieht nur auf ausdrücklichen Aufruf. Felder je Eintrag: feature (Kennung in FEATURES.md), kind (emulator|device), detect (names, dirs je Betriebssystem oder *, env), args (Sorte -> data/args-Programm), backend (Adapter in vc-emu), caps (run, debug full|limited|leer, test, image_on_halt, live_image), labels, systems_of, rank, rom.",
+  "emulators": [
+    {
+      "id": "vice",
+      "name": "VICE",
+      "feature": "EMU-VICE",
+      "labels": {
+        "x64sc": "VICE x64sc (taktgenau)",
+        "x64": "VICE x64 (schnell)",
+        "x128": "VICE x128",
+        "xplus4": "VICE xplus4",
+        "xvic": "VICE xvic"
+      },
+      "systems_of": {
+        "x64sc": [
+          "c64"
+        ],
+        "x64": [
+          "c64"
+        ],
+        "x128": [
+          "c128"
+        ],
+        "xplus4": [
+          "plus4",
+          "c16"
+        ],
+        "xvic": [
+          "vic20"
+        ]
+      },
+      "detect": {
+        "dirs": {
+          "*": [
+            "/Applications/vice-arm64-gtk3-3.10/bin",
+            "/Applications/vice-arm64-gtk3-3.9/bin",
+            "/opt/homebrew/bin",
+            "/usr/local/bin"
+          ]
+        }
+      },
+      "args": {
+        "x64sc": "vice-x64sc",
+        "x64": "vice-x64sc",
+        "x128": "vice-x128",
+        "xplus4": "vice-xplus4",
+        "xvic": "vice-xvic",
+        "xpet": "vice-xpet",
+        "xcbm2": "vice-xcbm2",
+        "xcbm5x0": "vice-xcbm5x0"
+      },
+      "backend": "vice-binmon",
+      "caps": {
+        "run": true,
+        "debug": "full",
+        "test": true,
+        "image_on_halt": true,
+        "live_image": false
+      },
+      "kinds": [
+        "x64sc",
+        "x64",
+        "x128",
+        "xplus4",
+        "xvic"
+      ],
+      "exe": {
+        "x64sc": "x64sc",
+        "x64": "x64",
+        "x128": "x128",
+        "xplus4": "xplus4",
+        "xvic": "xvic"
+      },
+      "homepage": "https://vice-emu.sourceforge.io/",
+      "download_page": "https://vice-emu.sourceforge.io/index.html#download",
+      "license": "GPL-2.0-or-later",
+      "systems": [
+        "c64",
+        "c128",
+        "plus4",
+        "c16",
+        "vic20"
+      ],
+      "role": "Starten und Debuggen (Binärmonitor)",
+      "summary": "Der Standard-Emulator der Commodore-8-Bit-Rechner. VintageCoder startet Programme damit und debuggt über den Binärmonitor: Haltepunkte, Einzelschritt, Datenhaltepunkte, Register, Speicher. Die Pakete bringen eigene ROM-Abbilder mit.",
+      "notes": [
+        "x64sc ist der taktgenaue C64, x64 der schnelle.",
+        "Die Windows-Pakete gibt es mit GTK3- und SDL2-Oberfläche; geladen wird die GTK3-Fassung."
+      ],
+      "packages": [
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "3.10",
+          "url": "https://downloads.sourceforge.net/project/vice-emu/releases/binaries/windows/GTK3VICE-3.10-win64.zip",
+          "sha256": "beb3791d90e98f7e012c0028f26fbaa6545c8fce676f852a67f8ad893dee9d08",
+          "format": "zip",
+          "size": 47330416
+        },
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "3.9",
+          "url": "https://downloads.sourceforge.net/project/vice-emu/releases/binaries/windows/GTK3VICE-3.9-win64.zip",
+          "sha256": "90a1c6df7a1ed99d4c114c95178726f3cc585920b787dc35548cda678a11ae6a",
+          "format": "zip",
+          "size": 43865735
+        }
+      ],
+      "manual": {
+        "windows": "Nur 64-Bit-Windows: GTK3VICE oder SDL2VICE als ZIP von der Download-Seite.",
+        "macos": "DMG für Apple Silicon oder Intel von der Download-Seite laden und VICE in „Programme“ ziehen (oder mit Homebrew: brew install vice).",
+        "linux": "Kein portables Paket: über die Paketverwaltung der Distribution installieren (z. B. sudo apt install vice)."
+      }
+    },
+    {
+      "id": "atari800",
+      "name": "atari800",
+      "feature": "EMU-ATARI800",
+      "rank": 2,
+      "labels": {
+        "atari800": "atari800"
+      },
+      "detect": {
+        "dirs": {
+          "*": [
+            "/opt/homebrew/bin",
+            "/usr/local/bin"
+          ]
+        }
+      },
+      "args": {
+        "atari800": "atari800"
+      },
+      "rom": {
+        "label": "OS-ROM (XL/XE)",
+        "hint": "ROM-Datei (optional)",
+        "folder": false
+      },
+      "backend": "atari800-textmon",
+      "caps": {
+        "run": true,
+        "debug": "limited",
+        "test": true,
+        "image_on_halt": false,
+        "live_image": false
+      },
+      "kinds": [
+        "atari800"
+      ],
+      "exe": {
+        "atari800": "atari800"
+      },
+      "homepage": "https://atari800.github.io/",
+      "download_page": "https://github.com/atari800/atari800/releases",
+      "license": "GPL-2.0-or-later",
+      "systems": [
+        "atari8"
+      ],
+      "role": "Starten und Debuggen (Textmonitor)",
+      "summary": "Klassischer Atari-8-Bit-Emulator. VintageCoder startet damit Atari-Programme und debuggt über den Textmonitor (ein Haltepunkt zugleich, Anhalten nur mit F8 im Fenster); die Tests im Trap-Modus laufen hier. Eigene Ersatz-ROMs sind eingebaut.",
+      "notes": [
+        "Messung der Strahlzeit (Zyklen) ist möglich."
+      ],
+      "packages": [
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "7.2.1",
+          "url": "https://github.com/atari800/atari800/releases/download/ATARI800_7_2_1/atari800-7.2.1-win64.zip",
+          "sha256": "82eb30836613a03b3a82d594da71b47667f2eef844d9cd808e3a367f250613ab",
+          "format": "zip",
+          "size": 6117106
+        },
+        {
+          "os": "linux",
+          "arch": "x86_64",
+          "version": "7.2.1",
+          "url": "https://github.com/atari800/atari800/releases/download/ATARI800_7_2_1/Atari800-7.2.1-x86_64.AppImage",
+          "sha256": "9aceaa10be27a0db18f4a0f3721dca74f0e749669ef35cd7991844ab39012340",
+          "format": "file",
+          "size": 19376632,
+          "exe": {
+            "atari800": "Atari800-7.2.1-x86_64.AppImage"
+          }
+        },
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "7.1.2",
+          "url": "https://github.com/atari800/atari800/releases/download/ATARI800_7_1_2/atari800-7.1.2-win64.zip",
+          "sha256": "abc17c04f1d4d0765ca8b425424f7d9d9ef4857aa8bc9cbc0a173d78823f8517",
+          "format": "zip",
+          "size": 6228553
+        },
+        {
+          "os": "linux",
+          "arch": "x86_64",
+          "version": "7.1.2",
+          "url": "https://github.com/atari800/atari800/releases/download/ATARI800_7_1_2/Atari800-7.1.2-x86_64.AppImage",
+          "sha256": "f4e11dcc6706591b630ba1647dcced52986507b55021a9ee24cad3f1e81c65f7",
+          "format": "file",
+          "size": 19339768,
+          "exe": {
+            "atari800": "Atari800-7.1.2-x86_64.AppImage"
+          }
+        }
+      ],
+      "manual": {
+        "macos": "Mit Homebrew: brew install atari800.",
+        "linux": "Auf anderen Architekturen über die Paketverwaltung (z. B. sudo apt install atari800).",
+        "windows": ""
+      }
+    },
+    {
+      "id": "altirra",
+      "name": "Altirra",
+      "feature": "EMU-ALTIRRA",
+      "rank": 1,
+      "labels": {
+        "altirra": "Altirra"
+      },
+      "detect": {
+        "names": {
+          "*": [
+            "Altirra64",
+            "Altirra"
+          ]
+        }
+      },
+      "args": {
+        "altirra": "altirra"
+      },
+      "backend": "",
+      "caps": {
+        "run": true,
+        "debug": "",
+        "test": false,
+        "image_on_halt": false,
+        "live_image": false
+      },
+      "kinds": [
+        "altirra"
+      ],
+      "exe": {
+        "altirra": "Altirra64"
+      },
+      "homepage": "https://www.virtualdub.org/altirra.html",
+      "download_page": "https://www.virtualdub.org/altirra.html",
+      "license": "GPL-2.0-or-later",
+      "systems": [
+        "atari8"
+      ],
+      "role": "Starten (nur Windows)",
+      "summary": "Sehr genauer Atari-8-Bit-Emulator von Avery Lee mit mächtigem eigenem Debugger und eingebauter Firmware. VintageCoder startet Atari-Programme damit; das Debuggen aus der IDE läuft über Fujisan oder atari800, Altirra hat keine Fernsteuerung. Läuft nur unter Windows.",
+      "notes": [
+        "Das Programm braucht keine Installation; Einstellungen liegen neben der Datei, wenn eine Altirra.ini dort liegt (portabler Betrieb)."
+      ],
+      "packages": [
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "4.40",
+          "url": "https://www.virtualdub.org/downloads/Altirra-4.40.zip",
+          "sha256": "8b0be7d81211a97d4633d6c8fdb85f446aa874ebd1e2d82f3aa6b7e41eb42c87",
+          "format": "zip",
+          "size": 7677138
+        },
+        {
+          "os": "windows",
+          "arch": "aarch64",
+          "version": "4.40",
+          "url": "https://www.virtualdub.org/downloads/Altirra-4.40-ARM64.zip",
+          "sha256": "f85562886d885f5a6b5d5073d1536a374cc0dd427aa8ccd40b2235a3cb9da63d",
+          "format": "zip",
+          "size": 4116694,
+          "exe": {
+            "altirra": "AltirraARM64"
+          }
+        },
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "4.31",
+          "url": "https://www.virtualdub.org/downloads/Altirra-4.31.zip",
+          "sha256": "a02eb382730fee3075b4339ad5bd011b736c249b12841f81a828292291661f41",
+          "format": "zip",
+          "size": 7324769
+        },
+        {
+          "os": "windows",
+          "arch": "aarch64",
+          "version": "4.31",
+          "url": "https://www.virtualdub.org/downloads/Altirra-4.31-ARM64.zip",
+          "sha256": "67c55c12e09ffb7b0abe57f505cd05f060c0396be14bb86b8d2508e8ee9fa7f8",
+          "format": "zip",
+          "size": 3943987,
+          "exe": {
+            "altirra": "AltirraARM64"
+          }
+        }
+      ],
+      "manual": {
+        "macos": "Altirra gibt es nicht für macOS; atari800 oder Fujisan nehmen.",
+        "linux": "Altirra gibt es nicht für Linux; atari800 oder Fujisan nehmen.",
+        "windows": ""
+      }
+    },
+    {
+      "id": "xemu",
+      "name": "Xemu (xmega65)",
+      "feature": "EMU-XEMU",
+      "labels": {
+        "xemu": "Xemu (xmega65)"
+      },
+      "detect": {
+        "env": "VC_XEMU",
+        "names": { "xemu": ["xmega65", "xemu-xmega65", "xmega65.native", "xemu-mega65"] },
+        "dirs": {
+          "*": [
+            "/opt/homebrew/bin",
+            "/usr/local/bin",
+            "/Applications/xmega65.app/Contents/MacOS",
+            "/Applications/Xemu"
+          ]
+        }
+      },
+      "args": {
+        "xemu": "xemu"
+      },
+      "rom": {
+        "label": "Ordner mit MEGA65.ROM",
+        "hint": "Ordner mit MEGA65.ROM",
+        "folder": true
+      },
+      "backend": "xemu-monitor",
+      "caps": {
+        "run": true,
+        "debug": "limited",
+        "test": false,
+        "image_on_halt": false,
+        "live_image": false
+      },
+      "kinds": [
+        "xemu"
+      ],
+      "exe": {
+        "xemu": "xmega65"
+      },
+      "homepage": "https://github.com/lgblgblgb/xemu/wiki",
+      "download_page": "https://github.com/lgblgblgb/xemu/releases",
+      "license": "GPL-2.0-or-later",
+      "systems": [
+        "mega65"
+      ],
+      "role": "Starten und Debuggen (UART-Monitor)",
+      "summary": "Emulator des MEGA65 von Gábor Lénárt. VintageCoder startet Programme damit und debuggt über den UART-Monitor (ein Haltepunkt zugleich). Xemu braucht das MEGA65-ROM (Einstellungen, ROM-Ordner).",
+      "notes": [
+        "Xemu gibt nur Vorabversionen („next“, mit Datum im Namen) heraus; geladen wird die hier festgeschriebene.",
+        "Das MEGA65-ROM wird nicht mitgeliefert."
+      ],
+      "packages": [
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "20261104234052-next",
+          "url": "https://github.com/lgblgblgb/xemu/releases/download/20261104234052-next/xemu-binaries-win64.zip",
+          "sha256": "d1bd60ad60b1e75ff12fada70a4e500ea6554f588fb9f124b97344c2d3ded56b",
+          "format": "zip",
+          "size": 2171254
+        }
+      ],
+      "manual": {
+        "macos": "Xemu-Installer.dmg oder xemu-binaries-osx.zip von der Download-Seite (nicht signiert: beim ersten Start in den Systemeinstellungen freigeben) oder mit Homebrew.",
+        "linux": "Paket xemu_<Datum>_amd64.deb von der Download-Seite (sudo apt install ./xemu_….deb) oder selbst bauen.",
+        "windows": ""
+      }
+    },
+    {
+      "id": "fujisan",
+      "name": "Fujisan",
+      "feature": "EMU-FUJISAN",
+      "labels": {},
+      "detect": {
+        "names": {
+          "*": [
+            "Fujisan",
+            "fujisan"
+          ]
+        },
+        "dirs": {
+          "*": [
+            "/opt/fujisan",
+            "/opt/fujisan/bin",
+            "/Applications/Fujisan.app/Contents/MacOS"
+          ]
+        }
+      },
+      "args": {},
+      "backend": "fujisan-tcp",
+      "caps": {
+        "run": false,
+        "debug": "full",
+        "test": true,
+        "image_on_halt": false,
+        "live_image": false
+      },
+      "kinds": [],
+      "exe": {
+        "fujisan": "Fujisan"
+      },
+      "homepage": "https://github.com/pedgarcia/fujisan",
+      "download_page": "https://github.com/pedgarcia/fujisan/releases",
+      "license": "MIT (Programm), GPL-2.0-or-later (eingebauter Kern libatari800)",
+      "systems": [
+        "atari8"
+      ],
+      "role": "Debuggen (TCP, Standard für .xex)",
+      "summary": "Atari-8-Bit-Emulator mit Qt-Oberfläche und TCP-Fernsteuerung für Windows, macOS und Linux. Der Debugger der IDE nutzt ihn für .xex-Programme, wenn er gefunden wird (mehrere Haltepunkte, Anhalten per Knopf, Schritt über); sonst atari800. Eingebaute Ersatz-ROMs, keine ROM-Dateien nötig.",
+      "notes": [
+        "Fujisan setzt keine Register selbst; der Adapter hilft mit einem Vorspann.",
+        "Das Windows-Paket enthält nur Windows-Dateien; macOS hat kein automatisches Paket."
+      ],
+      "packages": [
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "2.0.5",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.5/Fujisan-2.0.5-windows.zip",
+          "sha256": "8af99425bf7fe1afffcfe871ab61bb7083e358f4680fff75880c50644efc7f8b",
+          "format": "zip",
+          "size": 25848677
+        },
+        {
+          "os": "linux",
+          "arch": "x86_64",
+          "version": "2.0.5",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.5/fujisan-2.0.5-linux-x64.tar.gz",
+          "sha256": "4a6deb7e889b67e1efb2a0df27ada7fd7c38958c70f7bc3f845314ef695c3777",
+          "format": "tar.gz",
+          "size": 79778237
+        },
+        {
+          "os": "linux",
+          "arch": "aarch64",
+          "version": "2.0.5",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.5/fujisan-2.0.5-linux-arm64.tar.gz",
+          "sha256": "49834ce65496b754526bba0e69622a2502eb05687532dd9da39a4bb46bc16466",
+          "format": "tar.gz",
+          "size": 78276785
+        },
+        {
+          "os": "windows",
+          "arch": "x86_64",
+          "version": "2.0.4",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.4/Fujisan-2.0.4-windows.zip",
+          "sha256": "cbde5a447d945dae49294fa34153828186272aedac2318bf1d5e59797f5280dd",
+          "format": "zip",
+          "size": 25824085
+        },
+        {
+          "os": "linux",
+          "arch": "x86_64",
+          "version": "2.0.4",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.4/fujisan-2.0.4-linux-x64.tar.gz",
+          "sha256": "a49e8da451ec76e68e61baf8a43fe15fa054000c49bf6aecfcd8f5ab57fbb3fd",
+          "format": "tar.gz",
+          "size": 79436776
+        },
+        {
+          "os": "linux",
+          "arch": "aarch64",
+          "version": "2.0.4",
+          "url": "https://github.com/pedgarcia/fujisan/releases/download/v2.0.4/fujisan-2.0.4-linux-arm64.tar.gz",
+          "sha256": "45f7cf7fd67c5b9061345b18ced9745bece9f56bf4a6f6e62fd5be527d6a45da",
+          "format": "tar.gz",
+          "size": 77974578
+        }
+      ],
+      "manual": {
+        "macos": "Fujisan-2.0.5-macOS-Apple-Silicon.dmg oder -Intel.dmg von der Download-Seite laden und Fujisan in „Programme“ ziehen.",
+        "windows": "",
+        "linux": ""
+      }
+    },
+    {
+      "id": "ultimate",
+      "name": "Ultimate 64 / II+",
+      "kind": "device",
+      "feature": "HW-ULTIMATE",
+      "machine": "ultimate64",
+      "systems": [
+        "c64"
+      ],
+      "role": "Starten, Testen (Postfach), Datenströme (Live-Bild, Hörprobe, Ablaufprotokoll)",
+      "summary": "Netzwerkgerät: VintageCoder lädt und startet Programme über die REST-Schnittstelle und zeigt die Datenströme (Live-Bild) an.",
+      "backend": "ultimate-rest",
+      "caps": {
+        "run": true,
+        "debug": "limited",
+        "test": true,
+        "image_on_halt": false,
+        "live_image": true
+      }
+    },
+    {
+      "id": "mega65",
+      "name": "MEGA65 (Gerät)",
+      "kind": "device",
+      "feature": "HW-MEGA65",
+      "machine": "mega65",
+      "systems": [
+        "mega65"
+      ],
+      "role": "Starten und Debuggen (serieller Monitor), Netz (Ethernet, ungeprüft)",
+      "summary": "Echtes MEGA65: Programme laden und starten über den Monitor (USB) oder per Ethernet (etherload, mega65_ftp).",
+      "backend": "mega65-monitor",
+      "caps": {
+        "run": true,
+        "debug": "limited",
+        "test": true,
+        "image_on_halt": false,
+        "live_image": false
+      }
+    }
+  ]
+}

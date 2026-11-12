@@ -1,0 +1,11 @@
+[package]
+name = "vc-media"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+serde_json.workspace = true
+vc-roms = { path = "../vc-roms" }

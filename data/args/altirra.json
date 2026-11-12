@@ -1,0 +1,702 @@
+{
+ "program": "altirra",
+ "label": "Altirra (Atari 8 Bit, Windows)",
+ "kinds": [
+  "altirra"
+ ],
+ "verified": "Altirra 4.01.200, Altirra64.exe /? (Windows). Schalter, Werte und Argumentart aus der Hilfeliste; die Wirkung ist mit der Altirra-Hilfe abgeglichen (Beschleunigung, Disketten, Hardware, Profile, PCLink), die Syntax aller Einträge ist beim Start ohne Fehlerfenster getestet. Über F5 benutzt werden nur /run, /disk, /pal, /tempprofile, /defprofile:xl. Die Beschreibungstexte sind eigene Formulierungen, nicht von Altirra übernommen.",
+ "groups": [
+  {
+   "id": "video",
+   "label": "Bild"
+  },
+  {
+   "id": "hardware",
+   "label": "Hardware"
+  },
+  {
+   "id": "drives",
+   "label": "Programme und Datenträger"
+  },
+  {
+   "id": "acceleration",
+   "label": "Beschleunigung"
+  },
+  {
+   "id": "debug",
+   "label": "Debugger"
+  },
+  {
+   "id": "operation",
+   "label": "Betrieb"
+  }
+ ],
+ "reserved": [
+  "/tempprofile",
+  "/defprofile:xl",
+  "/pal",
+  "/ntsc",
+  "/nobasic",
+  "/basic",
+  "/run",
+  "/runbas",
+  "/cart",
+  "/disk"
+ ],
+ "params": [
+  {
+   "id": "windowed",
+   "group": "video",
+   "type": "switch",
+   "flag": "/w",
+   "label": "Im Fenster",
+   "hint": "Startet Altirra im Fenster.",
+   "conflicts": [
+    "fullscreen"
+   ]
+  },
+  {
+   "id": "fullscreen",
+   "group": "video",
+   "type": "switch",
+   "flag": "/f",
+   "label": "Vollbild",
+   "hint": "Startet Altirra im Vollbild.",
+   "conflicts": [
+    "windowed"
+   ]
+  },
+  {
+   "id": "borderless",
+   "group": "video",
+   "type": "switch",
+   "flag": "/borderless",
+   "label": "Rahmenloser Vollbildmodus",
+   "hint": "Schaltet den rahmenlosen Vollbildmodus ein (mit /noborderless aus); laut Altirra wirkt er nur im Vollbild.",
+   "off_flag": "/noborderless"
+  },
+  {
+   "id": "artifact",
+   "group": "video",
+   "type": "choice",
+   "flag": "/artifact",
+   "label": "Artefaktfarben",
+   "hint": "Simuliert die Farben, die aus abwechselnd hellen und dunklen Pixeln entstehen (Artefaktfarben); NTSC oder PAL passend zur gewählten Norm, „hohe Qualität“ rechnet genauer.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "keine"
+    },
+    {
+     "value": "ntsc",
+     "label": "NTSC"
+    },
+    {
+     "value": "ntschi",
+     "label": "NTSC (hohe Qualität)"
+    },
+    {
+     "value": "pal",
+     "label": "PAL"
+    },
+    {
+     "value": "palhi",
+     "label": "PAL (hohe Qualität)"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "gdi",
+   "group": "video",
+   "type": "switch",
+   "flag": "/gdi",
+   "label": "Anzeige über GDI",
+   "hint": "Verwendet GDI als Anzeigetreiber.",
+   "conflicts": [
+    "d3d9",
+    "d3d11"
+   ]
+  },
+  {
+   "id": "d3d9",
+   "group": "video",
+   "type": "switch",
+   "flag": "/d3d9",
+   "label": "Anzeige über Direct3D 9",
+   "hint": "Verwendet Direct3D 9 als Anzeigetreiber.",
+   "conflicts": [
+    "gdi",
+    "d3d11"
+   ]
+  },
+  {
+   "id": "d3d11",
+   "group": "video",
+   "type": "switch",
+   "flag": "/d3d11",
+   "label": "Anzeige über Direct3D 11",
+   "hint": "Verwendet Direct3D 11 als Anzeigetreiber.",
+   "conflicts": [
+    "gdi",
+    "d3d9"
+   ]
+  },
+  {
+   "id": "vsync",
+   "group": "video",
+   "type": "switch",
+   "flag": "/vsync",
+   "label": "Vertikale Synchronisation",
+   "hint": "Gleicht die Ausgabe mit dem Bildwechsel des Monitors ab.",
+   "off_flag": "/novsync"
+  },
+  {
+   "id": "kernel",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/kernel",
+   "label": "Betriebssystem (Kernel)",
+   "hint": "Welches Betriebssystem-ROM Altirra benutzt.",
+   "choices": [
+    {
+     "value": "default",
+     "label": "Standard"
+    },
+    {
+     "value": "osa",
+     "label": "OS-A"
+    },
+    {
+     "value": "osb",
+     "label": "OS-B"
+    },
+    {
+     "value": "xl",
+     "label": "XL/XE"
+    },
+    {
+     "value": "lle",
+     "label": "LLE"
+    },
+    {
+     "value": "llexl",
+     "label": "LLE XL/XE"
+    },
+    {
+     "value": "5200",
+     "label": "5200"
+    },
+    {
+     "value": "5200lle",
+     "label": "5200 LLE"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "hardware",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/hardware",
+   "label": "Maschine",
+   "hint": "Welche Maschine nachgebildet wird.",
+   "choices": [
+    {
+     "value": "800",
+     "label": "Atari 800"
+    },
+    {
+     "value": "800xl",
+     "label": "Atari 800XL"
+    },
+    {
+     "value": "5200",
+     "label": "Atari 5200"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "memsize",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/memsize",
+   "label": "Speichergröße",
+   "hint": "Größe des Arbeitsspeichers.",
+   "choices": [
+    {
+     "value": "8K",
+     "label": "8K"
+    },
+    {
+     "value": "16K",
+     "label": "16K"
+    },
+    {
+     "value": "24K",
+     "label": "24K"
+    },
+    {
+     "value": "32K",
+     "label": "32K"
+    },
+    {
+     "value": "48K",
+     "label": "48K"
+    },
+    {
+     "value": "52K",
+     "label": "52K"
+    },
+    {
+     "value": "64K",
+     "label": "64K"
+    },
+    {
+     "value": "128K",
+     "label": "128K"
+    },
+    {
+     "value": "320K",
+     "label": "320K"
+    },
+    {
+     "value": "320KCOMPY",
+     "label": "320KCOMPY"
+    },
+    {
+     "value": "576K",
+     "label": "576K"
+    },
+    {
+     "value": "576KCOMPY",
+     "label": "576KCOMPY"
+    },
+    {
+     "value": "1088K",
+     "label": "1088K"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "axlonmemsize",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/axlonmemsize",
+   "label": "Axlon-Speicher",
+   "hint": "Größe der Axlon-Speichererweiterung.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "none"
+    },
+    {
+     "value": "64K",
+     "label": "64K"
+    },
+    {
+     "value": "128K",
+     "label": "128K"
+    },
+    {
+     "value": "256K",
+     "label": "256K"
+    },
+    {
+     "value": "512K",
+     "label": "512K"
+    },
+    {
+     "value": "1024K",
+     "label": "1024K"
+    },
+    {
+     "value": "2048K",
+     "label": "2048K"
+    },
+    {
+     "value": "4096K",
+     "label": "4096K"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "highbanks",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/highbanks",
+   "label": "Hohe Speicherbänke",
+   "hint": "Anzahl der hohen (linearen) Speicherbänke für eine 65C816-CPU; „na“ = keine. Ohne 65C816-Prozessor im Profil ohne Wirkung.",
+   "choices": [
+    {
+     "value": "na",
+     "label": "na"
+    },
+    {
+     "value": "0",
+     "label": "0"
+    },
+    {
+     "value": "1",
+     "label": "1"
+    },
+    {
+     "value": "3",
+     "label": "3"
+    },
+    {
+     "value": "15",
+     "label": "15"
+    },
+    {
+     "value": "63",
+     "label": "63"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "stereo",
+   "group": "hardware",
+   "type": "switch",
+   "flag": "/stereo",
+   "label": "Zwei POKEYs (Stereo)",
+   "hint": "Bildet zwei POKEY-Chips nach.",
+   "off_flag": "/nostereo"
+  },
+  {
+   "id": "soundboard",
+   "group": "hardware",
+   "type": "choice",
+   "flag": "/soundboard",
+   "label": "Soundboard",
+   "hint": "Adresse der Soundboard-Erweiterung.",
+   "choices": [
+    {
+     "value": "d2c0",
+     "label": "$D2C0"
+    },
+    {
+     "value": "d500",
+     "label": "$D500"
+    },
+    {
+     "value": "d600",
+     "label": "$D600"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "covox",
+   "group": "hardware",
+   "type": "switch",
+   "flag": "/covox",
+   "label": "Covox",
+   "hint": "Schaltet die Covox-Tonausgabe ein.",
+   "off_flag": "/nocovox"
+  },
+  {
+   "id": "baseline",
+   "group": "hardware",
+   "type": "switch",
+   "flag": "/baseline",
+   "label": "Hardware auf Standard",
+   "hint": "Setzt die Hardware-Einstellungen (Maschine, Speicher, Kernel usw.) auf Altirras Standardwerte zurück. Mit /tempprofile, das VintageCoder setzt, wird nichts gespeichert."
+  },
+  {
+   "id": "rawkeys",
+   "group": "hardware",
+   "type": "switch",
+   "flag": "/rawkeys",
+   "label": "Rohe Tastaturdrücke",
+   "hint": "Schaltet die Weitergabe roher Tastaturdrücke ein (mit /norawkeys aus); Altirra nennt sie „raw keyboard presses“. Sichtbare Wirkung nicht geprüft.",
+   "off_flag": "/norawkeys"
+  },
+  {
+   "id": "cartmapper",
+   "group": "drives",
+   "type": "text",
+   "flag": "/cartmapper",
+   "label": "Modultyp (Mapper)",
+   "hint": "Typ des Moduls bei Modulabbildern ohne Kopf (Zahl oder Name des Mappers laut Altirra). Wirkt zusammen mit /cart, das VintageCoder für Modulabbilder selbst setzt.",
+   "example": "1"
+  },
+  {
+   "id": "tape",
+   "group": "drives",
+   "type": "file",
+   "flag": "/tape",
+   "label": "Kassettenimage",
+   "hint": "Legt dieses Kassettenimage ein."
+  },
+  {
+   "id": "tapepos",
+   "group": "drives",
+   "type": "text",
+   "flag": "/tapepos",
+   "label": "Bandposition",
+   "hint": "Startposition auf der Kassette als [[hh:]mm:]ss.sss.",
+   "example": "0:30.000",
+   "requires": [
+    "tape"
+   ]
+  },
+  {
+   "id": "hdpath",
+   "group": "drives",
+   "type": "file",
+   "flag": "/hdpath",
+   "label": "Ordner als Festplatte (H:)",
+   "hint": "Bindet einen Ordner des Rechners als Laufwerk H: ein, nur lesend (Schreiben erlaubt /hdpathrw).",
+   "example": "{project_dir}",
+   "conflicts": [
+    "hdpathrw"
+   ]
+  },
+  {
+   "id": "type",
+   "group": "drives",
+   "type": "text",
+   "flag": "/type",
+   "label": "Tasten eintippen",
+   "hint": "Tippt diese Zeichen nach dem Start ein; ~ ist Enter, ` ist ein Anführungszeichen.",
+   "example": "RUN~"
+  },
+  {
+   "id": "hdpathrw",
+   "group": "drives",
+   "type": "file",
+   "flag": "/hdpathrw",
+   "label": "Ordner als Festplatte (H:), schreibbar",
+   "hint": "Bindet einen Ordner des Rechners als Laufwerk H: ein, mit Schreibzugriff: Programme können dort Dateien anlegen und ändern.",
+   "example": "{project_dir}",
+   "conflicts": [
+    "hdpath"
+   ]
+  },
+  {
+   "id": "pclink",
+   "group": "drives",
+   "type": "text",
+   "flag": "/pclink",
+   "label": "PCLink-Ordner",
+   "hint": "Stellt einen Ordner des Rechners über PCLink bereit (Zugriff vom Atari über SIO, z. B. mit SpartaDOS X). Wert: ro,<Ordner> nur lesend oder rw,<Ordner> mit Schreibzugriff; ein anderer Modus führt zu einem Fehlerfenster von Altirra.",
+   "example": "rw,{project_dir}",
+   "join": ":"
+  },
+  {
+   "id": "bootrw",
+   "group": "drives",
+   "type": "switch",
+   "flag": "/bootrw",
+   "label": "Diskette: Lesen/Schreiben",
+   "hint": "Startet Diskettenabbilder im Modus Lesen/Schreiben: Änderungen des Programms landen im Abbild selbst (bei Projektdisketten also in der Datei).",
+   "conflicts": [
+    "bootvrw"
+   ]
+  },
+  {
+   "id": "bootvrw",
+   "group": "drives",
+   "type": "switch",
+   "flag": "/bootvrw",
+   "label": "Diskette: virtuell beschreibbar",
+   "hint": "Startet Diskettenabbilder virtuell beschreibbar: Schreiben ist erlaubt, die Änderungen bleiben aber im Speicher und das Abbild unverändert (Speichern über den Dialog Disk Drives von Altirra).",
+   "conflicts": [
+    "bootrw"
+   ]
+  },
+  {
+   "id": "casautoboot",
+   "group": "drives",
+   "type": "switch",
+   "flag": "/casautoboot",
+   "label": "Kassette automatisch starten",
+   "hint": "Hält beim Start die START-Taste und löst das Laden der Kassette aus (mit /nocasautoboot aus). Funktioniert nur bei Kassetten mit Maschinenprogramm; BASIC-Kassetten lädt man mit CLOAD.",
+   "off_flag": "/nocasautoboot"
+  },
+  {
+   "id": "cheats",
+   "group": "drives",
+   "type": "file",
+   "flag": "/cheats",
+   "label": "Cheat-Datei",
+   "hint": "Lädt eine Cheat-Datei im Format von Altirra. Fehlt die Datei, zeigt Altirra ein Fehlerfenster."
+  },
+  {
+   "id": "burstio",
+   "group": "acceleration",
+   "type": "switch",
+   "flag": "/burstio",
+   "label": "Burst-I/O",
+   "hint": "Verkürzt die Pause zwischen den Bytes auf dem SIO-Bus; beschleunigt eigene Diskettenlader, die der SIO-Patch nicht abfangen kann. Selten zeigen Programme dabei Fehler oder erkennen es als Kopierschutz-Umgehung, dann abschalten.",
+   "off_flag": "/noburstio"
+  },
+  {
+   "id": "siopatch",
+   "group": "acceleration",
+   "type": "switch",
+   "flag": "/siopatch",
+   "label": "SIO-Patch",
+   "hint": "Beschleunigt Disketten- und Kassettenzugriffe, indem Altirra die SIO-Aufrufe des Betriebssystems direkt bedient, sodass Laden fast sofort geht.",
+   "off_flag": "/nosiopatch"
+  },
+  {
+   "id": "fastboot",
+   "group": "acceleration",
+   "type": "switch",
+   "flag": "/fastboot",
+   "label": "Schneller Start",
+   "hint": "Verkürzt Startverzögerung, ROM-Prüfsumme und Geräteabfrage des XL/XE-Betriebssystems; spart beim Kaltstart einige Sekunden.",
+   "off_flag": "/nofastboot"
+  },
+  {
+   "id": "accuratedisk",
+   "group": "acceleration",
+   "type": "switch",
+   "flag": "/accuratedisk",
+   "label": "Genaue Laufwerkszeiten",
+   "hint": "Bildet Drehverzögerung und Kopfbewegung des Laufwerks nach: Laden dauert länger, ist aber für manche kopiergeschützten Disketten nötig. Mit SIO-Patch bleibt nur die Drehposition erfasst.",
+   "off_flag": "/noaccuratedisk"
+  },
+  {
+   "id": "debug",
+   "group": "debug",
+   "type": "switch",
+   "flag": "/debug",
+   "label": "Debugger öffnen",
+   "hint": "Öffnet beim Start den Debugger von Altirra."
+  },
+  {
+   "id": "debugbrkrun",
+   "group": "debug",
+   "type": "switch",
+   "flag": "/debugbrkrun",
+   "label": "Halt beim Programmstart",
+   "hint": "Hält im Debugger an der Startadresse des mit /run geladenen Programms an.",
+   "off_flag": "/nodebugbrkrun",
+   "requires": [
+    "debug"
+   ]
+  },
+  {
+   "id": "debugcmd",
+   "group": "debug",
+   "type": "text",
+   "flag": "/debugcmd",
+   "label": "Debugger-Befehl",
+   "hint": "Führt diesen Befehl beim Start im Debugger von Altirra aus.",
+   "example": "bp 2000",
+   "requires": [
+    "debug"
+   ],
+   "join": ":"
+  },
+  {
+   "id": "singleinstance",
+   "group": "operation",
+   "type": "switch",
+   "flag": "/singleinstance",
+   "label": "Nur eine Instanz",
+   "hint": "Verwendet eine bereits laufende Altirra-Instanz weiter, statt eine neue zu öffnen. Bei F5 meist unerwünscht, weil dann ein altes Fenster das Programm übernimmt.",
+   "off_flag": "/nosingleinstance"
+  },
+  {
+   "id": "hostcpu",
+   "group": "operation",
+   "type": "choice",
+   "flag": "/hostcpu",
+   "label": "Prozessorerkennung des Rechners",
+   "hint": "Überschreibt, welche Befehlssätze Altirra beim Rechner annimmt (Fehlersuche bei Problemen mit SSE/AVX-Code). Unbekannte Werte nimmt Altirra ohne Meldung an.",
+   "choices": [
+    {
+     "value": "none",
+     "label": "none"
+    },
+    {
+     "value": "mmx",
+     "label": "mmx"
+    },
+    {
+     "value": "sse",
+     "label": "sse"
+    },
+    {
+     "value": "sse2",
+     "label": "sse2"
+    },
+    {
+     "value": "sse3",
+     "label": "sse3"
+    },
+    {
+     "value": "ssse3",
+     "label": "ssse3"
+    },
+    {
+     "value": "sse41",
+     "label": "sse41"
+    },
+    {
+     "value": "sse42",
+     "label": "sse42"
+    },
+    {
+     "value": "avx",
+     "label": "avx"
+    },
+    {
+     "value": "avx2",
+     "label": "avx2"
+    }
+   ],
+   "join": ":"
+  },
+  {
+   "id": "advconfig",
+   "group": "operation",
+   "type": "switch",
+   "flag": "/advconfig",
+   "label": "Erweiterte Einstellungen zeigen",
+   "hint": "Öffnet vor dem Start den Dialog „Advanced Configuration“ und wartet, bis er geschlossen ist; für automatische Starts ungeeignet."
+  },
+  {
+   "id": "portabletemp",
+   "group": "operation",
+   "type": "switch",
+   "flag": "/portabletemp",
+   "label": "Einstellungen nur im Speicher",
+   "hint": "Altirra lädt und speichert keine Einstellungen (Registry im Arbeitsspeicher). Es gelten die Altirra-Grundwerte statt der eigenen Einstellungen, z. B. interne Firmware statt der eingetragenen ROMs und 320K-Rambo-Speicher."
+  },
+  {
+   "id": "reset",
+   "group": "operation",
+   "type": "text",
+   "flag": "/reset",
+   "label": "Einstellungsgruppen zurücksetzen",
+   "hint": "ACHTUNG, dauerhaft: setzt die genannten Gruppen von Altirra auf Standard zurück. Werte: display, windowlayouts, advconfig, devices (mehrere durch Komma).",
+   "example": "display,windowlayouts",
+   "join": ":"
+  },
+  {
+   "id": "resetall",
+   "group": "operation",
+   "type": "switch",
+   "flag": "/resetall",
+   "label": "Alle Einstellungen zurücksetzen",
+   "hint": "ACHTUNG, dauerhaft: setzt ALLE Einstellungen von Altirra auf Standard zurück (außer mit /portabletemp, dann nur im Arbeitsspeicher)."
+  },
+  {
+   "id": "skipsetup",
+   "group": "operation",
+   "type": "switch",
+   "flag": "/skipsetup",
+   "label": "Einrichtung überspringen",
+   "hint": "Überspringt den Einrichtungsdialog beim ersten Start."
+  }
+ ]
+}

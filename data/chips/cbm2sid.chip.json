@@ -1,0 +1,187 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "cbm2sid",
+  "name": "SID 6581 (CBM-II 6x0/7x0 und 5x0, Bank 15, ab $DA00)",
+  "window": {
+    "space": "cpu16",
+    "start": "$DA00",
+    "end": "$DA1F"
+  },
+  "mirror": "$20",
+  "regs": [
+    {
+      "name": "v1_freq_lo",
+      "addr": "$DA00",
+      "access": "w",
+      "doc": "Stimme 1 Frequenz Low"
+    },
+    {
+      "name": "v1_freq_hi",
+      "addr": "$DA01",
+      "access": "w",
+      "doc": "Stimme 1 Frequenz High"
+    },
+    {
+      "name": "v1_pw_lo",
+      "addr": "$DA02",
+      "access": "w",
+      "doc": "Stimme 1 Pulsbreite Low"
+    },
+    {
+      "name": "v1_pw_hi",
+      "addr": "$DA03",
+      "access": "w",
+      "doc": "Stimme 1 Pulsbreite High"
+    },
+    {
+      "name": "v1_ctrl",
+      "addr": "$DA04",
+      "access": "w",
+      "doc": "Stimme 1 Steuerung (Wellenform, Gate)"
+    },
+    {
+      "name": "v1_ad",
+      "addr": "$DA05",
+      "access": "w",
+      "doc": "Stimme 1 Attack/Decay"
+    },
+    {
+      "name": "v1_sr",
+      "addr": "$DA06",
+      "access": "w",
+      "doc": "Stimme 1 Sustain/Release"
+    },
+    {
+      "name": "v2_freq_lo",
+      "addr": "$DA07",
+      "access": "w",
+      "doc": "Stimme 2 Frequenz Low"
+    },
+    {
+      "name": "v2_freq_hi",
+      "addr": "$DA08",
+      "access": "w",
+      "doc": "Stimme 2 Frequenz High"
+    },
+    {
+      "name": "v2_pw_lo",
+      "addr": "$DA09",
+      "access": "w",
+      "doc": "Stimme 2 Pulsbreite Low"
+    },
+    {
+      "name": "v2_pw_hi",
+      "addr": "$DA0A",
+      "access": "w",
+      "doc": "Stimme 2 Pulsbreite High"
+    },
+    {
+      "name": "v2_ctrl",
+      "addr": "$DA0B",
+      "access": "w",
+      "doc": "Stimme 2 Steuerung (Wellenform, Gate)"
+    },
+    {
+      "name": "v2_ad",
+      "addr": "$DA0C",
+      "access": "w",
+      "doc": "Stimme 2 Attack/Decay"
+    },
+    {
+      "name": "v2_sr",
+      "addr": "$DA0D",
+      "access": "w",
+      "doc": "Stimme 2 Sustain/Release"
+    },
+    {
+      "name": "v3_freq_lo",
+      "addr": "$DA0E",
+      "access": "w",
+      "doc": "Stimme 3 Frequenz Low"
+    },
+    {
+      "name": "v3_freq_hi",
+      "addr": "$DA0F",
+      "access": "w",
+      "doc": "Stimme 3 Frequenz High"
+    },
+    {
+      "name": "v3_pw_lo",
+      "addr": "$DA10",
+      "access": "w",
+      "doc": "Stimme 3 Pulsbreite Low"
+    },
+    {
+      "name": "v3_pw_hi",
+      "addr": "$DA11",
+      "access": "w",
+      "doc": "Stimme 3 Pulsbreite High"
+    },
+    {
+      "name": "v3_ctrl",
+      "addr": "$DA12",
+      "access": "w",
+      "doc": "Stimme 3 Steuerung (Wellenform, Gate)"
+    },
+    {
+      "name": "v3_ad",
+      "addr": "$DA13",
+      "access": "w",
+      "doc": "Stimme 3 Attack/Decay"
+    },
+    {
+      "name": "v3_sr",
+      "addr": "$DA14",
+      "access": "w",
+      "doc": "Stimme 3 Sustain/Release"
+    },
+    {
+      "name": "fc_lo",
+      "addr": "$DA15",
+      "access": "w",
+      "doc": "Filter-Grenzfrequenz Low"
+    },
+    {
+      "name": "fc_hi",
+      "addr": "$DA16",
+      "access": "w",
+      "doc": "Filter-Grenzfrequenz High"
+    },
+    {
+      "name": "res_filt",
+      "addr": "$DA17",
+      "access": "w",
+      "doc": "Resonanz/Filterzuordnung"
+    },
+    {
+      "name": "mode_vol",
+      "addr": "$DA18",
+      "access": "w",
+      "doc": "Filtermodus und Lautstärke"
+    },
+    {
+      "name": "potx",
+      "addr": "$DA19",
+      "access": "r",
+      "doc": "Paddle X"
+    },
+    {
+      "name": "poty",
+      "addr": "$DA1A",
+      "access": "r",
+      "doc": "Paddle Y"
+    },
+    {
+      "name": "osc3",
+      "addr": "$DA1B",
+      "access": "r",
+      "doc": "Oszillator 3 (Zufall)"
+    },
+    {
+      "name": "env3",
+      "addr": "$DA1C",
+      "access": "r",
+      "doc": "Hüllkurve 3"
+    }
+  ]
+}

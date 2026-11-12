@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: PRALLBALL",
+    "description": "Ball-und-Schlaeger-Spiel (Prototyp H1): Joystick/Tastatur, 24 Levels, Kapseln, Bestenliste, Titelmusik"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "cpu": "6510",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

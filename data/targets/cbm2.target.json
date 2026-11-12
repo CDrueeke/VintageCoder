@@ -1,0 +1,29 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "cbm2",
+    "name": "Commodore CBM-II (B 128/256, 610/620/710/720)",
+    "cpu": "nmos6502",
+    "chips": ["cbm2crtc", "cbm2sid", "cia1", "cbm2tpi1", "cbm2tpi2"],
+    "verified": "spike-ungeprueft",
+    "note": "Der 6509 hat ein Bankregister bei $00/$01 (16 Bänke zu 64 KB). Bank 15 = System, BASIC-Text und -Variablen liegen in Bank 1. Assemblerprogramme brauchen Bankbehandlung (Lader, Bankwechsel, Fernzugriff über INDIRECT): im Kern nicht abgebildet, deshalb hier nur Daten und BASIC."
+  },
+  "variants": {
+    "pal":  { "clockHz": 1000000, "note": "50-Hz-Geräte; Zeilen und Zyklen je Zeile nicht angegeben" },
+    "ntsc": { "clockHz": 1000000, "note": "60-Hz-Geräte; Zeilen und Zyklen je Zeile nicht angegeben" }
+  },
+  "basic": { "dialect": "cbm_v2", "loadAddr": "$0003" },
+  "regions": [
+    { "name": "bankreg",    "start": "$0000", "end": "$0001", "kind": "io",  "note": "6509: $00 = Ausführungsbank, $01 = Indirektbank (Bit 0-3)" },
+    { "name": "system",     "start": "$0002", "end": "$0FFF", "kind": "ram", "note": "Systemvariablen; in Bank 1 BASIC-Programm ab $0003" },
+    { "name": "user",       "start": "$1000", "end": "$7FFF", "kind": "ram", "note": "Anwender-RAM (je nach Bank), $1000-$1FFF und $2000-$7FFF teils Modulbereiche" },
+    { "name": "basic_rom",  "start": "$8000", "end": "$BFFF", "kind": "rom", "note": "Bank 15: BASIC-ROM" },
+    { "name": "cart_ram",   "start": "$C000", "end": "$CFFF", "kind": "ram", "note": "Bank 15: Modulbereich" },
+    { "name": "video",      "start": "$D000", "end": "$D7FF", "kind": "ram", "note": "Bank 15: Bildschirmspeicher (6x0/7x0)" },
+    { "name": "io",         "start": "$D800", "end": "$DFFF", "kind": "io",  "note": "Bank 15: CRTC $D800, SID $DA00, CIA $DC00, ACIA $DD00, TPI 1 $DE00, TPI 2 $DF00" },
+    { "name": "kernal_rom", "start": "$E000", "end": "$FFFF", "kind": "rom", "note": "Bank 15: KERNAL" }
+  ],
+  "outputs": [
+    { "format": "prg", "extension": "prg", "loadAddrHeader": true }
+  ]
+}

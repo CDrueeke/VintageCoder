@@ -1,0 +1,19 @@
+{
+  "kind": "test", "target": "c64", "program": "build/farbwechsel.prg",
+  "static": [
+    { "check": "size", "max": 200 },
+    { "check": "overlap" },
+    { "check": "cycles", "label": "naechste_farbe", "max": 20 }
+  ],
+  "tests": [
+    { "name": "naechste_farbe: 3 wird 4",
+      "setup": { "mem": { "$fb": 3 } },
+      "call": "naechste_farbe",
+      "expect": [ "[$fb] == 4", "a == 4", "([$d020] & 15) == 4" ] },
+    { "name": "naechste_farbe: nach 15 kommt wieder Farbe 0",
+      "setup": { "mem": { "$fb": 15 } },
+      "call": "naechste_farbe",
+      "expect": [ "[$fb] == 16", "a == 0", "fz" ],
+      "cycles": { "max": 20 } }
+  ]
+}

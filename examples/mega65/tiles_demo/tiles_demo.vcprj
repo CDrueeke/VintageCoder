@@ -1,0 +1,31 @@
+{
+  "format": 1,
+  "project": {
+    "name": "MEGA65: tiles_demo",
+    "description": "Kachel-Bibliothek #include <mega65/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger- und SMC-Version, Test mit vcc test"
+  },
+  "targets": [
+    {
+      "id": "mega65",
+      "system": "mega65",
+      "cpu": "45gs02",
+      "illegals": "deny",
+      "emulator": "xemu"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "mega65"
+      ],
+      "kind": "asm",
+      "files": [
+        "tiles_demo_3x2_ptr.asm",
+        "tiles_demo_3x2_smc.asm",
+        "tiles_demo_2x2_ptr.asm",
+        "tiles_demo_2x2_smc.asm"
+      ]
+    }
+  ],
+  "main": "tiles_demo_3x2_ptr.asm"
+}

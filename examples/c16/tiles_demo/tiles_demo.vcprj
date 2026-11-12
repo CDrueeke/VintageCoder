@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C16: tiles_demo",
+    "description": "Kachel-Bibliothek #include <plus4/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger- und SMC-Version, Test mit vcc test"
+  },
+  "targets": [
+    {
+      "id": "c16",
+      "system": "c16",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c16"
+      ],
+      "kind": "asm",
+      "files": [
+        "tiles_demo_3x2_ptr.asm",
+        "tiles_demo_3x2_smc.asm",
+        "tiles_demo_2x2_ptr.asm",
+        "tiles_demo_2x2_smc.asm"
+      ]
+    }
+  ],
+  "main": "tiles_demo_3x2_ptr.asm"
+}

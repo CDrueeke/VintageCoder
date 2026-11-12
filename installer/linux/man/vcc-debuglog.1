@@ -1,0 +1,60 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-DEBUGLOG 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-debuglog \- Debug\-Protokoll der IDE auswerten
+.SH ÜBERSICHT
+.B vcc debuglog [datei.log] [optionen]
+.br
+.SH BESCHREIBUNG
+Debug\-Protokoll der IDE auswerten
+.PP
+Fasst die Protokolldatei zusammen, die VintageCoder schreibt, wenn das Debug\-Protokoll eingeschaltet ist (Einstellungen ▸ Allgemein oder Umgebungsvariable VC_DEBUG_LOG). Die Datei besteht aus JSON\-Zeilen (ts, seq, kind, msg); die erste Zeile enthält Version und Installation. Die Ausgabe nennt Programm, Zahl und Art der Einträge, Abstürze, Fehler und Warnungen sowie die letzten Ereignisse vor dem Ende.
+.PP
+Ohne Datei gilt die Standarddatei logs/vintagecoder.log im Konfigurationsordner. Der Befehl liest nur und sendet nichts.
+.SH OPTIONEN
+.TP
+\fIdatei.log\fR
+Protokolldatei; Standard ist die Datei im Konfigurationsordner (oder VC_DEBUG_LOG, falls ein Pfad). (optional)
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-json\fR
+Zusammenfassung maschinenlesbar als JSON ausgeben.
+.TP
+\fB\-\-tail\fR \fIn\fR
+Anzahl der letzten Ereignisse, die gezeigt werden. Standard: 20.
+.TP
+\fB\-\-path\fR
+Nur den Pfad der Standarddatei ausgeben.
+.SH BEISPIELE
+Standardprotokoll zusammenfassen:
+.PP
+.RS 8
+.nf
+vcc debuglog
+.fi
+.RE
+Datei aus einer Rückmeldung auswerten, maschinenlesbar:
+.PP
+.RS 8
+.nf
+vcc debuglog fehler.log \-\-json
+.fi
+.RE
+Pfad der Standarddatei anzeigen:
+.PP
+.RS 8
+.nf
+vcc debuglog \-\-path
+.fi
+.RE
+.SH HINWEISE
+Zeilen, die kein gültiger Eintrag sind (etwa eine beim Absturz abgeschnittene), werden gezählt und übersprungen.
+.PP
+Beim Wechsel der Datei (5 MB) bleibt eine Vorgängerdatei mit der Endung .log.1.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-feedback(1)

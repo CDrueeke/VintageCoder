@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C16: border",
+    "description": "Rahmenfarbe im Takt der Rasterzeile ändern"
+  },
+  "targets": [
+    {
+      "id": "c16",
+      "system": "c16",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c16"
+      ],
+      "kind": "asm",
+      "files": [
+        "border.asm"
+      ]
+    }
+  ],
+  "main": "border.asm"
+}

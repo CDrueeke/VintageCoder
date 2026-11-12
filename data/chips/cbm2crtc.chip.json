@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "cbm2crtc",
+  "name": "CRTC 6545 (CBM-II 6x0/7x0, Bank 15)",
+  "window": {"space": "cpu16", "start": "$D800", "end": "$D801"},
+  "regs": [
+    {"name": "addr", "addr": "$D800", "access": "w", "doc": "Registernummer (0-17)"},
+    {"name": "data", "addr": "$D801", "access": "rw", "doc": "Wert des gewählten CRTC-Registers"}
+  ]
+}

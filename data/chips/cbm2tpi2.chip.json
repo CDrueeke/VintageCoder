@@ -1,0 +1,16 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "cbm2tpi2",
+  "name": "TPI 6525 #2 (CBM-II: Tastatur, Videosteuerung, Bankauswahl)",
+  "window": {"space": "cpu16", "start": "$DF00", "end": "$DF07"},
+  "regs": [
+    {"name": "pa", "addr": "$DF00", "access": "rw", "doc": "Port A"},
+    {"name": "pb", "addr": "$DF01", "access": "rw", "doc": "Port B"},
+    {"name": "pc", "addr": "$DF02", "access": "rw", "doc": "Port C"},
+    {"name": "ddra", "addr": "$DF03", "access": "rw", "doc": "Datenrichtung A"},
+    {"name": "ddrb", "addr": "$DF04", "access": "rw", "doc": "Datenrichtung B"},
+    {"name": "ddrc", "addr": "$DF05", "access": "rw", "doc": "Datenrichtung C"},
+    {"name": "cr", "addr": "$DF06", "access": "rw", "doc": "Steuerregister (Betriebsart)"},
+    {"name": "air", "addr": "$DF07", "access": "rw", "doc": "Aktives Interruptregister"}
+  ]
+}

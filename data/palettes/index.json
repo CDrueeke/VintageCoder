@@ -1,0 +1,12 @@
+{
+  "_comment": "Zuordnung Zielsystem -> Palette. palette = Datei data/palettes/<name>.json, builtin = im Programm berechnet (MEGA65: Standardpalette des Editors). mask = gültige Bits des Farbwerts im Media, step = Farbwerte je Palettenzeile (Atari: GTIA-Wert = Zeile * 2), variants = Schlüssel in der Datei je Videonorm. Fehlt ein System, gilt 'default'.",
+  "default": "c64",
+  "targets": {
+    "c64":    { "palette": "c64",   "mask": 15 },
+    "c128":   { "palette": "c64",   "mask": 15 },
+    "plus4":  { "palette": "c64",   "mask": 15, "_note": "TED-Palette (121 Farben) fehlt noch; bis dahin C64-Farben" },
+    "vic20":  { "palette": "vic20", "mask": 15 },
+    "atari8": { "palette": "atari", "mask": 255, "step": 2, "variants": { "pal": "pal", "ntsc": "ntsc" } },
+    "mega65": { "builtin": "mega65", "mask": 255 }
+  }
+}

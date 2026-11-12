@@ -1,0 +1,11 @@
+[package]
+name = "vc-asm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+
+[dev-dependencies]

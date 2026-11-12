@@ -1,0 +1,55 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-BUILD 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-build \- Projekt laut .vcprj bauen
+.SH ÜBERSICHT
+.B vcc build [projekt] [optionen]
+.br
+.SH BESCHREIBUNG
+Projekt laut .vcprj bauen
+.PP
+Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und Export von Medien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.
+.SH OPTIONEN
+.TP
+\fIprojekt\fR
+Projektordner (die erste .vcprj darin) oder Projektdatei. Ohne Angabe gilt der aktuelle Ordner. (optional)
+.PP
+\fBBauen\fR
+.TP
+\fB\-\-main\fR
+Baut nur das Startprogramm (main der Projektdatei); die Diskette entsteht dann nicht.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data); ersetzt VC_DATA und die automatische Suche.
+.SH BEISPIELE
+Projekt im aktuellen Ordner bauen:
+.PP
+.RS 8
+.nf
+vcc build
+.fi
+.RE
+Projektordner bauen:
+.PP
+.RS 8
+.nf
+vcc build examples/c64/cart_demo
+.fi
+.RE
+nur das Startprogramm:
+.PP
+.RS 8
+.nf
+vcc build examples/mega65/prallball/prallball.vcprj \-\-main
+.fi
+.RE
+.SH HINWEISE
+Je Quelle erscheint eine Zeile OK oder FEHLER, das Startprogramm ist markiert; Meldungen stehen auf der Fehlerausgabe.
+.PP
+Warnungen zur Projektdatei (z. B. fehlende Dateien aus assets) kommen vorab. Ein Projekt ohne Quellen ist ein Fehler.
+.PP
+.SH RÜCKGABEWERT
+0 = alles gebaut, 1 = eine Quelle oder die Diskette fehlgeschlagen, oder keine Projektdatei gefunden, 2 = falscher Aufruf
+.SH SIEHE AUCH
+vcc(1), vcc\-asm(1), vcc\-test(1), vcc\-new(1)

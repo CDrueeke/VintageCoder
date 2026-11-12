@@ -1,0 +1,60 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-DIS 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-dis \- Maschinenprogramm disassemblieren
+.SH ÜBERSICHT
+.B vcc dis <datei> [optionen]
+.br
+.SH BESCHREIBUNG
+Maschinenprogramm disassemblieren
+.PP
+Gibt das Disassemblat auf der Standardausgabe aus: Adresse, Bytes und Befehl je Zeile; undokumentierte Befehle tragen den Zusatz „undokumentiert“.
+.PP
+Bei .prg steht die Startadresse im Dateikopf. Atari\-XEX\-Dateien (Endung .xex oder .com, oder Kopf $FFFF) werden Segment für Segment mit ihren Adressen ausgegeben. Bei anderen Dateien gilt Adresse 0, wenn \-\-start fehlt.
+.SH OPTIONEN
+.TP
+\fIdatei\fR
+Programmdatei (.prg, .xex, .bin).
+.PP
+\fBDisassemblieren\fR
+.TP
+\fB\-\-start\fR \fIadresse\fR
+Startadresse des Abbilds. Die Datei wird dann als rohe Bytes gelesen: bei .prg zählt der Kopf mit, bei XEX entfällt die Segmentaufteilung. Standard: Ladeadresse bei .prg; Segmentadressen bei XEX; sonst 0.
+.TP
+\fB\-\-cpu\fR \fIcpu\fR
+CPU\-Befehlssatz. Werte: 45gs02, 6510, 7501, 8502, nmos6502, sally. Standard: 6510.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data); ersetzt VC_DATA und die automatische Suche.
+.SH BEISPIELE
+C64\-Programm disassemblieren:
+.PP
+.RS 8
+.nf
+vcc dis border.prg
+.fi
+.RE
+MEGA65\-Programm mit 45GS02:
+.PP
+.RS 8
+.nf
+vcc dis prallball.prg \-\-cpu 45gs02
+.fi
+.RE
+rohes Abbild ab Adresse:
+.PP
+.RS 8
+.nf
+vcc dis kernal.bin \-\-start $e000
+.fi
+.RE
+.SH HINWEISE
+Adressen sind Zahlen wie 49152, $c000, 0xc000 oder %1100; eine ungültige Zahl bei \-\-start wird übergangen.
+.PP
+Die Erkennung von .prg beachtet die Groß\- und Kleinschreibung der Endung.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-asm(1), vcc\-import(1)

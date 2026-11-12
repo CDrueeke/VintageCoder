@@ -1,0 +1,21 @@
+[package]
+name = "vc-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "vcc"
+path = "src/main.rs"
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+vc-target = { path = "../vc-target" }
+vc-asm = { path = "../vc-asm" }
+vc-basic = { path = "../vc-basic" }
+vc-disk = { path = "../vc-disk" }
+vc-media = { path = "../vc-media" }
+vc-ide = { path = "../vc-ide" }
+vc-emu = { path = "../vc-emu" }
+vc-roms = { path = "../vc-roms" }
+serde_json.workspace = true

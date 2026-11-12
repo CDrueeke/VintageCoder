@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: rasterbars",
+    "description": "Rasterbalken durch Warten auf die Rasterzeile (ohne Interrupt); zeigt Include, Makro, .repeat und bedingte Assemblierung (DEBUG)"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "warn",
+      "emulator": "vice",
+      "defines": { "DEBUG": 1 }
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "rasterbars.asm"
+      ]
+    }
+  ],
+  "main": "rasterbars.asm"
+}

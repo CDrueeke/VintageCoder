@@ -1,0 +1,12 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "pia",
+  "name": "PIA 6520",
+  "window": {"space": "cpu16", "start": "$D300", "end": "$D303"},
+  "regs": [
+    {"name": "porta", "addr": "$D300", "access": "rw", "doc": "Port A (Joysticks 1+2)"},
+    {"name": "portb", "addr": "$D301", "access": "rw", "doc": "Port B (XL/XE: Speicher-Banking)"},
+    {"name": "pactl", "addr": "$D302", "access": "rw", "doc": "Port-A-Steuerung"},
+    {"name": "pbctl", "addr": "$D303", "access": "rw", "doc": "Port-B-Steuerung"}
+  ]
+}

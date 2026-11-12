@@ -1,0 +1,249 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-ROMS 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-roms \- ROM\-Dateien anzeigen, prüfen und importieren
+.SH ÜBERSICHT
+.B vcc roms list [system] [optionen]
+.br
+.B vcc roms check [system ...] [optionen]
+.br
+.B vcc roms path <system/rolle> [optionen]
+.br
+.B vcc roms where [optionen]
+.br
+.B vcc roms import <datei|ordner> ... [optionen]
+.br
+.B vcc roms emit\-known [optionen]
+.br
+.SH BESCHREIBUNG
+ROM\-Dateien anzeigen, prüfen und importieren
+.PP
+Verwaltet die ROM\-Abbilder, die Emulatoren und Prüfungen brauchen. Systeme sind c64, c128, vic20, plus4, atari8 und mega65; eine Rolle ist eine einzelne ROM eines Systems (z. B. c64/kernal). Der ROM\-Ordner lässt sich mit VC_ROMS ersetzen.
+.SH OPTIONEN
+.SS Form list
+Status je System und Rolle anzeigen
+.PP
+.TP
+\fIsystem\fR
+Nur dieses System anzeigen. (optional)
+.PP
+\fBSuche\fR
+.TP
+\fB\-\-json\fR
+Gibt die Liste als JSON aus.
+.TP
+\fB\-\-foreign\fR
+Sucht auch in ROM\-Ordnern anderer Programme.
+.TP
+\fB\-\-project\fR \fIordner\fR
+Projektordner, in dem zuerst nach ROMs gesucht wird.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SS Form check
+prüfen, ob die erforderlichen ROMs vorhanden sind
+.PP
+.TP
+\fIsystem\fR
+Zu prüfende Systeme; ohne Angabe alle. (optional) Mehrfach möglich.
+.PP
+\fBSuche\fR
+.TP
+\fB\-\-foreign\fR
+Sucht auch in ROM\-Ordnern anderer Programme.
+.TP
+\fB\-\-project\fR \fIordner\fR
+Projektordner, in dem zuerst nach ROMs gesucht wird.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SS Form path
+Pfad der benutzten ROM\-Datei ausgeben
+.PP
+.TP
+\fIsystem/rolle\fR
+System und Rolle, z. B. c64/kernal.
+.PP
+\fBSuche\fR
+.TP
+\fB\-\-foreign\fR
+Sucht auch in ROM\-Ordnern anderer Programme.
+.TP
+\fB\-\-project\fR \fIordner\fR
+Projektordner, in dem zuerst nach ROMs gesucht wird.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SS Form where
+ROM\-Ordner, Suchorte und portablen Modus anzeigen
+.PP
+.PP
+\fBSuche\fR
+.TP
+\fB\-\-foreign\fR
+Sucht auch in ROM\-Ordnern anderer Programme.
+.TP
+\fB\-\-project\fR \fIordner\fR
+Projektordner, in dem zuerst nach ROMs gesucht wird.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SS Form import
+erkannte ROMs in den ROM\-Ordner kopieren
+.PP
+.TP
+\fIdatei|ordner\fR
+Dateien oder Ordner mit ROM\-Abbildern; entfällt bei \-\-from\-others. Mehrfach möglich.
+.PP
+\fBImport\fR
+.TP
+\fB\-\-system\fR \fIsystem\fR
+Ordnet die Dateien diesem System zu, statt es zu erkennen.
+.TP
+\fB\-\-from\-others\fR
+Übernimmt passende ROMs aus Ordnern anderer Programme statt aus Dateien.
+.TP
+\fB\-\-yes\fR
+Kopiert wirklich; ohne \-\-yes zeigt der Befehl nur die Vorschau.
+.PP
+\fBSuche\fR
+.TP
+\fB\-\-foreign\fR
+Sucht auch in ROM\-Ordnern anderer Programme.
+.TP
+\fB\-\-project\fR \fIordner\fR
+Projektordner, in dem zuerst nach ROMs gesucht wird.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SS Form emit\-known
+Einträge für data/roms/known.json aus echten Dateien erzeugen
+.PP
+.PP
+\fBTabelle\fR
+.TP
+\fB\-\-into\fR \fIdatei.json\fR
+Schreibt in diese Tabelle (wird gelesen und ergänzt, falls sie existiert); ohne Angabe nach stdout.
+.TP
+\fB\-\-vice\fR \fIordner\fR
+Übernimmt die ROMs aus einem VICE\-Datenordner.
+.TP
+\fB\-\-merge\-json\fR \fIdatei.json\fR
+Fügt Einträge aus einer JSON\-Liste im Format von known.json hinzu. Mehrfach möglich.
+.PP
+\fBEintrag (hinter \-\-file)\fR
+.TP
+\fB\-\-file\fR \fIdatei\fR
+Beginnt einen Eintrag für diese ROM\-Datei; die folgenden Optionen gehören dazu. Mehrfach möglich.
+.TP
+\fB\-\-as\fR \fIsystem/rolle\fR
+System und Rolle des Eintrags. Mehrfach möglich.
+.TP
+\fB\-\-rev\fR \fIrev\fR
+Revision des Eintrags. Mehrfach möglich.
+.TP
+\fB\-\-free\fR
+Markiert die ROM als frei (Ersatz\-ROM). Mehrfach möglich.
+.TP
+\fB\-\-default\fR
+Markiert die Revision als Standard der Rolle. Mehrfach möglich.
+.TP
+\fB\-\-note\fR \fItext\fR
+Anmerkung zum Eintrag. Mehrfach möglich.
+.TP
+\fB\-\-set\fR \fIname:offset:size:profile[:text]\fR
+Benennt einen Bereich der ROM (Offset, Größe, Profil). Mehrfach möglich.
+.SH BEISPIELE
+alle Systeme:
+.PP
+.RS 8
+.nf
+vcc roms list
+.fi
+.RE
+nur C64 als JSON:
+.PP
+.RS 8
+.nf
+vcc roms list c64 \-\-json
+.fi
+.RE
+alle Systeme prüfen:
+.PP
+.RS 8
+.nf
+vcc roms check
+.fi
+.RE
+C64 und Atari prüfen:
+.PP
+.RS 8
+.nf
+vcc roms check c64 atari8
+.fi
+.RE
+Pfad des C64\-KERNAL:
+.PP
+.RS 8
+.nf
+vcc roms path c64/kernal
+.fi
+.RE
+Suchorte anzeigen:
+.PP
+.RS 8
+.nf
+vcc roms where
+.fi
+.RE
+mit ROMs anderer Programme:
+.PP
+.RS 8
+.nf
+vcc roms where \-\-foreign
+.fi
+.RE
+Vorschau für einen Ordner:
+.PP
+.RS 8
+.nf
+vcc roms import ~/Downloads/c64roms
+.fi
+.RE
+ROMs anderer Programme übernehmen:
+.PP
+.RS 8
+.nf
+vcc roms import \-\-from\-others \-\-yes
+.fi
+.RE
+aus VICE\-Daten in eine Tabelle:
+.PP
+.RS 8
+.nf
+vcc roms emit\-known \-\-vice /usr/lib/vice \-\-into known.json
+.fi
+.RE
+eine Datei eintragen:
+.PP
+.RS 8
+.nf
+vcc roms emit\-known \-\-file kernal.bin \-\-as c64/kernal \-\-rev 901227\-03 \-\-into known.json
+.fi
+.RE
+.SH HINWEISE
+Ein Status ist Erkannt, Unbekannte Revision, Ersatz (frei), Fehlt oder Nicht benutzbar.
+.PP
+Ersatz\-ROMs gelten als vorhanden. Fehlt etwas und liegen passende Dateien in anderen Programmen, nennt die Ausgabe vcc roms import \-\-from\-others.
+.PP
+Zeigt Schreibziel, Benutzerordner, portablen Modus, Zwischenspeicher und die gesuchten Orte in der Reihenfolge der Suche.
+.PP
+Ohne \-\-yes wird nichts kopiert.
+.PP
+Werkzeug für die Pflege der Datenbank. \-\-as, \-\-rev, \-\-free, \-\-default, \-\-note und \-\-set gelten für das davor stehende \-\-file; \-\-as ist je \-\-file Pflicht.
+.PP
+.SH RÜCKGABEWERT
+0 = alle erforderlichen ROMs vorhanden, 1 = eine erforderliche ROM fehlt, 2 = unbekanntes System
+.SH SIEHE AUCH
+vcc(1), vcc\-roms(1)

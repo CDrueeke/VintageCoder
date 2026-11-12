@@ -1,0 +1,8 @@
+; ERZEUGT von tools/gen.py: eigene Zeichen (Mehrfarb-Textmodus: je Zeile 4 Pixel zu 2 Bit, 00 = Hintergrund $FF15, 01 = $FF16 hell,
+; 10 = $FF17 dunkel, 11 = Zellfarbe aus dem Farb-RAM).  Je Zeichen 8 Byte (eine Pixelzeile je Byte, Bit 7-6 = linker Pixel).
+gfx_chars:   ; Zeichen 64 (Stein links), 65 (Stein rechts), 66 (Wand), 67 (Block fuer das Titellogo), danach der volle Block (Zeichen 127)
+        .byte $15, $1f, $1f, $1f, $1f, $1f, $2a, $00   ; Stein links
+        .byte $54, $f8, $f8, $f8, $f8, $f8, $a8, $00   ; Stein rechts
+        .byte $55, $7e, $7e, $7e, $7e, $7e, $7e, $aa   ; Wand
+        .byte $55, $7e, $7e, $7e, $7e, $7e, $7e, $aa   ; Block (Titellogo)
+        .byte $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff   ; voller Block

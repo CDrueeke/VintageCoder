@@ -1,0 +1,57 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-FEEDBACK 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-feedback \- Rückmeldung per E\-Mail mit Angaben zur Installation vorbereiten
+.SH ÜBERSICHT
+.B vcc feedback [optionen]
+.br
+.SH BESCHREIBUNG
+Rückmeldung per E\-Mail mit Angaben zur Installation vorbereiten
+.PP
+Stellt Betreff und Text einer Mail an vintagecoder@drueeke.de zusammen: Version, Commit, Betriebssystem, Architektur, Installationsart und \-ordner, Datenordner, Konfigurationsordner, Release\-Auswahl und – mit \-\-target – das Zielsystem. Pfade im persönlichen Ordner stehen als ~, Projektnamen kommen nicht vor.
+.PP
+Ohne \-\-open wird nur ausgegeben, was in der Mail stünde. Mit \-\-open öffnet das Betriebssystem das Standard\-Mailprogramm mit vorausgefülltem Betreff und Text; gesendet wird erst, wenn du dort auf Senden klickst. Fehlerbeschreibung, Screenshots und Anhänge ergänzt du dort selbst. Es gibt keinen Netzzugriff und keine Telemetrie.
+.SH OPTIONEN
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-open\fR
+Die Mail im Standard\-Mailprogramm öffnen (macOS open, Windows rundll32, Linux xdg\-open). Standard: nur ausgeben.
+.TP
+\fB\-\-json\fR
+Alles maschinenlesbar als JSON ausgeben (Betreff, Text, Link, Einzelangaben).
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem des Projekts in die Angaben aufnehmen, z. B. c64. Standard: kein Zielsystem.
+.SH BEISPIELE
+ansehen, was in der Mail stünde:
+.PP
+.RS 8
+.nf
+vcc feedback
+.fi
+.RE
+Mail im Mailprogramm öffnen:
+.PP
+.RS 8
+.nf
+vcc feedback \-\-open
+.fi
+.RE
+als JSON, mit Zielsystem:
+.PP
+.RS 8
+.nf
+vcc feedback \-\-json \-\-target c64
+.fi
+.RE
+.SH HINWEISE
+Der mailto\-Link ist auf rund 1900 Zeichen begrenzt (Windows verarbeitet etwa 2000). Passt die Mail nicht hinein, fehlen die entbehrlichen Angaben, und der Text sagt, welche; die Ausgabe mit \-\-json enthält den vollständigen Text als body_full.
+.PP
+Mit \-\-open ohne Mailprogramm endet der Befehl mit Fehlercode 1; Betreff und Text stehen dann trotzdem in der Ausgabe.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-emulator(1)

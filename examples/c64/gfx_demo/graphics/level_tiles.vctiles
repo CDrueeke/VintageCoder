@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "kind": "tileset",
+  "profile": "c64.tileset",
+  "name": "level_tiles",
+  "size": {"w":2,"h":2},
+  "colorMode": "tile",
+  "charsets": ["graphics/font.vcchar"],
+  "pins": [{"cs":0,"from":0,"to":255}],
+  "propDefs": [
+    {"name":"solid","bit":0}
+  ],
+  "tiles": [
+    {"name":"leer","cells":[32,32,32,32],"col":1},
+    {"name":"stein","cells":[1,2,2,1],"col":12,"props":["solid"]},
+    {"name":"gras","cells":[8,8,32,32],"col":5},
+    {"name":"kiste","cells":[2,1,1,2],"col":8,"props":["solid"]}
+  ]
+}

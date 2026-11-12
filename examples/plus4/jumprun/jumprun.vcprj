@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: jumprun",
+    "description": "Hugo & Gumbo: selbstlaufende Jump-and-Run-Demo (Assembler, TED, Zeichen-Sprites)"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "jumprun.asm"
+      ]
+    }
+  ],
+  "main": "jumprun.asm"
+}

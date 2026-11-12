@@ -1,0 +1,99 @@
+{
+  "templates": [
+    {
+      "id": "asm-hello",
+      "name": "Assembler-Programm",
+      "description": "Kleines Assemblerprogramm (Farbwechsel), startbar mit F5",
+      "systems": [
+        "c64",
+        "c128",
+        "plus4",
+        "c16",
+        "vic20",
+        "atari8",
+        "mega65",
+        "pet"
+      ],
+      "files": [
+        {
+          "from": "asm-hello/{system}.asm",
+          "to": "src/{system}/main.asm"
+        }
+      ],
+      "sources": [
+        {
+          "kind": "asm",
+          "file": "src/{system}/main.asm"
+        }
+      ],
+      "variants": [
+        {
+          "id": "cartridge",
+          "name": "Steckmodul",
+          "description": "8-KB-Modul statt Programm (C64: CBM80-Modul, Atari: 8k-Modul als .car, VC-20: Modul bei $A000 als .a0)",
+          "systems": [
+            "c64",
+            "atari8",
+            "vic20"
+          ],
+          "files": [
+            {
+              "from": "cartridge/{system}.asm",
+              "to": "src/{system}/module.asm"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "asm",
+              "file": "src/{system}/module.asm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basic-hello",
+      "name": "BASIC (ohne Zeilennummern)",
+      "description": "Natives BASIC des Systems ohne Zeilennummern, mit Sprungmarken (@name)",
+      "systems": [
+        "c64",
+        "c128",
+        "plus4",
+        "c16",
+        "vic20",
+        "atari8",
+        "mega65",
+        "pet",
+        "cbm2"
+      ],
+      "files": [
+        {
+          "from": "basic-hello/{system}.bas",
+          "to": "src/{system}/main.bas"
+        }
+      ],
+      "sources": [
+        {
+          "kind": "basic",
+          "file": "src/{system}/main.bas"
+        }
+      ]
+    },
+    {
+      "id": "empty",
+      "name": "Leeres Projekt",
+      "description": "Nur die Projektdatei und ein Ordner src/",
+      "systems": [
+        "c64",
+        "c128",
+        "plus4",
+        "c16",
+        "vic20",
+        "atari8",
+        "mega65"
+      ],
+      "files": [],
+      "sources": []
+    }
+  ]
+}

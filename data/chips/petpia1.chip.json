@@ -1,0 +1,12 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "petpia1",
+  "name": "PIA 6520 #1 (PET: Tastatur, Kassette #1, 60-Hz-Unterbrechung)",
+  "window": {"space": "cpu16", "start": "$E810", "end": "$E813"},
+  "regs": [
+    {"name": "porta", "addr": "$E810", "access": "rw", "doc": "Port A: Tastaturzeile (Bit 0-3), Kassettentasten, EOI-Eingang"},
+    {"name": "cra", "addr": "$E811", "access": "rw", "doc": "Steuerregister A (CA2: EOI-Ausgang)"},
+    {"name": "portb", "addr": "$E812", "access": "rw", "doc": "Port B: Tastaturspalte (Eingang)"},
+    {"name": "crb", "addr": "$E813", "access": "rw", "doc": "Steuerregister B (CB1: 60-Hz-Bildunterbrechung, CB2: Kassettenmotor)"}
+  ]
+}

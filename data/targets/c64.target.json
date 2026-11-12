@@ -1,0 +1,77 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "c64",
+    "name": "Commodore 64",
+    "cpu": "6510",
+    "chips": ["vic2", "sid", "cia1", "cia2"],
+    "testMailbox": "$033C",
+    "testMailboxNote": "Postfach der Tests (Postfach-Modus, 8 Byte): Kassettenpuffer $033C-$03FB, frei solange kein Band benutzt wird",
+    "testDebugReg": "$D7FF",
+    "testDebugRegNote": "Debug-Register der Ultimate 64 ($D7FF, im C64 unbelegt): test_end meldet dort Status 2 oder 3; auf Emulatoren und anderer Hardware ohne Wirkung",
+    "verified": "emulator-tested"
+  },
+  "variants": {
+    "pal":  { "clockHz": 985248,  "linesPerFrame": 312, "cyclesPerLine": 63 },
+    "ntsc": { "clockHz": 1022727, "linesPerFrame": 263, "cyclesPerLine": 65 }
+  },
+  "basic": { "dialect": "cbm_v2", "loadAddr": "$0801" },
+  "regions": [
+    { "name": "ram",        "start": "$0000", "end": "$9FFF", "kind": "ram" },
+    { "name": "zeropage",   "start": "$0000", "end": "$00FF", "kind": "ram", "note": "$00/$01: Prozessorport" },
+    { "name": "screen",     "start": "$0400", "end": "$07E7", "kind": "ram", "note": "Standard-Bildschirm" },
+    { "name": "basic_rom",  "start": "$A000", "end": "$BFFF", "kind": "rom" },
+    { "name": "ram_high",   "start": "$C000", "end": "$CFFF", "kind": "ram" },
+    { "name": "io",         "start": "$D000", "end": "$DFFF", "kind": "io" },
+    { "name": "kernal_rom", "start": "$E000", "end": "$FFFF", "kind": "rom" }
+  ],
+  "banking": {
+    "source": "Commodore 64 Programmer's Reference Guide (Speicherplan, Prozessorport $01) und Auswertung der PLA-Wahrheitstabelle ohne Steckmodul (GAME und EXROM = 1). Bitnamen wie in data/sys/c64/hardware.asm. Die Kassettenbits 3-5 des Ports bleiben unberücksichtigt; die Presets nennen nur die Bits 0-2 ($30-$37).",
+    "register": {"name": "Prozessorport", "addr": "$0001",
+      "bits": [
+        {"bit": 0, "name": "LORAM", "hint": "BASIC-ROM bei $A000-$BFFF sichtbar (nur zusammen mit HIRAM = 1); sind LORAM und HIRAM beide 0, liegt bei $D000-$DFFF RAM"},
+        {"bit": 1, "name": "HIRAM", "hint": "KERNAL-ROM bei $E000-$FFFF sichtbar; ohne HIRAM auch kein BASIC-ROM"},
+        {"bit": 2, "name": "CHAREN", "hint": "1: E/A bei $D000-$DFFF; 0: Zeichen-ROM dort (nicht bei LORAM = HIRAM = 0)"}
+      ]},
+    "default": "37",
+    "presets": [
+      {"id": "37", "name": "Standard (BASIC, E/A, KERNAL)", "value": "$37",
+        "regions": [
+          {"start": "$A000", "end": "$BFFF", "kind": "basic_rom"},
+          {"start": "$D000", "end": "$DFFF", "kind": "io"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "36", "name": "Ohne BASIC (RAM bei $A000, E/A, KERNAL)", "value": "$36",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "io"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "35", "name": "Nur E/A (kein BASIC, kein KERNAL)", "value": "$35",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "io"}
+        ]},
+      {"id": "34", "name": "Alles RAM (E/A abgeschaltet)", "value": "$34", "note": "Bei LORAM = HIRAM = 0 ist auch $D000-$DFFF RAM, unabhängig von CHAREN",
+        "regions": []},
+      {"id": "33", "name": "Zeichen-ROM (BASIC, KERNAL)", "value": "$33",
+        "regions": [
+          {"start": "$A000", "end": "$BFFF", "kind": "basic_rom"},
+          {"start": "$D000", "end": "$DFFF", "kind": "char_rom"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "32", "name": "Zeichen-ROM, ohne BASIC (KERNAL)", "value": "$32",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "char_rom"},
+          {"start": "$E000", "end": "$FFFF", "kind": "kernal_rom"}
+        ]},
+      {"id": "31", "name": "Nur Zeichen-ROM", "value": "$31",
+        "regions": [
+          {"start": "$D000", "end": "$DFFF", "kind": "char_rom"}
+        ]},
+      {"id": "30", "name": "Alles RAM", "value": "$30",
+        "regions": []}
+    ]
+  },
+  "outputs": [
+    { "format": "prg", "extension": "prg", "loadAddrHeader": true }
+  ]
+}

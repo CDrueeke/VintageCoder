@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "PET: Hello",
+    "description": "Text mit CHROUT ausgeben (BASIC-Starter bei $0401, läuft auf 2001, 4032 und 8032)"
+  },
+  "targets": [
+    { "id": "pet", "system": "pet", "variant": "pal", "cpu": "nmos6502", "illegals": "deny", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["pet"], "kind": "asm", "files": ["hello.asm"] }
+  ],
+  "main": "hello.asm"
+}

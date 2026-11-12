@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: Natives BASIC",
+    "description": "BASIC V2 im Originaldialekt des C64, ohne Zeilennummern, mit Labels (@name)"
+  },
+  "targets": [
+    { "id": "c64", "system": "c64", "variant": "pal", "cpu": "6510", "illegals": "warn", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["c64"], "kind": "basic", "files": ["sterne.bas"] }
+  ],
+  "main": "sterne.bas"
+}

@@ -1,0 +1,2284 @@
+{
+ "kind": "test",
+ "target": "atari8",
+ "program": "build/prallball.xex",
+ "static": [
+  {
+   "check": "overlap"
+  },
+  {
+   "check": "expr",
+   "name": "Programm endet vor dem Bildschirmspeicher bei $8000",
+   "expr": "song_patterns + 16 * 80 < $8000"
+  },
+  {
+   "check": "cycles",
+   "label": "add_score",
+   "max": 60
+  }
+ ],
+ "tests": [
+  {
+   "name": "add_score: 0999 + 10 = 1009",
+   "setup": {
+    "mem": {
+     "sc0": 153,
+     "sc1": 9,
+     "sc2": 0
+    },
+    "a": "$10"
+   },
+   "call": "add_score",
+   "expect": [
+    "[sc0] == $09",
+    "[sc1] == $10",
+    "[sc2] == 0"
+   ],
+   "cycles": {
+    "max": 60
+   }
+  },
+  {
+   "name": "add_score: Uebertrag in die hoechsten Ziffern",
+   "setup": {
+    "mem": {
+     "sc0": 149,
+     "sc1": 153,
+     "sc2": 0
+    },
+    "a": "$10"
+   },
+   "call": "add_score",
+   "expect": [
+    "[sc0] == $05",
+    "[sc1] == $00",
+    "[sc2] == $01"
+   ]
+  },
+  {
+   "name": "set_vel: Stufe 0 Zone 3",
+   "setup": {
+    "mem": {
+     "speed": 0,
+     "spdmod": 0
+    },
+    "a": "3"
+   },
+   "call": "set_vel",
+   "expect": [
+    "[vxl] == $f0",
+    "[vxh] == $ff",
+    "[vyl] == $9b",
+    "[vyh] == $ff"
+   ],
+   "cycles": {
+    "max": 70
+   }
+  },
+  {
+   "name": "set_vel: Stufe 5 Zone 0",
+   "setup": {
+    "mem": {
+     "speed": 5,
+     "spdmod": 0
+    },
+    "a": "0"
+   },
+   "call": "set_vel",
+   "expect": [
+    "[vxl] == $8c",
+    "[vxh] == $ff",
+    "[vyl] == $bd",
+    "[vyh] == $ff"
+   ],
+   "cycles": {
+    "max": 70
+   }
+  },
+  {
+   "name": "set_vel: Stufe 15 Zone 7",
+   "setup": {
+    "mem": {
+     "speed": 15,
+     "spdmod": 0
+    },
+    "a": "7"
+   },
+   "call": "set_vel",
+   "expect": [
+    "[vxl] == $ac",
+    "[vxh] == $00",
+    "[vyl] == $9d",
+    "[vyh] == $ff"
+   ],
+   "cycles": {
+    "max": 70
+   }
+  },
+  {
+   "name": "paddle_hit: Treffer in der Mitte -> Zone 4 und Abprall nach oben",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 0,
+     "oyl": 0,
+     "oyh": 0,
+     "bxl": 0,
+     "bxh": 29
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "fc",
+    "[vxl] == $10",
+    "[vyl] == $9b",
+    "[vyh] == $ff",
+    "[hits] == 1"
+   ]
+  },
+  {
+   "name": "paddle_hit: Ball neben dem Schlaeger -> kein Abprall",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 0,
+     "oyl": 0,
+     "oyh": 0,
+     "bxl": 0,
+     "bxh": 50
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "!fc",
+    "[hits] == 0"
+   ]
+  },
+  {
+   "name": "paddle_hit: Schlaeger nach links bewegt -> Zone 3",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 4,
+     "oyl": 0,
+     "oyh": 0,
+     "bxl": 0,
+     "bxh": 29
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "fc",
+    "[vxl] == $f0",
+    "[vxh] == $ff"
+   ]
+  },
+  {
+   "name": "paddle_hit: Schlaeger nach rechts bewegt -> Zone 5",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 8,
+     "oyl": 0,
+     "oyh": 0,
+     "bxl": 0,
+     "bxh": 29
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "fc",
+    "[vxl] == $2d",
+    "[vxh] == $00"
+   ]
+  },
+  {
+   "name": "paddle_hit: Schlaeger stillstehend bewegt -> Zone 4",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 0,
+     "oyl": 0,
+     "oyh": 0,
+     "bxl": 0,
+     "bxh": 29
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "fc",
+    "[vxl] == $10",
+    "[vxh] == $00"
+   ]
+  },
+  {
+   "name": "paddle_hit: Seitenaufprall links -> weg nach links",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 0,
+     "oyl": 144,
+     "oyh": 44,
+     "bxl": 64,
+     "bxh": 24,
+     "vxl": 64,
+     "vxh": 0
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "!fc",
+    "[vxl] == $c0",
+    "[vxh] == $ff",
+    "[bxl] == $80",
+    "[bxh] == $17",
+    "[hits] == 0"
+   ]
+  },
+  {
+   "name": "paddle_hit: Seitenaufprall rechts -> weg nach rechts",
+   "setup": {
+    "mem": {
+     "padl": 100,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4,
+     "speed": 0,
+     "spdmod": 0,
+     "hits": 0,
+     "sticky": 0,
+     "cb": 0,
+     "byl": 128,
+     "byh": 44,
+     "vyh": 0,
+     "vyl": 64,
+     "mask": 0,
+     "oyl": 144,
+     "oyh": 44,
+     "bxl": 128,
+     "bxh": 32,
+     "vxl": 192,
+     "vxh": 255
+    }
+   },
+   "call": "paddle_hit",
+   "expect": [
+    "!fc",
+    "[vxl] == $40",
+    "[vxh] == 0",
+    "[bxl] == 0",
+    "[bxh] == $21",
+    "[hits] == 0"
+   ]
+  },
+  {
+   "name": "probe: Stein oben links wird gefunden",
+   "setup": {
+    "mem": {
+     "bxh": 4,
+     "bxl": 0,
+     "byh": 8,
+     "byl": 0,
+     "MAP": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "x": 0,
+    "y": 0
+   },
+   "call": "probe",
+   "expect": [
+    "a == 1",
+    "[bcol] == 0",
+    "[brow] == 0",
+    "[bidx] == 0"
+   ]
+  },
+  {
+   "name": "probe: links vom Steinfeld kein Stein",
+   "setup": {
+    "mem": {
+     "bxh": 3,
+     "bxl": 0,
+     "byh": 8,
+     "byl": 0,
+     "MAP": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "x": 0,
+    "y": 0
+   },
+   "call": "probe",
+   "expect": [
+    "a == 0",
+    "fz"
+   ]
+  },
+  {
+   "name": "move_ball: Treffer links auf einen Stein: Stein weg, Punkte, Ball kehrt um",
+   "setup": {
+    "mem": {
+     "bxl": 32,
+     "bxh": 8,
+     "byl": 0,
+     "byh": 8,
+     "vxl": 192,
+     "vxh": 255,
+     "vyl": 16,
+     "vyh": 0,
+     "bricks": 1,
+     "sc0": 0,
+     "sc1": 0,
+     "sc2": 0,
+     "lkind": 0,
+     "capact": 1,
+     "tpierce": 0,
+     "MAP": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "move_ball",
+   "expect": [
+    "[MAP] == 0",
+    "[bricks] == 0",
+    "[sc0] == $10",
+    "[vxh] == 0"
+   ]
+  },
+  {
+   "name": "move_ball: Durchschlag zerstoert Silber sofort und prallt nicht ab",
+   "setup": {
+    "mem": {
+     "bxl": 32,
+     "bxh": 8,
+     "byl": 0,
+     "byh": 8,
+     "vxl": 192,
+     "vxh": 255,
+     "vyl": 16,
+     "vyh": 0,
+     "bricks": 1,
+     "sc0": 0,
+     "sc1": 0,
+     "sc2": 0,
+     "lkind": 0,
+     "capact": 1,
+     "tpierce": 8,
+     "MAP": [
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "move_ball",
+   "expect": [
+    "[MAP] == 0",
+    "[bricks] == 0",
+    "[vxh] == $ff"
+   ]
+  },
+  {
+   "name": "move_ball: Durchschlag prallt an unzerstoerbaren Steinen ab",
+   "setup": {
+    "mem": {
+     "bxl": 32,
+     "bxh": 8,
+     "byl": 0,
+     "byh": 8,
+     "vxl": 192,
+     "vxh": 255,
+     "vyl": 16,
+     "vyh": 0,
+     "bricks": 1,
+     "sc0": 0,
+     "sc1": 0,
+     "sc2": 0,
+     "lkind": 0,
+     "capact": 1,
+     "tpierce": 8,
+     "MAP": [
+      11,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "move_ball",
+   "expect": [
+    "[MAP] == 11",
+    "[vxh] == 0"
+   ]
+  },
+  {
+   "name": "move_ball: Ball unter dem Schlaeger geht verloren (A = 1)",
+   "setup": {
+    "mem": {
+     "bxl": 0,
+     "bxh": 64,
+     "byl": 0,
+     "byh": 47,
+     "vxl": 0,
+     "vxh": 0,
+     "vyl": 0,
+     "vyh": 2,
+     "padl": 16,
+     "padh": 0,
+     "padw": 32,
+     "zstep": 4
+    }
+   },
+   "call": "move_ball",
+   "expect": [
+    "a == 1"
+   ]
+  },
+  {
+   "name": "load_level 1 (Regenbogen): 126 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 0
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 126",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 2 (Pyramide): 71 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 1
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 71",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 3 (Tore): 88 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 2
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 88",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 4 (Schachbrett): 144 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 3
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 144",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 5 (Streifen): 144 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 4
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 144",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 6 (Diagonale): 108 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 5
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 108",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 7 (Raute): 82 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 6
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 82",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 8 (Rahmen): 94 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 7
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 94",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 9 (Zickzack): 48 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 8
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 48",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 10 (Mauer): 150 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 9
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 150",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 11 (Bonus 1: Sternenhimmel): 27 Steine, 0 Kerne, Art 1",
+   "setup": {
+    "mem": {
+     "level": 10
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 27",
+    "[cores] == 0",
+    "[lkind] == 1"
+   ]
+  },
+  {
+   "name": "load_level 12 (Treppe): 90 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 11
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 90",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 13 (Wellen): 44 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 12
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 44",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 14 (Kaefig): 60 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 13
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 60",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 15 (Spirale): 116 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 14
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 116",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 16 (Dreiecke): 90 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 15
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 90",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 17 (Gitter): 114 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 16
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 114",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 18 (Sanduhr): 120 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 17
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 120",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 19 (Kreuz): 84 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 18
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 84",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 20 (Zinnen): 88 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 19
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 88",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 21 (Silberstreif): 162 Steine, 0 Kerne, Art 0",
+   "setup": {
+    "mem": {
+     "level": 20
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 162",
+    "[cores] == 0",
+    "[lkind] == 0"
+   ]
+  },
+  {
+   "name": "load_level 22 (Bonus 2: Schatzkiste): 60 Steine, 0 Kerne, Art 1",
+   "setup": {
+    "mem": {
+     "level": 21
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 60",
+    "[cores] == 0",
+    "[lkind] == 1"
+   ]
+  },
+  {
+   "name": "load_level 23 (Boss 1: Waechter): 56 Steine, 30 Kerne, Art 2",
+   "setup": {
+    "mem": {
+     "level": 22
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 56",
+    "[cores] == 30",
+    "[lkind] == 2"
+   ]
+  },
+  {
+   "name": "load_level 24 (Boss 2: Festung): 98 Steine, 32 Kerne, Art 2",
+   "setup": {
+    "mem": {
+     "level": 23
+    }
+   },
+   "call": "load_level",
+   "expect": [
+    "[bricks] == 98",
+    "[cores] == 32",
+    "[lkind] == 2"
+   ]
+  },
+  {
+   "name": "Klangtabelle 8 Bit: D4 (Index 51)",
+   "setup": {},
+   "call": "input_init",
+   "expect": [
+    "[note_pokey8 + 51] == 107"
+   ]
+  },
+  {
+   "name": "Klangtabelle 8 Bit: A4 (Index 58)",
+   "setup": {},
+   "call": "input_init",
+   "expect": [
+    "[note_pokey8 + 58] == 71"
+   ]
+  },
+  {
+   "name": "Klangtabelle 8 Bit: D5 (Index 63)",
+   "setup": {},
+   "call": "input_init",
+   "expect": [
+    "[note_pokey8 + 63] == 53"
+   ]
+  },
+  {
+   "name": "Klangtabelle 16 Bit: D2 (Index 27)",
+   "setup": {},
+   "call": "input_init",
+   "expect": [
+    "[note_pokey16_lo + 27] == 39",
+    "[note_pokey16_hi + 27] == 47"
+   ]
+  },
+  {
+   "name": "Klangtabelle 16 Bit: A2 (Index 34)",
+   "setup": {},
+   "call": "input_init",
+   "expect": [
+    "[note_pokey16_lo + 34] == 118",
+    "[note_pokey16_hi + 34] == 31"
+   ]
+  },
+  {
+   "name": "name_clear: Namenspuffer mit ASCII-Leerzeichen, Cursor 0, getippt-Merker",
+   "setup": {
+    "mem": {
+     "hs_name": [
+      69,
+      88,
+      89,
+      90,
+      65,
+      66,
+      67,
+      68
+     ],
+     "npos": 5,
+     "ntyped": 0
+    }
+   },
+   "call": "name_clear",
+   "expect": [
+    "[hs_name] == $20",
+    "[hs_name + 3] == $20",
+    "[hs_name + 7] == $20",
+    "[npos] == 0",
+    "[ntyped] == 1"
+   ]
+  },
+  {
+   "name": "input_char: Taste D (Code $3a) -> 68",
+   "setup": {
+    "mem": {
+     "$02fc": 58,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 68",
+    "[$02fc] == $ff",
+    "[in_ckey] == 58"
+   ]
+  },
+  {
+   "name": "input_char: Taste A (Code $3f) -> 65",
+   "setup": {
+    "mem": {
+     "$02fc": 63,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 65",
+    "[$02fc] == $ff",
+    "[in_ckey] == 63"
+   ]
+  },
+  {
+   "name": "input_char: Taste Z (Code $17) -> 90",
+   "setup": {
+    "mem": {
+     "$02fc": 23,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 90",
+    "[$02fc] == $ff",
+    "[in_ckey] == 23"
+   ]
+  },
+  {
+   "name": "input_char: Taste X (Code $16) -> 88",
+   "setup": {
+    "mem": {
+     "$02fc": 22,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 88",
+    "[$02fc] == $ff",
+    "[in_ckey] == 22"
+   ]
+  },
+  {
+   "name": "input_char: Taste Q (Code $2f) -> 81",
+   "setup": {
+    "mem": {
+     "$02fc": 47,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 81",
+    "[$02fc] == $ff",
+    "[in_ckey] == 47"
+   ]
+  },
+  {
+   "name": "input_char: Taste E (Code $2a) -> 69",
+   "setup": {
+    "mem": {
+     "$02fc": 42,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 69",
+    "[$02fc] == $ff",
+    "[in_ckey] == 42"
+   ]
+  },
+  {
+   "name": "input_char: Taste Leertaste (Code $21) -> 32",
+   "setup": {
+    "mem": {
+     "$02fc": 33,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 32",
+    "[$02fc] == $ff",
+    "[in_ckey] == 33"
+   ]
+  },
+  {
+   "name": "input_char: Taste RETURN (Code $0c) -> 13",
+   "setup": {
+    "mem": {
+     "$02fc": 12,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 13",
+    "[$02fc] == $ff",
+    "[in_ckey] == 12"
+   ]
+  },
+  {
+   "name": "input_char: Taste BACKSPACE (Code $34) -> 20",
+   "setup": {
+    "mem": {
+     "$02fc": 52,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 20",
+    "[$02fc] == $ff",
+    "[in_ckey] == 52"
+   ]
+  },
+  {
+   "name": "input_char: Taste 1 (Code $1f) -> 49",
+   "setup": {
+    "mem": {
+     "$02fc": 31,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 49",
+    "[$02fc] == $ff",
+    "[in_ckey] == 31"
+   ]
+  },
+  {
+   "name": "input_char: Taste 0 (Code $32) -> 48",
+   "setup": {
+    "mem": {
+     "$02fc": 50,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 48",
+    "[$02fc] == $ff",
+    "[in_ckey] == 50"
+   ]
+  },
+  {
+   "name": "input_char: Taste 4 (Code $18) -> 52",
+   "setup": {
+    "mem": {
+     "$02fc": 24,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 52",
+    "[$02fc] == $ff",
+    "[in_ckey] == 24"
+   ]
+  },
+  {
+   "name": "input_char: Code mit Shift-Bit ($40) wird wie ohne Shift gelesen (D)",
+   "setup": {
+    "mem": {
+     "$02fc": 122,
+     "in_ckey": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 68"
+   ]
+  },
+  {
+   "name": "input_char: dieselbe Taste wurde schon direkt gemeldet -> nicht doppelt",
+   "setup": {
+    "mem": {
+     "$02fc": 58,
+     "in_ckey": 58
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 0",
+    "[$02fc] == $ff"
+   ]
+  },
+  {
+   "name": "input_char: Puffer leer ($FF) und keine Taste gedrueckt -> 0",
+   "setup": {
+    "mem": {
+     "$02fc": 255
+    }
+   },
+   "call": "input_char",
+   "expect": [
+    "a == 0"
+   ]
+  },
+  {
+   "name": "hs_default: Standardliste mit SPIELER und 1000..100 Punkten",
+   "setup": {},
+   "call": "hs_default",
+   "expect": [
+    "[hs_buf] == $50",
+    "[hs_buf + 3] == $4c",
+    "[hs_buf + 4] == 1",
+    "[hs_buf + 5] == $53",
+    "[hs_buf + 14] == $10",
+    "[hs_buf + 5 + 12 * 9 + 9] == $01"
+   ]
+  },
+  {
+   "name": "hs_makecrc: CRC-16/CCITT ueber 125 Nullbytes",
+   "setup": {},
+   "call": "hs_makecrc",
+   "expect": [
+    "[hs_buf + 125] == $70",
+    "[hs_buf + 126] == $fe"
+   ]
+  },
+  {
+   "name": "hs_check: 1 Punkt gegen leere Liste -> Platz 0",
+   "setup": {
+    "mem": {
+     "hs_points": 1
+    }
+   },
+   "call": "hs_check",
+   "expect": [
+    "a == 0"
+   ]
+  },
+  {
+   "name": "hs_check: 0 Punkte -> nicht in der Liste ($FF)",
+   "setup": {
+    "mem": {
+     "hs_points": 0
+    }
+   },
+   "call": "hs_check",
+   "expect": [
+    "a == $ff"
+   ]
+  },
+  {
+   "name": "hs_insert: Name und Punkte an Platz 0",
+   "setup": {
+    "mem": {
+     "hs_points": [
+      80,
+      18,
+      0
+     ],
+     "hs_level": 7,
+     "hs_name": [
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72
+     ]
+    },
+    "a": "0"
+   },
+   "call": "hs_insert",
+   "expect": [
+    "[hs_buf + 5] == $41",
+    "[hs_buf + 12] == $48",
+    "[hs_buf + 13] == $50",
+    "[hs_buf + 14] == $12",
+    "[hs_buf + 16] == 7"
+   ]
+  }
+ ]
+}

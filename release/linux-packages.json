@@ -1,0 +1,87 @@
+{
+  "_comment": "Paketmetadaten fuer 'tools/release.py package --os linux' (nicht Teil des Pakets). Namen und Abhaengigkeiten je Distribution; Eintraege unter 'pruefen' sind noch nicht in einem frischen Container der Distribution bestaetigt (Konzept Release-Auswahl, Abschnitt 8.4).",
+  "format": 1,
+  "maintainer": "Christian Drüeke <vintagecoder@drueeke.de>",
+  "homepage": "https://vintagecoder.drueeke.de",
+  "license": "GPL-3.0-or-later",
+  "packages": {
+    "cli": {
+      "name": "vintagecoder-cli",
+      "section": "devel",
+      "summary": "VintageCoder: Kommandozeile, Assembler und Sprachserver für 8-Bit-Systeme",
+      "description": [
+        "Kommandozeile (vcc) und Sprachserver (vc-lsp) von VintageCoder samt Hardware-Datenbank,",
+        "Vorlagen, Beispielen und Handbuchseiten. Übersetzt Assembler und BASIC für C64, C128, VC-20,",
+        "Plus/4, Atari 8 Bit, MEGA65 und PET/CBM. Was enthalten ist, steht in data/release.json."
+      ]
+    },
+    "ide": {
+      "name": "vintagecoder",
+      "section": "devel",
+      "summary": "VintageCoder: grafische Entwicklungsumgebung für 8-Bit-Systeme",
+      "description": [
+        "Grafische Entwicklungsumgebung (Editor, Projektbaum, Studios, Debugger, Einstellungen)",
+        "für Assembler- und BASIC-Entwicklung auf Retro-Systemen. Benötigt vintagecoder-cli",
+        "in der gleichen Version (Daten, Kommandozeile)."
+      ]
+    }
+  },
+  "distros": {
+    "debian": {
+      "format": "deb",
+      "image": "debian:stable",
+      "ide": {
+        "depends": ["libasound2t64 | libasound2", "libxkbcommon-x11-0", "libgl1", "libegl1", "libwayland-client0", "libwayland-cursor0", "libxcursor1", "libxrandr2", "libxi6", "libx11-xcb1"],
+        "recommends": ["xdg-utils", "libglib2.0-bin", "xdg-desktop-portal-gtk"],
+        "suggests": ["pipewire-alsa | pulseaudio"]
+      },
+      "links": {
+        "vice": {"level": "recommends", "package": "vice"},
+        "atari800": {"level": "recommends", "package": "atari800"}
+      },
+      "pruefen": ["Debian stable (13): libasound2 ist nur noch ein virtueller Name von libasound2t64; die Alternative 'libasound2t64 | libasound2' deckt beide Stände ab", "Klangweg: 'pipewire-alsa | pulseaudio' (Alternative mit einem Paket, das ALSA-Programme an PipeWire/Pulse leitet); Namen im Container pruefen"]
+    },
+    "ubuntu": {
+      "format": "deb",
+      "image": "ubuntu:24.04",
+      "ide": {
+        "depends": ["libasound2t64 | libasound2", "libxkbcommon-x11-0", "libgl1", "libegl1", "libwayland-client0", "libwayland-cursor0", "libxcursor1", "libxrandr2", "libxi6", "libx11-xcb1"],
+        "recommends": ["xdg-utils", "libglib2.0-bin", "xdg-desktop-portal-gtk"],
+        "suggests": ["pipewire-alsa | pulseaudio"]
+      },
+      "links": {
+        "vice": {"level": "recommends", "package": "vice"},
+        "atari800": {"level": "recommends", "package": "atari800"}
+      },
+      "pruefen": ["Ubuntu 24.04: libasound2t64 (t64-Umstellung), libasound2 nur noch virtuell", "vice und atari800 liegen in 'universe': Recommends wird nur erfuellt, wenn universe aktiv ist (im Standard-Container nicht)"]
+    },
+    "fedora": {
+      "format": "rpm",
+      "image": "fedora:latest",
+      "ide": {
+        "depends": ["alsa-lib", "libxkbcommon-x11", "mesa-libGL", "mesa-libEGL", "libwayland-client", "libwayland-cursor", "libXcursor", "libXrandr", "libXi"],
+        "recommends": ["xdg-utils", "glib2", "xdg-desktop-portal-gtk"],
+        "suggests": ["pipewire-alsa"]
+      },
+      "links": {
+        "vice": {"level": "suggests", "package": "vice"},
+        "atari800": {"level": "recommends", "package": "atari800"}
+      },
+      "pruefen": ["VICE gibt es nur ueber RPM Fusion: deshalb nur 'Suggests'", "atari800 in den Fedora-Quellen im Container pruefen (dnf info atari800)"]
+    },
+    "opensuse": {
+      "format": "rpm",
+      "image": "opensuse/tumbleweed",
+      "ide": {
+        "depends": ["libasound2", "libxkbcommon-x11-0", "Mesa-libGL1", "Mesa-libEGL1", "libwayland-client0", "libwayland-cursor0", "libXcursor1", "libXrandr2", "libXi6"],
+        "recommends": ["xdg-utils", "glib2-tools", "xdg-desktop-portal-gtk"],
+        "suggests": ["pipewire-alsa"]
+      },
+      "links": {
+        "vice": {"level": "suggests", "package": "vice"},
+        "atari800": {"level": "suggests", "package": "atari800"}
+      },
+      "pruefen": ["ALSA-Laufzeitname 'libasound2' (Tumbleweed) im Container bestaetigen", "VICE und atari800 stehen nicht in den Standardquellen: nur 'Suggests'", "xdg-desktop-portal-gtk und pipewire-alsa: Namen im Container pruefen"]
+    }
+  }
+}

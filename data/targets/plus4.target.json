@@ -1,0 +1,99 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "plus4",
+    "name": "Commodore Plus/4",
+    "cpu": "7501",
+    "chips": [
+      "ted",
+      "acia6551",
+      "plus4io"
+    ],
+    "verified": "tables-from-docs"
+  },
+  "variants": {
+    "pal": {
+      "clockHz": 886724,
+      "linesPerFrame": 312,
+      "cyclesPerLine": 57
+    },
+    "ntsc": {
+      "clockHz": 894886,
+      "linesPerFrame": 262,
+      "cyclesPerLine": 57
+    }
+  },
+  "basic": {
+    "dialect": "basic35",
+    "loadAddr": "$1001"
+  },
+  "regions": [
+    {
+      "name": "ram",
+      "start": "$0000",
+      "end": "$FFFF",
+      "kind": "ram",
+      "note": "64 KB RAM"
+    },
+    {
+      "name": "zeropage",
+      "start": "$0000",
+      "end": "$00FF",
+      "kind": "ram",
+      "note": "$00/$01: Prozessorport"
+    },
+    {
+      "name": "colour_ram",
+      "start": "$0800",
+      "end": "$0BFF",
+      "kind": "ram",
+      "note": "Farb-RAM (Standard)"
+    },
+    {
+      "name": "screen",
+      "start": "$0C00",
+      "end": "$0FFF",
+      "kind": "ram",
+      "note": "Standard-Bildschirm"
+    },
+    {
+      "name": "basic",
+      "start": "$1001",
+      "end": "$7FFF",
+      "kind": "ram",
+      "note": "BASIC-3.5-Programme beginnen bei $1001"
+    },
+    {
+      "name": "basic_rom",
+      "start": "$8000",
+      "end": "$BFFF",
+      "kind": "rom"
+    },
+    {
+      "name": "kernal_rom",
+      "start": "$C000",
+      "end": "$FCFF",
+      "kind": "rom"
+    },
+    {
+      "name": "io",
+      "start": "$FD00",
+      "end": "$FF3F",
+      "kind": "io",
+      "note": "ACIA, Tastatur, TED"
+    },
+    {
+      "name": "kernal_rom_hi",
+      "start": "$FF40",
+      "end": "$FFFF",
+      "kind": "rom"
+    }
+  ],
+  "outputs": [
+    {
+      "format": "prg",
+      "extension": "prg",
+      "loadAddrHeader": true
+    }
+  ]
+}

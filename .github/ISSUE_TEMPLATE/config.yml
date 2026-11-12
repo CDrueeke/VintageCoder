@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/CDrueeke/VintageCoder/blob/main/SECURITY.md
+    about: Bitte nicht als öffentliches Issue, sondern wie in SECURITY.md beschrieben.
+  - name: Fehler oder Frage per E-Mail
+    url: mailto:vintagecoder@drueeke.de
+    about: Auch möglich; in der Anwendung bereitet „Hilfe ▸ Feedback senden …“ die Mail vor.

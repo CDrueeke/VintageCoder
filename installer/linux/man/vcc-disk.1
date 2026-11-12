@@ -1,0 +1,242 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-DISK 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-disk \- Diskettenimages anlegen, auflisten und Dateien herausholen
+.SH ÜBERSICHT
+.B vcc disk d64 \-o <out.d64> [\-\-name <name>] [\-\-id <id>] [\-\-add <datei[:NAME]>]...
+.br
+.B vcc disk d71 \-o <out.d71> [\-\-name <name>] [\-\-id <id>] [\-\-add <datei[:NAME]>]...
+.br
+.B vcc disk d81 \-o <out.d81> [\-\-name <name>] [\-\-id <id>] [\-\-add <datei[:NAME]>]...
+.br
+.B vcc disk atr \-o <out.atr> [\-\-add <datei[:NAME.EXT]>]...
+.br
+.B vcc disk atr \-o <out.atr> \-\-boot <prog.xex>
+.br
+.B vcc disk list <image.d64|d71|d81|atr>
+.br
+.B vcc disk extract <image.d64|d71|d81|atr> <NAME> [\-o <datei>]
+.br
+.SH BESCHREIBUNG
+Diskettenimages anlegen, auflisten und Dateien herausholen
+.PP
+Arbeitet mit den Formaten D64 (1541), D71 (1571), D81 (1581) und ATR (Atari, DOS 2). Die Art des Images folgt beim Anlegen aus der Unterform, beim Auflisten und Extrahieren aus der Dateiendung.
+.PP
+Bei `\-\-add` trennt der erste Doppelpunkt Datei und Diskettenname. Ein Pfad mit Laufwerksbuchstaben (C:\e...) lässt sich deshalb nicht zusammen mit einem Namen angeben; dann relative Pfade verwenden.
+.SH OPTIONEN
+.SS Form d64
+D64\-Image (1541) mit Programmen anlegen
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images. Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der Diskette im Verzeichniskopf. Standard: VINTAGECODER.
+.TP
+\fB\-\-id\fR \fIid\fR
+Disketten\-ID im Verzeichniskopf. Standard: VC.
+.TP
+\fB\-\-add\fR \fIdatei[:NAME]\fR
+Programmdatei (PRG) auf die Diskette schreiben, optional unter anderem Namen. Standard: Dateiname ohne Endung, in Großbuchstaben. Mehrfach möglich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-keep\fR
+Wird angenommen und ignoriert.
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form d71
+D71\-Image (1571) mit Programmen anlegen
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images. Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der Diskette im Verzeichniskopf. Standard: VINTAGECODER.
+.TP
+\fB\-\-id\fR \fIid\fR
+Disketten\-ID im Verzeichniskopf. Standard: VC.
+.TP
+\fB\-\-add\fR \fIdatei[:NAME]\fR
+Programmdatei (PRG) auf die Diskette schreiben, optional unter anderem Namen. Standard: Dateiname ohne Endung, in Großbuchstaben. Mehrfach möglich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-keep\fR
+Wird angenommen und ignoriert.
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form d81
+D81\-Image (1581) mit Programmen anlegen
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images. Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der Diskette im Verzeichniskopf. Standard: VINTAGECODER.
+.TP
+\fB\-\-id\fR \fIid\fR
+Disketten\-ID im Verzeichniskopf. Standard: VC.
+.TP
+\fB\-\-add\fR \fIdatei[:NAME]\fR
+Programmdatei (PRG) auf die Diskette schreiben, optional unter anderem Namen. Standard: Dateiname ohne Endung, in Großbuchstaben. Mehrfach möglich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-keep\fR
+Wird angenommen und ignoriert.
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form atr
+ATR\-Image (Atari DOS 2) mit Dateien anlegen
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images. Erforderlich.
+.TP
+\fB\-\-add\fR \fIdatei[:NAME.EXT]\fR
+Datei in das DOS\-2\-Dateisystem schreiben, optional unter anderem Namen. Standard: Dateiname in Großbuchstaben, mit Endung. Mehrfach möglich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-name\fR \fIname\fR
+Wird angenommen, hat bei ATR\-Images keine Wirkung. Standard: VINTAGECODER.
+.TP
+\fB\-\-id\fR \fIid\fR
+Wird angenommen, hat bei ATR\-Images keine Wirkung. Standard: VC.
+.TP
+\fB\-\-keep\fR
+Wird angenommen und ignoriert.
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form atr\-boot
+bootbare ATR\-Diskette aus einem XEX\-Programm
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images. Erforderlich.
+.TP
+\fB\-\-boot\fR \fIprog.xex\fR
+XEX\-Programm, das die Diskette beim Einschalten lädt (Boot\-Lader aus der Hardware\-Datenbank). Erforderlich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sie liefert den Boot\-Lader.
+.SS Form list
+Verzeichnis eines Images zeigen und prüfen
+.PP
+.TP
+\fIimage\fR
+Diskettenimage; die Endung (d64, d71, d81, atr) bestimmt das Format.
+.SS Form extract
+eine Datei aus einem Image holen
+.PP
+.TP
+\fIimage\fR
+Diskettenimage; die Endung bestimmt das Format.
+.TP
+\fINAME\fR
+Dateiname auf der Diskette.
+.TP
+\fB\-o\fR \fIdatei\fR
+Zieldatei. Standard: Commodore: NAME klein mit Endung .prg; Atari: NAME klein.
+.SH BEISPIELE
+Diskette mit einem Programm:
+.PP
+.RS 8
+.nf
+vcc disk d64 \-o spiel.d64 \-\-name SPIEL \-\-id 01 \-\-add jumprun.prg:JUMPRUN
+.fi
+.RE
+D71 mit einem Programm:
+.PP
+.RS 8
+.nf
+vcc disk d71 \-o spiel.d71 \-\-add jumprun.prg
+.fi
+.RE
+D81 für MEGA65 oder C128:
+.PP
+.RS 8
+.nf
+vcc disk d81 \-o spiel.d81 \-\-name SPIEL \-\-add jumprun.prg
+.fi
+.RE
+ATR mit einer Datei als AUTORUN.SYS:
+.PP
+.RS 8
+.nf
+vcc disk atr \-o spiel.atr \-\-add jumprun.xex:AUTORUN.SYS
+.fi
+.RE
+bootbare Diskette:
+.PP
+.RS 8
+.nf
+vcc disk atr \-o jumprun.atr \-\-boot jumprun.xex
+.fi
+.RE
+Verzeichnis anzeigen:
+.PP
+.RS 8
+.nf
+vcc disk list spiel.d64
+.fi
+.RE
+Atari\-Diskette anzeigen:
+.PP
+.RS 8
+.nf
+vcc disk list spiel.atr
+.fi
+.RE
+Programm aus D64 holen:
+.PP
+.RS 8
+.nf
+vcc disk extract spiel.d64 JUMPRUN \-o jumprun.prg
+.fi
+.RE
+Datei aus ATR holen:
+.PP
+.RS 8
+.nf
+vcc disk extract spiel.atr AUTORUN.SYS \-o autorun.sys
+.fi
+.RE
+.SH HINWEISE
+Die Ausgabe zeigt Größe und freie Blöcke.
+.PP
+Das Image ist 90 KB groß (720 Sektoren zu 128 Byte). Eine bootbare Diskette ohne Dateisystem erzeugt die Form `atr\-boot`.
+.PP
+`\-\-boot` lässt sich nicht mit `\-\-add` verbinden: die Boot\-Diskette hat kein Dateisystem. `vcc disk list` meldet das entsprechend.
+.PP
+Eine Datei ohne XEX\-Kennung ($FFFF am Anfang) führt zu einem Fehler.
+.PP
+Commodore: Blockzahl, Name, Dateiart und freie Blöcke. Atari: Name, Sektoren, Startsektor, `*` für geschützte Dateien und freie Sektoren.
+.PP
+Die Prüfung (BAM bzw. VTOC, Verzeichnis, Dateiketten) meldet Abweichungen als „Problem:“ auf stderr.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Datei nicht lesbar oder Problem im Image gefunden, 2 = falscher Aufruf
+.SH SIEHE AUCH
+vcc(1), vcc\-import(1), vcc\-build(1)

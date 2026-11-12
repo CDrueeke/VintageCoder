@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C128: VDC-Hires-Prototyp (640x200)",
+    "description": "Machbarkeitsprototyp fuer den C128-Ausbau: VDC-Bitmap 640x200 mit Bloecken, Blockkopie-Hintergrund und bewegten 16x8-Kugeln; misst die Rasterzeilen je Bild"
+  },
+  "targets": [
+    {
+      "id": "c128",
+      "system": "c128",
+      "variant": "pal",
+      "cpu": "8502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c128"
+      ],
+      "kind": "asm",
+      "files": [
+        "hires.asm"
+      ]
+    }
+  ],
+  "main": "hires.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

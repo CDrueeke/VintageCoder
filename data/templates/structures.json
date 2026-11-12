@@ -1,0 +1,152 @@
+{
+  "structures": [
+    {
+      "id": "einfach",
+      "name": "Einfach",
+      "description": "Kleine Programme: keine zusätzlichen Ordner, abgelegte Dateien kommen nach lib/, doc/, data/ und graphics/.",
+      "dirs": [],
+      "layout": {},
+      "roles": {}
+    },
+    {
+      "id": "standard",
+      "name": "Standard",
+      "description": "Quelltext, Bibliothek, Daten, Grafik, Doku und Tests in eigenen Ordnern.",
+      "dirs": [
+        "lib",
+        "data",
+        "graphics",
+        "doc",
+        "tests"
+      ],
+      "layout": {
+        "source": "lib",
+        "text": "doc",
+        "binary": "data",
+        "charset": "data",
+        "graphics": "graphics",
+        "studio": "graphics"
+      },
+      "roles": {
+        "lib": "source",
+        "data": "resources",
+        "graphics": "resources",
+        "doc": "docs",
+        "tests": "tests"
+      }
+    },
+    {
+      "id": "gross",
+      "name": "Groß, modular",
+      "description": "Module in src/, Ressourcen getrennt nach Art, Werkzeuge, Doku und Tests.",
+      "dirs": [
+        "src/core",
+        "src/lib",
+        "include",
+        "res/bin",
+        "res/fonts",
+        "res/gfx",
+        "res/music",
+        "tools",
+        "doc",
+        "tests"
+      ],
+      "layout": {
+        "source": "src/lib",
+        "text": "doc",
+        "binary": "res/bin",
+        "charset": "res/fonts",
+        "graphics": "res/gfx",
+        "studio": "res/studio"
+      },
+      "roles": {
+        "src": "source",
+        "include": "source",
+        "res": "resources",
+        "tools": "tools",
+        "doc": "docs",
+        "tests": "tests"
+      }
+    },
+    {
+      "id": "mehrsystem",
+      "name": "Mehrere Systeme",
+      "description": "Gemeinsamer Code in common/, je Zielsystem eigene Unterordner für Quelltext und Ressourcen.",
+      "dirs": [
+        "src/common",
+        "src/{system}",
+        "res/common",
+        "res/{system}",
+        "doc",
+        "tests"
+      ],
+      "layout": {
+        "source": "src/common",
+        "text": "doc",
+        "binary": "res/common",
+        "charset": "res/common",
+        "graphics": "res/common",
+        "studio": "res/common"
+      },
+      "roles": {
+        "src/common": "source",
+        "src/{system}": "source",
+        "res/common": "resources",
+        "res/{system}": "resources",
+        "doc": "docs",
+        "tests": "tests"
+      }
+    },
+    {
+      "id": "bibliothek",
+      "name": "Bibliothek",
+      "description": "Wiederverwendbarer Code in lib/ mit Beispielen, Tests und Doku.",
+      "dirs": [
+        "lib",
+        "examples",
+        "tests",
+        "doc"
+      ],
+      "layout": {
+        "source": "lib",
+        "text": "doc",
+        "binary": "examples",
+        "graphics": "examples"
+      },
+      "roles": {
+        "lib": "source",
+        "examples": "resources",
+        "doc": "docs",
+        "tests": "tests"
+      }
+    },
+    {
+      "id": "spiel",
+      "name": "Spiel mit Levels",
+      "description": "Levels, Grafik und Musik nach Art getrennt.",
+      "dirs": [
+        "levels",
+        "gfx/sprites",
+        "gfx/tiles",
+        "gfx/charsets",
+        "audio/music",
+        "audio/sfx",
+        "tests"
+      ],
+      "layout": {
+        "source": "lib",
+        "text": "doc",
+        "binary": "levels",
+        "charset": "gfx/charsets",
+        "graphics": "gfx",
+        "studio": "gfx"
+      },
+      "roles": {
+        "levels": "resources",
+        "gfx": "resources",
+        "audio": "resources",
+        "tests": "tests"
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VC-20: tiles_demo",
+    "description": "Kachel-Bibliothek #include <vic20/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger- und SMC-Version, Test mit vcc test"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "unexpanded",
+      "cpu": "nmos6502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "tiles_demo_3x2_ptr.asm",
+        "tiles_demo_3x2_smc.asm",
+        "tiles_demo_2x2_ptr.asm",
+        "tiles_demo_2x2_smc.asm"
+      ]
+    }
+  ],
+  "main": "tiles_demo_3x2_ptr.asm"
+}

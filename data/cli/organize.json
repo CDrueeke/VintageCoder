@@ -1,0 +1,55 @@
+{
+  "command": "organize",
+  "group": "projekte",
+  "summary": "Projektdateien nach der Projektstruktur umsortieren",
+  "description": [
+    "Verschiebt Dateien des Projekts in die Ordner, die rules, layout und assets der Projektdatei vorgeben. Pfade in .include/.incbin der Quelltexte und die Projektdatei werden nachgeführt. Vorher entsteht eine Sicherung in .vcbackup/.",
+    "Es bleiben: Programme der Quellgruppen, Startprogramm, Disketten-Dateien, Studio-Dateien (ohne Ordner für studio in layout), .vctest-Dateien (außer in einem Ordner mit Rolle Tests), die Projektdatei, README, LICENSE, CHANGELOG und Dateien im Zielordner. Ist das Ziel belegt, wird die Datei übersprungen.",
+    "Nach dem Verschieben baut ein Prüfbau das Projekt neu und vergleicht die Ergebnisdateien mit denen von vorher; weichen sie ab, endet der Befehl mit Exit-Code 1."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc organize [projekt] [optionen]",
+      "args": [
+        { "name": "projekt", "required": false, "repeat": false, "help": "Projektordner oder .vcprj-Datei; Standard ist der Arbeitsordner." }
+      ],
+      "option_groups": [
+        { "id": "umfang", "label": "Umfang" },
+        { "id": "ablauf", "label": "Ablauf" }
+      ],
+      "options": [
+        { "flag": "--dry-run", "short": "", "value": "", "group": "ablauf",
+          "help": "Geplante Verschiebungen und anzupassende Quelltexte anzeigen; nichts ändern.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--yes", "short": "-y", "value": "", "group": "ablauf",
+          "help": "Ohne Rückfrage ausführen. Ohne Terminal ist --yes nötig, sonst ändert der Befehl nichts.",
+          "default": "", "default_text": "Rückfrage im Terminal", "repeat": false, "required": false },
+        { "flag": "--subdirs", "short": "", "value": "", "group": "umfang",
+          "help": "Auch Dateien in Unterordnern umordnen, nicht nur die im Projektordner.",
+          "default": "", "default_text": "nur Projektordner", "repeat": false, "required": false },
+        { "flag": "--no-rewrite", "short": "", "value": "", "group": "umfang",
+          "help": "Pfade in .include/.incbin der Quelltexte nicht anpassen.",
+          "default": "", "default_text": "Pfade werden angepasst", "repeat": false, "required": false },
+        { "flag": "--no-check", "short": "", "value": "", "group": "ablauf",
+          "help": "Prüfbau vor und nach dem Verschieben auslassen.",
+          "default": "", "default_text": "Prüfbau läuft", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ablauf",
+          "help": "Ordner der Hardware-Datenbank (data) für den Prüfbau. Wird sie nicht gefunden, entfällt der Prüfbau mit Hinweis.",
+          "default": "", "default_text": "VC_DATA, sonst neben dem Programm oder im Arbeitsordner", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "ansehen, was verschoben würde", "cmd": "vcc organize spiel --dry-run" },
+        { "title": "mit Rückfrage ausführen", "cmd": "vcc organize spiel" },
+        { "title": "ohne Rückfrage, auch Unterordner", "cmd": "vcc organize spiel --subdirs --yes" }
+      ],
+      "notes": [
+        "Bei Abweichung im Prüfbau: Dateien aus .vcbackup/<Zeit>/ zurückkopieren und die in moves.txt genannten Dateien zurückverschieben. Die letzten fünf Sicherungen bleiben erhalten.",
+        "Ohne zu verschiebende Dateien meldet der Befehl „Nichts zu ordnen.“"
+      ],
+      "exit": { "0": "fehlerfrei oder abgebrochen", "1": "Fehler, fehlende Bestätigung ohne Terminal oder abweichender Prüfbau" },
+      "see_also": ["add", "new", "build"]
+    }
+  ]
+}

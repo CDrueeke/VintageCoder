@@ -1,0 +1,114 @@
+{
+  "command": "emulator",
+  "group": "testen",
+  "summary": "Emulatoren anzeigen, finden und portabel installieren",
+  "description": [
+    "Zeigt die Emulatoren, die VintageCoder nutzt (VICE, atari800, Altirra, Xemu, Fujisan), mit Homepage, Lizenz und Rolle. `install` lädt auf ausdrücklichen Aufruf eine feste Version von der Seite des Projekts, prüft die SHA-256-Summe und packt sie unterhalb von VintageCoder aus (`emulators/<Emulator>/<Version>` im Konfigurationsordner). Es wird nichts mitgeliefert und nichts ohne diesen Aufruf geladen."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "list",
+      "usage": "vcc emulator list",
+      "summary": "die Emulatoren des Katalogs mit Homepage und Rolle zeigen",
+      "args": [],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "alle Emulatoren auflisten",
+          "cmd": "vcc emulator list"
+        }
+      ],
+      "see_also": [
+        "test"
+      ]
+    },
+    {
+      "id": "status",
+      "usage": "vcc emulator status [emulator]",
+      "summary": "zeigen, was gefunden wird (alle Quellen) und was sich installieren lässt",
+      "args": [
+        {
+          "name": "emulator",
+          "required": false,
+          "repeat": false,
+          "help": "Kennung (vice, atari800, altirra, xemu, fujisan) oder Sorte (x64sc, x128 …); ohne Angabe alle."
+        }
+      ],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "alle Emulatoren prüfen",
+          "cmd": "vcc emulator status"
+        },
+        {
+          "title": "einen Emulator prüfen",
+          "cmd": "vcc emulator status atari800"
+        }
+      ],
+      "notes": [
+        "Automatisch gilt: Pfad aus den Einstellungen, sonst das, was PATH und die üblichen Programmordner bieten, zuletzt die neueste portabel installierte Version."
+      ],
+      "see_also": [
+        "test"
+      ]
+    },
+    {
+      "id": "install",
+      "usage": "vcc emulator install <emulator[@version]> [optionen]",
+      "summary": "eine feste Version laden, prüfen und portabel installieren",
+      "args": [
+        {
+          "name": "emulator[@version]",
+          "required": true,
+          "repeat": false,
+          "help": "Kennung (vice, atari800, altirra, xemu, fujisan) oder Sorte (x64sc, x128 …), optional mit Version (vice@3.9). Ohne Version gilt die Vorgabe (die neueste)."
+        }
+      ],
+      "option_groups": [],
+      "options": [
+        {
+          "flag": "--dry-run",
+          "short": "",
+          "value": "",
+          "group": "",
+          "help": "Zeigt nur Paket, Adresse, Prüfsumme und Zielordner an, ohne etwas zu laden.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "anzeigen, was geladen würde",
+          "cmd": "vcc emulator install atari800 --dry-run"
+        },
+        {
+          "title": "Fujisan laden und installieren",
+          "cmd": "vcc emulator install fujisan"
+        },
+        {
+          "title": "eine ältere Version daneben installieren",
+          "cmd": "vcc emulator install vice@3.9"
+        }
+      ],
+      "notes": [
+        "Nutzt `curl` und `tar` des Systems (Windows 10/11 und Linux bringen sie mit). Wo es kein portables Paket gibt (z. B. macOS, VICE unter Linux), nennt der Befehl die Download-Seite.",
+        "Ist die Version schon installiert, geschieht nichts. Stimmt die Prüfsumme nicht, wird die Datei gelöscht und nichts ausgepackt.",
+        "Bei der automatischen Suche kommen die portabel installierten Programme nach PATH und den üblichen Programmordnern; ein Pfad in den Einstellungen und eine mit `@version` gewählte Version gehen vor.",
+        "Mehrere Versionen eines Emulators liegen nebeneinander. `vcc emulator status` zeigt alle gefundenen Quellen (portabel und System) und die ladbaren Versionen; `vcc test --backend vice@3.9` nutzt eine bestimmte."
+      ],
+      "exit": {
+        "0": "installiert oder schon vorhanden",
+        "1": "Fehler (Netz, Prüfsumme, Auspacken, kein Paket)",
+        "2": "unbekannter Emulator"
+      },
+      "see_also": [
+        "test"
+      ]
+    }
+  ]
+}

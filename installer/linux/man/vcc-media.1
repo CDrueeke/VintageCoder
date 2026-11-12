@@ -1,0 +1,574 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-MEDIA 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-media \- Sprites, Zeichensätze, Songs und andere Mediendateien bearbeiten
+.SH ÜBERSICHT
+.B vcc media new <name> \-\-profile <id> [\-\-dir <ordner>] [\-\-blank]
+.br
+.B vcc media import\-sprite <quelle> \-\-name <name> [\-\-profile <id>] [\-\-offset <n>] [\-\-count <n>] [\-\-mode hires|multicolor] [\-\-frame <n>] [\-\-dir <ordner>]
+.br
+.B vcc media import\-song <quelle> \-\-name <name> [\-\-profile <id>] [\-\-song <n>] [\-\-seconds <n>] [\-\-dir <ordner>]
+.br
+.B vcc media convert <song.vcsong> \-\-profile <id> \-\-name <name> [\-\-dir <ordner>]
+.br
+.B vcc media import\-rmt <modul.rmt> \-\-name <name> [\-\-dir <ordner>]
+.br
+.B vcc media import\-rom <rom> \-\-profile <id> \-\-name <name> [\-\-offset <n>] [\-\-dir <ordner>]
+.br
+.B vcc media std\-charset
+.br
+.B vcc media std\-charset <verweis> [\-\-profile <id>] [\-\-copy] [\-\-dir <ordner>]
+.br
+.B vcc media import\-sheet <raster.png> \-\-profile <id> \-\-name <name> [\-\-invert] [\-\-dir <ordner>]
+.br
+.B vcc media export\-sheet <zeichensatz.vcchar> <ausgabe.png>
+.br
+.B vcc media import <datei> <bild.png> [\-\-frame <n>] [\-\-system <pal|ntsc>] [\-\-keep\-colors]
+.br
+.B vcc media export <datei> [\-\-format <asm|inc|bin|prg|data|sbas|rmt|bas>] [\-\-label <name>] [\-\-address <adresse>]
+.br
+.B vcc media migrate\-tiles
+.br
+.SH BESCHREIBUNG
+Sprites, Zeichensätze, Songs und andere Mediendateien bearbeiten
+.PP
+Arbeitet mit den Mediendateien eines Projekts (graphics/NAME.vcsprite, .vcpmg, .vcchar, .vcscreen, .vctiles, .vcpal; music/NAME.vcsong, .vcplay). Der Projektordner ist der aktuelle Ordner.
+.PP
+Auch als: vcc asset.
+.SH OPTIONEN
+.SS Form new
+neue Mediendatei nach einem Profil anlegen
+.PP
+.TP
+\fIname\fR
+Name der Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-profile\fR \fIid\fR
+Profil, das Art und Aufbau bestimmt (Sprite, Zeichensatz, Screen, Kacheln, Song, Palette ...). Erforderlich.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.TP
+\fB\-\-blank\fR
+Legt einen Zeichensatz leer an, statt mit einem Verweis auf den Standardzeichensatz des Systems.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import\-sprite
+Sprites aus SPD, Rohdaten oder anderem Sprite\-Asset übernehmen
+.PP
+.TP
+\fIquelle\fR
+SPD\-Datei (.spd), Sprite\-Datei (.vcsprite, .vcpmg) oder Rohdaten in 64\-Byte\-Blöcken (.bin, .prg ...).
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zielprofil (ein Sprite\- oder PMG\-Profil). Standard: c64.sprite.hires.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBRohdaten und Auswahl\fR
+.TP
+\fB\-\-offset\fR \fIn\fR
+Rohdaten: Byte\-Offset des ersten Sprites (dezimal, $hex, 0xhex oder %binär). Bei .prg kommen die zwei Bytes der Ladeadresse dazu. Standard: 0.
+.TP
+\fB\-\-count\fR \fIn\fR
+Rohdaten: Zahl der Sprites; 0 heißt alle vollständigen Blöcke ab dem Offset (höchstens 256). Standard: 0.
+.TP
+\fB\-\-mode\fR \fImodus\fR
+Rohdaten: Modus der Sprites; multicolor kürzer mc. Werte: hires, multicolor, mc. Standard: Modus des Zielprofils.
+.TP
+\fB\-\-frame\fR \fIn\fR
+Beim Wechsel zu Atari\-PMG: Nummer des Quell\-Sprites (0\-basiert), das übernommen wird. Standard: 0.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import\-song
+Song aus GoatTracker, SID oder Song\-Datei übernehmen
+.PP
+.TP
+\fIquelle\fR
+GoatTracker\-Song (.sng), SID\-Datei (.sid) oder Song\-Datei (.vcsong) eines Projekts.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zielprofil des Songs (anderer Chip: Umwandlung). Standard: c64.sid.song.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBSID\-Dateien\fR
+.TP
+\fB\-\-song\fR \fIn\fR
+SID\-Datei: Nummer des Subtunes (ab 1); 0 nimmt den Startsong der Datei. Standard: 0.
+.TP
+\fB\-\-seconds\fR \fIn\fR
+SID\-Datei: Sekunden, die von der Spielroutine aufgenommen werden. Standard: 30.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form convert
+Song in das Profil eines anderen Chips umwandeln
+.PP
+.TP
+\fIsong.vcsong\fR
+Song\-Datei im Projekt.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zielprofil mit anderem Chip (z. B. atari.pokey.song). Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import\-rmt
+RMT\-Modul als POKEY\-Song übernehmen
+.PP
+.TP
+\fImodul.rmt\fR
+RMT\-Modul (Raster Music Tracker) im Projekt.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import\-rom
+Zeichensatz aus einem ROM\-Abbild übernehmen
+.PP
+.TP
+\fIrom\fR
+ROM\-Abbild (beliebiger Pfad).
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zeichensatzprofil des Ziels. Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-offset\fR \fIn\fR
+Byte\-Offset des Zeichensatzes im Abbild (dezimal, $hex, 0xhex oder %binär). Standard: 0.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form std\-charset\-liste
+Quellen für Standardzeichensätze mit Status auflisten
+.PP
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form std\-charset
+Standardzeichensatz als Verweis oder Kopie ins Projekt legen
+.PP
+.TP
+\fIverweis\fR
+ROM\-Verweis der Form rom:system/rolle#satz, z. B. rom:c64/chargen#upper.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zeichensatzprofil. Standard: das Profil, das die Liste für den Verweis nennt.
+.TP
+\fB\-\-copy\fR
+Bettet die Zeichen in die Datei ein (Format 1) und schreibt nach graphics/standard/, statt nur einen Verweis zu speichern.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt; ohne \-\-copy. Standard: graphics.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import\-sheet
+Zeichensatz aus einem PNG\-Raster übernehmen
+.PP
+.TP
+\fIraster.png\fR
+PNG mit 16 Zeichen je Zeile in Leserichtung (ganzzahlig vergrößert erlaubt).
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-profile\fR \fIid\fR
+Zeichensatzprofil mit 1 Bit je Pixel oder MEGA65\-Vollfarbe. Erforderlich.
+.TP
+\fB\-\-name\fR \fIname\fR
+Name der neuen Datei ohne Endung; erlaubt sind Buchstaben, Ziffern, _ und \-. Erforderlich.
+.TP
+\fB\-\-invert\fR
+Dunkle Pixel gelten als gesetzt statt heller.
+.TP
+\fB\-\-dir\fR \fIordner\fR
+Zielordner im Projekt (relativ zum aktuellen Ordner). Standard: Standardordner der Art: music für Songs, sonst graphics.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form export\-sheet
+Zeichensatz als PNG\-Raster schreiben
+.PP
+.TP
+\fIzeichensatz.vcchar\fR
+Zeichensatz im Projekt.
+.TP
+\fIausgabe.png\fR
+Zieldatei.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form import
+PNG\-Bild in einen Frame von Sprite, PMG oder Zeichensatz einlesen
+.PP
+.TP
+\fIdatei\fR
+Mediendatei im Projekt (.vcsprite, .vcpmg oder .vcchar) mit eingebetteten Frames.
+.TP
+\fIbild.png\fR
+PNG; wird auf die Frame\-Größe skaliert, Pixel unter 50 % Deckkraft sind transparent.
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-frame\fR \fIn\fR
+Nummer des Frames, der überschrieben wird (0\-basiert). Standard: 0.
+.TP
+\fB\-\-system\fR \fInorm\fR
+Videonorm der Palette, pal oder ntsc; wirkt nur beim Atari. Standard: pal.
+.TP
+\fB\-\-keep\-colors\fR
+Behält die Farben der Datei und rundet die Bildfarben darauf; sonst werden die Farben der Datei aus dem Bild bestimmt.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form export
+Mediendatei als Assembler, Binärdaten oder BASIC\-DATA ausgeben
+.PP
+.TP
+\fIdatei\fR
+Mediendatei im Projekt (.vcsprite, .vcpmg, .vcchar, .vcscreen, .vctiles, .vcpal, .vcsong, .vcplay).
+.PP
+\fBZiel\fR
+.TP
+\fB\-\-format\fR \fIformat\fR
+Ausgabeformat: asm (.byte\-Daten und .const), inc (nur .const für Länge und, mit \-\-address, Adresse), bin, prg (mit Ladeadresse, braucht \-\-address), data (BASIC\-DATA mit @label), sbas (DATA für strukturiertes BASIC). POKEY\-Songs: asm oder rmt; PLAY\-Songs: bas oder data. Werte: asm, inc, bin, prg, data, sbas, rmt, bas. Standard: asm.
+.TP
+\fB\-\-label\fR \fIname\fR
+Marke der Daten im Quelltext; Teile bekommen ein Suffix. Standard: Name der Datei, \- durch _ ersetzt.
+.TP
+\fB\-\-address\fR \fIadresse\fR
+Ladeadresse für prg, Adresse für inc, bei rmt Ladeadresse des Moduls ($hex, 0xhex oder dezimal). Standard: bei rmt: $4000.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SS Form migrate\-tiles
+alte Kachelkarten in Kachelsatz und Screen\-Bank umwandeln
+.PP
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Ordner der Hardware\-Datenbank; sonst VC_DATA oder neben dem Programm.
+.SH BEISPIELE
+Zeichensatz anlegen:
+.PP
+.RS 8
+.nf
+vcc media new font \-\-profile c64.char.hires
+.fi
+.RE
+leeren Zeichensatz in Unterordner:
+.PP
+.RS 8
+.nf
+vcc media new spiel \-\-profile c64.char.hires \-\-blank \-\-dir graphics/fonts
+.fi
+.RE
+Multicolor\-Sprite:
+.PP
+.RS 8
+.nf
+vcc media new hero \-\-profile c64.sprite.multicolor
+.fi
+.RE
+SPD\-Datei übernehmen:
+.PP
+.RS 8
+.nf
+vcc media import\-sprite figuren.spd \-\-name figuren
+.fi
+.RE
+Rohdaten, fünf Multicolor\-Sprites:
+.PP
+.RS 8
+.nf
+vcc media import\-sprite sprites.bin \-\-name raw \-\-offset 0 \-\-count 5 \-\-mode multicolor
+.fi
+.RE
+C64\-Sprite als Atari\-PMG:
+.PP
+.RS 8
+.nf
+vcc media import\-sprite graphics/hero.vcsprite \-\-name hero_pmg \-\-profile atari.pmg.single \-\-frame 0
+.fi
+.RE
+GoatTracker\-Song:
+.PP
+.RS 8
+.nf
+vcc media import\-song lied.sng \-\-name lied
+.fi
+.RE
+SID aufnehmen (20 Sekunden, Subtune 2):
+.PP
+.RS 8
+.nf
+vcc media import\-song musik.sid \-\-name musik \-\-song 2 \-\-seconds 20
+.fi
+.RE
+Song für den MEGA65 übernehmen:
+.PP
+.RS 8
+.nf
+vcc media import\-song music/tune.vcsong \-\-name tune4 \-\-profile mega65.sid4.song
+.fi
+.RE
+C64\-Song für POKEY:
+.PP
+.RS 8
+.nf
+vcc media convert music/tune.vcsong \-\-profile atari.pokey.song \-\-name tune_pokey
+.fi
+.RE
+RMT\-Modul übernehmen:
+.PP
+.RS 8
+.nf
+vcc media import\-rmt tune_pokey.rmt \-\-name pokey
+.fi
+.RE
+zweiten C64\-Zeichensatz aus chargen.bin:
+.PP
+.RS 8
+.nf
+vcc media import\-rom chargen.bin \-\-profile c64.char.hires \-\-offset 0x800 \-\-name klein
+.fi
+.RE
+Quellen anzeigen:
+.PP
+.RS 8
+.nf
+vcc media std\-charset
+.fi
+.RE
+Verweis auf den C64\-Zeichensatz:
+.PP
+.RS 8
+.nf
+vcc media std\-charset rom:c64/chargen#upper \-\-profile c64.char.hires
+.fi
+.RE
+Zeichen einbetten:
+.PP
+.RS 8
+.nf
+vcc media std\-charset rom:c64/chargen#upper \-\-profile c64.char.hires \-\-copy
+.fi
+.RE
+Raster als Zeichensatz:
+.PP
+.RS 8
+.nf
+vcc media import\-sheet font.png \-\-profile c64.char.hires \-\-name font
+.fi
+.RE
+dunkle Zeichen auf hellem Grund:
+.PP
+.RS 8
+.nf
+vcc media import\-sheet font.png \-\-profile c64.char.hires \-\-name font2 \-\-invert
+.fi
+.RE
+Zeichensatz als Bild:
+.PP
+.RS 8
+.nf
+vcc media export\-sheet graphics/font.vcchar font.png
+.fi
+.RE
+Bild in Sprite\-Frame 0:
+.PP
+.RS 8
+.nf
+vcc media import graphics/hero.vcsprite hero.png
+.fi
+.RE
+mit festen Farben, Frame 2:
+.PP
+.RS 8
+.nf
+vcc media import graphics/hero.vcsprite hero.png \-\-frame 2 \-\-keep\-colors
+.fi
+.RE
+Zeichensatz als Assembler:
+.PP
+.RS 8
+.nf
+vcc media export graphics/font.vcchar \-\-format asm
+.fi
+.RE
+Sprite als PRG bei $2000:
+.PP
+.RS 8
+.nf
+vcc media export graphics/hero.vcsprite \-\-format prg \-\-address 0x2000
+.fi
+.RE
+Song als BASIC\-DATA:
+.PP
+.RS 8
+.nf
+vcc media export music/tune.vcsong \-\-format data \-\-label tune
+.fi
+.RE
+POKEY\-Song als RMT\-Modul:
+.PP
+.RS 8
+.nf
+vcc media export music/tune_pokey.vcsong \-\-format rmt \-\-address 0x4000
+.fi
+.RE
+Projekt umstellen:
+.PP
+.RS 8
+.nf
+vcc media migrate\-tiles
+.fi
+.RE
+.SH HINWEISE
+Ein neuer Zeichensatz beginnt mit einem Verweis auf den Standardzeichensatz des Systems in deinem ROM; \-\-blank legt ihn leer an.
+.PP
+Hat der Ordner eine .vcprj, muss das Zielsystem des Profils zu den Systemen des Projekts passen.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Sprite\-Import in Profile anderer Systeme als C64 wird nur für PMG (Atari) unterstützt. Die Ausgabe nennt Pfad und Zahl der Frames, Hinweise stehen auf stderr.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Bei gleichem Chip wird der Song übernommen (Stimmen werden aufgefüllt, wenn das Ziel mehr hat), sonst umgewandelt. Hinweise stehen auf stderr.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Haben Quelle und Ziel denselben Chip, bricht der Befehl ab; dafür gibt es `import\-song`. Hinweise zur Umwandlung (gekürzte Hüllkurven, verschobene Oktaven) stehen auf stderr.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Das Ergebnis hat immer das Profil atari.pokey.song. Hinweise stehen auf stderr.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Fehlen \-\-profile oder \-\-name, nennt der Befehl auf stderr, was erkannt wurde (Größe, Prüfsumme), und listet passende Profile und Offsets (Exit\-Code 2).
+.PP
+ROM\-Abbilder von Originalgeräten sind urheberrechtlich geschützt; die Kopie enthält die Original\-Zeichen. Für ein Projekt, das veröffentlicht wird, besser `std\-charset` (Verweis).
+.PP
+Der Zeichensatz liegt als .vcchar im Zielordner (Standard graphics).
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Je Zeile, durch Tabulator getrennt: Verweis, Profil, System, Status des ROMs, Beschreibung.
+.PP
+Die Datei heißt <system>_<satz>.vcchar. Ohne \-\-copy steht nur der Verweis in der Datei, die Originalzeichen bleiben im ROM des Benutzers. Eingebettete Kopien sind nicht zum Einchecken oder Weitergeben gedacht.
+.PP
+Fehlt das ROM, wird die Datei trotzdem angelegt; ein Hinweis steht auf stderr.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Das Bild muss zu 16 Spalten passen und ein ganzzahliges Vielfaches der Zeichengröße haben (128 x 128 Pixel bei 256 Zeichen zu 8 x 8). Transparente Pixel zählen als nicht gesetzt.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Profil\-IDs (z. B. c64.char.hires, c64.sprite.multicolor, atari.pmg.single, c64.sid.song) stehen in data/profile/profiles.json.
+.PP
+Das Raster hat 16 Zeichen je Zeile, weiß auf schwarz, 1:1. Nur Zeichensätze mit 1 Bit je Pixel und MEGA65\-Vollfarbe.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Nur für Profile mit höchstens 16 Farben. Passt das Bild nicht in die darstellbaren Farben, meldet der Befehl einen Farbkonflikt und rundet auf die nächstliegenden Farben; die ersetzten Farben stehen in der Ausgabe.
+.PP
+Die Datei wird an Ort und Stelle geändert.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Die Dateien entstehen in build/export/; der Befehl gibt Pfad und Größe je Datei aus. Bei der Ausgabe in mehreren Teilen (Screens: chars/attrs, Kacheln: tiles/map/colors) gibt es je Teil eine Datei bzw. einen Abschnitt.
+.PP
+Beim Bauen werden veraltete Mediendateien ohnehin als asm und data nach build/export/ geschrieben.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+Sucht im aktuellen Projektordner nach alten Kachelkarten (*.vctiles der Art tilemap). Dateien eines Ordners mit gleichem Kachelsatz ergeben einen Kachelsatz und eine Screen\-Bank. Die alten Dateien werden entfernt.
+.PP
+Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler, 2 = falscher Aufruf (auch: \-\-profile oder \-\-name fehlt)
+.SH SIEHE AUCH
+vcc(1), vcc\-new(1), vcc\-add(1), vcc\-media(1), vcc\-roms(1), vcc\-build(1), vcc\-asm(1), vcc\-migrate(1)

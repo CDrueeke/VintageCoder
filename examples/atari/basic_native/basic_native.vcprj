@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: Natives BASIC",
+    "description": "Atari BASIC im Originaldialekt, ohne Zeilennummern, mit Labels (@name)"
+  },
+  "targets": [
+    { "id": "atari8", "system": "atari8", "model": "800xl", "variant": "pal", "cpu": "sally", "illegals": "deny", "emulator": "atari800" }
+  ],
+  "sources": [
+    { "targets": ["atari8"], "kind": "basic", "files": ["farben.bas"] }
+  ],
+  "main": "farben.bas"
+}

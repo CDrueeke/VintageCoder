@@ -1,0 +1,12 @@
+; ERZEUGT von tools/gen.py: Spielfeldzeichen fuer den Modus 4 (Codes 96..105); je Zeichen 8 Byte, 4 Pixel zu 2 Bit: 00 = COLBK, 01 = COLPF0 (Himmel), 10 = COLPF1 (Stein), 11 = COLPF2 (Lichtkante) bzw. COLPF3 mit gesetztem Bit 7 des Zeichencodes
+gfx_chars:
+        .byte $55, $55, $55, $55, $55, $55, $55, $55      ; 96: Himmel (Pixelwert 01 = COLPF0)
+        .byte $7f, $7a, $7a, $7a, $7a, $7a, $40, $55      ; 97: Stein links
+        .byte $fd, $a1, $a1, $a1, $a1, $a1, $01, $55      ; 98: Stein rechts
+        .byte $6a, $7f, $7f, $7f, $7f, $7f, $40, $55      ; 99: Metall links (+$80: PF3)
+        .byte $a9, $f1, $f1, $f1, $f1, $f1, $01, $55      ; 100: Metall rechts
+        .byte $7f, $70, $70, $70, $70, $70, $7f, $55      ; 101: unzerstoerbar links
+        .byte $fd, $0d, $0d, $0d, $0d, $0d, $fd, $55      ; 102: unzerstoerbar rechts
+        .byte $aa, $fc, $fc, $fc, $fc, $fc, $fc, $80      ; 103: Wand (+$80: PF3)
+        .byte $ff, $e8, $e8, $e8, $e8, $e8, $e8, $00      ; 104: Block (Titellogo)
+        .byte $00, $00, $00, $00, $00, $00, $00, $00      ; 105: schwarz

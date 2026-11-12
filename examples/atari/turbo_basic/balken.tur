@@ -1,0 +1,49 @@
+; =====================================================================================================================
+; balken.tur - Turbo BASIC XL ohne Zeilennummern: PROC/EXEC, WHILE, REPEAT und mehrzeiliges IF
+; =====================================================================================================================
+; Beim Bauen werden die Zeilen nummeriert; Turbo BASIC XL selbst wird zum Laden und Starten gebraucht
+; (Datei BALKEN.BAS laden, dann RUN).  Strichpunkt-Zeilen sind Kommentare des Quelltextes und kommen nicht ins Programm.
+;
+; WAS ZU SEHEN IST
+;   Ein Titel in Zeile 2/3, danach baut sich zeilenweise eine Reihe aus 16 "#"-Zeichen (Zeile 8, Spalten 4-19) von links nach rechts
+;   auf; der Hintergrund wechselt dabei mit jedem Zeichen Farbton (0-15) und abwechselnd die Helligkeit (4/8).  Dann erscheint
+;   "TASTE DRUECKEN"; nach einem Tastendruck wird der Bildschirm gelöscht (GRAPHICS 0) und das Programm endet.
+;   Zeigt: PROC/ENDPROC mit EXEC (Unterprogramme mit Namen statt GOSUB-Nummern), WHILE/WEND, REPEAT/UNTIL, mehrzeiliges
+;   IF/ELSE/ENDIF, MOD, PAUSE (Turbo-BASIC-Erweiterungen; Standard-Atari-BASIC kennt diese Befehle nicht).
+;
+; VARIABLEN: spalte = laufende Balkennummer 0..15 (global, wird in den PROCs gelesen; es gibt keine lokalen Variablen).
+;
+GRAPHICS 0
+; 710 = COLOR2 (Hintergrund), 712 = COLOR4 (Rand): beides schwarz
+POKE 710,0 : POKE 712,0
+EXEC titel
+spalte=0
+; je Durchlauf einen Balken zeichnen, 16 Durchläufe
+WHILE spalte<16
+  EXEC balken
+  spalte=spalte+1
+WEND
+; warten auf eine Taste: Adresse 764 (CH) enthält 255, solange keine Taste gedrückt wurde
+REPEAT
+  POSITION 4,20 : ? "TASTE DRUECKEN";
+UNTIL PEEK(764)<>255
+GRAPHICS 0
+END
+
+; Unterprogramm: zwei Titelzeilen ausgeben
+PROC titel
+  POSITION 8,2 : ? "TURBO BASIC XL"
+  POSITION 8,3 : ? "PROC, EXEC, WHILE, REPEAT"
+ENDPROC
+
+; Unterprogramm: einen Balken zeichnen; Farbton = spalte, Helligkeit 4 bei ungeradem, 8 bei geradem spalte (MOD 2 = 1 ist wahr)
+PROC balken
+  IF spalte MOD 2
+    SETCOLOR 2,spalte,4
+  ELSE
+    SETCOLOR 2,spalte,8
+  ENDIF
+  ; PAUSE n wartet n Bilder (1/50 s bei PAL), hier also kurz
+  PAUSE 3
+  POSITION spalte+4,8 : ? "#"
+ENDPROC

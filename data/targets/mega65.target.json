@@ -1,0 +1,26 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/target-1.json",
+  "target": {
+    "id": "mega65",
+    "name": "MEGA65",
+    "cpu": "45gs02",
+    "chips": ["vic2", "vic4", "dmagic", "mega65", "sid", "sid2", "sid3", "sid4", "cia1", "cia2"],
+    "verified": "tables-from-xemu",
+    "_comment": "Registerlisten von VIC-IV, DMAgic und System aus der I/O-Karte des MEGA65-Kerns (tools/gen_chips_mega65.py); vier SIDs bei $D400/$D420/$D440/$D460 (sid … sid4)."
+  },
+  "variants": {
+    "pal":  { "clockHz": 40500000, "linesPerFrame": 625, "cyclesPerLine": 810 },
+    "ntsc": { "clockHz": 40500000, "linesPerFrame": 525, "cyclesPerLine": 810 }
+  },
+  "basic": { "dialect": "basic65", "loadAddr": "$2001" },
+  "regions": [
+    { "name": "ram",       "start": "$0000", "end": "$FFFF", "kind": "ram", "note": "Bank 0 (64 KB), je nach Speicherzuordnung durch ROM/E/A überlagert" },
+    { "name": "zeropage",  "start": "$0000", "end": "$00FF", "kind": "ram", "note": "Zeropage = Seite B (Register B), Standard $00" },
+    { "name": "basic65",   "start": "$2001", "end": "$F6FF", "kind": "ram", "note": "BASIC-65-Programme beginnen bei $2001" },
+    { "name": "io",        "start": "$D000", "end": "$DFFF", "kind": "io", "note": "VIC-II/III/IV, SID, CIA, DMAgic, Hypervisor; Umschalten per $D02F (KEY)" }
+  ],
+  "outputs": [
+    { "format": "prg", "extension": "prg", "loadAddrHeader": true },
+    { "format": "d81", "extension": "d81" }
+  ]
+}

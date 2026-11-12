@@ -1,0 +1,154 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc \- Assembler, BASIC, Medien und Tests für Retro\-Systeme
+.SH ÜBERSICHT
+.B vcc
+.I befehl
+[\c
+.IR optionen ]
+.br
+.B vcc help
+[\c
+.IR befehl ]
+.SH BESCHREIBUNG
+vcc ist das Kommandozeilenwerkzeug von VintageCoder. Es übersetzt Assembler und BASIC für C64, C128, Plus/4, VC\-20, Atari 8 Bit und MEGA65, legt Projekte an, baut Disketten und führt Tests aus.
+.SH BEFEHLE
+.SS Programme bauen
+.TP
+\fBvcc asm\fR
+Assembler\-Quelltext übersetzen (siehe \fBvcc\-asm\fR(1))
+.TP
+\fBvcc basic\fR
+BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben (siehe \fBvcc\-basic\fR(1))
+.TP
+\fBvcc basic2asm\fR
+BASIC\-Programm in Assembler\-Quelltext umwandeln (siehe \fBvcc\-basic2asm\fR(1))
+.TP
+\fBvcc build\fR
+Projekt laut .vcprj bauen (siehe \fBvcc\-build\fR(1))
+.SS Projekte
+.TP
+\fBvcc add\fR
+Dateien und Ordner ins Projekt übernehmen (siehe \fBvcc\-add\fR(1))
+.TP
+\fBvcc migrate\fR
+Projekt vom alten Dateischema auf das neue umstellen (siehe \fBvcc\-migrate\fR(1))
+.TP
+\fBvcc new\fR
+Neues Projekt aus einer Vorlage anlegen (siehe \fBvcc\-new\fR(1))
+.TP
+\fBvcc organize\fR
+Projektdateien nach der Projektstruktur umsortieren (siehe \fBvcc\-organize\fR(1))
+.SS Medien und Daten
+.TP
+\fBvcc dis\fR
+Maschinenprogramm disassemblieren (siehe \fBvcc\-dis\fR(1))
+.TP
+\fBvcc disk\fR
+Diskettenimages anlegen, auflisten und Dateien herausholen (siehe \fBvcc\-disk\fR(1))
+.TP
+\fBvcc import\fR
+Programme und Dateien von Disketten oder einzeln ins Projekt holen (siehe \fBvcc\-import\fR(1))
+.TP
+\fBvcc inc\fR
+Include\-Datei mit Hardwarekonstanten ausgeben (siehe \fBvcc\-inc\fR(1))
+.TP
+\fBvcc media\fR
+Sprites, Zeichensätze, Songs und andere Mediendateien bearbeiten (siehe \fBvcc\-media\fR(1))
+.TP
+\fBvcc roms\fR
+ROM\-Dateien anzeigen, prüfen und importieren (siehe \fBvcc\-roms\fR(1))
+.SS Testen und Messen
+.TP
+\fBvcc emulator\fR
+Emulatoren anzeigen, finden und portabel installieren (siehe \fBvcc\-emulator\fR(1))
+.TP
+\fBvcc streams\fR
+Bild\-, Ton\- und Debug\-Ströme der Ultimate 64 empfangen (siehe \fBvcc\-streams\fR(1))
+.TP
+\fBvcc test\fR
+Tests aus *.vctest prüfen und im Emulator oder auf Hardware ausführen (siehe \fBvcc\-test\fR(1))
+.SS Hilfe und Rückmeldung
+.TP
+\fBvcc debuglog\fR
+Debug\-Protokoll der IDE auswerten (siehe \fBvcc\-debuglog\fR(1))
+.TP
+\fBvcc feedback\fR
+Rückmeldung per E\-Mail mit Angaben zur Installation vorbereiten (siehe \fBvcc\-feedback\fR(1))
+.SS Allgemein
+.TP
+\fBvcc help\fR [\fIbefehl\fR]
+Hilfe zu einem Befehl oder Thema (env, exit\-codes).
+.TP
+\fBvcc man\fR [\fIbefehl\fR]
+man\-Seite ausgeben.
+.TP
+\fBvcc completion\fR \fIshell\fR
+Vervollständigung für powershell, bash, zsh oder fish ausgeben.
+.SH BEISPIELE
+neues C64\-Projekt:
+.PP
+.RS 8
+.nf
+vcc new spiel \-\-target c64
+.fi
+.RE
+übersetzen (das Ziel steht im Quelltext):
+.PP
+.RS 8
+.nf
+vcc asm prog.asm \-o prog.prg
+.fi
+.RE
+Emulator\-Tests:
+.PP
+.RS 8
+.nf
+vcc test \-\-backend vice
+.fi
+.RE
+.SH UMGEBUNG
+.TP
+\fBVC_DATA\fR
+Ordner der Hardware\-Datenbank (data); sonst neben dem Programm oder im Arbeitsordner.
+.TP
+\fBVC_ROMS\fR
+ROM\-Ordner des Benutzers (statt roms/ im Konfigurationsordner).
+.TP
+\fBVC_XEMU\fR
+Pfad zum Xemu\-Programm (MEGA65\-Emulator).
+.TP
+\fBVC_XEMU_SD\fR
+Ordner mit MEGA65.ROM für Xemu.
+.TP
+\fBVC_XEMU_ARGS\fR
+zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt.
+.TP
+\fBVC_STRUCTURES\fR
+Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner).
+.TP
+\fBVC_DEBUG_LOG\fR
+Debug\-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc.
+.TP
+\fBVC_WIN\fR
+Fenstergröße der IDE, z. B. 1400x860 (nur vintagecoder).
+.TP
+\fBCOLUMNS\fR
+Breite für den Zeilenumbruch der Hilfe (Standard: 100).
+.TP
+\fBNO_COLOR\fR
+keine Farben in der Ausgabe der Hilfe.
+.SH RÜCKGABEWERT
+.TP
+\fB0\fR
+fehlerfrei
+.TP
+\fB1\fR
+Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung)
+.TP
+\fB2\fR
+falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc\-add(1), vcc\-asm(1), vcc\-basic(1), vcc\-basic2asm(1), vcc\-build(1), vcc\-debuglog(1), vcc\-dis(1), vcc\-disk(1), vcc\-emulator(1), vcc\-feedback(1), vcc\-import(1), vcc\-inc(1), vcc\-media(1), vcc\-migrate(1), vcc\-new(1), vcc\-organize(1), vcc\-roms(1), vcc\-streams(1), vcc\-test(1)

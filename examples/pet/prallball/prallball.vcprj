@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "PET: PRALLBALL (40 Spalten)",
+    "description": "Ball-und-Schlaeger-Spiel fuer den Commodore PET (BASIC 4, 32 KB, 40 Spalten): Viertelblock-Grafik, 22 Levels, Tastatur, Piepton, Bestenliste"
+  },
+  "targets": [
+    {
+      "id": "pet",
+      "system": "pet",
+      "variant": "pal",
+      "cpu": "nmos6502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "pet"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

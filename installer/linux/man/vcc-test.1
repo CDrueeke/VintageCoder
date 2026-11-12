@@ -1,0 +1,95 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-TEST 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-test \- Tests aus *.vctest prüfen und im Emulator oder auf Hardware ausführen
+.SH ÜBERSICHT
+.B vcc test [ordner|datei.vctest] [optionen]
+.br
+.SH BESCHREIBUNG
+Tests aus *.vctest prüfen und im Emulator oder auf Hardware ausführen
+.PP
+Sucht unter dem Pfad alle Dateien *.vctest und führt zuerst ihre statischen Prüfungen aus. Mit \-\-backend laufen zusätzlich die Einträge unter "tests": im Emulator (vice, atari800, fujisan, xemu) oder auf echter Hardware (u64, m65). Ohne \-\-backend erscheinen diese Tests als übersprungen.
+.PP
+Vorher bauen (vcc build): der Läufer lädt das gebaute Programm. Testdateien mit "mode": "mailbox" prüfen sich selbst und werden über das Postfach im RAM gelesen, solche mit "mode": "measure" messen Zyklen (nur auf der Ultimate 64).
+.PP
+Ergebnisse je Test: OK, FEHLER, HINWEIS, ZEIT (Zeitüberschreitung), ÜBERSPR. Am Ende steht eine Zusammenfassung.
+.SH OPTIONEN
+.TP
+\fIordner|datei.vctest\fR
+Ordner (wird nach *.vctest durchsucht) oder einzelne Testdatei; Standard ist der Arbeitsordner. (optional)
+.PP
+\fBAusführung\fR
+.TP
+\fB\-\-backend\fR \fIname\fR
+Führt die Tests zusätzlich dynamisch aus: vice, atari800 und xemu als Emulator, u64 und m65 auf echter Hardware (mit Adresse bzw. Schnittstelle und Sicherheitsabfrage). Standard: keiner (nur statische Prüfungen).
+.TP
+\fB\-\-filter\fR \fItext\fR
+Führt nur die dynamischen Tests aus, die zum Text passen.
+.TP
+\fB\-\-prologue\fR
+Erzwingt den Vorspann in der Falle auch bei VICE, um den Weg der Adapter ohne Flag\-Zugriff zu prüfen (Trap\-Modus).
+.TP
+\fB\-\-poll\fR
+Postfach\-Tests: liest das Postfach alle 100 ms, statt an der Endlosschleife von test_end anzuhalten.
+.PP
+\fBHardware\fR
+.TP
+\fB\-\-password\fR \fIpw\fR
+Netzwerkpasswort der Ultimate 64; sonst das der Maschine mit gleicher Adresse aus den Einstellungen.
+.TP
+\fB\-\-yes\fR
+Beantwortet die Sicherheitsabfrage vor einem Lauf auf Hardware mit Ja. Ohne Terminal ist \-\-yes Pflicht.
+.PP
+\fBAuswertung und Ausgabe\fR
+.TP
+\fB\-\-strict\fR
+Macht jeden Hinweis zum Fehler.
+.TP
+\fB\-\-junit\fR \fIdatei.xml\fR
+Schreibt das Ergebnis zusätzlich als JUnit\-XML.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank. Standard: VC_DATA, sonst neben dem Programm oder im Arbeitsordner.
+.SH BEISPIELE
+statische Prüfungen eines Projekts:
+.PP
+.RS 8
+.nf
+vcc test examples/c64/tests_demo
+.fi
+.RE
+zusätzlich in VICE ausführen:
+.PP
+.RS 8
+.nf
+vcc test examples/c64/tests_demo \-\-backend vice
+.fi
+.RE
+nur passende Tests im atari800:
+.PP
+.RS 8
+.nf
+vcc test examples/atari/prallball \-\-backend atari800 \-\-filter ball
+.fi
+.RE
+Ergebnis als JUnit\-XML schreiben:
+.PP
+.RS 8
+.nf
+vcc test examples/mega65/prallball \-\-junit ergebnis.xml
+.fi
+.RE
+.SH HINWEISE
+\-\-backend nimmt vice, atari800, fujisan, xemu (auch mit Version einer portabel installierten Ausgabe, z. B. vice@3.9), u64:HOST[:PORT] oder m65:SCHNITTSTELLE[@BAUD]; jeder andere Wert ist ein Fehler. u64 und m65 ohne Adresse werden abgelehnt.
+.PP
+atari800 kennt nur das Ziel atari8, Xemu nur mega65. VICE läuft für c64 (x64sc), c128 (x128), plus4 (xplus4) und vic20 (xvic).
+.PP
+Auf Hardware gehen Reset, Programm laden und Speicher beschreiben den laufenden Zustand des Geräts verloren. Dort laufen nur Postfach\-Tests ("mode": "mailbox") und Zyklenmessungen; Trap\-Tests werden übersprungen. Zyklenmessungen brauchen u64:HOST und am Gerät den Debug\-Stream\-Modus 6510 Only.
+.PP
+Ohne gefundene *.vctest endet der Befehl fehlerfrei.
+.PP
+.SH RÜCKGABEWERT
+0 = alle bestanden (Hinweise und übersprungene Tests zählen nicht), 1 = ein Test fehlgeschlagen, eine Testdatei fehlerhaft oder Zeitüberschreitung; auch Pfad oder Datenordner nicht gefunden, ungültiges \-\-backend, Hardware\-Abfrage abgelehnt, 2 = unbekannte Option
+.SH SIEHE AUCH
+vcc(1), vcc\-build(1), vcc\-streams(1)

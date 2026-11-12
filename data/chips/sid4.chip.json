@@ -1,0 +1,186 @@
+{
+ "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+ "id": "sid4",
+ "name": "SID 4 (MEGA65)",
+ "window": {
+  "space": "cpu16",
+  "start": "$D460",
+  "end": "$D47F"
+ },
+ "regs": [
+  {
+   "name": "v1_freq_lo",
+   "addr": "$D460",
+   "access": "w",
+   "doc": "Stimme 1 Frequenz Low"
+  },
+  {
+   "name": "v1_freq_hi",
+   "addr": "$D461",
+   "access": "w",
+   "doc": "Stimme 1 Frequenz High"
+  },
+  {
+   "name": "v1_pw_lo",
+   "addr": "$D462",
+   "access": "w",
+   "doc": "Stimme 1 Pulsbreite Low"
+  },
+  {
+   "name": "v1_pw_hi",
+   "addr": "$D463",
+   "access": "w",
+   "doc": "Stimme 1 Pulsbreite High"
+  },
+  {
+   "name": "v1_ctrl",
+   "addr": "$D464",
+   "access": "w",
+   "doc": "Stimme 1 Steuerung (Wellenform, Gate)"
+  },
+  {
+   "name": "v1_ad",
+   "addr": "$D465",
+   "access": "w",
+   "doc": "Stimme 1 Attack/Decay"
+  },
+  {
+   "name": "v1_sr",
+   "addr": "$D466",
+   "access": "w",
+   "doc": "Stimme 1 Sustain/Release"
+  },
+  {
+   "name": "v2_freq_lo",
+   "addr": "$D467",
+   "access": "w",
+   "doc": "Stimme 2 Frequenz Low"
+  },
+  {
+   "name": "v2_freq_hi",
+   "addr": "$D468",
+   "access": "w",
+   "doc": "Stimme 2 Frequenz High"
+  },
+  {
+   "name": "v2_pw_lo",
+   "addr": "$D469",
+   "access": "w",
+   "doc": "Stimme 2 Pulsbreite Low"
+  },
+  {
+   "name": "v2_pw_hi",
+   "addr": "$D46A",
+   "access": "w",
+   "doc": "Stimme 2 Pulsbreite High"
+  },
+  {
+   "name": "v2_ctrl",
+   "addr": "$D46B",
+   "access": "w",
+   "doc": "Stimme 2 Steuerung (Wellenform, Gate)"
+  },
+  {
+   "name": "v2_ad",
+   "addr": "$D46C",
+   "access": "w",
+   "doc": "Stimme 2 Attack/Decay"
+  },
+  {
+   "name": "v2_sr",
+   "addr": "$D46D",
+   "access": "w",
+   "doc": "Stimme 2 Sustain/Release"
+  },
+  {
+   "name": "v3_freq_lo",
+   "addr": "$D46E",
+   "access": "w",
+   "doc": "Stimme 3 Frequenz Low"
+  },
+  {
+   "name": "v3_freq_hi",
+   "addr": "$D46F",
+   "access": "w",
+   "doc": "Stimme 3 Frequenz High"
+  },
+  {
+   "name": "v3_pw_lo",
+   "addr": "$D470",
+   "access": "w",
+   "doc": "Stimme 3 Pulsbreite Low"
+  },
+  {
+   "name": "v3_pw_hi",
+   "addr": "$D471",
+   "access": "w",
+   "doc": "Stimme 3 Pulsbreite High"
+  },
+  {
+   "name": "v3_ctrl",
+   "addr": "$D472",
+   "access": "w",
+   "doc": "Stimme 3 Steuerung (Wellenform, Gate)"
+  },
+  {
+   "name": "v3_ad",
+   "addr": "$D473",
+   "access": "w",
+   "doc": "Stimme 3 Attack/Decay"
+  },
+  {
+   "name": "v3_sr",
+   "addr": "$D474",
+   "access": "w",
+   "doc": "Stimme 3 Sustain/Release"
+  },
+  {
+   "name": "fc_lo",
+   "addr": "$D475",
+   "access": "w",
+   "doc": "Filter-Grenzfrequenz Low"
+  },
+  {
+   "name": "fc_hi",
+   "addr": "$D476",
+   "access": "w",
+   "doc": "Filter-Grenzfrequenz High"
+  },
+  {
+   "name": "res_filt",
+   "addr": "$D477",
+   "access": "w",
+   "doc": "Resonanz/Filterzuordnung"
+  },
+  {
+   "name": "mode_vol",
+   "addr": "$D478",
+   "access": "w",
+   "doc": "Filtermodus und Lautstärke"
+  },
+  {
+   "name": "potx",
+   "addr": "$D479",
+   "access": "r",
+   "doc": "Paddle X"
+  },
+  {
+   "name": "poty",
+   "addr": "$D47A",
+   "access": "r",
+   "doc": "Paddle Y"
+  },
+  {
+   "name": "osc3",
+   "addr": "$D47B",
+   "access": "r",
+   "doc": "Oszillator 3 (Zufall)"
+  },
+  {
+   "name": "env3",
+   "addr": "$D47C",
+   "access": "r",
+   "doc": "Hüllkurve 3"
+  }
+ ]
+}

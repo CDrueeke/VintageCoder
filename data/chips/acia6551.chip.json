@@ -1,0 +1,17 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "acia6551",
+  "name": "ACIA 6551",
+  "window": {
+    "space": "cpu16",
+    "start": "$FD00",
+    "end": "$FD0F"
+  },
+  "mirror": "$04",
+  "regs": [
+    {"name": "data", "addr": "$FD00", "access": "rw", "doc": "Datenregister"},
+    {"name": "status", "addr": "$FD01", "access": "rw", "doc": "Status (Schreiben = Reset)"},
+    {"name": "command", "addr": "$FD02", "access": "rw", "doc": "Befehlsregister"},
+    {"name": "control", "addr": "$FD03", "access": "rw", "doc": "Steuerregister"}
+  ]
+}

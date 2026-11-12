@@ -1,0 +1,24 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/chip-1.json",
+  "id": "vic1",
+  "name": "VIC 6560/6561 (VIC-I)",
+  "window": {"space": "cpu16", "start": "$9000", "end": "$900F"},
+  "regs": [
+    {"name": "origin_x", "addr": "$9000", "access": "rw", "doc": "Horizontaler Bildursprung (Bit 0-6), Bit 7 = Interlace", "bits": [{"name": "INTERLACE", "bit": 7, "doc": "Interlace-Modus"}, {"name": "ORIGIN_X", "bit": 0, "width": 7, "doc": "Bildursprung X in 4-Pixel-Schritten"}]},
+    {"name": "origin_y", "addr": "$9001", "access": "rw", "doc": "Vertikaler Bildursprung (in Rasterzeilen/2)"},
+    {"name": "cols", "addr": "$9002", "access": "rw", "doc": "Spaltenzahl (Bit 0-6), Bit 7 = Bildschirmadresse Bit 9", "bits": [{"name": "SCRN_A9", "bit": 7, "doc": "Bildschirmspeicher-Adresse Bit 9"}, {"name": "COLUMNS", "bit": 0, "width": 7, "doc": "Zeichen pro Zeile (Standard 22)"}]},
+    {"name": "rows", "addr": "$9003", "access": "rw", "doc": "Zeilenzahl (Bit 1-6), Bit 0 = 8×16-Zeichen, Bit 7 = Rasterzeile Bit 0", "bits": [{"name": "RASTER0", "bit": 7, "doc": "Rasterzeile Bit 0 (nur lesen)"}, {"name": "ROWS", "bit": 1, "width": 6, "doc": "Zeichenzeilen (Standard 23)"}, {"name": "CHAR16", "bit": 0, "doc": "Zeichen 8×16 statt 8×8"}]},
+    {"name": "raster", "addr": "$9004", "access": "r", "doc": "Rasterzeile (Bit 8-1)"},
+    {"name": "memptr", "addr": "$9005", "access": "rw", "doc": "Speicherzeiger: Bit 4-7 Bildschirm (A13-A10), Bit 0-3 Zeichensatz (A13-A10)", "bits": [{"name": "SCRN", "bit": 4, "width": 4, "doc": "Bildschirmspeicher (A13-A10; A9 in $9002)"}, {"name": "CHAR", "bit": 0, "width": 4, "doc": "Zeichensatz (0=$8000 ROM, 8=$0000 RAM, 12=$1000 RAM …)"}]},
+    {"name": "lpx", "addr": "$9006", "access": "r", "doc": "Lichtgriffel X"},
+    {"name": "lpy", "addr": "$9007", "access": "r", "doc": "Lichtgriffel Y"},
+    {"name": "potx", "addr": "$9008", "access": "r", "doc": "Paddle X"},
+    {"name": "poty", "addr": "$9009", "access": "r", "doc": "Paddle Y"},
+    {"name": "bass", "addr": "$900A", "access": "rw", "doc": "Bassstimme: Tonhöhe (Bit 0-6), Bit 7 = ein", "bits": [{"name": "ON", "bit": 7, "doc": "Stimme eingeschaltet"}]},
+    {"name": "alto", "addr": "$900B", "access": "rw", "doc": "Altstimme: Tonhöhe (Bit 0-6), Bit 7 = ein", "bits": [{"name": "ON", "bit": 7, "doc": "Stimme eingeschaltet"}]},
+    {"name": "soprano", "addr": "$900C", "access": "rw", "doc": "Sopranstimme: Tonhöhe (Bit 0-6), Bit 7 = ein", "bits": [{"name": "ON", "bit": 7, "doc": "Stimme eingeschaltet"}]},
+    {"name": "noise", "addr": "$900D", "access": "rw", "doc": "Rauschen: Frequenz (Bit 0-6), Bit 7 = ein", "bits": [{"name": "ON", "bit": 7, "doc": "Rauschen eingeschaltet"}]},
+    {"name": "volume", "addr": "$900E", "access": "rw", "doc": "Lautstärke (Bit 0-3), Hilfsfarbe (Bit 4-7)", "bits": [{"name": "AUX", "bit": 4, "width": 4, "doc": "Hilfsfarbe für Multicolor"}, {"name": "VOL", "bit": 0, "width": 4, "doc": "Lautstärke 0-15"}]},
+    {"name": "color", "addr": "$900F", "access": "rw", "doc": "Hintergrund (Bit 4-7), Normal/Invers (Bit 3), Rahmen (Bit 0-2)", "bits": [{"name": "BG", "bit": 4, "width": 4, "doc": "Hintergrundfarbe 0-15"}, {"name": "NORMAL", "bit": 3, "doc": "1 = normal, 0 = invers"}, {"name": "BORDER", "bit": 0, "width": 3, "doc": "Rahmenfarbe 0-7"}]}
+  ]
+}

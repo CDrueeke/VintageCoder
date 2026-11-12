@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: tests_cycles",
+    "description": "Zyklenmessung auf der Ultimate 64 (Debug-Strom) als Prüfung in vcc test"
+  },
+  "targets": [ { "id": "c64", "system": "c64", "variant": "pal", "cpu": "6510", "illegals": "deny", "emulator": "vice" } ],
+  "sources": [ { "targets": [ "c64" ], "kind": "asm", "files": [ "tests_cycles.asm" ] } ],
+  "main": "tests_cycles.asm"
+}

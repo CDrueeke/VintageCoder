@@ -1,0 +1,41 @@
+{
+ "kind": "test",
+ "target": "atari8",
+ "program": "build/tiles_demo_3x2_ptr.xex",
+ "mode": "mailbox",
+ "static": [
+  {
+   "check": "overlap"
+  },
+  {
+   "check": "zeropage",
+   "forbid": "$00-$7f"
+  },
+  {
+   "check": "cycles",
+   "label": "tile_put",
+   "max": 190,
+   "level": "error"
+  }
+ ],
+ "tests": [
+  {
+   "name": "Selbsttest (CRC aller Szenarien, map_get, prop) und Demo-Bild",
+   "timeoutMs": 20000,
+   "expect": [
+    "[$4000] == 24",
+    "[$4001] == 27",
+    "[$4002] == 30",
+    "[$4028] == 33",
+    "[$4029] == 36",
+    "[$402a] == 39",
+    "[$41ec] == 24",
+    "[$41ed] == 27",
+    "[$41ee] == 30",
+    "[$4214] == 33",
+    "[$4215] == 36",
+    "[$4216] == 39"
+   ]
+  }
+ ]
+}

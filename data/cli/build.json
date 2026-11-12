@@ -1,0 +1,84 @@
+{
+  "command": "build",
+  "group": "bauen",
+  "summary": "Projekt laut .vcprj bauen",
+  "description": [
+    "Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und Export von Medien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc build [projekt] [optionen]",
+      "summary": "",
+      "args": [
+        {
+          "name": "projekt",
+          "required": false,
+          "repeat": false,
+          "help": "Projektordner (die erste .vcprj darin) oder Projektdatei. Ohne Angabe gilt der aktuelle Ordner."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "bau",
+          "label": "Bauen"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--main",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Baut nur das Startprogramm (main der Projektdatei); die Diskette entsteht dann nicht.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "bau",
+          "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Projekt im aktuellen Ordner bauen",
+          "cmd": "vcc build"
+        },
+        {
+          "title": "Projektordner bauen",
+          "cmd": "vcc build examples/c64/cart_demo"
+        },
+        {
+          "title": "nur das Startprogramm",
+          "cmd": "vcc build examples/mega65/prallball/prallball.vcprj --main"
+        }
+      ],
+      "notes": [
+        "Je Quelle erscheint eine Zeile OK oder FEHLER, das Startprogramm ist markiert; Meldungen stehen auf der Fehlerausgabe.",
+        "Warnungen zur Projektdatei (z. B. fehlende Dateien aus assets) kommen vorab. Ein Projekt ohne Quellen ist ein Fehler."
+      ],
+      "exit": {
+        "0": "alles gebaut",
+        "1": "eine Quelle oder die Diskette fehlgeschlagen, oder keine Projektdatei gefunden",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "asm",
+        "test",
+        "new"
+      ]
+    }
+  ]
+}

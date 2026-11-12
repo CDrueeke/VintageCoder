@@ -1,0 +1,59 @@
+{
+  "command": "add",
+  "group": "projekte",
+  "summary": "Dateien und Ordner ins Projekt übernehmen",
+  "description": [
+    "Übernimmt Dateien wie das Ablegen in der IDE: erkennt die Art, wählt Kategorie und Zielordner aus rules und layout der Projektdatei, kopiert die Datei und trägt sie in assets ein. Liegt die Quelle schon im Projektordner, bleibt sie dort und wird nur eingetragen.",
+    "Ordner werden rekursiv übernommen und behalten ihre Unterordner; versteckte Dateien, target und node_modules bleiben draußen, höchstens 5000 Dateien je Ordner."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc add <datei|ordner>… [optionen]",
+      "args": [
+        { "name": "datei|ordner", "required": true, "repeat": true, "help": "Dateien oder Ordner, die übernommen werden." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Ziel" },
+        { "id": "eintrag", "label": "Eintrag" }
+      ],
+      "options": [
+        { "flag": "--into", "short": "", "value": "projekt", "group": "ziel",
+          "help": "Projektordner oder .vcprj-Datei.",
+          "default": ".", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dir", "short": "", "value": "ordner", "group": "ziel",
+          "help": "Zielordner im Projekt (relativ, ohne ..). Überschreibt den Ordner der Kategorie; bei Ordnern wird die Unterordnerstruktur angehängt.",
+          "default": "", "default_text": "Ordner der Kategorie aus layout", "repeat": false, "required": false },
+        { "flag": "--flat", "short": "", "value": "", "group": "ziel",
+          "help": "Dateien aus Ordnern ohne Unterordner ablegen, jede in den Ordner ihrer Kategorie (oder --dir).",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--category", "short": "", "value": "kategorie", "group": "eintrag",
+          "help": "Kategorie für alle Dateien (Quelltext, Text/Doku, Binärdaten, Grafikrohdaten, Zeichensatz roh).",
+          "choices": ["source", "text", "binary", "graphics", "charset"],
+          "default": "", "default_text": "aus rules, Dateiname und Inhalt erkannt", "repeat": false, "required": false },
+        { "flag": "--description", "short": "", "value": "text", "group": "eintrag",
+          "help": "Beschreibung, die in assets mit eingetragen wird.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--conflict", "short": "", "value": "regel", "group": "ziel",
+          "help": "Verhalten, wenn am Ziel schon eine andere Datei mit diesem Namen liegt: unter neuem Namen ablegen (name_2), ersetzen oder überspringen.",
+          "choices": ["rename", "replace", "skip"],
+          "default": "rename", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dry-run", "short": "", "value": "", "group": "ziel",
+          "help": "Nur anzeigen, was geschehen würde (Zielzustand, Ziel, Art, Kategorie); nichts kopieren, Projektdatei unverändert.",
+          "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Datei übernehmen", "cmd": "vcc add sprites.bin --into spiel" },
+        { "title": "Ordner mit Struktur übernehmen", "cmd": "vcc add bilder --category graphics --into spiel" },
+        { "title": "Ordner flach in einen Zielordner", "cmd": "vcc add musik --flat --dir data/musik --description \"Titelmusik\"" },
+        { "title": "nur ansehen", "cmd": "vcc add bilder --into spiel --dry-run" }
+      ],
+      "notes": [
+        "Fehlt im Projektordner eine .vcprj, bricht der Befehl ab. Fehler bei einzelnen Dateien ergeben Exit-Code 1; die übrigen werden trotzdem übernommen.",
+        "Disketten-Images, PRG und XEX nimmt vcc import auf."
+      ],
+      "see_also": ["organize", "import", "new"]
+    }
+  ]
+}
