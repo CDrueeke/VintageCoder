@@ -1,0 +1,71 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-UPDATE 1 "" "VintageCoder 0.2.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-update \- Nachsehen, ob es eine neue Version gibt (nur Anzeige)
+.SH ÜBERSICHT
+.B vcc update [optionen]
+.br
+.SH BESCHREIBUNG
+Nachsehen, ob es eine neue Version gibt (nur Anzeige)
+.PP
+Fragt die Versionsliste ab (eine kleine Datei update.json im Release „update\-feed“ des öffentlichen Repositorys, per curl über https), zeigt, ob eine neuere Version da ist, und nennt den Link zur Releaseseite. vcc lädt und installiert nichts. Der Aufruf selbst ist die Zustimmung zur einen Anfrage; die Einstellung „Nach Updates suchen“ der Oberfläche spielt hier keine Rolle.
+.PP
+Gesendet wird nur die Anfrage nach der Liste: Adresse, IP\-Adresse und der neutrale User\-Agent „VintageCoder\-update“ (ohne Versionsnummer). Keine Kennung, keine Nutzungsdaten. Andere Befehle von vcc fragen nie nach Updates und weisen auch nicht darauf hin. Enthält das Paket keine Update\-Prüfung (Auswahl IDE\-UPDATE), endet der Befehl mit Code 2.
+.SH OPTIONEN
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-check\fR
+Nachsehen und das Ergebnis zeigen (das ist auch der Standard ohne Option).
+.TP
+\fB\-\-notes\fR
+Zusätzlich die Änderungen seit der installierten Version ausgeben (Markdown, Links und Bilder als reiner Text).
+.TP
+\fB\-\-json\fR
+Ergebnis maschinenlesbar als JSON ausgeben.
+.PP
+\fBQuelle\fR
+.TP
+\fB\-\-offline\fR
+Nichts abfragen: den gespeicherten Befund der letzten Prüfung zeigen.
+.SH BEISPIELE
+nachsehen:
+.PP
+.RS 8
+.nf
+vcc update
+.fi
+.RE
+mit den Änderungen:
+.PP
+.RS 8
+.nf
+vcc update \-\-check \-\-notes
+.fi
+.RE
+in einem Skript (Rückgabewert 10 = Update da):
+.PP
+.RS 8
+.nf
+vcc update \-\-check \-\-json
+.fi
+.RE
+ohne Netz: der gespeicherte Befund:
+.PP
+.RS 8
+.nf
+vcc update \-\-offline
+.fi
+.RE
+.SH HINWEISE
+Der Link zeigt immer auf die feste Adresse https://github.com/CDrueeke/VintageCoder/releases/tag/v<Version>; eine Adresse aus der Versionsliste wird nie übernommen.
+.PP
+Der Befehl schreibt das Prüfprotokoll und den Befund in den Ordner updates im Konfigurationsordner (VC_UPDATE_DIR ändert den Ort).
+.PP
+Die Quelle lässt sich mit VC_UPDATE_URL umstellen (Ordner oder Datei lokal, sonst nur https); das ändert nie das Ziel des Links.
+.PP
+.SH RÜCKGABEWERT
+0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)
+.SH SIEHE AUCH
+vcc(1), vcc\-feedback(1)

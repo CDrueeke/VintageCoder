@@ -77,7 +77,7 @@ fn diagnostics_hover_definition_completion_symbols() {
     assert_eq!((items[0]["code"].as_str(), items[0]["severity"].as_i64(), items[0]["range"]["start"]["line"].as_i64()), (Some("W104"), Some(2), Some(4)));
     // Hover auf Mnemonic: Opcode-Tabelle mit Zyklen
     let h = hover(&mut c, uri, 2, 10);
-    assert!(h.contains("**LDA**") && h.contains("| imm | $A9 | 2 | 2 |") && h.contains("abx") && h.contains("4+1"), "{h}");
+    assert!(h.contains("**LDA**") && h.contains("Sofortwert (imm) | $A9 | 2 | 2 |") && h.contains("Absolut, X-indiziert (abx)") && h.contains("4+1"), "{h}");
     let h = hover(&mut c, uri, 4, 9);
     assert!(h.contains("**LAX**") && h.contains("undok."), "{h}");
     // Hover auf Direktive
@@ -141,4 +141,39 @@ fn hover_shows_number_literals_and_constants_in_all_notations() {
     // Konstanten (Symbole): Name, Wert und Definitionsstelle
     let h = hover(&mut c, uri, 4, 14);
     assert!(h.contains("**LIVES**") && h.contains("| Dezimal | 3 |") && h.contains("`%0000 0011`") && h.contains("Definiert in"), "{h}");
+}
+
+/// Hover über dem Mnemonic: der Assembler hat den Modus gewählt; Antwort liefert `vintagecoder.lineMode` und hebt die Tabellenzeile mit „▶“ hervor
+fn hover_modus(c: &mut Client, uri: &str, line: u64, ch: u64) -> (String, Value) {
+    let (r, _) = c.request("textDocument/hover", json!({ "textDocument": { "uri": uri }, "position": { "line": line, "character": ch } }));
+    (r["contents"]["value"].as_str().unwrap_or("").to_string(), r["vintagecoder"]["lineMode"].clone())
+}
+
+#[test]
+fn hover_hebt_die_gewaehlte_adressierungsart_der_zeile_hervor() {
+    let mut c = client();
+    let uri = "file:///tmp/vc_lsp_modus.asm";
+    let src = ".target c64\n.org $0801\nlabel:\n  lda #$01\n  lda $10\n  lda $10,x\n  lda ($10),y\n  lda $1000\n  jmp ($1000)\n  bne label\n  lda zz\nzz = $2000\n";
+    let d = c.open(uri, src); assert!(d["params"]["diagnostics"].as_array().unwrap().is_empty(), "{d}");
+    // (Zeile, erwartetes Kürzel, Zyklen)
+    for (zeile, kuerzel, zyklen) in [(3u64, "imm", 2u64), (4, "zp", 3), (5, "zpx", 4), (6, "izy", 5), (7, "abs", 4), (8, "ind", 5), (9, "rel", 2), (10, "abs", 4)] {
+        let (md, m) = hover_modus(&mut c, uri, zeile, 3);
+        assert_eq!((m["state"].as_str(), m["mode"].as_str(), m["cycles"].as_u64(), m["chosenBy"].as_str()), (Some("chosen"), Some(kuerzel), Some(zyklen), Some("assembler")), "Zeile {zeile}: {md}");
+        let name = vc_target::Mode::parse(kuerzel).unwrap().label();
+        assert!(md.contains(&format!("| ▶ {name} |")), "hervorgehobene Zeile fehlt: {md}");
+        assert_eq!(md.matches("▶").count(), 1, "genau eine Zeile hervorgehoben: {md}");
+        assert!(md.contains("vom Assembler gewählt") && md.contains(&format!("{zyklen} Zyklen")), "{md}");
+    }
+    // Zeropage gegen Absolut entscheidet der Assembler nach dem Wert: dasselbe Mnemonic, andere Zeile
+    let (_, m4) = hover_modus(&mut c, uri, 4, 3); let (_, m7) = hover_modus(&mut c, uri, 7, 3); assert_ne!(m4["mode"], m7["mode"]);
+}
+
+#[test]
+fn hover_hebt_nichts_hervor_bei_fehler_oder_ohne_lauf() {
+    let mut c = client();
+    let uri = "file:///tmp/vc_lsp_modus_fehler.asm";
+    let d = c.open(uri, ".target c64\n.org $0801\n  lda #$01\n  lda unbekannt\n");
+    assert!(!d["params"]["diagnostics"].as_array().unwrap().is_empty());
+    let (md, m) = hover_modus(&mut c, uri, 2, 3);
+    assert_eq!(m["state"], "open", "{md}"); assert!(!md.contains('▶') && md.contains("Modus noch offen"), "bei Fehlern wird nie geraten: {md}");
 }

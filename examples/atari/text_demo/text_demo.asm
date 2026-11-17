@@ -18,7 +18,7 @@
 ;   $21-$3A = Buchstaben A-Z (ATASCII $41-$5A minus $20).  `msg` enthält:
 ;   $28 $21 $2C $2C $2F = HALLO, $00, $21 $34 $21 $32 $29 = ATARI, $00, $0D = -, $00, danach MOMENTAUFNAHME.
 ;
-; SPEICHER:  Programm ab $2000; Text `msg` (28 Bytes) direkt dahinter.  Nullseite: SAVMSC $58/$59 (vom OS gesetzt, nur gelesen).
+; SPEICHER:  Programm ab $2000; Text `msg` (28 Bytes) direkt dahinter.  Zeropage: SAVMSC $58/$59 (vom OS gesetzt, nur gelesen).
 ; OS-VARIABLEN (Konstanten unten): SAVMSC = Zeiger auf den Bildschirmspeicher, COLOR1/2/4 = Schatten von COLPF1/COLPF2/COLBK.
 ; BAUEN:     vcc asm examples/atari/text_demo/text_demo.asm --target atari8 --cpu sally -o text_demo.xex
 ; GRENZEN:   Annahme: Der OS-Textschirm GRAPHICS 0 ist aktiv (Standard nach dem Systemstart).

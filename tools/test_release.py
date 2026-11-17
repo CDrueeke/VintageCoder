@@ -10,7 +10,7 @@ Aufruf (Arbeitsordner egal):
 Beispiel:
   python3 tools/test_release.py ParserTests
 """
-import hashlib, io, json, os, shutil, subprocess, sys, tempfile, unittest
+import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tempfile, unittest
 from contextlib import redirect_stdout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -24,6 +24,18 @@ def rows_for(ids, reg, stand=None):
     """Auswahlzeilen fuer alle Registry-Kennungen; nur ids sind angehakt."""
     st = stand or {}
     return [{"id": k, "label": k, "stand": st.get(k, "Stabil"), "checked": k in ids, "section": "", "line": i} for i, k in enumerate(reg["features"], 1)]
+
+
+class BuildPaketeTests(unittest.TestCase):
+    def test_stage_build_baut_die_oberflaeche_nur_mit_ide_app(self):
+        self.assertEqual(release.build_pakete(True), ["-p", "vc-cli", "-p", "vc-lsp", "-p", "vc-gui"])
+        self.assertEqual(release.build_pakete(False), ["-p", "vc-cli", "-p", "vc-lsp"])
+
+    def test_oberflaeche_ist_ein_workspace_paket_mit_programm_vintagecoder(self):
+        """`vintagecoder` kommt aus crates/vc-gui (kein vc-app mehr); sonst baut `stage --build` die IDE nie."""
+        root = pathlib.Path(__file__).resolve().parent.parent
+        self.assertIn('name = "vintagecoder"', (root / "crates" / "vc-gui" / "Cargo.toml").read_text(encoding="utf-8"))
+        self.assertFalse((root / "crates" / "vc-app").exists())
 
 
 class ParserTests(unittest.TestCase):
@@ -56,8 +68,8 @@ class ParserTests(unittest.TestCase):
         with open(os.path.join(release.ROOT, "FEATURES.md"), encoding="utf-8") as f:
             rows, problems = release.parse_features(f.read())
         self.assertEqual(problems, [])
-        self.assertEqual(len(rows), 31)
-        self.assertEqual(len({r["id"] for r in rows}), 31)
+        self.assertEqual(len(rows), 32)
+        self.assertEqual(len({r["id"] for r in rows}), 32)
 
 
 class GlobTests(unittest.TestCase):
@@ -405,6 +417,57 @@ class CliTests(unittest.TestCase):
         r = subprocess.run([sys.executable, os.path.join(HERE, "release.py"), "check", "--explain", "SYS-MEGA65"], capture_output=True, text=True)
         self.assertEqual(r.returncode, 0)
         self.assertIn("EMU-XEMU", r.stdout)
+
+
+class FeedTests(unittest.TestCase):
+    LOG = "# x\n\n## Unveröffentlicht\n\n- [Neu] später\n\n## 0.2.0 (Funktionspaket)\n\nNeu in 0.2.0\n\n### Bereich\n\n- a\n\n## 0.1.1\n\nFehler\n\n## 0.1.0 (Alpha)\n\nErste.\n"
+
+    def feed(self, version="0.2.0", yanked=(), seq=3, **kw):
+        return release.build_feed(self.LOG, version, list(yanked), seq, "2026-12-02T09:00:00Z", **kw)
+
+    def test_aufbau(self):
+        d = self.feed(project_format=2)
+        self.assertEqual((d["format"], d["sequence"], d["channel"], d["latest"], d["project_format"]), (1, 3, "stable", "0.2.0", 2))
+        self.assertEqual([r["version"] for r in d["releases"]], ["0.2.0", "0.1.1", "0.1.0"])
+        self.assertEqual(d["releases"][0]["title"], "0.2.0 (Funktionspaket)")
+        self.assertTrue(d["releases"][0]["notes"].startswith("Neu in 0.2.0"))
+        self.assertNotIn("später", json.dumps(d))          # 'Unveröffentlicht' gehört nicht in die Liste
+        self.assertEqual(release.validate_feed(d), [])
+
+    def test_zurueckgezogen_und_latest(self):
+        d = self.feed(version="0.1.1", yanked=["0.2.0"])
+        self.assertEqual((d["latest"], d["yanked"]), ("0.1.1", ["0.2.0"]))
+        with self.assertRaises(release.ReleaseError):
+            self.feed(version="0.1.0", yanked=[])              # 0.2.0 ist neuer: --version passt nicht zur höchsten Version
+        with self.assertRaises(release.ReleaseError):
+            self.feed(version="0.3.0")                          # Abschnitt fehlt
+
+    def test_strenge_versionsnummern(self):
+        for bad in ("1.2", "01.2.3", "1.2.3.4", "1.2.3-beta", "v1.2.3", "1.2.x", "", "12345.0.0"):
+            with self.assertRaises(release.ReleaseError, msg=bad):
+                release.version_key(bad)
+        self.assertEqual(release.version_key("0.10.2"), (0, 10, 2))
+
+    def test_keine_adressen_im_manifest(self):
+        d = self.feed(); d["releases"][0]["url"] = "https://example.invalid"
+        self.assertTrue(release.validate_feed(d))
+
+    def test_befehl_schreibt_nur_in_den_ausgabeordner(self):
+        with tempfile.TemporaryDirectory() as t:
+            log = os.path.join(t, "c.md"); open(log, "w", encoding="utf-8").write(self.LOG)
+            out = os.path.join(t, "feed")
+            cmd = [sys.executable, os.path.join(HERE, "release.py"), "manifest", "--changelog", log, "--version", "0.2.0", "--out", out, "--yanked-file", os.path.join(t, "keine.txt")]
+            r = subprocess.run(cmd, capture_output=True, text=True); self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertEqual(sorted(os.listdir(out)), ["update.json"])
+            first = json.load(open(os.path.join(out, "update.json"), encoding="utf-8")); self.assertEqual(first["sequence"], 1)
+            r = subprocess.run(cmd + ["--previous", os.path.join(out, "update.json")], capture_output=True, text=True); self.assertEqual(r.returncode, 0)
+            self.assertEqual(json.load(open(os.path.join(out, "update.json"), encoding="utf-8"))["sequence"], 2)
+
+    def test_echtes_aenderungsprotokoll(self):
+        with tempfile.TemporaryDirectory() as t:
+            r = subprocess.run([sys.executable, os.path.join(HERE, "release.py"), "manifest", "--out", t], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertEqual(release.validate_feed(json.load(open(os.path.join(t, "update.json"), encoding="utf-8"))), [])
 
 
 if __name__ == "__main__":

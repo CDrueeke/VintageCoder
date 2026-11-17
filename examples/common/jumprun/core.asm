@@ -13,10 +13,10 @@
 ;
 ; SO WIRD SIE EINGEBUNDEN
 ;   Der Einbinder (jumprun.asm des jeweiligen Systems) legt vorher zwei Konstanten fest und bindet dann diese Datei ein:
-;     ZP    = erste Nullseiten-Adresse fuer die Variablen dieser Datei (sie belegt ZP bis ZP_END-1, also 52 Byte)
+;     ZP    = erste Zeropage-Adresse fuer die Variablen dieser Datei (sie belegt ZP bis ZP_END-1, also 52 Byte)
 ;     LMAP  = Adresse von 240 Byte RAM fuer die Bildkarte (20 Spalten x 12 Zeilen, ein Byte je Kachel)
 ;   Alles Uebrige steht ausserhalb (Tabellen, HAL-Routinen); der Assembler loest die Verweise auf, die Reihenfolge der
-;   .include-Zeilen ist deshalb gleichgueltig.  Belegung der Nullseite je System (die Bereiche duerfen sich nicht ueberlappen):
+;   .include-Zeilen ist deshalb gleichgueltig.  Belegung der Zeropage je System (die Bereiche duerfen sich nicht ueberlappen):
 ;     C64, MEGA65:  Kern $10-$43   HAL $50-$56   Kachel-Bibliothek (nur C64) $58-$5F   Musik (lib/music.inc) $F7-$FA
 ;     Atari:        Kern $80-$B3   HAL $B4-$BB   RMT-Player $CB-$DD
 ;     Plus/4:       Kern $80-$B3   HAL $C0-$E3
@@ -25,7 +25,7 @@
 ; wiederholt den Teil, der sie betrifft)
 ;
 ;   A) Was der KERN von der HAL erwartet.  Er ruft diese Routinen auf; danach setzt er KEIN Register und KEIN Flag als erhalten voraus.
-;      Die Nullseitenzellen ZP .. ZP_END-1 darf die HAL dagegen nie veraendern (sie hat ihre eigenen, siehe oben).
+;      Die Zeropage-Zellen ZP .. ZP_END-1 darf die HAL dagegen nie veraendern (sie hat ihre eigenen, siehe oben).
 ;        hal_sfx          A = Effektnummer 0..7: Klangeffekt starten, ein laufender wird ersetzt.  Nummern: 0 Absprung, 1 Landung,
 ;                         2 Schritt, 3 Klettern (Hugo), 4 Muenze, 5 Klettern (Gumbo), 6 Bildwechsel-Jingle, 7 Fanfare (Finale).
 ;                         Der Kern startet selbst 2, 3, 4 und 5; 0 und 1 kommen aus den Skripten (Befehl SFX), 6 und 7 vom Hauptprogramm.
@@ -103,7 +103,7 @@
 .const HM_JUMP  = 2                     ; Sprung (32 Bilder lang)
 .const HM_CLIMB = 3                     ; klettert (hclimb bestimmt hoch oder runter)
 
-; ---- Variablen (Nullseite). Die Nullseite ist schneller und kuerzer anzusprechen als normaler Speicher (2 statt 3 Byte,
+; ---- Variablen (Zeropage). Die Zeropage ist schneller und kuerzer anzusprechen als normaler Speicher (2 statt 3 Byte,
 ; ---- 3 statt 4 Takte); deshalb liegen alle oft benutzten Variablen dort.
 ; ---- Namensregel: h... = Held (Hero), e... = Gegner (Enemy), t0..t3 = Hilfsspeicher fuer Zwischenwerte.
 .const st      = ZP + 0      ; reserviert; im Kern und in den Hauptprogrammen wird st nirgends benutzt
@@ -168,7 +168,7 @@
 .const tx_l    = ZP + 49     ; Zielposition des Gegners (x der linken Kante, 16 Bit; von find_ladder gesetzt)
 .const tx_h    = ZP + 50
 .const want    = ZP + 51     ; gewuenschte Leiterrichtung: 0 = hoch, 1 = runter
-.const ZP_END  = ZP + 52     ; erste freie Nullseitenzelle hinter dem Kern
+.const ZP_END  = ZP + 52     ; erste freie Zeropage-Zelle hinter dem Kern
 
 ; ---------------------------------------------------------------- Tabellen
 ; Sinustabelle fuer den Sprung. Ein Sprung dauert 32 Bilder (t = 0..32). In jedem Bild liegt die Figur um

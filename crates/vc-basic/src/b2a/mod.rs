@@ -156,7 +156,10 @@ fn prepare(src: &str, d: &Dialect, o: &B2aOptions) -> Result<Prepared, Vec<Diagn
     let mut po = PlainOptions::new(o.file.clone(), 63999);
     po.start = o.start;
     po.step = o.step;
-    let n = number_lines(src, &po)?;
+    let mut n = number_lines(src, &po)?;
+    // der Assemblerweg kennt keine Literale: immer Dezimalzahlen
+    let conv = crate::numbers::convert_numbers(&n.text, &crate::numbers::Lexicon::Cbm(d), &crate::numbers::NumberOptions { native: Some(false), whole_words: n.long_names, ..Default::default() }, &o.file)?;
+    n.text = conv.text;
     let labels = n.labels.clone();
     // Atari-BASIC kennt lange Namen immer: sie werden stets auf Kurznamen abgebildet (der Parser liest nach CBM-Regeln: 2 Zeichen zählen)
     let r = if target_info(&o.target).map_or(false, |t| t.atari) { crate::longnames::rename(&n.text, crate::longnames::Target::Cbm(d), &o.file)? } else { crate::apply_long_names(n, crate::longnames::Target::Cbm(d), &o.file)? };

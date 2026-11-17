@@ -53,8 +53,10 @@ pub const SYSTEMS: &[SystemInfo] = &[
 pub fn system(id: &str) -> Option<&'static SystemInfo> { SYSTEMS.iter().find(|s| s.id == id) }
 
 /// Die im Release gelieferten Systeme (Target-Datei vorhanden), in der Reihenfolge der Navigation. Ohne Datenordner: alle.
-pub fn installed_systems(data: Option<&std::path::Path>) -> Vec<&'static SystemInfo> {
-    let f = crate::features::features();
+pub fn installed_systems(data: Option<&std::path::Path>) -> Vec<&'static SystemInfo> { installed_systems_in(data, &crate::features::features()) }
+
+/// Wie [`installed_systems`] mit ausdrücklich gegebener Release-Auswahl (für Tests und Oberflächen, die eine Auswahl durchreichen)
+pub fn installed_systems_in(data: Option<&std::path::Path>, f: &crate::features::Features) -> Vec<&'static SystemInfo> {
     match data { Some(d) => SYSTEMS.iter().filter(|s| vc_target::target_available(d, s.id) && f.target(s.id)).collect(), None => SYSTEMS.iter().filter(|s| f.target(s.id)).collect() }
 }
 
@@ -402,5 +404,41 @@ mod release_tests {
         let r2 = s2.released_in(&only800);
         assert_eq!(r2.emulator_for("atari8").kind, "atari800");
         assert!(r2.target("atari8").unwrap().emulators[0].standard);
+    }
+}
+
+#[cfg(test)]
+mod tests_auswahl {
+    use super::*;
+    use crate::features::Features;
+
+    /// Selbsttest mit Mindestauswahl (Konzept Release-Auswahl, Abschnitt 9): drei Auswahlen wie die Testdateien unter `tools/testdata`.
+    /// Was ohne Fenster prüfbar ist, zeigt nichts Abgewähltes: Hilfeseiten, Anbindungen, Zielsysteme (Liste im Assistenten und bei „Zielsystem hinzufügen“).
+    #[test]
+    fn mindestauswahl_zeigt_nichts_abgewaehltes() {
+        const ALLE_STUDIOS: &str = r#""studios":["sprite","char","screen","tiles","palette","tracker","play","disk","memmap"]"#;
+        let ide_c64 = Features::from_json(&format!(r#"{{"format":1,"ide":true,{ALLE_STUDIOS},"links":[],"targets":["c64"],"examples":[]}}"#));
+        let ide_atari = Features::from_json(r#"{"format":1,"ide":true,"studios":[],"links":["atari800"],"targets":["atari8"],"examples":["EX-HELLO"]}"#);
+        let ohne_ide = Features::from_json(&format!(r#"{{"format":1,"ide":false,{ALLE_STUDIOS}}}"#));
+        let ids = |f: &Features| installed_systems_in(None, f).iter().map(|s| s.id).collect::<Vec<_>>();
+
+        // IDE + C64, kein Emulator, keine Hardware: nur das C64 als Ziel, keine Anbindung, kein Debugger, kein Live-Bild, alle Studios
+        assert_eq!(ids(&ide_c64), ["c64"]);
+        assert!(!ide_c64.any_debugger() && !ide_c64.any_live_image() && !ide_c64.target("atari8") && !ide_c64.any_examples());
+        assert!(crate::emulators::available_in(&ide_c64).is_empty());
+        assert!(!crate::help::visible_with("emulators", &ide_c64) && !crate::help::visible_with("mega65", &ide_c64) && crate::help::visible_with("sprite", &ide_c64));
+
+        // IDE + Atari, keine Studios, nur atari800: Debugger ja, Live-Bild nein, nur das Atari-Ziel, keine Studio-Hilfe
+        assert_eq!(ids(&ide_atari), ["atari8"]);
+        assert!(ide_atari.any_debugger() && !ide_atari.any_live_image());
+        assert!(crate::help::visible_with("emulators", &ide_atari) && !crate::help::visible_with("sprite", &ide_atari) && !crate::help::visible_with("tracker", &ide_atari) && !crate::help::visible_with("vic20", &ide_atari));
+        assert_eq!(crate::emulators::available_in(&ide_atari).iter().map(|e| e.id.as_str()).collect::<Vec<_>>(), ["atari800"]);
+
+        // ohne IDE: keine Studios, auch wenn Studios „gewählt“ stehen; die Studio-Hilfe fehlt
+        assert!(!ohne_ide.studio("sprite") && !crate::help::visible_with("sprite", &ohne_ide));
+
+        // PET/CBM-II: nie ein Ziel der Oberfläche, bei keiner Auswahl
+        assert!(!SYSTEMS.iter().any(|s| s.id == "pet" || s.id == "cbm2"));
+        assert!(!installed_systems_in(None, &Features::all()).iter().any(|s| s.id == "pet" || s.id == "cbm2"));
     }
 }

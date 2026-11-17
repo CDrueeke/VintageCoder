@@ -238,7 +238,7 @@ fn system_macros_and_math() {
     let src = "#include <common/math.asm>\n.org $2000\n inc16 $fb\n set_bits $d020, BIT3\n ld16 $fd, $1234\n add16i $fb, 5\n cmp16 $fb, $fd\n";
     let out = assemble(src, &cpu(), &o).unwrap_or_else(|e| panic!("{e:?}"));
     assert_eq!(&out.segments[0].bytes[..9], &[0xE6, 0xFB, 0xD0, 0x02, 0xE6, 0xFC, 0xAD, 0x20, 0xD0]);
-    // MATH_ZP muss in die Nullseite passen
+    // MATH_ZP muss in die Zeropage passen
     assert!(assemble(".const MATH_ZP = $ff\n#include <common/math.asm>\n", &cpu(), &o).is_err());
 }
 

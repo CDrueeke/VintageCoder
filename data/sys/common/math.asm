@@ -4,12 +4,12 @@
 
 #include <common/types.asm>
 
-// Nullseite für die Unterprogramme: 6 Byte (A, B, Ergebnis), muss ganz in der Nullseite liegen.
+// Zeropage für die Unterprogramme: 6 Byte (A, B, Ergebnis), muss ganz in der Zeropage liegen.
 // Vor dem Einbinden mit .const MATH_ZP = $nn überschreibbar (Standard $F7-$FC: auf C64 frei, solange RS232 nicht benutzt wird).
 .ifndef MATH_ZP
 .const MATH_ZP = $F7
 .endif
-.assert MATH_ZP + 5 < $100, "MATH_ZP: 6 Byte müssen in der Nullseite liegen"
+.assert MATH_ZP + 5 < $100, "MATH_ZP: 6 Byte müssen in der Zeropage liegen"
 .const MATH_A = MATH_ZP        // Faktor 1 / Dividend (2 Byte)
 .const MATH_B = MATH_ZP + 2    // Faktor 2 / Divisor (2 Byte)
 .const MATH_R = MATH_ZP + 4    // Produkt / Rest (2 Byte)

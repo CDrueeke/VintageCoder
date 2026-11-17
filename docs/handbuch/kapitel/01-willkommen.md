@@ -37,12 +37,12 @@ Die Oberfläche kennt sechs Zielsysteme. Sie stehen im Projekt-Assistenten und i
 | Atari 800 XL / XE | 6502C, ANTIC, GTIA, POKEY | Altirra (nur Windows) oder atari800 |
 | MEGA65 | 45GS02, VIC-IV, 40 MHz | Xemu (xmega65) |
 
-Auf echter Hardware kannst du ein Programm außerdem an eine **Ultimate 64 / II+** (für den C64) oder an einen **MEGA65** schicken. Wie das geht, steht in [Bauen und Starten](kapitel:bauen-starten).
+Auf echter Hardware kannst du ein Programm außerdem an eine **Ultimate 64 / II+** (für den C64) schicken. Wie das geht, steht in [Bauen und Starten](kapitel:bauen-starten).
 
 
 ## PET und CBM-II
 
-Für den Commodore PET/CBM und den CBM-II gibt es erste Daten, Vorlagen und Beispiele. Diese beiden Systeme sind aber noch **keine** Zielsysteme der Oberfläche: Kein Eintrag im Projekt-Assistenten, kein Start mit F5. Du kannst dafür mit dem Kommandozeilenwerkzeug `vcc` bauen und das Ergebnis von Hand in VICE starten. Das Handbuch beschreibt deshalb die sechs Systeme der Tabelle.
+Der Commodore PET/CBM und der CBM-II sind in dieser Version **nicht enthalten**: kein Eintrag im Projekt-Assistenten, kein Start mit F5, keine Beispiele in den Paketen. Das Handbuch beschreibt deshalb die Systeme der Tabelle.
 
 ## Installieren und einrichten
 
@@ -51,7 +51,7 @@ Wie du VintageCoder auf macOS und Windows installierst, beim ersten Start mit de
 - VintageCoder startet dein Programm in einem **Emulator**, den du selbst installierst (für den Einstieg reicht VICE für den C64).
 - **ROM-Dateien** (Betriebssystem, BASIC, Zeichensatz der alten Computer) liefert VintageCoder nicht mit. Für dein erstes Programm mit VICE brauchst du keine.
 
-![Die Willkommensseite mit den Knöpfen „Neues Projekt“, „Projekt öffnen“ und „Beispiel öffnen“, der Liste der zuletzt geöffneten Projekte und dem Kasten „Toolchain und Hardware“](bild:willkommen-seite "Die Willkommensseite ist der Startpunkt, solange kein Projekt geöffnet ist")
+![Die Startseite mit den Knöpfen „Neues Projekt“, „Projekt öffnen“, „Beispiel öffnen“ und „Einrichten“, der Liste der zuletzt geöffneten Projekte, den Studios und rechts dem Kasten „Toolchain und Hardware“ mit der Schnellreferenz.](bild:willkommen-seite "Die Startseite ist der Startpunkt, solange keine Datei geöffnet ist")
 
 ## Die wichtigsten Begriffe
 
@@ -69,11 +69,11 @@ Mehr Begriffe erklärt das Glossar (Datei `GLOSSAR.md`).
 
 ## Tastenkürzel in diesem Handbuch
 
-Die meisten Kürzel gelten auf allen Systemen, nur eine Taste heißt anders: **Cmd** auf dem Mac entspricht **Strg** unter Windows. Im Handbuch steht deshalb zum Beispiel **Cmd/Strg+O** für „Projekt öffnen“. Die Funktionstasten F5, F6, F7 und andere sind überall gleich.
+Die meisten Kürzel gelten auf allen Systemen, nur eine Taste heißt anders: **Cmd** auf dem Mac entspricht **Strg** unter Windows. Im Handbuch steht deshalb zum Beispiel **Cmd/Strg+Umschalt+O** für „Projekt öffnen“. Die Funktionstasten F5, F6, F7 und andere sind überall gleich.
 
 ## Häufige Stolpersteine
 
-- **Du suchst die Einrichtung von Emulator, ROMs oder Hardware.** Sie steht im Kapitel [Installation und Ersteinrichtung](kapitel:installation). Den Konfigurationsassistenten rufst du jederzeit über **Hilfe ▸ Konfigurationsassistent** wieder auf.
+- **Du suchst die Einrichtung von Emulator, ROMs oder Hardware.** Sie steht im Kapitel [Installation und Ersteinrichtung](kapitel:installation). Den Konfigurationsassistenten rufst du jederzeit über **Hilfe ▸ Konfigurationsassistent …** (Mac-Menü), die Befehlspalette (**Cmd/Strg+K**) oder den Knopf auf der Startseite wieder auf.
 
 ## Wie geht es weiter?
 

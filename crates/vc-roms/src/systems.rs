@@ -81,6 +81,17 @@ pub struct SetDef {
     pub profile: String,
 }
 
+impl SetDef {
+    /// Größe in Byte, wie sie das Profil erwartet: die ROM-Sätze des TED (Plus/4, C16) haben nur 128 Zeichen, die Invers-Hälfte erzeugt der Chip.
+    pub fn expanded_size(&self) -> usize { if self.profile.ends_with(".char.hires") && self.size == 1024 { 2048 } else { self.size } }
+
+    /// ROM-Bytes des Satzes auf die Größe des Profils bringen: bei 128-Zeichen-Sätzen folgt die Invers-Hälfte (alle Bits umgekehrt).
+    pub fn expand(&self, mut bytes: Vec<u8>) -> Vec<u8> {
+        if self.expanded_size() != self.size { let inv: Vec<u8> = bytes.iter().map(|b| !b).collect(); bytes.extend(inv); }
+        bytes
+    }
+}
+
 fn sd(name: &str, label: &str, offset: usize, size: usize, profile: &str) -> SetDef { SetDef { name: name.into(), label: label.into(), offset, size, profile: profile.into() } }
 
 /// Zeichensätze, die in jedem Abbild einer Rolle am selben Ort liegen (gemessen an allen VICE-3.10-Abbildern bzw. dem Xformer-Satz).
@@ -91,7 +102,9 @@ pub fn default_sets(system: &str, role: &str) -> Vec<SetDef> {
         ("c64", "chargen") => two("c64.char.hires"),
         ("vic20", "chargen") => two("vic20.char.hires"),
         ("c128", "chargen") => { let mut v = two("c128.char.hires"); v.push(sd("vdc", "80 Spalten (VDC, 8×16)", 0x1000, 4096, "c128.char.vdc")); v }
-        ("plus4", "kernal") => vec![sd("standard", "Standard", 0x1000, 2048, "plus4.char.hires")],
+        // Plus/4, C16: Zeichen-ROM $D000 bis $D7FF = zwei Sätze zu je 128 Zeichen (1 KB); die Invers-Hälfte erzeugt der TED (Umkehrbit), siehe `SetDef::expanded_size`.
+        // Reihenfolge gemessen (2026-11-17) an den VICE-3.10-Abbildern 318004-01, 318004-05, 318005-05 und 364: erster Teil Groß/Grafik, zweiter Klein/Groß.
+        ("plus4", "kernal") => vec![sd("upper", "Großbuchstaben und Grafik", 0x1000, 1024, "plus4.char.hires"), sd("lower", "Groß-/Kleinschreibung", 0x1400, 1024, "plus4.char.hires")],
         ("atari8", "os-xl") => vec![sd("standard", "Standard", 0x2000, 1024, "atari.char.antic2"), sd("international", "International", 0xC00, 1024, "atari.char.antic2")],
         // OS A und OS B (NTSC): Zeichensatz bei $E000 = Versatz $800, byte-gleich (gemessen)
         ("atari8", "os-a" | "os-b") => vec![sd("standard", "Standard", 0x800, 1024, "atari.char.antic2")],
@@ -123,6 +136,18 @@ pub fn all_sizes() -> Vec<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn plus4_hat_zwei_saetze_zu_128_zeichen_und_erzeugt_die_invers_haelfte() {
+        let s = default_sets("plus4", "kernal");
+        assert_eq!(s.iter().map(|x| (x.name.as_str(), x.offset, x.size)).collect::<Vec<_>>(), [("upper", 0x1000, 1024), ("lower", 0x1400, 1024)]);
+        assert_eq!(s[0].expanded_size(), 2048);
+        let b = s[0].expand(vec![0x18; 1024]);
+        assert_eq!((b.len(), b[0], b[1024]), (2048, 0x18, 0xE7));
+        // C64-Sätze (2048 Byte) bleiben unverändert
+        let c = &default_sets("c64", "chargen")[0];
+        assert_eq!(c.expand(vec![1; 2048]).len(), 2048);
+    }
 
     #[test]
     fn mega65_rom_hat_131072_byte() { assert_eq!(role("mega65", "rom").unwrap().sizes, &[131072]); }

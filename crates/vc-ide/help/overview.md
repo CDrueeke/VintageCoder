@@ -1,32 +1,32 @@
 # Projekt-Übersicht
 
-Der Tab **Übersicht** liegt neben den Quelltexten und öffnet sich mit jedem Projekt. Er zeigt nur Werte, die das Projekt tatsächlich hat. Gibt es noch keinen Build, steht dort „noch nicht gebaut“.
+Einen eigenen Reiter „Übersicht“ mit Kacheln gibt es in der Oberfläche nicht. Den Zustand deines Projekts siehst du an mehreren Stellen: in den Projekt-Einstellungen, im Projektbaum, im rechten Panel und in der Schublade.
 
-## Kennzahlen
-- **Speicher:** die belegten Bytes aus den Segmenten der letzten Übersetzung, mit Adressbereich und Zahl der Segmente (zur genauen Belegung siehe [Memory Map](help:memmap)).
-- **Diskette:** Dateiname, freie Blöcke (bei Atari Sektoren) und Zahl der Dateien des Images, das die Projektdatei unter `disk` beschreibt. Steht das Image noch nicht auf der Platte, heißt es „noch nicht gebaut“; hat das Projekt keine Diskette, ist ein Link zu den Projekt-Einstellungen da.
-- **Grafik und Klang:** Zahl der Sprites, Zeichensätze, Bildschirme, Kachelkarten, Lieder und Paletten im Projekt.
-- **Letzter Build:** „Sauber“ oder „Fehlgeschlagen“, wie lange er her ist, und die Zahl der Programme, Fehler und Warnungen.
+## Karte „Übersicht“ in den Projekt-Einstellungen
+**Projekt ▸ Projekt-Einstellungen …** öffnet einen Reiter mit den Unterreitern **Allgemein**, **Targets**, **Quellen** und **Diskette**. Rechts daneben steht die Karte **Übersicht** mit einer Zeile je Unterreiter. Der Punkt davor zeigt den Zustand: grün (in Ordnung), gelb (Hinweis, zum Beispiel keine Programme), rot (Angabe fehlt, zum Beispiel der Name) oder grau (nicht eingeschaltet).
 
-## Quellen
-Die Liste folgt dem Abschnitt `sources` der `.vcprj` in Baureihenfolge. Je Datei stehen Art (`vcasm`, BASIC mit gewähltem Dialekt), Target und Status: nicht gebaut, gebaut, Warnungen, Fehler oder „Datei fehlt“. Das Startprogramm (`main`, sonst die erste Quelle) trägt ★ und „Startprogramm“. Ein Klick auf den Dateinamen öffnet die Datei, „Projekt-Einstellungen“ bearbeitet die Liste.
+- **Allgemein:** der Projektname.
+- **Targets:** die Zielsysteme des Projekts.
+- **Quellen:** Zahl der Programme und Quellgruppen und das Startprogramm (`main`, sonst das erste Programm).
+- **Diskette:** aus, oder Format und Zahl der Programme (ohne Auswahl: alle Programme).
 
-## Dateien
-Eine Tabelle mit **allen** Dateien des Projekts: Art-Marke wie in der Seitenleiste (ASM, BAS, TRK, SPR, CHR, SCR, MAP, PAL, sonst die Endung), Pfad, Größe und Status. Zuerst steht der Code, das Startprogramm (★) ganz oben, danach alphabetisch; darunter folgen die übrigen Dateien nach Art gruppiert, je Art alphabetisch. Quellen aus der `.vcprj`, die auf der Platte fehlen, stehen mit „Datei fehlt“ dabei. **Doppelklick** öffnet die Datei, wie in der Seitenleiste. Die Tabelle hat die volle Breite; ist der Editorbereich schmal, lässt sie sich seitlich verschieben.
+**Ändern ›** springt zum passenden Unterreiter. Die Quellen stehen dort in Baureihenfolge; Dateien, die auf der Platte fehlen, erscheinen in Rot.
 
-## Layout bei schmalem Platz
-Ab etwa 900 px Breite stehen vier Kacheln nebeneinander, Quellen und Studios links, Ziel und Ereignisse rechts. Darunter bilden die Kacheln zwei Reihen, und die Abschnitte stapeln sich untereinander; die Studio-Knöpfe brechen um.
+## Projektbaum
+Die linke Spalte zeigt alle Dateien mit Art-Marke (siehe [Dateibaum](help:filetree)), das Startprogramm mit ★ und Ungespeichertes mit ●. Unter dem Baum steht die Zahl der Dateien und Ordner.
 
-## Studios
-Die Schaltflächen legen eine neue Datei an (Sprites, Zeichensatz, Bildschirm, Kacheln, Tracker, Palette) oder öffnen ein Diskettenimage, siehe [Sprites, Zeichensätze, Songs](help:graphics) und [Disk-Studio](help:disks).
+## Speicher
+Das rechte Panel hat den Reiter **Karte**: Nach dem Bauen zeigt er, wo dein Programm im Speicher liegt (zur genauen Belegung siehe [Memory Map](help:memmap)). Vorher steht dort „Noch nichts gebaut“.
+
+## Letzter Build
+Die Schublade zeigt im Reiter **Protokoll**, was beim Bauen und Starten geschehen ist, und im Reiter **Probleme** die Fehler und Warnungen mit Datei und Zeile; die Zahl steht am Reiter. Siehe [Bauen und Starten](help:build).
 
 ## Ziel und Verbindung
-- Je Zielsystem des Projekts der Emulator, der dafür eingestellt ist, und ob er gefunden wurde.
-- Die Maschinen dieser Systeme. Sie gelten als **ungeprüft**, bis du **Verbindung testen** klickst; der Test läuft im Hintergrund und endet mit „online“ oder „nicht erreichbar“.
-- Das Verbindungsdiagramm `vc-app → vc-ide → vc-emu` zeigt die vier Wege zum Ziel: VICE (Binärmonitor), atari800 (Textmonitor), Ultimate (REST) und MEGA65 (UART). Grün heißt: bei den Emulatoren ist einer dieser Sorte für ein Projektsystem eingestellt und gefunden, bei der Hardware war der Test erfolgreich. Rot heißt: der Test schlug fehl. Grau heißt: nicht eingestellt oder noch ungeprüft.
-- „F5 startet auf“ nennt das Ziel nach [Einstellungen](help:settings) und „Läuft auf“.
+- Der Knopf **Ziel** in der Kopfzeile („C64 · VICE x64sc ▾“) zeigt, wohin F5 startet: Emulator oder eingetragene Maschine. Ein Klick öffnet die Auswahl für diese Sitzung.
+- Auf der Startseite zeigt der Kasten **Toolchain und Hardware**, welche Emulatoren gefunden wurden und welche Maschinen eingetragen sind. Maschinen gelten als **ungeprüft**, bis du **Testen** klickst; der Test läuft im Hintergrund und endet mit „online“ oder „nicht erreichbar“.
+- In den Einstellungen (**Zielsysteme und Hardware**) stellst du Emulator, Startziel und Hardware ein; siehe [Einstellungen](help:settings).
 
-## Ereignisse
-Die letzten Zeilen des Ausgabeprotokolls dieser Sitzung mit der Zeit seit ihrem Auftreten.
+## Studios
+Neue Dateien für die Studios (Sprites, Zeichensatz, Bildschirm, Kacheln, Tracker, Palette) legst du mit dem Knopf **＋** über dem Projektbaum oder mit den Studio-Knöpfen auf der Startseite an; ein Diskettenimage gibt es dort als Art **Diskette**. Siehe [Sprites, Zeichensätze, Songs](help:graphics) und [Disk-Studio](help:disks).
 
-**Starten (F5)** und **Bauen (F7)** stehen oben rechts, siehe [Bauen und Starten](help:build).
+**Starten** (F5), **Debuggen** (F6) und **Bauen** (F7) stehen oben in der Kopfzeile, siehe [Bauen und Starten](help:build).

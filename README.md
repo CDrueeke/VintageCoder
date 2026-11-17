@@ -18,7 +18,7 @@ Entwicklungsumgebung für Retro-Rechner mit 6502-Prozessor: Programme in Assembl
 | Atari 8-Bit (800, XL, XE) | Assembler, Atari BASIC, Turbo BASIC XL | atari800, Altirra (Windows) |
 | MEGA65 | Assembler (45GS02), BASIC 65 | Xemu, MEGA65-Hardware |
 
-**In den Paketen der Version 0.1.0 sind C64, Plus/4 (und C16), Atari 8 Bit und MEGA65 enthalten.** Commodore 128 und VC-20 (Stand Beta) sowie PET und CBM-II (Stand Spike: erst Daten, Vorlagen und BASIC-Beispiele) sind im Quelltext vorhanden, aber in der Release-Auswahl ([FEATURES.md](FEATURES.md)) abgewählt und in den Paketen ausgeblendet. Der Anschluss echter MEGA65-Hardware ist ebenfalls abgewählt (Gerät bisher nicht geprüft). In einem Bau aus dem Quelltext ist alles sichtbar (es gibt keine `data/release.json`); die Auswahl steht in [docs/release-auswahl.md](docs/release-auswahl.md). Wie weit die Funktionen geprüft sind, steht in [STATUS.md](STATUS.md). Die Hardware-Beschreibungen (Prozessoren, Chips, Speicherkarten) liegen als JSON-Dateien in `data/`. Neue Systeme lassen sich damit ergänzen, ohne die Programme zu ändern.
+**In den Paketen des nächsten Releases sind C64, Plus/4 (und C16), Commodore 128, VC-20, Atari 8 Bit und MEGA65 enthalten.** PET und CBM-II (Stand Spike: erst Daten, Vorlagen und BASIC-Beispiele) sind im Quelltext vorhanden, aber in der Release-Auswahl ([FEATURES.md](FEATURES.md)) abgewählt und in den Paketen ausgeblendet. Der Anschluss echter MEGA65-Hardware ist ebenfalls abgewählt (Gerät bisher nicht geprüft). In einem Bau aus dem Quelltext ist alles sichtbar (es gibt keine `data/release.json`); die Auswahl steht in [docs/release-auswahl.md](docs/release-auswahl.md). Wie weit die Funktionen geprüft sind, steht in [STATUS.md](STATUS.md). Die Hardware-Beschreibungen (Prozessoren, Chips, Speicherkarten) liegen als JSON-Dateien in `data/`. Neue Systeme lassen sich damit ergänzen, ohne die Programme zu ändern.
 
 ## Was VintageCoder kann
 
@@ -33,7 +33,7 @@ Entwicklungsumgebung für Retro-Rechner mit 6502-Prozessor: Programme in Assembl
 - **Language Server** (`vc-lsp`) für andere Editoren ([Anleitung](docs/sprachserver.md)).
 - **Projektassistent** mit Vorlagen und geführter Ersteinrichtung.
 
-Eine bebilderte Anleitung steht im [Handbuch](docs/handbuch/kapitel/) (auch in der Anwendung unter *Hilfe*). Die Funktionsübersicht steht in [FEATURES.md](FEATURES.md), der Entwicklungsstand in [STATUS.md](STATUS.md), die Änderungen im [CHANGELOG](CHANGELOG.md).
+Eine bebilderte Anleitung steht im [Handbuch](docs/handbuch/kapitel/) (auch in der Anwendung unter *Hilfe*). Die Funktionsübersicht steht in [FEATURES.md](FEATURES.md), der Entwicklungsstand in [STATUS.md](STATUS.md), die Änderungen im [CHANGELOG](CHANGELOG.md). Wer im Quelltext sucht, beginnt bei [docs/architektur.md](docs/architektur.md).
 
 ## Installation
 
@@ -66,7 +66,7 @@ Nötig sind die [Rust](https://rustup.rs)-Toolchain, und zwar in Version **1.95 
 git clone https://github.com/CDrueeke/VintageCoder.git
 cd VintageCoder
 cargo build --release
-cargo run --release -p vc-app -- examples/c64/border     # Oberfläche mit einem Beispielprojekt
+cargo run --release -p vc-gui -- examples/c64/border     # Oberfläche mit einem Beispielprojekt (die Datei heißt `target/release/vintagecoder`)
 ./target/release/vcc asm examples/c64/border/border.asm -o border.prg   # Kommandozeile
 ```
 
@@ -96,11 +96,15 @@ Die frühere Entwicklungsgeschichte ist nicht Teil dieses Repositorys; es enthä
 
 Unter [`examples/`](examples/) liegen lauffähige Projekte für alle Systeme, etwa Rasterbalken, Sprites, Musik, Steckmodule und BASIC-Programme. Jedes ist ein eigener Ordner mit `.vcprj` und lässt sich direkt öffnen.
 
+## Entstehung
+
+VintageCoder entsteht mit starker KI-Unterstützung: Der Quelltext wird weitgehend von einer KI geschrieben, Konzept, Entscheidungen, Tests und Freigaben liegen beim Projektinhaber.
+
 ## Lizenz
 
 VintageCoder steht unter der **GNU General Public License, Version 3 oder später** ([LICENSE](LICENSE)). Die Software wird ohne jede Gewährleistung bereitgestellt, insbesondere ohne Haftung für Datenverlust oder Schäden an Daten und Hardware. Herkunft und Lizenzen enthaltener Fremdinhalte: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
-**Ausgenommen von der GPL** sind das Logo (`crates/vc-app/assets/drueeke-logo-light.png`) und der Name „VintageCoder“: Ihre Verwendung ist nicht frei.
+**Ausgenommen von der GPL** sind das Logo (die Dateien unter `branding/`) und der Name „VintageCoder“: Ihre Verwendung ist nicht frei.
 
 Die Beispielprojekte unter `examples/` sind eigene Werke des Projekts; Fremdanteile (zum Beispiel der RMT-Player) sind in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) genannt.
 

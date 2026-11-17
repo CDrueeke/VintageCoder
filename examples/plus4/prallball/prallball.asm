@@ -56,7 +56,7 @@
 ;   Der TED liest den Zeichensatz ($F000) und den Bildschirm direkt aus dem RAM; die Ein-/Ausgabebereiche $FD00-$FEFF und $FF00-$FF3F
 ;   bleiben immer sichtbar.
 ;
-; NULLSEITE (Zeropage)
+; ZEROPAGE
 ;   $02-$03 Zufall (rand.asm)   $04-$07 Musik (sound.asm)   $08-$0D Bestenliste (hiscore.asm)   $10-$8B Spielzustand (siehe .const unten,
 ;   nicht alle Adressen dazwischen sind belegt)   $8C-$8F Eingabe (input.asm)   $90-$AC Zeichen-Sprites   ($AE wird einmal gelesen: KERNAL-
 ;   Zelle FA = Geraet des Ladens).  Der KERNAL nutzt $90 und aufwaerts nur waehrend der Bestenliste; danach ist alles neu aufgebaut.
@@ -79,7 +79,7 @@
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseiten-Variablen des Spiels ($10-$8B, mit Luecken; die Adressen sind nach und nach dazugekommen und nicht nach Themen geordnet)
+; Zeropage-Variablen des Spiels ($10-$8B, mit Luecken; die Adressen sind nach und nach dazugekommen und nicht nach Themen geordnet)
 ;   Kurzbezeichnungen: b = Ball, pad = Schlaeger, cap = Kapsel (Extra-Muenze), t... = Rest-Halbsekunden eines Extras, tk = Ticker,
 ;   n... = Namenseingabe, l... = Titellogo.  t0..t3 sind kurzlebige Hilfszellen, die jede Routine fuer sich benutzt (nicht ueber Aufrufe retten!).
 ; ---------------------------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@
 .const nact    = $5b                    ; Anzahl aktiver Baelle in diesem Bild
 .const sprmsb  = $5c                    ; (unbenutzt; Rest der C64-Fassung)
 .const sprena  = $5d                    ; (unbenutzt; Rest der C64-Fassung)
-; Achtung: die vier folgenden Namen sind KEINE Nullseite, sondern RAM-Zellen bei $C130..$C13B (je 3 Byte, ein Byte je Titel-Ball)
+; Achtung: die vier folgenden Namen sind KEINE Zeropage, sondern RAM-Zellen bei $C130..$C13B (je 3 Byte, ein Byte je Titel-Ball)
 .const tbu     = $c130                  ; Titel-Baelle (3): X in Einheiten zu 2 px
 .const tby     = $c133                  ;                    Y in px
 .const tbdu    = $c136                  ;                    Schritt X (1 oder $FF)
@@ -205,7 +205,7 @@
 
 .const MAP     = $c000                  ; Steinkarte im RAM: 12 Zeilen x 18 Spalten = 216 Byte, Index = Zeile * 18 + Spalte, Wert = Steintyp (brick_color)
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2).  load_ball/save_ball kopieren einen Ball in die
-; Nullseite (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
+; Zeropage (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
 .const shact   = $c120                  ; Laserschuesse (2 Stueck): 1 = aktiv
 .const shu     = $c122                  ;   X-Lage in Einheiten zu 2 px (px / 2, damit 8 Bit reichen: max. 150)
 .const shy     = $c124                  ;   Y-Lage (Oberkante) in px
@@ -237,7 +237,7 @@
 .const POOL0      = 128                   ; erstes Zeichen des Pools der Zeichen-Sprites (Codes 128..191; 224..255 gehoeren dem Ticker)
 .const NPOOL      = 64                    ; Anzahl Pool-Zeichen
 
-; Zeichen-Sprites (Compositor): Nullseite $90-$AC (der KERNAL benutzt $90 und aufwaerts nur waehrend der Bestenliste, danach ist alles neu)
+; Zeichen-Sprites (Compositor): Zeropage $90-$AC (der KERNAL benutzt $90 und aufwaerts nur waehrend der Bestenliste, danach ist alles neu)
 .const shp     = $90                    ; Zeiger auf die Schattenkopie der Zeichencodes (2 Byte)
 .const shf     = $92                    ; Zeiger auf die Schattenkopie der Farben
 .const ip      = $94                    ; Zeiger auf den Datenstreifen des Bildes (2 Byte)
@@ -2094,7 +2094,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite holen / dorthin zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage holen / dorthin zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -2164,7 +2164,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball in die Nullseite laden (der Autoplay/Demo folgt ihm).
+; pick_ball: den tiefsten aktiven Ball in die Zeropage laden (der Autoplay/Demo folgt ihm).
 pick_ball:
         lda #0
         sta t2                          ; bester Y-Wert (High-Byte)
@@ -2197,7 +2197,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -2224,7 +2224,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -2612,7 +2612,7 @@ add_score:
         rts
 
 ; paddle_hit: Ball ist auf Schlaegerhoehe (178 <= Y < 192).  Prueft die Ueberlappung in X und prallt ab.
-;   Eingabe: Ball in der Nullseite (bxl.., alte Y-Lage oyl/oyh), padl/padh/padw/zstep, mask (Schlaegerbewegung beeinflusst die Zone).
+;   Eingabe: Ball in der Zeropage (bxl.., alte Y-Lage oyl/oyh), padl/padh/padw/zstep, mask (Schlaegerbewegung beeinflusst die Zone).
 ;   Ausgabe: C=1 = vom Schlaeger abgeprallt (Y auf Schlaegeroberkante gesetzt, neue Geschwindigkeit, hits/Stufe, Klang), sonst C=0;
 ;   bei einem Seitenaufprall wird der Ball neben den Schlaeger gesetzt und C=0 gemeldet.   Veraendert A, X, t0..t3.
 ;   Ueberlappung: d = Ballkante - Schlaegerkante muss in -5 .. Breite-1 liegen (Ball 6 px breit).
@@ -3675,7 +3675,7 @@ name_draw:
 ;   dann links nach rechts schreiben), 3 nach links wegscrollen (neu von rechts), 4 nach rechts, 5 Wischer (Kante laeuft pixelweise von links
 ;   nach rechts), 6 Aufloesen (zufaellige Pixelzeilen werden ausgetauscht).  Dazu eine laufende Regenbogenfarbe ueber die Zeichen.
 ;   ABLAUF: warten (tkw Bilder), naechsten Text aus der Folge holen, Effekt starten, Schritte ausfuehren, fertig -> warten.
-; Zustand (Nullseite): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
+; Zustand (Zeropage): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
 ; =====================================================================================================================
 .const TK_BUF = CHARSET + 224 * 8       ; Bitmuster der Zeichen 224..255 im RAM-Zeichensatz = $F700..$F7FF (32 Zeichen * 8 Byte)
 .const TK_CHR = 224                     ; erstes Ticker-Zeichen (Bildschirmcode); Spalte 4 + k der Ticker-Zeile zeigt TK_CHR + k
@@ -4238,10 +4238,10 @@ tk_msgs:
 ; Bibliotheken und Daten
 ; ---------------------------------------------------------------------------------------------------------------------
 ; Die Bibliotheken aus data/sys/plus4/ liegen hier mitten im Programmbereich (alles unter $8000, damit das KERNAL bei der Bestenliste sie sieht).
-.include "lib/input.asm"             ; input_init/poll/joy/char/wait_release, IN_*-Masken (Nullseite $8C-$8F)
-.include "lib/rand.asm"              ; rand_seed, rand_byte (Nullseite $02-$03)
-.include "lib/sound.asm"             ; sfx_init/play/update, mus_init/tick/stop, SFX_*-Nummern, Frequenztabellen (Nullseite $04-$07)
-.include "lib/hiscore.asm"           ; hs_load/save/check/insert, hs_buf/hs_points/hs_level/hs_name, HS_*-Konstanten (Nullseite $08-$0D)
+.include "lib/input.asm"             ; input_init/poll/joy/char/wait_release, IN_*-Masken (Zeropage $8C-$8F)
+.include "lib/rand.asm"              ; rand_seed, rand_byte (Zeropage $02-$03)
+.include "lib/sound.asm"             ; sfx_init/play/update, mus_init/tick/stop, SFX_*-Nummern, Frequenztabellen (Zeropage $04-$07)
+.include "lib/hiscore.asm"           ; hs_load/save/check/insert, hs_buf/hs_points/hs_level/hs_name, HS_*-Konstanten (Zeropage $08-$0D)
 .include "lib/dirtable.inc"             ; dir_xl, dir_xh, dir_yl, dir_yh: 16 Stufen x 8 Zonen, 16 Bit je Wert (erzeugt von tools/gen.py)
 .include "lib/gfx.inc.chars"            ; gfx_chars: 5 Zeichen zu 8 Byte (64..67, 127), siehe copy_font (erzeugt von tools/gen.py)
 .include "lib/sprites.inc"              ; Zeichen-Sprites: Streifen und Tabellen im_*, Konstanten IMG_* (erzeugt von tools/gen.py)

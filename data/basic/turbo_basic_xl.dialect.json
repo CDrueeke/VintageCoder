@@ -6,6 +6,7 @@
   "varSigChars": 120,
   "maxLineLen": 255,
   "numberStorage": "bcd6",
+  "numberLiterals": {"hex": true, "bin": false, "bits": 32, "keepByDefault": true, "singleDigitConstants": true},
   "floatFormat": "bcd6",
   "lomemOffset": "$0100",
   "statements": [

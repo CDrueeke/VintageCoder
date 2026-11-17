@@ -92,7 +92,7 @@ pub fn convert_file(root: &Path, data: &Path, req: &Req) -> Result<Report, Vec<D
     let lower = req.rel.to_ascii_lowercase();
     if !(lower.ends_with(".bas") || lower.ends_with(".lst") || lower.ends_with(".tur")) { return Err(err("Nur .bas-, .lst- oder .tur-Dateien (natives BASIC) lassen sich konvertieren".into())); }
     let src_path = root.join(&req.rel);
-    let src = std::fs::read_to_string(&src_path).map_err(|e| err(format!("{}: {e}", src_path.display())))?;
+    let src = vc_core::textfile::read_source(&src_path).map_err(|e| err(format!("{}: {e}", src_path.display())))?;
     let out_rel = if req.out.trim().is_empty() { default_out(root, &req.rel) } else { req.out.trim().to_string() };
     if !out_rel.to_ascii_lowercase().ends_with(".asm") { return Err(err(format!("Ausgabedatei '{out_rel}' muss auf .asm enden"))); }
     let out_path = root.join(&out_rel);

@@ -348,7 +348,7 @@ mod tests {
         let s = summarize(&t, 10);
         assert_eq!(s.malformed, 0);
         let (subj, info) = s.start.clone().expect("Kopf");
-        assert!(subj.starts_with("VintageCoder 0.1.0") && info["version"] == "0.1.0" && info["package"].is_string());
+        assert!(subj.starts_with(&format!("VintageCoder {}", env!("CARGO_PKG_VERSION"))) && info["version"] == env!("CARGO_PKG_VERSION") && info["package"].is_string());
         assert_eq!(s.by_kind.get("befehl"), Some(&1));
         assert!(s.tail.last().unwrap().kind == "stop" && s.tail[1].msg == "Build");
         if let Ok(mut g) = OVERRIDE.lock() { *g = None; }

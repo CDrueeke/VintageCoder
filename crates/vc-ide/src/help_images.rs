@@ -47,7 +47,7 @@ pub fn image_location(base: &str, id: &str) -> String { format!("{base}/{id}.png
 
 fn is_png(b: &[u8]) -> bool { b.starts_with(&[0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a]) }
 
-fn curl() -> PathBuf {
+pub(crate) fn curl() -> PathBuf {
     if cfg!(windows) { if let Some(root) = std::env::var_os("SystemRoot") { let p = Path::new(&root).join("System32").join("curl.exe"); if p.is_file() { return p; } } }
     PathBuf::from("curl")
 }

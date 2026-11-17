@@ -79,7 +79,7 @@ pub fn parse_media(text: &str) -> Result<Media, String> {
         let r = romref::resolve_media(&v)?;
         return Ok(Media { kind: "charset".into(), profile: r["profile"].as_str().ok_or("profile fehlt")?.into(), name: r["name"].as_str().unwrap_or("media").into(), root: r });
     }
-    if v["format"] != 1 { return Err("Datei: format 1 erwartet".into()); }
+    if v["format"] != 1 && !(v["format"] == 2 && v["kind"] == "screen") { return Err("Datei: format 1 erwartet".into()); }
     Ok(Media { kind: v["kind"].as_str().ok_or("kind fehlt")?.into(), profile: v["profile"].as_str().ok_or("profile fehlt")?.into(), name: v["name"].as_str().unwrap_or("media").into(), root: v })
 }
 

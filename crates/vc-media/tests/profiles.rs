@@ -43,9 +43,9 @@ fn palettes_come_from_one_place() {
     let c64 = palette::palette_for(&d, "c64", "pal").unwrap();
     assert_eq!(c64.colors.len(), 16); assert_eq!(c64.rgb(1), Some([0xff, 0xff, 0xff]));
     assert_eq!(c64.rgb(17), c64.rgb(1), "Farbwert wird auf 4 Bit maskiert");
-    // C128 und Plus/4 benutzen (bis es eine TED-Palette gibt) die C64-Farben, unbekannte Systeme ebenfalls
+    // C128 benutzt die C64-Farben, unbekannte Systeme ebenfalls; Plus/4 hat seit C1 eine eigene TED-Palette (121 Farben)
     assert_eq!(palette::palette_for(&d, "c128", "pal").unwrap(), c64);
-    assert_eq!(palette::palette_for(&d, "plus4", "pal").unwrap(), c64);
+    let ted = palette::palette_for(&d, "plus4", "pal").unwrap(); assert_eq!(ted.colors.len(), 128, "16 Farbtöne × 8 Helligkeiten"); assert_ne!(ted, c64);
     assert_eq!(palette::palette_for(&d, "gibtsnicht", "pal").unwrap(), c64);
     // Atari: GTIA-Wert = Zeile · 2, PAL und NTSC unterscheiden sich
     let pal = palette::palette_for(&d, "atari8", "pal").unwrap(); let ntsc = palette::palette_for(&d, "atari8", "ntsc").unwrap();

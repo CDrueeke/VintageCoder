@@ -28,7 +28,7 @@ zeigt, wie voll er wird (z. B. 187 von 256) und meldet einen Überlauf.
 Frei benannte Merkmale wie „solide“ oder „Leiter“ (höchstens acht je Satz) mit einem Häkchen je Kachel. Der Export schreibt sie als Byte-Tabelle `<name>_props` und die Konstanten `<name>_p_<eigenschaft>`.
 
 ## Export
-Export-Streifen und [Export-Dialog](help:export) wie in den anderen Studios. Ergebnis: je Zelle eine Tabelle `<name>_c0 …` (Index = Kachelnummer), `<name>_col` (je Kachel) oder `<name>_col0 …` (je Zelle),
+**Exportieren …** in der Kopfzeile öffnet den [Export-Dialog](help:export) wie in den anderen Studios. Ergebnis: je Zelle eine Tabelle `<name>_c0 …` (Index = Kachelnummer), `<name>_col` (je Kachel) oder `<name>_col0 …` (je Zelle),
 `<name>_props`, der zusammengeführte Zeichensatz `<name>_chars` und die Konstanten `_tw`, `_th`, `_count`, `_glyphs`. Der Satz braucht mindestens einen Zeichensatz.
 
 ## Beispiele

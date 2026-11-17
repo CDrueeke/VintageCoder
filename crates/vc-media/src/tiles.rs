@@ -49,7 +49,10 @@ pub fn cell_json(c: &Cell) -> Value {
     o
 }
 
-pub fn parse_tileset(v: &Value) -> Result<TileSet, String> {
+pub fn parse_tileset(v: &Value) -> Result<TileSet, String> { parse_tileset_max(v, if TilesLayout::aus_medium(v).index16 { 65535 } else { MAX_TILES }) }
+
+/// Wie [`parse_tileset`] mit ausdrücklicher Obergrenze der Kachelzahl (16-Bit-Index: 65535)
+pub fn parse_tileset_max(v: &Value, max: usize) -> Result<TileSet, String> {
     if v["kind"] != "tileset" { return Err(format!("Kachelsatz erwartet (kind 'tileset'), gefunden '{}'", v["kind"].as_str().unwrap_or("?"))); }
     let (tw, th) = (v["size"]["w"].as_u64().unwrap_or(0) as usize, v["size"]["h"].as_u64().unwrap_or(0) as usize);
     if !(1..=MAX_SIDE).contains(&tw) || !(1..=MAX_SIDE).contains(&th) { return Err(format!("Kachelgröße {tw}×{th}: Breite und Höhe müssen 1..{MAX_SIDE} sein")); }
@@ -59,7 +62,7 @@ pub fn parse_tileset(v: &Value) -> Result<TileSet, String> {
     if let Some((n, _)) = prop_defs.iter().find(|(_, b)| *b > 7) { return Err(format!("Eigenschaft '{n}': Bit muss 0..7 sein")); }
     let pins = v["pins"].as_array().map(|a| a.iter().filter_map(|p| Some((p["cs"].as_u64().unwrap_or(0) as usize, p["from"].as_u64()? as u8, p["to"].as_u64()? as u8))).collect()).unwrap_or_default();
     let arr = v["tiles"].as_array().ok_or("tiles fehlt")?;
-    if arr.len() > MAX_TILES { return Err(format!("{} Kacheln: mit 8-Bit-Index sind höchstens {MAX_TILES} möglich", arr.len())); }
+    if arr.len() > max { return Err(format!("{} Kacheln: mit {}-Bit-Index sind höchstens {max} möglich", arr.len(), if max > MAX_TILES { 16 } else { 8 })); }
     let mut tiles = vec![];
     for (i, t) in arr.iter().enumerate() {
         let cells: Vec<Cell> = t["cells"].as_array().ok_or(format!("Kachel {i}: cells fehlt"))?.iter().map(parse_cell).collect::<Result<_, _>>().map_err(|e| format!("Kachel {i}: {e}"))?;
@@ -227,63 +230,151 @@ fn validate_screen(i: usize, s: &Screen, ts: &TileSet) -> Result<(), String> {
 
 // ---------------------------------------------------------------------------------------------- Export
 
+/// Layout der exportierten Tabellen (Konzept Kachel/Screen, Abschnitt 5.2). Vorgabe: planar, Karte zeilenweise, 8-Bit-Index (so exportierte bisher alles).
+/// Steht in der Mediendatei unter `"layout": { "tiles": "planar" | "interleaved", "map": "rows" | "columns", "index": 8 | 16 }` oder kommt vom Export-Dialog.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TilesLayout { /** Kachel-Tabellen: eine Tabelle je Zelle (false) oder B×H Byte je Kachel hintereinander (true) */ pub interleaved: bool, /** Karte spaltenweise statt zeilenweise */ pub map_columns: bool, /** 16-Bit-Kachelindex: Karte als zwei Ebenen (niederes und oberes Byte) */ pub index16: bool }
+impl Default for TilesLayout { fn default() -> Self { TilesLayout { interleaved: false, map_columns: false, index16: false } } }
+impl TilesLayout {
+    pub fn aus_medium(v: &Value) -> TilesLayout {
+        let l = &v["layout"]; TilesLayout { interleaved: l["tiles"] == "interleaved", map_columns: l["map"] == "columns", index16: l["index"].as_u64() == Some(16) }
+    }
+    pub fn ist_vorgabe(&self) -> bool { *self == TilesLayout::default() }
+    /// Als JSON für die Mediendatei (leer, wenn alles Vorgabe ist)
+    pub fn json(&self) -> Option<Value> {
+        if self.ist_vorgabe() { return None }
+        Some(json!({ "tiles": if self.interleaved { "interleaved" } else { "planar" }, "map": if self.map_columns { "columns" } else { "rows" }, "index": if self.index16 { 16 } else { 8 } }))
+    }
+    /// Kurzer Name für Dialog und Bericht
+    pub fn text(&self) -> String { format!("{} · Karte {} · {}-Bit-Index", if self.interleaved { "interleaved" } else { "planar" }, if self.map_columns { "spaltenweise" } else { "zeilenweise" }, if self.index16 { 16 } else { 8 }) }
+}
+
 /// Alles, was `project::export` für Kachelsätze und Screen-Bänke braucht
-pub struct TilesOut { pub parts: Vec<(String, Vec<u8>)>, pub consts: String, pub consts_sbas: String, pub tail_asm: String, pub report: String }
+pub struct TilesOut { pub parts: Vec<(String, Vec<u8>)>, pub consts: String, pub consts_sbas: String, pub tail_asm: String, pub report: String, /** erzeugte `tiles_use`-Zeile (nur Screen-Bänke; leer bei Kachelsätzen) */ pub tiles_use: String }
+
+/// Lauflängenkodierung einer Karte (Export-Option `"rle": true` der Screen-Bank): Paare *Kachelnummer, Anzahl* (Anzahl 1 bis 255) über die ganze Karte
+/// (zeilenübergreifend, ohne Endemarke; der Entpacker der Bibliothek `screen_load_rle` kennt Breite mal Höhe). Gemessen an Jumprun: 320 statt 960 Byte.
+pub fn rle_encode(map: &[u8]) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < map.len() {
+        let mut j = i;
+        while j < map.len() && map[j] == map[i] && j - i < 255 { j += 1; }
+        out.push(map[i]);
+        out.push((j - i) as u8);
+        i = j;
+    }
+    out
+}
+
+/// Umkehrung von [`rle_encode`] (für Tests und Studios); `len` = Breite mal Höhe.
+pub fn rle_decode(data: &[u8], len: usize) -> Result<Vec<u8>, String> {
+    let mut out = Vec::with_capacity(len);
+    for p in data.chunks(2) {
+        if p.len() != 2 || p[1] == 0 { return Err("RLE-Daten: Paar unvollständig oder Anzahl 0".into()); }
+        out.extend(std::iter::repeat(p[0]).take(p[1] as usize));
+    }
+    if out.len() != len { return Err(format!("RLE-Daten ergeben {} statt {len} Kacheln", out.len())); }
+    Ok(out)
+}
 
 fn ident(s: &str) -> String { s.chars().map(|c| if c.is_ascii_alphanumeric() || c == '_' { c } else { '_' }).collect() }
 
 fn charset_profile<'a>(profiles: &'a [Profile], id: &str) -> Result<&'a Profile, String> { crate::profile(profiles, id) }
 
-fn tileset_tables(ts: &TileSet, m: &Merge) -> Result<Vec<(String, Vec<u8>)>, String> {
-    let mut parts = vec![];
-    for k in 0..ts.tw * ts.th {
-        parts.push((format!("c{k}"), ts.tiles.iter().map(|t| m.code(&t.cells[k])).collect::<Result<Vec<u8>, _>>()?));
+fn tileset_tables(ts: &TileSet, m: &Merge, lay: TilesLayout) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let mut parts = vec![]; let n = ts.tw * ts.th;
+    if lay.interleaved {
+        let mut b = Vec::with_capacity(ts.tiles.len() * n);
+        for t in &ts.tiles { for k in 0..n { b.push(m.code(&t.cells[k])?) } }
+        parts.push(("t".to_string(), b));
+    } else {
+        for k in 0..n { parts.push((format!("c{k}"), ts.tiles.iter().map(|t| m.code(&t.cells[k])).collect::<Result<Vec<u8>, _>>()?)); }
     }
     match ts.color_mode {
         ColorMode::Tile => parts.push(("col".into(), ts.tiles.iter().map(|t| t.col).collect())),
-        ColorMode::Cell => for k in 0..ts.tw * ts.th { parts.push((format!("col{k}"), ts.tiles.iter().map(|t| t.cells[k].col.unwrap_or(t.col)).collect())); },
+        ColorMode::Cell if lay.interleaved => parts.push(("colt".into(), ts.tiles.iter().flat_map(|t| (0..n).map(move |k| t.cells[k].col.unwrap_or(t.col))).collect())),
+        ColorMode::Cell => for k in 0..n { parts.push((format!("col{k}"), ts.tiles.iter().map(|t| t.cells[k].col.unwrap_or(t.col)).collect())); },
         ColorMode::None => {}
     }
     if !ts.prop_defs.is_empty() { parts.push(("props".into(), ts.tiles.iter().map(|t| t.props).collect())); }
     Ok(parts)
 }
 
-fn tileset_consts(label: &str, ts: &TileSet, m: &Merge, sbas: bool) -> String {
+fn tileset_consts(label: &str, ts: &TileSet, m: &Merge, sbas: bool, lay: TilesLayout) -> String {
     let c = if sbas { "const" } else { ".const" };
     let mut s = format!("{c} {label}_tw = {}\n{c} {label}_th = {}\n{c} {label}_count = {}\n{c} {label}_glyphs = {}\n", ts.tw, ts.th, ts.tiles.len(), m.used);
     for (n, bit) in &ts.prop_defs { s.push_str(&format!("{c} {label}_p_{} = {}\n", ident(n), 1u32 << bit)); }
+    if lay.interleaved { s.push_str(&format!("{c} {label}_interleaved = 1\n")) }
     s
 }
 
 /// Exportteile für einen Kachelsatz (Art `tileset`) oder eine Screen-Bank (`kind: screen` mit `screens`).
-pub fn export_parts(root: &Path, media: &Value, profiles: &[Profile], label: &str) -> Result<TilesOut, String> {
+pub fn export_parts(root: &Path, media: &Value, profiles: &[Profile], label: &str) -> Result<TilesOut, String> { export_parts_mit(root, media, profiles, label, TilesLayout::aus_medium(media)) }
+
+/// Wie [`export_parts`], aber mit ausdrücklich gewähltem Layout (Export-Dialog)
+pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label: &str, lay: TilesLayout) -> Result<TilesOut, String> {
     if media["kind"] == "tileset" {
-        let ts = parse_tileset(media)?;
+        let ts = parse_tileset_max(media, if lay.index16 { 65535 } else { MAX_TILES })?;
         let (sets, cpid) = load_charsets(root, &ts.charsets)?; let cp = charset_profile(profiles, &cpid)?;
         let m = merge_glyphs(&ordered_cells(&ts, &[]), &sets, &ts.pins, cp)?;
-        let mut parts = tileset_tables(&ts, &m)?;
+        let mut parts = tileset_tables(&ts, &m, lay)?;
         parts.push(("chars".into(), m.charset_bytes(cp)?));
         let report = format!("{} Kacheln {}×{}, Zeichensatz-Füllstand {} von {} Glyphen, {} Doppelte zusammengelegt", ts.tiles.len(), ts.tw, ts.th, m.used, m.max, m.doubles);
-        return Ok(TilesOut { parts, consts: tileset_consts(label, &ts, &m, false), consts_sbas: tileset_consts(label, &ts, &m, true), tail_asm: String::new(), report });
+        return Ok(TilesOut { parts, consts: tileset_consts(label, &ts, &m, false, lay), consts_sbas: tileset_consts(label, &ts, &m, true, lay), tail_asm: String::new(), report, tiles_use: String::new() });
     }
     let bank = parse_bank(media)?;
-    if bank.tilesets.len() != 1 { return Err(format!("Screen-Bank braucht genau einen Kachelsatz in 'tilesets' (gefunden {}); mehrere Sätze je Bank sind noch nicht unterstützt", bank.tilesets.len())); }
-    if let Some(s) = bank.screens.iter().find(|s| s.set != 0) { return Err(format!("Screen '{}': nur Kachelsatz 0 ist unterstützt", s.name)); }
-    let ts_text = std::fs::read_to_string(root.join(&bank.tilesets[0])).map_err(|e| format!("Kachelsatz {}: {e}", bank.tilesets[0]))?;
-    let ts = parse_tileset(&serde_json::from_str(&ts_text).map_err(|e| format!("Kachelsatz {}: {e}", bank.tilesets[0]))?)?;
-    let (sets, cpid) = load_charsets(root, &ts.charsets)?; let cp = charset_profile(profiles, &cpid)?;
-    for (i, s) in bank.screens.iter().enumerate() { validate_screen(i, s, &ts)?; }
-    let extra: Vec<Cell> = bank.screens.iter().flat_map(|s| s.patches.iter().map(|p| p.cell.clone())).collect();
-    let m = merge_glyphs(&ordered_cells(&ts, &extra), &sets, &ts.pins, cp)?;
+    if bank.tilesets.is_empty() { return Err("Screen-Bank braucht mindestens einen Kachelsatz in 'tilesets'".into()); }
+    // Alle Kachelsätze der Bank: Zeichensatzlisten aneinanderhängen (cs-Nummern je Satz verschieben), damit EIN Zielzeichensatz entsteht (Konzept 3.2)
+    let (mut tss, mut alle_zs, mut offs, mut cpid): (Vec<TileSet>, Vec<Frames>, Vec<usize>, String) = (vec![], vec![], vec![], String::new());
+    for rel in &bank.tilesets {
+        let ts_text = std::fs::read_to_string(root.join(rel)).map_err(|e| format!("Kachelsatz {rel} (gesucht in {}): {e}", root.display()))?;
+        let mut ts = parse_tileset_max(&serde_json::from_str(&ts_text).map_err(|e| format!("Kachelsatz {rel}: {e}"))?, if lay.index16 { 65535 } else { MAX_TILES })?;
+        let (zs, id) = load_charsets(root, &ts.charsets)?;
+        if cpid.is_empty() { cpid = id } else if cpid != id { return Err(format!("Kachelsatz {rel}: Zeichensatzprofil '{id}' passt nicht zu '{cpid}' der übrigen Sätze")) }
+        let off = alle_zs.len(); offs.push(off); alle_zs.extend(zs);
+        for t in &mut ts.tiles { for c in &mut t.cells { c.cs += off } } for p in &mut ts.pins { p.0 += off }
+        tss.push(ts);
+    }
+    if let Some(sc) = bank.screens.iter().find(|s| s.set >= tss.len()) { return Err(format!("Screen '{}': Kachelsatz {} gibt es nicht (die Bank hat {})", sc.name, sc.set, tss.len())) }
+    let cp = charset_profile(profiles, &cpid)?; let sets = alle_zs;
+    for (i, s) in bank.screens.iter().enumerate() { validate_screen(i, s, &tss[s.set])?; }
+    let sh = |c: &Cell, k: usize| Cell { cs: c.cs + offs[k], ..c.clone() };
+    let mut gesehen = std::collections::HashSet::new(); let mut zellen: Vec<(usize, u8)> = vec![];
+    for c in tss.iter().flat_map(|t| t.tiles.iter().flat_map(|t| t.cells.iter().cloned())).chain(bank.screens.iter().flat_map(|s| s.patches.iter().map(|p| sh(&p.cell, s.set)))) { if gesehen.insert((c.cs, c.code)) { zellen.push((c.cs, c.code)) } }
+    let pins: Vec<(usize, u8, u8)> = tss.iter().flat_map(|t| t.pins.iter().copied()).collect();
+    let m = merge_glyphs(&zellen, &sets, &pins, cp)?;
+    let rle = media["rle"].as_bool().unwrap_or(false);
     let (mut parts, mut consts, mut sb) = (vec![], String::new(), String::new());
-    let (mut map_labels, mut cell_labels) = (vec![], vec![]);
+    let (mut map_labels, mut cell_labels, mut hi_labels, mut row_labels): (Vec<String>, Vec<Option<String>>, Vec<String>, Vec<(usize, String)>) = (vec![], vec![], vec![], vec![]);
     for (i, s) in bank.screens.iter().enumerate() {
-        parts.push((format!("map{i}"), s.grid.iter().flat_map(|r| r.iter().map(|&t| t as u8)).collect()));
+        let ts = &tss[s.set];
+        if !lay.index16 { if let Some(t) = s.grid.iter().flatten().find(|&&t| t > 255) { return Err(format!("Screen '{}': Kachel {t} passt nicht in einen 8-Bit-Index (höchstens 256 Kacheln); 16-Bit-Index im Layout wählen", s.name)) } }
+        let reihenfolge: Vec<usize> = if lay.map_columns { let (rows, cols) = (s.grid.len(), s.grid.first().map_or(0, |r| r.len())); (0..cols).flat_map(|x| (0..rows).map(move |y| s.grid[y][x])).collect() } else { s.grid.iter().flatten().copied().collect() };
+        let raw: Vec<u8> = reihenfolge.iter().map(|&t| (t & 0xFF) as u8).collect();
+        parts.push((format!("map{i}"), if rle { rle_encode(&raw) } else { raw }));
+        if lay.index16 { parts.push((format!("map{i}_hi"), reihenfolge.iter().map(|&t| (t >> 8) as u8).collect())); hi_labels.push(format!("{label}_map{i}_hi")); }
         map_labels.push(format!("{label}_map{i}"));
         if s.patches.is_empty() { cell_labels.push(None); } else {
-            if s.patches.len() > 255 { return Err(format!("Screen '{}': mehr als 255 Zellen-Patches; volle Zeilen sind noch nicht unterstützt", s.name)); }
+            if s.patches.len() > 255 {
+                // volle Zeilen statt Patches: jede betroffene Zeile als Ganzes (Kachelebene eingerechnet, Patches darüber); Zeile = y, w Codes, bei Farbe w Farben
+                let mut ys: Vec<usize> = s.patches.iter().map(|p| p.y).collect(); ys.sort_unstable(); ys.dedup();
+                let farbig = ts.color_mode != ColorMode::None; let mut b = vec![ys.len() as u8];
+                if ys.len() > 255 { return Err(format!("Screen '{}': mehr als 255 Zeilen mit eigenen Zellen", s.name)) }
+                for &y in &ys {
+                    b.push(y as u8); let (mut codes, mut cols) = (Vec::with_capacity(s.w), Vec::with_capacity(s.w));
+                    for x in 0..s.w {
+                        if let Some(p) = s.patches.iter().rev().find(|p| p.x == x && p.y == y) { codes.push(m.code(&sh(&p.cell, s.set))?); cols.push(p.cell.col.unwrap_or(ts.tiles.first().map_or(1, |t| t.col))); continue }
+                        let (gx, gy) = (x.checked_sub(s.origin.0), y.checked_sub(s.origin.1));
+                        let zelle = gx.zip(gy).and_then(|(gx, gy)| { let t = *s.grid.get(gy / ts.th)?.get(gx / ts.tw)?; let t = ts.tiles.get(t)?; Some((m.code(&t.cells[(gy % ts.th) * ts.tw + gx % ts.tw]).ok()?, t.cells[(gy % ts.th) * ts.tw + gx % ts.tw].col.unwrap_or(t.col))) });
+                        let (c, col) = zelle.unwrap_or((0, s.colors["fg"].as_u64().unwrap_or(1) as u8)); codes.push(c); cols.push(col);
+                    }
+                    b.extend(codes); if farbig { b.extend(cols) }
+                }
+                parts.push((format!("rows{i}"), b)); row_labels.push((i, format!("{label}_rows{i}"))); cell_labels.push(None); continue;
+            }
             let mut b = vec![s.patches.len() as u8];
-            for p in &s.patches { b.push(p.x as u8); b.push(p.y as u8); b.push(m.code(&p.cell)?); if ts.color_mode != ColorMode::None { b.push(p.cell.col.unwrap_or(ts.tiles.first().map_or(1, |t| t.col))); } }
+            for p in &s.patches { b.push(p.x as u8); b.push(p.y as u8); b.push(m.code(&sh(&p.cell, s.set))?); if ts.color_mode != ColorMode::None { b.push(p.cell.col.unwrap_or(ts.tiles.first().map_or(1, |t| t.col))); } }
             parts.push((format!("cells{i}"), b)); cell_labels.push(Some(format!("{label}_cells{i}")));
         }
         let n = ident(&s.name); let n = if n.is_empty() { format!("s{i}") } else { n };
@@ -292,18 +383,39 @@ pub fn export_parts(root: &Path, media: &Value, profiles: &[Profile], label: &st
             for k in ["border", "bg", "fg"] { if let Some(v) = s.colors[k].as_u64() { dst.push_str(&format!("{c} {label}_{n}_{k} = {v}\n")); } }
         }
     }
+    let mut tail = String::new();
+    if tss.len() > 1 {
+        // mehrere Sätze: ihre Tabellen mit den zusammengeführten Zeichencodes gehören in den Bank-Export (ein Satz-Export allein hätte eigene Codes)
+        for (k, t) in tss.iter().enumerate() {
+            for (suf, b) in tileset_tables(t, &m, lay)? { parts.push((format!("s{k}_{suf}"), b)) }
+            consts.push_str(&tileset_consts(&format!("{label}_s{k}"), t, &m, false, lay)); sb.push_str(&tileset_consts(&format!("{label}_s{k}"), t, &m, true, lay));
+        }
+        let zuordnung: Vec<String> = bank.screens.iter().map(|s| s.set.to_string()).collect();
+        consts.push_str(&format!(".const {label}_sets = {}\n", tss.len())); sb.push_str(&format!("const {label}_sets = {}\n", tss.len()));
+        tail.push_str(&format!("{label}_screen_set:\n        .byte {}\n", zuordnung.join(",")));
+    }
     parts.push(("chars".into(), m.charset_bytes(cp)?));
     consts.push_str(&format!(".const {label}_count = {}\n.const {label}_glyphs = {}\n", bank.screens.len(), m.used));
     sb.push_str(&format!("const {label}_count = {}\nconst {label}_glyphs = {}\n", bank.screens.len(), m.used));
+    if rle { consts.push_str(&format!(".const {label}_rle = 1\n")); sb.push_str(&format!("const {label}_rle = 1\n")); }
     let join = |ls: Vec<String>, op: &str| ls.into_iter().map(|l| format!("{op}{l}")).collect::<Vec<_>>().join(",");
-    let mut tail = String::new();
     if !map_labels.is_empty() {
-        tail.push_str(&format!("{label}_screens_lo:\n        .byte {}\n{label}_screens_hi:\n        .byte {}\n", join(map_labels.clone(), "<"), join(map_labels, ">")));
+        tail.push_str(&format!("{label}_screens_lo:\n        .byte {}\n{label}_screens_hi:\n        .byte {}\n", join(map_labels.clone(), "<"), join(map_labels.clone(), ">")));
+        if lay.index16 { tail.push_str(&format!("{label}_screens_hp_lo:\n        .byte {}\n{label}_screens_hp_hi:\n        .byte {}\n", join(hi_labels.clone(), "<"), join(hi_labels, ">"))); }
         let (lo, hi): (Vec<String>, Vec<String>) = cell_labels.iter().map(|l| match l { Some(l) => (format!("<{l}"), format!(">{l}")), None => ("0".into(), "0".into()) }).unzip();
         tail.push_str(&format!("{label}_cells_lo:\n        .byte {}\n{label}_cells_hi:\n        .byte {}\n", lo.join(","), hi.join(",")));
+        if !row_labels.is_empty() {
+            let (rl, rh): (Vec<String>, Vec<String>) = (0..bank.screens.len()).map(|i| match row_labels.iter().find(|(j, _)| *j == i) { Some((_, l)) => (format!("<{l}"), format!(">{l}")), None => ("0".into(), "0".into()) }).unzip();
+            tail.push_str(&format!("{label}_rows_lo:\n        .byte {}\n{label}_rows_hi:\n        .byte {}\n", rl.join(","), rh.join(",")));
+        }
     }
-    let report = format!("{} Screens, Zeichensatz-Füllstand {} von {} Glyphen", bank.screens.len(), m.used, m.max);
-    Ok(TilesOut { parts, consts, consts_sbas: sb, tail_asm: tail, report })
+    if lay.map_columns { consts.push_str(&format!(".const {label}_map_columns = 1\n")); sb.push_str(&format!("const {label}_map_columns = 1\n")); }
+    if lay.index16 { consts.push_str(&format!(".const {label}_index16 = 1\n")); sb.push_str(&format!("const {label}_index16 = 1\n")); }
+    let report = format!("{} Screens, Zeichensatz-Füllstand {} von {} Glyphen{}", bank.screens.len(), m.used, m.max, if lay.ist_vorgabe() { String::new() } else { format!(", Layout {}", lay.text()) });
+    let ts = &tss[0]; let satz = if tss.len() > 1 { format!("{label}_s0") } else { ident(ts.name.as_str()) }; let erste = bank.screens.first().map(|s| { let n = ident(&s.name); if n.is_empty() { "s0".to_string() } else { n } }).unwrap_or_default();
+    let (c0, col, props) = (if lay.interleaved { format!("{satz}_t") } else { format!("{satz}_c0") }, if ts.color_mode == ColorMode::None { "0".to_string() } else if ts.color_mode == ColorMode::Cell { if lay.interleaved { format!("{satz}_colt") } else { format!("{satz}_col0") } } else { format!("{satz}_col") }, if ts.prop_defs.is_empty() { "0".to_string() } else { format!("{satz}_props") });
+    let tiles_use = format!("tiles_use {c0}, {col}, {props}, {satz}_tw, {satz}_th, {satz}_count, {label}_screens_lo, {label}_screens_hi, {label}_{erste}_tiles_w, {label}_{erste}_tiles_h");
+    Ok(TilesOut { parts, consts, consts_sbas: sb, tail_asm: tail, report, tiles_use })
 }
 
 // ---------------------------------------------------------------------------------------------- Umsetzer alte Kachelkarte → Satz + Bank

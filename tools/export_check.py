@@ -29,7 +29,7 @@ BINARY_EXT = {".png", ".icns", ".ico", ".otf", ".ttf"}
 BINARY_DIRS = ("crates/vc-emu/tests/data/", "crates/vc-basic/tests/fixtures/")
 
 # Dateien, die die gesuchten Muster selbst beschreiben (Regeln, Testdaten, Ausschlussbegruendungen): dort keine Funde fuer die Musterregeln.
-SELF_FILES = {"tools/export_check.py", "tools/test_export_check.py", "tools/export-public.sh", "tools/export-exclude.txt", "tools/export-replace.txt"}
+SELF_FILES = {"tools/export_check.py", "tools/test_export_check.py", "tools/export-public.sh", "tools/export-update.sh", "tools/export-exclude.txt", "tools/export-replace.txt"}
 # Wortlisten-Dateien: enthalten die Namen nur in Teilen, aber zusammengesetzt koennten Tests sie nennen
 WORDLIST_FILES = {"release/registry.json", "tools/release.py", "tools/test_release.py"} | SELF_FILES
 # Ordner, in denen der technische Name der Erweiterungsschnittstelle (Kleinschreibung) vorkommen darf
@@ -164,7 +164,7 @@ def scan_line(rel, n, line, ctx):
             out.append(Finding(rel, n, rule, short(line), level))
     if COAUTHOR_RX.search(line):
         out.append(Finding(rel, n, "co-autor", short(line)))
-    if ctx["hint_rx"] and ctx["hint_rx"].search(line) and rel != "crates/vc-app/src/about.rs":
+    if ctx["hint_rx"] and ctx["hint_rx"].search(line) and rel != "crates/vc-gui/src/infodlg.rs":
         out.append(Finding(rel, n, "werkzeug-name", short(line), "Hinweis"))
     return out
 

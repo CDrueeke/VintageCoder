@@ -14,7 +14,7 @@ referenz: [basic, basic-labels, basic-names, basic-dialects, basic-directives, b
 
 ## Das brauchst du
 
-- Ein Projekt mit der Vorlage **BASIC (ohne Zeilennummern)**, siehe [Dein erstes Projekt](kapitel:erstes-projekt), oder eine neue Datei mit der Endung `.bas` in einem bestehenden Projekt (Seitenleiste **+ ▸ Quelltext …**, Name mit Endung `.bas`).
+- Ein Projekt mit der Vorlage **BASIC (ohne Zeilennummern)**, siehe [Dein erstes Projekt](kapitel:erstes-projekt), oder eine neue Datei mit der Endung `.bas` in einem bestehenden Projekt (Knopf **＋ Neue Datei im gewählten Ordner** in der linken Spalte, im Dialog „Neue Datei“ die Art **BASIC**).
 - Ein BASIC-Projekt hat keinen eigenen Dialekt-Zwang: Das BASIC folgt automatisch dem **Zielsystem** deines Projekts.
 
 ## BASIC bleibt BASIC
@@ -44,7 +44,7 @@ print "summe ="; summe
 goto @ende
 ```
 
-2. Drücke **F5**. VintageCoder baut das Programm und startet es im Emulator. Auf dem C64 erscheint „HALLO WELT“ und „SUMME = 55“.
+2. Drücke **F5** (Startprogramm starten; ist die BASIC-Datei das Startprogramm des Projekts, wie bei der Vorlage). VintageCoder baut das Programm und startet es im Emulator. Auf dem C64 erscheint „HALLO WELT“ und „SUMME = 55“.
 
 Zeile für Zeile:
 
@@ -98,11 +98,11 @@ goto @ende
 60 goto 60
 ```
 
-Das Bauprotokoll listet alle Marken mit der Zeile, die sie bekommen haben (`@schleife = Zeile 30`). Willst du doch eine Zeile selbst nummerieren, schreibst du die Nummer wie gewohnt davor; beides lässt sich mischen.
+Welche Zeile eine Marke bekommen hat (`@schleife = Zeile 30`), siehst du im gebauten Programm; es liegt als Text in `build/<name>.classic.txt`. Willst du doch eine Zeile selbst nummerieren, schreibst du die Nummer wie gewohnt davor; beides lässt sich mischen.
 
-![Ein BASIC-Quelltext ohne Zeilennummern mit der Marke @schleife, daneben das Bauprotokoll mit der Zuordnung „@schleife = Zeile 30“](bild:basic-marken "Marken im Quelltext und ihre Zeilennummern im Bauprotokoll")
+![Ein BASIC-Quelltext ohne Zeilennummern mit den Marken @neu und @ende; „then @neu“ und „goto @ende“ springen dorthin.](bild:basic-marken "Marken (@name) im Quelltext; die Zeilennummern vergibt der Bau")
 
-> **Tipp:** Der **Inspektor** zeigt im Reiter **Gliederung** bei BASIC die Zeilen, die von `GOTO`, `GOSUB`, `THEN` oder `ON … GOTO` angesprungen werden, und deine Kommentar-Überschriften. Ein Klick springt zur Stelle.
+> **Tipp:** Das **rechte Panel** zeigt im Reiter **Gliederung** bei BASIC die Zeilen, die von `GOTO`, `GOSUB`, `THEN` oder `ON … GOTO` angesprungen werden, und deine Kommentar-Überschriften. Ein Klick springt zur Stelle.
 
 ## Lange Variablennamen
 
@@ -121,7 +121,7 @@ print "punkt ="; punkt
 goto @ende
 ```
 
-Beim Bauen meldet VintageCoder eine Warnung und zeigt die Zuordnung:
+Beim Bauen meldet VintageCoder eine Warnung (im Reiter **Probleme** der Schublade) und legt die Zuordnung ab:
 
 ```text
 Lange Namen → Kurznamen:
@@ -131,11 +131,17 @@ Lange Namen → Kurznamen:
 
 Die Warnung (W313) sagt nur: Die beiden Namen unterscheiden sich erst nach den ersten zwei Zeichen, und VintageCoder hat sie für dich getrennt. Das gebaute Programm benutzt `PU` und `PN`.
 
-![Das Bauprotokoll mit der Zuordnung „Lange Namen → Kurznamen“ für die Variablen punkte und punkt](bild:basic-langenamen "Aus langen Namen werden beim Bauen eindeutige Kurznamen")
+![Ein BASIC-Quelltext mit langen Variablennamen (punkte, runde, zaehler%, name$) und der Zeile #longnames am Anfang der Datei.](bild:basic-langenamen "Lange Namen im Quelltext; beim Bauen entstehen eindeutige Kurznamen")
 
 Die Zuordnungstabelle liegt außerdem als Datei im Ordner `build/` (`….vars.txt`). Ein ausführliches Beispiel liefert das Projekt `examples/c64/basic_langenamen`. Beim **Atari** brauchst du `#longnames` nicht: Dort zählen alle Zeichen eines Namens.
 
 > **Tipp:** Hältst du im Editor die Maus über einen langen Namen, zeigt VintageCoder, in welchen Kurznamen er umgesetzt wird.
+
+## Hex- und Binärzahlen
+
+Zahlen darfst du im Quelltext hexadezimal (`$D020`) und binär (`%00001110`) schreiben: `poke $d020,%00001110`. Beim Bauen entsteht daraus das, was der Dialekt versteht (`poke 53280,14`); die Schreibweise ändert das Programm nicht. In Zeichenketten und nach `rem` bleibt alles, wie es ist; in `data`-Zeilen werden vollständige Zahlen umgewandelt. `a$` und `a%` sind weiter Variablennamen. Als Sprungziel (`goto $0100`) sind sie nicht erlaubt: nimm eine Marke.
+
+Im Editor haben Hex, Binär und Dezimal eigene Farben; der Hover über einer Zahl zeigt alle Schreibweisen und bei Adressen das Chipregister. Zwei Werkzeuge helfen beim Umrechnen, beide im Menü **Bearbeiten** (ohne Kürzel). **Zahlenwerkzeuge …** öffnet einen Dialog: Du tippst eine Zahl oder einen Ausdruck wie `$D000+$20` und siehst ihn dezimal, hexadezimal und binär; im **Bit-Editor** schaltest du einzelne Bits per Klick, und **Einsetzen** schreibt den Wert in den Editor. **BASIC: Hex-Vorschläge für Adressen …** ist für importierte Programme gedacht: Es schlägt vor, dezimale Registeradressen als Hex zu schreiben, jede Zeile einzeln wählbar. Die Hilfeseite [BASIC](hilfe:basic) beschreibt beide.
 
 ## Dialekte: Welches BASIC ist es?
 
@@ -150,7 +156,7 @@ Das Zielsystem des Projekts bestimmt den Dialekt:
 | MEGA65 | BASIC 65 | `$2001` | `.prg` |
 | Atari 8-Bit | Atari BASIC oder Turbo BASIC XL | im SAVE-Format | `.bas` |
 
-Pro **Quellgruppe** lässt sich der Dialekt ändern: in den **Projekt-Einstellungen** im Abschnitt **Quellen und Startprogramm**, bei einer BASIC-Gruppe in der Auswahl **BASIC-Dialekt** (Vorgabe: „Standard des Targets“). So wählst du auf dem Atari zum Beispiel Turbo BASIC XL.
+Pro **Quellgruppe** lässt sich der Dialekt ändern: in den **Projekt-Einstellungen** (Menü **Projekt ▸ Projekt-Einstellungen …**) im Reiter **Quellen**, Abschnitt **Quellen und Startprogramm**, bei einer BASIC-Gruppe in der Auswahl **BASIC-Dialekt** (Vorgabe: „Standard des Targets“). So wählst du auf dem Atari zum Beispiel Turbo BASIC XL.
 
 > **Achtung:** Wählst du den falschen Dialekt, bleibt der Bau **ohne Meldung**. Ein Befehl, den der Dialekt nicht kennt, wird einfach als Buchstabenfolge übersetzt, also wie ein Variablenname. Ein Beispiel: `GRAPHIC 1,1` baut im C64-Projekt, weil `GRAPHIC` für BASIC V2 kein Befehl ist (andere Dialekte wie BASIC 7.0 kennen ihn). Du merkst es erst im Emulator. Prüfe deshalb, ob die Quellgruppe den richtigen Dialekt hat.
 
@@ -178,18 +184,16 @@ Ein vollständiges Beispiel mit Sprite steht in der Hilfeseite [Direktiven, Date
 
 BASIC ist bequem, aber langsam. VintageCoder kann ein BASIC-Programm in lesbaren **Assembler-Quelltext** übersetzen (der Übersetzer heißt `basic2asm`). Das Programm läuft danach nicht mehr im BASIC-Interpreter, sondern als Maschinenprogramm: schneller, und du kannst jede Zeile ansehen, anpassen und im Debugger Schritt für Schritt verfolgen.
 
-1. Klicke im Projektbaum mit der rechten Maustaste auf die `.bas`-Datei und wähle **Nach Assembler konvertieren …**. Du erreichst den Dialog auch über das Menü **Datei ▸ BASIC nach Assembler konvertieren …**.
-2. Der Dialog fragt nach der **Ausgabedatei** (Vorgabe `<name>_asm.asm`), dem **Zielsystem** und einigen Schaltern. Die Vorgaben passen meist.
-3. Bestätige. Neben dem Quelltext entsteht die Assembler-Datei. Sie enthält deine BASIC-Zeilen als Kommentare vor den jeweiligen Anweisungen und bindet eine kleine Laufzeitbibliothek ein.
+1. Öffne die `.bas`-Datei im Editor. Das Projekt muss geöffnet sein.
+2. Wähle **Datei ▸ BASIC in Assembler umwandeln**. Der Befehl hat kein Kürzel und fragt nichts ab: Es gibt keinen Dialog, und das Zielsystem ist das erste Ziel deines Projekts.
+3. Neben dem Quelltext entsteht die Datei `<name>_asm.asm`; gibt es sie schon, heißt die neue `<name>_asm-2.asm` und so weiter, nichts wird überschrieben. Die Datei öffnet im Editor. Sie enthält deine BASIC-Zeilen als Kommentare vor den jeweiligen Anweisungen und bindet eine kleine Laufzeitbibliothek ein. Eine Meldung im Reiter **Protokoll** der Schublade nennt die Stufe, die Zeilenzahl und die Module; Hinweise stehen unter **Probleme**.
 4. Du kannst die neue Datei wie jeden Assembler-Quelltext bauen und starten.
-
-![Der Dialog „Nach Assembler konvertieren“ mit Ausgabedatei, Zielsystem und den Schaltern; im Hintergrund der Projektbaum mit der .bas-Datei](bild:basic-nach-asm "BASIC in Assembler umwandeln")
 
 Der Konverter wählt die nötige Genauigkeit selbst. Braucht dein Programm nur Ganzzahlen, rechnet es mit 16-Bit-Zahlen (Stufe 1); der Konverter weist darauf hin (Hinweis I110: *Variable A ist im Original eine Fließkommazahl; Stufe 1 rechnet mit 16-Bit-Ganzzahlen*). Das ist ein Hinweis und kein Fehler. Brüche, Dezimalzahlen und Funktionen wie `SIN` führen automatisch zur Fließkomma-Stufe.
 
-Möchtest du, dass immer die konvertierte Fassung gebaut wird, hakst du in den **Projekt-Einstellungen**, Abschnitt **Quellen und Startprogramm**, bei der BASIC-Gruppe **Beim Bauen nach Assembler konvertieren** an. Die `.bas`-Datei bleibt dann die Quelle.
+Möchtest du, dass immer die konvertierte Fassung gebaut wird, hakst du in den **Projekt-Einstellungen**, Reiter **Quellen**, Abschnitt **Quellen und Startprogramm**, bei der BASIC-Gruppe **Beim Bauen nach Assembler konvertieren** an. Die `.bas`-Datei bleibt dann die Quelle.
 
-> **Info:** Der Konverter übersetzt nicht alles, vor allem keine Befehle, die ein Dialekt zusätzlich hat (zum Beispiel Sprite-Befehle des C128). Er meldet dann einen Fehler. Auf der Kommandozeile geht es mit `vcc basic2asm programm.bas --target c64 -o programm.asm`. Alle Einzelheiten stehen in der Hilfeseite [Werkzeuge](hilfe:basic-tools).
+> **Info:** Der Konverter übersetzt nicht alles, vor allem keine Befehle, die ein Dialekt zusätzlich hat (zum Beispiel Sprite-Befehle des C128). Er meldet dann einen Fehler. Wahl von Zielsystem und weitere Schalter gibt es nur auf der Kommandozeile: `vcc basic2asm programm.bas --target c64 -o programm.asm`. Alle Einzelheiten stehen in der Hilfeseite [Werkzeuge](hilfe:basic-tools).
 
 ## Häufige Stolpersteine
 
@@ -203,4 +207,4 @@ Möchtest du, dass immer die konvertierte Fassung gebaut wird, hakst du in den *
 
 ## Wie geht es weiter?
 
-Als Nächstes lernst du, wie du dein Programm [baust und startest](kapitel:bauen-starten) und das Bauprotokoll liest. Wenn dich der Weg über Assembler reizt, lies [Assembler (VCASM) für Einsteiger](kapitel:assembler). Zum Nachschlagen: die Hilfeseiten [BASIC](hilfe:basic), [Sprungmarken und Zeilennummern](hilfe:basic-labels) und [Lange Variablennamen](hilfe:basic-names).
+Als Nächstes lernst du, wie du dein Programm [baust und startest](kapitel:bauen-starten) und die Meldungen liest. Wenn dich der Weg über Assembler reizt, lies [Assembler (VCASM) für Einsteiger](kapitel:assembler). Zum Nachschlagen: die Hilfeseiten [BASIC](hilfe:basic), [Sprungmarken und Zeilennummern](hilfe:basic-labels) und [Lange Variablennamen](hilfe:basic-names).

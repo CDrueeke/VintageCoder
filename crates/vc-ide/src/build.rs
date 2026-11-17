@@ -58,7 +58,7 @@ fn list_files(log: &mut BuildLog, root: &Path, files: &[(String, usize)]) {
 /// Wie [`build`], mit ausdrücklich gewähltem BASIC-Dialekt (z. B. `turbo_basic_xl`, `basic7`); sonst gilt der Standarddialekt des Targets.
 pub fn build_with(c: &Ctx, rel: &str, target: Option<&str>, dialect: Option<&str>) -> Result<Value, String> {
     let path: PathBuf = c.root.join(rel);
-    let text = std::fs::read_to_string(&path).map_err(|e| format!("{rel}: {e}"))?;
+    let text = vc_core::textfile::read_source(&path).map_err(|e| format!("{rel}: {e}"))?;
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
     let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("out").to_string();
     let mut log = BuildLog::new(c.root);
@@ -287,6 +287,7 @@ pub fn build_with(c: &Ctx, rel: &str, target: Option<&str>, dialect: Option<&str
                     Err(ds) => Ok(fail(c.root, rel, &tid, &ds, log)),
                     Ok(r) => {
                         log.line(format!("Zeilen: {}", r.listing.lines().count())); log.line(format!("Labels: {}", r.labels.len()));
+                        if r.numbers_converted > 0 { log.line(format!("Zahlen umgewandelt: {} ($hex, %binär)", r.numbers_converted)); }
                         side_file(&mut log, &out_dir, &format!("{stem}.classic.txt"), &r.listing, "Zwischendatei: BASIC mit Zeilennummern");
                         if !r.labels.is_empty() { side_file(&mut log, &out_dir, &format!("{stem}.labels.txt"), &labels_txt(&r.labels), "Zwischendatei: Labels → Zeilennummern"); }
                         let (vars, warns) = long_names_report(&mut log, &out_dir, &stem, &r.names, &r.warnings, &abs, &line_map);
@@ -306,6 +307,7 @@ pub fn build_with(c: &Ctx, rel: &str, target: Option<&str>, dialect: Option<&str
                     Err(ds) => Ok(fail(c.root, rel, &tid, &ds, log)),
                     Ok(r) => {
                         log.line(format!("Zeilen: {}", r.listing.lines().count())); log.line(format!("Labels: {}", r.labels.len()));
+                        if r.numbers_converted > 0 { log.line(format!("Zahlen umgewandelt: {} ($hex, %binär)", r.numbers_converted)); }
                         side_file(&mut log, &out_dir, &format!("{stem}.classic.txt"), &r.listing, "Zwischendatei: BASIC mit Zeilennummern");
                         if !r.labels.is_empty() { side_file(&mut log, &out_dir, &format!("{stem}.labels.txt"), &labels_txt(&r.labels), "Zwischendatei: Labels → Zeilennummern"); }
                         let (vars, warns) = long_names_report(&mut log, &out_dir, &stem, &r.names, &r.warnings, &abs, &line_map);

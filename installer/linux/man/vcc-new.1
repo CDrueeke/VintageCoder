@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-NEW 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.TH VCC\-NEW 1 "" "VintageCoder 0.2.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-new \- Neues Projekt aus einer Vorlage anlegen
 .SH ÜBERSICHT
@@ -30,6 +30,9 @@ Variante der Vorlage. cartridge erzeugt ein 8\-KB\-Modul statt eines Programms (
 .TP
 \fB\-\-structure\fR \fIstruktur\fR
 Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Werte: einfach, standard, gross, mehrsystem, bibliothek, spiel. Standard: keine.
+.TP
+\fB\-\-charset\fR \fIwahl\fR
+Zeichensatz des Projekts: auto = dein ROM als Verweis, sonst der eigene Standardsatz als Kopie; own = immer der eigene Standardsatz (weitergebbar, mit HERKUNFT.txt); none = keiner. Werte: auto, own, none. Standard: auto.
 .TP
 \fB\-\-name\fR \fIname\fR
 Projektname (Buchstaben, Ziffern, _ und \-, höchstens 48 Zeichen); bestimmt den Namen der .vcprj. Standard: Name des Ordners.
@@ -79,6 +82,8 @@ vcc new \-\-list
 .RE
 .SH HINWEISE
 Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm\-hello zusätzlich für pet, basic\-hello für pet und cbm2.
+.PP
+Ohne eigenes ROM legt auto den eigenen Satz VC\-Standard (CC0) unter graphics/vc\-standard/ ab; Systeme ohne eigenen Satz (PET, CBM\-II) bekommen nichts.
 .PP
 Ausgegeben werden die angelegten Ordner und Dateien.
 .PP

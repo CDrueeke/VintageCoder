@@ -1,8 +1,8 @@
-// BASIC→Assembler (basic2asm), Laufzeit C128 (BASIC 7, C128-Modus): Nullseite, Variablen, Speichergrenzen und BASIC-ROM-Einsprünge.
+// BASIC→Assembler (basic2asm), Laufzeit C128 (BASIC 7, C128-Modus): Zeropage, Variablen, Speichergrenzen und BASIC-ROM-Einsprünge.
 // Einbinden mit: #include <c128/b2a/rt_zp.asm> (am Anfang des Programms, vor allem Code)
 //
 // Das Programm ruft KERNAL-Routinen (CHROUT, CHRIN, GETIN, PLOT, RDTIM, SETTIM) und – nur bei Fließkomma (RT_FLOAT) – Rechenroutinen des BASIC-ROMs auf.
-// Gemessen in VICE: KERNAL und Interrupt verändern die Nullseite von $02 bis $8F nicht. Der Block des Programms wird beim Start gesichert
+// Gemessen in VICE: KERNAL und Interrupt verändern die Zeropage von $02 bis $8F nicht. Der Block des Programms wird beim Start gesichert
 // und bei Ende (und bei einem Fehler des ROMs, über den Fehlervektor $0300) zurückgeschrieben, damit das BASIC seine Zeiger wiederfindet.
 
 .const RT_ZSAVE = 1

@@ -9,6 +9,7 @@ mod tree;
 
 pub use cart::{to_car, to_crt, to_rom, to_vic20_cart};
 pub use disasm::{disassemble, DisLine};
+pub use tree::{include_names, norm_path, resolve as resolve_include};
 use expr::{eval, lookup_scoped, qualified, Ctx, Func, Val};
 use parse::{parse_operand, split_top, Body, Operand, Stmt};
 use std::collections::{BTreeMap, HashMap};
@@ -41,11 +42,13 @@ pub struct Options {
     pub branch_long: bool,
     /// BASIC-Startadresse des Zielsystems (aus den Zieldaten, `basic.loadAddr`, ggf. mit Speicherausbau); `.basicstub` ohne `.org` beginnt dort. `None`: $0801
     pub basic_start: Option<u16>,
+    /// Ungespeicherter Text einzelner Dateien (Schlüssel: [`norm_path`] des Pfads): wird beim Einbinden statt des Dateiinhalts verwendet (Editor)
+    pub overrides: HashMap<String, String>,
 }
 
 impl Options {
     pub fn new(file: impl Into<String>, illegals: Policy) -> Self {
-        Options { illegals, file: file.into(), include_dirs: vec![], defines: vec![], predefined: vec![], atari_text: false, branch_long: false, basic_start: None }
+        Options { illegals, file: file.into(), include_dirs: vec![], defines: vec![], predefined: vec![], atari_text: false, branch_long: false, basic_start: None, overrides: HashMap::new() }
     }
 }
 
@@ -988,7 +991,7 @@ impl<'a> Pass<'a> {
 pub fn assemble(src: &str, cpu: &Cpu, opts: &Options) -> Result<Output, Vec<Diagnostic>> {
     let mut raw = vec![];
     let mut files = vec![];
-    load(src, &opts.file, &opts.include_dirs, 0, &mut raw, &mut files).map_err(|d| vec![d])?;
+    load(src, &opts.file, &opts.include_dirs, 0, &mut raw, &mut files, &opts.overrides).map_err(|d| vec![d])?;
     let mut macros = Macros::new();
     let mut errs = vec![];
     let nodes = build(&raw, &mut macros, &mut errs);

@@ -1,4 +1,4 @@
-// C64: BASIC-Nullseite, Vektoren und ROM-Routinen
+// C64: BASIC-Zeropage, Vektoren und ROM-Routinen
 // Konstanten für den Assembler: #include <c64/basic.asm>
 
 // ---- Zeiger

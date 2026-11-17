@@ -54,6 +54,7 @@ fn main() -> ExitCode {
         Some("emulator") => emulator::run(&args[1..]),
         Some("migrate") => migrate_cmd(&args[1..]),
         Some("feedback") => feedback_cmd(&args[1..]),
+        Some("update") => update_cmd(&args[1..]),
         Some("debuglog") => debuglog_cmd(&args[1..]),
         Some("new") => new_project(&args[1..]),
         Some("organize") => organize_cmd(&args[1..]),
@@ -90,7 +91,7 @@ fn asm(args: &[String]) -> ExitCode {
     let mut tgt = match vc_target::load_target(&data, &target) { Ok(t) => t, Err(e) => return fail_target(e) };
     if let Err(e) = tgt.apply_memory(memory.as_deref()) { return fail(e); }
     let cpu = match vc_target::load_cpu(&data, cpu_id.as_deref().unwrap_or(&tgt.cpu)) { Ok(c) => c, Err(e) => return fail(e) };
-    let src = match std::fs::read_to_string(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+    let src = match vc_core::textfile::read_source(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
     let mut opts = Options::new(input.clone(), illegals);
     opts.include_dirs = dirs;
     opts.include_dirs.push(data.join("sys"));
@@ -223,7 +224,7 @@ fn basic2asm(args: &[String], ast_only: bool) -> ExitCode {
     let Some(ti) = vc_basic::b2a::target_info(&target) else { return fail(format!("basic2asm: Ziel '{target}' ist noch nicht umgesetzt (verfügbar: {})", vc_basic::b2a::TARGETS.iter().map(|t| t.id).collect::<Vec<_>>().join(", "))) };
     let Some(data) = find_data_dir(data_dir) else { return fail("Hardware-Datenbank (data/) nicht gefunden; --data-dir oder VC_DATA setzen") };
     let d = match vc_basic::Dialect::load(&data, ti.dialect) { Ok(d) => d, Err(e) => return fail(e) };
-    let src = match std::fs::read_to_string(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+    let src = match vc_core::textfile::read_source(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
     o.file = input.clone();
     o.target = target.clone();
     o.data_dir = Some(data.clone());
@@ -254,10 +255,12 @@ fn basic(args: &[String]) -> ExitCode {
     let (mut mode, mut structured, mut pack, mut map, mut labels, mut plain) = ("compile", false, false, None, None, false);
     let (mut start, mut step, mut dirs, mut defs) = (10u32, 10u32, vec![], vec![]);
     let mut memory = None::<String>;
+    let (mut suggest, mut apply) = (false, None::<String>);
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let mut val = || it.next().cloned();
         match a.as_str() {
+            "--suggest-hex" => suggest = true, "--apply" => apply = val(),
             "-o" => output = val(), "--target" => target = val().unwrap_or(target.clone()), "--dialect" => dialect_id = val(), "--data-dir" => data_dir = val(), "--memory" => memory = val(),
             "--tokenize" => mode = "tokenize", "--detokenize" => mode = "detokenize", "--structured" => structured = true, "--pack" => pack = true, "--plain" => plain = true,
             "--map" => map = val(), "--labels" => labels = val(), "-I" => dirs.extend(val().map(PathBuf::from)),
@@ -274,6 +277,7 @@ fn basic(args: &[String]) -> ExitCode {
     let mut tgt = match vc_target::load_target(&data, &target) { Ok(t) => t, Err(e) => return fail_target(e) };
     if let Err(e) = tgt.apply_memory(memory.as_deref()) { return fail(e); }
     let did = dialect_id.or(tgt.basic_dialect.clone()).unwrap_or_else(|| "cbm_v2".into());
+    if suggest { return basic_suggest_hex(&input, output, &data, &did, &target, apply.as_deref()); }
     // Natives BASIC (Endung .bas/.lst oder --plain): Zeilennummern und/oder @label, keine strukturierten Erweiterungen
     let plain = plain || (mode == "compile" && (input.ends_with(".bas") || input.ends_with(".lst") || input.ends_with(".tur")));
     if plain && mode == "compile" { return basic_plain(&input, output, &data, &did, &tgt, (start, step)); }
@@ -295,14 +299,15 @@ fn basic(args: &[String]) -> ExitCode {
             match output { Some(o) => write(Some(o), text.as_bytes(), "txt"), None => { print!("{text}"); ExitCode::SUCCESS } }
         }
         "tokenize" => {
-            let src = match std::fs::read_to_string(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+            let src = match vc_core::textfile::read_source(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+            for w in vc_basic::numbers::classic_warnings(&src, &vc_basic::numbers::Lexicon::Cbm(&d), &input) { print_diag(&w); }
             match vc_basic::tokenize_text(&src, &d, &input) {
                 Ok(lines) => write(output, &vc_basic::build_prg(&lines, load), "prg"),
                 Err(ds) => { for x in &ds { print_diag(x); } ExitCode::FAILURE }
             }
         }
         _ => {
-            let src = match std::fs::read_to_string(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+            let src = match vc_core::textfile::read_source(&input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
             let mut o = vc_basic::Options::new(input.clone());
             (o.start, o.step, o.pack, o.load_addr, o.include_dirs) = (start, step, pack, Some(load), dirs);
             o.consts = defs;
@@ -344,14 +349,14 @@ fn basic_atari(mode: &str, input: &str, output: Option<String>, data: &Path, did
             }
         }
         "tokenize" => {
-            let src = match std::fs::read_to_string(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+            let src = match vc_core::textfile::read_source(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
             match vc_basic::atari::tokenize_text(&src, &d, input) {
                 Ok(p) => write(&p.save_file(&d), "bas"),
                 Err(ds) => { for x in &ds { print_diag(x); } ExitCode::FAILURE }
             }
         }
         _ => {
-            let src = match std::fs::read_to_string(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+            let src = match vc_core::textfile::read_source(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
             let mut o = vc_basic::AtariOptions::new(input);
             (o.start, o.step, o.include_dirs, o.consts) = (start, step, dirs, defs);
             let tgt = match vc_target::load_target(data, "atari8") { Ok(t) => t, Err(e) => return fail_target(e) };
@@ -710,10 +715,11 @@ fn organize_cmd(args: &[String]) -> ExitCode {
 /// `vcc new` – Projekt-Wizard: legt aus einer Vorlage Projektdatei und Quellen an.
 fn new_project(args: &[String]) -> ExitCode {
     let (mut dir, mut name, mut targets, mut template, mut data_dir, mut list) = (None::<String>, None::<String>, String::new(), "asm-hello".to_string(), None, false);
-    let mut variant: Option<String> = None; let mut structure: Option<String> = None;
+    let mut variant: Option<String> = None; let mut structure: Option<String> = None; let mut charset = vc_media::wizard::Zeichensatz::Auto;
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {
+            "--charset" => match it.next().and_then(|v| vc_media::wizard::Zeichensatz::parse(v)) { Some(c) => charset = c, None => return fail("--charset: auto, own oder none erwartet") },
             "--name" => name = it.next().cloned(), "--target" => targets = it.next().cloned().unwrap_or(targets), "--template" => template = it.next().cloned().unwrap_or(template),
             "--variant" => variant = it.next().cloned(), "--structure" => structure = it.next().cloned(),
             "--data-dir" => data_dir = it.next().cloned(), "--list" => list = true,
@@ -753,8 +759,9 @@ fn new_project(args: &[String]) -> ExitCode {
             match r { Ok(m) => made = m, Err(e) => return fail(e) }
         }
     }
+    let zs = if created.is_ok() { match vc_media::wizard::zeichensatz_anlegen(&data, &path, &systems, charset) { Ok(f) => f, Err(e) => return fail(e) } } else { vec![] };
     match created {
-        Ok(v) => { for d in &made { println!("{}/{}/", dir, d); } for f in v["files"].as_array().into_iter().flatten() { println!("{}/{}", dir, f.as_str().unwrap_or("")); } ExitCode::SUCCESS }
+        Ok(v) => { for d in &made { println!("{}/{}/", dir, d); } for f in v["files"].as_array().into_iter().flatten() { println!("{}/{}", dir, f.as_str().unwrap_or("")); } for f in &zs { println!("{}/{}", dir, f); } ExitCode::SUCCESS }
         Err(e) => fail(e),
     }
 }
@@ -937,9 +944,30 @@ fn build_cmd(args: &[String]) -> ExitCode {
     if r["ok"] == true { ExitCode::SUCCESS } else { ExitCode::FAILURE }
 }
 
+/// `vcc basic --suggest-hex`: Chipregister-Adressen, die sich als Hex schreiben lassen, auflisten; mit `--apply` die gewählten in eine Ausgabedatei schreiben
+fn basic_suggest_hex(input: &str, output: Option<String>, data: &Path, did: &str, target: &str, apply: Option<&str>) -> ExitCode {
+    let text = match vc_core::textfile::read_source(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+    let s = match vc_ide::hexhint::suggestions(data, did, target, &text) { Ok(s) => s, Err(e) => return fail(e) };
+    let map = vc_ide::chipmap::ChipMap::load(data, target);
+    let lines: Vec<&str> = text.split('\n').collect();
+    for (i, x) in s.iter().enumerate() {
+        let reg = map.lookup(x.value).map(|r| format!("  ({})", r.label())).unwrap_or_default();
+        println!("{:>3}  Zeile {}: {} → {}{}   {}", i + 1, x.line + 1, x.from, x.to, reg, lines.get(x.line).map_or("", |l| l.trim()));
+    }
+    let Some(sel) = apply else { println!("{} Vorschlag/Vorschläge; mit --apply 1,3 -o datei auswählen (nichts wurde geändert)", s.len()); return ExitCode::SUCCESS };
+    let mut chosen = vec![false; s.len()];
+    for part in sel.split(',').map(str::trim).filter(|p| !p.is_empty()) {
+        match part.parse::<usize>() { Ok(n) if n >= 1 && n <= s.len() => chosen[n - 1] = true, _ => return fail(format!("--apply: '{part}' ist keine Nummer eines Vorschlags (1 bis {})", s.len())) }
+    }
+    let Some(out) = output else { return fail("--apply braucht -o <ausgabe> (die Quelldatei wird nie überschrieben)") };
+    if out == input { return fail(format!("{out}: Ausgabe würde die Quelldatei überschreiben (mit -o anderen Namen wählen)")); }
+    let new = vc_ide::hexhint::apply_suggestions(&text, &s, &chosen);
+    match std::fs::write(&out, new) { Ok(()) => { println!("{out}: {} Adresse(n) als Hex geschrieben", chosen.iter().filter(|c| **c).count()); ExitCode::SUCCESS } Err(e) => fail(format!("{out}: {e}")) }
+}
+
 /// Natives BASIC (nummeriert und/oder mit `@label`) → `.prg` (CBM) bzw. `.bas` (Atari, SAVE-Format)
 fn basic_plain(input: &str, output: Option<String>, data: &Path, did: &str, tgt: &vc_target::Target, (start, step): (u32, u32)) -> ExitCode {
-    let src = match std::fs::read_to_string(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
+    let src = match vc_core::textfile::read_source(input) { Ok(s) => s, Err(e) => return fail(format!("{input}: {e}")) };
     let write = |bytes: &[u8], ext: &str| -> ExitCode {
         let p = output.clone().unwrap_or_else(|| Path::new(input).with_extension(ext).to_string_lossy().into_owned());
         if p == input { return fail(format!("{p}: Ausgabe würde die Quelldatei überschreiben (mit -o anderen Namen wählen)")); }
@@ -1016,6 +1044,57 @@ fn feedback_cmd(args: &[String]) -> ExitCode {
         match vc_ide::feedback::open_mailto(&mail.url) { Ok(()) => { if !json { eprintln!("Mailprogramm geöffnet; gesendet wird erst dort."); } } Err(e) => return fail(format!("vcc feedback: Mailprogramm nicht gestartet ({e})")) }
     }
     ExitCode::SUCCESS
+}
+
+/// `vcc update [--check] [--notes] [--json] [--offline]`: nachsehen, ob es eine neuere Version gibt. Zeigt nur an; lädt und installiert nichts.
+/// Rückgabe: 0 aktuell, 10 Update verfügbar, 1 Fehler, 2 falscher Aufruf oder Release ohne Update-Prüfung.
+fn update_cmd(args: &[String]) -> ExitCode {
+    use vc_ide::update as up;
+    let (mut notes, mut json, mut offline) = (false, false, false);
+    for a in args {
+        match a.as_str() {
+            "--check" => {}, "--notes" => notes = true, "--json" => json = true, "--offline" => offline = true,
+            s => { return help::unknown_option("update", s); }
+        }
+    }
+    if !vc_ide::features::features().update() { eprintln!("vcc update: Dieses Paket enthält keine Update-Prüfung (Auswahl IDE-UPDATE)."); return ExitCode::from(2); }
+    let installed = up::Version::installed();
+    let mut st = up::State::load();
+    let (ev, source, at) = if offline {
+        (up::cached(installed), "gespeicherter Befund".to_string(), st.last_check)
+    } else {
+        let src = up::source();
+        if !json { eprintln!("Prüfe {} …", if up::is_remote(&src) { "github.com/CDrueeke/VintageCoder" } else { src.as_str() }); }
+        let rep = up::check(&src, installed, up::now_secs());
+        up::record(&rep, &mut st);
+        match rep.result { Ok(ev) => (Some(ev), src, rep.at), Err(e) => return fail(format!("vcc update: {e}")) }
+    };
+    let Some(ev) = ev else {
+        if json { println!("{}", serde_json::json!({"installed": installed.to_string(), "checked": false, "update_available": false})); } else { println!("Noch keine Prüfung gespeichert (vcc update fragt nach).") }
+        return ExitCode::SUCCESS;
+    };
+    let code = if ev.update.is_some() { 10 } else { 0 };
+    if json {
+        let u = ev.update.as_ref();
+        let o = serde_json::json!({"installed": installed.to_string(), "checked": true, "checked_at": up::format_time(at), "source": source, "latest": ev.latest.to_string(),
+            "update_available": u.is_some(), "version": u.map(|u| u.version.to_string()), "url": u.map(|u| u.url.clone()), "published": u.map(|u| u.published.clone()),
+            "project_format_warning": u.map_or(false, |u| u.project_format_warning), "installed_yanked": ev.installed_yanked, "notes": if notes { u.map(|u| u.notes.clone()) } else { None }});
+        println!("{}", serde_json::to_string_pretty(&o).unwrap_or_default());
+        return ExitCode::from(code);
+    }
+    println!("VintageCoder {installed} ({})", vc_ide::feedback::Info::detect(None).package.label());
+    if ev.installed_yanked { println!("Hinweis: Version {installed} wurde zurückgezogen (fehlerhaft); bitte wechsle auf eine neuere, sobald es sie gibt."); }
+    match &ev.update {
+        Some(u) => {
+            println!("Neu: Version {} verfügbar.", u.version);
+            if u.project_format_warning { println!("Achtung: Die neue Version schreibt ein neueres Projektformat; ältere Versionen können diese Projekte danach nicht mehr lesen."); }
+            println!("Releaseseite: {}", u.url);
+            if let Some(h) = up::package_hint(up::install_kind()) { println!("{h}"); }
+            if notes { println!("\n{}", u.notes); } else { println!("Änderungen anzeigen: vcc update --notes"); }
+        }
+        None => println!("Aktuell: keine neuere Version bekannt (neueste in der Liste: {}).", ev.latest),
+    }
+    ExitCode::from(code)
 }
 
 /// `vcc import`: Dateien aus Diskettenimages bzw. einzelne PRG/XEX/BASIC-Dateien in ein Projekt übernehmen.
@@ -1124,7 +1203,7 @@ fn streams_listen(args: &[String]) -> ExitCode {
     }
     let (Some(host), Some(file)) = (host.filter(|h| !h.trim().is_empty()), file) else { return fail("vcc streams listen --host HOST LIED.vcsong") };
     let Some(data) = vc_ide::find_data_dir(&std::env::current_dir().unwrap_or_default()).or_else(|| std::env::current_exe().ok().and_then(|e| vc_ide::find_data_dir(&e))) else { return fail("Hardware-Datenbank (data/) nicht gefunden") };
-    let text = match std::fs::read_to_string(&file) { Ok(t) => t, Err(e) => return fail(format!("{file}: {e}")) };
+    let text = match vc_core::textfile::read_source(&file) { Ok(t) => t, Err(e) => return fail(format!("{file}: {e}")) };
     let prg = match vc_ide::listen::build_player(&data, &text, ntsc) { Ok(p) => p, Err(e) => return fail(e) };
     println!("Abspielprogramm: {} Byte", prg.len());
     let st = vc_ide::settings::effective();

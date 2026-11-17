@@ -17,6 +17,27 @@ referenz: [play, envelope, mega65]
 - ein **MEGA65-Projekt** (Emulator Xemu, siehe [Willkommen](kapitel:willkommen)),
 - das Kapitel [Der Tracker](kapitel:tracker) (Begriffe wie Zelle und Hüllkurve) ist hilfreich, aber nicht Pflicht.
 
+## Wofür ist das Studio gedacht?
+
+Der PLAY-Tracker ist für **schnelle Musik im BASIC des MEGA65**: Du schreibst ein Stück in einer Tabelle, VintageCoder macht daraus ein fertiges BASIC-Programm. Das passt für Titelmusik in BASIC-Spielen, Klangproben und Lernprojekte, bei denen du keine Maschinensprache schreiben willst.
+
+Typische Einsätze:
+
+- **Titelmusik** für ein BASIC-Spiel auf dem MEGA65.
+- **Effekte**, die du mit `PLAY` aus dem eigenen BASIC-Programm auslöst.
+- **Ein Klangexperiment**, das du auf dem echten Gerät anhören willst, ohne eine Spielroutine zu schreiben.
+
+Im fertigen Programm ist das ein **Text**: ein BASIC-Programm mit `ENVELOPE`- und `PLAY`-Zeilen.
+
+## Grundbegriffe ohne Vorwissen
+
+- **BASIC 65:** der BASIC-Dialekt des MEGA65; er kennt eingebaute Musikbefehle.
+- **PLAY:** BASIC-Befehl, der eine Zeichenkette mit Noten spielt.
+- **Schritt:** eine Zeile im Raster; hier ein Sechzehntel.
+- **Stimme:** eine Tonspur (sechs Stück).
+- **Hüllkurve (ENVELOPE 0 bis 9):** Lautstärkeverlauf und Wellenform eines Klangs.
+- **Tempo:** Geschwindigkeit des Stücks (1 bis 255).
+
 ## Wie unterscheidet sich der PLAY-Tracker?
 
 Der MEGA65 hat in seinem BASIC-Dialekt (BASIC 65) den Befehl **`PLAY`**. Man übergibt ihm eine Zeichenkette wie `"V1T0O4QCEG"` („Stimme 1, Hüllkurve 0, Oktave 4, Viertelnoten C, E, G“), und der Rechner spielt sie, ohne dass du Interrupts programmierst. Der **PLAY-Tracker** erzeugt diese Zeichenketten aus einem Raster.
@@ -29,27 +50,31 @@ Die Unterschiede zum normalen Tracker:
 - Statt Instrumenten gibt es **Hüllkurven 0 bis 9**. Sie entsprechen dem BASIC-Befehl `ENVELOPE n,a,d,s,r,wellenform,pw`.
 - Das Ergebnis ist **Text** (ein BASIC-Programm), keine Maschinensprache.
 
-## Schritt für Schritt: einen PLAY-Song anlegen
+## Mein erster PLAY-Song (am Beispiel `play_demo`)
 
-1. **+** im Projektbaum ▸ **PLAY …**, Namen eingeben, Profil **MEGA65 PLAY-Tracker (BASIC-Befehl PLAY, 6 Stimmen)**, **Anlegen**.
-2. Der Editor sieht aus wie der Tracker: In der Mitte das Raster mit den Spalten **Stimme 1** bis **Stimme 6**, rechts die **Hüllkurven**, unten eine Klaviertastatur und der Export-Streifen.
-3. Oben stellst du **Tempo** (1 bis 255) und **Lautstärke** (0 bis 15) ein. **▶ Abspielen** startet die Hörprobe, dasselbe macht die Leertaste.
-4. Wähle eine Zelle und tippe Noten mit dem Computer-Keyboard wie beim Tracker: untere Reihe `Z S X D C V G B H N J M` für eine Oktave, obere Reihe `Q 2 W 3 E R 5 T 6 Y 7 U I` für die nächste. **F9** und **F10** ändern die Oktave.
-5. Mit **Punkt**, **Entf** oder **Rücktaste** leerst du eine Zelle, mit **1** setzt du eine Pause (`===`).
-6. Mit **[** und **]** wählst du die Hüllkurve für die nächste Note; du kannst sie auch rechts in der Liste anklicken.
-7. Der Cursor springt nach jeder Eingabe eine Zeile weiter. Strg/Cmd+S speichert.
+1. **Beispiel öffnen:** Startseite ▸ Beispiele ▸ `examples/mega65/play_demo`. *Erwartet:* Im Baum liegt `music/tune_play.vcplay` (Gruppe „PLAY-Tracker“).
+2. **Song öffnen:** Doppelklick. *Erwartet:* Das Studio öffnet wie der normale Tracker, mit **sechs Stimmen**; die Karte **Dokument** nennt „MEGA65 PLAY · 6 Stimmen“.
+3. **Anhören:** **Leertaste**. *Erwartet:* Das Stück spielt, die Zeile läuft mit.
+4. **Eine Note setzen:** Zelle anklicken, die Taste links unten drücken (deutsche Tastatur: **Y**). *Erwartet:* Note, Cursor eine Zeile weiter.
+5. **Speichern:** **Cmd/Strg+S**; danach **Exportieren …**, siehe unten.
 
-![PLAY-Tracker mit sechs Stimmen, Hüllkurven und Klaviertastatur](bild:play-tracker "Der PLAY-Tracker: sechs Stimmen als Spalten, ein Schritt (Sechzehntel) pro Zeile, rechts die Hüllkurven 0 bis 9")
+Ein neuer Song: **＋** in der linken Spalte ▸ im Dialog **Neue Datei** die Art **PLAY-Tracker**, Profil **MEGA65 PLAY-Tracker (BASIC-Befehl PLAY, 6 Stimmen)**, Namen eingeben, **OK**.
+
+## Aufbau der Oberfläche
+
+Wie im [Tracker](kapitel:tracker): sechs Zonen, Modi **Noten** (**Cmd/Strg+1**) und **Instrumente** (**Cmd/Strg+2**); der Modus **Ablauf** entfällt, weil PLAY-Dateien keine Reihenfolge kennen: ein Muster wird einmal gespielt. Die Karte **Dokument** enthält **Schritte**, **Tempo** und **Lautstärke** (0 bis 15). Noten tippst du wie beim Tracker nach der Tastenposition: untere Reihe `Y S X D C V G B H N J M` für eine Oktave, obere Reihe `Q 2 W 3 E R 5 T 6 Z 7 U I` (QWERTZ) für die nächste. **Entf oder Rücktaste** leeren, **1** setzt eine Pause (`===`), **[** und **]** wählen die Hüllkurve, **,** und **.** die Oktave, **Leertaste** spielt ab.
+
+![Der PLAY-Tracker des MEGA65: sechs Stimmen als Spalten, ein Schritt je Zeile, rechts die Karten Werkzeug (Instrumente), Klaviatur und Kanäle.](bild:play-tracker "Der PLAY-Tracker: sechs Stimmen als Spalten, ein Schritt (Sechzehntel) pro Zeile, rechts die Instrumente und die Klaviatur")
 
 ### Hüllkurven bearbeiten
 
-Rechts in der Liste **Hüllkurven** stehen die Einträge 0 bis 9. **+ Hüllkurve** legt eine weitere an (höchstens zehn). Für jede stellst du Wellenform (Dreieck, Sägezahn, Puls oder Rauschen), Pulsbreite und die vier Werte **A**ttack, **D**ecay, **S**ustain und **R**elease ein, genau wie beim SID im Tracker-Kapitel. **Hörprobe (C-4)** spielt sie einmal.
+Im Modus **Instrumente** stehen links in der Liste die Hüllkurven 0 bis 9. **Neu** („Neues Instrument“, bei PLAY höchstens zehn) legt eine weitere an, **Dupl.** („Instrument kopieren“) kopiert die gewählte. Für jede stellst du Wellenform (Dreieck, Sägezahn, Rechteck/Puls oder Rauschen), Pulsbreite und die vier Werte **A**ttack, **D**ecay, **S**ustain und **R**elease ein, genau wie beim SID im Tracker-Kapitel. Der Knopf **▶** neben dem Eintrag (Vorhören) spielt sie einmal, Note C der gewählten Oktave.
 
 > **Info:** Eine **Hüllkurve** beschreibt den Lautstärkeverlauf eines Tons: wie schnell er anschwillt (Attack), wie schnell er auf die Haltelautstärke fällt (Decay, Sustain) und wie lange er nach dem Ende ausklingt (Release).
 
 ## Exportieren
 
-Im Fuß steht als einziges Format **bas** („PLAY-Befehle als BASIC-Programm“). Ein Klick auf **Export …** schreibt die Datei `build/export/<name>.bas`. Das Ergebnis für das Beispielstück sieht so aus:
+In der Kopfzeile steht **Exportieren …**; der Dialog bietet zwei Formate: **BASIC-Programm (PLAY)** und **BASIC DATA**. Mit **In Projekt speichern** schreibst du die Datei `build/export/<name>.bas`. Das Ergebnis für das Beispielstück sieht so aus:
 
 ```text
 10 REM TUNE_PLAY - erzeugt von VintageCoder
@@ -87,7 +112,7 @@ Das Projekt `examples/mega65/play_demo` enthält `music/tune_play.vcplay`: dasse
 
 1. Öffne das Projekt und die Datei `music/tune_play.vcplay` (sie liegt in der Gruppe „PLAY-Tracker“ des Projektbaums).
 2. Drücke die **Leertaste**, um sie anzuhören.
-3. Klicke im Fuß auf **Export …**. Es entsteht `build/export/tune_play.bas`.
+3. Klicke in der Kopfzeile auf **Exportieren …** und im Dialog auf **In Projekt speichern**. Es entsteht `build/export/tune_play.bas`.
 4. Damit das Programm auch im Emulator läuft, trägst du es als BASIC-Quelle ins Projekt ein. In der Projektdatei `play_demo.vcprj` ersetzt du `"sources": []` durch:
 
 ```json
@@ -101,9 +126,28 @@ Das Projekt `examples/mega65/play_demo` enthält `music/tune_play.vcplay`: dasse
 
 > **Achtung:** Die BASIC-Datei muss **vor** dem Bauen existieren (Schritt 3); sonst meldet der Bau „Datei fehlt“. Nach jeder Änderung am Song exportierst du neu. Auf der Kommandozeile geht es mit `vcc media export music/tune_play.vcplay --format bas`.
 
+## Hardware-Besonderheiten und Grenzen
+
+- **Sechs Stimmen** (MEGA65), keine Muster und keine Reihenfolge.
+- Höchstens **zehn Hüllkurven** (0 bis 9).
+- Das Ergebnis ist BASIC-**Text**; Taktgenauigkeit und Klang bestimmt der BASIC-Interpreter des MEGA65.
+- Das Vorhören ist eine Näherung; der erzeugte BASIC-Text wurde nicht auf echter Hardware geprüft.
+
+## Vom Studio ins Programm
+
+1. **Exportieren …** (Kopfzeile oder **Cmd/Strg+Umschalt+E**) erzeugt `build/export/<name>.bas`.
+2. Trage die Datei als BASIC-Quelle ins Projekt ein (siehe das Beispiel oben) oder füge ihre Zeilen in ein eigenes BASIC-Programm ein.
+3. Mit **F7** bauen, mit **F5** im Emulator **Xemu** starten.
+
+## Nachbar-Studios und Glossar
+
+- Mehr Klangfarben und Maschinensprache bietet der [Tracker](kapitel:tracker).
+- BASIC-Grundlagen: [BASIC in der IDE](kapitel:basic).
+- Begriffe: Glossar (Datei `GLOSSAR.md`): PLAY, Hüllkurve, BASIC 65.
+
 ## Häufige Stolpersteine
 
-- **Die Hörprobe klingt anders als auf dem MEGA65:** Sie ist eine Näherung. Der erzeugte BASIC-Text wurde nicht auf echter Hardware geprüft.
+- **Der Klang im Studio weicht vom MEGA65 ab:** Er ist eine Näherung. Der erzeugte BASIC-Text wurde nicht auf echter Hardware geprüft.
 - **Eine Stimme bleibt stumm oder spielt falsch:** Prüfe, ob die Zelle wirklich eine Note enthält und ob die Hüllkurve (`T`) existiert.
 - **Das Stück ist zu schnell oder zu langsam:** Ändere oben **Tempo**. Es wird als `TEMPO` ins Programm geschrieben.
 - **Der Bau meldet „Datei fehlt“:** Der Export fehlt noch (siehe Achtung oben).

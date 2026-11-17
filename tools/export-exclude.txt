@@ -10,3 +10,8 @@ docs/test-vorversuch.md
 docs/test-trap-modus.md
 docs/test-debug-strom.md
 docs/linux-vm-checkliste.md
+
+# Bereinigte Quellarchive frueherer Paketstaende: setzt die private Entwicklungshistorie voraus (git archive alter Staende) und nennt
+# die internen Muster, die es entfernt (alter Ordnername der Editor-Erweiterung, interne Beispieladresse, Entwicklerpfade).
+tools/source_archive.py
+tools/test_source_archive.py

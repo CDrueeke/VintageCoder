@@ -30,7 +30,7 @@ fn assemble_blobs(reqs: &[BlobReq], mut addr: usize, system: &str, root: &Path, 
     for r in reqs {
         let name = r.file.replace("{system}", system);
         let path = find(r, &name, root).ok_or_else(|| diag(r, format!("blob: Datei '{name}' nicht gefunden")))?;
-        let mut text = std::fs::read_to_string(&path).map_err(|e| diag(r, format!("{}: {e}", path.display())))?;
+        let mut text = vc_core::textfile::read_source(&path).map_err(|e| diag(r, format!("{}: {e}", path.display())))?;
         if let Some(w) = r.with.first() {
             let w = w.replace("{system}", system);
             let stem = Path::new(&w).file_stem().and_then(|s| s.to_str()).unwrap_or("song");

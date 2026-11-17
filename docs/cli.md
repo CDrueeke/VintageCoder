@@ -13,7 +13,7 @@ Hilfe im Programm: `vcc --help`, `vcc help <befehl>`, `vcc <befehl> --help`. Han
 
 **Testen und Messen:** [`emulator`](#vcc-emulator), [`streams`](#vcc-streams), [`test`](#vcc-test)
 
-**Hilfe und Rückmeldung:** [`debuglog`](#vcc-debuglog), [`feedback`](#vcc-feedback)
+**Hilfe und Rückmeldung:** [`debuglog`](#vcc-debuglog), [`feedback`](#vcc-feedback), [`update`](#vcc-update)
 
 ## `vcc add`
 
@@ -255,6 +255,41 @@ vcc basic --detokenize farben.bas --target atari8 -o farben.lst
 ```
 
 > **Hinweis:** Schlüsselwörter erscheinen bei Commodore klein, beim Atari groß; Steuerzeichen stehen als {clr} usw. Beginnt die Datei mit zwei Nullbytes, weist die Fehlermeldung auf --target atari8 hin.
+
+### Form `suggest-hex`
+
+Hex-Vorschläge für Chipregister-Adressen anzeigen oder ausgewählte übernehmen
+
+```
+vcc basic --suggest-hex <datei.bas|datei.lst> [optionen]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `datei` | Natives BASIC mit Dezimaladressen (z. B. ein importiertes Programm). |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--suggest-hex` | Schaltet auf diese Form um. Erforderlich. |  |
+| `--target` `<system>` | Zielsystem (Datei in data/targets); bestimmt Dialekt und die bekannten Chipregister. | `c64` |
+| `--dialect` `<id>` | BASIC-Dialekt (Datei in data/basic). | Dialekt des Zielsystems |
+| `--data-dir` `<ordner>` | Ordner mit der Hardware-Datenbank (data). | VC_DATA oder neben dem Programm |
+| `--apply` `<liste>` | Nummern der Vorschläge (aus der Liste, durch Komma getrennt), die in die Ausgabedatei geschrieben werden. Ohne --apply wird nur aufgelistet; es wird nie etwas ohne Auswahl geändert. | nur auflisten |
+| `-o` `<ausgabe>` | Ausgabedatei für --apply (die Quelldatei wird nie überschrieben). |  |
+
+Beispiele:
+
+```bash
+# Vorschläge ansehen
+vcc basic --suggest-hex spiel.bas --target c64
+```
+
+```bash
+# Vorschläge 1 und 3 übernehmen
+vcc basic --suggest-hex spiel.bas --apply 1,3 -o spiel_hex.bas
+```
+
+> **Hinweis:** Vorgeschlagen werden nur vollständige Dezimaladressen ab 256 als Argument von POKE, PEEK, SYS, WAIT und USR, die ein Chipregister des Zielsystems sind. Rechenausdrücke, DATA und Zeichenketten bleiben unberührt.
 
 ### Form `ast`
 
@@ -1464,6 +1499,7 @@ vcc new <ordner> [optionen]
 | `--template` `<vorlage>` | Dateivorlage: Assemblerprogramm, BASIC ohne Zeilennummern oder nur Projektdatei mit src/. Werte: `asm-hello`, `basic-hello`, `empty`. | `asm-hello` |
 | `--variant` `<variante>` | Variante der Vorlage. cartridge erzeugt ein 8-KB-Modul statt eines Programms (nur asm-hello; c64, atari8, vic20). Werte: `cartridge`. | keine |
 | `--structure` `<struktur>` | Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Werte: `einfach`, `standard`, `gross`, `mehrsystem`, `bibliothek`, `spiel`. | keine |
+| `--charset` `<wahl>` | Zeichensatz des Projekts: auto = dein ROM als Verweis, sonst der eigene Standardsatz als Kopie; own = immer der eigene Standardsatz (weitergebbar, mit HERKUNFT.txt); none = keiner. Werte: `auto`, `own`, `none`. | `auto` |
 | `--name` `<name>` | Projektname (Buchstaben, Ziffern, _ und -, höchstens 48 Zeichen); bestimmt den Namen der .vcprj. | Name des Ordners |
 | `--list` | Projektstrukturen, Vorlagen und Varianten mit ihren Zielsystemen auflisten; legt nichts an. |  |
 | `--data-dir` `<ordner>` | Ordner der Hardware-Datenbank (data). | VC_DATA, sonst neben dem Programm oder im Arbeitsordner |
@@ -1496,6 +1532,8 @@ vcc new --list
 ```
 
 > **Hinweis:** Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet und cbm2.
+
+> **Hinweis:** Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET, CBM-II) bekommen nichts.
 
 > **Hinweis:** Ausgegeben werden die angelegten Ordner und Dateien.
 
@@ -1962,6 +2000,53 @@ vcc test examples/mega65/prallball --junit ergebnis.xml
 
 Rückgabe: `0` = alle bestanden (Hinweise und übersprungene Tests zählen nicht) · `1` = ein Test fehlgeschlagen, eine Testdatei fehlerhaft oder Zeitüberschreitung; auch Pfad oder Datenordner nicht gefunden, ungültiges --backend, Hardware-Abfrage abgelehnt · `2` = unbekannte Option
 
+## `vcc update`
+
+Nachsehen, ob es eine neue Version gibt (nur Anzeige)
+
+Fragt die Versionsliste ab (eine kleine Datei update.json im Release „update-feed“ des öffentlichen Repositorys, per curl über https), zeigt, ob eine neuere Version da ist, und nennt den Link zur Releaseseite. vcc lädt und installiert nichts. Der Aufruf selbst ist die Zustimmung zur einen Anfrage; die Einstellung „Nach Updates suchen“ der Oberfläche spielt hier keine Rolle.
+
+Gesendet wird nur die Anfrage nach der Liste: Adresse, IP-Adresse und der neutrale User-Agent „VintageCoder-update“ (ohne Versionsnummer). Keine Kennung, keine Nutzungsdaten. Andere Befehle von vcc fragen nie nach Updates und weisen auch nicht darauf hin. Enthält das Paket keine Update-Prüfung (Auswahl IDE-UPDATE), endet der Befehl mit Code 2.
+
+```
+vcc update [optionen]
+```
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--check` | Nachsehen und das Ergebnis zeigen (das ist auch der Standard ohne Option). |  |
+| `--notes` | Zusätzlich die Änderungen seit der installierten Version ausgeben (Markdown, Links und Bilder als reiner Text). |  |
+| `--json` | Ergebnis maschinenlesbar als JSON ausgeben. |  |
+| `--offline` | Nichts abfragen: den gespeicherten Befund der letzten Prüfung zeigen. |  |
+
+Beispiele:
+
+```bash
+# nachsehen
+vcc update
+```
+
+```bash
+# mit den Änderungen
+vcc update --check --notes
+```
+
+```bash
+# in einem Skript (Rückgabewert 10 = Update da)
+vcc update --check --json
+```
+
+```bash
+# ohne Netz: der gespeicherte Befund
+vcc update --offline
+```
+
+> **Hinweis:** Der Link zeigt immer auf die feste Adresse https://github.com/CDrueeke/VintageCoder/releases/tag/v<Version>; eine Adresse aus der Versionsliste wird nie übernommen.
+
+> **Hinweis:** Der Befehl schreibt das Prüfprotokoll und den Befund in den Ordner updates im Konfigurationsordner (VC_UPDATE_DIR ändert den Ort).
+
+> **Hinweis:** Die Quelle lässt sich mit VC_UPDATE_URL umstellen (Ordner oder Datei lokal, sonst nur https); das ändert nie das Ziel des Links.
+
 ## Umgebungsvariablen
 
 | Variable | Bedeutung |
@@ -1972,6 +2057,8 @@ Rückgabe: `0` = alle bestanden (Hinweise und übersprungene Tests zählen nicht
 | `VC_XEMU_SD` | Ordner mit MEGA65.ROM für Xemu. |
 | `VC_XEMU_ARGS` | zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt. |
 | `VC_STRUCTURES` | Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner). |
+| `VC_UPDATE_URL` | Quelle der Versionsliste für vcc update (Ordner, Datei oder https-Adresse; sonst der feste Release update-feed). Ändert nie das Ziel des Links. |
+| `VC_UPDATE_DIR` | Ordner für Befund und Prüfprotokoll der Update-Prüfung (sonst updates im Konfigurationsordner). |
 | `VC_DEBUG_LOG` | Debug-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc. |
 | `VC_WIN` | Fenstergröße der IDE, z. B. 1400x860 (nur vintagecoder). |
 | `COLUMNS` | Breite für den Zeilenumbruch der Hilfe (Standard: 100). |

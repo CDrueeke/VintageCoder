@@ -1,6 +1,6 @@
 # VintageCoder: Entwicklungsstand
 
-Stand: 2026-11-12 · Version: 0.1.0 (Alpha), Pakete fertig, Veröffentlichung als GitHub-Pre-release `v0.1.0` vorbereitet
+Stand: 2026-11-17 · Version im Quelltext: 0.2.0 (Alpha, noch nicht veröffentlicht; veröffentlicht ist 0.1.0). Sie bringt die **neue Oberfläche** (`vc-gui`, Iced); ihr Release-Umfang steht in `FEATURES.md`. Der Abschnitt „Stand der Version 0.1.0“ beschreibt den früheren Paketstand.
 
 Was in ein Release kommt, wird **nur in `FEATURES.md`** angehakt. Diese Datei hat keine Häkchen: sie führt die Stände der wählbaren und der festen Bestandteile, die Release-Kriterien und die bekannten Lücken. Die Versionsnummer vergibt ausschließlich der Projektinhaber; Änderungen folgen dem Entwicklungsstand (`CHANGELOG.md`, Abschnitt „Unveröffentlicht“).
 
@@ -8,7 +8,7 @@ Was in ein Release kommt, wird **nur in `FEATURES.md`** angehakt. Diese Datei ha
 
 VintageCoder 0.1.0 ist ein **Alpha-Release**: Es enthält mit Sicherheit noch Fehler, und große Teile sind nur durch automatische Tests und einzelne praktische Läufe abgesichert, nicht durch eine vollständige manuelle Abnahme.
 
-**Enthalten** sind laut Release-Auswahl (`FEATURES.md`) C64, Atari 8 Bit, MEGA65 (Emulator Xemu) und Plus/4 mit allen Studios, der Kommandozeile `vcc` und dem Sprachserver `vc-lsp`. **Abgewählt** (im Quelltext vorhanden, in den Paketen ausgeblendet): C128, VC-20, PET, CBM-II, echte MEGA65-Hardware, Extraktor.
+**Enthalten** sind laut Release-Auswahl (`FEATURES.md`, Beschluss vom 2026-11-17) C64, Atari 8 Bit, MEGA65 (Emulator Xemu), Plus/4 mit C16/116, C128 und VC-20 mit allen Studios, der Kommandozeile `vcc` und dem Sprachserver `vc-lsp`. **Abgewählt** (im Quelltext vorhanden, in den Paketen ausgeblendet): PET/CBM, CBM-II, echte MEGA65-Hardware, Extraktor. (Der frühere Paketstand 0.1.0 enthielt C128 und VC-20 noch nicht.)
 
 **Pakete** (elf Dateien, alle unsigniert; Windows und Linux nur x86_64, macOS nur arm64; Intel-Macs sowie ARM unter Windows und Linux werden nicht unterstützt):
 
@@ -72,8 +72,8 @@ Die Stände dazu stehen in `FEATURES.md`.
 | `SYS-PLUS4` | TED, BASIC 3.5, `xplus4`. Hugo & Gumbo in `xplus4` geprüft. Zeichen-Sprites farblich ungenau. |
 | `SYS-C128` | BASIC 7.0, VDC-Zeichensätze, `x128`. Nur Beispiele `border`, `tiles_demo`, `prallball`. Wenig praktisch geprüft. |
 | `SYS-VC20` | Wählbarer Speicherausbau, BASIC V2, `xvic`. Tabellen laut Zieldaten „aus der Doku übernommen, unverifiziert“. |
-| `SYS-PET` | Zieldaten, Vorlagen und BASIC-Beispiele (`pet/hello`, `pet/basic_hello`); nur als Daten angelegt. |
-| `SYS-CBM2` | Zieldaten und BASIC-Beispiel (`cbm2/basic_hello`); nur als Daten angelegt, Hilfeseite gemeinsam mit PET. |
+| `SYS-PET` | Zieldaten, Vorlagen und BASIC-Beispiele (`pet/hello`, `pet/basic_hello`); nur als Daten angelegt. **Aus dem nächsten Release genommen.** |
+| `SYS-CBM2` | Zieldaten und BASIC-Beispiel (`cbm2/basic_hello`); nur als Daten angelegt, Hilfeseite gemeinsam mit PET. **Aus dem nächsten Release genommen.** |
 | `STU-SPRITE` | Import: SPD-Format, Rohdaten. |
 | `STU-TILES` | Neu; optische Mängel der Studio-Fenster in Behebung (Standardgröße zu klein). |
 | `STU-TRACKER` | Tracker-Knistern noch nicht abschließend geprüft; TED-Export nicht umgesetzt. Chips: SID, POKEY, 4× SID MEGA65. |
@@ -95,9 +95,9 @@ Diese Bestandteile gehören zur IDE oder zur Kommandozeile und sind nicht wählb
 | Kennung | Bestandteil | Stand | Hinweise |
 |---|---|---|---|
 | `IDE-EDITOR` | Quelltext-Editor: Syntaxfarben, Falten, Vervollständigung, Hover, Live-Fehler (`vc-lsp`), Gehe zu Definition | Stabil | Assembler und BASIC. |
-| `IDE-LAYOUT` | Andockbare Panels je Arbeitsmodus, Layout wird gespeichert, Modus-Leiste, Projektbaum | Stabil | |
-| `IDE-WINDOWS` | Fenstersteuerung: Studios einbetten und lösen, Bereiche maximieren und wiederherstellen | Beta | Per Selbsttest geprüft. Maus-Ziehen, Menüs, Tastenkürzel, Windows und Linux nicht geprüft. |
-| `IDE-DESIGN` | Designsystem „Retro Terminal IDE“ (dunkel und hell), eingebettete Schriften | Stabil | |
+| `IDE-LAYOUT` | Frühere Oberfläche (egui): andockbare Panels je Arbeitsmodus. In der neuen Oberfläche: sechs feste Bereiche mit Ziehen, Einklappen, Maximieren und Zen-Modus (siehe „Neue Oberfläche“ unten) | Stabil | Kennung unverändert. |
+| `IDE-WINDOWS` | Fenstersteuerung der früheren Oberfläche; in der neuen Oberfläche gibt es keine losen Studio-Fenster (kein Mehrfenster) | Beta | Kennung unverändert. Windows und Linux nicht geprüft. |
+| `IDE-DESIGN` | Designsystem (dunkel, hell, hoher Kontrast), eingebettete Schriften Inter und JetBrains Mono; Beschreibung in `DESIGN.md` | Stabil | Kennung unverändert. |
 | `IDE-WELCOME` | Willkommensseite, Projekt-Wizard, Befehlspalette, Projekt-Übersicht | Stabil | |
 | `IDE-SETTINGS` | Einstellungen: Zielsysteme, Toolchain, Emulatoren, Echte Maschinen, Startziel für F5 | Stabil | |
 | `IDE-ARGS` | Kommandozeilen-Parameter der Emulatoren als Schalter/Auswahl mit Platzhaltern (englische Namen) | Beta | Katalog `data/args/`; Altirra nur teilweise gegen das Programm geprüft. Kommt mit jeder gewählten Emulator-Anbindung. |
@@ -122,6 +122,14 @@ Diese Bestandteile gehören zur IDE oder zur Kommandozeile und sind nicht wählb
 | `BLD-TEST` | `vcc test`: statische Prüfungen (Größe, Zeropage, Überlappung, Zyklen), Emulator-/Trap-Tests | Beta | Emulator-Tests nur mit VICE für C64. |
 | `DOC-HELP` | Hilfe in der IDE (F1, Suche): rund 45 Seiten; Assembler-Doku und BASIC-Doku | Stabil | 101 Assembler-Beispiele, 48 von 50 BASIC-Beispielen geprüft. Folgt künftig der Auswahl. |
 | `DOC-WEB` | Website `vintagecoder.drueeke.de` mit Doku und Screenshots | Stabil | Live. Außerhalb des Pakets. |
+
+## Neue Oberfläche (`vc-gui`)
+
+Die Oberfläche `vintagecoder` kommt aus `crates/vc-gui` (Iced 0.14, Zeichnen mit tiny-skia), mit den Bausteinen `vc-gui-ui` (Muster, Studio-Rahmen, Befehlstabelle) und `vc-gui-editor` (Editor); die frühere egui-Oberfläche `vc-app` ist entfernt (nur Git-Historie). Aufbau und Muster: `DESIGN.md`; Prüfung und Bildvergleich: `docs/pruefen.md`.
+
+- **Gebaut:** sechs feste Bereiche, Zen-Modus, Befehlspalette und Menüs aus einer Befehlstabelle, Kontextmenüs, alle Studios (Sprite/Player-Missile, Zeichensatz, Bildschirm, Kacheln und Bank, Palette, Tracker, Disk), Debugger, Tests-Schublade, Speicherkarte, Markdown, Prettyprint, Ziehen in den Quelltext, Konfigurationsassistent, Hilfe und Handbuch als gesetzter Text.
+- **Stand der Abnahme:** automatische Tests grün (Bildvergleich-Referenzen werden nach dem Endstand neu geschrieben); Handprüfung durch den Projektinhaber in Arbeit (`Handpruefliste-Gesamt-Neustand.md`, lokal). Windows und Linux nicht geprüft.
+- **Zurückgestellt:** siehe „Bekannte Lücken“.
 
 ## Ausblick und Verworfenes
 
@@ -152,6 +160,7 @@ Die Auswahl wirkt in `vintagecoder` und `vcc` gleichermaßen. Nicht gewählt hei
 - MEGA65: Gerät offline, FCM-Stufe 2 nicht begonnen.
 - Altirra-Katalog nur teilweise gegen das Programm geprüft.
 - Im Hauptzweig noch nicht eingeflossen: `basic2asm` für Atari, MEGA65 über Ethernet.
+- Neue Oberfläche, bewusst zurückgestellt: Studio für mehrere Kachelsätze je Bank, „Meine“ im Zeichen-Panel, Sprite-Import, Postfach-Schalter der Tests, eigener Reiter „Referenz“, Live-Bild der Ultimate 64, Handprüfung mit einem Bildschirmleser, Mehrfenster.
 - Geplant, ohne Umsetzung: Extraktor, weitere 8-Bit-Systeme.
 - Release-Auswahl: Abgewähltes ist ausgeblendet, nicht aus dem Programm entfernt (`VC_RELEASE=all` oder das Löschen von `data/release.json` bringt es zurück); geteilte Datendateien nennen auch nicht gewählte Systeme (Abschnitt „Release-Auswahl: Stand der Umsetzung“).
 

@@ -1,0 +1,21 @@
+{
+  "_comment": "Steuerzeichen von ATASCII (Atari 8-Bit): eine Namensquelle fuer Assembler, BASIC und Zeichen-Panel (Felder wie in petscii.json).",
+  "entries": [
+    {"code": "$1b", "name": "esc", "group": "other", "desc": "Escape (nächstes Zeichen wird nur dargestellt)"},
+    {"code": "$1c", "name": "up", "group": "cursor", "desc": "Cursor hoch"},
+    {"code": "$1d", "name": "down", "group": "cursor", "desc": "Cursor runter"},
+    {"code": "$1e", "name": "left", "group": "cursor", "desc": "Cursor links"},
+    {"code": "$1f", "name": "right", "group": "cursor", "desc": "Cursor rechts"},
+    {"code": "$7d", "name": "clr", "group": "edit", "desc": "Bildschirm löschen"},
+    {"code": "$7e", "name": "bs", "aliases": ["del"], "group": "edit", "desc": "Rückschritt"},
+    {"code": "$7f", "name": "tab", "group": "other", "desc": "Tabulator"},
+    {"code": "$9b", "name": "eol", "group": "other", "desc": "Zeilenende"},
+    {"code": "$9c", "name": "del line", "group": "edit", "desc": "Zeile löschen"},
+    {"code": "$9d", "name": "ins line", "group": "edit", "desc": "Zeile einfügen"},
+    {"code": "$9e", "name": "clr tab", "group": "other", "desc": "Tabulator löschen"},
+    {"code": "$9f", "name": "set tab", "group": "other", "desc": "Tabulator setzen"},
+    {"code": "$fd", "name": "bell", "group": "other", "desc": "Klingel"},
+    {"code": "$fe", "name": "del char", "group": "edit", "desc": "Zeichen löschen"},
+    {"code": "$ff", "name": "ins char", "group": "edit", "desc": "Zeichen einfügen"}
+  ]
+}

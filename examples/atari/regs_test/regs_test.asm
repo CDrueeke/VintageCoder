@@ -22,7 +22,7 @@
 ;   Hinweis: Die Schreibregister D200/D201/D208 sind Schreib-Seiten, die Leseseiten derselben Adressen sind POT0/POT1/ALLPOT.
 ;   Die Werte sind absichtlich unterscheidbar gewählt, nicht musikalisch gemeint; AUDF1/AUDC1 geben (je nach Takt) einen Ton aus.
 ;
-; SPEICHER: Programm ab $2000, keine Daten, keine Nullseite.
+; SPEICHER: Programm ab $2000, keine Daten, keine Zeropage.
 ; BAUEN:    vcc asm examples/atari/regs_test/regs_test.asm --target atari8 --cpu sally -o regs_test.xex
 ; =====================================================================================================================
 .target atari8

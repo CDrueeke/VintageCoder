@@ -180,10 +180,10 @@ Nach dem Bauen gibt es mehrere Stellen, an denen du nachsehen kannst, welche Zei
 - **Bauprotokoll:** Die Stufe „Zeilennummern und Labels“ nennt die Zahl der Zeilen und Labels.
 - **`build/<name>.labels.txt`:** je Marke eine Zeile, z. B. `ende                     Zeile 70`.
 - **`build/<name>.classic.txt`:** das fertige Programm als Text mit Zeilennummern, aus dem gebauten Programm zurückgelesen. So siehst du genau, was das Gerät bekommt.
-- **Editor:** Bei Quelltexten ohne Zeilennummer zeigt der Seitenstreifen links neben jeder Zeile die Nummer, die sie beim Bauen bekommt. Zeilen mit eigener Nummer, Kommentare, Leerzeilen und reine Markenzeilen zeigen nichts.
+- **Editor:** Die Nummer, die eine Zeile ohne eigene Nummer beim Bauen bekommt, zeigt der Editor in dieser Version noch nicht an.
 - **Kommandozeile:** `vcc basic datei.bas` druckt `@name = Zeile n` für jede Marke.
 
-Diese Zuordnung brauchst du vor allem bei **Fehlermeldungen des Geräts**. Meldet der C64 `?SYNTAX ERROR IN 40`, ist 40 die erzeugte Nummer; ein Blick in `.classic.txt` (oder in den Seitenstreifen) zeigt die zugehörige Quellzeile.
+Diese Zuordnung brauchst du vor allem bei **Fehlermeldungen des Geräts**. Meldet der C64 `?SYNTAX ERROR IN 40`, ist 40 die erzeugte Nummer; ein Blick in `.classic.txt` zeigt die zugehörige Quellzeile.
 
 ## Fehler und Hinweise
 
@@ -226,7 +226,7 @@ print 1
 main.bas:2: error B112: Label @ende steht am Ende ohne Anweisung dahinter
 ```
 
-Der Übersetzer sammelt mehrere Meldungen und zeigt sie alle in der Fehlerliste.
+Der Übersetzer sammelt mehrere Meldungen und zeigt sie alle im Reiter **Probleme** der Schublade.
 
 ## Fallen
 

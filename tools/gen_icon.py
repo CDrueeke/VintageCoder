@@ -4,7 +4,7 @@
 Reine Standardbibliothek. Aufruf im Projektordner: python3 tools/gen_icon.py  (iconutil nur auf macOS für die .icns)"""
 import argparse, os, struct, subprocess, sys, tempfile, zlib
 _ap = argparse.ArgumentParser(
-    description="""Erzeugt das App-Icon (nur Standardbibliothek): installer/windows/VintageCoder.ico (Windows), installer/macos/VintageCoder-1024.png und - nur auf macOS,
+    description="""Erzeugt das App-Icon (nur Standardbibliothek): installer/windows/VintageCoder.ico (Windows), installer/macos/VintageCoder-1024.png, installer/linux/icons/hicolor/*/apps/vintagecoder.png und - nur auf macOS,
 über das Systemprogramm iconutil - installer/macos/VintageCoder.icns.
 
 Die Pfade werden relativ zum Ort des Skripts bestimmt (Repository-Wurzel), der Arbeitsordner ist egal; fehlende Ordner unter installer/ werden angelegt, vorhandene
@@ -93,6 +93,11 @@ for s in sizes:
     p = pngs[s]; ents += struct.pack("<BBBBHHII", s % 256, s % 256, 0, 0, 1, 32, len(p), off + len(data)); data += p
 open(os.path.join(root, "installer/windows/VintageCoder.ico"), "wb").write(head + ents + data)
 open(os.path.join(root, "installer/macos/VintageCoder-1024.png"), "wb").write(pngs[1024])
+
+# Linux: hicolor-Größen (16, 32, 64, 128, 256, 512; ohne 48, das nicht ganzzahlig aus 1024 entsteht)
+for s in (16, 32, 64, 128, 256, 512):
+    d = os.path.join(root, "installer/linux/icons/hicolor/%dx%d/apps" % (s, s)); os.makedirs(d, exist_ok=True)
+    open(os.path.join(d, "vintagecoder.png"), "wb").write(pngs[s])
 
 # macOS: .icns über iconutil
 if sys.platform == "darwin":

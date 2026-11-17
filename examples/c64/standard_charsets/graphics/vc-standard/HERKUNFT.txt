@@ -1,0 +1,10 @@
+Herkunft der Zeichensätze in diesem Ordner
+===========================================
+
+Diese Dateien sind die eigenen Standardzeichensätze „VC-Standard“ von VintageCoder.
+Urheber: das VintageCoder-Projekt. Lizenz: CC0-1.0 (gemeinfrei, frei weitergebbar, auch in eigenen Programmen).
+Es wurden keine Original-ROMs und keine Nachbauten von Original-Zeichen benutzt.
+Die Gestaltung ist ein Regelrohling; die Freigabe der Zeichenformen steht noch aus.
+
+Sätze:
+  vc-c64-upper (Revision 1, Lizenz CC0-1.0): VC-Standard C64 Groß/Grafik

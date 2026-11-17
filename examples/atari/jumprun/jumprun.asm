@@ -12,7 +12,7 @@
 ;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
 ;   lib/rmt.inc, rmtplayr.asm  Musikspieler (Raster Music Tracker); rmtplayr.asm ist der unveraenderte Original-Player (fremde Bibliothek)
 ;   lib/levels.inc           Tabellen und Spielerdaten (ERZEUGT von tools/gen_jumprun_atari.py)
-;   graphics/*, music/       Projektdateien der Editoren: Zeichensatz chars.vcchar, Titelbild title.vcscreen, Kachelkarten lv1..lv4.vctiles,
+;   graphics/*, music/       Projektdateien der Editoren: Zeichensatz chars.vcchar, Titelbild title.vcscreen, Kachelsatz hg.vctiles, Screen-Bank levels.vcscreen,
 ;                            Song tune.vcsong (beim Bauen nach build/export/*.asm exportiert und unten eingebunden)
 ;
 ; ZEITTAKT: Das Hauptprogramm wartet in jedem Durchgang auf den naechsten Bildruecklauf (hal_wait_frame); so laeuft alles im
@@ -20,10 +20,10 @@
 ;   Alle Zeitangaben in diesem Programm ("400 Bilder = 8 Sekunden") gelten fuer PAL.
 ;
 ; SPEICHERKARTE
-;   $2000-$3FFF  Programm      $4000 Bildschirm   $4400 Zeichensatz   $4800 Display-Liste   $5000-$57FF Spielerspeicher
+;   $2000-$3BFF  Programm      $3C00 Zeichensatz   $4000 Bildschirm   $4800 Display-Liste   $5000-$57FF Spielerspeicher
 ;   $5800 Bildkarte (LMAP)     $5CE0-$5FFF RMT-Tabellen   $6000 RMT-Player   $7000 Tabellen, Bilddaten, Musikmodul
-;   Nullseite: $80-$B3 Spiellogik, $B4-$BB HAL, $CB-$DD RMT-Player
-;   (Stand dieser Fassung: Programm $2000-$31B8, Zeichensatz $4400-$47FF, RMT-Player $6000-$6610, Daten $7000-$7ACA.  Die Display-Liste
+;   Zeropage: $80-$B3 Spiellogik, $B4-$BB HAL, $CB-$DD RMT-Player
+;   (Stand dieser Fassung: Programm $2000-$30EA, Zeichensatz mit Kacheltabellen $3B97-$3FFF, RMT-Player $6000-$6610, Daten und Kachel-Bibliothek $7000-$7E9F.  Die Display-Liste
 ;   steht nicht in der Datei, sondern wird beim Start aus dlist_data nach $4800 kopiert; Bildschirm und Spielerspeicher sind unbelegt,
 ;   sie werden zur Laufzeit gefuellt.)
 ; =====================================================================================================================
@@ -31,10 +31,16 @@
 .cpu sally { illegals = deny }          ; CPU "Sally" (6502C im Atari); undokumentierte Befehle sind verboten
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
-.const ZP   = $80                       ; Nullseiten-Variablen der Spiellogik (belegt $80-$B3)
+.const ZP   = $80                       ; Zeropage-Variablen der Spiellogik (belegt $80-$B3)
 .const NO_SEI_BCD = 1                   ; core.asm: do_coin sperrt hier keine IRQs (die Interrupts sind NMIs, siehe do_coin)
 .const LMAP = $5800                     ; Bildkarte im RAM (240 Byte = 20 x 12 Kacheln), Muenzen werden daraus geloescht
 .const RMT_PLAYER = $6000               ; Spielroutine der Musik (Tabellen davor)
+
+; Kachel-Bibliothek: zeichnet die Kacheln (tile_put) und die Bilder (screen_select_a, screen_draw_all); die Daten kommen aus dem Export von
+; graphics/hg.vctiles (Kachelsatz) und graphics/levels.vcscreen (Screen-Bank), die Bindung steht unten bei tiles_use.
+.const TILE_MAPRAM = LMAP               ; screen_select_a kopiert die Karte eines Bildes nach LMAP (Muenzen werden dort geloescht)
+.const TILE_ZP = $bc                    ; Zeropage $BC-$C3 fuer die Bibliothek (frei: Logik $80-$B3, HAL $B4-$BB, RMT $CB-$DD)
+#include <atari8bit/tiles.asm>
 
 .org $2000                              ; Programmanfang: ueber dem Bereich, den DOS und OS fuer sich brauchen
 .include "lib/rmt.inc"                  ; Makros fuer den Musikspieler (rmt_start ...)
@@ -232,19 +238,22 @@ play_level:
 .include "../../common/jumprun/core.asm"
 .include "lib/levels.inc"
 
-maps_lo: .byte <lv1_map, <lv2_map, <lv3_map, <lv4_map      ; Kachelkarte je Bild (240 Byte, aus build/export/lv?.asm)
-maps_hi: .byte >lv1_map, >lv2_map, >lv3_map, >lv4_map
+; Kacheleigenschaften der Spiellogik (core.asm liest tile_attr,x): 0 leer, 1 tragend (hg_p_solid), 2 Leiter (hg_p_ladder) - aus dem Kachelsatz
+.const tile_attr = hg_props
+.assert hg_p_solid == 1 && hg_p_ladder == 2, "core.asm erwartet 1 = tragend, 2 = Leiter"
 
 .org RMT_PLAYER
 .include "lib/rmtplayr.asm"             ; Original-Spieler; seine Tabellen liegen unmittelbar vor $6000 ($5CE0-$5FFF)
 
-.org $4400                              ; Zeichensatz: 128 Zeichen * 8 Byte = 1 KB, auf einer 1-KB-Grenze (Bedingung von ANTIC)
-.include "build/export/chars.asm"
-.org $7000                              ; Titelbild, Karten und Musikmodul (title_chars, lv1_map..lv4_map, lv1_tiles, tune_rmt)
+.org $3C00 - 105                        ; Zeichensatz: 128 Zeichen * 8 Byte = 1 KB, auf einer 1-KB-Grenze (Bedingung von ANTIC). Der Export des Kachelsatzes legt
+.include "build/export/hg.asm"          ; vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte); hg_chars ist der Zeichensatz chars.vcchar (alle Zeichen angepinnt)
+.assert hg_chars == $3C00, "Zeichensatz muss bei $3C00 liegen (Tabellen des Kachelsatzes davor, siehe .org)"
+.org $7000                              ; Titelbild, Karten und Musikmodul (title_chars, levels_map0..3, tune_rmt)
 .include "build/export/title.asm"
-.include "build/export/lv1.asm"
-.include "build/export/lv2.asm"
-.include "build/export/lv3.asm"
-.include "build/export/lv4.asm"
+.include "build/export/levels.asm"
 .include "build/export/tune.asm"
+
+; Bindung der Bibliothek an Kachelsatz und Screen-Bank (kein Farbspeicher: Spalte col entfaellt), dann die Unterprogramme
+        tiles_use hg_c0, 0, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_lv1_tiles_w, levels_lv1_tiles_h
+        tiles_runtime
 .run start                              ; Startadresse der XEX-Datei (RUNAD $02E0): das Programm beginnt bei start

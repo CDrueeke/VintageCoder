@@ -88,7 +88,7 @@ fn run_target(prg: &[u8], input: &str, keys: &[u8], with_rom: bool, target: &str
         for (base, data) in target_roms(target).expect("ROMs") { m.ram[base..base + data.len()].copy_from_slice(&data); }
         if target == "c64" {
             let k = &target_roms("c64").unwrap()[1].1;
-            let chrget: Vec<u8> = k[0x3A2..0x3A2 + 0x1D].to_vec();   // CHRGET-Kopie in der Nullseite, wie beim Kaltstart
+            let chrget: Vec<u8> = k[0x3A2..0x3A2 + 0x1D].to_vec();   // CHRGET-Kopie in der Zeropage, wie beim Kaltstart
             m.ram[0x73..0x73 + chrget.len()].copy_from_slice(&chrget);
             m.ram[0x7A] = 0x01; m.ram[0x7B] = 0x08;
             m.ram[0x8B..0x90].copy_from_slice(&[0x80, 0x4F, 0xC7, 0x52, 0x58]);   // Startwert für RND
@@ -117,7 +117,7 @@ fn run_target(prg: &[u8], input: &str, keys: &[u8], with_rom: bool, target: &str
     }
     // Muster in $60-$73 (Block der Stufen 1 und 3). Beim Plus/4 mit ROM nicht: dort liegen Arbeitszellen der Rechenroutinen (z. B. $68), die das ROM-BASIC beim Start mit 0 vorfindet
     if !with_rom || (target != "c64" && target != "plus4") { let z = zblock(target); for b in &mut m.ram[z] { *b = 0xC3; } }
-    if target != "c64" { for b in &mut m.ram[0x30..0x3E] { *b = 0xC3; } }   // Muster in der Nullseite: Ziele mit gesichertem Block müssen es zurückgeben
+    if target != "c64" { for b in &mut m.ram[0x30..0x3E] { *b = 0xC3; } }   // Muster in der Zeropage: Ziele mit gesichertem Block müssen es zurückgeben
     let load = prg[0] as usize | (prg[1] as usize) << 8;
     m.ram[load..load + prg.len() - 2].copy_from_slice(&prg[2..]);
     // BASIC-Stub: "10 SYS nnnn" → Einsprung lesen
@@ -433,9 +433,9 @@ fn ti_string_reads_and_sets_the_clock() {
     assert!(r.out.contains("illegal quantity"), "{}", r.out);
 }
 
-// ---- C128 und Plus/4 (Stufe 1 und 3; KERNAL-Aufrufe wie beim C64, andere Ladeadresse, Nullseite und Speichergrenze)
+// ---- C128 und Plus/4 (Stufe 1 und 3; KERNAL-Aufrufe wie beim C64, andere Ladeadresse, Zeropage und Speichergrenze)
 
-/// Nullseitenblock der Laufzeit (Stufe 1 und 3) je Ziel
+/// Zeropage-Block der Laufzeit (Stufe 1 und 3) je Ziel
 fn zblock(target: &str) -> std::ops::Range<usize> { if target == "mega65" { 0x40..0x54 } else { 0x60..0x74 } }
 
 fn on(target: &str) -> B2aOptions { B2aOptions { target: target.into(), ..B2aOptions::new("t.bas") } }
@@ -463,7 +463,7 @@ fn c128_and_plus4_run_the_same_programs() {
                 continue;
             }
             assert_eq!(&r.out, want, "{t}: {src}");
-            if t != "c64" { assert!(r.ram[zblock(t)].iter().all(|b| *b == 0xC3), "{t}: Nullseitenblock nicht zurückgeschrieben"); }
+            if t != "c64" { assert!(r.ram[zblock(t)].iter().all(|b| *b == 0xC3), "{t}: Zeropage-Block nicht zurückgeschrieben"); }
         }
     }
 }
@@ -536,7 +536,7 @@ fn float_programs_run_on_all_targets() {
         for (src, want) in &cases {
             let Some(r) = frun_on(t, src) else { eprintln!("{t}: ROMs fehlen, übersprungen"); break };
             assert_eq!(&r.out, want, "{t}: {src}");
-            if t != "c64" { assert!(r.ram[0x30..0x3E].iter().all(|b| *b == 0xC3), "{t}: Nullseitenblock nicht zurückgeschrieben (Stufe 2)"); }
+            if t != "c64" { assert!(r.ram[0x30..0x3E].iter().all(|b| *b == 0xC3), "{t}: Zeropage-Block nicht zurückgeschrieben (Stufe 2)"); }
             ran += 1;
         }
     }
@@ -551,7 +551,7 @@ fn float_input_and_rom_errors_on_other_targets() {
         let r = run_target(&prg, "3.5\n", &[], true, t);
         assert_eq!(r.out, "x? \n 7 \n", "{t}: {}", r.out);
         assert_eq!(r.err, Some(20), "{t}: DIVISION BY ZERO aus dem ROM");
-        assert!(r.ram[0x30..0x3E].iter().all(|b| *b == 0xC3), "{t}: Nullseitenblock muss nach einem ROM-Fehler zurückgeschrieben sein");
+        assert!(r.ram[0x30..0x3E].iter().all(|b| *b == 0xC3), "{t}: Zeropage-Block muss nach einem ROM-Fehler zurückgeschrieben sein");
         assert_eq!(r.ram[0x0300] as u16 | (r.ram[0x0301] as u16) << 8, 0x0210, "{t}: Fehlervektor muss wiederhergestellt sein");
     }
 }

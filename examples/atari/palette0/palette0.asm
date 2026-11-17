@@ -22,7 +22,7 @@
 ;     in COLBK geschrieben und bleibt dann stehen, bis zwei weitere WSYNC vergangen sind -> 3 Zeilen je Balken.
 ;
 ; REGISTER: ANTIC NMIEN $D40E, DMACTL $D400, VCOUNT $D40B, WSYNC $D40A;  GTIA COLBK $D01A.
-; SPEICHER: Programm ab $2000, keine Daten, keine Nullseite (Register A, X, Y werden benutzt).
+; SPEICHER: Programm ab $2000, keine Daten, keine Zeropage (Register A, X, Y werden benutzt).
 ; BAUEN:    vcc asm examples/atari/palette0/palette0.asm --target atari8 --cpu sally -o palette0.xex
 ; =====================================================================================================================
 .target atari8

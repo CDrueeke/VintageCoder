@@ -3,6 +3,7 @@
 mod docs;
 pub use docs::{directive_doc, mnemonic_doc, DIRECTIVES};
 pub mod rpc;
+mod project;
 mod server;
 mod values;
 pub use values::{literal_at, value_hover};

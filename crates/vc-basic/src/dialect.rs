@@ -21,6 +21,8 @@ pub struct Dialect {
     /// Ein Token besteht aus einem Byte oder (BASIC 65: `$CE xx`, `$FE xx`) aus Präfix und Folgebyte.
     pub tokens: Vec<(String, Vec<u8>)>,
     pub control: Vec<(String, u8)>,
+    /// `$hex`/`%binär` als Literal im Interpreter (`numberLiterals`); fehlt das Feld: keine
+    pub number_literals: crate::numbers::NumberRules,
     by_name: HashMap<String, Vec<u8>>,
     by_token: HashMap<Vec<u8>, String>,
 }
@@ -49,6 +51,7 @@ impl Dialect {
             reserved_vars: v["reservedVars"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default(),
             by_name: tokens.iter().map(|(n, c)| (n.clone(), c.clone())).collect(),
             by_token: tokens.iter().map(|(n, c)| (c.clone(), n.clone())).collect(),
+            number_literals: crate::numbers::NumberRules::from_json(&v),
             tokens, control,
         };
         for need in ["REM", "DATA", "GOTO", "GOSUB", "THEN", "IF", "NOT", "PRINT", "PRINT#", "INPUT", "INPUT#", "TAB(", "SPC(", "ON", "RESTORE", "RUN"] {

@@ -167,7 +167,7 @@ hs_load:
         rts
 
 // hs_save: Datei schreiben.  Der Name "@0:PRALL.HS" ersetzt eine vorhandene Datei ("@0:" = Ersetzen auf Laufwerk 0).  SAVE bekommt
-//   den Anfang ueber einen Zeiger in der Nullseite (hs_src) und das Ende (X/Y = Adresse + 1).  Der Dateikopf enthaelt die
+//   den Anfang ueber einen Zeiger in der Zeropage (hs_src) und das Ende (X/Y = Adresse + 1).  Der Dateikopf enthaelt die
 //   Ladeadresse von hs_buf; beim Laden wird sie ignoriert (Sekundaeradresse 0).
 hs_save:
         jsr hs_makecrc

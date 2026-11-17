@@ -8,10 +8,10 @@ Diese Seite richtet sich an alle, die aus dem Quellbaum ein Release zusammenstel
 
 | Abschnitt | Inhalt | Kennungen |
 |---|---|---|
-| 1. Programm | die Entwicklungsumgebung `vintagecoder` | `IDE-APP` |
+| 1. Programm | die Entwicklungsumgebung `vintagecoder` und die Update-Prüfung (Hinweis auf neue Versionen, ohne Laden und Installieren; ohne sie baut das Paket nie eine solche Verbindung auf) | `IDE-APP`, `IDE-UPDATE` |
 | 2. Studios | Editoren für Grafik, Klang und Medien (nur wirksam mit `IDE-APP`) | `STU-SPRITE`, `STU-CHAR`, `STU-SCREEN`, `STU-TILES`, `STU-PALETTE`, `STU-TRACKER`, `STU-PLAY`, `STU-DISK`, `STU-MEMMAP`, `STU-EXTRACT` |
 | 3. Anbindungen | Emulatoren und echte Geräte | `EMU-VICE`, `EMU-ATARI800`, `EMU-ALTIRRA`, `EMU-FUJISAN`, `EMU-XEMU`, `HW-ULTIMATE`, `HW-MEGA65` |
-| 4. Zielsysteme | C64, Atari 8 Bit, MEGA65, Plus/4, C16, C128, VC-20, PET/CBM, CBM-II | `SYS-C64`, `SYS-ATARI`, `SYS-MEGA65`, `SYS-PLUS4`, `SYS-C16`, `SYS-C128`, `SYS-VC20`, `SYS-PET`, `SYS-CBM2` |
+| 4. Zielsysteme | C64, Atari 8 Bit, MEGA65, Plus/4, C16, C128, VC-20 (dazu zwei Zeilen für Systeme, die derzeit nicht gewählt sind) | `SYS-C64`, `SYS-ATARI`, `SYS-MEGA65`, `SYS-PLUS4`, `SYS-C16`, `SYS-C128`, `SYS-VC20`, `SYS-PET`, `SYS-CBM2` |
 | 5. Beispielprojekte | Pakete von Beispielen | `EX-HELLO`, `EX-JUMPRUN`, `EX-PRALLBALL`, `EX-DEMOS` |
 
 Jede Zeile hat vier Spalten: **Kennung** (in Backticks), Beschreibung, **Stand** (Stabil, Beta, In Arbeit, Spike, Konzept) und **Release**. Angehakt ist eine Zeile, wenn das letzte Feld `[x]` enthält; `[X]`, `[ x]`, `[x ]` und `[ X]` zählen ebenso, `[ ]` und ein leeres Feld nicht. Text außerhalb der Tabellen und HTML-Kommentare liest das Skript nicht. Die Kennung muss genau einmal in `FEATURES.md` und genau einmal in der Registry stehen.
@@ -30,7 +30,7 @@ Drei Dateien hängen zusammen:
 { "format": 1, "ide": true,
   "studios": ["sprite", "char", "screen", "tiles", "palette", "tracker", "play", "disk", "memmap"],
   "links": ["vice", "atari800", "altirra", "fujisan", "xemu", "ultimate"],
-  "targets": ["c64", "atari8", "mega65", "plus4"],
+  "targets": ["c64", "atari8", "mega65", "plus4", "c16", "c128", "vic20"],
   "examples": ["EX-HELLO", "EX-JUMPRUN", "EX-PRALLBALL", "EX-DEMOS"] }
 ```
 
@@ -42,7 +42,7 @@ Drei Dateien hängen zusammen:
 - `VC_RELEASE=all` erzwingt „alles an“, `VC_RELEASE=<Pfad>` lädt eine andere `release.json`. Das ist der Weg, ein Release im Quellbau auszuprobieren, ohne zu paketieren.
 
 ```bash
-VC_RELEASE=build/stage-linux/data/release.json cargo run -p vc-app
+VC_RELEASE=build/stage-linux/data/release.json cargo run -p vc-gui
 VC_RELEASE=all vcc help                         # alles an, auch im Paket
 ```
 
@@ -68,11 +68,12 @@ python3 tools/release.py stage --os linux --out build/stage-linux --build --arch
 python3 tools/release.py package --os linux --format deb --distro debian --stage build/stage-linux --out build/pakete
 python3 tools/release.py check --features tools/testdata/nur-cli-c64.md
 python3 tools/release.py bootstrap --out /tmp/registry-entwurf.json
+python3 tools/release.py manifest --out build/update-feed   # Versionsliste update.json für die Update-Prüfung (veröffentlicht nichts)
 ```
 
 Wichtige Optionen: `--features DATEI` (andere Auswahldatei, etwa eine Testauswahl), `--allow-unfinished` (gewählte Zeilen mit Stand unter Beta zulassen, der Bericht markiert sie), `--auto-deps` (fehlende harte Abhängigkeiten ergänzen und melden, nur für Experimente), `--explain KENNUNG`, `-v`. Bei `stage`: `--os windows|macos|linux`, `--out ORDNER`, `--build` (vorher `cargo build --release`, ein Bau je Betriebssystem), `--bin-dir` (fertige Programme), `--force`, `--dry-run`, `--reproducible` (keine Zeitstempel, gleiche Prüfsummen), `--archive` (Linux: zusätzlich `tar.gz`), `--verify-build` (jedes ausgelieferte Beispiel mit dem Staging-`vcc` bauen). Das Skript liest die Versionsnummer nur aus `Cargo.toml`; vergeben wird sie ausschließlich vom Projektinhaber.
 
-Zeilen unter Beta, die ausdrücklich mitgeliefert werden sollen, stehen in `release/registry.json` unter `preview_ok` (derzeit PET/CBM und CBM-II). `check` und `stage` liefern sie dann ohne `--allow-unfinished` aus und markieren sie im Bericht als Vorschau.
+Zeilen unter Beta, die ausdrücklich mitgeliefert werden sollen, stehen in `release/registry.json` unter `preview_ok` (derzeit keine Zeile). `check` und `stage` liefern sie dann ohne `--allow-unfinished` aus und markieren sie im Bericht als Vorschau.
 
 **Was `stage` tut:** Es prüft die Auswahl (bei Fehlern Abbruch), kopiert die Programme (`vcc` und `vc-lsp` immer, `vintagecoder` nur mit `IDE-APP`), `data/` nach Registry, die Beispiele, schreibt `data/release.json` und den Betriebssystemteil (Windows `installer.inc`, macOS Ordnerstruktur, Linux ein FHS-Baum mit Programmen, Daten, Manpages), führt den **Verbotsscan** aus (keine ROM-Abbilder, keine Emulator-Programme, keine Namen anderer Entwicklungsumgebungen in `data/` und `examples/`) und schreibt `release-report.md` mit Auswahl, Warnungen und den **Hinweisen für die Release-Notizen**.
 
@@ -86,11 +87,11 @@ Bei einer verletzten **harten** Abhängigkeit bricht `check` (und damit `stage`)
 
 **Versteckt, nicht entfernt.** Der Code bleibt im Programm; die Oberfläche zeigt abgewählte Teile nirgends und lässt sich nicht dorthin führen.
 
-- **Studios:** keine Menüpunkte, keine Befehle in der Befehlspalette, keine Schaltflächen (Willkommensseite, Übersicht, „+“ im Projektbaum), kein Reiter. Die Datei eines abgewählten Studios (etwa `*.sprite.json`) öffnet im Text-Editor mit einem Hinweis. **Dateiformate, `vcc media` und `vcc import` bleiben immer**; Projekte bleiben baubar. Gespeicherte Fensterlagen mit abgewählten Studios bleiben in `layout.json`, wirken aber nicht.
-- **Anbindungen:** Erkennung, F5, Debugger, `vcc test --backend`, `vcc emulator` und `vcc streams` melden „nicht im Paket enthalten“ (Rückgabewert 1). Einstellungen zeigen nur Karten der gewählten Anbindungen; bereits gespeicherte Einträge bleiben in der Datei. Debugger-Befehle, Reiter „Live-Bild“ und die Hilfeseite „Emulatoren“ richten sich nach den gewählten Anbindungen. Emulatoren und ROMs werden nie ausgeliefert.
-- **Zielsysteme:** Wizard, Willkommensseite, Einstellungen, Vorlagen und `vcc new` führen nur gelieferte Systeme. Ein Projekt mit fehlendem Ziel lässt sich öffnen und bearbeiten; Bau und Start melden „Zielsystem ‚x‘ ist in diesem Release nicht enthalten“, `vcc` endet mit Rückgabewert 2. Die Projektdatei wird nie verändert. Das Vorgabe-Target ist der C64, wenn geliefert, sonst das erste gelieferte.
+- **Studios:** keine Menüpunkte, keine Befehle in der Befehlspalette, keine Schaltflächen (Startseite, Auswahl „Art“ im Dialog „Neue Datei“ des Projektbaums), kein Reiter. Die Datei eines abgewählten Studios (etwa `*.sprite.json`) öffnet im Text-Editor mit einem Hinweis. **Dateiformate, `vcc media` und `vcc import` bleiben immer**; Projekte bleiben baubar. Gespeicherte Fensterlagen mit abgewählten Studios bleiben in `layout.json`, wirken aber nicht.
+- **Anbindungen:** Erkennung, F5, Debugger, `vcc test --backend`, `vcc emulator` und `vcc streams` melden „nicht im Paket enthalten“ (Rückgabewert 1). Einstellungen zeigen nur Karten der gewählten Anbindungen; bereits gespeicherte Einträge bleiben in der Datei. Debugger-Befehle, das Panel „Bild“ und die Hilfeseite „Emulatoren“ richten sich nach den gewählten Anbindungen. Emulatoren und ROMs werden nie ausgeliefert.
+- **Zielsysteme:** Projekt-Assistent, Startseite, Einstellungen, Vorlagen und `vcc new` führen nur gelieferte Systeme. Ein Projekt mit fehlendem Ziel lässt sich öffnen und bearbeiten; Bau und Start melden „Zielsystem ‚x‘ ist in diesem Release nicht enthalten“, `vcc` endet mit Rückgabewert 2. Die Projektdatei wird nie verändert. Das Vorgabe-Target ist der C64, wenn geliefert, sonst das erste gelieferte.
 - **Hilfe:** Themen, die nur zu abgewählten Teilen gehören, fehlen in Liste, Suche und Verweisen (ein Link wird zu Text). Die Zuordnung steht in `vc_ide::help::needs` und im Feld `help` der Registry; ein Test hält beide gleich.
-- **Beispiele:** ohne Beispielpakete ist „Beispiel öffnen“ auf der Willkommensseite grau. Verweise in der Hilfe auf `examples/…` bleiben Text und können auf nicht gelieferte Beispiele zeigen.
+- **Beispiele:** ohne Beispielpakete ist „Beispiel öffnen“ auf der Startseite grau. Verweise in der Hilfe auf `examples/…` bleiben Text und können auf nicht gelieferte Beispiele zeigen.
 
 ## Was die Auswahl nicht kann
 
@@ -103,4 +104,4 @@ Bei einer verletzten **harten** Abhängigkeit bricht `check` (und damit `stage`)
 
 ## Weiterführend
 
-Die Zusammenstellung Schritt für Schritt samt Checkliste beschreibt `docs/release-auswahl.md`. Prüfung der Pakete: `python3 tools/ci_staging.py` (ein Staging je Testauswahl, gebaute Beispiele, Verbotsscan, Prüfung mit dem Staging-`vcc`). Die Kommandozeile siehe [Kommandozeile (vcc)](help:cli), Emulatoren [hier](help:emulators), Zielsysteme im [Wizard](help:wizard).
+Die Zusammenstellung Schritt für Schritt samt Checkliste beschreibt `docs/release-auswahl.md`. Prüfung der Pakete: `python3 tools/ci_staging.py` (ein Staging je Testauswahl, gebaute Beispiele, Verbotsscan, Prüfung mit dem Staging-`vcc`). Die Kommandozeile siehe [Kommandozeile (vcc)](help:cli), Emulatoren [hier](help:emulators), Zielsysteme im [Projekt-Assistenten](help:wizard).

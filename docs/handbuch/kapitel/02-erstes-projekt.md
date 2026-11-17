@@ -22,14 +22,14 @@ Vorwissen über den C64 oder über Assembler brauchst du **nicht**.
 
 ## Schritt für Schritt: Projekt anlegen
 
-1. Klicke auf der Willkommensseite auf **Neues Projekt**. Du erreichst den Assistenten auch über das Menü **Datei ▸ Neues Projekt …** oder mit **Cmd/Strg+Umschalt+N**.
+1. Klicke auf der Startseite auf **Neues Projekt**. Du erreichst den Assistenten auch über das Menü **Datei ▸ Neues Projekt …** (Mac), die Befehlspalette (**Cmd/Strg+K**) oder mit **Cmd/Strg+Alt+N**.
 2. Der Assistent hat drei Spalten. In der ersten Spalte wählst du das **Zielsystem**. Klicke auf **Commodore 64**. Darunter siehst du das Hardware-Profil: den Prozessor 6510 und die Chips des C64.
 
-![Der Projekt-Assistent: links die Liste der sechs Zielsysteme, der C64 ist gewählt, darunter das Hardware-Profil mit der Anzeige „gültig“](bild:wizard-system "Spalte 1 des Assistenten: das Zielsystem wählen")
+![Der Projekt-Assistent, linke Spalte: die Liste der Zielsysteme, der Commodore 64 ist gewählt, darunter das Hardware-Profil mit der Anzeige „gültig“.](bild:wizard-system "Spalte 1 des Assistenten: das Zielsystem wählen")
 
 3. In der zweiten Spalte wählst du die **Vorlage**. Zuerst die Sprache: **Assembler (vcasm)** oder **BASIC**. Nimm für dieses Kapitel **Assembler (vcasm)** und dann die Vorlage **Assembler-Programm** („Kleines Assemblerprogramm (Farbwechsel), startbar mit F5“). Unter dem Namen steht, welche Datei die Vorlage anlegt: `src/c64/main.asm`.
 
-![Der Assistent, Spalte 2: oben die Wahl zwischen Assembler und BASIC, darunter die Vorlagenkarte „Assembler-Programm“ mit der Dateiangabe src/c64/main.asm](bild:wizard-sprache "Spalte 2: erst die Sprache, dann die Vorlage")
+![Der Projekt-Assistent, mittlere Spalte: oben die Wahl zwischen Assembler und BASIC, darunter die Vorlagenkarten „Assembler-Programm“, „Steckmodul“ und „Leeres Projekt“.](bild:wizard-sprache "Spalte 2: erst die Sprache, dann die Vorlage")
 
 4. In der dritten Spalte stehen die **Projekt-Details**:
    - **Projektname:** zum Beispiel `hallo`. Erlaubt sind Buchstaben, Ziffern, `_` und `-`. Bei anderen Zeichen färbt sich der Hinweis rot.
@@ -40,15 +40,15 @@ Vorwissen über den C64 oder über Assembler brauchst du **nicht**.
    - Die beiden Schalter für **README.md** und **Git-Repository** kannst du ausgeschaltet lassen.
    - Der Block **Dateistruktur** zeigt vorab, was angelegt wird.
 
-   ![Der Projekt-Assistent, Spalte 3 „Projekt-Details“ mit Projektname, Speicherort, Videonorm, Emulator, Startziel und Diskette](bild:wizard-details "Spalte 3: Name, Speicherort und die Vorschau der Dateien")
+   ![Der Projekt-Assistent, rechte Spalte „Projekt-Details“: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette, Zeichensatz, weitere Zielsysteme und die Vorschau der Dateistruktur.](bild:wizard-details "Spalte 3: Name, Speicherort und die Vorschau der Dateien")
 
 5. Klicke unten auf **Projekt erstellen und öffnen**. Der Knopf ist erst aktiv, wenn Name und Vorlage gültig sind. Erscheint stattdessen eine rote Meldung, nennt sie den Grund; lies sie und korrigiere die Angabe.
 
 Das Projekt ist angelegt und öffnet sich. Das Ergebnis siehst du im Editor: die Datei `main.asm` ist offen, links im Projektbaum steht der Ordner `src/c64/`.
 
-![Das frisch angelegte Projekt hallo: links der Projektbaum mit hallo.vcprj und src/c64/main.asm, in der Mitte der geöffnete Quelltext, oben die Befehlsleiste mit den Knöpfen Starten, Debuggen und Bauen](bild:projekt-neu-ergebnis "Das neue Projekt direkt nach dem Anlegen")
+![Das frisch angelegte Projekt hallo: links der Projektbaum mit src/c64/main.asm und hallo.vcprj, in der Mitte der geöffnete Quelltext, oben die Kopfzeile, unten das Protokoll.](bild:projekt-neu-ergebnis "Das neue Projekt direkt nach dem Anlegen")
 
-> **Tipp:** Auf der Kommandozeile erreichst du dasselbe mit `vcc new hallo --target c64 --template asm-hello`. Mehr zum Assistenten steht in der Hilfeseite [Willkommen und Projekt-Wizard](hilfe:wizard).
+> **Tipp:** Auf der Kommandozeile erreichst du dasselbe mit `vcc new hallo --target c64 --template asm-hello`. Mehr zum Assistenten steht in der Hilfeseite [Startseite und Projekt-Assistent](hilfe:wizard).
 
 ## Das Programm lesen
 
@@ -79,14 +79,14 @@ Du musst das noch nicht verstehen; das Assembler-Kapitel erklärt alles. Hier nu
 
 ## Schritt für Schritt: Bauen und starten
 
-1. Klicke in der Befehlsleiste auf **Bauen** (blau) oder drücke **F7**. VintageCoder speichert die Datei und übersetzt sie. Unten öffnet sich das Fußpanel mit dem **Bauprotokoll**. Eine Zeile zeigt, dass das Programm gebaut wurde; es ist 28 Byte klein.
+1. Klicke in der Kopfzeile auf **Bauen** (blau) oder drücke **F7**. VintageCoder speichert die Datei und übersetzt sie. Unten öffnet sich die Schublade mit dem **Protokoll**. Eine Zeile zeigt, dass das Programm gebaut wurde; es ist 28 Byte klein.
 2. Klicke auf **Starten** (grün) oder drücke **F5**. VintageCoder baut bei Bedarf noch einmal und startet VICE mit deinem Programm. Nach einem kurzen Moment siehst du das Emulator-Fenster: Der Rahmen des C64-Bildschirms läuft in bunten Streifen durch die Farben.
 
-![Die Befehlsleiste mit dem Feld „Auf: C64 PAL → VICE x64sc“ und den Knöpfen Starten (grün), Debuggen (bernstein) und Bauen (blau), darunter F5, F6 und F7 als Kürzel](bild:bauen-knopf "Starten (F5), Debuggen (F6) und Bauen (F7) in der Befehlsleiste")
+![Die Kopfzeile mit dem Zielfeld „Commodore 64 · VICE x64sc“ und den Knöpfen Starten, Debuggen und Bauen.](bild:bauen-knopf "Starten (F5), Debuggen (F6) und Bauen (F7) in der Kopfzeile")
 
 3. Schließe das Emulator-Fenster, wenn du fertig bist, und beende den Emulator, bevor du erneut startest.
 
-> **Info:** **F7** baut nur, **F5** baut und startet, **F6** baut und startet im Debugger (siehe [Der Debugger](kapitel:debugger)). Das Feld **Auf:** links neben den Knöpfen zeigt, wohin F5 startet: hier der Emulator VICE x64sc für den C64 im PAL-Modus.
+> **Info:** **F7** baut nur, **F5** baut und startet, **F6** baut und startet im Debugger (siehe [Der Debugger](kapitel:debugger)). Das Ziel („C64 · VICE x64sc“) links neben den Knöpfen zeigt, wohin F5 startet: hier der Emulator VICE x64sc für den C64.
 
 ## Schritt für Schritt: Eine Zahl ändern
 
@@ -132,7 +132,7 @@ F5 baut und startet auch dieses Programm. Mehr dazu im Kapitel [BASIC in der IDE
 ## Häufige Stolpersteine
 
 - **„Projekt erstellen und öffnen“ ist grau.** Der Projektname enthält ein unerlaubtes Zeichen (erlaubt: Buchstaben, Ziffern, `_`, `-`), oder zur Kombination aus Zielsystem und Sprache gibt es keine Vorlage.
-- **F5 startet nichts.** Die Befehlsleiste zeigt links den Emulator. Ist er in den Einstellungen rot, installiere ihn oder trage seinen Pfad ein (siehe [Installation und Ersteinrichtung](kapitel:installation)).
+- **F5 startet nichts.** Die Kopfzeile zeigt links den Emulator. Ist er in den Einstellungen rot, installiere ihn oder trage seinen Pfad ein (siehe [Installation und Ersteinrichtung](kapitel:installation)).
 - **Der Rahmen wird nicht rot.** Auf dem C64 muss das Programm laufen: Es startet nach dem Laden von selbst; bleibt der Bildschirm bei „READY.“, tippe `RUN`.
 - **Zwei Emulator-Fenster.** Schließe das alte Fenster, bevor du erneut startest.
 - **Der Rahmen flackert zu wild.** Das ist das Vorlagenprogramm: Es schaltet die Farbe in jedem Bild weiter. Ersetze es wie oben durch das rote Rahmenprogramm.

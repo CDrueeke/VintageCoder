@@ -31,6 +31,7 @@ const FILES: &[(&str, &str)] = &[
     ("roms", include_str!("../../../data/cli/roms.json")),
     ("streams", include_str!("../../../data/cli/streams.json")),
     ("test", include_str!("../../../data/cli/test.json")),
+    ("update", include_str!("../../../data/cli/update.json")),
 ];
 
 #[derive(Debug, Clone, Default)]

@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.TH VCC 1 "" "VintageCoder 0.2.0" "VintageCoder Handbuch"
 .SH NAME
 vcc \- Assembler, BASIC, Medien und Tests für Retro\-Systeme
 .SH ÜBERSICHT
@@ -77,6 +77,9 @@ Debug\-Protokoll der IDE auswerten (siehe \fBvcc\-debuglog\fR(1))
 .TP
 \fBvcc feedback\fR
 Rückmeldung per E\-Mail mit Angaben zur Installation vorbereiten (siehe \fBvcc\-feedback\fR(1))
+.TP
+\fBvcc update\fR
+Nachsehen, ob es eine neue Version gibt (nur Anzeige) (siehe \fBvcc\-update\fR(1))
 .SS Allgemein
 .TP
 \fBvcc help\fR [\fIbefehl\fR]
@@ -129,6 +132,12 @@ zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt.
 \fBVC_STRUCTURES\fR
 Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner).
 .TP
+\fBVC_UPDATE_URL\fR
+Quelle der Versionsliste für vcc update (Ordner, Datei oder https\-Adresse; sonst der feste Release update\-feed). Ändert nie das Ziel des Links.
+.TP
+\fBVC_UPDATE_DIR\fR
+Ordner für Befund und Prüfprotokoll der Update\-Prüfung (sonst updates im Konfigurationsordner).
+.TP
 \fBVC_DEBUG_LOG\fR
 Debug\-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc.
 .TP
@@ -151,4 +160,4 @@ Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung)
 \fB2\fR
 falscher Aufruf (unbekannter Befehl oder unbekannte Option)
 .SH SIEHE AUCH
-vcc\-add(1), vcc\-asm(1), vcc\-basic(1), vcc\-basic2asm(1), vcc\-build(1), vcc\-debuglog(1), vcc\-dis(1), vcc\-disk(1), vcc\-emulator(1), vcc\-feedback(1), vcc\-import(1), vcc\-inc(1), vcc\-media(1), vcc\-migrate(1), vcc\-new(1), vcc\-organize(1), vcc\-roms(1), vcc\-streams(1), vcc\-test(1)
+vcc\-add(1), vcc\-asm(1), vcc\-basic(1), vcc\-basic2asm(1), vcc\-build(1), vcc\-debuglog(1), vcc\-dis(1), vcc\-disk(1), vcc\-emulator(1), vcc\-feedback(1), vcc\-import(1), vcc\-inc(1), vcc\-media(1), vcc\-migrate(1), vcc\-new(1), vcc\-organize(1), vcc\-roms(1), vcc\-streams(1), vcc\-test(1), vcc\-update(1)

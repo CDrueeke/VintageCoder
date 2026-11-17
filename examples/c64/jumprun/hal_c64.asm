@@ -12,7 +12,7 @@
 ;                            hal_update_sprites; ausserdem die Konstanten SCREEN und COLOR und die Tabelle skyc (von show_title benutzt)
 ;   Die HAL liest vom Kern: lvl, sc0..sc2 und die Ausgabewerte h_px_l/h/h_py/h_fr, e_px_l/h/e_py/e_fr; aus lib/levels.inc: lvl_mc1,
 ;   lvl_mc2, lvl_sky0..5, txt_hud, txt_lv_lo/hi, CH_DIGIT0, CH_STAR; aus dem Export: title_chars, title_attrs; aus der Kachel-
-;   Bibliothek: tile_put, screen_select_a, screen_draw_all.  Sie veraendert nur eigene Nullseitenzellen und darf in allen Routinen
+;   Bibliothek: tile_put, screen_select_a, screen_draw_all.  Sie veraendert nur eigene Zeropage-Zellen und darf in allen Routinen
 ;   A, X, Y und die Flags beliebig aendern.  Die Musik (lib/music.inc) liest sfx_on, um Stimme 3 waehrend eines Effekts auszulassen.
 ;   Unterschiede zu den anderen Systemen (Sprites, Klang, Start): siehe core.asm, Abschnitt "Unterschiede".
 ;
@@ -38,14 +38,14 @@
 ;     $2000-$27FF  Zeichensatz                $2800-$31FF  Sprites (Held 14+14 Bilder, Gegner 6+6 Bilder)
 ;     $D800-$DBE7  Farb-RAM                   $C000-$C0EF  Bildkarte (LMAP, von der Spiellogik benutzt)
 ;
-; ZEIGER IM NULLSEITENBEREICH: $50-$56 (sp, cp: Bildschirm- und Farb-RAM-Zeiger; pt0-pt2: Hilfsspeicher dieser Datei).
+; ZEIGER IM ZEROPAGE-BEREICH: $50-$56 (sp, cp: Bildschirm- und Farb-RAM-Zeiger; pt0-pt2: Hilfsspeicher dieser Datei).
 ;   Frei von Ueberschneidung mit der Spiellogik ($10-$43), der Kachel-Bibliothek ($58-$5F) und der Musik ($F7-$FA).
 ;   Der Rasterinterrupt (irq, music_play, sfx_update) benutzt nur Zellen der Musik und eigene Speicherstellen, keine der Spiellogik.
 ; =====================================================================================================================
 
 .const SCREEN = $0400
 .const COLOR  = $d800
-; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Nullseite; die Spiellogik belegt $10-$43, die Musik $F7-$FA)
+; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Zeropage; die Spiellogik belegt $10-$43, die Musik $F7-$FA)
 .const sp  = $50                 ; Zeiger (2 Byte)
 .const cp  = $52
 .const pt0 = $54

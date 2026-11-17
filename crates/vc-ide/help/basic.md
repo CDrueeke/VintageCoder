@@ -113,6 +113,34 @@ main.bas:1: error B100: Zeichen 'ö' hat keine PETSCII-Entsprechung
 - **Mehrere Anweisungen** pro Zeile trennt `:` (Atari: ebenfalls `:`).
 - **Höchste Zeilennummer:** 63999 (Commodore), 32767 (Atari).
 
+## Hex- und Binärzahlen
+
+Im Quelltext darfst du Zahlen hexadezimal (`$D020`) und binär (`%00001110`) schreiben:
+
+```basic
+poke $d020,%00001110
+```
+
+Beim Bauen macht VintageCoder daraus die Zahlen, die der Dialekt versteht: `poke 53280,14`. Die Schreibweise im Quelltext ändert das Programm nicht, `$D020` und `53280` ergeben dieselben Bytes.
+
+- **Wo es gilt:** in Ausdrücken, Argumenten und `DATA`-Elementen (`data $ff,%1010`). Text in Anführungszeichen und `rem` bleiben unverändert.
+- **Typkennzeichen:** `a$` und `a%` bleiben Variablennamen. Nach einem Schlüsselwort beginnt `$` eine Zahl (`print $ff` gibt 255 aus).
+- **Trenner:** `_` darf Ziffern gruppieren (`$d0_20`, `%0000_1110`); ein Schalter dafür fehlt in der Oberfläche noch.
+- **Größe:** bis 32 Bit (`$ffffffff`). Adressen über 65535 und `poke`-Werte über 255 meldet der Bau als Warnung (**B134**, **B135**), auf Wunsch als Fehler.
+- **Sprungziele:** `goto $0100` geht nicht (**B138**): Zeilennummern entstehen beim Bauen, nimm eine Marke (`goto @name`).
+- **Dialekte:** Turbo BASIC XL behält `$` (das Gerät liest es selbst) und wandelt `%` um; BASIC 65 bekommt Dezimalzahlen oder, wenn so eingestellt, die Zahlen wie getippt (diese Einstellung gibt es in der Oberfläche noch nicht). Alle anderen Dialekte bekommen Dezimalzahlen.
+- **Fehler:** **B130** ungültige Hexziffer, **B131** ungültige Binärziffer, **B132** `$` oder `%` ohne Ziffern, **B133** über 32 Bit. **B136** warnt, wenn eine Hexzahl an ein Schlüsselwort stößt (`$ffand` – ein Leerzeichen davor), **B137**, wenn `a%=40000` nicht in eine Ganzzahlvariable passt, **B139**, wenn du `0xFF` geschrieben hast.
+- **Anzeigen:** Hex, Binär und Dezimal haben im Editor eigene Farben; über einer Zahl zeigt der Hover alle Schreibweisen, die erzeugte Zahl und bei Adressen in `poke`, `peek`, `sys`, `wait` das Chipregister (`vic2.border – Rahmenfarbe`). 
+
+### Zahlen im Editor bearbeiten
+
+Zwei Werkzeuge im Menü **Bearbeiten** (auch in der Befehlspalette, beide ohne Kürzel):
+
+- **Zahlenwerkzeuge …:** ein Dialog mit Umrechnung und Bit-Editor. Gib eine Zahl oder einen Ausdruck ein (`$D020`, `%1010`, `255`, `$D000+$20`), und der Dialog zeigt sie dezimal, hexadezimal und binär, als Lo-/Hi-Byte, als Zeichen und mit Vorzeichen. Der Bit-Editor schaltet einzelne Bits (8 oder 16 Bit) per Klick; **Kopieren** und **Einsetzen** bringen den Wert in die Zwischenablage bzw. an die Schreibmarke im Editor. Siehe [Zahlenwerkzeuge](help:numbers).
+- **BASIC: Hex-Vorschläge für Adressen …:** für importierte Programme. Dezimale Adressen, die ein Chipregister des Zielsystems sind, lassen sich als Hex schreiben. Nur vollständige Adressen in `poke`, `peek`, `sys`, `wait`, `usr` werden vorgeschlagen, jede Zeile ist einzeln wählbar (mit **Alle** und **Keine**), ohne deine Auswahl ändert sich nichts. Auf der Kommandozeile: `vcc basic --suggest-hex datei.bas` listet, `--apply 1,3 -o neu.bas` schreibt die gewählten.
+
+Noch nicht in der Oberfläche: das Umwandeln aller Zahlen einer Zeile oder Datei, ein Rechtsklick-Menü „Zahlen“, das Suchen nach dem Zahlenwert (`#` in der Suchleiste) und eine Eingabehilfe nach `$` und `%`.
+
 ## Beispiele im Lieferumfang
 
 - `examples/c64/basic_native` – C64, Marken, ohne Zeilennummern.

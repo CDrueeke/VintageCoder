@@ -28,7 +28,9 @@ Auf dem C64 und seinen Verwandten gilt in Zeichenketten:
 - Ziffern, Satzzeichen und `@ [ ] ^ _` wie auf der Tastatur. Umlaute, `ß`, `\`, `{` und `}` (außer als Steuerzeichen) haben keine Entsprechung und ergeben den Fehler **B100** (`Zeichen 'ö' hat keine PETSCII-Entsprechung`).
 - **Steuerzeichen** in geschweiften Klammern: `{clr}`, `{home}`, `{wht}` …
 - `{name*n}` wiederholt ein Zeichen `n`-mal: `{down*3}` sind drei Cursor-nach-unten.
-- `{$xx}` schreibt ein beliebiges Byte hexadezimal.
+- `{$xx}` schreibt ein beliebiges Byte hexadezimal, `{nnn}` dezimal (`{147}`).
+- Groß-/Kleinschreibung, `_` und `-` statt Leerzeichen sind egal (`{rvs_on}`). Die Namen kommen aus derselben Tabelle wie beim Assembler (`data/chars/`): Das BASIC schreibt `{orng}`, `{return}`, `{rght}`, und die Schreibweisen des Assemblers (`{orange}`, `{ret}`, `{right}`) gelten ebenfalls. Beim Auflisten (`LIST`) stehen die Namen des Dialekts.
+- Im Editor sind die Angaben farbig, unbekannte Namen rot unterschlängelt; ein Hover zeigt Code und Wirkung, und nach `{` bietet der Editor die Namen an.
 
 Die folgenden Zeilen ergeben dasselbe Programm:
 
@@ -286,7 +288,7 @@ Turbo BASIC XL ist ein schnelleres, erweitertes Atari-BASIC. Es wird als Dialekt
 - **Strukturen:** `PROC name … ENDPROC`, `EXEC name`, `WHILE … WEND`, `REPEAT … UNTIL`, `DO … LOOP`, `EXIT`, mehrzeiliges `IF … ELSE … ENDIF`.
 - **Sprungmarken:** `GO# name` und `# name` (eigene Marke in Turbo BASIC XL); `ON x EXEC a, b` und `ON x GO# a, b`. Daneben funktioniert `@name` wie immer.
 - **Befehle:** `DPOKE MOVE -MOVE BPUT BGET FILLTO CIRCLE PAINT FCOLOR PAUSE TEXT CLS DSOUND TRACE DUMP DEL RENUM BLOAD BRUN DIR LOCK UNLOCK RENAME DELETE TIME$= *F *B *L %PUT %GET`.
-- **Funktionen und Operatoren:** `DIV MOD EXOR & !`, Hexzahlen `$FF`, `%0`–`%3`, `DPEEK INSTR UINSTR INKEY$ HEX$ DEC FRAC TRUNC RAND TIME TIME$ ERR ERL` und `RND` ohne Klammern.
+- **Funktionen und Operatoren:** `DIV MOD EXOR & !`, Hexzahlen `$FF` (bleiben stehen), Binärzahlen ab zwei Ziffern (`%1010`, werden beim Bauen dezimal), `%0`–`%3` einzeln als Konstanten, `DPEEK INSTR UINSTR INKEY$ HEX$ DEC FRAC TRUNC RAND TIME TIME$ ERR ERL` und `RND` ohne Klammern.
 - **Kommentare:** `'` und `.` am Zeilenanfang (beide ergeben eine `REM`-Zeile), außerdem `--`.
 - **Variablen:** bis zu 256, die Schreibweise des ersten Vorkommens bleibt erhalten.
 - **Abkürzungen** wie `G.`, `PR.`, `POK.`.

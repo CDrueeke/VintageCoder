@@ -12,6 +12,7 @@
   "numberStorage": "ascii_text",
   "floatFormat": "mbf5",
   "capabilities": {"doLoop": true, "graphic": true, "spriteCmds": true, "trap": true},
+  "numberLiterals": {"hex": true, "bin": true, "bits": 32},
   "_comment": "Erzeugt von tools/gen_dialect.py aus petcat -k65 / -w65. Codes wie $FE3C bestehen aus Präfix und Folgebyte.",
   "tokens": [
     ["END", "$80"],

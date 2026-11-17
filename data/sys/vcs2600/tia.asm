@@ -82,7 +82,7 @@
 .const T1024T                  = $0297   // Timer setzen, Takt 1024
 
 // ---- Makros
-// Standard-Start: Interrupts aus, Dezimalmodus aus, Nullseite (TIA und RAM) und Stapel löschen
+// Standard-Start: Interrupts aus, Dezimalmodus aus, Zeropage (TIA und RAM) und Stapel löschen
 .macro CLEAN_START
  sei
  cld

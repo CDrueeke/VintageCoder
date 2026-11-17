@@ -1,13 +1,5 @@
-; Kachelsatz hg (3x2) und Screen-Bank levels im Exportformat des Kachel-Editors (Konzept, Anhang A), hier aber von
-; tools/gen_tiles_demo.py erzeugt (die Daten sind frei erfunden, kein Bildinhalt).
-;
-; Kachelsatz hg: 6 Kacheln, jede 3x2 Zeichenzellen gross.
-;   hg_c0..hg_c5  eine Tabelle je Zelle (planar): Index = Kachelnummer, Wert = Bildschirmcode der Zelle k; Zellen zeilenweise (k = Zeile * 3 + Spalte)
-;   hg_col         Farb-RAM-Byte je Kachel (TED-Farbwert: Farbton + 16 * Helligkeit)
-;   hg_props       Eigenschaftenbyte je Kachel (frei erfundene Beispielwerte; P_SOLID = 1 ist ein Bit davon)
-;   hg_tw, hg_th, hg_count  Breite und Hoehe in Zellen und Anzahl der Kacheln
-; Screen-Bank levels: 3 Karten (levels_map0..2), jede levels_tiles_w x levels_tiles_h Bytes zeilenweise mit Kachelnummern;
-;   levels_screens ist die Adresstabelle (zuerst alle Low-Bytes, dann alle High-Bytes: .lohifill); lv1_id..lv3_id sind die Screen-Nummern 0..2.
+; Kachelsatz hg (3x2) und Screen-Bank levels, von Hand im Exportformat des Kachel-Editors (Konzept, Anhang A).
+; Erzeugt von tools/gen_tiles_demo.py (die Daten sind frei erfunden, kein Bildinhalt).
 
 hg_c0:  .byte $11,$18,$1f,$26,$2d,$34
 hg_c1:  .byte $14,$1b,$22,$29,$30,$37
@@ -52,6 +44,46 @@ levels_map2:  .byte $01,$05,$05,$00,$01,$05,$05,$03,$00,$03,$00,$05
               .byte $03,$04,$03,$05,$05,$00,$00,$03,$00,$00,$00,$00
               .byte $00,$05,$04,$02,$04,$04,$00,$00,$05,$04,$05,$00
               .byte $04,$05,$02,$04,$02,$01,$01,$00,$02,$00,$03,$03
+levels_rle_map0:  .byte $00,$01,$04,$01,$01,$01,$00,$01,$01,$03,$02,$01,$04,$01,$03,$01
+                  .byte $04,$01,$01,$01,$02,$01,$03,$02,$04,$01,$01,$01,$02,$01,$03,$01
+                  .byte $00,$01,$01,$02,$05,$01,$02,$01,$05,$01,$04,$03,$03,$01,$04,$01
+                  .byte $05,$01,$00,$01,$04,$01,$05,$01,$00,$01,$04,$01,$03,$01,$01,$01
+                  .byte $04,$01,$01,$01,$02,$01,$03,$02,$02,$01,$03,$01,$02,$01,$01,$01
+                  .byte $04,$01,$01,$01,$05,$01,$02,$01,$03,$02,$01,$01,$05,$01,$02,$01
+                  .byte $04,$02,$02,$01,$01,$01,$00,$01,$01,$01,$03,$01,$01,$02,$00,$01
+                  .byte $04,$02,$01,$01,$04,$01,$02,$01,$05,$01,$00,$02,$04,$01,$05,$01
+                  .byte $01,$01,$02,$01,$03,$01,$00,$01,$04,$01,$05,$01,$01,$01,$04,$01
+                  .byte $05,$01,$01,$01,$02,$02,$05,$01,$02,$02,$00,$01,$03,$01,$00,$01
+                  .byte $02,$01,$05,$01,$04,$01,$02,$01,$03,$01,$02,$01,$04,$01,$01,$01
+                  .byte $02,$01,$00,$01,$02,$01,$01,$01,$03,$01,$00,$01,$04,$01,$00,$02
+                  .byte $05,$01,$03,$03,$05,$02,$00,$01,$04,$01,$02,$01
+levels_rle_map1:  .byte $02,$01,$04,$02,$05,$01,$00,$01,$02,$01,$04,$01,$02,$01,$01,$01
+                  .byte $04,$01,$01,$01,$02,$03,$01,$01,$00,$01,$01,$01,$04,$01,$05,$01
+                  .byte $02,$01,$04,$01,$02,$02,$00,$01,$02,$01,$01,$01,$05,$01,$04,$01
+                  .byte $03,$01,$00,$01,$02,$01,$00,$02,$03,$04,$04,$01,$02,$01,$03,$01
+                  .byte $04,$01,$02,$01,$01,$01,$00,$01,$05,$01,$00,$01,$03,$01,$01,$02
+                  .byte $04,$01,$05,$01,$01,$02,$04,$01,$05,$01,$01,$01,$00,$02,$03,$01
+                  .byte $00,$02,$04,$01,$05,$01,$03,$01,$04,$01,$02,$01,$05,$01,$02,$01
+                  .byte $05,$02,$01,$01,$02,$02,$05,$01,$04,$01,$00,$01,$02,$02,$01,$01
+                  .byte $00,$02,$01,$01,$03,$01,$01,$01,$02,$01,$00,$01,$02,$01,$03,$02
+                  .byte $01,$01,$00,$01,$05,$01,$00,$01,$02,$01,$03,$02,$04,$01,$01,$01
+                  .byte $02,$01,$00,$02,$02,$01,$00,$01,$04,$01,$00,$01,$03,$01,$05,$01
+                  .byte $04,$01,$01,$01,$03,$01,$02,$01,$05,$01,$01,$01,$05,$01,$00,$01
+                  .byte $02,$01,$03,$01,$01,$01,$04,$02
+levels_rle_map2:  .byte $01,$01,$05,$02,$00,$01,$01,$01,$05,$02,$03,$01,$00,$01,$03,$01
+                  .byte $00,$01,$05,$01,$04,$01,$05,$01,$01,$01,$04,$01,$02,$01,$01,$01
+                  .byte $04,$01,$03,$01,$00,$02,$02,$01,$03,$01,$02,$01,$05,$02,$02,$01
+                  .byte $00,$01,$01,$01,$05,$04,$02,$01,$05,$01,$04,$01,$01,$01,$00,$01
+                  .byte $01,$01,$02,$01,$00,$02,$05,$01,$00,$02,$04,$02,$00,$01,$05,$01
+                  .byte $01,$01,$03,$01,$04,$01,$02,$01,$04,$01,$03,$01,$00,$03,$01,$01
+                  .byte $02,$01,$00,$02,$02,$01,$01,$01,$02,$01,$00,$01,$01,$01,$05,$01
+                  .byte $03,$01,$04,$01,$02,$02,$03,$01,$01,$01,$05,$01,$03,$01,$00,$01
+                  .byte $03,$01,$02,$02,$04,$01,$05,$01,$04,$01,$03,$01,$04,$01,$03,$01
+                  .byte $05,$02,$00,$02,$03,$01,$00,$05,$05,$01,$04,$01,$02,$01,$04,$02
+                  .byte $00,$02,$05,$01,$04,$01,$05,$01,$00,$01,$04,$01,$05,$01,$02,$01
+                  .byte $04,$01,$02,$01,$01,$02,$00,$01,$02,$01,$00,$01,$03,$02
+levels_rle_lo:  .byte <levels_rle_map0,<levels_rle_map1,<levels_rle_map2
+levels_rle_hi:  .byte >levels_rle_map0,>levels_rle_map1,>levels_rle_map2
 levels_screens: .lohifill 3, levels_map0 + 120 * i
 levels_screens_lo = levels_screens
 levels_screens_hi = levels_screens + 3

@@ -106,7 +106,7 @@
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseiten-Variablen des Spiels ($10-$8B, nicht der Reihe nach deklariert; frei sind $3C-$3F; $02-$0D und $8C-$8F gehoeren den Bibliotheken)
+; Zeropage-Variablen des Spiels ($10-$8B, nicht der Reihe nach deklariert; frei sind $3C-$3F; $02-$0D und $8C-$8F gehoeren den Bibliotheken)
 ; Namen und Bedeutung: Ball (bx.., by.., vx.., vy..) = Zustand des GERADE bearbeiteten Balls (load_ball/save_ball kopieren ihn aus dem
 ; Ballspeicher); t0..t3 = kurzlebige Hilfswerte, die jede Routine fuer sich benutzt (Vorsicht: Aufrufer duerfen sich nicht darauf verlassen).
 ; ---------------------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@
 .const nact    = $5b                    ; Anzahl aktiver Baelle in diesem Bild
 .const sprmsb  = $5c                    ; update_sprites: gesammeltes 9. X-Bit der Sprites
 .const sprena  = $5d                    ; update_sprites: gesammelte Sprite-Freigabebits
-; Titelbaelle (3 Byte je Eigenschaft, Schlitz 0..2 = Sprites 0, 4, 5), ausserhalb der Nullseite:
+; Titelbaelle (3 Byte je Eigenschaft, Schlitz 0..2 = Sprites 0, 4, 5), ausserhalb der Zeropage:
 .const tbu     = $c130                  ; Titel-Baelle (3): X in Einheiten zu 2 px
 .const tby     = $c133                  ;                    Y in px
 .const tbdu    = $c136                  ;                    Schritt X (1 oder $FF)
@@ -233,7 +233,7 @@
                                         ; (Typen: 1..8 Farbsteine, 9 Silber, 10 Gold, 11 unzerstoerbar, 12 explosiv, 13 Ueberraschung,
                                         ; 16..23 Boss-Kern mit Typ - 15 Lebenspunkten; siehe brick_color/brick_pts)
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2).  load_ball/save_ball kopieren einen Ball in die
-; Nullseite (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.  Alle Adressen oberhalb von $C000 (RAM der Bank 0).
+; Zeropage (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.  Alle Adressen oberhalb von $C000 (RAM der Bank 0).
 ; Laserschuesse (2 Stueck, Sprites 6 und 7)
 .const shact   = $c120                  ; Laserschuesse (2 Stueck): 1 = aktiv
 .const shu     = $c122                  ;   X-Lage in Einheiten zu 2 px (px / 2, damit 8 Bit reichen: max. 150)
@@ -367,7 +367,7 @@ rti_only: rti                           ; Vektor fuer NMI/RESET im RAM: tut nich
 copy_font:
         lda #$01                        ; MMU-Konfiguration $01: Systemroms sichtbar, E/A AUS -> an $D000 erscheint das Zeichen-ROM (Programm unter $4000 bleibt sichtbar)
         sta MMU_CR_FF00
-        lda #<$d000                     ; sp = Quelle (Zeichen-ROM), cp = Ziel ($8800): Nullseitenzeiger fuer (sp),y / (cp),y
+        lda #<$d000                     ; sp = Quelle (Zeichen-ROM), cp = Ziel ($8800): Zeropage-Zeiger fuer (sp),y / (cp),y
         sta sp
         lda #>$d000
         sta sp + 1
@@ -1753,7 +1753,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite holen / dorthin zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage holen / dorthin zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -1823,7 +1823,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball (groesstes byh) in die Nullseite laden (der Autoplay/Demo folgt ihm).   Veraendert A, X, cb, t2, t3.
+; pick_ball: den tiefsten aktiven Ball (groesstes byh) in die Zeropage laden (der Autoplay/Demo folgt ihm).   Veraendert A, X, cb, t2, t3.
 pick_ball:
         lda #0
         sta t2                          ; bester Y-Wert (High-Byte)
@@ -1856,7 +1856,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -1883,7 +1883,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -2954,7 +2954,7 @@ laser_fire:
 ;   Spalte = (u - 8) / 8 (u = px / 2, Stein 16 px = 8 Einheiten breit, Feld beginnt bei px 16 = u 8), Zeile = (y - 32) / 8.
 update_shots:
         ldx #0
-.us:    stx shi                          ; Schuss 0..1 merken: hit_brick veraendert X, shi (Nullseite) bleibt erhalten und wird danach neu geladen
+.us:    stx shi                          ; Schuss 0..1 merken: hit_brick veraendert X, shi (Zeropage) bleibt erhalten und wird danach neu geladen
         lda shact,x
         beq .usn
         lda shy,x
@@ -3432,7 +3432,7 @@ name_draw:
 ;   dann links nach rechts schreiben), 3 nach links wegscrollen (neu von rechts), 4 nach rechts, 5 Wischer (Kante laeuft pixelweise von links
 ;   nach rechts), 6 Aufloesen (zufaellige Pixelzeilen werden ausgetauscht).  Dazu eine laufende Regenbogenfarbe ueber die Zeichen.
 ;   ABLAUF: warten (tkw Bilder), naechsten Text aus der Folge holen, Effekt starten, Schritte ausfuehren, fertig -> warten.
-; Zustand (Nullseite): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
+; Zustand (Zeropage): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
 ; Texte: tk_msgs (3 Texte zu 32 Bildschirmcodes); Folgen: tk_seqs/tk_seq/tk_seqlen.  Anzeige/Ziel: tk_cur / tk_new (je 32 Byte, $C140/$C160).
 ; Hinweis: Die Ticker-Zeichen liegen im RAM-Zeichensatz bei $8F00; der Rest des Zeichensatzes ($8800-$8EFF) bleibt unveraendert.
 ; =====================================================================================================================

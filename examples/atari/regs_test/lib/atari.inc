@@ -130,6 +130,8 @@
 .const os.runad = $02e0   ; Startadresse (XEX) (lesen/schreiben)
 .const os.initad = $02e2   ; Init-Adresse (XEX) (lesen/schreiben)
 .const os.memtop = $02e5   ; Obergrenze des freien Speichers (lesen/schreiben)
+.const os.chact = $02f3   ; CHACTL-Schatten (Zeichensatz-Steuerung) (lesen/schreiben)
+.const os.chbas = $02f4   ; CHBASE-Schatten (Zeichensatzbasis, High-Byte) (lesen/schreiben)
 .const os.ch = $02fc   ; Letzter Tastencode (lesen/schreiben)
 .const os.rtclok = $0012   ; Systemuhr (3 Byte, 50/60 Hz) (lesen/schreiben)
 .const os.atract = $004d   ; Attract-Modus-Zähler (lesen/schreiben)

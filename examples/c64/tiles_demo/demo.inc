@@ -49,7 +49,14 @@ start:  jmp main                ; über Daten und Bibliotheksbindung hinweg zum 
 
 ; Satz hg und Bank levels an die Bibliothek binden (setzt nur Assemblervariablen, erzeugt keinen Code)
 
+.ifndef DEMO_RLE
+.const DEMO_RLE = 0             ; 1 = Karten lauflängenkodiert (levels_rle_*), TILE_RLE und TILE_MAPRAM kommen aus der Programmdatei
+.endif
+.if DEMO_RLE
+        tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_rle_lo, levels_rle_hi, levels_tiles_w, levels_tiles_h
+.else
         tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_tiles_w, levels_tiles_h
+.endif
 
 
 ; ---------------------------------------------------------------- Programm: zeigt Screen 0 und darauf ein paar Einzelkacheln
@@ -238,6 +245,45 @@ t_prop:
         ldx ZP_X
         ldy ZP_Y
         jmp tile_prop
+
+; t_erase - tile_erase: Screen 1 (lv2_id) wählen, nur die Karten-Kacheln bei (3,4) und rechts unten zeichnen; Ausgabe wie t_screen1.
+t_erase:
+        jsr clear_all
+        screen_select lv2_id
+        ldx #3
+        ldy #4
+        jsr tile_erase
+        ldx #levels_tiles_w - 1
+        ldy #levels_tiles_h - 1
+        jsr tile_erase
+        check EXP_ERASE_SCR, EXP_ERASE_COL
+
+; t_erase_at - tile_erase einzeln für den Test: ZP_X, ZP_Y = Kachelposition (Screen 1 ist schon gewählt, siehe setup mem).
+t_erase_at:
+        jsr tile_erase
+        rts
+
+; t_restore - tile_restore (Rechteck 4 x 3 ab (2,1) aus der Karte von Screen 1); Ausgabe wie t_screen1.
+t_restore:
+        jsr clear_all
+        screen_select lv2_id
+        tile_restore 2, 1, 4, 3
+        check EXP_RESTORE_SCR, EXP_RESTORE_COL
+
+; t_restore_bg - Hintergrundwiederherstellung: Screen 1 zeichnen, eine Figur (Kachel 4, 3 x 2) darüber setzen, dann das Rechteck neu
+;   zeichnen; das Ergebnis muss wieder Screen 1 sein.
+t_restore_bg:
+        jsr clear_all
+        screen_draw lv2_id
+        tile_fill 4, 2, 2, 3, 2
+        tile_restore 2, 2, 3, 2
+        check EXP_S1_SCR, EXP_S1_COL
+
+; t_row - tile_row: Kachelzeile 5 mit Kachel 3 füllen; Ausgabe wie t_screen1.
+t_row:
+        jsr clear_all
+        tile_row 5, 3
+        check EXP_ROW_SCR, EXP_ROW_COL
 
 ; ---------------------------------------------------------------- Laufzeit der Bibliothek (einmal, hinter dem Programm)
         tiles_runtime                   ; Unterprogramme screen_*, tile_put, tile_prop und die Tabellen der Bibliothek

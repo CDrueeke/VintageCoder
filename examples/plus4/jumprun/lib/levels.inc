@@ -1,8 +1,7 @@
 ; levels.inc - ERZEUGT von tools/gen_jumprun_plus4.py (Spielwege aus tools/jumprun_art.py) - nicht von Hand aendern
 
 ; Kacheleigenschaften je Kachelnummer: 0 leer, 1 tragend, 2 Leiter
-tile_attr:
-        .byte 0,1,1,1,1,2,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+; (tile_attr steht im Kachelsatz graphics/hg.vctiles: hg_props)
 lvl_mc1:
         .byte 57,33,50,78
 lvl_mc2:

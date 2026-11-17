@@ -17,6 +17,28 @@ referenz: [mega65, export, graphics]
 - für den Paletten-Editor ein **MEGA65-Projekt** (nur dieses System hat eine frei veränderbare Palette),
 - Kenntnisse aus [Grafik und Klang im Überblick](kapitel:grafik-ueberblick).
 
+## Wofür ist das Studio gedacht?
+
+Der Paletten-Editor legt fest, **welche Farben deine Grafik wirklich hat**. Beim MEGA65 sind das 256 Farben, die du selbst mischst; bei den anderen Systemen sind die Farben fest, und du wählst sie in den anderen Studios aus.
+
+Typische Einsätze aus echten Retro-Projekten:
+
+- **Ein eigener Farbverlauf** für einen Himmel oder Wasser (Vollfarbzeichen und Bitmaps des MEGA65).
+- **Ein Farbschema** für ein ganzes Spiel, damit alle Figuren zusammenpassen.
+- **Farbwechsel-Effekte:** dieselbe Grafik mit anderer Palette zeigt Tag und Nacht.
+
+Im fertigen Programm sind das drei Tabellen zu je 256 Bytes (Rot, Grün, Blau), die dein Programm in die Palettenregister des Chips kopiert.
+
+## Grundbegriffe ohne Vorwissen
+
+- **Palette:** Tabelle „Nummer → Farbe“.
+- **Eintrag:** eine Zeile der Tabelle (eine Nummer mit ihrer Farbe).
+- **RGB:** eine Farbe aus Rot, Grün und Blau; beim MEGA65 je 8 Bit (0 bis 255).
+- **Hexwert:** die Farbe als `#rrggbb`, zum Beispiel `#ff8800` für Orange.
+- **Palettenbank:** der MEGA65 hat vier Paletten, zwischen denen du umschalten kannst.
+- **PAL / NTSC:** europäische und amerikanische Videonorm; Atari-Farben sehen je nach Norm anders aus.
+- **VIC-IV:** der Grafikchip des MEGA65.
+
 ## Was ist eine Palette?
 
 Ein Bildpunkt speichert keine Farbe, sondern eine **Nummer**. Die **Palette** ist die Tabelle, die jeder Nummer eine Farbe zuordnet. Ändert man den Tabelleneintrag, ändert sich die Farbe überall, wo diese Nummer vorkommt.
@@ -25,22 +47,35 @@ Ein Bildpunkt speichert keine Farbe, sondern eine **Nummer**. Die **Palette** is
 - **Atari:** Der Chip kennt 128 Farben (16 Farbtöne mal 8 Helligkeiten). Auch sie sind fest. Ob die Farben nach PAL oder NTSC aussehen, stellst du in jedem Atari-Studio rechts bei **Videonorm** ein.
 - **MEGA65:** Der Grafikchip VIC-IV hat eine Palette mit **256 Einträgen**, jeder aus Rot, Grün und Blau mit je **8 Bit** (also 16,7 Millionen mögliche Farben). Diese Einträge darfst du selbst ändern. Wichtig wird das im Vollfarbmodus: Dort zeigt jeder Punkt eines Zeichens auf einen Eintrag der Palette (siehe [Zeichensatz-Editor](kapitel:zeichensatz)).
 
-## Schritt für Schritt: eine Palette bearbeiten (MEGA65)
+## Meine erste Palette (MEGA65)
 
-1. **+** im Projektbaum ▸ **Palette …**, Namen `pal65` eingeben, Profil **MEGA65 Palette (256 Farben, 8 Bit je Kanal)**, **Anlegen**.
-2. Der Editor zeigt links ein Raster aus **256 Farbfeldern** (16 pro Zeile). Fährst du mit der Maus über ein Feld, nennt der Hinweis Nummer, Hexwert und Farbe.
-3. Ein Klick auf ein Feld wählt es. Rechts erscheint die Karte **Eintrag n ($ xx)**.
-4. Ändere die Farbe mit dem **Farbwähler** (die kleine Farbfläche rechts) oder tippe den Wert direkt in das Textfeld darunter, im Format `#rrggbb` (zum Beispiel `#ff8800`). Mit der Eingabetaste oder dem Verlassen des Feldes wird er übernommen.
-5. Der Knopf **Standardpalette** setzt alle 256 Einträge auf die mitgelieferte Palette zurück. **Undo** macht den letzten Schritt rückgängig.
-6. **Speichern** (oder Strg/Cmd+S) schreibt die Datei `.vcpal`.
+1. **＋** in der linken Spalte ▸ im Dialog **Neue Datei** die Art **Paletten**, Profil **MEGA65 Palette (256 Farben, 8 Bit je Kanal)**, Namen `pal65` eingeben, **OK**. *Erwartet:* ein neuer Reiter mit 256 Farbfeldern.
+2. **Eintrag wählen:** Klick auf ein Feld (16 Felder je Zeile). *Erwartet:* Rechts erscheint die Karte **Eintrag n ($xx)**, die Fußzeile nennt Nummer und Hexwert.
+3. **Farbe ändern:** Die Regler **R**, **G** und **B** oder ein Hexwert (`#rrggbb`) im Feld **Hex**, dann Eingabetaste. *Erwartet:* Das Feld zeigt die neue Farbe, **●** erscheint.
+4. **Zurück:** **Cmd/Strg+Z**; **Standardpalette** setzt alle 256 Einträge auf die mitgelieferte Palette.
+5. **Speichern:** **Cmd/Strg+S** schreibt `.vcpal`.
 
-![Paletten-Editor mit 256 Farbfeldern und der Karte für den gewählten Eintrag](bild:palette-mega65 "Der Paletten-Editor des MEGA65: ① 256 Farbfelder, ② Farbwähler, ③ Hexwert, ④ Standardpalette")
+![Das Paletten-Studio des MEGA65: 256 Farbfelder, rechts die Karte „Eintrag 0 ($00)“ mit Farbfeld, den Reglern R, G, B und dem Feld Hex; oben die Leiste mit „Standardpalette“.](bild:palette-mega65 "Der Paletten-Editor des MEGA65: 256 Farbfelder und die Karte für den gewählten Eintrag")
+
+## Aufbau der Oberfläche
+
+| Zone | Inhalt |
+|---|---|
+| Kopfzeile | Art **PAL**, Name, **●**, Zahl der Farben, **Exportieren …** (**Cmd/Strg+Umschalt+E**), **Speichern** |
+| Leiste | **Standardpalette**, Rückgängig, Wiederholen |
+| Liste | (beim Paletten-Editor nicht belegt) |
+| Fläche | die 256 Farbfelder |
+| Karten | Karte **Eintrag n ($xx)**: Farbfeld, Regler **R**, **G**, **B** und Feld **Hex** |
+| Fußzeile | Nummer und Hexwert des gewählten Eintrags |
+
+Tasten: **Cmd/Strg+Z** und **Cmd/Strg+Umschalt+Z**, **Cmd/Strg+S**. Weitere Aktionen findest du in der Befehlspalette (**Cmd/Strg+K**, „Studio: Standardpalette laden“ …).
+
 
 > **Info:** Die Palette der ersten 16 Einträge entspricht den C64-Farben. Die weiteren Einträge bilden eine Farbtabelle, mit der du Verläufe und eigene Töne bauen kannst. Bevor du alles überschreibst, lege dir eine Kopie an.
 
 ## Export und Einbinden
 
-Über **Exportieren** (oben in der Werkzeugleiste) schreibt der Editor die Palette nach `build/export/<name>.asm`; **In Code einfügen** erledigt zusätzlich die `.include`-Zeile im zuletzt benutzten Quelltext. Beim Bauen entsteht der Export wie bei den anderen Studios von selbst.
+Über **Exportieren …** (Kopfzeile) öffnest du den Export-Dialog. **In Projekt speichern** schreibt die Palette nach `build/export/<name>.asm`; **In aktiven Code einfügen** setzt zusätzlich die `.include`-Zeile in den zuletzt benutzten Quelltext. Beim Bauen entsteht der Export wie bei den anderen Studios von selbst.
 
 Die Datei enthält drei Tabellen zu je 256 Bytes: `<name>_red`, `<name>_green` und `<name>_blue`. Der Export kümmert sich dabei um eine Eigenheit der Hardware: Die Palettenregister `$D100`, `$D200` und `$D300` erwarten die beiden Halbbytes (vier Bit) jedes Werts **vertauscht**. Das musst du nicht selbst umrechnen.
 
@@ -82,9 +117,26 @@ vic4_palette_runtime
 
 Bei den anderen Systemen gibt es **keinen** Paletten-Editor, denn die Farben sind Hardware. Jedes Studio zeigt rechts seine Farbfelder: beim C64 16 Felder, beim Atari 128 (mit **Videonorm** PAL oder NTSC). Du klickst ein Feld an und weist es einem Pixelwert zu. Gespeichert wird die Nummer, nicht der Farbton.
 
-![Farbfelder des Atari mit 128 Tönen und Videonorm-Schalter](bild:palette-atari "Beim Atari wählst du eine von 128 festen Farben; die Videonorm (PAL oder NTSC) ändert, wie sie aussehen")
+![Die Karte „Dokument“ im Atari-PMG-Editor: die gewählte Spielerfarbe, darunter die Atari-Palette (128 Farbtöne) mit den Schaltern PAL, NTSC und Projekt.](bild:palette-atari "Beim Atari wählst du eine von 128 festen Farben; die Videonorm (PAL oder NTSC) ändert, wie sie aussehen")
 
 Wie die Atari-Farben nach PAL oder NTSC wirklich aussehen, zeigen die kleinen Messprogramme `examples/atari/palette0` und `examples/atari/palette1`: Sie malen jeden Farbwert als Streifen auf den Bildschirm.
+
+## Hardware-Besonderheiten und Grenzen
+
+| System | Farben | Veränderbar? |
+|---|---|---|
+| C64, C128 (40 Spalten) | 16 | nein (Emulatoren zeigen sie unterschiedlich) |
+| VC-20 | 16 | nein |
+| Plus/4 | 121 | nein (TED-Palette im Studio noch unvollständig) |
+| Atari | 128 (16 Farbtöne × 8 Helligkeiten) | nein; PAL und NTSC sehen anders aus |
+| MEGA65 | 256 aus 16,7 Millionen | **ja**, 4 Palettenbänke |
+
+Auf dem MEGA65 wirkt eine Palette nur auf Vollfarbzeichen, Bitmaps und Sprites, die diese Bank benutzen; den Vorgaben „C64-Farben“ der ersten 16 Einträge solltest du treu bleiben, wenn du die Standardgrafik weiter benutzen willst.
+
+## Nachbar-Studios und Glossar
+
+- Die Farben benutzen der [Zeichensatz-Editor](kapitel:zeichensatz) (Vollfarbzeichen), der [Sprite-Editor](kapitel:sprites) und der [Bildschirm-Editor](kapitel:bildschirm-kacheln).
+- Begriffe: Glossar (Datei `GLOSSAR.md`): Palette, RGB, PAL, NTSC.
 
 ## Häufige Stolpersteine
 

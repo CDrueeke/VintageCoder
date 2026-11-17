@@ -21,9 +21,9 @@ Die Zielsysteme beschreiben [VC-20](help:vic20), [C128 und Plus/4](help:c128-plu
 
 Das kleinste sinnvolle Programm färbt den Bildschirmrahmen rot und schreibt ein Wort auf den Bildschirm. So gehst du vor:
 
-1. **Projekt anlegen:** *Datei > Neues Projekt …*, Zielsystem **C64**, Vorlage **Assembler**. Oder auf der Kommandozeile: `vcc new hallo --target c64 --template asm-hello` (siehe [Willkommen und Projekt-Wizard](help:wizard)). Die Vorlage legt die Datei `src/c64/main.asm` an.
+1. **Projekt anlegen:** *Datei ▸ Neues Projekt …* (Cmd/Strg+Alt+N), Zielsystem **C64**, Vorlage **Assembler**. Oder auf der Kommandozeile: `vcc new hallo --target c64 --template asm-hello` (siehe [Projekt-Assistent](help:wizard)). Die Vorlage legt die Datei `src/c64/main.asm` an.
 2. **Quelltext ersetzen:** Öffne `main.asm` und schreibe das Programm unten hinein.
-3. **Bauen und starten:** **F7** baut, **F5** baut und startet im Emulator (siehe [Bauen und Starten](help:build)). Auf der Kommandozeile: `vcc build` im Projektordner.
+3. **Bauen und starten:** **F7** baut das Projekt, **F5** baut und startet das Startprogramm im Emulator (siehe [Bauen und Starten](help:build)). Auf der Kommandozeile: `vcc build` im Projektordner.
 
 ```asm roh
 ; Mein erstes Programm: roter Rahmen und ein Gruß auf dem Bildschirm

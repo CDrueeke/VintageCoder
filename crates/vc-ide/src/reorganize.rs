@@ -188,6 +188,44 @@ fn build_hashes(root: &Path, data: &Path, pf: &ProjectFile) -> Result<BTreeMap<S
 #[derive(Clone, Debug)]
 pub struct Report { pub moved: Vec<(String, String)>, pub rewritten: Vec<(String, usize)>, pub backup: PathBuf, pub check: Check }
 
+fn hash_bytes(b: &[u8]) -> u64 { use std::hash::{Hash, Hasher}; let mut h = std::collections::hash_map::DefaultHasher::new(); b.hash(&mut h); h.finish() }
+
+/// Letzte Umordnung, die noch zurückgenommen werden kann
+#[derive(Clone, Debug)]
+pub struct Letzte { pub backup: PathBuf, pub zeit: u64, pub moves: Vec<(String, String)> }
+
+/// Neueste Sicherung mit `moves.txt` unter `.vcbackup/`, deren verschobene Dateien noch an den neuen Orten liegen
+pub fn letzte(root: &Path) -> Option<Letzte> {
+    let rd = std::fs::read_dir(root.join(".vcbackup")).ok()?;
+    let mut v: Vec<(u64, PathBuf)> = rd.flatten().filter_map(|e| { let n = e.file_name().to_string_lossy().into_owned(); let zeit = n.split('-').next()?.parse::<u64>().ok()?; let sub = n.split_once('-').and_then(|(_, r)| r.parse::<u64>().ok()).unwrap_or(0); e.path().join("moves.txt").is_file().then_some((zeit * 1000 + sub, e.path())) }).collect();
+    v.sort();
+    let (key, backup) = v.pop()?;
+    let list = std::fs::read_to_string(backup.join("moves.txt")).ok()?;
+    let moves: Vec<(String, String)> = list.lines().filter_map(|l| l.split_once('\t')).map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if moves.is_empty() || !moves.iter().any(|(_, to)| root.join(to).is_file()) { return None }
+    Some(Letzte { backup, zeit: key / 1000, moves })
+}
+
+/// Gründe, aus denen „Rückgängig“ nichts überschreiben darf: Datei fehlt oder wurde geändert, alter Ort belegt
+pub fn undo_konflikte(root: &Path, l: &Letzte) -> Vec<String> {
+    let mut out = vec![];
+    for (from, to) in &l.moves {
+        if !root.join(to).is_file() { out.push(format!("{to}: fehlt (gelöscht oder verschoben)")) }
+        else if root.join(from).exists() { out.push(format!("{from}: ist am alten Ort schon belegt")) }
+    }
+    if let Ok(t) = std::fs::read_to_string(l.backup.join("after.txt")) {
+        for z in t.lines() { let Some((h, rel)) = z.split_once('\t') else { continue };
+            if let Ok(b) = std::fs::read(root.join(rel)) { if hash_bytes(&b).to_string() != h { out.push(format!("{rel}: seit dem Umordnen geändert")) } } }
+    }
+    out.sort(); out.dedup(); out
+}
+
+/// Nimmt die letzte Umordnung zurück, aber nur ohne Konflikte; sonst Fehler mit der Liste
+pub fn undo_geprueft(root: &Path, l: &Letzte) -> Result<usize, String> {
+    let k = undo_konflikte(root, l); if !k.is_empty() { return Err(format!("Nicht rückgängig gemacht, damit nichts überschrieben wird:\n{}", k.join("\n"))) }
+    undo(root, &l.backup)
+}
+
 fn stamp() -> String {
     let t = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
     format!("{t}")
@@ -251,6 +289,9 @@ pub fn apply(root: &Path, file: &Path, pf: &mut ProjectFile, moves: &[Move], dat
         (Some(Err(e)), _) => Check::Skipped(format!("vorher schon nicht baubar: {e}")),
         _ => Check::Skipped("nicht angefordert".into()),
     };
+    // Stand nach dem Umordnen festhalten: „Rückgängig“ erkennt später geänderte Dateien und überschreibt sie nicht
+    { let mut zeilen = String::new(); let mut merke = |rel: &str| { if let Ok(b) = std::fs::read(root.join(rel)) { zeilen.push_str(&format!("{}\t{rel}\n", hash_bytes(&b))) } };
+      for m in &moves { merke(&m.to) } for (f, _, _) in &rw { merke(f) } merke(&vcprj_rel); let _ = std::fs::write(backup.join("after.txt"), zeilen); }
     prune_backups(root, KEEP_BACKUPS, &backup);
     Ok(Report { moved: moves.iter().map(|m| (m.from.clone(), m.to.clone())).collect(), rewritten: rw.iter().map(|(f, _, n)| (f.clone(), *n)).collect(), backup, check })
 }
@@ -310,6 +351,29 @@ pub fn undo(root: &Path, backup: &Path) -> Result<usize, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn letzte_umordnung_spaeter_rueckgaengig_mit_konfliktpruefung() {
+        let root = tmp("spaeter"); std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::write(root.join("p.vcprj"), "{\"project\":{\"name\":\"t\"}}").unwrap();
+        std::fs::write(root.join("a.inc"), b"\x01\x02 inc").unwrap(); std::fs::write(root.join("m.asm"), "  .include \"a.inc\"\n").unwrap();
+        let mut pf = ProjectFile::load(&root.join("p.vcprj")).unwrap();
+        let moves = vec![Move { from: "a.inc".into(), to: "lib/a.inc".into(), category: Category::Text, label: "Test", conflict: false }];
+        let vorher: Vec<(String, Vec<u8>)> = ["a.inc", "m.asm", "p.vcprj"].iter().map(|f| (f.to_string(), std::fs::read(root.join(f)).unwrap())).collect();
+        assert!(letzte(&root).is_none());
+        let rep = apply(&root, &root.join("p.vcprj"), &mut pf, &moves, None, true, &|_| {}).unwrap(); assert!(root.join("lib/a.inc").is_file());
+        // „Dialog schließen und neu öffnen“: nur der Platteninhalt zählt
+        let l = letzte(&root).expect("Sicherung gefunden"); assert_eq!(l.backup, rep.backup); assert_eq!(l.moves, vec![("a.inc".to_string(), "lib/a.inc".to_string())]);
+        // Konflikt: Datei geändert → nichts passiert
+        std::fs::write(root.join("lib/a.inc"), b"anders").unwrap();
+        let e = undo_geprueft(&root, &l).unwrap_err(); assert!(e.contains("geändert"), "{e}"); assert!(root.join("lib/a.inc").is_file() && !root.join("a.inc").exists());
+        std::fs::write(root.join("lib/a.inc"), b"\x01\x02 inc").unwrap();
+        // Konflikt: gelöscht
+        std::fs::remove_file(root.join("lib/a.inc")).unwrap(); assert!(letzte(&root).is_none(), "ohne Dateien an den neuen Orten nicht anbieten"); std::fs::write(root.join("lib/a.inc"), b"\x01\x02 inc").unwrap();
+        let l = letzte(&root).unwrap(); assert_eq!(undo_geprueft(&root, &l).unwrap(), 1);
+        for (f, b) in vorher { assert_eq!(std::fs::read(root.join(&f)).unwrap(), b, "{f} wie vorher"); }
+        let _ = std::fs::remove_dir_all(&root);
+    }
 
     fn tmp(tag: &str) -> PathBuf {
         let d = std::env::temp_dir().join(format!("vc_reorg_{tag}_{}", std::process::id()));

@@ -1,5 +1,5 @@
 {
- "hinweis": "id, kapitel, alt, caption, aufnahme (Befehl), marken: Koordinaten in Rohpixeln der Rohaufnahme. Rohbilder (bilder/roh/) liegen nicht im Repository, siehe werkzeug/README.md. Neu beschriften: swift werkzeug/annotate.swift docs/handbuch",
+ "hinweis": "id, kapitel, alt, caption, aufnahme (Befehl), marken: Koordinaten in Rohpixeln der Rohaufnahme. Rohbilder (bilder/roh/) liegen nicht im Repository, siehe werkzeug/README.md. Bilder der neuen Oberfläche entstehen mit tools/handbuchbilder.py (ohne Marken)",
  "bilder": [
   {
    "id": "ui-gesamt",
@@ -63,31 +63,31 @@
    "kapitel": "editor",
    "alt": "Assembler-Quelltext mit farbiger Syntaxhervorhebung, Zeilennummern und Gliederung rechts.",
    "caption": "Der Editor färbt Befehle, Zahlen, Beschriftungen und Kommentare unterschiedlich.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"\" 60  (VC_THEME=dark)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-vervollstaendigung",
    "kapitel": "editor",
-   "alt": "Vorschlagsliste unter der Eingabemarke mit Namen aus der Systembibliothek und kurzer Erklärung.",
-   "caption": "Vervollständigung beim Tippen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"complete\" 60  (VC_THEME=dark)",
+   "alt": "Die Vervollständigung im Editor: nach der Eingabe von „sta vic2.b“ zeigt eine Liste vic2.border und vic2.bg0 bis vic2.bg3.",
+   "caption": "Die Vorschlagsliste beim Tippen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-falten",
    "kapitel": "editor",
-   "alt": "Eingeklappter Block mit der Markierung „3 Zeilen“ hinter dem Label.",
-   "caption": "Blöcke lassen sich einklappen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"fold\" 60  (VC_THEME=dark)",
+   "alt": "Ein Quelltext mit einem eingeklappten Block: neben der Zeilennummer steht der Pfeil zum Falten.",
+   "caption": "Ein gefalteter Abschnitt: seine Zeilen sind versteckt, der Pfeil ▸ in der Rinne klappt sie wieder auf",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-kontextmenue",
    "kapitel": "editor",
-   "alt": "Kontextmenü mit Ausschneiden, Haltepunkt setzen, Hilfe zum Befehl, Datei öffnen und Falten.",
-   "caption": "Das Kontextmenü im Editor.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"ctxmenu\" 60  (VC_THEME=dark)",
+   "alt": "Das Kontextmenü des Editors mit Ausschneiden, Kopieren, Einfügen, Alles auswählen, Hilfe zum Wort, Gehe zu Definition, Alles falten, Alles entfalten, Haltepunkt umschalten und Debuggen: Bis hier ausführen.",
+   "caption": "Das Kontextmenü im Editor (Rechtsklick)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -101,17 +101,17 @@
   {
    "id": "editor-hilfe-f1",
    "kapitel": "editor",
-   "alt": "Hilfe-Reiter mit dem Thema Debugger.",
-   "caption": "Die eingebaute Hilfe öffnet sich mit F1.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"showhelp\" 60  (VC_THEME=dark)",
+   "alt": "Der Editor mit dem Cursor auf dem Befehl sta; rechts im Panel der Reiter Hilfe mit der Beschreibung des Befehls und seinen Adressierungsarten.",
+   "caption": "F1 öffnet die Hilfe zum Wort unter dem Cursor",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-suchen",
    "kapitel": "editor",
-   "alt": "Seitenleiste „Suche“ mit Treffern für „lda“ in zwei Dateien.",
-   "caption": "Die Projektsuche listet alle Treffer.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"sidesearch\" 60  (VC_THEME=dark)",
+   "alt": "Die Suchleiste über dem Text mit dem Suchbegriff „sta“, der Anzeige „1 von 15“ und den Knöpfen für vorigen und nächsten Treffer; die Treffer sind im Text hervorgehoben.",
+   "caption": "Suchen mit Cmd/Strg+F",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -141,180 +141,81 @@
   {
    "id": "projekt-einstellungen",
    "kapitel": "projekte",
-   "alt": "Reiter mit den Einstellungen des Projekts.",
-   "caption": "Die Projekt-Einstellungen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"projed\" 60  (VC_THEME=dark)",
+   "alt": "Der Reiter „Projekt-Einstellungen“ mit den Unterreitern Allgemein, Targets, Quellen und Diskette, den Feldern Name und Beschreibung und rechts der Übersicht über den Zustand des Projekts.",
+   "caption": "Die Projekt-Einstellungen: Name, Targets, Quellen und Diskette",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "memory-map",
    "kapitel": "09 · 19",
-   "alt": "Memory Map des Projekts sprite_demo nach dem Bauen, Ansicht „256 Seiten“ mit Legende und Segment-Inspektor.",
-   "caption": "Die Memory Map zeigt die Belegung des Speichers.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/sprite_demo sprite_demo.asm projbuild,showmm 200",
+   "alt": "Die Karte im rechten Panel: 16×16 Seiten, gefärbt nach Art (Zeropage, Stack, BASIC, ROM, E/A, frei, Programm), darunter die Auswahl des Prozessorports und die Angaben zur gewählten Seite (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: die Matrix aus 256 Seiten, gefärbt nach Art des Speichers, mit Filter und den Angaben zur gewählten Seite",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "debug-ueberblick",
    "kapitel": "09",
-   "alt": "Debug-Arbeitsplatz, angehalten in Zeile 18 von farbwechsel.asm: oben Befehlsleiste mit Weiter, Schritt, Über und Anhalte-Marke, in der Mitte der Quelltext mit markierter Zeile, rechts Register, unten der Disassembler.",
-   "caption": "Der Debugger im Überblick.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=disasm  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 1100,
-     "y": 62,
-     "w": 940,
-     "h": 90,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 210,
-     "w": 1590,
-     "h": 1010,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2212,
-     "y": 160,
-     "w": 588,
-     "h": 1250,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 1230,
-     "w": 1580,
-     "h": 440,
-     "nr": 4
-    }
-   ]
+   "alt": "Die Debug-Sitzung (Beispielansicht): Editor mit markierter Zeile, unten die Schublade mit den Spalten Register, Disassembler, Speicher und Beobachten.",
+   "caption": "Beispielansicht, es läuft kein Emulator: die Debug-Sitzung nach F6 mit Kopfzeile, Editor und Schublade",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "willkommen-seite",
    "kapitel": "01 · 00 · 04",
-   "alt": "Willkommensseite ohne geöffnetes Projekt: links Knöpfe für neues oder vorhandenes Projekt und die Liste der zuletzt geöffneten Projekte, rechts erkannte Emulatoren, ROM-Status und Schnellreferenz.",
-   "caption": "Die Willkommensseite nach dem Start.",
-   "aufnahme": "werkzeug/shot.sh <ziel> - \"\" \"\" 60  (neutrales HOME, Liste „Zuletzt geöffnet“ aus Symlinks unter /tmp/demo/Retro)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 120,
-     "y": 300,
-     "w": 1960,
-     "h": 240,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 120,
-     "y": 640,
-     "w": 1990,
-     "h": 540,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2150,
-     "y": 260,
-     "w": 640,
-     "h": 820,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2150,
-     "y": 1090,
-     "w": 640,
-     "h": 290,
-     "nr": 4
-    }
-   ]
+   "alt": "Die Startseite mit den Knöpfen „Neues Projekt“, „Projekt öffnen“, „Beispiel öffnen“ und „Einrichten“, der Liste der zuletzt geöffneten Projekte, den Studios und rechts dem Kasten „Toolchain und Hardware“ mit der Schnellreferenz.",
+   "caption": "Die Startseite",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "wizard-system",
    "kapitel": "02",
-   "alt": "Dialog „Neues Projekt erstellen“: links die Zielsysteme, in der Mitte die Vorlagen für Assembler oder BASIC, rechts die Projekt-Details.",
-   "caption": "Der Projekt-Assistent: Zielsystem, Vorlage und Details.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp 60",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 200,
-     "y": 230,
-     "w": 500,
-     "h": 900,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 770,
-     "y": 236,
-     "w": 1050,
-     "h": 950,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1876,
-     "y": 236,
-     "w": 664,
-     "h": 1114,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2190,
-     "y": 1590,
-     "w": 410,
-     "h": 100,
-     "nr": 4
-    }
-   ]
+   "alt": "Der Projekt-Assistent, linke Spalte: die Liste der Zielsysteme, der Commodore 64 ist gewählt, darunter das Hardware-Profil mit der Anzeige „gültig“.",
+   "caption": "Spalte 1 des Assistenten: das Zielsystem wählen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "wizard-sprache",
    "kapitel": "02",
-   "alt": "Projekt-Assistent mit gewähltem VC-20: Vorlagen für Assembler und BASIC sowie Hinweis auf fehlende ROM-Dateien.",
-   "caption": "Zielsystem VC-20 im Projekt-Assistenten.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp,wizvic 90",
+   "alt": "Der Projekt-Assistent, mittlere Spalte: oben die Wahl zwischen Assembler und BASIC, darunter die Vorlagenkarten „Assembler-Programm“, „Steckmodul“ und „Leeres Projekt“.",
+   "caption": "Spalte 2: erst die Sprache, dann die Vorlage",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "wizard-details",
    "kapitel": "00 · 02",
-   "alt": "Projekt-Assistent mit Atari-BASIC-Vorlage: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette und Projektstruktur.",
-   "caption": "Die Projekt-Details für ein BASIC-Projekt.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgp,wizbasic 90  (VC_WIN=1500x1150; Spalte „Dateistruktur“ bleibt abgeschnitten, siehe OFFEN.md)",
+   "alt": "Der Projekt-Assistent, rechte Spalte „Projekt-Details“: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette, Zeichensatz, weitere Zielsysteme und die Vorschau der Dateistruktur.",
+   "caption": "Spalte 3: Name, Speicherort und die Vorschau der Dateien",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "einstellungen-emulator",
    "kapitel": "installation",
-   "alt": "Einstellungen, Seite „Zielsysteme und Hardware“ mit gewähltem C64, konfiguriertem Emulator VICE x64sc und Startparametern.",
-   "caption": "Einstellungen: Emulator je Zielsystem.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "alt": "Einstellungen, Seite „Zielsysteme und Hardware“: links die Systemliste mit grünen Punkten, rechts das gewählte System mit dem Standard-Emulator VICE x64sc, dem Pfadfeld, den Startparametern und dem Knopf „Test-Start“.",
+   "caption": "Einstellungen: Emulator-Pfad prüfen und mit „Test-Start“ ausprobieren",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "einstellungen-roms",
    "kapitel": "installation",
-   "alt": "Einstellungen, Seite „ROMs“: ROM-Ordner, Portabler Modus und Status von Kernal, BASIC und Zeichensatz (Fehlt, solange keine Dateien abgelegt sind).",
-   "caption": "Einstellungen: ROM-Ordner und Status.",
-   "aufnahme": "VC_SET_PAGE=roms werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "alt": "Einstellungen, Seite „ROMs“ (Ausschnitt): oben die Reiter je System, darunter je Rolle (KERNAL, BASIC, Zeichensatz, Laufwerk) der Status, die erwartete Größe und der Knopf „Auswählen …“.",
+   "caption": "Einstellungen ▸ ROMs: je Rolle ein Status; hier ist noch nichts gefunden",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "argumente",
    "kapitel": "08",
-   "alt": "Einstellungen mit aufgeklappten Startparametern des Emulators VICE x64sc, gruppiert, mit gesetzten Werten.",
-   "caption": "Startparameter des Emulators.",
-   "aufnahme": "VC_SET_ARGS=1 werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
+   "alt": "Einstellungen, Zielsysteme: der aufgeklappte Parametereditor „Startparameter“ mit den Gruppen Ablauf, Bild, Ton und weiteren, dem Feld „Weitere Parameter“, den Platzhaltern und der Vorschau der Kommandozeile.",
+   "caption": "Startparameter für den Emulator mit Vorschau der Kommandozeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -328,34 +229,25 @@
   {
    "id": "datei-neu-dialog",
    "kapitel": "04",
-   "alt": "Dialog „Neue Datei“ mit Namensfeld.",
-   "caption": "Eine neue Datei anlegen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgnew 60",
+   "alt": "Der Dialog „Neue Datei“ mit den Knöpfen für die Art (Assembler, BASIC, Text, Notiz, Studios, Disketten), der Auswahl „Ordner“, dem Feld „Name“ und den Knöpfen „OK“ und „Abbrechen“.",
+   "caption": "Der Dialog „Neue Datei“",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "datei-umbenennen-dialog",
    "kapitel": "04",
-   "alt": "Dialog „Datei umbenennen“ für lib/vic2.inc mit neuem Namen vic2_neu.inc und angehaktem „Code anpassen“: ein Pfad in einem Quelltext wird mitgeändert.",
-   "caption": "Eine Datei umbenennen und den Code anpassen.",
-   "aufnahme": "VC_RENAME_FROM=lib/vic2.inc VC_RENAME_TO=vic2_neu.inc werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgren 60",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 1060,
-     "y": 859,
-     "w": 672,
-     "h": 116,
-     "nr": 1
-    }
-   ]
+   "alt": "Der Dialog „Datei umbenennen“ mit dem Feld „Name (der Ordner steht davor)“ und den Knöpfen „OK“ und „Abbrechen“.",
+   "caption": "Der Dialog zum Umbenennen einer Datei",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "drag-drop-rueckfrage",
    "kapitel": "04",
-   "alt": "Dialog „Dateien ins Projekt übernehmen“ mit zwei abgelegten Dateien, Kategorie und Zielordner je Datei.",
-   "caption": "Abgelegte Dateien werden mit Rückfrage übernommen.",
-   "aufnahme": "VC_DROP=/tmp/demo/drop/font.bin:/tmp/demo/drop/notizen.txt werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dropfiles 60",
+   "alt": "Die Rückfrage „Dateien ins Projekt übernehmen“ beim Ablegen von zwei Dateien: je eine Zeile mit Haken, Name, Art, Ordner und Ziel, unten die Knöpfe „2 übernehmen“ und „Abbrechen“.",
+   "caption": "Beim Ablegen von Dateien fragt VintageCoder nach Name, Art und Ordner",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -369,43 +261,10 @@
   {
    "id": "bauen-knopf",
    "kapitel": "02 · 08",
-   "alt": "Ausschnitt der Befehlsleiste: Feld „Auf:“ mit Zielsystem und Emulator sowie die Knöpfe Starten, Debuggen und Bauen.",
-   "caption": "Die Knöpfe zum Bauen und Starten.",
-   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 520,
-     "y": 8,
-     "w": 570,
-     "h": 52,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1104,
-     "y": 8,
-     "w": 224,
-     "h": 52,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1345,
-     "y": 8,
-     "w": 263,
-     "h": 52,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 1627,
-     "y": 8,
-     "w": 209,
-     "h": 52,
-     "nr": 4
-    }
-   ]
+   "alt": "Die Kopfzeile mit dem Zielfeld „Commodore 64 · VICE x64sc“ und den Knöpfen Starten, Debuggen und Bauen.",
+   "caption": "Starten (F5), Debuggen (F6) und Bauen (F7) in der Kopfzeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "ui-reiter",
@@ -445,41 +304,8 @@
    "kapitel": "04",
    "alt": "Projektbaum mit Ordner lib/, Startprogramm mit Stern und Projektdatei sowie Umschalter Ordner oder Nach Art.",
    "caption": "Der Projektbaum.",
-   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 25,
-     "y": 178,
-     "w": 40,
-     "h": 38,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 44,
-     "y": 416,
-     "w": 92,
-     "h": 40,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 28,
-     "y": 230,
-     "w": 270,
-     "h": 52,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 44,
-     "y": 472,
-     "w": 270,
-     "h": 34,
-     "nr": 4
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "ui-modus-code",
@@ -541,17 +367,17 @@
   {
    "id": "editor-ersetzen",
    "kapitel": "05",
-   "alt": "Suchleiste über dem Editor mit Suchtext „lda“, Ersetzen-Feld und Knöpfen Zurück, Weiter, Ersetzen.",
-   "caption": "Suchen und Ersetzen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm findrep 60",
+   "alt": "Die Suchleiste mit einem zweiten Feld zum Ersetzen und den Knöpfen „Ersetzen“ und „Alle“.",
+   "caption": "Ersetzen mit Cmd/Strg+Alt+F",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-gehe-zu",
    "kapitel": "05",
-   "alt": "Leiste „Gehe zu Zeile“ mit eingegebener Zeile 7 und der Angabe „von 39“.",
-   "caption": "Zu einer Zeile springen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm goto 60",
+   "alt": "Die Leiste „Gehe zu Zeile“ über dem Text mit der eingetippten Zeilennummer.",
+   "caption": "Gehe zu Zeile mit Cmd/Strg+L",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -565,133 +391,49 @@
   {
    "id": "debug-haltepunkt-gutter",
    "kapitel": "09",
-   "alt": "Ausschnitt der Editor-Rinne: roter Punkt neben der Adresse und Zeilennummer 18 markiert den Haltepunkt.",
-   "caption": "Der rote Punkt in der Rinne ist ein Haltepunkt.",
-   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 8,
-     "y": 60,
-     "w": 40,
-     "h": 42,
-     "nr": 1
-    }
-   ]
+   "alt": "Roter Haltepunkt-Punkt neben der Zeilennummer 60 und die angehaltene Zeile 61 (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: der rote Punkt links neben der Zeilennummer ist ein Haltepunkt",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "debug-pc-zeile",
    "kapitel": "09",
-   "alt": "Ausschnitt des Editors: die Zeile, an der das Programm angehalten hat, ist mit einem hellen Streifen unterlegt.",
-   "caption": "Der helle Streifen zeigt, wo das Programm steht.",
-   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 0,
-     "y": 62,
-     "w": 800,
-     "h": 38,
-     "nr": 1
-    }
-   ]
+   "alt": "Die angehaltene Zeile 61 mit hellem Streifen (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: der helle Streifen zeigt die Zeile, an der das Programm steht; der Befehl in dieser Zeile ist noch nicht ausgeführt",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "debug-register",
    "kapitel": "09",
-   "alt": "Reiter Register im Inspektor: Programmzähler, A, X, Y, Stapelzeiger, Flag-Leiste und aufgeklapptes Chip-Register vic2.",
-   "caption": "Die Register der CPU.",
-   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 12,
-     "y": 232,
-     "w": 110,
-     "h": 95,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 132,
-     "y": 232,
-     "w": 274,
-     "h": 95,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 409,
-     "y": 232,
-     "w": 92,
-     "h": 95,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 15,
-     "y": 352,
-     "w": 490,
-     "h": 50,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 50,
-     "y": 488,
-     "w": 205,
-     "h": 50,
-     "nr": 5
-    }
-   ]
+   "alt": "Die Spalte Register: PC, A, X, Y, SP und die Flag-Leiste (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: der Programmzähler PC, die Rechenregister A, X und Y, der Stapelzeiger SP und die Flags N V B D I Z C",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "debug-disassembler",
    "kapitel": "09",
-   "alt": "Fußpanel Disassembler: Spalten Adresse, Bytes, Befehl, Zyklen; die Zeile des Programmzählers ist markiert und trägt einen roten Haltepunkt.",
-   "caption": "Der Disassembler zeigt die Maschinenbefehle ab dem Programmzähler.",
-   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte2.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 5,
-     "y": 132,
-     "w": 1565,
-     "h": 45,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 14,
-     "y": 138,
-     "w": 32,
-     "h": 32,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 50,
-     "y": 82,
-     "w": 950,
-     "h": 30,
-     "nr": 3
-    }
-   ]
+   "alt": "Der Disassembler mit Programmzähler-Zeile und Haltepunkt (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: der Disassembler mit dem Pfeil an der Zeile des Programmzählers, einem roten Punkt für den Haltepunkt, Adresse, Bytes und Befehl",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "debug-speicher",
    "kapitel": "09",
-   "alt": "Fußpanel Speicher mit Adressfeld, Knöpfen Lesen, −256 und +256 und einem Hexdump.",
-   "caption": "Der Speicher als Hexdump.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=memory  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "alt": "Die Spalte Speicher mit Hexdump (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: oben das Adressfeld, darunter der Hexdump mit 8 Bytes je Zeile und rechts die Zeichen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "debug-beobachten",
    "kapitel": "09",
-   "alt": "Reiter Beobachten mit den drei Ausdrücken a, [ZAEHLER] und [$d020] und ihren Werten.",
-   "caption": "Beobachten: Ausdrücke mit ihrem aktuellen Wert.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=watch VC_WATCH='a;[ZAEHLER];[$d020]' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "alt": "Die Spalte Beobachten mit drei Ausdrücken und die Liste der Haltepunkte (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: oben das Eingabefeld, darunter die Ausdrücke mit ihrem Wert dezimal und in Hex",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -721,9 +463,9 @@
   {
    "id": "emulator-reiter",
    "kapitel": "08 · 09",
-   "alt": "Fußpanel Emulator mit dem Bild des angehaltenen C64, Knöpfen Bild holen, Zeitlupen-Live, Als PNG speichern, In Zwischenablage, Als Projektbild setzen und dem Feld „Text einspeisen“.",
-   "caption": "Der Emulator-Reiter zeigt das Bild des laufenden Systems.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=emulator  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
+   "alt": "Das rechte Panel, Reiter „Bild“, in einer Debug-Sitzung vor dem ersten Bild: der Knopf „Bild holen“, die Häkchen „bei jedem Halt“ und „Zeitlupe live“ und der Hinweis „Noch kein Bild“.",
+   "caption": "Beispielansicht, es läuft kein Emulator: der Reiter „Bild“ vor dem ersten Bild",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -737,17 +479,17 @@
   {
    "id": "tests-panel",
    "kapitel": "10",
-   "alt": "Fußpanel Tests nach einem Lauf mit VICE: 5 bestanden, Statische Prüfungen mit Größe, Segment-Überlappung und Zyklen.",
-   "caption": "Das Testfenster nach erfolgreichem Lauf.",
-   "aufnahme": "werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm tests 500",
+   "alt": "Die Schublade mit dem Reiter „Tests“ nach einem Lauf: „Alle ausführen“, „Fehlgeschlagene“, die Auswahl „Läuft auf:“, die Gruppe mit ihren Ergebnissen und rechts die Zähler.",
+   "caption": "Der Reiter „Tests“ in der Schublade (Beispielansicht mit zwei Prüfungen)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "tests-ergebnis",
    "kapitel": "10",
-   "alt": "Fußpanel Tests mit einem fehlgeschlagenen Test und der Detailanzeige mit erwartetem und gemessenem Wert.",
-   "caption": "Ein fehlgeschlagener Test.",
-   "aufnahme": "werkzeug/shot.sh <ziel> /tmp/demo/Retro2/farbwechsel farbwechsel.asm tests 500  (Erwartung absichtlich falsch)",
+   "alt": "Ein fehlgeschlagener Test ist gewählt: rechts stehen Name, Zustand, die Meldung „erwartet ≤ $2000, ist $2310“ und der Knopf „Diesen Test debuggen“.",
+   "caption": "Ein fehlgeschlagener Test mit seiner Meldung (Beispielansicht)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -755,83 +497,16 @@
    "kapitel": "12",
    "alt": "Zeichensatz-Editor mit font.vcchar: links die Zeichenmatrix, in der Mitte die 8×8-Zeichenfläche, rechts Pixelwerte und Farben, unten der Export-Streifen.",
    "caption": "Der Zeichensatz-Editor.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/font.vcchar werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 480,
-     "y": 455,
-     "w": 450,
-     "h": 709,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 944,
-     "y": 420,
-     "w": 577,
-     "h": 575,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 424,
-     "w": 367,
-     "h": 459,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 808,
-     "w": 106,
-     "h": 71,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 480,
-     "y": 1299,
-     "w": 2047,
-     "h": 39,
-     "nr": 5
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "zeichensatz-multicolor",
    "kapitel": "12",
-   "alt": "Zeichensatz-Editor mit einem neuen Multicolor-Zeichensatz (Profil c64.char.multicolor).",
-   "caption": "Ein Multicolor-Zeichensatz.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/bunt.vcchar werkzeug/shot.sh <ziel> /tmp/demo/Retro/gfx \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 416,
-     "w": 367,
-     "h": 229,
-     "nr": 1
-    }
-   ]
-  },
-  {
-   "id": "zeichensatz-mega65-farbe",
-   "kapitel": "12",
-   "alt": "Zeichensatz-Editor für einen MEGA65-Vollfarb-Zeichensatz (mega65.char.fcm) mit gemaltem Zeichen.",
-   "caption": "Ein Vollfarb-Zeichensatz auf dem MEGA65.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/voll.vcchar werkzeug/shot.sh <ziel> /tmp/demo/Retro/pal \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 455,
-     "w": 291,
-     "h": 593,
-     "nr": 1
-    }
-   ]
+   "alt": "Das Zeichensatz-Studio mit einem Multicolor-Zeichen: die Punkte sind doppelt so breit, rechts die Karte „Werkzeug“ mit den vier Pixelwerten und die Karte „Dokument“ mit den Farben.",
+   "caption": "Im Multicolor-Modus sind die Punkte doppelt so breit; rechts steht, welches Register welche Farbe liefert",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "sprite-c64",
@@ -887,296 +562,64 @@
    "kapitel": "13",
    "alt": "Rechte Spalte des Sprite-Editors: Modus dieses Frames (Hires oder Multicolor), Pixelwerte mit $D025 und $D026 und die VIC-II-Sprite-Flags.",
    "caption": "Modus, Pixelwerte und Flags eines Frames.",
-   "aufnahme": "Ausschnitt aus sprite-c64 (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 9,
-     "y": 4,
-     "w": 367,
-     "h": 106,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 9,
-     "y": 166,
-     "w": 367,
-     "h": 229,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 9,
-     "y": 404,
-     "w": 367,
-     "h": 88,
-     "nr": 3
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "sprite-atari-pmg",
    "kapitel": "13",
-   "alt": "Player/Missile-Editor mit ship.vcpmg: links die Player P0 bis P3, in der Mitte die Zeichenfläche, rechts Farben, Breite, Priorität und Videonorm.",
-   "caption": "Der Player/Missile-Editor für den Atari.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/ship.vcpmg werkzeug/shot.sh <ziel> atari/pmg_ship \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 450,
-     "w": 152,
-     "h": 406,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 891,
-     "w": 318,
-     "h": 300,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 591,
-     "w": 335,
-     "h": 152,
-     "nr": 3
-    }
-   ]
+   "alt": "Der PMG-Editor für Atari: links die vier Player P0 bis P3, in der Mitte das Frame mit 8×32 Punkten, rechts Werkzeug und Dokument mit der Atari-Palette (PAL, NTSC oder Projekt).",
+   "caption": "Der PMG-Editor: links die vier Player, rechts die Farben",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "bildschirm-editor",
    "kapitel": "14",
    "alt": "Bildschirm-Editor mit title.vcscreen: der Textbildschirm, rechts die Zeichenauswahl, darunter Farben, unten der Export-Streifen.",
    "caption": "Der Bildschirm-Editor.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/title.vcscreen werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 491,
-     "y": 376,
-     "w": 1309,
-     "h": 835,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 2065,
-     "y": 462,
-     "w": 462,
-     "h": 626,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2065,
-     "y": 1089,
-     "w": 462,
-     "h": 99,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2065,
-     "y": 1196,
-     "w": 462,
-     "h": 85,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 480,
-     "y": 1299,
-     "w": 2047,
-     "h": 39,
-     "nr": 5
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "kachel-editor",
    "kapitel": "14",
    "alt": "Kachel-Editor mit level_tiles.vctiles: links die Kachelliste mit Verwendung, in der Mitte die große Kachel, rechts Farbe, Eigenschaften und Zeichenwähler.",
    "caption": "Der Kachel-Editor.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/level_tiles.vctiles werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 420,
-     "w": 279,
-     "h": 420,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1168,
-     "y": 420,
-     "w": 484,
-     "h": 480,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2051,
-     "y": 900,
-     "w": 462,
-     "h": 374,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2051,
-     "y": 498,
-     "w": 462,
-     "h": 282,
-     "nr": 4
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "kachel-bank",
    "kapitel": "14",
    "alt": "Rechte Spalte des Kachel-Editors: Zeichensatz-Auswahl und Zeichenraster der Kachelbank.",
    "caption": "Zeichensatz und Bank der Kacheln.",
-   "aufnahme": "Ausschnitt aus kachel-editor (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 16,
-     "y": 23,
-     "w": 300,
-     "h": 85,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 74,
-     "y": 500,
-     "w": 415,
-     "h": 28,
-     "nr": 2
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "kachel-karte",
    "kapitel": "14",
    "alt": "Karten-Editor (Screen-Bank) im Kachelmodus mit level.vcscreen: Kachelpalette, Karte, Größe und Ursprung rechts.",
    "caption": "Der Karten-Editor.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/level.vcscreen werkzeug/shot.sh <ziel> c64/gfx_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 775,
-     "y": 383,
-     "w": 124,
-     "h": 32,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 392,
-     "w": 222,
-     "h": 116,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 775,
-     "y": 517,
-     "w": 1135,
-     "h": 701,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2065,
-     "y": 842,
-     "w": 462,
-     "h": 64,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 2065,
-     "y": 918,
-     "w": 462,
-     "h": 342,
-     "nr": 5
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "palette-mega65",
    "kapitel": "15",
-   "alt": "Paletten-Editor für MEGA65 mit 256 Farbfeldern, Eintrag 0 gewählt, Hexfeld und Knöpfen Speichern, Exportieren, In Code einfügen, Standardpalette.",
-   "caption": "Die 256-Farben-Palette des MEGA65.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/pal65.vcpal werkzeug/shot.sh <ziel> mega65/pal_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 476,
-     "y": 321,
-     "w": 960,
-     "h": 956,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1669,
-     "y": 339,
-     "w": 64,
-     "h": 42,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1744,
-     "y": 339,
-     "w": 424,
-     "h": 35,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 1052,
-     "y": 258,
-     "w": 180,
-     "h": 39,
-     "nr": 4
-    }
-   ]
+   "alt": "Das Paletten-Studio des MEGA65: 256 Farbfelder, rechts die Karte „Eintrag 0 ($00)“ mit Farbfeld, den Reglern R, G, B und dem Feld Hex; oben die Leiste mit „Standardpalette“.",
+   "caption": "Der Paletten-Editor des MEGA65: 256 Farbfelder und die Karte für den gewählten Eintrag",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "palette-atari",
    "kapitel": "15",
-   "alt": "Rechte Spalte des Player/Missile-Editors: Videonorm PAL oder NTSC und die 128 Farbfelder der Atari-Palette.",
-   "caption": "Die Atari-Farben im PMG-Editor (der Atari hat keinen eigenen Paletten-Editor).",
-   "aufnahme": "Ausschnitt aus sprite-atari-pmg (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 49,
-     "y": 339,
-     "w": 124,
-     "h": 71,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 49,
-     "y": 461,
-     "w": 321,
-     "h": 304,
-     "nr": 2
-    }
-   ]
+   "alt": "Die Karte „Dokument“ im Atari-PMG-Editor: die gewählte Spielerfarbe, darunter die Atari-Palette (128 Farbtöne) mit den Schaltern PAL, NTSC und Projekt.",
+   "caption": "Beim Atari wählst du eine von 128 festen Farben; die Videonorm (PAL oder NTSC) ändert, wie sie aussehen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-ueberblick",
@@ -1232,345 +675,135 @@
    "kapitel": "16",
    "alt": "Ausschnitt des Raster mit drei Stimmen und Cursor auf C-4 00 in Stimme 1.",
    "caption": "Das Muster-Raster.",
-   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 62,
-     "y": 157,
-     "w": 180,
-     "h": 28,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 62,
-     "y": 5,
-     "w": 547,
-     "h": 113,
-     "nr": 2
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-instrument",
    "kapitel": "16",
    "alt": "Rechte Spalte des Trackers: Instrumentliste, Wellenform, Pulsbreite und ADSR-Regler.",
    "caption": "Instrumente: Wellenform und ADSR.",
-   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 9,
-     "y": 71,
-     "w": 265,
-     "h": 185,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 30,
-     "y": 379,
-     "w": 353,
-     "h": 212,
-     "nr": 2
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-huellkurve",
    "kapitel": "16",
-   "alt": "Hüllkurven-Plot des gewählten Instruments mit Decay, Sustain und Release.",
-   "caption": "Die Hüllkurve.",
-   "aufnahme": "Ausschnitt aus tracker-ueberblick (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 11,
-     "y": 14,
-     "w": 381,
-     "h": 127,
-     "nr": 1
-    }
-   ]
+   "alt": "Hüllkurve eines Instruments im Modus Instrumente: die Kurve mit Attack-Spitze, Decay und Release über den Reglern.",
+   "caption": "Die Hüllkurve: ansteigend bis zur Spitze (Attack), fallend auf das Haltepegel (Decay), nach Note aus ausklingend (Release)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-hoerprobe",
    "kapitel": "16",
-   "alt": "Tracker während der Wiedergabe: Oszilloskope und Pegel der Stimmen, aufleuchtende Zellen, Klaviertastatur mit gedrückten Tasten.",
-   "caption": "Der Tracker spielt den Song.",
-   "aufnahme": "VC_TRK_PLAY=1 VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune.vcsong werkzeug/shot.sh <ziel> c64/music_demo \"\" embed 400 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 829,
-     "y": 455,
-     "w": 547,
-     "h": 113,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 829,
-     "y": 605,
-     "w": 180,
-     "h": 32,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 776,
-     "y": 1211,
-     "w": 1138,
-     "h": 85,
-     "nr": 3
-    }
-   ]
+   "alt": "Der Tracker im Modus Noten; in der Karte „Klaviatur“ sind die gerade klingenden Tasten hervorgehoben.",
+   "caption": "Die Karte „Klaviatur“ zeigt die gerade klingenden Töne (Beispielansicht)",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-pokey",
    "kapitel": "16",
-   "alt": "Tracker für den Atari mit atune.vcsong: POKEY-Instrument mit Verzerrung und 16 Lautstärkewerten.",
-   "caption": "Der Tracker für den POKEY.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/atune.vcsong werkzeug/shot.sh <ziel> atari/music_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 2111,
-     "y": 784,
-     "w": 152,
-     "h": 35,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 2111,
-     "y": 858,
-     "w": 346,
-     "h": 176,
-     "nr": 2
-    }
-   ]
+   "alt": "Ein POKEY-Instrument: die Verzerrung (Reiner Ton, Rauschen, Buzz, Gritty, Bass) und 16 Lautstärkewerte je Bild als Regler; der Strich „ab hier“ zeigt die Wiederholung.",
+   "caption": "POKEY-Instrumente haben Verzerrung und eine 16-Schritte-Lautstärkekurve",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "play-tracker",
    "kapitel": "17",
-   "alt": "PLAY-Tracker des MEGA65 mit tune_play.vcplay: sechs Stimmen, Hüllkurvenliste rechts, Abspielen, Tempo und Lautstärke oben.",
-   "caption": "Der PLAY-Tracker.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune_play.vcplay werkzeug/shot.sh <ziel> mega65/play_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 367,
-     "w": 1168,
-     "h": 829,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 2135,
-     "y": 358,
-     "w": 388,
-     "h": 300,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1352,
-     "y": 304,
-     "w": 416,
-     "h": 42,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 1196,
-     "y": 304,
-     "w": 145,
-     "h": 42,
-     "nr": 4
-    }
-   ]
+   "alt": "Der PLAY-Tracker des MEGA65: sechs Stimmen als Spalten, ein Schritt je Zeile, rechts die Karten Werkzeug (Instrumente), Klaviatur und Kanäle.",
+   "caption": "Der PLAY-Tracker: sechs Stimmen als Spalten, ein Schritt (Sechzehntel) pro Zeile, rechts die Instrumente und die Klaviatur",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "disk-studio",
    "kapitel": "18",
-   "alt": "Disk-Studio mit disk.d64: Verzeichnis, Belegungskarte der Spuren und Sektor-Inspektor, unten die Übernahmeleiste.",
-   "caption": "Das Disk-Studio.",
-   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk 120",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 99,
-     "y": 329,
-     "w": 1239,
-     "h": 1095,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1370,
-     "y": 329,
-     "w": 1331,
-     "h": 684,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1370,
-     "y": 1079,
-     "w": 1331,
-     "h": 371,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 99,
-     "y": 1496,
-     "w": 2306,
-     "h": 119,
-     "nr": 4
-    }
-   ]
+   "alt": "Das Disk-Studio mit einer D64-Datei: oben das Verzeichnis, darunter die Belegungskarte der Spuren mit der Kette der gewählten Datei, rechts die Karten Zustand, Sektor und „In das Projekt übernehmen“.",
+   "caption": "Das Disk-Studio: Verzeichnis, Belegungskarte, Sektoranzeige und Übernahme in das Projekt",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "disk-validieren",
    "kapitel": "18",
-   "alt": "Disk-Studio nach „Validieren“: grüne Meldung, dass keine Fehler gefunden wurden.",
-   "caption": "Eine Diskette validieren.",
-   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk,diskval 150",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 2067,
-     "y": 186,
-     "w": 161,
-     "h": 53,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 99,
-     "y": 333,
-     "w": 2602,
-     "h": 76,
-     "nr": 2
-    }
-   ]
+   "alt": "Das Disk-Studio nach „Validieren“: die Karte „Zustand“ meldet, dass BAM, Verzeichnis und Ketten übereinstimmen.",
+   "caption": "Validieren prüft BAM, Verzeichnis und Dateiketten und meldet die Befunde",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "segmente-baenke",
    "kapitel": "18",
-   "alt": "Memory Map des Projekts cart_demo nach dem Bauen mit Segment-Inspektor.",
-   "caption": "Segmente und Bänke in der Memory Map.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/cart_demo \"\" projbuild,showmm 200",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 2214,
-     "y": 576,
-     "w": 578,
-     "h": 568,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 2214,
-     "y": 1235,
-     "w": 576,
-     "h": 428,
-     "nr": 2
-    }
-   ]
+   "alt": "Das rechte Panel mit der Karte neben Editor und Debug-Schublade (Beispielansicht).",
+   "caption": "Beispielansicht, es läuft kein Emulator: die Memory Map zeigt, welche Segmente welche Speicherseiten belegen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "rom-verzeichnis",
    "kapitel": "18",
-   "alt": "Einstellungen, Seite „ROMs“: ROM-Ordner, Status je Rolle und Knöpfe Ordner öffnen und Neu prüfen. (Die Ablagezone liegt unterhalb des sichtbaren Teils der Seite und ist nicht im Bild; die Marke 2 fehlt deshalb.)",
-   "caption": "ROM-Verzeichnis und Status.",
-   "aufnahme": "Kopie von einstellungen-roms",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 641,
-     "y": 725,
-     "w": 1548,
-     "h": 469,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1318,
-     "y": 441,
-     "w": 408,
-     "h": 53,
-     "nr": 3
-    }
-   ]
-  },
-  {
-   "id": "kuerzel-karte",
-   "kapitel": "20",
-   "alt": "Übersichtskarte der wichtigsten Tastenkürzel in Gruppen: Bauen und Starten, Debugger, Dateien, Bearbeiten und Suchen, Ansicht.",
-   "caption": "Die wichtigsten Tastenkürzel.",
-   "aufnahme": "gerendert: werkzeug/kuerzel-karte.swift (kein Screenshot)",
+   "alt": "Einstellungen, Seite „ROMs“ (Ausschnitt): je System ein Reiter, je Rolle der Status, die erwartete Größe und der Knopf „Auswählen …“.",
+   "caption": "Einstellungen ▸ ROMs: Status je Rolle und Knopf „Auswählen …“; ROM-Ordner und Ablagezone stehen darüber und darunter auf der Seite",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "projekt-neu-ergebnis",
    "kapitel": "02",
-   "alt": "Frisch angelegtes Projekt hallo: Projektbaum mit src/c64/main.asm und hallo.vcprj, main.asm im Editor, Befehlsleiste vollständig sichtbar.",
-   "caption": "Das neue Projekt direkt nach dem Anlegen.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "alt": "Das frisch angelegte Projekt hallo: links der Projektbaum mit src/c64/main.asm und hallo.vcprj, in der Mitte der geöffnete Quelltext, oben die Kopfzeile, unten das Protokoll.",
+   "caption": "Das neue Projekt direkt nach dem Anlegen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "asm-erstes-programm",
    "kapitel": "06",
-   "alt": "Quelltext „Mein erstes Programm“ im Editor: roter Rahmen und Gruß „hallo“ (nur die IDE-Hälfte; das Emulatorbild ist nicht Teil dieser Aufnahme).",
-   "caption": "Das erste Assembler-Programm im Editor.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "alt": "Der Quelltext main.asm eines neuen Projekts im Editor, links der Projektbaum.",
+   "caption": "Der Editor mit dem Quelltext einer Projektvorlage",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "ausgabe-panel",
    "kapitel": "08",
-   "alt": "Reiter Ausgabe nach Bauen und Starten: „Build OK“, Startzeile des Emulators und Hinweise zu nicht gefundenen ROMs.",
-   "caption": "Die Ausgabe nach Bauen und Starten.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel) (Demo runit,showout)",
+   "alt": "Der Reiter „Protokoll“ mit den Zeilen eines Baus und Starts: Bauen, Fertig, Gestartet.",
+   "caption": "Der Reiter „Protokoll“ meldet Bauen, Starten und Debuggen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "asm-fehler",
    "kapitel": "06",
-   "alt": "Quelltext mit rot unterstrichener Zeile „jmp ende“ und Reiter Probleme mit der Meldung E202: unbekanntes Symbol „ende“.",
-   "caption": "Eine Fehlermeldung lesen.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "alt": "Der Editor mit der rot unterlegten Zeile „jmp ende“; darunter der Reiter Probleme mit der Meldung „E202: unbekanntes Symbol „ende““.",
+   "caption": "Eine Fehlermeldung lesen: Code, Beschreibung und Zeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "editor-fehlerzeile",
    "kapitel": "05",
-   "alt": "Zeile „sta vic2.bordr“ mit Tippfehler: rote Wellenlinie und rote Zeilennummer.",
-   "caption": "Ein Tippfehler wird im Editor markiert.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "alt": "Eine rot hinterlegte Zeile mit rot unterstrichenem Fehler: „jmp ende“ nennt ein Symbol, das es nicht gibt.",
+   "caption": "Ein Fehler wird rot unterstrichen, die Meldung erscheint beim Darüberfahren",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "basic-marken",
    "kapitel": "07",
-   "alt": "BASIC-Quelltext zaehler.bas ohne Zeilennummern mit Sprungmarke @ende und dem erzeugten Bauprotokoll.",
-   "caption": "BASIC mit Sprungmarken statt Zeilennummern.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel)",
+   "alt": "Ein BASIC-Quelltext ohne Zeilennummern mit den Marken @neu und @ende; „then @neu“ und „goto @ende“ springen dorthin.",
+   "caption": "Marken (@name) im Quelltext; die Zeilennummern vergibt der Bau",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "basic-langenamen",
    "kapitel": "07",
-   "alt": "BASIC-Quelltext mit #longnames und langen Variablennamen, darunter das Bauprotokoll (die Tabelle der Kurznamen liegt unterhalb des sichtbaren Teils).",
-   "caption": "Lange Variablennamen in BASIC.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/basic_langenamen punkte.bas build 300",
+   "alt": "Ein BASIC-Quelltext mit langen Variablennamen (punkte, runde, zaehler%, name$) und der Zeile #longnames am Anfang der Datei.",
+   "caption": "Lange Namen im Quelltext; beim Bauen entstehen eindeutige Kurznamen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -1584,117 +817,42 @@
   {
    "id": "zeichensatz-standard",
    "kapitel": "12",
-   "alt": "Dialog „Standardzeichensatz hinzufügen“ mit den Zeichensätzen des Zielsystems und der Option, sie einzubetten.",
-   "caption": "Einen Standardzeichensatz hinzufügen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/standard_charsets \"\" dlgstd 60",
+   "alt": "Der Dialog „Zeichensatz hinzufügen“ im Reiter „Standardzeichensatz“ mit der Liste der Quellen und dem Häkchen „Zeichen stattdessen einbetten“.",
+   "caption": "Standardzeichensätze verweisen auf deine ROMs; fehlt ein ROM, ist der Eintrag grau",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "zeichensatz-png-import",
    "kapitel": "12",
-   "alt": "Dialog „Zeichensatz aus PNG-Raster“ mit Profil, Name und dem Haken „Dunkle Pixel sind gesetzt“.",
-   "caption": "Einen Zeichensatz aus einem PNG-Raster importieren.",
-   "aufnahme": "VC_SHEET=/tmp/demo/raster.png werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm dlgsheet 60",
+   "alt": "Der Dialog „Zeichensatz hinzufügen“ im Reiter „Aus PNG-Raster“ mit Name, Dateiwahl, Profil und dem Häkchen „Dunkle Pixel sind gesetzt“.",
+   "caption": "Ein Zeichensatz als PNG-Raster: 16 Zeichen je Zeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "system-vergleich-c64",
    "kapitel": "19",
-   "alt": "C64-Projekt border im Debug-Arbeitsplatz: Quelltext, Register und der Emulator-Reiter mit dem Bild des C64.",
-   "caption": "Ein C64-Projekt mit Quelltext und Emulator-Bild.",
-   "aufnahme": "VC_BP_LINE=11 VC_DBG_TAB=emulator werkzeug/shot.sh <ziel> c64/border border.asm bp,debug,dbgtab 960",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 520,
-     "y": 78,
-     "w": 570,
-     "h": 52,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 210,
-     "w": 1590,
-     "h": 1010,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 1230,
-     "w": 1580,
-     "h": 440,
-     "nr": 3
-    }
-   ]
+   "alt": "Das Beispielprojekt border im Editor: links der Projektbaum, in der Mitte der Quelltext, oben das Zielsystem Commodore 64.",
+   "caption": "Das C64-Beispiel border: Projektbaum, Quelltext und das Zielsystem in der Kopfzeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "system-vergleich-atari",
    "kapitel": "19",
-   "alt": "Atari-Projekt colorbars im Code-Arbeitsplatz: Quelltext mit ANTIC und GTIA, Bauprotokoll mit colorbars.xex.",
-   "caption": "Ein Atari-Projekt nach dem Bauen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> atari/colorbars colorbars.asm build 300",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 520,
-     "y": 78,
-     "w": 570,
-     "h": 52,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 210,
-     "w": 1590,
-     "h": 1010,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 1230,
-     "w": 1580,
-     "h": 440,
-     "nr": 3
-    }
-   ]
+   "alt": "Das Atari-Beispielprojekt colorbars im Editor, oben das Zielsystem Atari 800 XL/XE.",
+   "caption": "Das Atari-Beispiel colorbars: Quelltext mit ANTIC und GTIA, oben das Zielsystem",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "system-vergleich-mega65",
    "kapitel": "19",
-   "alt": "MEGA65-Projekt hello im Code-Arbeitsplatz: Quelltext mit Makro mega65_enable_vic4, Bauprotokoll mit hello.prg.",
-   "caption": "Ein MEGA65-Projekt nach dem Bauen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> mega65/hello hello.asm build 300",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 520,
-     "y": 78,
-     "w": 570,
-     "h": 52,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 210,
-     "w": 1590,
-     "h": 1010,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 620,
-     "y": 1230,
-     "w": 1580,
-     "h": 440,
-     "nr": 3
-    }
-   ]
+   "alt": "Das MEGA65-Beispielprojekt hello im Editor, oben das Zielsystem MEGA65.",
+   "caption": "Das MEGA65-Beispiel hello: Quelltext mit dem Makro zum Freischalten des VIC-IV",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "emulator-bild-projektbild",
@@ -1716,157 +874,57 @@
   {
    "id": "probleme-panel",
    "kapitel": "08",
-   "alt": "Reiter Probleme mit einem Fehler (E202: unbekanntes Symbol „ende“) und Zeilenangabe.",
-   "caption": "Der Reiter Probleme.",
-   "aufnahme": "Kopie von asm-fehler",
+   "alt": "Der Reiter „Probleme“ mit dem Eintrag „jumprun.asm:61 E202: unbekanntes Symbol „ende““; die Zeile im Editor darüber ist markiert und rot unterstrichen.",
+   "caption": "Der Reiter „Probleme“ listet Fehler und Warnungen, ein Klick springt zur Zeile",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "disk-neu",
    "kapitel": "18",
-   "alt": "Fenster „Neue Diskette“ über dem Disk-Studio: Formatwahl D64, D71, D81 oder ATR, Name und ID, Knöpfe Anlegen und Abbrechen.",
-   "caption": "Eine neue Diskette anlegen.",
-   "aufnahme": "VC_IMAGE=examples/c64/prallball/build/disk.d64 werkzeug/shot.sh <ziel> c64/prallball \"\" disk,disknew 150 (Etappe 5)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 1027,
-     "y": 767,
-     "w": 747,
-     "h": 52,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1027,
-     "y": 849,
-     "w": 429,
-     "h": 97,
-     "nr": 2
-    }
-   ]
+   "alt": "Der Dialog „Neue Datei“ mit gewählter Art „Diskette D64“, dem Ordner und dem Feld Name.",
+   "caption": "Neue Diskette: im Dialog „Neue Datei“ die Art Diskette wählen",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "grafik-exportieren",
    "kapitel": "11",
    "alt": "Export-Dialog über dem Sprite-Studio: Ausgabeformat Assembler, Name hero, Vorschau des Quelltexts und die Knöpfe Im Emulator testen, In Projekt speichern, In aktiven Code einfügen.",
    "caption": "Der Export-Dialog.",
-   "aufnahme": "werkzeug/aufnahmen-5.sh (Demo embed,dlgexport)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 40,
-     "y": 170,
-     "w": 520,
-     "h": 48,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 36,
-     "y": 232,
-     "w": 300,
-     "h": 36,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 36,
-     "y": 410,
-     "w": 940,
-     "h": 400,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 36,
-     "y": 880,
-     "w": 700,
-     "h": 44,
-     "nr": 4
-    }
-   ]
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
+   "marken": []
   },
   {
    "id": "editor-zweiter-bereich",
    "kapitel": "05",
-   "alt": "Editor mit zwei Bereichen nebeneinander: links rasterbars.asm, rechts lib/vic2.inc.",
-   "caption": "Ein zweiter Editorbereich.",
-   "aufnahme": "VC_SPLIT=lib/vic2.inc werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm split 120 (Etappe 5)",
+   "alt": "Der Editor ist geteilt: links music.inc, rechts jumprun.asm, jeweils mit eigener Reiterleiste.",
+   "caption": "Der zweite Editorbereich: zwei Dateien nebeneinander",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "asm-makro",
    "kapitel": "06",
-   "alt": "Links der Quelltext mit dem Makro farbe, rechts das Listing main.lst, in dem jeder Aufruf zu drei Befehlen wird.",
-   "caption": "Ein Makro wird bei jedem Aufruf eingesetzt.",
-   "aufnahme": "VC_SPLIT=build/main.lst VC_SPLIT_AT=300 werkzeug/shot.sh <ziel> /tmp/demo/Retro/makro src/c64/main.asm projbuild,split 360 (Etappe 5, Code aus Kapitel 06)",
+   "alt": "Der Quelltext mit dem Makro music_init, das bei jedem Aufruf als Befehlsfolge eingesetzt wird.",
+   "caption": "Ein Makro wird bei jedem Aufruf eingesetzt",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
    "id": "sprite-animation",
    "kapitel": "13",
-   "alt": "Animationsfeld des Sprite-Editors mit der Animation anim: Ablauf „Hin und zurück“, drei Schritte mit Frame und Dauer.",
-   "caption": "Eine Sprite-Animation.",
-   "aufnahme": "werkzeug/aufnahmen-5.sh (Fixture: sprite_demo mit einer in hero.vcsprite ergänzten Animation)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 700,
-     "y": 1040,
-     "w": 1360,
-     "h": 36,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 700,
-     "y": 1090,
-     "w": 1400,
-     "h": 180,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 830,
-     "y": 1184,
-     "w": 400,
-     "h": 36,
-     "nr": 3
-    }
-   ]
+   "alt": "Das Sprite-Studio mit der Karte „Sprite“: unter „Animationen“ die Animation „laufen“ mit Vorschau, Schrittzahl, Schleife und den Schritten mit Dauer in Bildern.",
+   "caption": "Das Animationsfeld: Schritte mit Dauer in Bildern, darüber Ablauf und Name",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "tracker-sid-pokey",
    "kapitel": "16",
-   "alt": "Dialog „Song aus anderem System übernehmen“ im Atari-Tracker: Neuer Name, Quelle tune.vcsong und die Umwandlung SID (C64) nach POKEY (Atari).",
-   "caption": "Einen C64-Song für den POKEY umwandeln.",
-   "aufnahme": "VC_TRK_DLG=convert VC_PICK=/tmp/demo/tune.vcsong, Studio atari/music_demo (werkzeug/aufnahmen-6.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 1256,
-     "y": 836,
-     "w": 492,
-     "h": 28,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1256,
-     "y": 868,
-     "w": 492,
-     "h": 28,
-     "nr": 2
-    }
-   ]
-  },
-  {
-   "id": "tracker-import-rmt",
-   "kapitel": "16",
-   "alt": "Dialog „RMT-Modul importieren“ im Atari-Tracker mit Namensfeld und den Knöpfen OK und Abbrechen (Platzhalterdatei demo.rmt, importiert wird nichts).",
-   "caption": "Ein RMT-Modul importieren.",
-   "aufnahme": "VC_TRK_DLG=rmt VC_PICK=/tmp/demo/demo.rmt (werkzeug/aufnahmen-6.sh)",
+   "alt": "Der Dialog „Song aus anderem System übernehmen“ mit Namensfeld, Quelle (POKEY (Atari) → SID (C64)) und den Knöpfen „OK“ und „Abbrechen“.",
+   "caption": "Ein Song aus einem anderen System wird für den Chip dieses Trackers umgewandelt",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
    "marken": []
   },
   {
@@ -2225,35 +1283,10 @@
   {
    "id": "include-ziehen",
    "kapitel": "editor",
-   "alt": "Eine Datei „level.bin“ wird aus dem Projektbaum in den Quelltext gezogen: eine orange Linie zeigt die Einfügestelle zwischen zwei Zeilen, am Mauszeiger steht die künftige Zeile .incbin \"data/level.bin\".",
-   "caption": "Beim Ziehen zeigen Linie und Vorschau, was entsteht.",
-   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 72,
-     "y": 247,
-     "w": 225,
-     "h": 24,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 432,
-     "y": 484,
-     "w": 662,
-     "h": 6,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 712,
-     "y": 497,
-     "w": 206,
-     "h": 52,
-     "nr": 3
-    }
-   ]
+   "alt": "Eine Datei wird aus dem Projektbaum in den Quelltext gezogen: eine blaue Linie zwischen zwei Zeilen zeigt, wo die Zeile entsteht.",
+   "caption": "Beim Ziehen zeigt die Linie, wo die Zeile entsteht",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
+   "marken": []
   },
   {
    "id": "include-eingefuegt",
@@ -2304,6 +1337,14 @@
      "nr": 2
     }
    ]
+  },
+  {
+   "id": "menueleiste",
+   "kapitel": "03",
+   "alt": "Die Menüleiste im Fenster: oben die Titel Datei, Bearbeiten, Ansicht, Projekt und Hilfe, darunter das geöffnete Menü Bearbeiten mit Kürzeln und den Untermenüs (Suchen und Ersetzen, Markdown, Falten …); nicht mögliche Einträge sind grau und nennen ihren Grund.",
+   "caption": "Die Menüleiste im Fenster (hier das Menü Bearbeiten mit Untermenüs): unter Windows und Linux so, unter macOS liegt sie in der Menüleiste des Systems",
+   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Menüleiste im Fenster, Kürzel in der Schreibweise von Windows und Linux)",
+   "marken": []
   }
  ]
 }

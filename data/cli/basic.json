@@ -103,6 +103,113 @@
       "see_also": ["basic", "import"]
     },
     {
+      "id": "suggest-hex",
+      "usage": "vcc basic --suggest-hex <datei.bas|datei.lst> [optionen]",
+      "summary": "Hex-Vorschläge für Chipregister-Adressen anzeigen oder ausgewählte übernehmen",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "Natives BASIC mit Dezimaladressen (z. B. ein importiertes Programm)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Zielsystem und Dialekt"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Ausgabe"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--suggest-hex",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Schaltet auf diese Form um.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ziel",
+          "help": "Zielsystem (Datei in data/targets); bestimmt Dialekt und die bekannten Chipregister.",
+          "default": "c64",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dialect",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "BASIC-Dialekt (Datei in data/basic).",
+          "default": "",
+          "default_text": "Dialekt des Zielsystems",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "ziel",
+          "help": "Ordner mit der Hardware-Datenbank (data).",
+          "default": "",
+          "default_text": "VC_DATA oder neben dem Programm",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--apply",
+          "short": "",
+          "value": "liste",
+          "group": "ausgabe",
+          "help": "Nummern der Vorschläge (aus der Liste, durch Komma getrennt), die in die Ausgabedatei geschrieben werden. Ohne --apply wird nur aufgelistet; es wird nie etwas ohne Auswahl geändert.",
+          "default": "",
+          "default_text": "nur auflisten",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "ausgabe",
+          "group": "ausgabe",
+          "help": "Ausgabedatei für --apply (die Quelldatei wird nie überschrieben).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Vorschläge ansehen",
+          "cmd": "vcc basic --suggest-hex spiel.bas --target c64"
+        },
+        {
+          "title": "Vorschläge 1 und 3 übernehmen",
+          "cmd": "vcc basic --suggest-hex spiel.bas --apply 1,3 -o spiel_hex.bas"
+        }
+      ],
+      "notes": [
+        "Vorgeschlagen werden nur vollständige Dezimaladressen ab 256 als Argument von POKE, PEEK, SYS, WAIT und USR, die ein Chipregister des Zielsystems sind. Rechenausdrücke, DATA und Zeichenketten bleiben unberührt."
+      ],
+      "see_also": [
+        "basic"
+      ]
+    },
+    {
       "id": "ast",
       "usage": "vcc basic ast <datei.bas> [optionen]",
       "summary": "Syntaxbaum eines BASIC-Programms ausgeben",

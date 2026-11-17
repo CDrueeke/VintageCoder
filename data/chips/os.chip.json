@@ -24,6 +24,8 @@
     {"name": "runad", "addr": "$02E0", "access": "rw", "doc": "Startadresse (XEX)"},
     {"name": "initad", "addr": "$02E2", "access": "rw", "doc": "Init-Adresse (XEX)"},
     {"name": "memtop", "addr": "$02E5", "access": "rw", "doc": "Obergrenze des freien Speichers"},
+    {"name": "chact", "addr": "$02F3", "access": "rw", "doc": "CHACTL-Schatten (Zeichensatz-Steuerung)"},
+    {"name": "chbas", "addr": "$02F4", "access": "rw", "doc": "CHBASE-Schatten (Zeichensatzbasis, High-Byte)"},
     {"name": "ch", "addr": "$02FC", "access": "rw", "doc": "Letzter Tastencode"},
     {"name": "rtclok", "addr": "$0012", "access": "rw", "doc": "Systemuhr (3 Byte, 50/60 Hz)"},
     {"name": "atract", "addr": "$004D", "access": "rw", "doc": "Attract-Modus-Zähler"},

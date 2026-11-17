@@ -72,6 +72,35 @@ fn asm_export_has_tables_constants_and_screen_table() {
     assert!(std::fs::read_to_string(dir.join("build/export/levels.data.sbas")).unwrap().contains("const levels_count = 4"));
 }
 
+/// RLE-Option der Screen-Bank (Konzept 5.4): Jumprun-Karten 240 Byte roh, gemessen 82/76/84/78 = 320 Byte; Entpacken ergibt die rohe Karte zurück.
+#[test]
+fn bank_rle_option_is_golden_and_roundtrips() {
+    let dir = tmp("rle"); jumprun(&dir); let d = data();
+    project::export(&dir, &d, "graphics/levels.vcscreen", "bin", Some("raw"), None, 0, 0).unwrap();
+    let mut bank = read(&dir.join("graphics/levels.vcscreen")); bank["rle"] = json!(true); bank["name"] = json!("levels_rle"); write(&dir.join("graphics/levels_rle.vcscreen"), &bank);
+    project::export(&dir, &d, "graphics/levels_rle.vcscreen", "bin", Some("rle"), None, 0, 0).unwrap();
+    let rd = |n: &str| std::fs::read(dir.join("build/export").join(n)).unwrap();
+    let mut sizes = vec![];
+    for i in 0..4 {
+        let (raw, packed) = (rd(&format!("levels.map{i}.bin")), rd(&format!("levels_rle.map{i}.bin")));
+        assert_eq!(raw.len(), 240); assert_eq!(tiles::rle_decode(&packed, 240).unwrap(), raw, "Karte {i}");
+        sizes.push(packed.len());
+    }
+    assert_eq!(sizes, vec![82, 76, 84, 78], "goldene Größen (Konzept 5.4)");
+    project::export(&dir, &d, "graphics/levels_rle.vcscreen", "asm", Some("rle"), None, 0, 0).unwrap();
+    assert!(std::fs::read_to_string(dir.join("build/export/levels_rle.asm")).unwrap().contains(".const rle_rle = 1"));
+}
+
+#[test]
+fn rle_encode_golden_bytes_and_limits() {
+    assert_eq!(tiles::rle_encode(&[]), Vec::<u8>::new());
+    assert_eq!(tiles::rle_encode(&[3, 3, 3, 1, 2, 2]), vec![3, 3, 1, 1, 2, 2]);
+    let long = vec![7u8; 600];                                   // Läufe länger als 255 werden geteilt
+    assert_eq!(tiles::rle_encode(&long), vec![7, 255, 7, 255, 7, 90]);
+    assert_eq!(tiles::rle_decode(&tiles::rle_encode(&long), 600).unwrap(), long);
+    assert!(tiles::rle_decode(&[1, 0], 0).is_err() && tiles::rle_decode(&[1], 1).is_err() && tiles::rle_decode(&[1, 2], 3).is_err());
+}
+
 fn mini_charset(dir: &Path, name: &str, glyphs: &[&str]) { mini_charset_at(dir, name, glyphs, 0) }
 fn mini_charset_at(dir: &Path, name: &str, glyphs: &[&str], row: usize) {
     // c64.char.hires: 256 Zeichen, 8×8; glyphs[i] ist die Zeichennummer i (erste Zeile mit '1' an Stelle i%8, sonst leer)
@@ -172,4 +201,15 @@ fn tileset_json_schreibt_zurueck_und_bleibt_lesbar() {
     assert_eq!((out2["colorMode"].clone(), out2["tiles"][1]["props"].clone(), out2["pins"].clone()), (json!("none"), json!(["solid"]), v["pins"].clone()), "pins bleiben");
     v["tiles"][1]["props"] = json!(["solid"]); v["colorMode"] = json!("none");
     assert_eq!(out2, v);
+}
+
+/// TED-Palette des Plus/4 (C1): 128 Einträge, Index = Attribut-Byte; Stichproben aus der Messung an VICE xplus4.
+#[test]
+fn plus4_uses_the_ted_palette_indexed_by_attribute_byte() {
+    let p = vc_media::palette::palette_for(&data(), "plus4", "pal").unwrap();
+    assert_eq!((p.colors.len(), p.mask), (128, 127));
+    assert_eq!(p.rgb(0x00), Some([0, 0, 0]));                 // Farbton 0 = Schwarz
+    assert_eq!(p.rgb(0x01), Some([0x17, 0x17, 0x17]));       // Grau, Helligkeit 0
+    assert_eq!(p.rgb(0x11), Some([0x26, 0x26, 0x26]));       // Grau, Helligkeit 1
+    assert_eq!(p.rgb(0x71), p.rgb(0xf1), "Bit 7 (Blinken) zählt nicht");
 }

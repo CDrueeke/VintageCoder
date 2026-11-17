@@ -3,7 +3,7 @@
 > **Ungeprüft:** Der Ethernet-Weg (Starten, Kopieren, Einbinden) wurde bisher **nur gegen Attrappen-Befehle** getestet, nicht an einem echten MEGA65. Aufrufzeilen und Fehlerhinweise stammen aus dem MEGA65-Wiki und GitHub-Beiträgen. Der USB-Weg (eigener Monitor) ist über Xemu abgesichert, aber ebenfalls nicht am echten Gerät erneut geprüft.
 
 ## Zwei Verbindungen
-Eine Maschine vom Typ MEGA65 (Einstellungen → MEGA65 → Physische Zielhardware) hat eine **Standardverbindung**. Für **Starten**, **Kopieren** und **Debuggen** kann jede Aktion eine eigene Verbindung bekommen („wie Standard“, „USB“, „Ethernet“).
+Eine Maschine vom Typ MEGA65 (Einstellungen ▸ Zielsysteme und Hardware ▸ MEGA65 ▸ Physische Zielhardware & Netzwerkgeräte, Knopf **+ MEGA65 (USB oder Ethernet)**) hat eine **Standardverbindung**. Für **Starten**, **Kopieren** und **Debuggen** kann jede Aktion eine eigene Verbindung bekommen („wie Standard“, „USB“, „Ethernet“).
 
 | Aktion | USB | Ethernet |
 |---|---|---|

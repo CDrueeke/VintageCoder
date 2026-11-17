@@ -24,7 +24,7 @@
 .ifdef RT_ZSAVE
 .ifdef RT_FLOAT
 // Fehler der ROM-Routinen (DIVISION BY ZERO usw.) springen nicht zu uns zurück, sondern ins BASIC: der Fehlervektor $0300 wird für die
-// Dauer des Programms umgebogen, damit zuvor der Nullseitenblock zurückgeschrieben wird (X = Fehlernummer bleibt erhalten).
+// Dauer des Programms umgebogen, damit zuvor der Zeropage-Block zurückgeschrieben wird (X = Fehlernummer bleibt erhalten).
 rt_oldierr: .word 0
 rt_errhook: stx rt_tmp
           ldx #RT_ZLEN-1
@@ -39,7 +39,7 @@ rt_errhook: stx rt_tmp
           ldx rt_tmp
           jmp (rt_oldierr)
 .endif
-// Ziele, deren Nullseite das BASIC nach dem Programm noch braucht (C128, Plus/4): der benutzte Block wird beim Start gesichert und bei Ende zurückgeschrieben
+// Ziele, deren Zeropage das BASIC nach dem Programm noch braucht (C128, Plus/4): der benutzte Block wird beim Start gesichert und bei Ende zurückgeschrieben
 rt_zsave: .fill RT_ZLEN, 0
 .endif
 

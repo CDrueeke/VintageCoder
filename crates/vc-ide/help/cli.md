@@ -60,6 +60,7 @@ Die Hilfe nennt je Befehl den Aufruf, alle Argumente und Optionen mit Standardwe
 |---|---|
 | `vcc debuglog` | Debug-Protokoll der IDE auswerten |
 | `vcc feedback` | Rückmeldung per E-Mail mit Angaben zur Installation vorbereiten |
+| `vcc update` | Nachsehen, ob es eine neue Version gibt (nur Anzeige) |
 
 Mehrere Befehle haben Unterformen, etwa `vcc disk d64`, `vcc roms check` oder `vcc basic ast`; `vcc help <befehl>` listet sie.
 
@@ -85,6 +86,8 @@ Die genauen Optionen jedes Befehls zeigt `vcc help <befehl>`, dort stehen auch w
 | `VC_XEMU_SD` | Ordner mit MEGA65.ROM für Xemu. |
 | `VC_XEMU_ARGS` | zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt. |
 | `VC_STRUCTURES` | Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner). |
+| `VC_UPDATE_URL` | Quelle der Versionsliste für `vcc update` (Ordner, Datei oder https-Adresse; sonst der feste Release update-feed). Ändert nie das Ziel des Links. |
+| `VC_UPDATE_DIR` | Ordner für Befund und Prüfprotokoll der Update-Prüfung (sonst updates im Konfigurationsordner). |
 | `VC_DEBUG_LOG` | Debug-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc. |
 | `VC_WIN` | Fenstergröße der IDE, z. B. 1400x860 (nur vintagecoder). |
 | `COLUMNS` | Breite für den Zeilenumbruch der Hilfe (Standard: 100). |

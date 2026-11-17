@@ -93,7 +93,7 @@
 ;   $E000-$E7FF Zeichensatz CHARSET (aus dem Zeichen-ROM kopiert; 64-67, 127 eigene Zeichen, 128..191 Pool der Zeichen-Sprites, 224..255 Ticker)
 ;   Das Zeichen-ROM wird einmal in copy_font gelesen; $E000 liegt im RAM unter dem KERNAL-ROM (Schreiben geht immer ins RAM).
 ;
-; NULLSEITE (Zeropage)
+; ZEROPAGE
 ;   $02-$03 Zufall (rand.asm)   $04-$07 Musik (sound.asm)   $08-$0D Bestenliste (hiscore.asm)
 ;   $10-$8B Spielzustand (siehe .const unten; $3C..$3F frei)   $8C-$8F Eingabe (input.asm)   $90-$B3 Zeichen-Sprites, VDC-Hilfen, Ticker-Upload
 ;   (der KERNAL nutzt $90 und aufwaerts nur waehrend der Bestenliste)
@@ -111,8 +111,8 @@
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseiten-Variablen des Spiels ($10-$8B; die Zeiger und Hilfszellen der Zeichen-Sprites folgen weiter unten ab $90)
-;   Hinweis: tbu..tbdy (Titelbaelle) sind keine Nullseite, sondern RAM-Adressen ab $C130.
+; Zeropage-Variablen des Spiels ($10-$8B; die Zeiger und Hilfszellen der Zeichen-Sprites folgen weiter unten ab $90)
+;   Hinweis: tbu..tbdy (Titelbaelle) sind keine Zeropage, sondern RAM-Adressen ab $C130.
 ; ---------------------------------------------------------------------------------------------------------------------
 .const bxl     = $10                    ; Ball-X, Festkomma 1/64 px, Low-Byte
 .const bxh     = $11                    ;                           High-Byte
@@ -236,7 +236,7 @@
 
 .const MAP     = $c000                  ; Steinkarte im RAM
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2).  load_ball/save_ball kopieren einen Ball in die
-; Nullseite (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
+; Zeropage (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
 .const shact   = $c120                  ; Laserschuesse (2 Stueck): 1 = aktiv
 .const shu     = $c122                  ;   X-Lage in Einheiten zu 2 px (px / 2, damit 8 Bit reichen: max. 150)
 .const shy     = $c124                  ;   Y-Lage (Oberkante) in px
@@ -280,7 +280,7 @@
 .const VDC_CHR  = $2000
 .const VDC_ALT  = $3000
 
-; Zeichen-Sprites (Compositor): Nullseite $90-$AD (der KERNAL benutzt $90 und aufwaerts nur waehrend der Bestenliste, danach ist alles neu)
+; Zeichen-Sprites (Compositor): Zeropage $90-$AD (der KERNAL benutzt $90 und aufwaerts nur waehrend der Bestenliste, danach ist alles neu)
 .const shp     = $90                    ; Zeiger auf die Schattenkopie der Zeichencodes (2 Byte)
 .const shf     = $92                    ; Zeiger auf die Schattenkopie der Farben
 .const ip      = $94                    ; Zeiger auf den Datenstreifen des Bildes (2 Byte)
@@ -2466,7 +2466,7 @@ move_paddle:
 .done:  rts
 
 ; place_ball: Ball haftet in der Schlaegermitte auf dem Schlaeger (stuck = 1); nur Ball 0 ist aktiv. Veraendert A, X, cb und die Ballwerte in der
-;   Nullseite.
+;   Zeropage.
 ;   X = (padl + padw / 2 - 3) * 64 (Ballkante = Schlaegermitte - halbe Ballbreite; bei 32 px also padl + 13), Y = (184 - 6) * 64 = $2C80.
 place_ball:
         lda #1
@@ -2500,7 +2500,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite holen / dorthin zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage holen / dorthin zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -2570,7 +2570,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball (groesstes High-Byte von Y) in die Nullseite laden (der Autoplay/Demo folgt ihm); cb = sein Schlitz.
+; pick_ball: den tiefsten aktiven Ball (groesstes High-Byte von Y) in die Zeropage laden (der Autoplay/Demo folgt ihm); cb = sein Schlitz.
 ;   Veraendert A, X, t2, t3.
 pick_ball:
         lda #0
@@ -2604,7 +2604,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -2631,7 +2631,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -3587,7 +3587,7 @@ laser_fire:
 ;   Spalte = (u - 8) / 8 (u = px / 2, Stein 16 px = 8 Einheiten breit, Feld beginnt bei px 16 = u 8), Zeile = (y - 32) / 8.
 update_shots:
         ldx #0
-.us:    stx shi                         ; Schuss 0..1; hit_brick veraendert X, darum merken wir die Schussnummer in shi (Nullseite, nicht von
+.us:    stx shi                         ; Schuss 0..1; hit_brick veraendert X, darum merken wir die Schussnummer in shi (Zeropage, nicht von
                                         ;   hit_brick benutzt)
         lda shact,x
         beq .usn
@@ -4092,7 +4092,7 @@ name_draw:
 ;   dann links nach rechts schreiben), 3 nach links wegscrollen (neu von rechts), 4 nach rechts, 5 Wischer (Kante laeuft pixelweise von links
 ;   nach rechts), 6 Aufloesen (zufaellige Pixelzeilen werden ausgetauscht).  Dazu eine laufende Regenbogenfarbe ueber die Zeichen.
 ;   ABLAUF: warten (tkw Bilder), naechsten Text aus der Folge holen, Effekt starten, Schritte ausfuehren, fertig -> warten.
-; Zustand (Nullseite, tk*): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0
+; Zustand (Zeropage, tk*): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0
 ;   Titel / 1 Demo
 ; =====================================================================================================================
 .const TK_BUF = CHARSET + 224 * 8       ; Bitmuster der Zeichen 224..255 (Hauptspeicher; tk_upload kopiert Aenderungen in den VDC)

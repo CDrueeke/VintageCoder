@@ -108,11 +108,11 @@
     "[$0520] == 67",
     "([$d920] & 15) == 14"
    ],
+   "timeoutMs": 2000,
    "cycles": {
     "max": 190,
     "level": "error"
-   },
-   "timeoutMs": 2000
+   }
   },
   {
    "name": "tile_put: Kachel 0 nach (11,9), Zyklen",
@@ -136,11 +136,11 @@
     "[$071b] == 32",
     "([$db1b] & 15) == 1"
    ],
+   "timeoutMs": 2000,
    "cycles": {
     "max": 190,
     "level": "error"
-   },
-   "timeoutMs": 2000
+   }
   },
   {
    "name": "tile_put: Kachel 3 nach (0,0), Zyklen",
@@ -164,11 +164,43 @@
     "[$042a] == 53",
     "([$d82a] & 15) == 15"
    ],
+   "timeoutMs": 2000,
    "cycles": {
     "max": 190,
     "level": "error"
-   },
-   "timeoutMs": 2000
+   }
+  },
+  {
+   "name": "tile_erase zweimal: Kacheln der Karte neu gezeichnet (Referenz)",
+   "call": "t_erase",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_restore 4 x 3 aus der Karte (Referenz)",
+   "call": "t_restore",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_restore stellt den Hintergrund unter einer Figur wieder her (= Screen 1)",
+   "call": "t_restore_bg",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_row: Zeile 5 aus Kachel 3 (Referenz)",
+   "call": "t_row",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
   },
   {
    "name": "screen_map_get (0,0) von Screen 1 = 2",
@@ -240,6 +272,53 @@
    "expect": [
     "a == 1"
    ],
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_erase (3,4): Zyklen",
+   "setup": {
+    "x": 3,
+    "y": 4,
+    "mem": {
+     "$fe": 1
+    }
+   },
+   "call": "tile_erase",
+   "cycles": {
+    "max": 280,
+    "level": "error"
+   },
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_restore_a 4 x 3 ab (2,1): Zyklen",
+   "setup": {
+    "a": 4,
+    "x": 2,
+    "y": 1,
+    "mem": {
+     "$fe": 1,
+     "$fd": 3
+    }
+   },
+   "call": "tile_restore_a",
+   "cycles": {
+    "max": 4000,
+    "level": "error"
+   },
+   "timeoutMs": 2000
+  },
+  {
+   "name": "tile_row_a: Zeile 5, Zyklen",
+   "setup": {
+    "a": 3,
+    "y": 5
+   },
+   "call": "tile_row_a",
+   "cycles": {
+    "max": 2500,
+    "level": "error"
+   },
    "timeoutMs": 2000
   },
   {

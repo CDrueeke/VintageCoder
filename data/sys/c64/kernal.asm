@@ -47,7 +47,7 @@
 .const VEC_RESET             = $FFFC   // RESET-Vektor
 .const VEC_IRQ               = $FFFE   // IRQ/BRK-Vektor
 
-// ---- KERNAL-Nullseite
+// ---- KERNAL-Zeropage
 .const STATUS                = $0090   // Statuswort (ST)
 .const STKEY                 = $0091   // STOP-Taste (Flag)
 .const LDTND                 = $0098   // Anzahl offener Dateien

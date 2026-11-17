@@ -5,7 +5,7 @@ Spielregeln, Level, Extras und Bedienung wie am C64 (Joystick Port 2 oder Tastat
 
 - **Bauen:** `vcc build .` (oder IDE F7), Start in Xemu (`xmega65 -prg build/prallball.prg -prgmode 65`, in der IDE F5).
   Testfassung, in der der Rechner spielt: `vcc asm prallball.asm --target mega65 --cpu 45gs02 -D AUTOPLAY=1 -o autoplay.prg`.
-- **Aufbau des Quelltexts:** Der Kopf von `prallball.asm` enthaelt Ablauf, Speicherplan (CPU-RAM, Chip-RAM, Palette, Nullseite), Einheiten und die Liste aller
+- **Aufbau des Quelltexts:** Der Kopf von `prallball.asm` enthaelt Ablauf, Speicherplan (CPU-RAM, Chip-RAM, Palette, Zeropage), Einheiten und die Liste aller
   Testfassungen (`-D ...`); jede Routine hat einen Kopfkommentar mit Eingabe/Ausgabe.  Die folgenden Punkte beschreiben die Entwicklungsstufen und Funktionen.
 - **Stand (Stufe 2a, 2b und 2c; Grundlage, spaeter auf Vollfarbzeichen und 640 x 400 erweitert, siehe unten):** Das Spiel begann im VIC-II-Modus des VIC-IV (40 x 25 Mehrfarbtext, 8 Sprites) und nutzt davon die **VIC-IV-Palette**:
   16 eigene Farben (`pal_r/g/b`) und ein **weicher Hintergrundverlauf** statt 22 Farbbaendern: 50 Baender zu je 4 Rasterzeilen setzen

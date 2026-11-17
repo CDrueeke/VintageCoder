@@ -151,7 +151,7 @@ pub fn find(root: &Path) -> Option<PathBuf> {
 
 impl ProjectFile {
     pub fn load(file: &Path) -> Result<ProjectFile, String> {
-        let t = std::fs::read_to_string(file).map_err(|e| format!("{}: {e}", file.display()))?;
+        let t = vc_core::textfile::read_source(file).map_err(|e| format!("{}: {e}", file.display()))?;
         serde_json::from_str(&t).map_err(|e| format!("{}: {e}", file.display()))
     }
     pub fn save(&self, file: &Path) -> Result<(), String> {
@@ -275,17 +275,22 @@ impl ProjectFile {
     }
 
     /// Probleme der Projektdatei (fehlende Dateien, unbekannte Targets, ungültige Diskette)
-    pub fn validate(&self, root: &Path) -> Vec<String> {
-        let mut v = vec![];
+    pub fn validate(&self, root: &Path) -> Vec<String> { let (mut f, w) = self.validate_getrennt(root); f.extend(w); f }
+    /// Wie [`validate`](Self::validate), getrennt in (Fehler, Warnungen). Fehler machen die Projektdatei unbrauchbar (Speichern in der Oberfläche gesperrt),
+    /// Warnungen sind behebbar (fehlende Dateien) und sperren nichts
+    pub fn validate_getrennt(&self, root: &Path) -> (Vec<String>, Vec<String>) {
+        let mut v = vec![]; let mut w = vec![];
+        if self.project.name.trim().is_empty() { v.push("Projektname fehlt: bitte einen Namen eingeben".into()); }
+        if self.targets.is_empty() { v.push("Kein Target: mindestens ein Zielsystem eintragen".into()); }
         let ids: Vec<&str> = self.targets.iter().map(|t| t.id.as_str()).collect();
         let mut seen = std::collections::HashSet::new();
         for (f, kind, _) in self.source_files() {
-            if !root.join(&f).is_file() { v.push(format!("{f}: Datei fehlt")); }
+            if !root.join(&f).is_file() { w.push(format!("{f}: Datei fehlt")); }
             if !seen.insert(f.clone()) { v.push(format!("{f}: mehrfach als Quelle eingetragen")); }
             if !matches!(kind.as_str(), "asm" | "basic") { v.push(format!("{f}: unbekannte Art '{kind}' (asm oder basic)")); }
         }
         for s in &self.sources { for t in &s.targets { if !ids.contains(&t.as_str()) { v.push(format!("Quellgruppe {:?}: Target '{t}' ist nicht definiert", s.files.first().map(String::as_str).unwrap_or(""))); } } }
-        for a in &self.assets { if !root.join(&a.file).is_file() { v.push(format!("{}: Datei fehlt (Abschnitt assets)", a.file)); } }
+        for a in &self.assets { if !root.join(&a.file).is_file() { w.push(format!("{}: Datei fehlt (Abschnitt assets)", a.file)); } }
         for (k, d) in &self.layout {
             if crate::importfiles::Category::from_id(k).is_none() { v.push(format!("layout: unbekannte Kategorie '{k}'")); }
             if !d.is_empty() && !crate::importfiles::valid_dir(d) { v.push(format!("layout: '{d}' ist kein gültiger Ordner (relativ, ohne ..)")); }
@@ -308,7 +313,7 @@ impl ProjectFile {
             if !matches!(d.format.as_str(), "d64" | "d71" | "d81" | "atr") { v.push(format!("disk: unbekanntes Format '{}' (d64, d71, d81, atr)", d.format)); }
             for f in &d.files { if !srcs.contains(f) { v.push(format!("disk: '{f}' ist keine Quelldatei des Projekts")); } }
         }
-        v
+        (v, w)
     }
 }
 
@@ -403,10 +408,22 @@ pub fn build_project(c: &Ctx, pf: &ProjectFile, only: Option<&str>) -> Value {
     out
 }
 
+/// Bauen aus der Oberfläche: das Programm `rel` wie bisher; hat das Projekt eine Diskette (`disk`), wird wie bei `vcc build` das ganze
+/// Projekt gebaut und die Diskette erzeugt. Ergebnis = Bauergebnis von `rel` plus `disk` (Datei, Größe, Programme) oder `disk_error` / `disk_skipped`
+pub fn build_gui(c: &Ctx, pf: Option<&ProjectFile>, rel: &str) -> Result<Value, String> {
+    let Some(pf) = pf.filter(|p| p.disk.is_some()) else { return crate::build::build(c, rel, None) };
+    let all = build_project(c, pf, None);
+    let mut v = match all["results"].as_array().and_then(|a| a.iter().find(|x| x["file"] == rel)) { Some(x) => x.clone(), None => crate::build::build(c, rel, None)? };
+    if let Some(d) = all.get("disk") { v["disk"] = d.clone(); }
+    if let Some(e) = all.get("disk_error") { v["disk_error"] = e.clone(); }
+    else if all["disk"].is_null() { v["disk_skipped"] = json!("Diskette nicht erstellt: nicht alle Programme des Projekts wurden gebaut"); }
+    Ok(v)
+}
+
 /// Einstellung `key` (Text) des Projekt-Targets `tid` (nach `id` oder `system`) aus der `.vcprj` im Ordner `root`, z. B. `memory` beim VC-20
 pub fn target_setting(root: &Path, tid: &str, key: &str) -> Option<String> {
     let file = std::fs::read_dir(root).ok()?.flatten().map(|e| e.path()).find(|p| p.extension().map_or(false, |e| e == "vcprj"))?;
-    let v: Value = serde_json::from_str(&std::fs::read_to_string(file).ok()?).ok()?;
+    let v: Value = serde_json::from_str(&vc_core::textfile::read_source(file).ok()?).ok()?;
     v["targets"].as_array()?.iter().find(|t| t["id"] == tid || t["system"] == tid).and_then(|t| t[key].as_str().map(String::from))
 }
 

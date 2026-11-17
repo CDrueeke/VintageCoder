@@ -12,13 +12,13 @@
 ;   hal_plus4.asm            Hardware-Schicht: TED (Bild, Zeichen-Sprites, Klang), Rasterinterrupt
 ;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
 ;   lib/levels.inc           Tabellen, Figurenbilder, Musik (ERZEUGT von tools/gen_jumprun_plus4.py)
-;   graphics/*               Projektdateien der Editoren: Zeichensatz chars.vcchar, Kachelkarten lv1..lv4.vctiles, Titelbild title.vcscreen
+;   graphics/*               Projektdateien der Editoren: Zeichensatz chars.vcchar, Kachelsatz hg.vctiles, Screen-Bank levels.vcscreen, Titelbild title.vcscreen
 ;                            (beim Bauen nach build/export/*.asm exportiert und unten eingebunden)
 ;
 ; SPEICHERKARTE
 ;   $1001-$3FFF  Programm (BASIC-Starter + Code)   $4000-$47FF  Zeichensatz   $4800-...  Tabellen, Figurenbilder, Musik
 ;   $6800-...    Titelbild und Kachelkarten        $9000 Bildkarte (LMAP)   $9400 Hintergrundkopie   $0800 Farb-RAM   $0C00 Bildschirm
-;   Nullseite: $80-$B3 Spiellogik (ZP), $C0-$E3 HAL.   Der Plus/4 startet BASIC-Programme bei $1001 (BASIC-Speicher ohne Erweiterung);
+;   Zeropage: $80-$B3 Spiellogik (ZP), $C0-$E3 HAL.   Der Plus/4 startet BASIC-Programme bei $1001 (BASIC-Speicher ohne Erweiterung);
 ;   unterhalb von $4000 ist deshalb Platz fuer ungefaehr 12 KB Code, der Zeichensatz muss auf eine 1-KB-Grenze ($4000 = 16 * 1024).
 ;   Der TED sieht den RAM nur als Ganzes: Bild, Zeichensatz und Farb-RAM liegen im selben RAM wie Code und Daten; es gibt keine
 ;   "Bank" wie beim C64.  Die Tabellen ab $4800 und die Bilddaten ab $6800 sind nur gewoehnliche Daten.
@@ -30,7 +30,7 @@
 .cpu 7501                               ; CPU 7501 (wie 6502, im TED-Rechner; hier ohne Besonderheiten)
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
-.const ZP   = $80                       ; Nullseiten-Variablen der Spiellogik beginnen bei $80 (core.asm legt sie ab hier an, bis $B3)
+.const ZP   = $80                       ; Zeropage-Variablen der Spiellogik beginnen bei $80 (core.asm legt sie ab hier an, bis $B3)
 .const LMAP = $9000                     ; Bildkarte im RAM (240 Byte = 20 x 12 Kacheln); Muenzen werden daraus geloescht
 
 .org $1001                              ; BASIC-Startadresse des Plus/4
@@ -218,18 +218,17 @@ play_level:
 .include "hal_plus4.asm"
 .include "../../common/jumprun/core.asm"
 
-; Tabelle der Kachelkarten der vier Bilder (Adressen der exportierten Karten; hal_load_level kopiert eine davon nach LMAP)
-maps_lo: .byte <lv1_map, <lv2_map, <lv3_map, <lv4_map
-maps_hi: .byte >lv1_map, >lv2_map, >lv3_map, >lv4_map
+; Kacheleigenschaften der Spiellogik (core.asm liest tile_attr,x): 0 leer, 1 tragend (hg_p_solid), 2 Leiter (hg_p_ladder) - aus dem Kachelsatz
+.const tile_attr = hg_props
+.assert hg_p_solid == 1 && hg_p_ladder == 2, "core.asm erwartet 1 = tragend, 2 = Leiter"
 
 ; ---- Daten an festen Adressen (die IDE exportiert die Dateien aus graphics/ beim Bauen nach build/export/)
-.org $4000                              ; Zeichensatz: 256 Zeichen * 8 Byte; der TED holt ihn von hier (Register $FF13 = $42);
-.include "build/export/chars.asm"       ;   die Zeichen $E0-$F4 sind der Pool der Zeichen-Sprites und werden zur Laufzeit ueberschrieben
+.org $4000 - 105                       ; Zeichensatz: 256 Zeichen * 8 Byte; der TED holt ihn von hier (Register $FF13 = $42);
+.include "build/export/hg.asm"          ;   der Export des Kachelsatzes legt vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte);
+.assert hg_chars == $4000, "Zeichensatz muss bei $4000 liegen (Tabellen des Kachelsatzes davor, siehe .org)"
+                                        ;   hg_chars ist chars.vcchar (alle 256 Zeichen angepinnt); die Zeichen $E0-$F4 sind der Pool der Zeichen-Sprites
 .org $4800                              ; Tabellen und Figurenbilder (vom Generator erzeugt), Musik
 .include "lib/levels.inc"
-.org $6800                              ; Titelbild (title_chars) und die Kachelkarten lv1..lv4 (lv1_tiles = Kachelliste, lv?_map = Karten)
+.org $6800                              ; Titelbild (title_chars) und die Karten der Screen-Bank levels (levels_map0..3, levels_screens_lo/hi)
 .include "build/export/title.asm"
-.include "build/export/lv1.asm"
-.include "build/export/lv2.asm"
-.include "build/export/lv3.asm"
-.include "build/export/lv4.asm"
+.include "build/export/levels.asm"

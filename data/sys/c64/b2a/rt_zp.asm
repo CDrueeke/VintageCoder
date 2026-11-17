@@ -1,13 +1,13 @@
-// BASIC→Assembler (basic2asm), Laufzeit C64: Nullseite und Konstanten.
+// BASIC→Assembler (basic2asm), Laufzeit C64: Zeropage und Konstanten.
 // Das Ergebnis ruft kein BASIC-ROM auf; die Zeiger des BASIC ($2B-$38, $73-$8A) bleiben unberührt, damit "END" sauber ins BASIC zurückkehrt.
 // Einbinden mit: #include <c64/b2a/rt_zp.asm> (am Anfang des Programms, vor allem Code)
 
 .ifdef RT_FLOAT
 // ---- Stufe 2 (Fließkomma): das BASIC-ROM rechnet mit $22-$2A und $57-$70 (FAC, ARG, Hilfsfelder) – diese Bereiche bleiben frei.
-// Nur Zeiger, die indirekt benutzt werden, liegen in der Nullseite ($F7-$FE); alles andere im Kassettenpuffer ab $0334.
-.const rt_t0   = $FB     // Zeiger/Zwischenspeicher (2 Byte, Nullseite)
-.const rt_ap   = $FD     // Zeiger auf Feld-Kopf (2 Byte, Nullseite)
-.const rt_dp   = $F7     // DATA-Zeiger (2 Byte, Nullseite)
+// Nur Zeiger, die indirekt benutzt werden, liegen in der Zeropage ($F7-$FE); alles andere im Kassettenpuffer ab $0334.
+.const rt_t0   = $FB     // Zeiger/Zwischenspeicher (2 Byte, Zeropage)
+.const rt_ap   = $FD     // Zeiger auf Feld-Kopf (2 Byte, Zeropage)
+.const rt_dp   = $F7     // DATA-Zeiger (2 Byte, Zeropage)
 .const rt_line = $39     // = CURLIN des BASIC: Fehlermeldungen des ROMs nennen so die richtige Zeile
 .const rt_t1   = $0334   // Zwischenspeicher (2 Byte)
 .const rt_fv   = $0336   // Zeiger auf Schleifenvariable (2 Byte)
@@ -35,7 +35,7 @@
 
 .endif
 
-// Zeichenketten (Stufe 3, rt_str.asm): Zeiger aus dem BASIC-Bereich der Nullseite, den weder Stufe 1 noch das Fließkomma-ROM braucht
+// Zeichenketten (Stufe 3, rt_str.asm): Zeiger aus dem BASIC-Bereich der Zeropage, den weder Stufe 1 noch das Fließkomma-ROM braucht
 .const rt_s1   = $3F     // Quell-/Hilfszeiger (2 Byte)
 .const rt_s2   = $41     // Zielzeiger (2 Byte)
 .const rt_gd   = $43     // Speicherbereinigung: Beschreiber unter Prüfung (2 Byte)

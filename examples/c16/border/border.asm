@@ -32,7 +32,7 @@
 ;   $FF15  Hintergrundfarbe 0 (wird hier nur auf Schwarz gesetzt)
 ;
 ; SPEICHERPLAN
-;   $1001      BASIC-Starter (eine Zeile "10 SYS 4109", 12 Byte), danach bei $100D = 4109 das Programm (19 Byte).  Keine Daten, keine Nullseite.
+;   $1001      BASIC-Starter (eine Zeile "10 SYS 4109", 12 Byte), danach bei $100D = 4109 das Programm (19 Byte).  Keine Daten, keine Zeropage.
 ;
 ; BEKANNTE GRENZEN
 ;   Das Beispiel ist vom Plus/4 uebernommen; der C16 hat denselben TED und nur 16 KB RAM (das Programm belegt 31 Bytes). Geprueft in VICE 3.10 (xplus4 -model c16): die Rasterbalken laufen.  Die Zeilennummer

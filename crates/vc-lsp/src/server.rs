@@ -2,21 +2,38 @@
 //! LSP-Server: Dokumentverwaltung, Analyse und Antworten auf Editor-Anfragen.
 use crate::docs::{directive_doc, mnemonic_doc, DIRECTIVES};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use vc_asm::{assemble, line_parts, outline, OutlineKind, Options, Output, PartKind, Policy};
+use crate::project::{DiskCache, Project};
+use vc_asm::{assemble, line_parts, norm_path, outline, OutlineKind, Options, Output, PartKind, Policy};
 use vc_core::Diagnostic;
 use vc_target::{load_chip, load_cpu, load_target, Chip, Cpu, Target};
 
 struct Ctx { cpu: Cpu, #[allow(dead_code)] target: Target, chips: Vec<Chip>, predefined: Vec<(String, i64)> }
 
-struct Doc { text: String, out: Option<Output>, published: HashSet<String>, target: String }
+/// Ein offenes Dokument. `root` ist die Datei, in deren Kontext es geprüft wird (ohne Einbinder: es selbst).
+/// Was der Assembler für die Zeile unter dem Mauszeiger gewählt hat
+enum LineMode { Chosen { mode: vc_target::Mode, opcode: u8, bytes: Vec<u8>, cycles: u8 }, Open(String), Ambiguous }
+
+struct Doc { text: String, path: String, includes: Vec<String>, root: String }
+
+/// Ergebnis eines Assemblerlaufs über eine Wurzeldatei samt allem, was sie einbindet.
+struct Run { /// letzte erfolgreiche Ausgabe (bleibt bei Fehlern für Hover/Definition stehen)
+    out: Option<Output>, /// Diagnosen je Datei (normalisierter Pfad), jede Datei kommt vor, auch ohne Meldungen
+    diags: BTreeMap<String, Vec<Value>>, target: String, /// Lauf war fehlerfrei: Adresszeilen sind frisch
+    fresh: bool }
 
 pub struct Server {
     data_dir: Option<PathBuf>,
     root: Option<PathBuf>,
     default_target: String,
     docs: HashMap<String, Doc>,
+    /// Läufe je Wurzeldatei (Schlüssel: normalisierter Pfad); es gibt genau die Läufe, die ein offenes Dokument braucht
+    runs: HashMap<String, Run>,
+    project: Option<Project>,
+    disk: DiskCache,
+    /// Dateien (Pfad), für die zuletzt Diagnosen gesendet wurden
+    sent: HashSet<String>,
     ctxs: HashMap<String, Ctx>,
     pub shutdown: bool,
     pub exit: bool,
@@ -56,12 +73,27 @@ fn detect_target(text: &str) -> Option<String> {
     })
 }
 
+/// Trägt die Datei Merkmale eines eigenständigen Programms (`.org`, `* =`, `.target`, `.basicstub`)?
+fn has_program_marks(text: &str) -> bool {
+    text.lines().any(|l| {
+        let t = l.trim_start();
+        if t.starts_with('*') { return t[1..].trim_start().starts_with('='); }
+        let (_, p) = line_parts(l);
+        p.map_or(false, |p| p.kind == PartKind::Directive && matches!(p.name.as_str(), ".org" | ".target" | ".basicstub"))
+    })
+}
+
+/// Fehler, die in einer allein geprüften Datei nur deshalb auftreten, weil Symbole, Makros oder `.org` in der einbindenden Datei stehen.
+fn is_context_error(code: &str, msg: &str) -> bool {
+    code == "E300" || code == "E205" || (code == "E202" && msg.contains("unbekanntes Symbol"))
+}
+
 fn resp(id: Option<Value>, result: Value) -> Value { json!({ "jsonrpc": "2.0", "id": id, "result": result }) }
 fn range(line: usize, s: usize, e: usize) -> Value { json!({ "start": { "line": line, "character": s }, "end": { "line": line, "character": e } }) }
 
 impl Server {
     pub fn new() -> Self {
-        Server { data_dir: None, root: None, default_target: "c64".into(), docs: HashMap::new(), ctxs: HashMap::new(), shutdown: false, exit: false }
+        Server { data_dir: None, root: None, default_target: "c64".into(), docs: HashMap::new(), runs: HashMap::new(), project: None, disk: DiskCache::default(), sent: HashSet::new(), ctxs: HashMap::new(), shutdown: false, exit: false }
     }
 
     fn context(&mut self, target: &str) -> Result<&Ctx, String> {
@@ -98,7 +130,7 @@ impl Server {
                         "textDocumentSync": 1, "hoverProvider": true, "definitionProvider": true, "documentSymbolProvider": true,
                         "completionProvider": { "triggerCharacters": [".", "$"] }
                     },
-                    "serverInfo": { "name": "vc-lsp", "version": "0.1.0" }
+                    "serverInfo": { "name": "vc-lsp", "version": env!("CARGO_PKG_VERSION") }
                 })));
             }
             "initialized" | "$/cancelRequest" | "workspace/didChangeConfiguration" => {}
@@ -106,7 +138,9 @@ impl Server {
             "exit" => self.exit = true,
             "textDocument/didOpen" => {
                 let text = p["textDocument"]["text"].as_str().unwrap_or("").to_string();
-                self.docs.insert(uri.clone(), Doc { text, out: None, published: HashSet::new(), target: self.default_target.clone() });
+                let path = norm_path(&uri_to_path(&uri));
+                self.docs.insert(uri.clone(), Doc { text, root: path.clone(), path, includes: vec![] });
+                self.project = None;   // neues Dokument: Include-Beziehungen neu bestimmen
                 out.extend(self.analyze(&uri));
             }
             "textDocument/didChange" => {
@@ -115,9 +149,11 @@ impl Server {
                 }
                 out.extend(self.analyze(&uri));
             }
+            "textDocument/didSave" => self.project = None,   // die Platte hat sich geändert: beim nächsten Lauf neu einlesen
             "textDocument/didClose" => {
-                if let Some(d) = self.docs.remove(&uri) {
-                    for u in d.published { out.push(json!({ "jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": { "uri": u, "diagnostics": [] } })); }
+                if self.docs.remove(&uri).is_some() {
+                    self.project = None;
+                    out.extend(self.close_cleanup());
                 }
             }
             "textDocument/hover" => out.push(resp(id, self.hover(&uri, line, ch))),
@@ -129,61 +165,144 @@ impl Server {
         out
     }
 
-    fn analyze(&mut self, uri: &str) -> Vec<Value> {
-        let Some(doc) = self.docs.get(uri) else { return vec![] };
-        let text = doc.text.clone();
-        let tid = detect_target(&text).unwrap_or_else(|| self.default_target.clone());
-        let path = uri_to_path(uri);
-        let root = self.root.clone();
-        let sys_dir = self.data_dir.as_ref().map(|d| d.join("sys"));
+    fn include_dirs(&self) -> Vec<PathBuf> {
+        let mut v: Vec<PathBuf> = self.root.iter().cloned().collect();
+        if let Some(d) = &self.data_dir { v.push(d.join("sys")); }
+        v
+    }
+
+    /// Texte aller offenen Dokumente (Pfad → Text): sie ersetzen beim Einbinden den Inhalt der Platte.
+    fn open_texts(&self) -> HashMap<String, String> { self.docs.values().map(|d| (d.path.clone(), d.text.clone())).collect() }
+
+    /// Include-Graph bei Bedarf (neu) aufbauen und die Wurzeln der offenen Dokumente bestimmen; `true`, wenn neu gebaut wurde.
+    fn ensure_project(&mut self) -> bool {
+        if self.project.is_some() { return false; }
+        let dirs = self.include_dirs();
+        let texts = self.open_texts();
+        let p = Project::build(self.root.as_deref(), &dirs, &texts, &mut self.disk);
+        for d in self.docs.values_mut() { d.root = p.root_of(&d.path); }
+        self.project = Some(p);
+        true
+    }
+
+    /// Ein Assemblerlauf über `root` (Text des offenen Dokuments, sonst von der Platte) mit dem ungespeicherten Text aller offenen Dokumente.
+    fn run_root(&mut self, root: &str, hint_text: &str) -> Run {
+        let texts = self.open_texts();
+        let root_text = texts.get(root).cloned().or_else(|| vc_core::textfile::read_source(root).ok()).unwrap_or_default();
+        let proj_target = self.project.as_ref().and_then(|p| p.targets.get(root).cloned());
+        let tid = detect_target(&root_text).or_else(|| detect_target(hint_text)).or(proj_target).unwrap_or_else(|| self.default_target.clone());
+        let (is_main, in_sources, included) = self.project.as_ref().map_or((false, false, false), |p| (p.main.as_deref() == Some(root), p.sources.contains(root), p.is_included(root)));
+        // Waise ohne Programmmerkmale (weder .org noch .target noch .basicstub), nicht im Projekt als Quelle geführt: vermutlich eine Include-Datei, die nur im Kontext übersetzbar ist
+        let lib_like = !is_main && !in_sources && !included && !has_program_marks(&root_text);
+        let dirs = self.include_dirs();
+        let defines_root = self.root.clone();
         let (diags, output): (Vec<Diagnostic>, Option<Output>) = match self.context(&tid) {
-            Err(e) => (vec![Diagnostic::error("E000", &path, 1, e)], None),
+            Err(e) => (vec![Diagnostic::error("E000", root, 1, e)], None),
             Ok(ctx) => {
-                let mut o = Options::new(path.clone(), Policy::Warn);
-                if let Some(r) = &root { o.defines = vc_target::project_defines(r, &tid); }
-                o.include_dirs.extend(root);
-                if let Some(d) = &sys_dir { o.include_dirs.push(d.clone()); }
+                let mut o = Options::new(root.to_string(), Policy::Warn);
+                if let Some(r) = &defines_root { o.defines = vc_target::project_defines(r, &tid); }
+                o.include_dirs = dirs;
                 o.predefined = ctx.predefined.clone();
                 o.atari_text = ctx.target.text_encoding == "atari";
                 o.basic_start = ctx.target.basic_load_addr;
-                match assemble(&text, &ctx.cpu, &o) { Ok(out) => (out.warnings.clone(), Some(out)), Err(d) => (d, None) }
+                o.overrides = texts.iter().filter(|(k, _)| k.as_str() != root).map(|(k, v)| (k.clone(), v.clone())).collect();
+                match assemble(&root_text, &ctx.cpu, &o) { Ok(out) => (out.warnings.clone(), Some(out)), Err(d) => (d, None) }
             }
         };
         let mut by_file: BTreeMap<String, Vec<Value>> = BTreeMap::new();
-        by_file.entry(path.clone()).or_default();
+        by_file.entry(root.to_string()).or_default();
+        for d in self.docs.values().filter(|d| d.root == root) { by_file.entry(d.path.clone()).or_default(); }
+        let mut seen_org = false;
         for d in &diags {
-            let file = if d.file.is_empty() { path.clone() } else { d.file.clone() };
+            let file = if d.file.is_empty() { root.to_string() } else { norm_path(&d.file) };
+            // Folgefehler einer Datei, die allein steht, aber nur im Kontext einer einbindenden Datei übersetzbar ist: abstufen bzw. unterdrücken
+            let mut severity = if d.is_error() { 1 } else { 2 };
+            let mut message = d.message.clone();
+            if lib_like && file == root && d.is_error() && is_context_error(d.code, &d.message) {
+                if d.code == "E300" { if seen_org { continue; } seen_org = true; }
+                severity = 3;
+                message.push_str(" – vermutlich in der einbindenden Datei definiert");
+            }
             let l = d.line.saturating_sub(1);
-            let src = if file == path { Some(text.clone()) } else { std::fs::read_to_string(&file).ok() };
+            let src = texts.get(&file).cloned().or_else(|| vc_core::textfile::read_source(&file).ok());
             let line_text: Vec<char> = src.as_deref().and_then(|s| s.lines().nth(l)).unwrap_or("").chars().collect();
             let start = line_text.iter().position(|c| !c.is_whitespace()).unwrap_or(0);
             by_file.entry(file).or_default().push(json!({
-                "range": range(l, start, line_text.len()), "severity": if d.is_error() { 1 } else { 2 },
-                "code": d.code, "source": "vcc", "message": d.message
+                "range": range(l, start, line_text.len()), "severity": severity,
+                "code": d.code, "source": "vcc", "message": message
             }));
         }
-        let mut msgs = vec![];
-        let mut now = HashSet::new();
-        for (file, items) in by_file {
-            let u = path_to_uri(&file);
-            now.insert(u.clone());
-            msgs.push(json!({ "jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": { "uri": u, "diagnostics": items } }));
+        let fresh = output.is_some();
+        let old = self.runs.remove(root).and_then(|r| r.out);
+        Run { out: output.or(old), diags: by_file, target: tid, fresh }
+    }
+
+    fn analyze(&mut self, uri: &str) -> Vec<Value> {
+        let Some(doc) = self.docs.get_mut(uri) else { return vec![] };
+        // Ändert sich die Liste der Includes dieser Datei, gelten die Wurzeln neu
+        let names = vc_asm::include_names(&doc.text);
+        if names != doc.includes { doc.includes = names; self.project = None; }
+        let (path, text) = (doc.path.clone(), doc.text.clone());
+        self.ensure_project();
+        let root = self.project.as_ref().map(|p| p.root_of(&path)).unwrap_or_else(|| path.clone());
+        if let Some(d) = self.docs.get_mut(uri) { d.root = root.clone(); }
+        let needed: BTreeSet<String> = self.docs.values().map(|d| d.root.clone()).collect();
+        self.runs.retain(|r, _| needed.contains(r));
+        // neu zu rechnen: die Wurzel dieses Dokuments, jede Wurzel, die dieses Dokument einbindet, und Wurzeln ohne Lauf
+        let mut touch: BTreeSet<String> = BTreeSet::new();
+        touch.insert(root.clone());
+        for r in &needed {
+            if !self.runs.contains_key(r) || self.project.as_ref().map_or(false, |p| p.descendants(r).contains(&path)) { touch.insert(r.clone()); }
         }
-        let doc = self.docs.get_mut(uri).unwrap();
-        for old in doc.published.difference(&now) {
-            msgs.push(json!({ "jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": { "uri": old, "diagnostics": [] } }));
+        for r in &touch { let run = self.run_root(r, &text); self.runs.insert(r.clone(), run); }
+        let mut msgs = self.publish(Some(&path), &touch);
+        // Zeilenadressen für die Anzeige im Editor (nur Zeilen der jeweiligen Datei, die Bytes erzeugen); bei Fehlern bleibt der letzte Stand stehen
+        let mut docs: Vec<(&String, &Doc)> = self.docs.iter().filter(|(_, d)| touch.contains(&d.root)).collect();
+        docs.sort_by_key(|(u, _)| (u.as_str() != uri, (*u).clone()));
+        for (u, d) in docs {
+            let Some(run) = self.runs.get(&d.root).filter(|r| r.fresh) else { continue };
+            let Some(out) = &run.out else { continue };
+            let lines: Vec<Value> = out.lines.iter().filter(|l| !l.bytes.is_empty() && norm_path(&l.file) == d.path).map(|l| json!([l.line.saturating_sub(1), l.addr, l.bytes.len()])).collect();
+            let source: Vec<&str> = d.text.split('\n').collect();
+            msgs.push(json!({ "jsonrpc": "2.0", "method": "vintagecoder/addresses", "params": { "uri": u, "lines": lines, "source": source } }));
         }
-        doc.published = now;
-        doc.target = tid;
-        // Zeilenadressen für die Anzeige im Editor (nur Zeilen dieser Datei, die Bytes erzeugen); bei Fehlern bleibt der letzte Stand stehen
-        if let Some(out) = &output {
-            let lines: Vec<Value> = out.lines.iter().filter(|l| l.file == path && !l.bytes.is_empty()).map(|l| json!([l.line.saturating_sub(1), l.addr, l.bytes.len()])).collect();
-            let source: Vec<&str> = text.split('\n').collect();
-            msgs.push(json!({ "jsonrpc": "2.0", "method": "vintagecoder/addresses", "params": { "uri": uri, "lines": lines, "source": source } }));
-        }
-        if output.is_some() { doc.out = output; }
         msgs
     }
+
+    /// `publishDiagnostics` je Datei: die Vereinigung der Meldungen aller Läufe; Dateien, die kein Lauf mehr betrifft, werden geleert.
+    /// Gesendet wird für `own` (zuerst) und alle Dateien der Läufe in `touched`.
+    fn publish(&mut self, own: Option<&str>, touched: &BTreeSet<String>) -> Vec<Value> {
+        let mut all: BTreeMap<String, Vec<Value>> = BTreeMap::new();
+        for run in self.runs.values() {
+            for (f, items) in &run.diags {
+                let e = all.entry(f.clone()).or_default();
+                for i in items { if !e.contains(i) { e.push(i.clone()); } }
+            }
+        }
+        let mut send: Vec<String> = vec![];
+        if let Some(o) = own { send.push(o.to_string()); }
+        for r in touched { if let Some(run) = self.runs.get(r) { for f in run.diags.keys() { if !send.contains(f) { send.push(f.clone()); } } } }
+        let mut msgs = vec![];
+        for f in send {
+            let items = all.get(&f).cloned().unwrap_or_default();
+            msgs.push(json!({ "jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": { "uri": path_to_uri(&f), "diagnostics": items } }));
+        }
+        for old in self.sent.difference(&all.keys().cloned().collect()) {
+            msgs.push(json!({ "jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": { "uri": path_to_uri(old), "diagnostics": [] } }));
+        }
+        self.sent = all.into_keys().collect();
+        msgs
+    }
+
+    /// Nach dem Schließen eines Dokuments: nicht mehr gebrauchte Läufe entfernen, Diagnosen verwaister Dateien leeren.
+    fn close_cleanup(&mut self) -> Vec<Value> {
+        self.ensure_project();
+        let needed: BTreeSet<String> = self.docs.values().map(|d| d.root.clone()).collect();
+        self.runs.retain(|r, _| needed.contains(r));
+        self.publish(None, &BTreeSet::new())
+    }
+
+    fn run_of(&self, doc: &Doc) -> Option<&Run> { self.runs.get(&doc.root) }
 
     /// Letztes globales Label vor/auf der Zeile (Gültigkeitsbereich lokaler `.labels`).
     fn scope_at(text: &str, line: usize) -> String {
@@ -198,7 +317,7 @@ impl Server {
         let Some(doc) = self.docs.get(uri) else { return Value::Null };
         let Some(l) = doc.text.lines().nth(line) else { return Value::Null };
         let chars: Vec<char> = l.chars().collect();
-        let ctx = self.ctxs.get(&doc.target);
+        let ctx = self.run_of(doc).and_then(|r| self.ctxs.get(&r.target));
         // Zahlenliteral ($d020, %1010, 255, 'A'): Wert in mehreren Schreibweisen, bei Adressen auch das passende Register
         if let Some((ls, le, v)) = crate::literal_at(l, ch) {
             let text: String = chars[ls..le].iter().collect();
@@ -211,7 +330,7 @@ impl Server {
         let Some((s, e)) = word_at(&chars, ch) else { return Value::Null };
         let word: String = chars[s..e].iter().collect();
         let (_, part) = line_parts(l);
-        let mut md = String::new();
+        let mut md = String::new(); let mut mode_json: Option<Value> = None;
         if let Some(p) = &part {
             if p.kind == PartKind::Instruction && p.name.eq_ignore_ascii_case(&word) {
                 if let Some(ctx) = ctx {
@@ -220,11 +339,20 @@ impl Server {
                     if !ops.is_empty() {
                         md.push_str(&format!("**{}** – {}\n\n", p.name, mnemonic_doc(&p.name).unwrap_or("")));
                         if !ops[0].affects.is_empty() { md.push_str(&format!("Flags: `{}`\n\n", ops[0].affects.chars().map(|c| c.to_string()).collect::<Vec<_>>().join(" "))); }
+                        // Welche Adressierungsart der Assembler für diese Zeile gewählt hat (aus dem letzten fehlerfreien Lauf); nie raten
+                        let chosen = self.line_mode(doc, line, &p.name, &ctx.cpu);
                         md.push_str("| Modus | Opcode | Bytes | Zyklen |\n|---|---|---|---|\n");
                         for o in ops {
                             let cy = format!("{}{}{}", o.cycles, if o.page_cross { "+1" } else { "" }, if o.branch { "+1/+2" } else { "" });
                             let tag = if o.group == "official" { "" } else if o.group == "illegal.unstable" { " ⚠ instabil" } else { " ⚠ undok." };
-                            md.push_str(&format!("| {} | ${:02X} | {} | {}{} |\n", format!("{:?}", o.mode).to_lowercase(), o.opcode, o.bytes, cy, tag));
+                            let hit = matches!(&chosen, LineMode::Chosen { opcode, .. } if *opcode == o.opcode);
+                            md.push_str(&format!("| {}{} | ${:02X} | {} | {}{} |\n", if hit { "▶ " } else { "" }, o.mode.label(), o.opcode, o.bytes, cy, tag));
+                            if hit { mode_json = Some(json!({ "mode": o.mode.kuerzel(), "name": o.mode.name(), "state": "chosen", "chosenBy": "assembler", "opcode": o.opcode, "bytes": o.bytes, "cycles": o.cycles, "pageCross": o.page_cross, "branch": o.branch })); }
+                        }
+                        match &chosen {
+                            LineMode::Chosen { mode, bytes, cycles, .. } => md.push_str(&format!("\nDiese Zeile: **{}** (vom Assembler gewählt) · Bytes `{}` · {} Zyklen\n", mode.label(), bytes.iter().map(|b| format!("{b:02X}")).collect::<Vec<_>>().join(" "), cycles)),
+                            LineMode::Open(why) => { md.push_str(&format!("\nDiese Zeile: Modus noch offen ({why})\n")); mode_json = Some(json!({ "state": "open", "reason": why })); }
+                            LineMode::Ambiguous => { md.push_str("\nDiese Zeile: mehrere Modi (Makro oder Wiederholung), keiner hervorgehoben\n"); mode_json = Some(json!({ "state": "ambiguous" })); }
                         }
                     }
                 }
@@ -243,7 +371,7 @@ impl Server {
             }
         }
         if md.is_empty() {
-            if let Some(out) = &doc.out {
+            if let Some(out) = self.run_of(doc).and_then(|r| r.out.as_ref()) {
                 let key = if word.starts_with('.') { format!("{}{}", Self::scope_at(&doc.text, line), word) } else { word.clone() };
                 if let Some(v) = out.symbols.get(&key) {
                     md = crate::value_hover(&word, *v);
@@ -254,13 +382,37 @@ impl Server {
             }
         }
         if md.is_empty() { return Value::Null; }
-        json!({ "contents": { "kind": "markdown", "value": md }, "range": range(line, s, e) })
+        let mut r = json!({ "contents": { "kind": "markdown", "value": md }, "range": range(line, s, e) });
+        if let Some(m) = mode_json { r["vintagecoder"] = json!({ "lineMode": m }); }
+        r
     }
+
+    /// Adressierungsart der Quellzeile `line` (0-basiert) laut letztem fehlerfreien Assemblerlauf
+    fn line_mode(&self, doc: &Doc, line: usize, mnemonic: &str, cpu: &vc_target::Cpu) -> LineMode {
+        let Some(run) = self.runs.get(&doc.root) else { return LineMode::Open("noch kein Assemblerlauf".into()) };
+        if !run.fresh { return LineMode::Open("die Datei enthält Fehler".into()) }
+        let Some(out) = &run.out else { return LineMode::Open("noch kein Assemblerlauf".into()) };
+        let hits: Vec<&vc_asm::LineInfo> = out.lines.iter().filter(|l| l.line == line + 1 && !l.bytes.is_empty() && norm_path(&l.file) == doc.path).collect();
+        if hits.is_empty() { return LineMode::Open("der Assembler hat für die Zeile keinen Code erzeugt".into()) }
+        let mut found: Vec<(vc_target::Mode, u8, &[u8], u8)> = vec![];
+        for h in hits {
+            // 45GS02: Präfixe $42 $42 (Q) und $EA (32-Bit-Zeiger) stehen vor dem eigentlichen Opcode
+            let skip = if h.bytes.len() > 2 && h.bytes[0] == 0x42 && h.bytes[1] == 0x42 { 2 } else if h.bytes.len() > 1 && h.bytes[0] == 0xEA { 1 } else { 0 };
+            if let Some(o) = cpu.by_opcode(h.bytes[skip]).filter(|o| o.mnemonic == mnemonic) { found.push((o.mode, o.opcode, &h.bytes[..], o.cycles)) }
+        }
+        found.dedup_by_key(|f| (f.1, f.2.to_vec()));
+        match found.as_slice() {
+            [] => LineMode::Open("Befehl in dieser Zeile nicht eindeutig zuzuordnen".into()),
+            [(mode, opcode, bytes, cycles)] => LineMode::Chosen { mode: *mode, opcode: *opcode, bytes: bytes.to_vec(), cycles: *cycles },
+            _ => LineMode::Ambiguous,
+        }
+    }
+
 
     fn completion(&self, uri: &str) -> Value {
         let Some(doc) = self.docs.get(uri) else { return json!({ "isIncomplete": false, "items": [] }) };
         let mut items = vec![];
-        if let Some(ctx) = self.ctxs.get(&doc.target) {
+        if let Some(ctx) = self.run_of(doc).and_then(|r| self.ctxs.get(&r.target)) {
             let mut seen = HashSet::new();
             for o in &ctx.cpu.ops {
                 if seen.insert(o.mnemonic.clone()) {
@@ -281,7 +433,7 @@ impl Server {
                 items.push(json!({ "label": it.name, "kind": kind, "detail": format!("Zeile {}", it.line), "sortText": format!("0{}", it.name) }));
             }
         }
-        if let Some(out) = &doc.out {
+        if let Some(out) = self.run_of(doc).and_then(|r| r.out.as_ref()) {
             for (n, params) in &out.macros {
                 let n = &n.to_lowercase();
                 if names.insert(n.clone()) { items.push(json!({ "label": n, "kind": 3, "detail": format!("Makro({})", params.join(", ")), "sortText": format!("0{n}") })); }
@@ -300,7 +452,7 @@ impl Server {
         let Some((s, e)) = word_at(&chars, ch) else { return Value::Null };
         let word: String = chars[s..e].iter().collect();
         let key = if word.starts_with('.') { format!("{}{}", Self::scope_at(&doc.text, line), word) } else { word.clone() };
-        if let Some((f, ln)) = doc.out.as_ref().and_then(|o| o.defs.get(&key)) {
+        if let Some((f, ln)) = self.run_of(doc).and_then(|r| r.out.as_ref()).and_then(|o| o.defs.get(&key)) {
             let uri_f = if Path::new(f).is_absolute() || f.contains('/') { path_to_uri(f) } else { uri.to_string() };
             return json!({ "uri": uri_f, "range": range(ln.saturating_sub(1), 0, 0) });
         }

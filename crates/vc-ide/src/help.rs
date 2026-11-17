@@ -9,12 +9,20 @@ pub struct Topic { pub id: &'static str, pub group: &'static str, pub title: &'s
 pub const TOPICS: &[Topic] = &[
     Topic { id: "start", group: "Erste Schritte", title: "Überblick", body: include_str!("../help/start.md") },
     Topic { id: "shortcuts", group: "Erste Schritte", title: "Tastenkürzel", body: include_str!("../help/shortcuts.md") },
+    Topic { id: "filetree", group: "Erste Schritte", title: "Dateibaum: Marken und Farben", body: include_str!("../help/dateibaum.md") },
     Topic { id: "layout", group: "Erste Schritte", title: "Oberfläche anpassen", body: include_str!("../help/layout.md") },
+    Topic { id: "paths", group: "Erste Schritte", title: "Pfadfelder und „Wählen …“", body: include_str!("../help/pfadfelder.md") },
+    Topic { id: "markdown", group: "Erste Schritte", title: "Markdown-Dateien und Vorschau", body: include_str!("../help/markdown.md") },
+    Topic { id: "numbers", group: "Erste Schritte", title: "Zahlenwerkzeuge", body: include_str!("../help/zahlenwerkzeuge.md") },
+    Topic { id: "basic2asm", group: "Erste Schritte", title: "BASIC in Assembler umwandeln", body: include_str!("../help/basic-nach-asm.md") },
+    Topic { id: "config", group: "Erste Schritte", title: "Konfiguration sichern und zurücksetzen", body: include_str!("../help/konfiguration.md") },
+    Topic { id: "clock", group: "Erste Schritte", title: "Takt in der Statusleiste", body: include_str!("../help/takt-anzeige.md") },
     Topic { id: "settings", group: "Erste Schritte", title: "Einstellungen", body: include_str!("../help/settings.md") },
     Topic { id: "linux", group: "Erste Schritte", title: "Linux", body: include_str!("../help/linux.md") },
     Topic { id: "overview", group: "Erste Schritte", title: "Projekt-Übersicht", body: include_str!("../help/overview.md") },
     Topic { id: "about", group: "Erste Schritte", title: "Über VintageCoder", body: include_str!("../help/about.md") },
     Topic { id: "feedback", group: "Erste Schritte", title: "Feedback senden", body: include_str!("../help/feedback.md") },
+    Topic { id: "updates", group: "Erste Schritte", title: "Nach Updates suchen", body: include_str!("../help/updates.md") },
     Topic { id: "editor", group: "Programmieren", title: "Editor", body: include_str!("../help/editor.md") },
     Topic { id: "assembler", group: "Programmieren", title: "Assembler", body: include_str!("../help/assembler.md") },
     Topic { id: "asm-expr", group: "Programmieren", title: "Assembler: Ausdrücke und Funktionen", body: include_str!("../help/asm-expr.md") },
@@ -47,7 +55,7 @@ pub const TOPICS: &[Topic] = &[
     Topic { id: "cartridges", group: "Systeme und Formate", title: "Segmente, Bänke, Module", body: include_str!("../help/cartridges.md") },
     Topic { id: "disks", group: "Systeme und Formate", title: "Disk-Studio", body: include_str!("../help/disks.md") },
     Topic { id: "play", group: "Grafik und Klang", title: "PLAY-Tracker (MEGA65)", body: include_str!("../help/play.md") },
-    Topic { id: "wizard", group: "Erste Schritte", title: "Willkommen und Projekt-Wizard", body: include_str!("../help/wizard.md") },
+    Topic { id: "wizard", group: "Erste Schritte", title: "Startseite und Projekt-Assistent", body: include_str!("../help/wizard.md") },
     Topic { id: "vic20", group: "Systeme und Formate", title: "VC-20", body: include_str!("../help/vic20.md") },
     Topic { id: "c128-plus4", group: "Systeme und Formate", title: "C128 und Plus/4", body: include_str!("../help/c128-plus4.md") },
     Topic { id: "pet-cbm2", group: "Systeme und Formate", title: "PET/CBM und CBM-II (Spike)", body: include_str!("../help/pet-cbm2.md") },
@@ -237,21 +245,6 @@ pub fn handbook() -> &'static [Topic] {
     })
 }
 
-fn mode_syntax(m: Mode) -> &'static str {
-    match m {
-        Mode::Imp => "", Mode::Acc => "A", Mode::Imm => "#$nn", Mode::Imw => "#$nnnn", Mode::Zp => "$nn", Mode::Zpx => "$nn,X", Mode::Zpy => "$nn,Y", Mode::Abs => "$nnnn",
-        Mode::Abx => "$nnnn,X", Mode::Aby => "$nnnn,Y", Mode::Ind => "($nnnn)", Mode::Izx => "($nn,X)", Mode::Izy => "($nn),Y", Mode::Rel => "Ziel", Mode::Rl => "Ziel (16 Bit)",
-        Mode::Izz => "($nn),Z", Mode::Isy => "($nn,SP),Y", Mode::Iax => "($nnnn,X)", Mode::Zpr => "$nn,Ziel",
-    }
-}
-fn mode_name(m: Mode) -> &'static str {
-    match m {
-        Mode::Imp => "implizit", Mode::Acc => "Akkumulator", Mode::Imm => "unmittelbar", Mode::Imw => "unmittelbar 16 Bit", Mode::Zp => "Zeropage", Mode::Zpx => "Zeropage,X", Mode::Zpy => "Zeropage,Y",
-        Mode::Abs => "absolut", Mode::Abx => "absolut,X", Mode::Aby => "absolut,Y", Mode::Ind => "indirekt", Mode::Izx => "(Zeropage,X)", Mode::Izy => "(Zeropage),Y", Mode::Rel => "relativ",
-        Mode::Rl => "relativ 16 Bit", Mode::Izz => "(Zeropage),Z", Mode::Isy => "(Stack,SP),Y", Mode::Iax => "(absolut,X)", Mode::Zpr => "Zeropage + relativ",
-    }
-}
-
 fn target_cpu(data: &Path, target: &str) -> Result<(vc_target::Target, Cpu), String> {
     let t = load_target(data, &if target.is_empty() { default_target_or_c64(Some(data)) } else { target.to_string() })?;
     let cpu = load_cpu(data, &t.cpu)?;
@@ -273,9 +266,9 @@ fn mnemonic_page(cpu: &Cpu, word: &str) -> Option<Value> {
     md.push_str("| Adressierung | Schreibweise | Opcode | Bytes | Zyklen | Flags |\n|---|---|---|---|---|---|\n");
     let mut any_illegal = false;
     for o in &ops {
-        let syn = mode_syntax(o.mode); any_illegal |= o.group != "official";
+        let syn = o.mode.syntax(); any_illegal |= o.group != "official";
         let pre = if quad { 2 + (o.mode == Mode::Izz) as u8 * 0 } else { 0 };
-        md.push_str(&format!("| {} | `{} {}` | `{}${:02X}` | {} | {}{}{} | {} |\n", mode_name(o.mode), w.to_ascii_lowercase(), syn.to_ascii_lowercase(), if quad { "42 42 " } else { "" }, o.opcode, o.bytes + pre, o.cycles,
+        md.push_str(&format!("| {} | `{} {}` | `{}${:02X}` | {} | {}{}{} | {} |\n", o.mode.label(), w.to_ascii_lowercase(), syn.to_ascii_lowercase(), if quad { "42 42 " } else { "" }, o.opcode, o.bytes + pre, o.cycles,
             if o.page_cross { "+1" } else { "" }, if o.branch { "+1/+2" } else { "" }, if o.affects.is_empty() { "–".into() } else { o.affects.clone() }));
     }
     if any_illegal { md.push_str("\nEinige Formen sind **undokumentiert** (`illegals = allow|warn` im `.cpu`-Kopf nötig).\n"); }

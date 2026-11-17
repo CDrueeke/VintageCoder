@@ -70,7 +70,7 @@
 ;               $C200/$C201 Bildzaehler (nur Testfassung TESTFPS);  $CF00 ist in prallball.vctest als Trap-Adresse des Testlaufs vorgesehen
 ;   Farb-RAM $D800-$DBE7.
 ;
-; NULLSEITE (Zeropage)
+; ZEROPAGE
 ;   $10-$8B  Spielzustand und Hilfswerte (jede .const unten sagt, wofuer; frei bleiben $3C-$3F; ptA ($35) und stp ($66) sind unbenutzt)
 ;   $E8-$EB Musik (sound.asm)    $F0-$F5 Bestenliste (hiscore.asm)    $F6-$F7 Zufall (rand.asm)    $F8-$FB Eingabe (input.asm)
 ;
@@ -106,7 +106,7 @@
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseiten-Variablen des Spiels ($10-$8B, Reihenfolge nicht streng; Werte ohne Hinweis sind 8 Bit)
+; Zeropage-Variablen des Spiels ($10-$8B, Reihenfolge nicht streng; Werte ohne Hinweis sind 8 Bit)
 ; ---------------------------------------------------------------------------------------------------------------------
 .const bxl     = $10                    ; Ball-X, Festkomma 1/64 px, Low-Byte
 .const bxh     = $11                    ;                           High-Byte
@@ -178,7 +178,7 @@
 .const nact    = $5b                    ; Anzahl aktiver Baelle in diesem Bild
 .const sprmsb  = $5c                    ; update_sprites: gesammeltes 9. X-Bit der Sprites
 .const sprena  = $5d                    ; update_sprites: gesammelte Sprite-Freigabebits
-.const tbu     = $c130                  ; Titel-Baelle (3, RAM statt Nullseite): X in Einheiten zu 2 px
+.const tbu     = $c130                  ; Titel-Baelle (3, RAM statt Zeropage): X in Einheiten zu 2 px
 .const tby     = $c133                  ;                    Y in px
 .const tbdu    = $c136                  ;                    Schritt X (1 oder $FF)
 .const tbdy    = $c139                  ;                    Schritt Y (1, 2 oder negativ)
@@ -228,8 +228,8 @@
 
 .const MAP     = $c000                  ; Steinkarte im RAM
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2), die Eigenschaften liegen hintereinander ab $C100
-; (bact, b_xl, b_xh, ... b_vyh).  load_ball/save_ball kopieren einen Ball in die Nullseite (bxl..vyh), mit der die Bewegungs- und
-; Kollisionsroutinen arbeiten.  Werte wie die entsprechenden Nullseitenwerte (1/64 px, Geschwindigkeit vorzeichenbehaftet).
+; (bact, b_xl, b_xh, ... b_vyh).  load_ball/save_ball kopieren einen Ball in die Zeropage (bxl..vyh), mit der die Bewegungs- und
+; Kollisionsroutinen arbeiten.  Werte wie die entsprechenden Zeropage-Werte (1/64 px, Geschwindigkeit vorzeichenbehaftet).
 .const shact   = $c120                  ; Laserschuesse (2 Stueck, Sprites 6 und 7): 1 = aktiv
 .const shu     = $c122                  ;   X-Lage in Einheiten zu 2 px (px / 2, damit 8 Bit reichen: max. 150)
 .const shy     = $c124                  ;   Y-Lage (Oberkante) in px
@@ -1715,7 +1715,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite (bxl..vyh) holen / von dort zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage (bxl..vyh) holen / von dort zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -1785,7 +1785,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball (groesstes High-Byte von Y; bei Gleichstand der mit der hoechsten Nummer) in die Nullseite laden
+; pick_ball: den tiefsten aktiven Ball (groesstes High-Byte von Y; bei Gleichstand der mit der hoechsten Nummer) in die Zeropage laden
 ;   (die Demo folgt ihm).   Setzt cb.   Veraendert A, X, t2, t3.
 pick_ball:
         lda #0
@@ -1819,7 +1819,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -1847,7 +1847,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -1923,7 +1923,7 @@ neg_vy: sec
 
 ; ---------------------------------------------------------------------------------------------------------------------
 ; move_ball: Ball um einen Schritt bewegen; Waende, Steine, Schlaeger.  Rueckgabe A: 0 = weiter, 1 = Ball unten heraus.
-;   Arbeitet auf dem Ball in der Nullseite (bxl..vyh; move_all laedt/sichert ihn).  Durchschlag (tpierce): ein zerstoerbarer Stein wird
+;   Arbeitet auf dem Ball in der Zeropage (bxl..vyh; move_all laedt/sichert ihn).  Durchschlag (tpierce): ein zerstoerbarer Stein wird
 ;   zerstoert und der Ball fliegt in dieser Achse ohne Umkehr weiter; unzerstoerbare Steine und Boss-Kerne (die stehen bleiben) prallen ihn ab.
 ;   Veraendert A, X, Y, dxo, oxl..oyh und alles, was probe/hit_brick/paddle_hit veraendern.
 ;   Erst die X-Bewegung (mit Wand- und Steinpruefung), dann die Y-Bewegung.  Bei Treffer wird die Bewegung dieser Achse
@@ -2245,7 +2245,7 @@ add_score:
 ;   genau auf den Schlaeger gesetzt (Y = $2C80), Klebe-Extra faengt ihn (nur ein einzelner Ball in Schlitz 0), hits + 1 (alle 8 Treffer eine
 ;   Stufe schneller bis 15), Klang, neuer Zielpunkt atgt fuer den Rechnerspieler.  Kam er von der Seite (er war schon auf Schlaegerhoehe):
 ;   wird er neben den Schlaeger gesetzt und seitlich weggestossen, Rueckgabe C=0 (kein Abprall: er faellt meist weiter hinunter).
-;   Veraendert A, X, t0..t3 und die Ballwerte in der Nullseite (bxl.., byl.., vxl..).
+;   Veraendert A, X, t0..t3 und die Ballwerte in der Zeropage (bxl.., byl.., vxl..).
 paddle_hit:
         jsr get_px
         sec
@@ -3413,7 +3413,7 @@ name_draw:
 ;   dann links nach rechts schreiben), 3 nach links wegscrollen (neu von rechts), 4 nach rechts, 5 Wischer (Kante laeuft pixelweise von links
 ;   nach rechts), 6 Aufloesen (zufaellige Pixelzeilen werden ausgetauscht).  Dazu eine laufende Regenbogenfarbe ueber die Zeichen.
 ;   ABLAUF: warten (tkw Bilder), naechsten Text aus der Folge holen, Effekt starten, Schritte ausfuehren, fertig -> warten.
-; Zustand (Nullseite): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
+; Zustand (Zeropage): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
 ; =====================================================================================================================
 .const TK_BUF = $4f00                   ; Bitmuster der Zeichen 224..255 ($4800 + 224 * 8)
 .const TK_CHR = 224                     ; erstes Ticker-Zeichen

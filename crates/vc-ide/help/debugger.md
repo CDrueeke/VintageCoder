@@ -1,9 +1,9 @@
 # Debugger
 
-**F6** baut und startet das Programm im Emulator, angehalten am Einstiegspunkt, und schaltet auf den Arbeitsplatz **Debug** (Segment „Code | Debug“ rechts in der Befehlsleiste). Die Befehlsleiste zeigt dann Pause/Weiter, Schritt, Über, Raus und Stop statt Starten und Debuggen; das Zielfeld bleibt, ist aber gesperrt. Welcher Emulator oder welche Maschine startet, bestimmt das Startziel aus den [Einstellungen](help:settings) und dem Feld „Auf:“.
+**F6** baut und startet das Startprogramm im Emulator, angehalten am Einstiegspunkt, und öffnet die Debug-Sitzung (**Alt+Umschalt+F6** debuggt die aktive Datei). Die Kopfzeile zeigt dann **▶ Weiter**, **⏸ Anhalten**, **Schritt über**, **Hinein**, **Hinaus** und **■ Beenden** statt Starten und Debuggen. Die Schublade bekommt den Reiter **Debug**, das rechte Panel den Reiter **Bild**. Welcher Emulator oder welche Maschine startet, bestimmt das Startziel aus den [Einstellungen](help:settings) und dem Zielfeld der Kopfzeile. Alle Debug-Befehle stehen im Menü **Projekt**.
 
 ## Was der Adapter kann
-Die Oberfläche blendet aus, was der Adapter nicht liefert. Unter dem Status („läuft“, „angehalten $0810 datei:zeile“) zeigen Chips die Fähigkeiten; fehlende sind gedimmt und nennen im Hinweis den Grund.
+Nicht jeder Adapter liefert alles. Die Debug-Zeile zeigt den Zustand („läuft“, „Angehalten bei $0810 · datei:zeile“); kann ein Adapter einen Schritt gerade nicht, steht der Grund daneben.
 
 | Adapter | Register | Schritt | Haltepunkte | Datenhaltepunkte |
 |---|---|---|---|---|
@@ -18,49 +18,45 @@ Die Oberfläche blendet aus, was der Adapter nicht liefert. Unter dem Status (�
 atari800 lässt sich nicht per Knopf anhalten (**F8** im Emulatorfenster). Bei der Ultimate sind Speicher lesen und schreiben, Pause und Weiter möglich.
 
 ## Bedienung
-| Taste/Knopf | Wirkung |
-|---|---|
-| Weiter | läuft bis zum nächsten Haltepunkt |
-| Pause | hält an (VICE, Ultimate; atari800: **F8** im Emulatorfenster) |
-| Schritt / Über | ein Befehl / ein Befehl, `JSR` wird übersprungen |
-| Raus (Umschalt+F11) | läuft bis zum Rücksprung (`RTS`/`RTI`) des aktuellen Unterprogramms; Aufrufe darin werden übersprungen, sonst Einzelschritte. Nach 10 s ohne Rücksprung bricht es mit Meldung ab (dann Haltepunkt am Rücksprung setzen) |
-| Stop | beendet die Sitzung |
+| Knopf (Menü Projekt) | Taste | Wirkung |
+|---|---|---|
+| ▶ Weiter (Debuggen: Weiter) | Alt+F5 | läuft bis zum nächsten Haltepunkt |
+| ⏸ Anhalten (Debuggen: Anhalten) | Alt+F6 | hält an (VICE, Ultimate; atari800: **F8** im Emulatorfenster) |
+| Schritt über (Debuggen: Schritt über) | F10 | ein Befehl, `JSR` wird übersprungen |
+| Hinein (Debuggen: Schritt hinein) | F11 | ein Befehl, `JSR` springt hinein |
+| Hinaus (Debuggen: Schritt hinaus) | Umschalt+F11 | läuft bis zum Rücksprung (`RTS`/`RTI`) des aktuellen Unterprogramms; Aufrufe darin werden übersprungen, sonst Einzelschritte. Nach 10 s ohne Rücksprung bricht es mit Meldung ab (dann Haltepunkt am Rücksprung setzen) |
+| ■ Beenden (Debuggen beenden) | Umschalt+F5 | beendet die Sitzung |
+| Debuggen: Bis hierher ausführen | – | läuft bis zur Zeile am Cursor (einmaliger Haltepunkt); im Menü Projekt und im Rechtsklickmenü des Editors |
 
-## Panels
-- **Register** zeigt PC, A, X, Y, SP und die Flags N V B D I Z C als Pillen (nur Anzeige), dazu das Panel Chip-Register (siehe unten).
-- **Disassembler** ab dem PC; ein Klick auf eine Zeile setzt oder löscht dort einen Haltepunkt (über die Zeilenzuordnung des letzten Baus).
-- **Speicher** (hex, ASCII; „Bereich als Zeichensatz speichern“ liest einen Zeichensatz ab einer Adresse aus dem Speicher des laufenden Rechners und legt ihn unter `graphics/dump/` als Asset an): Adresse eingeben oder mit ±256 blättern; die Rasterposition steht bei VICE und atari800 unter den Registern (`LIN`, `CYC`).
-- **Beobachten:** Ausdrücke (Register, Symbole, `[adresse]`) werden bei jedem Halt neu ausgewertet.
+## Die Debug-Fläche
+Der Reiter **Debug** der Schublade zeigt in Spalten nebeneinander **Register**, **Disassembler**, **Speicher** und rechts **Beobachten**, **Haltepunkte** und **Momentaufnahme**. In schmalen Fenstern (unter 900 Punkten) ist es eine Spalte mit Reitern. Oben steht der Zustand der Sitzung.
+
+- **Register** zeigt PC, A, X, Y, SP als Tabelle (Hex und dezimal; geänderte Werte sind hervorgehoben mit „war …“) und die Flags N V B D I Z C als Kästchen (nur Anzeige). Darunter stehen weitere Werte des Emulators, bei VICE und atari800 etwa die Rasterposition.
+- **Disassembler** ab dem PC mit Adresse, Bytes, Befehl und Zyklen; ein Klick auf den Rand vor einer Zeile setzt oder löscht dort einen Haltepunkt (über die Zeilenzuordnung des letzten Baus).
+- **Speicher** (hex und ASCII, 8 Byte je Zeile, geänderte Bytes hervorgehoben): Adresse oder Name eingeben, Enter.
+- **Beobachten:** Ausdrücke (Register, Symbole, `[adresse]`) werden bei jedem Halt neu ausgewertet; ✕ entfernt einen.
 - **Haltepunkte:** siehe [Haltepunkte](help:breakpoints).
 
-## Chip-Register
-Im Register-Panel zeigt **Chip-Register** die Register eines Chips des Zielsystems (zum Beispiel `vic2`, `sid`, `cia1`, `antic`, `pokey`), mit Adresse, Name und Wert in Hex. Der Chip wird in der Auswahl gewählt; Namen und Beschreibung kommen aus der Hardware-Datenbank (`data/chips`), der Hinweis eines Namens zeigt die Beschreibung. Gelesen wird der Adressraum der CPU, solange das Programm angehalten ist; läuft es, erscheinen die Werte beim nächsten Halt. Schreibregister zeigen „–“, weil ihr Wert nicht lesbar ist. Die Anzeige ist nur lesend: Schreiben ist bewusst nicht möglich, weil Leseseiteneffekte und Schreibregister das Bild verfälschen würden. Adapter ohne Register (Ultimate) zeigen keine Werte.
+Noch nicht in der Oberfläche: Rechtsklickmenüs in diesen Spalten, Blättern im Speicher per Knopf, das Speichern eines Speicherbereichs als Zeichensatz und eine Ansicht der Chip-Register. Läuft das Programm, steht in den Spalten „Das Programm läuft. „Anhalten“ zeigt die Werte.“
 
 ## Momentaufnahme (Screen, Zeichensatz, Sprites)
 
-Im Reiter **Momentaufnahme** (Fußpanel, Arbeitsplatz Debug) liest die Funktion aus dem angehaltenen Rechner (C64, Atari 8-Bit) den aktuellen Bildschirm, den Zeichensatz und die aktiven Sprites und legt sie unter `graphics/snapshot/` an.
+In der Spalte **Momentaufnahme** liest die Funktion aus dem angehaltenen Rechner (C64, Atari 8-Bit) den aktuellen Bildschirm, den Zeichensatz und die aktiven Sprites und legt sie unter `graphics/snapshot/` an.
 
-- **Erkennen** wertet die Hardware aus: C64 – VIC-Bank (`$DD00`), `$D018`, Farb-RAM, Sprite-Zeiger; Atari – Display-Liste (`$0230`), `CHBAS` (`$02F4`) und Farb-Schattenregister.
-- Die erkannten **Adressen sind editierbar**. Wurde ein Bildschirm oder Zeichensatz an eine andere Stelle kopiert (z. B. Puffer, der später in den Bildschirm kopiert wird), trägst du dessen Adresse ein.
-- Der C64-Speicher wird als RAM gelesen, auch unter ROM und E/A (VICE); Auch die Standardschrift im Zeichen-ROM (C64) bzw. Betriebssystem-ROM (Atari) wird direkt aus dem Emulator gelesen; eine Adresse brauchst du nur, wenn das Programm den Zeichensatz im RAM hält. Hinweis: Die Standardschriften gehören den Herstellern – gespeicherte ROM-Zeichensätze nicht in öffentliche Repositories einchecken.
+- **Bildschirm erkennen** wertet die Hardware aus: C64 – VIC-Bank (`$DD00`), `$D018`, Farb-RAM, Sprite-Zeiger; Atari – Display-Liste (`$0230`), `CHBAS` (`$02F4`) und Farb-Schattenregister. Das Ergebnis steht darunter: Modus und Bildschirmadresse, Zeichensatz, Zahl der Sprites.
+- Mit den Häkchen **Sprites speichern** und **Zeichen als Kacheln** wählst du, was zusätzlich entsteht. Liegt die Standardschrift im ROM, kommt **Zeichensatz aus dem ROM lesen** dazu.
+- Dann gibst du einen **Name** ein und klickst **Als Dateien speichern**. Es entstehen `<name>_screen.vcscreen`, `<name>_charset.vcchar`, `<name>_sprite0.vcsprite` … und `<name>_tiles.vctiles`.
+- Der C64-Speicher wird als RAM gelesen, auch unter ROM und E/A (VICE). Hinweis: Die Standardschriften gehören den Herstellern – gespeicherte ROM-Zeichensätze nicht in öffentliche Repositories einchecken.
 - Nicht unterstützt: Bitmap-Modi (kein Textbildschirm) und ANTIC-Modi außer 2.
 
-Links zeigt eine **Vorschau**, was erkannt wurde (Textbildschirm mit Zeichensatz und Farben, ohne Rahmen und Sprites). Das Zeichen-ROM wird nur für die Vorschau gelesen und nie gespeichert.
+Noch nicht in der Oberfläche: eine Vorschau und das Ändern der erkannten Adressen.
 
 ## Emulator-Bild (VICE)
-Der Reiter **Emulator** (Fußpanel im Debug-Arbeitsplatz, auch Menü Debug ▸ „Emulator-Bild anzeigen“) zeigt das Bild des VICE-Emulators in der IDE: C64, C128 (VIC-II und VDC), VC-20 und Plus/4. Atari und MEGA65 liefern kein Bild.
-- **Bild beim Halt:** Bei jedem Halt (Haltepunkt, Einzelschritt, Pause) holt die IDE das Bild über den Monitor des Emulators; es ist genau der Zustand, an dem die Maschine steht. „Bild holen“ holt es sofort (eine laufende Maschine wird dafür kurz angehalten und danach fortgesetzt).
-- **Zeitlupen-Live:** Auf Knopfdruck hält die IDE die Maschine alle paar Millisekunden an, holt das Bild und setzt sie fort. Die Maschine läuft dabei mit etwa 40–80 % ihres Tempos und ohne Ton; zum Spielen ist das nicht gedacht. Eine stehende Maschine wird dafür fortgesetzt. Der Modus endet beim Schließen des Reiters oder wenn ein anderer Reiter vorn liegt.
-- **C128:** Eine Auswahl schaltet zwischen VIC-II (40 Spalten) und VDC (80 Spalten) um.
-- **Text einspeisen:** schreibt Text in den Tastaturpuffer des Emulators (Buchstaben kommen als Großbuchstaben an, Zeilenumbruch ist RETURN), zum Beispiel `RUN`. Das ist nur Text: Tastatur und Joystick werden nicht an den Emulator weitergegeben. Steht die Maschine, wird der Text beim Fortsetzen eingegeben.
-- Daneben steht ein **Speicherfenster** (wie im Reiter Speicher). **Als PNG speichern** legt das Bild unter `aufnahmen/emulator-bild-….png` im Projekt ab, „In Zwischenablage“ kopiert es.
-- **Projektbild:** „Als Projektbild setzen“ speichert das Bild (zugeschnitten) als `projektbild.png` im Projektordner. Das Bild erscheint in „Zuletzt geöffnete Projekte“ auf der Willkommensseite. Beim ersten Halt legt die IDE es selbst an, falls es noch keines gibt. In den Projekt-Einstellungen kannst du das Projektbild ausschalten, durch eine Bilddatei ersetzen oder löschen.
+Der Reiter **Bild** im rechten Panel (nur in einer Debug-Sitzung, Symbol ◉) zeigt das Bild des VICE-Emulators in VintageCoder: C64, C128 (VIC-II und VDC), VC-20 und Plus/4. Atari und MEGA65 liefern kein Bild.
+- **Bild holen** holt das Bild sofort über den Monitor des Emulators. Mit dem Häkchen **bei jedem Halt** holt VintageCoder es bei jedem Halt (Haltepunkt, Einzelschritt, Pause) selbst; es ist genau der Zustand, an dem die Maschine steht.
+- **Zeitlupe live:** Mit dem Häkchen hält VintageCoder die Maschine alle paar Millisekunden an, holt das Bild und setzt sie fort. Die Maschine läuft dabei mit etwa 40–80 % ihres Tempos und ohne Ton; zum Spielen ist das nicht gedacht.
+- **C128:** Knöpfe über dem Bild schalten zwischen VIC-II (40 Spalten) und VDC (80 Spalten) um.
+- **Text senden:** Das Feld unter dem Bild schreibt Text in den Tastaturpuffer des Emulators (Enter sendet), zum Beispiel `RUN`. Das ist nur Text: Tastatur und Joystick werden nicht an den Emulator weitergegeben.
 - Das Bild hat die volle Größe des VICE-Bildpuffers (C64 504 × 312, C128 VIC-II 384 × 272, VDC 856 × 288, Plus/4 384 × 288, VC-20 568 × 284); nicht gezeichnete Ränder sind schwarz.
 
-## Kontextmenüs (rechte Maustaste)
-- **Disassembler:** Haltepunkt setzen/entfernen (auch an Adressen ohne Quelltext), **Bis hierher ausführen** (einmaliger Haltepunkt, verschwindet nach dem nächsten Halt), Speicher ab dieser Adresse anzeigen, Adresse als Ausdruck beobachten, **Zur Quellzeile**, Adresse oder Zeile kopieren.
-- **Register:** Wert kopieren (hex oder dezimal), als Ausdruck beobachten; bei PC und SP den Speicher dort anzeigen.
-- **Speicher:** Zeile als `[$adresse]` beobachten, Schreib- oder Lese-Haltepunkt auf den Zeilenanfang, Adresse oder Zeile kopieren.
-- **Beobachten:** Wert (hex/dezimal) oder Ausdruck kopieren, Ausdruck oder alle entfernen.
-- **Haltepunkte:** Entfernen, **Bearbeiten** (übernimmt Art, Bereich, Bedingung und Zähler ins Formular „Neu“ und entfernt den alten), Speicher anzeigen, Zur Quellzeile, Adresse kopieren.
-
+Noch nicht in der Oberfläche: Bild als PNG speichern, in die Zwischenablage kopieren und als Projektbild setzen.

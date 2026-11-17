@@ -22,20 +22,20 @@
 ;   $2000-$27FF  Zeichensatz (aus chars.vcchar)         $2800-$31FF  Sprites (4 Saetze, siehe unten)
 ;   $3200-...    Titelbild, Karten der Bilder, Musikdaten, danach die Unterprogramme der Kachel-Bibliothek (tiles_runtime)
 ;   $C000-$C0EF  Bildkarte im RAM (LMAP)
-;   Nullseite:   $10-$43 Spiellogik (core.asm), $50-$56 HAL, $58-$5F Kachel-Bibliothek, $F7-$FA Musik
+;   Zeropage:   $10-$43 Spiellogik (core.asm), $50-$56 HAL, $58-$5F Kachel-Bibliothek, $F7-$FA Musik
 ;   Bildspeicher (Bildschirm $0400, Sprite-Zeiger $07F8, Farb-RAM $D800) und VIC-Bank 0: siehe hal_c64.asm.
 ; =====================================================================================================================
 .target c64                             ; Zielsystem: Commodore 64
 .cpu 6510 { illegals = deny }           ; CPU 6510; undokumentierte Befehle sind verboten
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
-.const ZP   = $10                       ; Nullseiten-Variablen der Spiellogik beginnen bei $10
+.const ZP   = $10                       ; Zeropage-Variablen der Spiellogik beginnen bei $10
 .const LMAP = $c000              ; Bildkarte im RAM (240 Byte), Muenzen werden daraus geloescht
 
 ; Kachel-Bibliothek: zeichnet die Kacheln (tile_put) und die Bilder (screen_select_a, screen_draw_all); die Daten kommen aus dem Export
 ; von graphics/hg.vctiles (Kachelsatz) und graphics/levels.vcscreen (Screen-Bank), die Bindung steht unten bei tiles_use.
 .const TILE_MAPRAM = LMAP               ; screen_select_a kopiert die Karte eines Bildes nach LMAP (Muenzen werden dort geloescht)
-.const TILE_ZP = $58                    ; Nullseite $58-$5F fuer die Bibliothek (die Musik nutzt $F7-$FA)
+.const TILE_ZP = $58                    ; Zeropage $58-$5F fuer die Bibliothek (die Musik nutzt $F7-$FA)
 #include <c64/tiles.asm>
 
 .org $0801                              ; BASIC-Startadresse

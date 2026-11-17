@@ -23,7 +23,7 @@
 .const HS_ENTRY  = 12            // 8 Name + 3 Punkte + 1 Level
 .const HS_FIRST  = 5             // Offset des ersten Eintrags (4 Kennung + 1 Version)
 
-// Plus/4: Die KERNAL-Dateiroutinen veraendern die Nullseite ab $90; deshalb liegt die Bestenliste in $08-$0D.
+// Plus/4: Die KERNAL-Dateiroutinen veraendern die Zeropage ab $90; deshalb liegt die Bestenliste in $08-$0D.
 .ifndef HS_ZP
 .const HS_ZP = $08
 .endif
@@ -177,7 +177,7 @@ hs_load:
         rts
 
 // hs_save: Datei schreiben.  Der Name "@0:PRALL.HS" ersetzt eine vorhandene Datei ("@0:" = Ersetzen auf Laufwerk 0).  SAVE bekommt
-//   den Anfang ueber einen Zeiger in der Nullseite (hs_src) und das Ende (X/Y = Adresse + 1).  Der Dateikopf enthaelt die
+//   den Anfang ueber einen Zeiger in der Zeropage (hs_src) und das Ende (X/Y = Adresse + 1).  Der Dateikopf enthaelt die
 //   Ladeadresse von hs_buf; beim Laden wird sie ignoriert (Sekundaeradresse 0).
 hs_save:
         jsr hs_makecrc

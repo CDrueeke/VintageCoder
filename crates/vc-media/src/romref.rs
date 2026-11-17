@@ -38,6 +38,8 @@ impl RomRef {
         let (sr, rev) = match path.split_once('@') { Some((a, b)) => (a, Some(b.to_string())), None => (path, None) };
         let (system, role) = sr.split_once('/').ok_or_else(|| format!("'{text}': system/rolle erwartet"))?;
         if system.is_empty() || role.is_empty() || set.is_empty() { return Err(format!("'{text}': unvollständiger ROM-Verweis")); }
+        // ältere Projektdateien: der Plus/4-Satz hieß vor den zwei Sätzen „standard“ (= Groß/Grafik)
+        let set = if system == "plus4" && set == "standard" { "upper" } else { set };
         Ok(RomRef { system: system.into(), role: role.into(), rev, set: set.into() })
     }
     pub fn to_text(&self) -> String { format!("rom:{}/{}{}#{}", self.system, self.role, self.rev.as_ref().map(|r| format!("@{r}")).unwrap_or_default(), self.set) }
@@ -124,7 +126,9 @@ pub fn read_set(store: &RomStore, r: &RomRef) -> Result<SetData, RomError> {
         let Some(set) = sets.into_iter().find(|s| s.name == r.set) else { last = Some(RomError::NoSet(format!("{}/{} enthält keinen Zeichensatz '{}'", r.system, role, r.set))); continue; };
         let rom = std::fs::read(&found.path).map_err(|e| RomError::Missing(format!("{}: {e}", found.path.display())))?;
         let Some(bytes) = rom.get(set.offset..set.offset + set.size) else { last = Some(RomError::NoSet(format!("{}: Zeichensatz '{}' liegt hinter dem Dateiende", found.path.display(), set.name))); continue; };
-        return Ok(SetData { bytes: bytes.to_vec(), set, rom, status, label, path: found.path.clone() });
+        let bytes = set.expand(bytes.to_vec());
+        let set = SetDef { size: bytes.len(), ..set };
+        return Ok(SetData { bytes, set, rom, status, label, path: found.path.clone() });
     }
     // Kein ROM des Anwenders: eingebaute Ersatzschrift (Eigenbau), außer es wurde ausdrücklich eine Revision verlangt
     if r.rev.is_none() && matches!(last, None | Some(RomError::Missing(_))) {
@@ -136,13 +140,29 @@ pub fn read_set(store: &RomStore, r: &RomRef) -> Result<SetData, RomError> {
 /// Pfad, den `SetData::path` für die eingebaute Ersatzschrift trägt
 pub const BUILTIN_PATH: &str = "(eingebaut)";
 
-/// Eingebaute Ersatzschrift (`vc_roms::fallback`) für einen Verweis, falls es für das Profil des Satzes eine gibt
+/// Ersatz für ein fehlendes ROM: zuerst der **eigene Standardsatz** (`data/charsets/`, CC0), nur wenn es für das Profil keinen gibt die alte Notschrift (`vc_roms::fallback`)
 fn builtin_set(r: &RomRef) -> Option<SetData> {
     let role = if r.system == "atari8" && r.role == "os" { "os-xl" } else { r.role.as_str() };
     let set = systems::default_sets(&r.system, role).into_iter().find(|s| s.name == r.set)?;
+    if let Some(d) = eigener_ersatz(r, &set) { return Some(d); }
+    let set = SetDef { size: set.expanded_size(), ..set };
     let bytes = vc_roms::fallback::bytes_for(&set)?;
     let set = SetDef { offset: 0, ..set };
     Some(SetData { set, rom: bytes.clone(), bytes, status: Status::Replacement, label: Some("VintageCoder-Ersatzschrift".into()), path: std::path::PathBuf::from(BUILTIN_PATH) })
+}
+
+/// Der eigene Standardsatz als Ersatz (Etikett „VC-Standard“); `None`, wenn kein Datenordner bekannt ist oder es keinen passenden Satz gibt
+fn eigener_ersatz(r: &RomRef, set: &SetDef) -> Option<SetData> {
+    let data = with_store(|s| s.env.data_dir.clone())?;
+    let satz = if set.name == "vdc" { "vdc-upper" } else { set.name.as_str() };
+    let e = crate::project::eigene_saetze(&data, &set.profile).into_iter().find(|e| e.system == r.system && e.satz == satz)?;
+    let v: Value = serde_json::from_str(&std::fs::read_to_string(&e.datei).ok()?).ok()?;
+    let set = &SetDef { size: set.expanded_size(), ..set.clone() };
+    let mut bytes = Vec::with_capacity(set.size);
+    for f in v["frames"].as_array()? { for row in f["rows"].as_array()? { bytes.push(u8::from_str_radix(row.as_str()?, 2).ok()?) } }
+    if bytes.len() != set.size { return None }
+    let set = SetDef { offset: 0, ..set.clone() };
+    Some(SetData { set, rom: bytes.clone(), bytes, status: Status::Replacement, label: Some(format!("VC-Standard (eigen): {}", e.name)), path: std::path::PathBuf::from(BUILTIN_PATH) })
 }
 
 fn status_of(store: &RomStore, f: &Found) -> Status {
@@ -179,7 +199,7 @@ pub fn resolve_media(v: &Value) -> Result<Value, String> {
         Err(e) => {
             let sets = systems::default_sets(&r.system, if r.role == "os" { "os-xl" } else { &r.role });
             let set = sets.iter().find(|s| s.name == r.set).or(sets.first()).cloned().ok_or_else(|| e.to_string())?;
-            let (h, n) = geometry(&set);
+            let (h, n) = geometry(&SetDef { size: set.expanded_size(), ..set });
             let mut x = Map::new();
             x.insert("rom_missing".into(), json!(e.to_string()));
             (blank_frames(h, n, fcm), x)
@@ -276,11 +296,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn plus4_saetze_haben_256_zeichen_mit_invers_haelfte() {
+        for satz in ["upper", "lower"] {
+            let v = resolve_media(&new_reference("plus4.char.hires", "t", &format!("rom:plus4/kernal#{satz}"), &Value::Null)).unwrap();
+            assert_eq!(v["frames"].as_array().unwrap().len(), 256, "{satz}");
+        }
+    }
+
+    #[test]
     fn verweis_hin_und_zurueck() {
         let r = RomRef::parse("rom:c64/chargen@906143-02#lower").unwrap();
         assert_eq!((r.system.as_str(), r.role.as_str(), r.rev.as_deref(), r.set.as_str()), ("c64", "chargen", Some("906143-02"), "lower"));
         assert_eq!(r.to_text(), "rom:c64/chargen@906143-02#lower");
         assert_eq!(RomRef::parse("rom:c64/chargen#upper").unwrap().rev, None);
+        assert_eq!(RomRef::parse("rom:plus4/kernal#standard").unwrap().to_text(), "rom:plus4/kernal#upper", "alter Name des Plus/4-Satzes");
         for bad in ["c64/chargen#upper", "rom:c64#upper", "rom:c64/chargen", "rom:/x#y"] { assert!(RomRef::parse(bad).is_err(), "{bad}"); }
     }
 

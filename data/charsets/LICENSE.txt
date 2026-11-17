@@ -1,0 +1,11 @@
+SPDX-License-Identifier: CC0-1.0
+
+Die Zeichensatzdateien (*.vcchar), index.json, ausnahmen.json und STIL.md in diesem Ordner sowie die Werkzeuge tools/gen_vc_standard.py und
+tools/charset_distance.py sind eigene Werke des VintageCoder-Projekts und stehen unter CC0 1.0 Universell (Public Domain Dedication):
+Soweit rechtlich möglich, wird auf alle Urheber- und verwandten Schutzrechte verzichtet; wo ein Verzicht nach dem Recht eines Landes nicht möglich
+ist, gilt die Auffanglizenz von CC0 (unbeschränktes, unwiderrufliches, unentgeltliches Nutzungsrecht für jeden Zweck, einschließlich Kopieren,
+Ändern und Einbetten in eigene Programme, ohne Namensnennung).
+
+Rechtstext (verbindlich): https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+Diese Sätze enthalten keine Zeichen aus Original-ROMs und keine Nachbauten. Das ist keine Rechtsaussage und keine Rechtsberatung.

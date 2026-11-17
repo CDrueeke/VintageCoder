@@ -1,6 +1,6 @@
-# PET/CBM und CBM-II (Spike, noch nicht in der Oberfläche)
+# PET/CBM und CBM-II (in dieser Version nicht enthalten)
 
-Stand: **Datenstand für `vcc`**. PET/CBM und CBM-II sind noch **keine** Zielsysteme der Oberfläche (kein Eintrag im Wizard-Dialog der App, keine Emulator-Einstellung, kein Start mit F5, kein Debugger). Was schon geht, ist Bauen mit `vcc` und der Start von Hand im installierten VICE. Ungeprüftes ist als solches gekennzeichnet.
+PET/CBM und CBM-II sind in den Paketen dieser Version **nicht enthalten** (in der Release-Auswahl abgewählt, ausgeblendet). Es gibt keinen Eintrag im Projekt-Assistenten, keine Emulator-Einstellung, keinen Start mit F5 und keinen Debugger. Die folgenden Angaben beschreiben den Datenstand im Quelltext (Bau aus dem Quelltext, `vcc`); sie sind ohne Zusage und ungeprüfte Teile sind als solche gekennzeichnet.
 
 ## PET/CBM (`pet`)
 - Target `pet`: CPU 6502 (`nmos6502`, **kein** Port bei `$00/$01`), Textbildschirm bei `$8000` (40 Spalten: 1000 Byte, 80 Spalten: 2000 Byte, **keine Farbe, keine Sprites**), BASIC 2 oder 4 (Dialekt `cbm_v2`), Programme ab `$0401`; `.basicstub` erzeugt `SYS 1037` bei `.org $0401`.

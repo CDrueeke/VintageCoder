@@ -1,0 +1,45 @@
+=== farbe_ueber_schatten
+; vc:poke regs begin
+; $D01A Hintergrundfarbe/Rahmen = 36 (Schatten os.color4 $02C8)
+poke 712, 36
+; vc:poke end
+=== farbe_direkt_ins_hardwareregister
+; vc:poke regs begin
+; $D01A Hintergrundfarbe/Rahmen = 36
+poke 53274, 36
+; vc:poke end
+=== dma_feld_ueber_schatten
+; vc:poke regs begin
+; $D400 DMA-Steuerung: PFW=2 (Schatten os.sdmctl $022F)
+poke 559, (peek(559) & 252) ! 2
+; vc:poke end
+=== dma_feld_und_bit
+; vc:poke regs begin
+; $D400 DMA-Steuerung: PFW=2 MISSILE=1 (Schatten os.sdmctl $022F)
+poke 559, (peek(559) & 248) ! 6
+; vc:poke end
+=== direkt_schreibregister_teilmaske_warnt
+; vc:poke regs begin
+; $D400 DMA-Steuerung: PFW=2
+poke 54272, 2
+; vc:poke end
+!! antic.dmactl: Schreibregister, der nicht gelesene Rest wird 0 gesetzt
+=== gruppe_farben
+; vc:poke regs begin
+; $D016 Farbe Playfield 0 = 40 (Schatten os.color0 $02C4)
+; $D017 Farbe Playfield 1 = 202 (Schatten os.color1 $02C5)
+; $D018 Farbe Playfield 2 = 148 (Schatten os.color2 $02C6)
+; $D01A Hintergrundfarbe/Rahmen = 0 (Schatten os.color4 $02C8)
+poke 708, 40 : poke 709, 202 : poke 710, 148 : poke 712, 0
+; vc:poke end
+=== hex_zahlen
+; vc:poke regs begin
+; $D01A Hintergrundfarbe/Rahmen = 36 (Schatten os.color4 $02C8)
+poke $02C8, $24
+; vc:poke end
+=== zeilennummern
+10 rem vc:poke regs begin
+20 rem $D400 DMA-Steuerung: PFW=2 (Schatten os.sdmctl $022F)
+30 rem $D01A Hintergrundfarbe/Rahmen = 36 (Schatten os.color4 $02C8)
+40 poke 559, (peek(559) & 252) ! 2 : poke 712, 36
+50 rem vc:poke end

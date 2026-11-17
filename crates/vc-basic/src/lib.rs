@@ -6,6 +6,8 @@ mod classic;
 mod detok;
 mod dialect;
 pub mod longnames;
+pub mod numbers;
+pub mod numtools;
 mod plain;
 mod structured;
 mod structured_atari;
@@ -28,8 +30,8 @@ pub fn dialect_family(data_dir: &std::path::Path, id: &str) -> Result<String, St
 
 /// Ergebnis des Übersetzens von natives BASIC (CBM): `.prg` samt Label-Tabelle und Zeilenanzahl
 /// `names`: Zuordnung langer Namen → Kurznamen (leer ohne `#longnames`), `warnings`: Hinweise der Umsetzung
-pub struct PlainCbm { pub prg: Vec<u8>, pub labels: Vec<(String, u32)>, pub listing: String, pub names: Vec<longnames::NameEntry>, pub warnings: Vec<vc_core::Diagnostic> }
-pub struct PlainAtari { pub file: Vec<u8>, pub labels: Vec<(String, u32)>, pub listing: String, pub names: Vec<longnames::NameEntry>, pub warnings: Vec<vc_core::Diagnostic> }
+pub struct PlainCbm { pub prg: Vec<u8>, pub labels: Vec<(String, u32)>, pub listing: String, pub names: Vec<longnames::NameEntry>, pub warnings: Vec<vc_core::Diagnostic>, pub numbers_converted: usize }
+pub struct PlainAtari { pub file: Vec<u8>, pub labels: Vec<(String, u32)>, pub listing: String, pub names: Vec<longnames::NameEntry>, pub warnings: Vec<vc_core::Diagnostic>, pub numbers_converted: usize }
 
 /// Setzt bei `#longnames` die langen Namen um (nach Nummerierung und Label-Auflösung); sonst bleibt der Text unverändert.
 pub fn apply_long_names(n: Numbered, t: longnames::Target, file: &str) -> Result<longnames::Renamed, Vec<vc_core::Diagnostic>> {
@@ -38,20 +40,26 @@ pub fn apply_long_names(n: Numbered, t: longnames::Target, file: &str) -> Result
 
 /// Natives CBM-BASIC (Zeilennummern und/oder `@label`) → PRG
 pub fn compile_plain_cbm(src: &str, d: &Dialect, o: &PlainOptions, load: u16) -> Result<PlainCbm, Vec<vc_core::Diagnostic>> {
-    let n = number_lines(src, o)?;
+    let mut n = number_lines(src, o)?;
+    let conv = numbers::convert_numbers(&n.text, &numbers::Lexicon::Cbm(d), &numbers::NumberOptions { whole_words: n.long_names, ..o.numbers.clone() }, &o.file)?;
+    n.text = conv.text;
     let labels = n.labels.clone();
-    let r = apply_long_names(n, longnames::Target::Cbm(d), &o.file)?;
+    let mut r = apply_long_names(n, longnames::Target::Cbm(d), &o.file)?;
+    r.warnings.extend(conv.warnings);
     let lines = tokenize_text(&r.text, d, &o.file)?;
     let prg = build_prg(&lines, load);
     let listing = to_classic_text(&Parsed { load_addr: load, lines }, d);
-    Ok(PlainCbm { prg, labels, listing, names: r.names, warnings: r.warnings })
+    Ok(PlainCbm { prg, labels, listing, names: r.names, warnings: r.warnings, numbers_converted: conv.count })
 }
 
 /// Natives Atari-BASIC (Zeilennummern und/oder `@label`) → `.BAS`-Datei im SAVE-Format
 pub fn compile_plain_atari(src: &str, d: &atari::AtariDialect, o: &PlainOptions) -> Result<PlainAtari, Vec<vc_core::Diagnostic>> {
-    let n = number_lines(src, o)?;
+    let mut n = number_lines(src, o)?;
+    let conv = numbers::convert_numbers(&n.text, &numbers::Lexicon::Atari(d), &numbers::NumberOptions { whole_words: n.long_names, ..o.numbers.clone() }, &o.file)?;
+    n.text = conv.text;
     let labels = n.labels.clone();
-    let r = apply_long_names(n, longnames::Target::Atari(d), &o.file)?;
+    let mut r = apply_long_names(n, longnames::Target::Atari(d), &o.file)?;
+    r.warnings.extend(conv.warnings);
     let p = atari::tokenize_text(&r.text, d, &o.file)?;
-    Ok(PlainAtari { file: p.save_file(d), labels, listing: p.listing(d), names: r.names, warnings: r.warnings })
+    Ok(PlainAtari { file: p.save_file(d), labels, listing: p.listing(d), names: r.names, warnings: r.warnings, numbers_converted: conv.count })
 }

@@ -23,6 +23,86 @@ impl Mode {
             _ => return None,
         })
     }
+
+    /// Alle Adressierungsarten (fuer Tests und Uebersichten).
+    pub const ALL: [Mode; 19] = [Mode::Imp, Mode::Acc, Mode::Imm, Mode::Zp, Mode::Zpx, Mode::Zpy, Mode::Abs, Mode::Abx, Mode::Aby, Mode::Ind,
+        Mode::Izx, Mode::Izy, Mode::Rel, Mode::Imw, Mode::Zpr, Mode::Rl, Mode::Izz, Mode::Isy, Mode::Iax];
+
+    /// Kurzform wie in den Cpu-Dateien (`zpx`, `izx`, ...).
+    pub fn kuerzel(self) -> &'static str {
+        match self {
+            Mode::Imp => "imp", Mode::Acc => "acc", Mode::Imm => "imm", Mode::Zp => "zp", Mode::Zpx => "zpx", Mode::Zpy => "zpy", Mode::Abs => "abs",
+            Mode::Abx => "abx", Mode::Aby => "aby", Mode::Ind => "ind", Mode::Izx => "izx", Mode::Izy => "izy", Mode::Rel => "rel",
+            Mode::Imw => "imw", Mode::Zpr => "zpr", Mode::Rl => "rl", Mode::Izz => "izz", Mode::Isy => "isy", Mode::Iax => "iax",
+        }
+    }
+
+    /// Sprechender deutscher Name. **Einzige Uebersetzungstabelle**: Hover, Referenz (Hilfe) und Palette lesen von hier.
+    pub fn name(self) -> &'static str {
+        match self {
+            Mode::Imp => "Implizit", Mode::Acc => "Akkumulator", Mode::Imm => "Sofortwert", Mode::Imw => "Sofortwert, 16 Bit",
+            Mode::Zp => "Zeropage", Mode::Zpx => "Zeropage, X-indiziert", Mode::Zpy => "Zeropage, Y-indiziert",
+            Mode::Abs => "Absolut", Mode::Abx => "Absolut, X-indiziert", Mode::Aby => "Absolut, Y-indiziert",
+            Mode::Ind => "Indirekt", Mode::Izx => "Indirekt, X-vorindiziert", Mode::Izy => "Indirekt, Y-nachindiziert",
+            Mode::Rel => "Relativ", Mode::Rl => "Relativ, 16 Bit", Mode::Izz => "Indirekt, Z-nachindiziert",
+            Mode::Isy => "Stack-relativ indirekt, Y-nachindiziert", Mode::Iax => "Absolut indirekt, X-indiziert", Mode::Zpr => "Zeropage + relativer Sprung",
+        }
+    }
+
+    /// Name mit Kuerzel in Klammern, z. B. „Zeropage, X-indiziert (zpx)“.
+    pub fn label(self) -> String { format!("{} ({})", self.name(), self.kuerzel()) }
+
+    /// Schreibweise des Operanden, z. B. `$nn,X`.
+    pub fn syntax(self) -> &'static str {
+        match self {
+            Mode::Imp => "", Mode::Acc => "A", Mode::Imm => "#$nn", Mode::Imw => "#$nnnn", Mode::Zp => "$nn", Mode::Zpx => "$nn,X", Mode::Zpy => "$nn,Y", Mode::Abs => "$nnnn",
+            Mode::Abx => "$nnnn,X", Mode::Aby => "$nnnn,Y", Mode::Ind => "($nnnn)", Mode::Izx => "($nn,X)", Mode::Izy => "($nn),Y", Mode::Rel => "Ziel", Mode::Rl => "Ziel (16 Bit)",
+            Mode::Izz => "($nn),Z", Mode::Isy => "($nn,SP),Y", Mode::Iax => "($nnnn,X)", Mode::Zpr => "$nn,Ziel",
+        }
+    }
+
+    /// Ein Satz, was der Modus tut.
+    pub fn erklaerung(self) -> &'static str {
+        match self {
+            Mode::Imp => "kein Operand", Mode::Acc => "wirkt auf den Akkumulator", Mode::Imm => "der Wert steht direkt im Befehl", Mode::Imw => "16-Bit-Wert steht direkt im Befehl",
+            Mode::Zp => "Adresse in den ersten 256 Bytes", Mode::Zpx => "Zeropage-Adresse plus X", Mode::Zpy => "Zeropage-Adresse plus Y",
+            Mode::Abs => "volle 16-Bit-Adresse", Mode::Abx => "16-Bit-Adresse plus X", Mode::Aby => "16-Bit-Adresse plus Y",
+            Mode::Ind => "Adresse steht in einem Zeiger", Mode::Izx => "Zeiger in der Zeropage, X wird vorher zur Zeigeradresse addiert",
+            Mode::Izy => "Zeiger in der Zeropage, Y wird danach zur Zieladresse addiert", Mode::Rel => "Sprungweite relativ zum Befehl",
+            Mode::Rl => "16-Bit-Sprungweite relativ zum Befehl", Mode::Izz => "Zeiger in der Zeropage, Z wird danach addiert",
+            Mode::Isy => "Zeiger auf dem Stack, Y wird danach addiert", Mode::Iax => "Zeiger an 16-Bit-Adresse plus X", Mode::Zpr => "Zeropage-Adresse prüfen und relativ springen",
+        }
+    }
+}
+
+#[cfg(test)]
+mod mode_tests {
+    use super::*;
+    #[test]
+    fn alle_modi_haben_sprechende_namen() {
+        let mut namen = std::collections::HashSet::new();
+        for m in Mode::ALL {
+            assert!(m.name().len() > 4 && m.name() != m.kuerzel(), "{m:?}");
+            assert!(!m.erklaerung().is_empty());
+            assert_eq!(Mode::parse(m.kuerzel()), Some(m));
+            assert!(namen.insert(m.name()), "doppelter Name {}", m.name());
+        }
+        assert_eq!(Mode::Zpx.label(), "Zeropage, X-indiziert (zpx)");
+        assert_eq!(Mode::Imm.label(), "Sofortwert (imm)");
+    }
+    #[test]
+    fn alle_modi_der_cpu_dateien_sind_bekannt() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/cpus");
+        for e in std::fs::read_dir(dir).unwrap() {
+            let t = std::fs::read_to_string(e.unwrap().path()).unwrap();
+            let v: serde_json::Value = serde_json::from_str(&t).unwrap();
+            let cols: Vec<&str> = v["opColumns"].as_array().into_iter().flatten().filter_map(|c| c.as_str()).collect();
+            let Some(i) = cols.iter().position(|c| *c == "mode") else { continue };
+            for op in v["ops"].as_array().into_iter().flatten().chain(v["opcodes"].as_array().into_iter().flatten()) {
+                if let Some(m) = op.get(i).and_then(|x| x.as_str()) { assert!(Mode::parse(m).is_some(), "unbekannter Modus {m}"); }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -16,7 +16,7 @@ Eine **Systembibliothek** spart dir das Abtippen von Adressen und Routinen. Mit 
 | Datei | Inhalt |
 |---|---|
 | `c64/hardware.asm` | VIC-II, SID, CIA 1/2, Farb-RAM, Farbnamen `COL_*` |
-| `c64/kernal.asm` | KERNAL-Sprungtabelle (`CHROUT`, `GETIN` …), Vektoren, Nullseite, RAM-Vektoren |
+| `c64/kernal.asm` | KERNAL-Sprungtabelle (`CHROUT`, `GETIN` …), Vektoren, Zeropage, RAM-Vektoren |
 | `c64/basic.asm` | BASIC-Zeiger, Gleitkomma-Register, ROM-Routinen (`STROUT` …) |
 | `c128/hardware.asm` `kernal.asm` | VIC-IIe, MMU, VDC (80 Spalten), KERNAL-Erweiterungen (`JSRFAR`, `INDFET` …), Makro `mmu_config` |
 | `plus4/hardware.asm` `kernal.asm` | TED, ACIA, ROM-Bankwahl, Farben `TED_COL_*`, KERNAL-Sprungtabelle (auch für C16) |
@@ -26,11 +26,11 @@ Eine **Systembibliothek** spart dir das Abtippen von Adressen und Routinen. Mit 
 | `mega65/rom_920418.asm` | Systemvariablen der geschlossenen ROM-Version 920418 |
 | `mega65/rom_open.asm` | OpenROMs: nur die Sprungtabelle ist zugesichert |
 | `atari8bit/antic.asm` `gtia.asm` `pokey.asm` | Chip-Register mit den Atari-Standardnamen (`DMACTL`, `COLPF0`, `AUDF1` …) |
-| `atari8bit/os.asm` | PIA, Nullseite, Schattenregister (`SDMCTL`, `COLOR0` …), IOCB, `CIOV`, `SETVBV` |
+| `atari8bit/os.asm` | PIA, Zeropage, Schattenregister (`SDMCTL`, `COLOR0` …), IOCB, `CIOV`, `SETVBV` |
 | `vcs2600/tia.asm` | TIA, RIOT, Speicherbereiche, Makros `CLEAN_START`, `VERTICAL_SYNC`, `WAIT_LINES` |
 | `common/types.asm` | Bitmasken `BIT0`–`BIT7`, Statusbits `P_*`, Makros `set_bits`, `ld16`, `ptr_set`, `mov16`, `mov8`/`movx8`/`movy8` (Byte kopieren), `add8`/`sub8` … |
-| `common/math.asm` | 16-Bit-Makros (`add16`, `sub16`, `cmp16`, `inc16` …) und die Unterprogramme `mul16`/`div16` (mit `math_routines` einsetzen; Nullseite über `MATH_ZP` wählbar) |
-| `c64/tiles.asm` (mit `common/tiles.asm`) | Kachel-Bibliothek: `tiles_use`, `tile_draw`, `tile_draw_color`, `tile_fill`, `screen_select`, `screen_draw` (Makros) und mit `tiles_runtime` die Unterprogramme `tile_put`, `screen_draw_all`, `screen_draw_rows`, `screen_map_get`, `tile_prop`; Kachelgröße B×H beliebig, Schalter `TILE_SMC`, `TILE_ZP`, `TILE_SCREEN`, `TILE_MAPRAM`. Beispiel `examples/c64/tiles_demo`, Befehle im Kopf der Datei |
+| `common/math.asm` | 16-Bit-Makros (`add16`, `sub16`, `cmp16`, `inc16` …) und die Unterprogramme `mul16`/`div16` (mit `math_routines` einsetzen; Zeropage über `MATH_ZP` wählbar) |
+| `c64/tiles.asm` (mit `common/tiles.asm`) | Kachel-Bibliothek: `tiles_use`, `tile_draw`, `tile_draw_color`, `tile_fill`, `screen_select`, `screen_draw` (Makros) und mit `tiles_runtime` die Unterprogramme `tile_put`, `screen_draw_all`, `screen_draw_rows`, `screen_map_get`, `tile_prop`; dazu Hintergrund wiederherstellen und Zeilen füllen: `tile_erase` (X, Y), `tile_restore` (Makro, Rechteck aus der Karte) mit `tile_restore_a`, `tile_row` (Makro) mit `tile_row_a`; mit dem Schalter `TILE_RLE` liegen die Karten lauflängenkodiert vor (Export-Option `"rle": true` der Screen-Bank) und `screen_select` entpackt sie nach `TILE_MAPRAM` (`screen_load_rle`); Kachelgröße B×H beliebig, Schalter `TILE_SMC`, `TILE_ZP`, `TILE_SCREEN`, `TILE_MAPRAM`, `TILE_RLE`. Beispiel `examples/c64/tiles_demo`, Befehle im Kopf der Datei |
 | `atari8bit/tiles.asm`, `plus4/tiles.asm`, `vic20/tiles.asm`, `c128/tiles.asm`, `mega65/tiles.asm` | dieselbe Kachel-Bibliothek (`common/tiles.asm`) für die weiteren Systeme, gleiche Befehle und Schalter; nur die Systemteile unterscheiden sich (siehe unten). Beispiele `examples/<system>/tiles_demo` |
 | `c64/notes.inc`, `c128/notes.inc`, `mega65/notes.inc`, `plus4/notes.inc`, `vic20/notes.inc`, `atari8bit/notes.inc` | Notenkonstanten `NOTE_C0` … `NOTE_B7` und die Frequenztabelle des Klangchips (PAL/NTSC), siehe Abschnitt „Noten und Frequenztabellen“ unten |
 

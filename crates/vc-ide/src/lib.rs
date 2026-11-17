@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Dienste der Entwicklungsumgebung als Bibliothek: Bauen, Debug-Sitzung mit Emulator-Adaptern, Start im Emulator und Hilfe.
-//! (Die Oberfläche ist `vc-app`; die frühere Web-Oberfläche steht nur noch in der Git-Historie.)
+//! (Eine Oberfläche gehört nicht zu diesem Crate; die frühere egui-Oberfläche `vc-app` und die frühere Web-Oberfläche stehen nur noch in der Git-Historie.)
 use std::path::{Path, PathBuf};
 
 pub mod args;
@@ -8,6 +8,8 @@ pub mod b2a;
 pub mod blob;
 pub mod build;
 pub mod buildlog;
+pub mod chipmap;
+pub mod copyproject;
 pub mod cond;
 pub mod debug;
 pub mod debuglog;
@@ -17,6 +19,7 @@ pub mod features;
 pub mod feedback;
 pub mod help;
 pub mod help_images;
+pub mod hexhint;
 pub mod importfiles;
 pub mod launch;
 pub mod livebild;
@@ -24,16 +27,19 @@ pub mod listen;
 pub mod mega65net;
 pub mod platform;
 pub mod projfile;
+pub mod regcode;
 pub mod reorganize;
 pub mod roms;
 pub mod settings;
 pub mod setup;
 pub mod streams;
 pub mod structure;
+pub mod snapshot;
 pub mod sysmap;
 pub mod targets;
 pub mod tests;
 pub mod trace;
+pub mod update;
 
 pub fn find_data_dir(start: &Path) -> Option<PathBuf> {
     let mut d = start.to_path_buf();

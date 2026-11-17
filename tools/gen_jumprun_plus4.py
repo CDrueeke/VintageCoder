@@ -12,7 +12,7 @@ Plus/4-Besonderheiten gegenueber C64 und Atari (siehe Konzept "Hugo & Gumbo"):
   * Musik: TED hat zwei Stimmen (Melodie, Bass); Tabellen aus denselben Noten wie beim Atari. (Der Tracker-Export fuer TED fehlt noch.)
 
 Was dieses Skript erzeugt (alles unter examples/plus4/jumprun/):
-  graphics/chars.vcchar, lvN.vctiles, title.vcscreen   Projektdateien der Editoren (Zeichensatz, Kachelkarten, Titelbild)
+  graphics/chars.vcchar, hg.vctiles, levels.vcscreen, title.vcscreen   Projektdateien der Editoren (Zeichensatz, Kachelsatz, Screen-Bank, Titelbild)
   lib/levels.inc     Assemblertabellen: Kacheleigenschaften, Farben, Startpositionen, Autopilot-Skripte, Texte, Zellfarben je Zeichen,
                      vorverschobene Figurenbilder, Musik, Klangeffekte.  Die HAL (hal_plus4.asm) und die Spiellogik lesen sie ein.
 
@@ -40,9 +40,17 @@ def charset():
     d['frames'] += [{"rows": ["0000"] * 8} for _ in range(256 - len(d['frames']))]     # 256 Zeichen; die Zeichen $E0-$F8 sind der Pool der Zeichen-Sprites
     d['colors'] = {"fg": 113, "bg": 0, "mc1": 34, "mc2": 42}      # Vorschaufarben des Editors (TED-Farbwerte: Zeichen weiss, Hintergrund schwarz)
     return d
-def tilemap(i):
-    # Kachelkarte von Bild i: 2 x 2 Zeichen je Kachel, Karte 20 x 12 -> 40 x 24 Zellen
-    d = G.tilemap(i); d['profile'] = 'plus4.tilemap.2x2'; d['colors'] = {"bg": 0, "fg": 113}; return d
+def tileset():
+    # Kachelsatz "hg" (21 Kacheln zu 2 x 2 Zeichen) wie beim Atari, aber ohne Zeichenbit 7 (Gruen kommt aus der Zellfarbe char_col) und mit 256 angepinnten Zeichen.
+    # colorMode "none": die Farbe haengt hier am Zeichen (Tabelle char_col), nicht an der Kachel; die HAL schreibt sie selbst (put_cell).
+    d = G.tileset(); d['profile'] = 'plus4.tileset'
+    for t in d['tiles']: t['cells'] = [c['c'] if isinstance(c, dict) else c for c in t['cells']]
+    d['pins'] = [{"cs": 0, "from": 0, "to": 255}]
+    return d
+def bank():
+    d = G.bank(); d['profile'] = 'plus4.screen.text'
+    for s in d['screens']: s['colors'] = {"bg": 0, "fg": 113}
+    return d
 def title():
     # Titelbild: 24 Zeilen zu 40 Zeichencodes
     d = G.title(); d['profile'] = 'plus4.screen.text'; d['colors'] = {"bg": 0, "fg": 113}
@@ -127,7 +135,7 @@ def inc():
     # Baut den Text von lib/levels.inc Abschnitt fuer Abschnitt (Farben, Zellfarben, Startwerte, Skripte, Texte, Figurenbilder, Musik, Effekte)
     L = ["; levels.inc - ERZEUGT von tools/gen_jumprun_plus4.py (Spielwege aus tools/jumprun_art.py) - nicht von Hand aendern", ""]
     L.append("; Kacheleigenschaften je Kachelnummer: 0 leer, 1 tragend, 2 Leiter")
-    L.append("tile_attr:\n        .byte " + ",".join(str(t[3]) for t in A.TILES))
+    L.append("; (tile_attr steht im Kachelsatz graphics/hg.vctiles: hg_props)")
     # Farbwerte der Register $FF16 (Farbe 1), $FF17 (Farbe 2) und sechs Himmelsbalken ($FF15) je Bild; TED-Farbwert = Helligkeit * 16 + Farbton
     pal = [(ted(3, 9), ted(5, 9), [ted(5, 13), ted(5, 13), ted(4, 13), ted(4, 13), ted(3, 13), ted(2, 13)]),
            (ted(2, 1), ted(4, 1), [0] * 6),
@@ -192,7 +200,7 @@ Das Werkzeug hat keine weiteren Optionen; -h/--help zeigt nur diesen Text und fu
     _ap.parse_args()
     # Alle Dateien schreiben: Editor-Projekte (graphics/) und die Tabellen lib/levels.inc
     w('graphics/chars.vcchar', charset())
-    for i in range(4): w(f'graphics/lv{i+1}.vctiles', tilemap(i))
+    w('graphics/hg.vctiles', tileset()); w('graphics/levels.vcscreen', bank())
     w('graphics/title.vcscreen', title())
     os.makedirs(os.path.join(OUT, 'lib'), exist_ok=True)
     open(os.path.join(OUT, 'lib', 'levels.inc'), 'w', encoding='utf-8').write(inc())

@@ -20,7 +20,7 @@ Klang und Eingabe sind Plus/4-spezifisch. Der Quelltext ist ausfuehrlich komment
   (Arpeggio) entfaellt; Klangeffekte nehmen Stimme 2. Frequenztabelle fuer PAL, tiefe Toene um Oktaven nach oben gefaltet.
 - **Noch nicht / ungeprueft:** Klang ungehoert (nur Aufbau und Register-Tests); Joystick ueber `$FF08` (Auswahl `%11111011`/`%11111101`, Feuer Bit 6 oder 7, wie im cc65-Treiber `plus4-stdjoy`; beide Anschluesse werden gelesen; nicht an echter Hardware geprueft); Tastatureingabe nur gegen die KERNAL-Dekodiertabelle geprueft, nicht im Emulator getippt; Paddle (am Plus/4 nicht vorgesehen); NTSC nicht getestet. Im ungünstigsten Fall
   (3 Baelle + Laser + Muenze) verpasst die Hauptschleife einzelne Bildwechsel (rund 3 %, Testfassung `TESTFPS`).
-- **Bibliotheken:** `lib/{input,hiscore,rand,sound}.asm` (Vertrag: siehe die Kopfkommentare der Dateien). Nullseite: `$02-$0D` Zufall/Musik/Bestenliste, `$10-$8B` Spiel, `$8C-$8F` Eingabe,
+- **Bibliotheken:** `lib/{input,hiscore,rand,sound}.asm` (Vertrag: siehe die Kopfkommentare der Dateien). Zeropage: `$02-$0D` Zufall/Musik/Bestenliste, `$10-$8B` Spiel, `$8C-$8F` Eingabe,
   `$90-$AC` Zeichen-Sprites (das KERNAL benutzt `$90` und aufwaerts nur waehrend der Bestenliste).
 - **Tests:** `python3 tools/gen_tests.py && vcc build . && vcc test . --backend vice` (93 Emulator-Tests in `xplus4` mit Trap `$7F00`, ROM-Abschaltung im Setup, plus statische Pruefungen:
   BCD-Punkte, Richtungstabelle, Schlaegerabprall, Steinkollision, Durchschlag, alle 24 Levels, Bestenliste mit CRC und Geraeteauswahl, Compositor mit unabhaengig berechneten Bitmustern,

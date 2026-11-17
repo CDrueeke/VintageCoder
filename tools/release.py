@@ -516,6 +516,7 @@ def cmd_plan(args):
     print("  abgewaehlt: " + (", ".join(off) if off else "-"))
     print()
     print("Programme:   vcc, vc-lsp (immer)%s" % (", vintagecoder" if "IDE-APP" in eff else ""))
+    print("Update-Pruefung: %s" % ("enthalten (IDE-UPDATE)" if "IDE-UPDATE" in eff else "nicht enthalten"))
     dsize = sum(fsize(p) for p in plan["data"])
     esize = sum(fsize(p) for p in plan["example_files"])
     print("data/:       %d Dateien, %s (von %d)" % (len(plan["data"]), human(dsize), len(walk("data"))))
@@ -606,6 +607,11 @@ def stage_layout(os_name, out):
             "doc": os.path.join(out, DOC_SUB.get(os_name, ""))}
 
 
+def build_pakete(ide):
+    """Cargo-Pakete fuer `stage --build`: vcc (vc-cli) und vc-lsp immer, die Oberflaeche (vc-gui, Programm `vintagecoder`) nur bei IDE-APP."""
+    return ["-p", "vc-cli", "-p", "vc-lsp"] + (["-p", "vc-gui"] if ide else [])
+
+
 def cargo_version():
     with open(os.path.join(ROOT, "Cargo.toml"), encoding="utf-8") as f:
         m = re.search(r'^version\s*=\s*"([^"]+)"', f.read(), re.M)
@@ -651,7 +657,7 @@ def release_json(reg, eff, skipped, digest, version, reproducible):
     d = {"format": 1}
     if not reproducible:
         d["generated"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    d.update({"input": digest, "version": version, "ide": "IDE-APP" in eff,
+    d.update({"input": digest, "version": version, "ide": "IDE-APP" in eff, "update": "IDE-UPDATE" in eff,
               "studios": studios_order, "links": [f[x]["id"] for x in f if f[x]["kind"] == "link" and x in eff],
               "targets": [f[x]["id"] for x in f if f[x]["kind"] == "target" and x in eff],
               "examples": [x for x in f if f[x]["kind"] == "examples" and x in eff]})
@@ -709,7 +715,7 @@ def cmd_stage(args):
     # 1. Programme
     names = ["vcc", "vc-lsp"] + (["vintagecoder"] if ide else [])
     if args.build:
-        pkgs = ["-p", "vc-cli", "-p", "vc-lsp"] + (["-p", "vc-app"] if ide else [])
+        pkgs = build_pakete(ide)
         print("cargo build --release " + " ".join(pkgs))
         subprocess.run(["cargo", "build", "--release"] + pkgs, cwd=ROOT, check=True)
     bin_dir = args.bin_dir or (cargo_bin_dir() if args.build else os.path.join(ROOT, "target", "release"))
@@ -874,52 +880,11 @@ def os_stage(os_name, out, ide, has_examples, version, args):
             copy_file("installer/linux/man/" + f, out, dest_rel="usr/share/man/man1/" + f)
         if ide:
             copy_file("installer/linux/vintagecoder.desktop", out, dest_rel="usr/share/applications/vintagecoder.desktop")
-            png_halve(os.path.join(ROOT, "installer/macos/VintageCoder-1024.png"),
-                      os.path.join(out, "usr/share/icons/hicolor/512x512/apps/vintagecoder.png"))
-
-
-def png_halve(src, dst):
-    """Verkleinert ein 8-Bit-RGBA-PNG (nicht verschachtelt) auf die Haelfte (Mittelwert aus 2x2). Nur Standardbibliothek.
-    hicolor kennt 1024x1024 nicht; 512x512 ist die groesste Standardgroesse."""
-    with open(src, "rb") as f:
-        raw = f.read()
-    pos, idat, w, h = 8, b"", 0, 0
-    while pos < len(raw):
-        n, typ = struct.unpack(">I4s", raw[pos:pos + 8])
-        body = raw[pos + 8:pos + 8 + n]
-        if typ == b"IHDR":
-            w, h, depth, ctype, _, _, inter = struct.unpack(">IIBBBBB", body)
-            if (depth, ctype, inter) != (8, 6, 0):
-                raise ReleaseError("%s: nur 8-Bit-RGBA ohne Verschachtelung unterstuetzt" % src)
-        elif typ == b"IDAT":
-            idat += body
-        pos += 12 + n
-    data, bpp, stride = zlib.decompress(idat), 4, w * 4
-    rows, prev = [], bytearray(stride)
-    for y in range(h):
-        ft, line = data[y * (stride + 1)], bytearray(data[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
-        for i in range(stride):
-            a = line[i - bpp] if i >= bpp else 0
-            b = prev[i]
-            c = prev[i - bpp] if i >= bpp else 0
-            if ft == 1: line[i] = (line[i] + a) & 255
-            elif ft == 2: line[i] = (line[i] + b) & 255
-            elif ft == 3: line[i] = (line[i] + (a + b) // 2) & 255
-            elif ft == 4:
-                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
-                line[i] = (line[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
-        rows.append(line); prev = line
-    out = bytearray()
-    for y in range(0, h - 1, 2):
-        out.append(0)
-        for x in range(0, w - 1, 2):
-            for k in range(4):
-                out.append((rows[y][x * 4 + k] + rows[y][x * 4 + 4 + k] + rows[y + 1][x * 4 + k] + rows[y + 1][x * 4 + 4 + k] + 2) // 4)
-    def chunk(t, b):
-        return struct.pack(">I", len(b)) + t + b + struct.pack(">I", zlib.crc32(t + b) & 0xffffffff)
-    os.makedirs(os.path.dirname(dst), exist_ok=True)
-    with open(dst, "wb") as f:
-        f.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w // 2, h // 2, 8, 6, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(bytes(out), 9)) + chunk(b"IEND", b""))
+            # Symbol: PNG in 16 bis 512 px (tools/gen_icon.py) und das SVG aus branding/ (scalable)
+            for size in (16, 32, 64, 128, 256, 512):
+                rel = "usr/share/icons/hicolor/%dx%d/apps/vintagecoder.png" % (size, size)
+                copy_file("installer/linux/icons/hicolor/%dx%d/apps/vintagecoder.png" % (size, size), out, dest_rel=rel)
+            copy_file("branding/vintagecoder-icon.svg", out, dest_rel="usr/share/icons/hicolor/scalable/apps/vintagecoder.svg")
 
 
 def linux_archive(out, version, reproducible):
@@ -1026,6 +991,165 @@ def cmd_explain(args):
     return 0
 
 
+# ---------------------------------------------------------------- Update-Feed (update.json)
+
+VERSION_RX = re.compile(r"^(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})$")
+CHANGELOG_PUBLIC = os.path.join(ROOT, "release", "CHANGELOG.public.md")
+YANKED_FILE = os.path.join(ROOT, "release", "yanked.txt")
+FEED_FORMAT = 1
+FEED_MAX_RELEASES = 50
+FEED_MAX_NOTES = 16 * 1024          # je Version; muss zur Pruefung in crates/vc-ide/src/update.rs passen
+FEED_MAX_BYTES = 200 * 1024         # Obergrenze der Datei (das Programm liest hoechstens 256 KB)
+
+
+def version_key(v):
+    m = VERSION_RX.match(v)
+    if not m:
+        raise ReleaseError("Versionsnummer '%s' hat nicht die Form MAJOR.MINOR.PATCH (genau drei Zahlen)" % v)
+    return tuple(int(x) for x in m.groups())
+
+
+def parse_changelog(text):
+    """[(Version, Zusatz, Text)] der Abschnitte '## X.Y.Z (Zusatz)'; 'Unveroeffentlicht' und andere Ueberschriften zaehlen nicht."""
+    out, cur = [], None
+    for line in text.replace("\r\n", "\n").split("\n"):
+        m = re.match(r"^## (\d+\.\d+\.\d+)(?:\s+\((.*)\))?\s*$", line)
+        if m:
+            cur = [m.group(1), (m.group(2) or "").strip(), []]
+            out.append(cur)
+        elif line.startswith("## "):
+            cur = None
+        elif cur is not None:
+            cur[2].append(line)
+    return [(v, z, "\n".join(b).strip("\n").strip()) for v, z, b in out]
+
+
+def read_yanked(path):
+    if not path or not os.path.isfile(path):
+        return []
+    res = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.split("#", 1)[0].strip()
+            if line:
+                version_key(line)
+                res.append(line)
+    return res
+
+
+def build_feed(changelog_text, version, yanked, sequence, published, project_format=None, keep=10):
+    """update.json als dict. `latest` ist die hoechste Version in der Liste, die nicht zurueckgezogen ist; sie muss `version` entsprechen."""
+    secs = parse_changelog(changelog_text)
+    if not secs:
+        raise ReleaseError("Im Aenderungsprotokoll steht keine Version ('## X.Y.Z (...)')")
+    for v, _, _ in secs:
+        version_key(v)
+    for v in yanked:
+        version_key(v)
+    secs.sort(key=lambda s: version_key(s[0]), reverse=True)
+    secs = secs[:keep]
+    if version not in [s[0] for s in secs]:
+        raise ReleaseError("Version %s steht nicht unter den neuesten %d Abschnitten des Aenderungsprotokolls (Abschnitt '## %s (...)' fehlt?)" % (version, keep, version))
+    good = [s for s in secs if s[0] not in yanked]
+    latest = good[0][0] if good else None
+    if latest is None:
+        raise ReleaseError("Alle Versionen der Liste sind zurueckgezogen")
+    if latest != version:
+        raise ReleaseError("Die hoechste nicht zurueckgezogene Version im Aenderungsprotokoll ist %s, nicht %s (--version pruefen)" % (latest, version))
+    rels = []
+    for v, z, body in secs:
+        if len(body.encode("utf-8")) > FEED_MAX_NOTES:
+            raise ReleaseError("Aenderungstext von %s ist laenger als %d Byte" % (v, FEED_MAX_NOTES))
+        rels.append({"version": v, "title": ("%s (%s)" % (v, z)) if z else v, "notes": body})
+    d = {"format": FEED_FORMAT, "sequence": sequence, "channel": "stable", "published": published, "latest": latest}
+    if project_format is not None:
+        d["project_format"] = project_format
+    d["yanked"] = sorted(yanked, key=version_key)
+    d["releases"] = rels
+    return d
+
+
+def validate_feed(d):
+    """Gleiche Regeln wie crates/vc-ide/src/update.rs (Manifest::parse). Gibt eine Liste von Problemen zurueck."""
+    p = []
+    if not isinstance(d, dict) or d.get("format") != FEED_FORMAT:
+        return ["format fehlt oder ist nicht %d" % FEED_FORMAT]
+    if not isinstance(d.get("sequence"), int) or d["sequence"] < 0:
+        p.append("sequence fehlt")
+    if d.get("channel") != "stable":
+        p.append("channel ist nicht 'stable'")
+    try:
+        version_key(d.get("latest", ""))
+    except ReleaseError as e:
+        p.append("latest: %s" % e)
+    for v in d.get("yanked", []):
+        try:
+            version_key(v)
+        except ReleaseError as e:
+            p.append("yanked: %s" % e)
+    rels = d.get("releases", [])
+    if not rels or len(rels) > FEED_MAX_RELEASES:
+        p.append("releases: 1 bis %d Eintraege erwartet" % FEED_MAX_RELEASES)
+    for r in rels:
+        try:
+            version_key(r.get("version", ""))
+        except ReleaseError as e:
+            p.append("releases: %s" % e)
+        if len(r.get("notes", "").encode("utf-8")) > FEED_MAX_NOTES:
+            p.append("releases: Text von %s zu lang" % r.get("version"))
+    if d.get("latest") not in [r.get("version") for r in rels]:
+        p.append("latest steht nicht in releases")
+    if "url" in d or any("url" in r for r in rels):
+        p.append("Adressen im Manifest sind nicht vorgesehen (der Link wird im Programm gebildet)")
+    return p
+
+
+FEED_GUIDE = """
+Naechste Schritte (nur der Projektinhaber, von Hand; dieses Skript laedt nichts hoch):
+  1. update.json ansehen:            less %(path)s
+  2. Release 'update-feed' pflegen:  siehe docs/update-feed.md (der Release 'update-feed' ist ein fester Release ohne Versionsnummer;
+                                     die Datei update.json dort wird bei jeder neuen Version ERSETZT).
+  3. Danach pruefen:                 vcc update --check   (mit VC_UPDATE_URL=<Ordner> gegen den lokalen Ordner, oder ohne gegen das Netz)
+"""
+
+
+def cmd_manifest(args):
+    """Erzeugt update.json fuer den Release 'update-feed' aus dem oeffentlichen Aenderungsprotokoll. Schreibt nur in --out, veroeffentlicht nichts."""
+    with open(args.changelog, encoding="utf-8") as f:
+        text = f.read()
+    version = args.version or cargo_version()
+    version_key(version)
+    yanked = read_yanked(args.yanked_file)
+    for v in (args.yanked or "").split(","):
+        if v.strip():
+            version_key(v.strip())
+            yanked.append(v.strip())
+    seq = args.sequence
+    if seq is None:
+        seq = 1
+        if args.previous:
+            try:
+                with open(args.previous, encoding="utf-8") as f:
+                    seq = int(json.load(f).get("sequence", 0)) + 1
+            except (OSError, ValueError) as e:
+                raise ReleaseError("--previous nicht lesbar: %s" % e)
+    published = args.date or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    d = build_feed(text, version, yanked, seq, published, args.project_format, args.keep)
+    probs = validate_feed(d)
+    if probs:
+        raise ReleaseError("update.json waere ungueltig: " + "; ".join(probs))
+    body = json.dumps(d, ensure_ascii=False, indent=2) + "\n"
+    if len(body.encode("utf-8")) > FEED_MAX_BYTES:
+        raise ReleaseError("update.json waere groesser als %d Byte (--keep verkleinern)" % FEED_MAX_BYTES)
+    os.makedirs(args.out, exist_ok=True)
+    path = os.path.join(args.out, "update.json")
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(body)
+    print("update.json: Version %s, Folge %d, %d Abschnitte, %d zurueckgezogen -> %s" % (d["latest"], seq, len(d["releases"]), len(d["yanked"]), path))
+    print(FEED_GUIDE % {"path": path})
+    return 0
+
+
 # ---------------------------------------------------------------- CLI
 
 def build_parser():
@@ -1039,6 +1163,7 @@ Unterbefehle:
   plan       zeigen, was ausgeliefert wuerde (Zeilen, Dateien, Groessen); schreibt nichts
   stage      Staging-Verzeichnis fuer ein Betriebssystem erzeugen (data/release.json, Beispiele, Programme, release-report.md)
   package    Linux-Pakete (.deb, .rpm, tar.gz) aus dem Linux-Staging bauen (dpkg-deb, rpmbuild; Konzept 8.4)
+  manifest   update.json fuer den Release 'update-feed' aus release/CHANGELOG.public.md erzeugen (veroeffentlicht nichts; docs/update-feed.md)
   bootstrap  Entwurf von release/registry.json aus dem Bestand (einmalig; danach von Hand pflegen)
 
 Die Kommandozeile vcc und der Sprachserver vc-lsp sind immer dabei. Bei verletzter Abhaengigkeit bricht das Skript ab und nennt, was
@@ -1072,7 +1197,7 @@ und release-report.md. Danach laufen Verbotsscan (keine ROMs, keine Emulator-Pro
 Include-Pruefung der Systemdateien und Beispiele.""")
     st.add_argument("--os", required=True, choices=["windows", "macos", "linux"], help="Zielbetriebssystem (aendert nur die Verpackung, nicht die Auswahl)")
     st.add_argument("--out", required=True, metavar="ORDNER", help="Ausgabeordner des Staging (muss leer sein oder fehlen)")
-    st.add_argument("--build", action="store_true", help="vorher cargo build --release (vc-cli, vc-lsp, bei IDE-APP vc-app); ein Bau je Betriebssystem")
+    st.add_argument("--build", action="store_true", help="vorher cargo build --release (vc-cli, vc-lsp, bei IDE-APP vc-gui); ein Bau je Betriebssystem")
     st.add_argument("--bin-dir", metavar="ORDNER", help="Ordner mit den gebauten Programmen (Standard: target/release; mit --build der Zielordner von Cargo)")
     st.add_argument("--no-bin", action="store_true", help="fehlende Programme nicht als Fehler behandeln (nur Daten stagen, z. B. fuer Tests)")
     st.add_argument("--force", action="store_true", help="vorhandenen Ausgabeordner zuerst loeschen")
@@ -1097,6 +1222,24 @@ Neben jedes Paket kommt <datei>.files (erwartete Dateiliste fuer die Pruefung im
     pk.add_argument("--arch", metavar="ARCH", help="Architektur der Pakete (Standard: dieser Rechner, z. B. amd64/x86_64)")
     pk.add_argument("--packages", metavar="DATEI", help="Paketmetadaten (Standard: release/linux-packages.json)")
     pk.add_argument("--reproducible", action="store_true", help="feste Zeitstempel (SOURCE_DATE_EPOCH), gleiche Eingabe ergibt gleiche Pruefsummen (soweit dpkg/rpm es erlauben)")
+    mf = sub.add_parser("manifest", help="update.json fuer den Release 'update-feed' erzeugen", formatter_class=argparse.RawDescriptionHelpFormatter,
+                        description="""Erzeugt update.json (Versionsliste fuer die Update-Pruefung der IDE) aus release/CHANGELOG.public.md: die neuesten Abschnitte '## X.Y.Z (Zusatz)'
+mit ihrem Text, die hoechste nicht zurueckgezogene Version als 'latest', die Liste der zurueckgezogenen Versionen (release/yanked.txt und --yanked) und eine
+fortlaufende Nummer 'sequence'. Das Manifest enthaelt KEINE Adressen: das Programm bildet den Link zur Releaseseite selbst. Schreibt nur nach --out;
+nichts wird hochgeladen. Versionsnummer nur aus Cargo.toml (oder --version).""",
+                        epilog="""Beispiele:
+  python3 tools/release.py manifest --out build/update-feed
+  python3 tools/release.py manifest --out build/update-feed --previous alt/update.json --yanked 0.1.1""")
+    mf.add_argument("--out", default=os.path.join(ROOT, "build", "update-feed"), metavar="ORDNER", help="Ausgabeordner (Standard: build/update-feed)")
+    mf.add_argument("--changelog", default=CHANGELOG_PUBLIC, metavar="DATEI", help="Aenderungsprotokoll (Standard: release/CHANGELOG.public.md)")
+    mf.add_argument("--version", metavar="X.Y.Z", help="Version dieses Releases (Standard: aus Cargo.toml)")
+    mf.add_argument("--yanked", metavar="X.Y.Z,...", help="zusaetzlich zurueckgezogene Versionen (neben release/yanked.txt)")
+    mf.add_argument("--yanked-file", default=YANKED_FILE, metavar="DATEI", help="Liste zurueckgezogener Versionen (Standard: release/yanked.txt)")
+    mf.add_argument("--previous", metavar="DATEI", help="bisherige update.json: 'sequence' wird um 1 erhoeht (sonst 1 oder --sequence)")
+    mf.add_argument("--sequence", type=int, metavar="N", help="fortlaufende Nummer festlegen")
+    mf.add_argument("--project-format", type=int, metavar="N", help="hoechstes Projektformat dieser Version (das Programm warnt, wenn es hoeher ist als sein eigenes)")
+    mf.add_argument("--date", metavar="ZEIT", help="Veroeffentlichungszeit (ISO 8601, Standard: jetzt, UTC)")
+    mf.add_argument("--keep", type=int, default=10, metavar="N", help="Anzahl der neuesten Abschnitte in der Liste (Standard: 10, hoechstens %d)" % FEED_MAX_RELEASES)
     bs = sub.add_parser("bootstrap", help="Entwurf von registry.json erzeugen",
                         description="Liest data/targets, data/args und examples/*/*/*.vcprj und schreibt einen Entwurf (stdout oder --out). Einmalig; die Registry wird danach von Hand gepflegt.")
     bs.add_argument("--out", metavar="DATEI", help="Datei statt stdout")
@@ -1113,6 +1256,8 @@ def main(argv=None):
     try:
         if args.cmd == "bootstrap":
             return cmd_bootstrap(args)
+        if args.cmd == "manifest":
+            return cmd_manifest(args)
         if getattr(args, "explain", None):
             return cmd_explain(args)
         return {"check": cmd_check, "plan": cmd_plan, "stage": cmd_stage, "package": cmd_package}[args.cmd](args)

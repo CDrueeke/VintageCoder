@@ -31,9 +31,8 @@ pub fn from_text(s: &str, d: &Dialect) -> Result<Vec<u8>, String> {
         if c[i] == '{' {
             let end = c[i..].iter().position(|x| *x == '}').ok_or("'}' fehlt")? + i;
             let body: String = c[i + 1..end].iter().collect();
-            let (name, count) = match body.rsplit_once('*') { Some((n, k)) => (n.trim().to_string(), k.trim().parse::<usize>().map_err(|_| format!("ungültige Anzahl in {{{body}}}"))?), None => (body.trim().to_string(), 1) };
-            let code = if let Some(h) = name.strip_prefix('$') { u8::from_str_radix(h, 16).map_err(|_| format!("ungültiger Code {{{body}}}"))? }
-                       else { d.control_code(&name.to_ascii_lowercase()).ok_or(format!("unbekannter Steuercode {{{name}}}"))? };
+            // Name des Dialekts zuerst, dann die gemeinsame Tabelle (`data/chars/`: alle Schreibweisen, `{147}`, `{$93}`, `{down*3}`)
+            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Petscii, &body, &|n| d.control_code(n))?;
             out.extend(std::iter::repeat(code).take(count));
             i = end + 1;
         } else {
@@ -42,4 +41,33 @@ pub fn from_text(s: &str, d: &Dialect) -> Result<Vec<u8>, String> {
         }
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn dialect() -> Dialect { Dialect::load(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data"), "cbm_v2").unwrap() }
+
+    #[test]
+    fn names_follow_the_shared_table_in_every_spelling() {
+        let d = dialect();
+        // Namen des Dialekts wie bisher
+        assert_eq!(from_text("{clr}{orng}{rvon}{down*3}", &d).unwrap(), vec![0x93, 0x81, 0x12, 0x11, 0x11, 0x11]);
+        // Namen des Assemblers gelten ebenfalls, mit `_`, `-` und mehreren Leerzeichen
+        assert_eq!(from_text("{orange}{rvs_on}{Rvs-Off}{shift  ret}{ret}", &d).unwrap(), vec![0x81, 0x12, 0x92, 0x8D, 0x0D]);
+        // Zahlen: dezimal und hexadezimal
+        assert_eq!(from_text("{147}{$93}{$c1*2}", &d).unwrap(), vec![147, 0x93, 0xC1, 0xC1]);
+        assert!(from_text("{300}", &d).is_err());
+        assert!(from_text("{nix}", &d).unwrap_err().contains("unbekannter Steuercode"));
+        assert!(from_text("{down*0}", &d).is_err());
+    }
+
+    #[test]
+    fn listing_keeps_the_dialect_names() {
+        let d = dialect();
+        assert_eq!(to_text(0x81, &d), "{orng}");
+        assert_eq!(to_text(0x1D, &d), "{rght}");
+        assert_eq!(to_text(0x0D, &d), "{return}");
+    }
 }

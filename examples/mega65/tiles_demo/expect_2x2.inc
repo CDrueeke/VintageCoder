@@ -7,7 +7,12 @@
 .const EXP_MACRO_COL = $850b
 .const EXP_PUT_SCR = $d855
 .const EXP_PUT_COL = $7e03
-; MAP_TILES_W = Kartenbreite in Kacheln; DEMO_FX/FY = Kachelposition des 2 x 2-Blocks von tile_fill (muss zur Referenz passen)
+.const EXP_ERASE_SCR = $549b
+.const EXP_ERASE_COL = $4206
+.const EXP_RESTORE_SCR = $8c16
+.const EXP_RESTORE_COL = $0f2d
+.const EXP_ROW_SCR = $1ce6
+.const EXP_ROW_COL = $57b6
 .const MAP_TILES_W = 15
 .const DEMO_FX = 6
 .const DEMO_FY = 6

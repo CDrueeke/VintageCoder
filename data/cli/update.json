@@ -1,0 +1,47 @@
+{
+  "command": "update",
+  "group": "hilfe",
+  "summary": "Nachsehen, ob es eine neue Version gibt (nur Anzeige)",
+  "description": [
+    "Fragt die Versionsliste ab (eine kleine Datei update.json im Release „update-feed“ des öffentlichen Repositorys, per curl über https), zeigt, ob eine neuere Version da ist, und nennt den Link zur Releaseseite. vcc lädt und installiert nichts. Der Aufruf selbst ist die Zustimmung zur einen Anfrage; die Einstellung „Nach Updates suchen“ der Oberfläche spielt hier keine Rolle.",
+    "Gesendet wird nur die Anfrage nach der Liste: Adresse, IP-Adresse und der neutrale User-Agent „VintageCoder-update“ (ohne Versionsnummer). Keine Kennung, keine Nutzungsdaten. Andere Befehle von vcc fragen nie nach Updates und weisen auch nicht darauf hin. Enthält das Paket keine Update-Prüfung (Auswahl IDE-UPDATE), endet der Befehl mit Code 2."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc update [optionen]",
+      "args": [],
+      "option_groups": [
+        { "id": "ausgabe", "label": "Ausgabe" },
+        { "id": "quelle", "label": "Quelle" }
+      ],
+      "options": [
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Nachsehen und das Ergebnis zeigen (das ist auch der Standard ohne Option).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--notes", "short": "", "value": "", "group": "ausgabe", "help": "Zusätzlich die Änderungen seit der installierten Version ausgeben (Markdown, Links und Bilder als reiner Text).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--json", "short": "", "value": "", "group": "ausgabe", "help": "Ergebnis maschinenlesbar als JSON ausgeben.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--offline", "short": "", "value": "", "group": "quelle", "help": "Nichts abfragen: den gespeicherten Befund der letzten Prüfung zeigen.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "nachsehen", "cmd": "vcc update" },
+        { "title": "mit den Änderungen", "cmd": "vcc update --check --notes" },
+        { "title": "in einem Skript (Rückgabewert 10 = Update da)", "cmd": "vcc update --check --json" },
+        { "title": "ohne Netz: der gespeicherte Befund", "cmd": "vcc update --offline" }
+      ],
+      "notes": [
+        "Der Link zeigt immer auf die feste Adresse https://github.com/CDrueeke/VintageCoder/releases/tag/v<Version>; eine Adresse aus der Versionsliste wird nie übernommen.",
+        "Der Befehl schreibt das Prüfprotokoll und den Befund in den Ordner updates im Konfigurationsordner (VC_UPDATE_DIR ändert den Ort).",
+        "Die Quelle lässt sich mit VC_UPDATE_URL umstellen (Ordner oder Datei lokal, sonst nur https); das ändert nie das Ziel des Links."
+      ],
+      "exit": [
+        { "code": "0", "help": "aktuell (oder --offline ohne Befund)" },
+        { "code": "10", "help": "eine neuere Version ist verfügbar" },
+        { "code": "1", "help": "Fehler (kein Netz, Liste ungültig oder neuer als bekannt)" },
+        { "code": "2", "help": "falscher Aufruf, oder das Paket enthält keine Update-Prüfung" }
+      ],
+      "see_also": [
+        "feedback"
+      ]
+    }
+  ]
+}

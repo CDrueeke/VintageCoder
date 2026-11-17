@@ -84,7 +84,10 @@ fn parts(a: &Media, p: &Profile) -> Result<Vec<(String, Vec<u8>)>, String> {
     })
 }
 
-pub fn export(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, _start: u32, _step: u32) -> Result<Value, String> {
+pub fn export(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, start: u32, step: u32) -> Result<Value, String> { export_mit(root, data, rel, format, label, address, start, step, None) }
+
+/// Wie [`export`]; `layout` überschreibt bei Kachelsätzen und Screen-Bänken das Layout der Datei (Export-Dialog)
+pub fn export_mit(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, _start: u32, _step: u32, layout: Option<crate::tiles::TilesLayout>) -> Result<Value, String> {
     let text = std::fs::read_to_string(root.join(rel)).map_err(|e| format!("{rel}: {e}"))?;
     let a = parse_media(&text)?;
     let profiles = load_profiles(data)?;
@@ -99,7 +102,7 @@ pub fn export(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&
         let preview: String = txt.lines().take(40).collect::<Vec<_>>().join("\n");
         return Ok(json!({ "ok": true, "files": [{ "path": format!("build/export/{file}"), "size": txt.len() }], "preview": preview }));
     }
-    let tiles_out = if p.kind == "tileset" || crate::tiles::is_bank(&a.root) { Some(crate::tiles::export_parts(root, &a.root, &profiles, &label)?) } else { None };
+    let tiles_out = if p.kind == "tileset" || crate::tiles::is_bank(&a.root) { Some(crate::tiles::export_parts_mit(root, &a.root, &profiles, &label, layout.unwrap_or_else(|| crate::tiles::TilesLayout::aus_medium(&a.root)))?) } else { None };
     let ps = match &tiles_out { Some(t) => t.parts.clone(), None => parts(&a, p)? };
     let dir = root.join("build/export");
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -155,7 +158,9 @@ pub fn export(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&
         f => return Err(format!("unbekanntes Exportformat '{f}' (asm, inc, bin, prg, data, sbas)")),
     }
     let preview: String = preview.lines().take(40).collect::<Vec<_>>().join("\n");
-    Ok(json!({ "ok": true, "files": files, "preview": preview }))
+    let mut ergebnis = json!({ "ok": true, "files": files, "preview": preview });
+    if let Some(t) = &tiles_out { ergebnis["tilesReport"] = json!(t.report); if !t.tiles_use.is_empty() { ergebnis["tilesUse"] = json!(t.tiles_use); } }
+    Ok(ergebnis)
 }
 
 /// PNG (Bytes) in einen Frame des Media `rel` importieren und die Media-Datei schreiben.
@@ -424,6 +429,23 @@ pub fn std_charset_list(data: &Path) -> Vec<StdCharset> {
     out
 }
 
+/// Ein mitgelieferter eigener Standardzeichensatz („VC-Standard“, `data/charsets/index.json`)
+#[derive(Debug, Clone, PartialEq)]
+pub struct EigenSatz { pub id: String, pub system: String, pub profil: String, pub satz: String, pub name: String, pub datei: std::path::PathBuf, pub revision: u64, pub lizenz: String, pub zeichen: u64 }
+
+/// Alle mitgelieferten eigenen Sätze (leer, wenn `data/charsets/index.json` fehlt); `profil` leer = alle
+pub fn eigene_saetze(data: &Path, profil: &str) -> Vec<EigenSatz> {
+    let Ok(t) = std::fs::read_to_string(data.join("charsets").join("index.json")) else { return vec![] };
+    let Ok(v) = serde_json::from_str::<Value>(&t) else { return vec![] };
+    v["saetze"].as_array().map(|a| a.iter().filter_map(|x| Some(EigenSatz { id: x["id"].as_str()?.into(), system: x["system"].as_str()?.into(), profil: x["profil"].as_str()?.into(), satz: x["satz"].as_str().unwrap_or("").into(), name: x["name"].as_str()?.into(), datei: data.join("charsets").join(x["datei"].as_str()?), revision: x["revision"].as_u64().unwrap_or(1), lizenz: x["lizenz"].as_str().unwrap_or("").into(), zeichen: x["zeichen"].as_u64().unwrap_or(0) })).filter(|e| profil.is_empty() || e.profil == profil).collect()).unwrap_or_default()
+}
+/// Inhalt eines eigenen Satzes als Media-Wert (mit `frames` und `origin`)
+pub fn eigener_satz_media(data: &Path, id: &str) -> Result<Value, String> {
+    let e = eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| format!("Eigener Zeichensatz „{id}“ ist nicht mitgeliefert"))?;
+    let t = std::fs::read_to_string(&e.datei).map_err(|x| format!("{}: {x}", e.datei.display()))?;
+    serde_json::from_str(&t).map_err(|x| format!("{}: {x}", e.datei.display()))
+}
+
 /// Zeichensatzquellen, die zum Profil passen (nur vorhandene ROMs, wenn `only_present`)
 pub fn std_charsets_for_profile(data: &Path, profile_id: &str, only_present: bool) -> Vec<StdCharset> {
     std_charset_list(data).into_iter().filter(|c| c.profile == profile_id && (!only_present || c.status != vc_roms::Status::Missing)).collect()
@@ -437,7 +459,7 @@ pub fn default_std_charset(_data: &Path, profile_id: &str) -> Option<String> {
         "c128.char.hires" => "rom:c128/chargen#upper",
         "c128.char.vdc" => "rom:c128/chargen#vdc",
         "vic20.char.hires" => "rom:vic20/chargen#upper",
-        "plus4.char.hires" => "rom:plus4/kernal#standard",
+        "plus4.char.hires" => "rom:plus4/kernal#upper",
         "atari.char.antic2" => "rom:atari8/os#standard",
         _ => return None,
     }.to_string())
@@ -532,16 +554,20 @@ pub fn export_sheet(root: &Path, data: &Path, rel: &str, out: &Path) -> Result<(
 /// Wandelt alte Kachelkarten (`kind: tilemap`) im Projekt um: Dateien eines Ordners mit **gleichem Kachelsatz** ergeben einen Kachelsatz
 /// (`<präfix>_tiles.vctiles`) und eine Screen-Bank (`<präfix>_screens.vcscreen`, ein Screen je alter Karte). Einzelne Karten: Satz `<name>_tiles`, Bank `<name>`.
 /// Die alten Dateien werden entfernt, wenn `remove_old` gesetzt ist. Liefert die Zeilen des Berichts.
-pub fn migrate_tiles(root: &Path, data: &Path, remove_old: bool) -> Result<Vec<String>, String> {
+pub fn migrate_tiles(root: &Path, data: &Path, remove_old: bool) -> Result<Vec<String>, String> { migrate_tiles_in(root, data, None, remove_old) }
+
+/// Wie [`migrate_tiles`]; mit `only` (Pfad relativ zum Projekt) wird nur diese eine Karte umgewandelt (Satz `<name>_tiles`, Bank `<name>`)
+pub fn migrate_tiles_in(root: &Path, data: &Path, only: Option<&str>, remove_old: bool) -> Result<Vec<String>, String> {
     let profiles = load_profiles(data)?;
     let mut files = vec![]; find_media(root, 0, &mut files); files.sort();
     let mut groups: Vec<(std::path::PathBuf, Vec<(std::path::PathBuf, Value)>)> = vec![];
     for f in files {
         if f.extension().map_or(true, |e| e != "vctiles") { continue; }
+        if let Some(o) = only { if vc_core::paths::rel_path(root, &f) != o { continue; } }
         let Ok(v) = serde_json::from_str::<Value>(&std::fs::read_to_string(&f).map_err(|e| e.to_string())?) else { continue };
         if v["kind"] != "tilemap" { continue; }
         let dir = f.parent().unwrap().to_path_buf();
-        match groups.iter_mut().find(|(d, g)| *d == dir && g[0].1["tiles"] == v["tiles"] && g[0].1["charset"] == v["charset"] && g[0].1["profile"] == v["profile"]) {
+        match groups.iter_mut().find(|(d, g)| only.is_none() && *d == dir && g[0].1["tiles"] == v["tiles"] && g[0].1["charset"] == v["charset"] && g[0].1["profile"] == v["profile"]) {
             Some((_, g)) => g.push((f, v)), None => groups.push((dir, vec![(f, v)])),
         }
     }

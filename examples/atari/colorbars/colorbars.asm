@@ -21,7 +21,7 @@
 ;      benutzt (Farbton = obere vier Bit, Helligkeit = Bits 3-1).
 ;
 ; REGISTER:  ANTIC NMIEN $D40E, VCOUNT $D40B, WSYNC $D40A;  GTIA COLBK $D01A (Namen aus dem Target atari8).
-; SPEICHER:  Programm ab $2000 (17 Bytes), keine Daten, keine Nullseite.
+; SPEICHER:  Programm ab $2000 (17 Bytes), keine Daten, keine Zeropage.
 ; BAUEN:     vcc asm examples/atari/colorbars/colorbars.asm --target atari8 --cpu sally -o colorbars.xex
 ; GRENZEN:   Kein Rückweg ins Betriebssystem (Endlosschleife); Reset beendet das Programm.
 ; =====================================================================================================================

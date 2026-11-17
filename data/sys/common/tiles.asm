@@ -38,6 +38,12 @@
 //   jsr screen_select_a              A = Screen-Nummer
 //   jsr screen_draw_all              alle Kachelzeilen des gewählten Screens
 //   jsr screen_draw_rows             A = erste Kachelzeile, X = Anzahl der Zeilen (mindestens 1)
+//   tile_row ty, tn                  Makro: ganze Kachelzeile ty (MW Kacheln, Breite der Karte) mit Kachel tn füllen (Schleife, kein entrollter Code)
+//   jsr tile_row_a                   A = Kachel, Y = Kachelzeile (Laufzeitversion von tile_row)
+//   jsr tile_erase                   X = Spalte, Y = Zeile (Kachelposition): zeichnet dort die Kachel der Karte neu (Hintergrund wiederherstellen)
+//   tile_restore tx, ty, tw, th      Makro, Konstanten: Rechteck tw x th Kacheln aus der Karte neu zeichnen
+//   jsr tile_restore_a               A = Breite, X = Spalte, Y = Zeile, tz_t = Höhe (alles in Kacheln, Breite und Höhe mindestens 1)
+//   jsr screen_load_rle              A = Screen-Nummer: entpackt die RLE-Karte nach TILE_MAPRAM (nur mit TILE_RLE=1; screen_select tut dasselbe)
 //   jsr screen_map_get               X = Spalte, Y = Zeile (Karte, in Kacheln) -> A = Kachelnummer
 //   jsr tile_prop                    X = Spalte, Y = Zeile -> A = Eigenschaftenbyte der Kachel an dieser Stelle
 // Register: A, X, Y und Flags werden verändert. Zeropage: nur die Gruppe TILE_ZP (8 Byte, Standard $F7-$FE).
@@ -49,8 +55,13 @@
 //   TILE_ZP=adr    Zeropage-Gruppe, Standard $F7 (belegt adr bis adr+7)
 //   TILE_SCREEN    Adresse des Bildschirmspeichers (Standard laut Systemdatei)
 //   TILE_COLORRAM  Adresse des Farbspeichers; ohne Farbspeicher TILE_NOCOLOR definieren
+//   TILE_RLE=1     Die Karten der Bank sind lauflängenkodiert (Export-Option "rle": true der Screen-Bank): Paare Kachelnummer, Anzahl
+//                  (Anzahl 1-255, über die ganze Karte, ohne Endemarke). Verlangt TILE_MAPRAM: screen_select entpackt dorthin.
 //   TILE_MAPRAM    Adresse eines RAM-Puffers: screen_select kopiert die Karte dorthin (Spiellogik darf sie ändern;
 //                  screen_draw zeichnet dann aus dem Puffer). Ohne den Schalter liest alles direkt aus dem Kartenfeld.
+//
+// tile_erase und tile_restore lesen die Karte (bei TILE_MAPRAM den Puffer, den die Spiellogik ändern darf) und zeichnen mit tile_put;
+// sie brauchen den zuletzt gewählten Screen (screen_select) und benutzen den Stapel (bis zu 8 Byte) zusätzlich.
 //
 // Grenzen: höchstens 256 Kacheln (Index 1 Byte), Kartenbreite höchstens 128 Kacheln; Kartenfeld bis 64 KB.
 // Zeigerversion von screen_draw: Kachelhöhe höchstens 6 (Offset in einem Byte). tile_put und der Rest haben kein Limit.
@@ -70,6 +81,15 @@
 .endif
 .ifndef TILE_CYC_STA
 .const TILE_CYC_STA = 4
+.endif
+
+.ifndef TILE_RLE
+.const TILE_RLE = 0
+.endif
+.if TILE_RLE
+.ifndef TILE_MAPRAM
+.error "TILE_RLE=1 verlangt TILE_MAPRAM (Ziel des Entpackens)"
+.endif
 .endif
 
 .ifndef TILE_COLS
@@ -158,6 +178,23 @@
         tile_draw tn, tx + fx, ty + fy
         .endrepeat
         .endrepeat
+.endmacro
+
+// Ganze Kachelzeile (Breite der Karte) mit Kachel tn füllen; Schleife über tile_put (jsr tile_row_a).
+.macro tile_row(ty, tn)
+        lda #tn
+        ldy #ty
+        jsr tile_row_a
+.endmacro
+
+// Rechteck der Karte neu zeichnen (Hintergrund wiederherstellen), Konstanten.
+.macro tile_restore(tx, ty, tw, th)
+        lda #th
+        sta tz_t
+        lda #tw
+        ldx #tx
+        ldy #ty
+        jsr tile_restore_a
 .endmacro
 
 // ---------------------------------------------------------------- Screens
@@ -265,6 +302,9 @@ tz_setmp:
 
 .macro tz_rt_select
 screen_select_a:                           ; A = Screen-Nummer
+.if TILE_RLE
+        jmp screen_load_rle
+.endif
         sta tz_idx
 .ifdef TILE_MAPRAM
         tax
@@ -312,6 +352,125 @@ tile_prop:                                 ; X = Spalte, Y = Zeile -> A = Eigens
         jsr screen_map_get
         tax
         lda TILE_PROPS,x
+        rts
+.endmacro
+
+// RLE-Entpacker: A = Screen-Nummer; Paare (Kachel, Anzahl) aus dem Kartenfeld nach TILE_MAPRAM, bis MW * MH Kacheln da sind.
+.macro tz_rt_rle
+.if TILE_RLE
+screen_load_rle:
+        sta tz_idx
+        tax
+        lda TILE_LO,x
+        sta tz_sp
+        lda TILE_HI,x
+        sta tz_sp+1
+        lda #<TILE_MAPRAM
+        sta tz_cp
+        lda #>TILE_MAPRAM
+        sta tz_cp+1
+        lda #<(TILE_MW * TILE_MH)
+        sta tz_mp
+        lda #>(TILE_MW * TILE_MH)
+        sta tz_mp+1
+.pair:  ldy #0
+        lda (tz_sp),y
+        tax                                ; Kachelnummer
+        iny
+        lda (tz_sp),y
+        sta tz_t                           ; Anzahl
+        clc
+        lda tz_sp
+        adc #2
+        sta tz_sp
+        bcc .put
+        inc tz_sp+1
+.put:   ldy #0
+        txa
+        sta (tz_cp),y
+        inc tz_cp
+        bne .c1
+        inc tz_cp+1
+.c1:    lda tz_mp
+        bne .c2
+        dec tz_mp+1
+.c2:    dec tz_mp
+        lda tz_mp
+        ora tz_mp+1
+        beq .end
+        dec tz_t
+        bne .put
+        jmp .pair
+.end:   rts
+.endif
+.endmacro
+
+// Karte lesen und neu zeichnen: tile_erase (X = Spalte, Y = Zeile), tile_restore_a (Rechteck), tile_row_a (ganze Zeile)
+.macro tz_rt_erase
+tile_erase:                                ; X = Spalte, Y = Zeile
+.cycles tile_erase max=(40+50+22*TILE_TW*TILE_TH+20)
+        txa
+        pha
+        tya
+        pha
+        jsr screen_map_get                 ; X, Y unverändert bis hierher
+        sta tz_t
+        pla
+        tay
+        pla
+        tax
+        lda tz_t
+        jmp tile_put
+.endcycles
+
+tile_restore_a:                            ; A = Breite, X = Spalte, Y = Zeile, tz_t = Höhe
+        pha                                ; Stapel (von unten): Breite
+        txa
+        pha                                ; erste Spalte
+        lda tz_t
+        pha                                ; Zeilen übrig
+        tya
+        pha                                ; aktuelle Zeile
+        tsx
+        lda $0104,x
+        pha                                ; Spalten übrig in dieser Zeile (oben)
+.cell:  tsx
+        lda $0105,x                        ; Breite
+        sec
+        sbc $0101,x                        ; - übrige Spalten
+        clc
+        adc $0104,x                        ; + erste Spalte = aktuelle Spalte
+        ldy $0102,x                        ; aktuelle Zeile
+        tax
+        jsr tile_erase
+        tsx
+        dec $0101,x
+        bne .cell
+        lda $0105,x                        ; neue Zeile: Spalten zurücksetzen
+        sta $0101,x
+        inc $0102,x
+        dec $0103,x
+        bne .cell
+        pla
+        pla
+        pla
+        pla
+        pla
+        rts
+
+tile_row_a:                                ; A = Kachel, Y = Kachelzeile; füllt MW Kacheln
+        pha
+        sty tz_mp+1
+        ldx #TILE_MW - 1
+        stx tz_mp
+.col:   tsx
+        lda $0101,x
+        ldx tz_mp
+        ldy tz_mp+1
+        jsr tile_put
+        dec tz_mp
+        bpl .col
+        pla
         rts
 .endmacro
 
@@ -495,6 +654,8 @@ screen_draw_rows:                          ; A = erste Kachelzeile, X = Anzahl
         tz_rt_setmp
         tz_rt_select
         tz_rt_map
+        tz_rt_erase
+        tz_rt_rle
         .if TILE_SMC
         tz_rt_draw_smc
         .else

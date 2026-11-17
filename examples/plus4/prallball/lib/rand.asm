@@ -3,7 +3,7 @@
 //   rand_seed   A = Startwert (0 wird zu $A5), mischt die Rasterzeile des TED ($FF1D) ein
 //   rand_byte   A = nächste Zufallszahl 0..255 (verändert nur A)
 // Zeropage (2 Byte, -D RAND_ZP=... verschiebbar): rand_lo, rand_hi
-//   Warum $02/$03: Die Nullseite ab $90 gehört dem KERNAL (Dateizugriff der Bestenliste verändert sie); $02-$0F bleibt unberührt.
+//   Warum $02/$03: Die Zeropage ab $90 gehört dem KERNAL (Dateizugriff der Bestenliste verändert sie); $02-$0F bleibt unberührt.
 .ifndef RAND_ZP
 .const RAND_ZP = $02
 .endif

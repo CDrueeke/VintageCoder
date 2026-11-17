@@ -27,7 +27,7 @@ xpet -model 4032 -8 build/disk.d64 -keybuf 'load"*",8\nrun\n'
 - **Interrupt:** Der Editor-Interrupt (Vektor `$0090`) wird eingehängt: Bildzähler, Tastaturpuffer leeren, Klang zählen; dann die alte Routine (Tastaturabfrage, Uhr).
 - **Eingabe:** Der Editor (BASIC 4) legt den Code der gehaltenen Taste in `$97` ab (`$FF` = keine); der Puffer muss dafür leer sein (`$9E`). Dadurch ist die Abfrage unabhängig von der Tastaturbelegung (Grafik-/Schreibmaschinentastatur).
 - **Klang:** nur Pieptöne über das Schieberegister der VIA (Leitung CB2, `$E848`/`$E84A`/`$E84B`).
-- **Bestenliste:** Das KERNAL des PET hat keine `SETLFS`/`SETNAM`; die Dateiparameter stehen in der Nullseite. Außerdem sind `OPEN` (`$FFC0`) und `CLOSE` (`$FFC3`) der Sprungtabelle beim PET die BASIC-Anweisungen; benutzt werden `$F563` und `$F2E0` (BASIC 4). Dateien gibt es nur, wenn das Programm von Diskette gestartet wurde (Gerät in `$D4`).
+- **Bestenliste:** Das KERNAL des PET hat keine `SETLFS`/`SETNAM`; die Dateiparameter stehen in der Zeropage. Außerdem sind `OPEN` (`$FFC0`) und `CLOSE` (`$FFC3`) der Sprungtabelle beim PET die BASIC-Anweisungen; benutzt werden `$F563` und `$F2E0` (BASIC 4). Dateien gibt es nur, wenn das Programm von Diskette gestartet wurde (Gerät in `$D4`).
 - **Speicher:** Programm ab `$0401` (etwa 8,5 KB), Levelkarte `$6B00`, Overlay `$6C00` – 32 KB RAM nötig.
 
 ## Prüfung

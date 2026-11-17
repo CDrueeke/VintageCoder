@@ -1,7 +1,11 @@
 # Tests mit vcc test
 
-`vcc test` prüft ein gebautes Programm anhand einer Testdatei `*.vctest`. Es gibt zwei Stufen: **statische Prüfungen**, die ohne Emulator laufen, und **Tests im Emulator** (Trap-Modus), die einzelne Unterprogramme aufrufen. Beides steht in derselben Datei. Die Oberfläche hat dafür noch keine Ansicht; der Aufruf geschieht auf der Kommandozeile.
+`vcc test` prüft ein gebautes Programm anhand einer Testdatei `*.vctest`. Es gibt zwei Stufen: **statische Prüfungen**, die ohne Emulator laufen, und **Tests im Emulator** (Trap-Modus), die einzelne Unterprogramme aufrufen. Beides steht in derselben Datei. In der Oberfläche läuft es im Reiter **Tests** der Schublade (siehe unten); ohne Oberfläche mit der Kommandozeile.
 
+## Reiter „Tests“ in der Oberfläche
+Die Schublade (Cmd/Strg+J) hat den Reiter **Tests**; im Reiter steht nach einem Lauf die Zahl, zum Beispiel „Tests 3/5“. **Alt+F8** (Menü Projekt ▸ Tests ausführen) führt alle Tests aus. Die Leiste hat **▶ Alle ausführen** (während des Laufs **■ Abbrechen**), **Fehlgeschlagene**, **Läuft auf: … ▾** (ein Klick wechselt zwischen „nur statische Prüfungen“ und den gefundenen Emulatoren), ein **Filter**-Feld und das Häkchen **nur Fehler**. Links steht die Liste nach Testdateien, rechts das Detail des gewählten Tests mit Erwartung, gemessenem Wert, Registern und Zyklen. **Zur Quelle** springt in den Quelltext, **Diesen Test debuggen** startet den Test im Debugger. Hardware, Postfach-Abfrage und Messung auf der Ultimate gibt es in der Oberfläche noch nicht, nur auf der Kommandozeile.
+
+## Kommandozeile
     vcc test [ordner|datei.vctest] [--strict] [--backend vice] [--filter TEXT] [--prologue] [--data-dir ordner]
 
 Ohne Pfad wird der aktuelle Ordner durchsucht (alle `*.vctest`, ohne `build`, `target` und versteckte Ordner). **Vorher bauen** (`vcc build`), denn die Tests lesen das gebaute Programm und die `.vcdbg` daneben. Das Beispiel `examples/c64/tests_demo` zeigt beide Stufen.
@@ -79,12 +83,12 @@ Mit `"mode": "mailbox"` in der Testdatei (statt der Aufrufe im Trap-Modus) prüf
 - Das Postfach (8 Byte) liegt bei `TEST_MAILBOX`; die Adresse steht in den Zieldaten (`testMailbox`): C64 `$033C` (Kassettenpuffer), C128 `$0B00` (Kassettenpuffer), Atari 8 Bit `$0600` (Seite 6). Plus/4, VC-20 und MEGA65 haben keines; dort wird der Test übersprungen. Das Programm darf das Postfach nicht überschreiben.
 - Ergebnis: bestanden (mit der Zahl der Prüfungen), fehlgeschlagen (Nummer der ersten fehlgeschlagenen Prüfung, Art, Ist-Wert und Sollwert), Zeitüberschreitung (Status und bisherige Prüfungen stehen dabei) oder fehlgeschlagen „keine Prüfung ausgeführt“. Zyklen werden in diesem Modus nicht gemessen.
 - Warten: Steht im Programm die Endlosschleife von `test_end`, hält der Läufer dort an (auch bei atari800, das sich nicht anhalten lässt). Sonst, oder mit `vcc test --poll`, liest er das Postfach alle 100 ms.
-- Geprüft mit VICE (C64) und atari800 (Atari 8 Bit). C128 und Xemu sind noch nicht eingerichtet (Xemu lädt Programme über den Monitor). Der Reiter „Tests“ kennzeichnet die Gruppe mit „· Postfach“; „Diesen Test debuggen“ gibt es dort nicht (es gibt keine Falle, das Programm lässt sich normal debuggen).
+- Geprüft mit VICE (C64) und atari800 (Atari 8 Bit). C128 und Xemu sind noch nicht eingerichtet (Xemu lädt Programme über den Monitor). „Diesen Test debuggen“ gibt es für Postfach-Tests nicht (es gibt keine Falle, das Programm lässt sich normal debuggen).
 
 ## Echte Hardware, JUnit
 Postfach-Tests laufen auch auf einer **Ultimate 64 / Ultimate II+** (REST, nur C64-Programme): `vcc test --backend u64:HOST[:PORT] [--password PW] --yes`. Das Gerät lädt das Programm (Reset, Laden, RUN) und der Läufer liest das Postfach bei laufendem Rechner in Abständen von 100 ms bis zum Zeitlimit; danach läuft das Gerät weiter. Trap-Tests werden dort übersprungen, weil die Hardware weder CPU-Register noch Haltepunkte liefert. Das Netzwerkpasswort kommt aus `--password`, sonst aus der Maschine mit derselben Adresse in den Einstellungen. Ohne Adresse (`--backend u64`) wird nichts angesprochen.
 
-Jeder Lauf auf Hardware verlangt eine Bestätigung: `vcc test` fragt im Terminal nach (`--yes` überspringt die Frage, ohne Terminal ist `--yes` Pflicht), der Reiter „Tests“ zeigt bei **jedem** Lauf auf Hardware den Dialog „Test auf echter Hardware starten?“ (Gerät, Hinweis auf Zurücksetzen und Überschreiben, Abbruch nach dem Zeitlimit); die Abfrage lässt sich nicht abschalten. „Läuft auf“ nennt die Geräte aus den Einstellungen. MEGA65-Hardware (`--backend m65:SCHNITTSTELLE[@BAUD]`) ist vorbereitet, aber ungeprüft (Gerät war offline), und hat noch kein Postfach in den Zieldaten.
+Jeder Lauf auf Hardware verlangt eine Bestätigung: `vcc test` fragt im Terminal nach (`--yes` überspringt die Frage, ohne Terminal ist `--yes` Pflicht). In der Oberfläche gibt es Läufe auf Hardware noch nicht. MEGA65-Hardware (`--backend m65:SCHNITTSTELLE[@BAUD]`) ist vorbereitet, aber ungeprüft (Gerät war offline), und hat noch kein Postfach in den Zieldaten.
 
 `vcc test --junit datei.xml` schreibt zusätzlich JUnit-XML für Pipelines: fehlgeschlagen → `failure`, Zeitüberschreitung → `error`, übersprungen → `skipped`; Hinweise und Messwerte stehen als `system-out`.
 
@@ -103,7 +107,7 @@ Mit dem Debug-Strom der Ultimate 64 (Modus „6510 Only“) misst `vcc test` die
 - Gemessen wird vom ersten **Lesezugriff** (Abruf oder Lesen) auf `from` bis zum ersten danach auf `to`, auf den Zyklus genau. Enthalten sind alle Wartezyklen (Bad Lines, Sprite-DMA) **und jeder Interrupt**, der dazwischen läuft. Ein Programm mit Raster-IRQ misst deshalb je nach Zeitpunkt verschieden; mit mehreren Durchläufen steht „a bis b Zyklen“ da und das Budget gilt für den größten Wert. Für genaue Messungen: IRQ sperren (`sei`), Bildschirm ausschalten.
 - Eine genommene Verzweigung liest als Blindlesen schon die Adresse hinter dem Befehl (PC+2). Steht `from` oder `to` genau dort, zählt das als Zugriff und die Messung beginnt oder endet zu früh. Marken lieber auf ein Sprungziel oder einen Aufruf legen.
 - Ergebnis: **OK** mit gemessenen Zyklen, **FEHLER** (oder **HINWEIS** bei `level: hint`) mit „N Zyklen … überschreiten das Budget von M“, **Zeitüberschreitung**, wenn `to` nach `from` nicht erreicht wurde. **Ungültig** (als „übersprungen“ gemeldet, mit `--strict` ein Fehler) heißt: Pakete des Debug-Stroms gingen verloren oder kamen gar nicht an (Firewall für eingehendes UDP); die Messung wird dann **nie geschätzt**, der Lauf lässt sich wiederholen.
-- Nur an der Ultimate 64 (MEGA65 und Ultimate II+ haben keinen Debug-Strom), nur 6502/6510. Die Sicherheitsabfrage vor dem Hardwarelauf bleibt. Im Reiter „Tests“ trägt die Gruppe „· Zyklen“; der Messwert steht beim Test.
+- Nur an der Ultimate 64 (MEGA65 und Ultimate II+ haben keinen Debug-Strom), nur 6502/6510. Die Sicherheitsabfrage vor dem Hardwarelauf bleibt. In der Oberfläche gibt es die Messung noch nicht.
 
 ## Grenzen
 Tests im Emulator laufen nur mit `--backend vice`. Die Standardadresse der Falle und die Zyklenmessung gibt es bisher nur für den C64 (x64sc, PAL); bei den anderen VICE-Systemen muss `trap` in der Testdatei stehen, und Tests mit `cycles` werden übersprungen. atari800, Xemu und Hardware werden nicht unterstützt (`--backend` nimmt nur `vice`).

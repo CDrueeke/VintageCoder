@@ -32,7 +32,7 @@
 ;   $FF15  Hintergrundfarbe 0 (wird hier nur auf Schwarz gesetzt)
 ;
 ; SPEICHERPLAN
-;   $1001      BASIC-Starter (eine Zeile "10 SYS 4109", 12 Byte), danach bei $100D = 4109 das Programm (19 Byte).  Keine Daten, keine Nullseite.
+;   $1001      BASIC-Starter (eine Zeile "10 SYS 4109", 12 Byte), danach bei $100D = 4109 das Programm (19 Byte).  Keine Daten, keine Zeropage.
 ;
 ; BEKANNTE GRENZEN
 ;   Das Beispiel ist fuer den Plus/4 geschrieben; der C16 hat denselben TED, das Verhalten dort ist hier nicht geprueft.  Die Zeilennummer

@@ -21,7 +21,7 @@
 ; SPEICHERPLAN
 ;   $2000-$201A Hauptprogramm und rmt_vbi_entry;  $30E0-$33FF Player-Tabellen (belegt
 ;   sind laut Build $3182-$33FF);  $3400-$394D Player-Code (PLAYER = $3400, muss an einer Seitengrenze liegen);  $4000-$4181 RMT-Modul.
-;   Nullseite $CB-$DD: ausschließlich vom Player.
+;   Zeropage $CB-$DD: ausschließlich vom Player.
 ; BAUEN: vcc build . (Projektordner)
 ; =====================================================================================================================
 .target atari8

@@ -57,7 +57,7 @@
 ;   $9800  Steinkarte MAP (12 x 18 = 216 Byte)     $9900  Ballspeicher (3 Baelle)     $9920  Laserschuesse     $9940 / $9960  Tickertexte
 ;   $9980  Titelbaelle     $9A00  Tickervariablen     $9B00-$9B77  Farbtabellen je Zeile (RC_BK, RC_0..RC_3)     $9B80-$9BAF  Variablen
 ;   des DLI/VBI (darin RC_H = Feinscroll-Wert je Zeile)
-; NULLSEITE: $80-$8B Zeiger (sp, tp, tka, tkb, stq, mdp), $8C-$EF Spielzustand und Hilfsspeicher, $F0-$FE Bibliotheken (Eingabe $F0, Musik $F4,
+; ZEROPAGE: $80-$8B Zeiger (sp, tp, tka, tkb, stq, mdp), $8C-$EF Spielzustand und Hilfsspeicher, $F0-$FE Bibliotheken (Eingabe $F0, Musik $F4,
 ;   Bestenliste $F8; die Vorgaben der Bibliotheken liegen anders und werden unten ueberschrieben).
 ;
 ; TESTFASSUNGEN (vcc asm prallball.asm --target atari8 --cpu sally -D NAME[=wert] -o ...; ohne -D ist es das normale Spiel):
@@ -81,7 +81,7 @@
 .cpu sally { illegals = deny }
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
-; Bibliotheks-Nullseite (Vorgaben der Bibliotheken ueberschreiben)
+; Bibliotheks-Zeropage (Vorgaben der Bibliotheken ueberschreiben)
 .const IN_ZP  = $f0                     ; 4 Byte
 .const MUS_ZP = $f4                     ; 4 Byte
 .const HS_ZP  = $f8                     ; 7 Byte
@@ -195,12 +195,12 @@
 .const tkce     = $9a03  ; tk_vert: Endzeichen (exklusiv) dieses Durchlaufs
 .const tkre     = $9a04  ; tk_hleft/tk_hright: Endzeile (exklusiv) dieses Durchlaufs
 .const tkrs     = $9a05  ; Startzeile
-.const sp       = $80                    ; Zeiger (2 Byte, Nullseite)
-.const tp       = $82                    ; Zeiger (2 Byte, Nullseite)
-.const tka      = $84                    ; Zeiger (2 Byte, Nullseite)
-.const tkb      = $86                    ; Zeiger (2 Byte, Nullseite)
-.const stq      = $88                    ; Zeiger (2 Byte, Nullseite)
-.const mdp      = $8a                    ; Zeiger (2 Byte, Nullseite)
+.const sp       = $80                    ; Zeiger (2 Byte, Zeropage)
+.const tp       = $82                    ; Zeiger (2 Byte, Zeropage)
+.const tka      = $84                    ; Zeiger (2 Byte, Zeropage)
+.const tkb      = $86                    ; Zeiger (2 Byte, Zeropage)
+.const stq      = $88                    ; Zeiger (2 Byte, Zeropage)
+.const mdp      = $8a                    ; Zeiger (2 Byte, Zeropage)
 ; ---------------------------------------------------------------------------------------------------------------------
 ; Atari-Register und Speicherplan
 ; ---------------------------------------------------------------------------------------------------------------------
@@ -2215,7 +2215,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite holen / dorthin zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage holen / dorthin zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -2285,7 +2285,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball in die Nullseite laden (der Autoplay/Demo folgt ihm).
+; pick_ball: den tiefsten aktiven Ball in die Zeropage laden (der Autoplay/Demo folgt ihm).
 pick_ball:
         lda #0
         sta t2                          ; bester Y-Wert (High-Byte)
@@ -2317,7 +2317,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -2344,7 +2344,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -3098,7 +3098,7 @@ laser_fire:
 ;   Spalte = (u - 8) / 8 (u = px / 2, Stein 16 px = 8 Einheiten breit, Feld beginnt bei px 16 = u 8), Zeile = (y - 32) / 8.
 update_shots:
         ldx #0
-.us:    stx shi                         ; Schuss 0..1; X geht in hit_brick verloren, shi (Nullseite) nicht: danach aus shi neu laden
+.us:    stx shi                         ; Schuss 0..1; X geht in hit_brick verloren, shi (Zeropage) nicht: danach aus shi neu laden
         lda shact,x
         beq .usn
         lda shy,x

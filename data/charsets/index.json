@@ -1,0 +1,287 @@
+{
+  "_comment": "Eigene Standardzeichensätze „VC-Standard“ (CC0-1.0). Erzeugt von tools/gen_vc_standard.py; keine Original-ROM-Zeichen, keine Nachbauten.",
+  "format": 1,
+  "stil": "STIL.md@1",
+  "saetze": [
+    {
+      "id": "vc-c64-upper",
+      "system": "c64",
+      "profil": "c64.char.hires",
+      "satz": "upper",
+      "name": "VC-Standard C64 Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c64/vc-c64-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "2ca24785be6b41164830734db3559e58e8c6d593c3045474c4e6a3fc24b654f8"
+    },
+    {
+      "id": "vc-c64-lower",
+      "system": "c64",
+      "profil": "c64.char.hires",
+      "satz": "lower",
+      "name": "VC-Standard C64 Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c64/vc-c64-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "c6de4cf4bdd5f91672ba551c22665cc31934767330e9b9281b99ea4a504e6c79"
+    },
+    {
+      "id": "vc-atari-standard",
+      "system": "atari8",
+      "profil": "atari.char.antic2",
+      "satz": "standard",
+      "name": "VC-Standard Atari",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "atari8/vc-atari-standard.vcchar",
+      "zeichen": 128,
+      "hoehe": 8,
+      "abgeleitet_von": [],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "6eaf93e9f031ee307ecf30bc2fe2d3d0851ba58d44dc59d10ed7370dd34cd336"
+    },
+    {
+      "id": "vc-atari-international",
+      "system": "atari8",
+      "profil": "atari.char.antic2",
+      "satz": "international",
+      "name": "VC-Standard Atari International",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "atari8/vc-atari-international.vcchar",
+      "zeichen": 128,
+      "hoehe": 8,
+      "abgeleitet_von": [],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "01babba2c1a9b695e5dfe7671b1b924d8401337178f3482bf6e5c167b7129ec1"
+    },
+    {
+      "id": "vc-plus4-standard",
+      "system": "plus4",
+      "profil": "plus4.char.hires",
+      "satz": "upper",
+      "name": "VC-Standard Plus/4 und C16 Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "plus4/vc-plus4-standard.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "2ca24785be6b41164830734db3559e58e8c6d593c3045474c4e6a3fc24b654f8"
+    },
+    {
+      "id": "vc-plus4-lower",
+      "system": "plus4",
+      "profil": "plus4.char.hires",
+      "satz": "lower",
+      "name": "VC-Standard Plus/4 und C16 Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "plus4/vc-plus4-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "c6de4cf4bdd5f91672ba551c22665cc31934767330e9b9281b99ea4a504e6c79"
+    },
+    {
+      "id": "vc-pet-upper",
+      "system": "pet",
+      "profil": "pet.char.hires",
+      "satz": "upper",
+      "name": "VC-Standard PET Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "pet/vc-pet-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "fbdfedd130a33ccab0c9d65c92507724aa2a6708544e960875be915f8f8dd4b5"
+    },
+    {
+      "id": "vc-pet-lower",
+      "system": "pet",
+      "profil": "pet.char.hires",
+      "satz": "lower",
+      "name": "VC-Standard PET Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "pet/vc-pet-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "077d0526765ac4ab3ee182e5ca5cd605cb9bfdd85ef86668524407d91049edb3"
+    },
+    {
+      "id": "vc-vic20-upper",
+      "system": "vic20",
+      "profil": "vic20.char.hires",
+      "satz": "upper",
+      "name": "VC-Standard VC-20 Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "vic20/vc-vic20-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "2ca24785be6b41164830734db3559e58e8c6d593c3045474c4e6a3fc24b654f8"
+    },
+    {
+      "id": "vc-vic20-lower",
+      "system": "vic20",
+      "profil": "vic20.char.hires",
+      "satz": "lower",
+      "name": "VC-Standard VC-20 Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "vic20/vc-vic20-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "c6de4cf4bdd5f91672ba551c22665cc31934767330e9b9281b99ea4a504e6c79"
+    },
+    {
+      "id": "vc-c128-upper",
+      "system": "c128",
+      "profil": "c128.char.hires",
+      "satz": "upper",
+      "name": "VC-Standard C128 40 Spalten Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c128/vc-c128-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "2ca24785be6b41164830734db3559e58e8c6d593c3045474c4e6a3fc24b654f8"
+    },
+    {
+      "id": "vc-c128-lower",
+      "system": "c128",
+      "profil": "c128.char.hires",
+      "satz": "lower",
+      "name": "VC-Standard C128 40 Spalten Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c128/vc-c128-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "quellengeprueft",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "c6de4cf4bdd5f91672ba551c22665cc31934767330e9b9281b99ea4a504e6c79"
+    },
+    {
+      "id": "vc-c128-vdc-upper",
+      "system": "c128",
+      "profil": "c128.char.vdc",
+      "satz": "vdc-upper",
+      "name": "VC-Standard C128 VDC 80 Spalten Groß/Grafik",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c128/vc-c128-vdc-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 16,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "vorlaeufig",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "9a4f47b510686fccb98ed57022254dae7ef61571b017d47707d8c390a15a7291"
+    },
+    {
+      "id": "vc-c128-vdc-lower",
+      "system": "c128",
+      "profil": "c128.char.vdc",
+      "satz": "vdc-lower",
+      "name": "VC-Standard C128 VDC 80 Spalten Klein/Groß",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "c128/vc-c128-vdc-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 16,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "vorlaeufig",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "93e3005306d1c73cd7d0ee9d79aabc5c0bec76b5f4a453a351e431b72fcff5a8"
+    },
+    {
+      "id": "vc-mega65-upper",
+      "system": "mega65",
+      "profil": "mega65.char.fcm",
+      "satz": "upper",
+      "name": "VC-Standard MEGA65 Groß/Grafik (Vollfarbmodus)",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "mega65/vc-mega65-upper.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-upper"
+      ],
+      "belegung": "vorlaeufig",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "c6be1a097547f692f6a1a83da253d7518efdbda47560da07d71ed36b67625a3b"
+    },
+    {
+      "id": "vc-mega65-lower",
+      "system": "mega65",
+      "profil": "mega65.char.fcm",
+      "satz": "lower",
+      "name": "VC-Standard MEGA65 Klein/Groß (Vollfarbmodus)",
+      "revision": 1,
+      "lizenz": "CC0-1.0",
+      "datei": "mega65/vc-mega65-lower.vcchar",
+      "zeichen": 256,
+      "hoehe": 8,
+      "abgeleitet_von": [
+        "vc-c64-lower"
+      ],
+      "belegung": "vorlaeufig",
+      "belegung_datum": "2026-11-16",
+      "satz_sha256": "8a3475a7db242e803a0ea2e3cf0ec6da302a85e250ab957925cbe5cb12f0cdcf"
+    }
+  ]
+}

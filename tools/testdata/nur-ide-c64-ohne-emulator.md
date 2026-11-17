@@ -3,6 +3,7 @@
 | Kennung | Inhalt | Stand | Release |
 |---|---|---|---|
 | `IDE-APP` | **Entwicklungsumgebung** `vintagecoder` (Editor, Projektbaum, Debugger, Einstellungen). Ohne sie entsteht ein reines Kommandozeilenpaket. | Stabil | [x] |
+| `IDE-UPDATE` | **Update-Prüfung**: sucht auf Wunsch nach einer neuen Version, zeigt die Änderungen und einen Link zur Releaseseite (Einstellungen ▸ Updates, `vcc update`). Kein Laden, kein Installieren. Ohne sie enthält das Paket keinerlei Update-Funktion und baut nie eine solche Verbindung auf. | Beta | [x] |
 | `STU-SPRITE` | Sprites und Player/Missile | Stabil | [x] |
 | `STU-CHAR` | Zeichensätze | Stabil | [x] |
 | `STU-SCREEN` | Bildschirme | Stabil | [x] |

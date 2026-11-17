@@ -550,6 +550,17 @@ Setzt den Inhalt einer anderen Quelldatei an dieser Stelle ein, als stünde er h
 
 `#include` verhält sich wie `#pragma once`; so dürfen Bibliotheken einander einbinden, ohne dass ihre Namen doppelt definiert werden. Wird dieselbe Datei zweimal mit `.include` geholt, meldet der Assembler die Namen als doppelt (**E204**).
 
+**Eingebundene Dateien im Editor:** Eine Datei, die irgendwo im Projekt eingebunden wird, prüft der Editor nicht allein, sondern im Kontext der einbindenden Datei – mit deren Marken, Konstanten, Makros, `.target` und `.org`, und mit dem **ungespeicherten** Text aller offenen Dateien. So erscheinen keine Folgefehler wie „unbekanntes Symbol“ mehr, nur weil die Marke erst in der Hauptdatei steht. Welche Datei der Kontext ist:
+
+| Fall | Kontext |
+|---|---|
+| Startprogramm (`main` der Projektdatei) oder von keiner Datei eingebunden | die Datei selbst, wie immer |
+| eingebunden, und das Startprogramm erreicht sie (auch über mehrere Ebenen) | das Startprogramm |
+| eingebunden, das Startprogramm erreicht sie nicht | die oberste einbindende Datei mit der kürzesten Include-Kette, bei Gleichstand die erste nach Pfad |
+| nur ein Kreis von Dateien, die einander einbinden, ohne Einstieg | die Datei selbst; der Assembler meldet den Kreis (**E211**) |
+
+Fehler der einbindenden Datei erscheinen in ihrer eigenen Datei, auch wenn nur die eingebundene geöffnet ist. Zeilenadressen, Hover, Zur Definition und Vervollständigung kommen aus demselben Lauf. Eine Datei **ohne** `.org`, `.target` und `.basicstub`, die nichts einbindet und nicht in der Projektdatei steht (eine „Waise“, vermutlich eine Bibliothek), zeigt fehlende Symbole, Makros und `.org` nur als **Hinweis** („vermutlich in der einbindenden Datei definiert“) statt als Fehler; alle anderen Fehler bleiben Fehler.
+
 Mit `as name` landet der Inhalt der Datei in einem eigenen **Namensraum** (siehe [Scopes](help:asm-macros)): Von außen heißen die Namen `name.symbol`. So lässt sich dieselbe Bibliothek mehrfach unter verschiedenen Namen einbinden (zwei Musikstücke, zwei Treiberinstanzen).
 
 Beispiel mit der Datei `lib.inc`:

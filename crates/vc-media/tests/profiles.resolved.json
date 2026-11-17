@@ -151,6 +151,26 @@
       }
     },
     {
+      "id": "pet.char.hires",
+      "kind": "charset",
+      "name": "PET/CBM Zeichensatz hires 8×8",
+      "target": "pet",
+      "width": 8,
+      "height": 8,
+      "bpp": 1,
+      "count": 256,
+      "block": 8,
+      "aspect": 1,
+      "values": [
+        "Hintergrund",
+        "Vordergrund"
+      ],
+      "defaultColors": {
+        "fg": 1,
+        "bg": 0
+      }
+    },
+    {
       "id": "plus4.char.multicolor",
       "kind": "charset",
       "name": "Plus/4 Zeichensatz multicolor 4×8 (TED, gilt für alle Zeichen)",
@@ -468,7 +488,7 @@
       "target": "plus4",
       "tileWidth": 2,
       "tileHeight": 2,
-      "colorRam": false,
+      "colorRam": true,
       "defaultColors": {
         "bg": 0,
         "fg": 113

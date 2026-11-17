@@ -18,6 +18,8 @@ pub const FORMAT: u64 = 1;
 pub struct Features {
     /// IDE (`vintagecoder`) gewählt; `None` = alles an
     ide: Option<bool>,
+    /// Update-Prüfung (`IDE-UPDATE`) gewählt; `None` = an
+    update: Option<bool>,
     studios: Option<BTreeSet<String>>,
     links: Option<BTreeSet<String>>,
     targets: Option<BTreeSet<String>>,
@@ -41,11 +43,11 @@ impl Features {
 
     /// Aus dem Text einer `release.json`; ein Fehler ergibt eine Mindestauswahl mit Warnung (nie „alles an“: ein kaputtes Release soll nicht mehr zeigen)
     pub fn from_json(text: &str) -> Features {
-        let minimal = |w: String| Features { ide: Some(false), studios: Some(BTreeSet::new()), links: Some(BTreeSet::new()), targets: Some(BTreeSet::new()), examples: Some(BTreeSet::new()), warning: Some(w) };
+        let minimal = |w: String| Features { ide: Some(false), update: Some(false), studios: Some(BTreeSet::new()), links: Some(BTreeSet::new()), targets: Some(BTreeSet::new()), examples: Some(BTreeSet::new()), warning: Some(w) };
         let v: serde_json::Value = match serde_json::from_str(text) { Ok(v) => v, Err(e) => return minimal(format!("release.json: {e}")) };
         let format = v["format"].as_u64().unwrap_or(1);
         if format > FORMAT { return minimal(format!("release.json: Format {format} ist neuer als bekannt ({FORMAT}); es gilt die Mindestauswahl")); }
-        Features { ide: v.get("ide").and_then(|x| x.as_bool()), studios: set_of(&v, "studios"), links: set_of(&v, "links"), targets: set_of(&v, "targets"), examples: set_of(&v, "examples"), warning: None }
+        Features { ide: v.get("ide").and_then(|x| x.as_bool()), update: v.get("update").and_then(|x| x.as_bool()), studios: set_of(&v, "studios"), links: set_of(&v, "links"), targets: set_of(&v, "targets"), examples: set_of(&v, "examples"), warning: None }
     }
 
     pub fn load(path: &Path) -> Features {
@@ -68,6 +70,8 @@ impl Features {
     /// Alles an? (keine `release.json`)
     pub fn is_all(&self) -> bool { *self == Features::all() }
     pub fn ide(&self) -> bool { self.ide.unwrap_or(true) }
+    /// Enthält das Release die Update-Prüfung (`IDE-UPDATE`)? Ohne sie gibt es weder Oberfläche noch Verbindung (auch nicht in `vcc`).
+    pub fn update(&self) -> bool { self.update.unwrap_or(true) }
     /// Studio gewählt? (`sprite`, `char`, `screen`, `tiles`, `palette`, `tracker`, `play`, `disk`, `memmap`, `extract`). Ohne IDE gibt es keine Studios.
     pub fn studio(&self, id: &str) -> bool { self.ide() && self.studios.as_ref().map_or(true, |s| s.contains(id)) }
     /// Anbindung (Emulator, Gerät) gewählt? (`vice`, `atari800`, `altirra`, `fujisan`, `xemu`, `ultimate`, `mega65`)
@@ -90,6 +94,7 @@ impl Features {
         if let Some(id) = kennung.strip_prefix("STU-") { return self.studio(&id.to_ascii_lowercase()); }
         if let Some(id) = system_id(kennung) { return self.target(id); }
         if kennung == "IDE-APP" { return self.ide(); }
+        if kennung == "IDE-UPDATE" { return self.update(); }
         if let Some(id) = kennung.strip_prefix("EMU-").or_else(|| kennung.strip_prefix("HW-")) { return self.link(&id.to_ascii_lowercase()); }
         true
     }
@@ -137,6 +142,14 @@ mod tests {
         assert!(f.link("vice") && f.examples("EX-DEMOS"), "fehlende Schlüssel: alles an");
         assert!(f.has("STU-SPRITE") && !f.has("STU-TILES") && f.has("SYS-ATARI") && !f.has("SYS-C64"));
         assert!(f.has_any(&[]) && f.has_any(&["STU-TILES", "STU-SPRITE"]) && !f.has_any(&["STU-TILES"]));
+    }
+    #[test]
+    fn update_pruefung_ist_wahlbar() {
+        assert!(Features::all().update() && Features::all().has("IDE-UPDATE"));
+        assert!(Features::from_json(r#"{"format":1,"ide":true}"#).update(), "Schlüssel fehlt: an");
+        let f = Features::from_json(r#"{"format":1,"update":false}"#);
+        assert!(!f.update() && !f.has("IDE-UPDATE"));
+        assert!(!Features::from_json("kaputt").update(), "kaputte Datei: Mindestauswahl, keine Verbindung");
     }
     #[test]
     fn anbindungen_nur_die_gewaehlten() {

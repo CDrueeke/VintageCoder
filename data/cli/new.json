@@ -34,6 +34,10 @@
           "help": "Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich.",
           "choices": ["einfach", "standard", "gross", "mehrsystem", "bibliothek", "spiel"],
           "default": "", "default_text": "keine", "repeat": false, "required": false },
+        { "flag": "--charset", "short": "", "value": "wahl", "group": "projekt",
+          "help": "Zeichensatz des Projekts: auto = dein ROM als Verweis, sonst der eigene Standardsatz als Kopie; own = immer der eigene Standardsatz (weitergebbar, mit HERKUNFT.txt); none = keiner.",
+          "choices": ["auto", "own", "none"],
+          "default": "auto", "default_text": "", "repeat": false, "required": false },
         { "flag": "--name", "short": "", "value": "name", "group": "projekt",
           "help": "Projektname (Buchstaben, Ziffern, _ und -, höchstens 48 Zeichen); bestimmt den Namen der .vcprj.",
           "default": "", "default_text": "Name des Ordners", "repeat": false, "required": false },
@@ -53,6 +57,7 @@
       ],
       "notes": [
         "Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet und cbm2.",
+        "Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET, CBM-II) bekommen nichts.",
         "Ausgegeben werden die angelegten Ordner und Dateien."
       ],
       "see_also": ["add", "organize", "build"]

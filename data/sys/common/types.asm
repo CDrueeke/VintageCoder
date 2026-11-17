@@ -51,7 +51,7 @@
  sta addr+1
 .endmacro
 
-// Zeiger auf eine Adresse setzen (gleich wie ld16, liest sich bei Nullseitenzeigern besser)
+// Zeiger auf eine Adresse setzen (gleich wie ld16, liest sich bei Zeropage-Zeigern besser)
 .macro ptr_set(zp, target)
  lda #<(target)
  sta zp

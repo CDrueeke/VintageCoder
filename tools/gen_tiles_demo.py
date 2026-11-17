@@ -69,6 +69,9 @@ SYSTEMS = {
 }
 
 
+CYC = {'3x2': (280, 4000, 2500), '2x2': (240, 3500, 2500)}   # Zyklenbudgets C64: tile_erase, tile_restore_a (4 x 3), tile_row_a; gemessen 261, 3764, 2348 (3x2) und 221, 3284, 2330 (2x2), rund 8 % Spielraum
+
+
 def build(s, mapsz, n=6, screens=3):
     tw, th = s['tw'], s['th']
     cells = [[(0x11 + 7 * t + 3 * k) & 0xff for t in range(n)] for k in range(tw * th)]   # planar: cells[k][t]
@@ -109,6 +112,18 @@ def render(Y, s, cells, maps_sc, draw=None, rows=None):
     return scr, col
 
 
+def rle(vals):
+    """Lauflängenkodierung wie im Export der Screen-Bank (Option "rle"): Paare Kachelnummer, Anzahl (1-255), über die ganze Karte."""
+    out, i = [], 0
+    while i < len(vals):
+        j = i
+        while j < len(vals) and vals[j] == vals[i] and j - i < 255:
+            j += 1
+        out += [vals[i], j - i]
+        i = j
+    return out
+
+
 def crc(b):
     return binascii.crc_hqx(bytes(b), 0)
 
@@ -119,6 +134,51 @@ def bytes_lines(label, vals, per=16):
         chunk = ','.join('$%02x' % v for v in vals[i:i + per])
         out.append((label + ':' if i == 0 else ' ' * (len(label) + 1)) + '  .byte ' + chunk)
     return out
+
+
+def new_routines(color):
+    """Prüfroutinen für tile_erase, tile_restore und tile_row (Kapitel K6); der Text steht bei allen Systemen gleich in demo.inc (beim C64 von Hand eingefügt)."""
+    chk = lambda k: ('check EXP_%s_SCR, EXP_%s_COL' % (k, k)) if color else ('check EXP_%s_SCR' % k)
+    return """; t_erase - tile_erase: Screen 1 (lv2_id) wählen, nur die Karten-Kacheln bei (3,4) und rechts unten zeichnen; Ausgabe wie t_screen1.
+t_erase:
+        jsr clear_all
+        screen_select lv2_id
+        ldx #3
+        ldy #4
+        jsr tile_erase
+        ldx #levels_tiles_w - 1
+        ldy #levels_tiles_h - 1
+        jsr tile_erase
+        %s
+
+; t_erase_at - tile_erase einzeln für den Test: ZP_X, ZP_Y = Kachelposition (Screen 1 ist schon gewählt, siehe setup mem).
+t_erase_at:
+        jsr tile_erase
+        rts
+
+; t_restore - tile_restore (Rechteck 4 x 3 ab (2,1) aus der Karte von Screen 1); Ausgabe wie t_screen1.
+t_restore:
+        jsr clear_all
+        screen_select lv2_id
+        tile_restore 2, 1, 4, 3
+        %s
+
+; t_restore_bg - Hintergrundwiederherstellung: Screen 1 zeichnen, eine Figur (Kachel 4, 3 x 2) darüber setzen, dann das Rechteck neu
+;   zeichnen; das Ergebnis muss wieder Screen 1 sein.
+t_restore_bg:
+        jsr clear_all
+        screen_draw lv2_id
+        tile_fill 4, 2, 2, 3, 2
+        tile_restore 2, 2, 3, 2
+        %s
+
+; t_row - tile_row: Kachelzeile 5 mit Kachel 3 füllen; Ausgabe wie t_screen1.
+t_row:
+        jsr clear_all
+        tile_row 5, 3
+        %s
+
+""" % (chk('ERASE'), chk('RESTORE'), chk('S1'), chk('ROW'))
 
 
 # ---------------------------------------------------------------- demo.inc (nur für die erzeugten Systeme)
@@ -159,7 +219,14 @@ def demo_inc(Y):
     A('.include "expect_2x2.inc"')
     A('.endif')
     A('')
+    A('.ifndef DEMO_RLE')
+    A('.const DEMO_RLE = 0                ; 1 = Karten lauflängenkodiert (levels_rle_*), TILE_RLE und TILE_MAPRAM kommen aus der Programmdatei')
+    A('.endif')
+    A('.if DEMO_RLE')
+    A('        tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_rle_lo, levels_rle_hi, levels_tiles_w, levels_tiles_h')
+    A('.else')
     A('        tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_tiles_w, levels_tiles_h')
+    A('.endif')
     A('.const FX = DEMO_FX')
     A('.const FY = DEMO_FY')
     A('')
@@ -210,6 +277,9 @@ def demo_inc(Y):
         A('        assert_a_eq 0')
         A('        jsr t_puts')
         A('        assert_a_eq 0')
+        for r in ('t_erase', 't_restore', 't_restore_bg', 't_row'):
+            A('        jsr ' + r)
+            A('        assert_a_eq 0')
         for i in range(3):
             A('        ldx #SELF_X%d' % i)
             A('        ldy #SELF_Y%d' % i)
@@ -371,6 +441,7 @@ def demo_inc(Y):
     A('        jsr tile_put')
     A('        ' + chk('PUT'))
     A('')
+    A(new_routines(color))
     A('''t_map_get:                          ; X = Spalte, Y = Zeile von Screen 2 (lv2_id) -> A = Kachelnummer
         stx ZP_X
         sty ZP_Y
@@ -407,10 +478,10 @@ def vcprj(Y):
     t = {k: v for k, v in dict(id=Y['vcprj']['id'], system=Y['vcprj']['system'], model=Y['vcprj'].get('model'),
                                variant=Y['vcprj'].get('variant'), memory=Y['vcprj'].get('memory'),
                                cpu=Y['vcprj']['cpu'], illegals='deny', emulator=Y['vcprj']['emulator']).items() if v}
-    files = ['tiles_demo_3x2_ptr.asm', 'tiles_demo_3x2_smc.asm', 'tiles_demo_2x2_ptr.asm', 'tiles_demo_2x2_smc.asm']
+    files = ['tiles_demo_3x2_ptr.asm', 'tiles_demo_3x2_smc.asm', 'tiles_demo_3x2_rle.asm', 'tiles_demo_2x2_ptr.asm', 'tiles_demo_2x2_smc.asm']
     d = {"format": 1,
          "project": {"name": "%s: tiles_demo" % Y['title'].split(' (')[0],
-                     "description": "Kachel-Bibliothek #include <%s/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger- und SMC-Version, Test mit vcc test" % Y['lib']},
+                     "description": "Kachel-Bibliothek #include <%s/tiles.asm>: 3x2- und 2x2-Kacheln, Zeiger-, SMC- und RLE-Version, Test mit vcc test" % Y['lib']},
          "targets": [t], "sources": [{"targets": [t['id']], "kind": "asm", "files": files}], "main": files[0]}
     return json.dumps(d, indent=2, ensure_ascii=False) + '\n'
 
@@ -443,6 +514,10 @@ def gen(key, Y):
         L += ['.const hg_tw = %d' % tw, '.const hg_th = %d' % th, '.const hg_count = %d' % n, '.const P_SOLID = 1', '']
         for sc in range(s['screens']):
             L += bytes_lines('levels_map%d' % sc, [v for row in maps[sc] for v in row], mw)
+        for sc in range(s['screens']):
+            L += bytes_lines('levels_rle_map%d' % sc, rle([v for row in maps[sc] for v in row]), 16)
+        L += ['levels_rle_lo:  .byte ' + ','.join('<levels_rle_map%d' % i for i in range(s['screens'])),
+              'levels_rle_hi:  .byte ' + ','.join('>levels_rle_map%d' % i for i in range(s['screens']))]
         L += ['levels_screens: .lohifill %d, levels_map0 + %d * i' % (s['screens'], mw * mh)]
         L += ['levels_screens_lo = levels_screens', 'levels_screens_hi = levels_screens + %d' % s['screens']]
         L += ['.const levels_count = %d' % s['screens'], '.const levels_tiles_w = %d' % mw, '.const levels_tiles_h = %d' % mh,
@@ -462,6 +537,10 @@ def gen(key, Y):
             'ROWS': R(maps[2], rows=(3, 6)),
             'MACRO': R(None, draw=macro_draw),
             'PUT': R(None, draw=[(t, x, y, None) for (t, x, y) in put_calls]),
+            # tile_erase: zwei Kacheln der Karte von Screen 1 (3,4) und rechts unten; tile_restore: Rechteck 4 x 3 ab (2,1); tile_row: Zeile 5 aus Kachel 3
+            'ERASE': R(None, draw=[(maps[1][4][3], 3, 4, None), (maps[1][mh - 1][mw - 1], mw - 1, mh - 1, None)]),
+            'RESTORE': R(None, draw=[(maps[1][y][x], x, y, None) for y in range(1, 4) for x in range(2, 6)]),
+            'ROW': R(None, draw=[(3, x, 5, None) for x in range(mw)]),
         }
         E = ['; Erwartete CRC-16 (XMODEM) über Bildschirm (%d Byte)%s je Szenario; erzeugt von tools/gen_tiles_demo.py'
              % (COLS * ROWS, (' und Farb-RAM (%d Byte, Maske $%02x)' % (COLS * ROWS, Y['colmask'])) if color else ', ohne Farbspeicher')]
@@ -513,6 +592,10 @@ def gen(key, Y):
             if Y['cycles_tests']:
                 tc["cycles"] = {"max": put_max, "level": "error"}
             tests.append(tc)
+        tests.append({"name": "tile_erase zweimal: Kacheln der Karte neu gezeichnet (Referenz)", "call": "t_erase", "expect": ["a == 0"], "timeoutMs": 20000})
+        tests.append({"name": "tile_restore 4 x 3 aus der Karte (Referenz)", "call": "t_restore", "expect": ["a == 0"], "timeoutMs": 20000})
+        tests.append({"name": "tile_restore stellt den Hintergrund unter einer Figur wieder her (= Screen 1)", "call": "t_restore_bg", "expect": ["a == 0"], "timeoutMs": 20000})
+        tests.append({"name": "tile_row: Zeile 5 aus Kachel 3 (Referenz)", "call": "t_row", "expect": ["a == 0"], "timeoutMs": 20000})
         for (x, y) in [(0, 0), (mw - 1, mh - 1), (3, 4)]:
             t = maps[1][y][x]
             tests.append({"name": "screen_map_get (%d,%d) von Screen 1 = %d" % (x, y, t), "setup": {"x": x, "y": y},
@@ -520,11 +603,23 @@ def gen(key, Y):
             tests.append({"name": "tile_prop (%d,%d) von Screen 1 = %d" % (x, y, PROPS[t]), "setup": {"x": x, "y": y},
                           "call": "t_prop", "expect": ["a == %d" % PROPS[t]], "timeoutMs": 2000})
         if Y['cycles_tests']:
+            # Screen 1 ist gewählt, wenn tz_idx ($FE) = 1 ist (Karte direkt im ROM-Kartenfeld); tz_t ($FD) trägt die Höhe von tile_restore_a
+            ce, cr, cw = CYC[name]
+            tests.append({"name": "tile_erase (3,4): Zyklen", "setup": {"x": 3, "y": 4, "mem": {"$fe": 1}}, "call": "tile_erase",
+                          "cycles": {"max": ce, "level": "error"}, "timeoutMs": 2000})
+            tests.append({"name": "tile_restore_a 4 x 3 ab (2,1): Zyklen", "setup": {"a": 4, "x": 2, "y": 1, "mem": {"$fe": 1, "$fd": 3}}, "call": "tile_restore_a",
+                          "cycles": {"max": cr, "level": "error"}, "timeoutMs": 2000})
+            tests.append({"name": "tile_row_a: Zeile 5, Zyklen", "setup": {"a": 3, "y": 5}, "call": "tile_row_a",
+                          "cycles": {"max": cw, "level": "error"}, "timeoutMs": 2000})
+        if Y['cycles_tests']:
             tests.append({"name": "screen_draw 1 (ganze Kachelebene) Zyklen", "call": "t_draw_only", "cycles": {"max": 40000, "level": "hint"}, "timeoutMs": 20000})
-        if not Y['generate_asm']:
-            pass
-        for var, smc in (('ptr', False), ('smc', True)):
+        variants = [('ptr', False, False), ('smc', True, False)] + ([('rle', False, True)] if name == '3x2' else [])
+        for var, smc, use_rle in variants:
             vt = list(tests)
+            if use_rle:
+                mp0 = [v for row in maps[1] for v in row]
+                vt.append({"name": "RLE: Karte von Screen 1 liegt entpackt bei $%04x" % Y['mapram'], "call": "t_screen1_nocheck",
+                           "expect": ["[$%04x] == %d" % (Y['mapram'] + i, mp0[i]) for i in (0, 1, mw + 1, mw * mh - 1)], "timeoutMs": 20000})
             if smc and name == '3x2':
                 mp = [v for row in maps[1] for v in row]
                 vt.append({"name": "TILE_MAPRAM: Karte von Screen 1 liegt nach screen_select bei $%04x" % Y['mapram'], "call": "t_screen1_nocheck",
@@ -550,6 +645,9 @@ def gen(key, Y):
             if Y['generate_asm']:
                 a = ['; Kachel-Bibliothek, Variante %s_%s, siehe demo.inc' % (name, var), '.const DEMO_SET = %d' % tw,
                      '.const TILE_SMC = %d' % (1 if smc else 0)]
+                if use_rle:
+                    a += ['.const DEMO_RLE = 1                ; Karten lauflängenkodiert (Zeigerversion, ROM-tauglich)', '.const TILE_RLE = 1',
+                          '.const TILE_MAPRAM = $%04x     ; Ziel des Entpackens' % Y['mapram']]
                 if smc and name == '3x2':
                     a.append('.const TILE_MAPRAM = $%04x     ; Karte beim Wählen in den RAM-Puffer kopieren' % Y['mapram'])
                 a.append('.include "demo.inc"')

@@ -10,7 +10,8 @@ fn media(v: &Value) -> Media { parse_media(&v.to_string()).unwrap() }
 #[test]
 fn profiles_load() {
     let p = profiles();
-    assert_eq!(p.len(), 40);
+    assert_eq!(p.len(), 41);
+    assert!(profile(&p, "pet.char.hires").is_ok());
     assert!(profile(&p, "vic20.char.multicolor").is_ok() && profile(&p, "vic20.char.hires16").is_ok());
     assert!(profile(&p, "vic20.char.hires").is_ok());
     assert!(profile(&p, "plus4.ted.song").is_ok());

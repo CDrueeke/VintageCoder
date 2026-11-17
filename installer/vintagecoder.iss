@@ -2,11 +2,11 @@
 ; Der Installer packt nur noch das Staging ein, das "python tools\release.py stage --os windows --out <Ordner> --build" erzeugt
 ; (Programme, data\, Beispiele, Lizenzen, installer.inc). Was drin ist, bestimmt FEATURES.md.
 ; Bauen: installer\build-installer.ps1 (ruft das Skript auf und dann ISCC).
-; Direkt: ISCC.exe /DAppVersion=0.1.0 /DStage=<Staging-Ordner> vintagecoder.iss
+; Direkt: ISCC.exe /DAppVersion=0.2.0 /DStage=<Staging-Ordner> vintagecoder.iss
 ; installer.inc im Staging setzt HasIde (mit Entwicklungsumgebung) und HasExamples (mit Beispielen).
 
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "0.2.0"
 #endif
 #ifndef Stage
   #define Stage "..\build\stage-windows"

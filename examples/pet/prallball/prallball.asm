@@ -34,7 +34,7 @@
 .const ST_TITLE = 0
 .const ST_PLAY  = 1
 
-// ---- Nullseite ($02..$7F gehoert dem Spiel; $80 und darueber benutzt der Editor-Interrupt)
+// ---- Zeropage ($02..$7F gehoert dem Spiel; $80 und darueber benutzt der Editor-Interrupt)
 .const frame    = $04                   // Bildzaehler (Interrupt)
 .const spdlvl   = $05                   // Ballgeschwindigkeit 0..7
 .const lives    = $07

@@ -1,6 +1,6 @@
 # Export
 
-Alle Studios (Sprites, Zeichensätze, Bildschirme, Kacheln) haben unten den **Export-Streifen**: die Formate, die Ausgabedatei unter `build/export/` mit dem Chip „aktuell“ oder „veraltet“ (gemessen an der Änderungszeit der Studio-Datei) und die Schaltfläche **Export …**, die den Export-Dialog öffnet. Esc schließt ihn.
+Alle Studios (Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten, Songs) haben in der Werkzeugleiste den Knopf **Exportieren …** (Menü Datei ▸ Exportieren …, **Cmd/Strg+Umschalt+E**, auch im Rechtsklickmenü der Zeichenfläche). Er öffnet den Export-Dialog; Esc schließt ihn. Einen Streifen mit Ausgabedatei und dem Chip „aktuell“ oder „veraltet“ gibt es in der Oberfläche noch nicht.
 
 ## Der Dialog
 - **Ausgabeformat** (Segmentschalter):

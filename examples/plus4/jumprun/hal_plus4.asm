@@ -14,8 +14,8 @@
 ;   interne Hilfen:          hal_draw_level (alle 240 Kacheln aus LMAP zeichnen, benutzt get_tile des Kerns), hal_hud, put0/put23,
 ;                            put_bcd, set_ptrs, put_cell, restore, compose, char_addr, forget_figures, sfx_update, music_play, irq
 ;   Die HAL liest vom Kern: lvl, sc0..sc2 und die Ausgabewerte; aus lib/levels.inc: lvl_mc1/2, lvl_sky0..5, char_col, txt_hud,
-;   txt_lv_lo/hi, CH_DIGIT0, CH_STAR, hero_lo/hi, enemy_lo/hi, sfx_tab, mus1_lo/hi, mus2_lo/hi; aus jumprun.asm: maps_lo/hi; aus dem
-;   Export: title_chars, lv1_tiles.  Sie veraendert nur eigene Nullseitenzellen und darf in allen Routinen A, X, Y und die Flags
+;   txt_lv_lo/hi, CH_DIGIT0, CH_STAR, hero_lo/hi, enemy_lo/hi, sfx_tab, mus1_lo/hi, mus2_lo/hi; aus dem
+;   Export: title_chars, hg_c0..hg_c3, levels_screens_lo/hi.  Sie veraendert nur eigene Zeropage-Zellen und darf in allen Routinen A, X, Y und die Flags
 ;   beliebig aendern.  Die Musik gehoert hier zur HAL (music_play), nicht zu einer eigenen Bibliothek.
 ;   Unterschiede zu den anderen Systemen (Sprites, Klang, Start): siehe core.asm, Abschnitt "Unterschiede".
 ;
@@ -49,8 +49,8 @@
 ; SPEICHERPLAN: $1001 Programm  $4000 Zeichensatz  $4800 Tabellen und Figurenbilder  $6800 Bilddaten  $9000 Bildkarte  $9400 Hintergrundkopie
 ;               $0800 Farb-RAM  $0C00 Bildschirm  $FF00-$FF3F TED-Register (immer sichtbar, auch bei ausgeschaltetem ROM)
 ;               Der Plus/4 hat 64 KB RAM; nach dem Abschalten des ROMs ($FF3F) gehoert dieses ganze RAM dem Programm, auch $FFFA-$FFFF.
-; NULLSEITE:    $80-$B3 Spiellogik, $C0-$E3 diese Datei (der Plus/4 braucht nach dem Abschalten des Betriebssystems keine Nullseite mehr).
-;               Der Interrupt benutzt KEINE Nullseitenzelle: er unterbricht das Hauptprogramm an beliebiger Stelle mitten in dessen
+; ZEROPAGE:    $80-$B3 Spiellogik, $C0-$E3 diese Datei (der Plus/4 braucht nach dem Abschalten des Betriebssystems keine Zeropage mehr).
+;               Der Interrupt benutzt KEINE Zeropage-Zelle: er unterbricht das Hauptprogramm an beliebiger Stelle mitten in dessen
 ;               Rechnung mit den Zeigern, und er darf nichts davon veraendern.
 ; =====================================================================================================================
 
@@ -89,7 +89,7 @@
 .const TED_VOL   = $ff11          ; Bits 0-3 Lautstaerke, Bit 4 Stimme 1 an, Bit 5 Stimme 2 an, Bit 6 Stimme 2 Rauschen
 .const TED_ROMOFF= $ff3f          ; Schreiben: ROM abschalten (RAM sichtbar)  [Schreiben nach $FF3E schaltet das ROM wieder ein]
 
-; ---- Nullseite dieser Datei
+; ---- Zeropage dieser Datei
 .const sp   = $c0                 ; Zeiger auf Bildschirmzelle (2 Byte)
 .const bp   = $c2                 ; Zeiger auf die Hintergrundkopie
 .const cp   = $c4                 ; Zeiger auf das Farb-RAM
@@ -182,7 +182,7 @@ rti_only: rti                    ; Ziel fuer NMI- und Reset-Vektor (siehe hal_in
 ; (je nachdem, welchen Befehl das Hauptprogramm gerade ausfuehrte).  Faende der Wechsel einfach "irgendwann nach der Zeile" statt,
 ; zoge sich der Farbwechsel um einen wechselnden Betrag nach rechts in die Zeile hinein.  Deshalb: frueh kommen, dann auf den
 ; exakten Zeilenanfang warten (Schleife .band).
-;   Der Interrupt benutzt keine Nullseite und teilt keine Zellen mit der Hauptschleife (ausser frame, sfx_on, den Effekt- und Musikzellen),
+;   Der Interrupt benutzt keine Zeropage und teilt keine Zellen mit der Hauptschleife (ausser frame, sfx_on, den Effekt- und Musikzellen),
 ;   darf sie also an beliebiger Stelle unterbrechen.  Nummer 0 liegt oberhalb des Bildes und hat Zeit fuer Musik und Effekt.
 irq:    pha                      ; Register retten: bei abgeschaltetem ROM springt die CPU direkt hierher, kein KERNAL rettet sie
         txa
@@ -291,13 +291,11 @@ put_cell:
         rts
 
 ; hal_put_tile: X = Spalte (0..19), Y = Zeile (0..11), A = Kachelnummer: die vier Zeichen der Kachel (aus der exportierten Kachelliste) in die
-;   2 x 2 Zellen schreiben.  Aendert alle Register, sp, bp, cp, pt0.  Die Kachelliste lv1_tiles gilt fuer alle vier Bilder.
-;   Das Spiel denkt in Kacheln zu 2 x 2 Zeichen (20 x 12 Kacheln = 40 x 24 Zellen); die Kachelliste lv1_tiles enthaelt je Kachel
-;   vier Zeichencodes (oben links, oben rechts, unten links, unten rechts).  Versatz 40 = naechste Zeile.
+;   2 x 2 Zellen schreiben.  Aendert alle Register, sp, bp, cp, pt0.  Der Kachelsatz hg (Export graphics/hg.vctiles) gilt fuer alle vier Bilder.
+;   Das Spiel denkt in Kacheln zu 2 x 2 Zeichen (20 x 12 Kacheln = 40 x 24 Zellen); die Zeichentabellen hg_c0..hg_c3 des Kachelsatzes
+;   enthalten je Kachel die vier Zeichencodes (oben links, oben rechts, unten links, unten rechts), je Tabelle ein Byte je Kachel.  Versatz 40 = naechste Zeile.
 hal_put_tile:
-        asl a
-        asl a
-        sta pt0                  ; Kachelnummer * 4 = Index in die Zeichenliste
+        sta pt0                  ; Kachelnummer = Index in die vier Zeichentabellen hg_c0..hg_c3
         txa
         asl a
         tax                      ; Zellspalte = 2 * Spalte
@@ -306,19 +304,19 @@ hal_put_tile:
         tay                      ; Zellzeile = 2 * Zeile
         jsr set_ptrs
         ldx pt0
-        lda lv1_tiles,x
+        lda hg_c0,x
         ldy #0
         jsr put_cell
         ldx pt0
-        lda lv1_tiles+1,x
+        lda hg_c1,x
         ldy #1
         jsr put_cell
         ldx pt0
-        lda lv1_tiles+2,x
+        lda hg_c2,x
         ldy #40
         jsr put_cell
         ldx pt0
-        lda lv1_tiles+3,x
+        lda hg_c3,x
         ldy #41
         jmp put_cell
 
@@ -410,9 +408,9 @@ hal_load_level:
         sta skyc+4
         lda lvl_sky5,x
         sta skyc+5
-        lda maps_lo,x            ; Kachelkarte des Bildes (240 Byte = 20 x 12) ...
+        lda levels_screens_lo,x  ; Kachelkarte des Bildes (240 Byte = 20 x 12) aus der Screen-Bank levels ...
         sta dp
-        lda maps_hi,x
+        lda levels_screens_hi,x
         sta dp+1
         ldy #0
 -       lda (dp),y
@@ -927,7 +925,7 @@ hal_sfx:
         sta sfx_on
         rts
 
-; sfx_update: vom Interrupt Nr. 0 je Bild aufgerufen (Nullseite wird nicht benutzt).  Aendert A, X (der Interrupt sichert die Register).
+; sfx_update: vom Interrupt Nr. 0 je Bild aufgerufen (Zeropage wird nicht benutzt).  Aendert A, X (der Interrupt sichert die Register).
 sfx_update:
         lda sfx_on
         beq .rts

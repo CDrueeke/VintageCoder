@@ -111,6 +111,17 @@ pub struct HelpPrefs {
     #[serde(default, skip_serializing_if = "String::is_empty")] pub images_url: String,
 }
 
+/// Update-Prüfung (siehe `update`): nur Entscheidungen des Anwenders; Zeitpunkte und Befund stehen in `updates/state.json` im Konfigurationsordner
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct UpdatePrefs {
+    /// `""` = noch nicht gefragt (es wird nichts gesendet), `never` = nur auf Wunsch („Jetzt prüfen“), `daily`, `weekly`
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub check: String,
+    /// „Diese Version überspringen“: die Nummer, die nicht mehr gemeldet wird (eine neuere meldet sich wieder)
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub skipped: String,
+    /// Ort der Versionsliste (Webadresse `https://…` oder Ordner/Datei); leer = fester Standard. Ändert nie das Ziel des Links. `VC_UPDATE_URL` hat Vorrang.
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub manifest_url: String,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Settings {
     /// Version des Dateiformats (fehlt = 0 = vor dem Konfigurationsassistenten); siehe [`crate::setup::SCHEMA_VERSION`]. Neuere Versionen bleiben beim Speichern erhalten.
@@ -123,6 +134,8 @@ pub struct Settings {
     #[serde(default, skip_serializing_if = "is_default")] pub debug_log: bool,
     /// Hilfe (Handbuchbilder online laden)
     #[serde(default, skip_serializing_if = "is_default")] pub help: HelpPrefs,
+    /// Update-Prüfung
+    #[serde(default, skip_serializing_if = "is_default")] pub updates: UpdatePrefs,
     /// ROM-Verzeichnis
     #[serde(default, skip_serializing_if = "is_default")] pub roms: RomPrefs,
     /// Datenströme der Ultimate

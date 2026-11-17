@@ -141,6 +141,16 @@
       "target": "plus4"
     },
     {
+      "id": "pet.char.hires",
+      "extends": "c64.char.hires",
+      "name": "PET/CBM Zeichensatz hires 8×8",
+      "target": "pet",
+      "defaultColors": {
+        "fg": 1,
+        "bg": 0
+      }
+    },
+    {
       "id": "plus4.char.multicolor",
       "extends": "c64.char.multicolor",
       "name": "Plus/4 Zeichensatz multicolor 4×8 (TED, gilt für alle Zeichen)",
@@ -393,7 +403,7 @@
       "extends": "c64.tileset",
       "name": "Plus/4 Kachelsatz",
       "target": "plus4",
-      "colorRam": false,
+      "colorRam": true,
       "defaultColors": {
         "bg": 0,
         "fg": 113

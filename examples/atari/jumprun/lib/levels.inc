@@ -1,11 +1,6 @@
 ; levels.inc - ERZEUGT von tools/gen_jumprun_atari.py (Spielwege aus tools/jumprun_art.py) - nicht von Hand aendern
 
-; Kacheleigenschaften je Kachelnummer: 0 leer, 1 tragend, 2 Leiter
-tile_attr:
-        .byte 0,1,1,1,1,2,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
-; Zeichenbit 7 je Kachel (gruen = COLPF3): 128 fuer Gras und Busch, sonst 0
-tile_hi:
-        .byte 0,128,0,0,0,0,0,0,0,0,0,0,128,0,0,0,0,0,0,0,0
+; Kacheleigenschaften (0 leer, 1 tragend, 2 Leiter) und Zeichenbit 7 (Gras, Busch) stehen im Kachelsatz graphics/hg.vctiles (Export: hg_props, hg_p_solid, hg_p_ladder)
 lvl_pf0:
         .byte 36,4,52,132
 lvl_pf1:

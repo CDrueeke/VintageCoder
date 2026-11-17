@@ -1,0 +1,91 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+//! Alle sichtbaren Texte an einer Stelle (Konzept Abschnitt 13): Deutsch, du-Form, Infinitiv auf Knöpfen. Kein Text im Widgetcode.
+pub const APP_TITEL: &str = "VintageCoder";
+pub const STARTEN: &str = "▶ Starten";
+pub const DEBUGGEN: &str = "● Debuggen";
+pub const BAUEN: &str = "▣ Bauen";
+pub const BAUT: &str = "… Baut";
+pub const SUCHFELD: &str = "Befehl oder Datei suchen";
+pub const DATEIEN: &str = "Dateien";
+pub const SUCHE: &str = "Suche";
+pub const TEILEN_MIND_ZWEI: &str = "Zum Teilen müssen mindestens zwei Reiter offen sein.";
+pub const ABLEGEN_RECHTS: &str = "Hier ablegen: Editor teilen";
+pub const STREIFEN: &str = "Rechte Leiste";
+pub const AUSGEKLAPPT: &str = "ausgeklappt";
+pub const EINGEKLAPPT: &str = "eingeklappt";
+pub const SPALTE: &str = "Linke Spalte"; pub const GRUPPE_EXPORT: &str = "Exportiert (build/export)";
+pub const DOKUMENTE: &str = "Dokumentenfeld";
+pub const SCHUBLADE: &str = "Schublade";
+pub const PANEL: &str = "Rechtes Panel";
+pub const NORMAL: &str = "normal";
+pub const MINIMIERT: &str = "minimiert";
+pub const MAXIMIERT: &str = "maximiert";
+/// Name eines Bereichsknopfs für Hinweis und Bildschirmleser, z. B. „Schublade maximieren“
+pub fn knopfname(bereich: &str, aktion: &str) -> String { format!("{bereich} {aktion}") }
+pub const HILFE_TITEL: &str = "Hilfe";
+pub const ZEICHEN: &str = "Zeichen";
+pub const HILFE_SUCHE: &str = "Suchen: Thema, Befehl, Register …";
+pub const HILFE_ZURUECK: &str = "‹ Zurück";
+pub const HILFE_NICHTS: &str = "Nichts gefunden.";
+pub const ZEICHEN_SUCHE: &str = "Name, Zahl ($c1) oder Zeichen";
+pub const ZEICHEN_NICHT_HIER: &str = "Hier lässt sich kein Zeichen einfügen.";
+pub const ART_ASM: &str = "Assembler";
+pub const ART_BASIC: &str = "BASIC";
+pub const ART_TEXT: &str = "Text";
+pub const ART_NOTIZ: &str = "Notiz";
+pub const DLG_NEUE_DATEI: &str = "Neue Datei";
+pub const DLG_NEUER_ORDNER: &str = "Neuer Ordner";
+pub const DLG_UMBENENNEN: &str = "Datei umbenennen";
+pub const DLG_LOESCHEN: &str = "Datei löschen";
+pub const DLG_ART: &str = "Art";
+pub const DLG_NAME: &str = "Name (der Ordner steht davor)";
+pub const DLG_PROFIL: &str = "Profil";
+pub const BAUM_PFAD: &str = "Pfad, z. B. lib/musik.asm";
+pub const BAUM_OK: &str = "OK";
+pub const BAUM_ABBRUCH: &str = "Abbrechen";
+pub const BAUM_FRAGE_KORB: &str = "kommt in den Papierkorb. Löschen?";
+pub const BAUM_FRAGE_ENDGUELTIG: &str = "wird endgültig gelöscht (kein Papierkorb). Löschen?";
+pub const BAUM_KEINE_DATEI: &str = "Zuerst eine Datei öffnen.";
+pub const PROTOKOLL: &str = "Protokoll";
+pub const PROBLEME: &str = "Probleme";
+pub const BEREIT: &str = "Bereit";
+pub const KEINE_DATEI: &str = "Keine Datei geöffnet. Cmd+K, Cmd+O oder links wählen.";
+pub const KEIN_PROJEKT: &str = "Kein Projekt geöffnet";
+pub const SUCHE_LEER: &str = "Nichts gefunden.";
+pub const SUCHE_PLATZHALTER: &str = "In allen Dateien suchen …";
+pub const FINDEN: &str = "Suchen";
+pub const ERSETZEN: &str = "Ersetzen";
+pub const ALLE: &str = "Alle";
+pub const ZEILE: &str = "Zeile";
+pub const TREFFER: &str = "Treffer";
+pub const KEIN_TREFFER: &str = "kein Treffer";
+pub const GLIEDERUNG: &str = "Gliederung";
+pub const GLIEDERUNG_LEER: &str = "Keine Marken in dieser Datei.";
+pub const EINSTELLUNGEN: &str = "Einstellungen";
+pub const FARBSCHEMA: &str = "Farbschema";
+pub const DUNKEL: &str = "Dunkel";
+pub const HELL: &str = "Hell";
+pub const SYSTEM: &str = "System";
+pub const KONTRAST: &str = "Hoher Kontrast";
+pub const OBERFLAECHE: &str = "Oberfläche";
+pub const EDITOR_SCHRIFT: &str = "Editor-Schrift";
+pub const UMBRUCH: &str = "Zeilenumbruch";
+#[cfg(test)] mod tests { use super::*;
+    #[test] fn texte_nicht_leer() { for t in [STARTEN, DEBUGGEN, BAUEN, SUCHFELD, KEINE_DATEI, GLIEDERUNG_LEER, FARBSCHEMA] { assert!(!t.trim().is_empty()) } }
+}
+
+// Debuggen (Panel)
+pub const DEBUGGEN_PANEL: &str = "Debuggen";
+pub const DBG_WEITER: &str = "▶ Weiter"; pub const DBG_PAUSE: &str = "⏸ Anhalten"; pub const DBG_ENDE: &str = "■ Beenden";
+pub const DBG_UEBER: &str = "Schritt über"; pub const DBG_HINEIN: &str = "Hinein"; pub const DBG_RAUS: &str = "Hinaus";
+pub const DBG_STARTET: &str = "Emulator startet …"; pub const DBG_LAEUFT: &str = "Programm läuft"; pub const DBG_ANGEHALTEN: &str = "Angehalten bei"; pub const DBG_WARTET: &str = "Warte auf den Emulator …";
+pub const DBG_REGISTER: &str = "REGISTER"; pub const DBG_DISASSEMBLER: &str = "DISASSEMBLER"; pub const DBG_SPEICHER: &str = "SPEICHER (Adresse hexadezimal, * = geändert)"; pub const DBG_BEOBACHTEN: &str = "BEOBACHTEN"; pub const DBG_HALTEPUNKTE: &str = "HALTEPUNKTE"; pub const DBG_AUSDRUCK: &str = "Ausdruck, z. B. $d020";
+pub const KARTE: &str = "Karte"; pub const KARTE_LEER: &str = "Noch nichts gebaut: Nach dem Bauen zeigt die Karte, wo dein Programm im Speicher liegt.";
+pub const DBG_MOMENT: &str = "MOMENTAUFNAHME"; pub const DBG_MOMENT_ERKENNEN: &str = "Bildschirm erkennen"; pub const DBG_MOMENT_SPRITES: &str = "Sprites speichern"; pub const DBG_MOMENT_KACHELN: &str = "Zeichen als Kacheln"; pub const DBG_MOMENT_ROM: &str = "Zeichensatz aus dem ROM lesen"; pub const DBG_MOMENT_NAME: &str = "Name"; pub const DBG_MOMENT_SPEICHERN: &str = "Als Dateien speichern";
+pub const TESTS: &str = "Tests"; pub const TESTS_LEER: &str = "Noch keine Tests gelaufen. „Alle ausführen“ prüft die statischen Regeln und die Tests der .vctest-Dateien."; pub const TESTS_WAHL: &str = "Wähle einen Test: Erwartung, Messwert, Register und Zyklen erscheinen hier."; pub const TEST_DEBUG: &str = "Diesen Test debuggen";
+pub const EMULATOR_BILD: &str = "Bild"; pub const EMU_AKTUALISIEREN: &str = "Bild holen"; pub const EMU_AUTO: &str = "bei jedem Halt"; pub const EMU_LIVE: &str = "Zeitlupe live"; pub const EMU_LAEUFT: &str = "Das Programm läuft: Anhalten oder „Zeitlupe live“ zeigt das Bild."; pub const EMU_KEIN_BILD: &str = "Noch kein Bild: „Bild holen“."; pub const EMU_TEXT: &str = "Text an den Emulator senden (Enter)";
+pub const RQ_TITEL: &str = "Debug-Sitzung läuft"; pub const RQ_BEENDEN: &str = "Sitzung beenden"; pub const TESTS_PARALLEL: &str = "Die Debug-Sitzung läuft weiter; die Tests starten einen eigenen Emulator.";
+pub const DEBUG_REITER: &str = "Debug"; pub const DBG_REG_LAEUFT: &str = "Das Programm läuft. „Anhalten“ zeigt die Werte."; pub const DBG_SPEICHER_TITEL: &str = "SPEICHER"; pub const DBG_SPEICHER_FELD: &str = "Adresse, z. B. D020 oder start"; pub const DBG_KEINE_HALTEPUNKTE: &str = "Keine Haltepunkte. Mit F9 im Editor oder per Klick auf den Rand des Disassemblers setzen.";
+pub const EXPORT_TITEL: &str = "Export"; pub const EXPORT_KEIN_STUDIO: &str = "Kein Studio als Ziel: Öffne ein Sprite, einen Zeichensatz oder eine Palette im Studio und klicke dann auf „Exportieren …“."; pub const EXPORT_NAME: &str = "Name"; pub const EXPORT_LADEADRESSE: &str = "Ladeadresse"; pub const EXPORT_ADRESSE: &str = "Adresse"; pub const EXPORT_FORMAT: &str = "AUSGABEFORMAT"; pub const EXPORT_UMFANG: &str = "UMFANG"; pub const EXPORT_TAB_TEXT: &str = "Quelltext"; pub const EXPORT_TESTEN: &str = "Im Emulator testen"; pub const EXPORT_SPEICHERN: &str = "In Projekt speichern"; pub const EXPORT_EINFUEGEN: &str = "In aktiven Code einfügen";
+pub const IMPORT_TITEL: &str = "Dateien ins Projekt übernehmen"; pub const IMPORT_HINWEIS: &str = "Art, Kategorie und Zielordner sind Vorschläge; Namen lassen sich ändern. Bei einem Namenskonflikt wählst du Umbenennen, Ersetzen oder Überspringen.";
+pub const PALETTE_HINWEIS: &str = "Die MEGA65-Palette hat 8 Bit je Kanal. Der Export kümmert sich um die vertauschten Halbbytes der Register $D100/$D200/$D300.";

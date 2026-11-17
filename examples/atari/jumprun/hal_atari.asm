@@ -12,11 +12,10 @@
 ;   fuer das Hauptprogramm:  hal_init, hal_wait_frame, hal_blank, hal_unblank, hal_title, hal_load_level (A = Bild),
 ;                            hal_update_sprites (liest h_px_l/h/h_py/h_fr und e_px_l/h/e_py/e_fr); ausserdem SCREEN, CH_BLANK, die
 ;                            Schattenregister COLOR0.. und die Tabelle skyc (von show_title direkt benutzt)
-;   interne Hilfen:          hal_draw_level (alle 240 Kacheln aus LMAP zeichnen, benutzt get_tile des Kerns), hal_hud, put_bcd,
+;   interne Hilfen:          hal_hud, put_bcd,
 ;                            clear_pm, sfx_update, dli, vbi
-;   Die HAL liest vom Kern: lvl, sc0..sc2 und die Ausgabewerte; aus lib/levels.inc: lvl_pf0..2, lvl_sky0..5, tile_hi, txt_hud,
-;   txt_lv_lo/hi, CH_DIGIT0, CH_STAR, die Spielerbilder hero_p0..p3 und enemy_m; aus jumprun.asm: maps_lo/hi; aus dem Export: title_chars,
-;   lv1_tiles.  Sie veraendert nur eigene Nullseitenzellen und darf in allen Routinen A, X, Y und die Flags beliebig aendern.
+;   Die HAL liest vom Kern: lvl, sc0..sc2 und die Ausgabewerte; aus lib/levels.inc: lvl_pf0..2, lvl_sky0..5, txt_hud,
+;   txt_lv_lo/hi, CH_DIGIT0, CH_STAR, die Spielerbilder hero_p0..p3 und enemy_m; aus dem Export: title_chars; die Kachel-Bibliothek (tile_put, screen_select_a, screen_draw_all).  Sie veraendert nur eigene Zeropage-Zellen und darf in allen Routinen A, X, Y und die Flags beliebig aendern.
 ;   Unterschiede zu den anderen Systemen (Sprites, Klang, Start): siehe core.asm, Abschnitt "Unterschiede".
 ;
 ;   ANTIC (Bild)
@@ -26,7 +25,7 @@
 ;       Zeichencodes laufen deshalb nur von 0 bis 127 (7 Bit); Bit 7 ist keine "inverse" Anzeige, sondern die Farbwahl.
 ;       Die Farbe gilt fuer den GANZEN Bildschirm (anders als beim C64 gibt es kein Farb-RAM je Zeichen). Je Bild werden
 ;       COLPF0..2 neu gesetzt; Gras und Busch tragen Bit 7 und erscheinen deshalb in COLPF3 (gruen, in allen Bildern gleich).
-;     * Der Zeichensatz (128 Zeichen = 1 KB) liegt bei $4400 (er muss auf einer 1-KB-Grenze beginnen), der Bildschirmspeicher
+;     * Der Zeichensatz (128 Zeichen = 1 KB) liegt bei $3C00 (er muss auf einer 1-KB-Grenze beginnen; davor liegen die Tabellen des Kachelsatzes, die nicht im Bildschirmspeicher $4000-$43BF stehen duerfen), der Bildschirmspeicher
 ;       (24 * 40 = 960 Byte) bei $4000, die Display-Liste bei $4800.  Der Bildschirmspeicher darf keine 4-KB-Grenze ueberschreiten
 ;       (ANTIC zaehlt nur 12 Adressbit weiter); $4000-$43BF liegt komplett in einem 4-KB-Block.
 ;     * DISPLAY-LISTE: Programm fuer ANTIC: 24 Leerzeilen, 24 Textzeilen im Modus 4 (die erste mit Adresse LMS), am Ende ein Sprung
@@ -61,14 +60,14 @@
 ;   ein Schreiben direkt ins Chip-Register wuerde im naechsten Bild vom OS ueberschrieben.  Nur Register OHNE Schatten
 ;   (HPOSPn, GRACTL, PMBASE, NMIEN, WSYNC, POKEY) werden direkt beschrieben.  Wirkung eines Schattenwerts: erst im naechsten Bild.
 ;
-; SPEICHERPLAN:  $2000-$3FFF Programm   $4000 Bildschirm   $4400 Zeichensatz   $4800 Display-Liste   $5000-$57FF Spielerspeicher
+; SPEICHERPLAN:  $2000-$3FFF Programm   $3C00 Zeichensatz   $4000 Bildschirm   $4800 Display-Liste   $5000-$57FF Spielerspeicher
 ;                $5800 Bildkarte (LMAP)   $5CE0-$5FFF RMT-Tabellen   $6000 RMT-Player   $7000 Tabellen, Bilddaten, Musikmodul
-; NULLSEITE:     $80-$B3 Spiellogik, $B4-$BB diese Datei, $CB-$DD RMT-Player
-;                Die Interrupts (dli, vbi, sfx_update) benutzen keine Nullseitenzelle ausser dem Player (RMT) selbst.
+; ZEROPAGE:     $80-$B3 Spiellogik, $B4-$BB diese Datei, $CB-$DD RMT-Player
+;                Die Interrupts (dli, vbi, sfx_update) benutzen keine Zeropage-Zelle ausser dem Player (RMT) selbst.
 ; =====================================================================================================================
 
 .const SCREEN  = $4000
-.const CHARSET = $4400
+.const CHARSET = $3C00
 .const DLIST   = $4800
 .const PM_M    = $5300
 .const PM_P0   = $5400            ; P1 = $5500, P2 = $5600, P3 = $5700
@@ -96,7 +95,7 @@
 .const AUDF4   = $d206
 .const AUDC4   = $d207
 
-; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Nullseite; die Spiellogik belegt $80-$B3, der RMT-Player $CB-$DD)
+; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Zeropage; die Spiellogik belegt $80-$B3, der RMT-Player $CB-$DD)
 .const sp  = $b4                  ; Zeiger (2 Byte)
 .const dp  = $b6                  ; zweiter Zeiger (2 Byte), meist das Ziel
 .const pt0 = $b8                  ; Hilfsspeicher (je Routine anders benutzt, siehe dort)
@@ -119,7 +118,7 @@ hal_init:
         lda #>DLIST
         sta SDLSTL+1
         lda #>CHARSET
-        sta CHBAS                ; nur die Seite: $44 -> Zeichensatz bei $4400
+        sta CHBAS                ; nur die Seite: $3C -> Zeichensatz bei $3C00
         lda #>(PM_M - $300)           ; Spielerspeicher: Seite $50 (Missiles liegen $300 dahinter)
         sta PMBASE
         lda #3
@@ -178,7 +177,7 @@ dlist_end:
 ;   vor WSYNC in A geholt, damit nach dem Aufwachen nur noch ein einziger Schreibzugriff (sta COLBK) bleibt.
 ;   Register: A und X werden gerettet (pha / txa pha ...) und am Ende zurueckgeholt; Y bleibt unberuehrt.  rti beendet den Interrupt.
 ;   dli_i = Nummer des naechsten Balkens (1..5): der Balken 0 ist die Farbe, die das OS aus COLOR4 in COLBK kopiert.
-;   Dauer: nur wenige Takte plus das Warten auf WSYNC; benutzt keine Nullseite.
+;   Dauer: nur wenige Takte plus das Warten auf WSYNC; benutzt keine Zeropage.
 dli:    pha
         txa
         pha
@@ -255,85 +254,14 @@ clear_pm:
         rts
 
 ; ---------------------------------------------------------------- Kacheln
-; Eine Kachel = 2 x 2 Zeichen.  Kachel (c, k) liegt in den Zellen (2c, 2k) ... (2c+1, 2k+1); eine Textzeile hat 40 Byte.
-;   Eine Kachelzeile belegt also zwei Textzeilen = 80 Byte.  Die Tabellen liefern die Anfangsadresse (niedriges/hohes Byte) der
-;   oberen Zeichenzeile jeder der 12 Kachelzeilen: $4000, $4050, $40A0, ...
-row80_lo:
-    .repeat 12, i
-        .byte <(SCREEN + i * 80)
-    .endrepeat
-row80_hi:
-    .repeat 12, i
-        .byte >(SCREEN + i * 80)
-    .endrepeat
-
-; hal_put_tile: X = Spalte (0..19), Y = Zeile (0..11), A = Kachelnummer.  Gras und Busch bekommen Zeichenbit 7 (tile_hi): Farbe COLPF3 = gruen.
-;   Aendert A, X, Y, sp, pt0, pt1.  Die Kachelliste lv1_tiles (aus dem Export von lv1) gilt fuer alle vier Bilder.
-;   Schritte: (1) sp = row80[Zeile] + 2 * Spalte = Adresse der Zelle oben links, (2) Bit 7 der Kachel aus tile_hi holen,
-;   (3) die vier Zeichennummern der Kachel (lv1_tiles, 4 Byte je Kachel: oben links, oben rechts, unten links, unten rechts)
-;   mit diesem Bit verodern und an die Offsets 0, 1, 40, 41 schreiben (Offset 40 = eine Zeile tiefer).
+; Eine Kachel = 2 x 2 Zeichen.  Kachel (c, k) liegt in den Zellen (2c, 2k) ... (2c+1, 2k+1); eine Textzeile hat 40 Byte.  Das Zeichnen uebernimmt die
+; Kachel-Bibliothek (#include <atari8bit/tiles.asm>, in jumprun.asm eingebunden und mit tiles_use an den Kachelsatz hg und die Screen-Bank levels gebunden):
+;   hal_put_tile   = tile_put: eine Kachel legen.  Eingang X = Spalte (0..19), Y = Zeile (0..11), A = Kachelnummer.  Gras und Busch tragen in den
+;                    Zeichentabellen des Satzes schon das Zeichenbit 7 (Zellflag "sel" im Kachelsatz): Farbe COLPF3 = gruen.
+;   screen_select_a: A = Bildnummer; kopiert die Karte des Bildes nach LMAP (TILE_MAPRAM): die Spiellogik loescht Muenzen aus dieser Kopie.
+;   screen_draw_all: zeichnet das ganze Bild aus LMAP (12 Zeilen x 20 Spalten).  Dauert einige Bilder lang; deshalb bei abgeschaltetem Bildschirm.
 ;   Anders als beim C64 gibt es hier kein Farb-RAM: die Farbe steckt allein in Bit 7 des Zeichencodes.
-hal_put_tile:
-        sta pt0
-        lda row80_lo,y
-        sta sp
-        lda row80_hi,y
-        sta sp+1
-        txa
-        asl a
-        clc
-        adc sp
-        sta sp
-        bcc +
-        inc sp+1
-+       ldx pt0
-        lda tile_hi,x
-        sta pt1                  ; Zeichenbit 7 oder 0
-        lda pt0
-        asl a
-        asl a
-        tax                      ; X = Kachelnummer * 4 = Index in lv1_tiles
-        ldy #0
-        lda lv1_tiles,x
-        ora pt1
-        sta (sp),y
-        iny
-        lda lv1_tiles+1,x
-        ora pt1
-        sta (sp),y
-        ldy #40
-        lda lv1_tiles+2,x
-        ora pt1
-        sta (sp),y
-        iny
-        lda lv1_tiles+3,x
-        ora pt1
-        sta (sp),y
-        rts
-
-; hal_draw_level: zeichnet das ganze Bild aus der Karte im RAM (LMAP): 12 Zeilen x 20 Spalten, je Kachel get_tile (aus core.asm,
-;   liefert die Kachelnummer fuer X = Spalte, Y = Zeile in A) und hal_put_tile.  Dauert einige Bilder lang (240 Kacheln); deshalb
-;   laeuft sie bei abgeschaltetem Bildschirm.  pt3 = Zeile, pt2 = Spalte.  Aendert A, X, Y, pt0..pt3, sp.
-hal_draw_level:
-        lda #0
-        sta pt3                  ; Zeile
-.row:   lda #0
-        sta pt2                  ; Spalte
-.col:   ldx pt2
-        ldy pt3
-        jsr get_tile
-        ldx pt2
-        ldy pt3
-        jsr hal_put_tile
-        inc pt2
-        lda pt2
-        cmp #20
-        bcc .col
-        inc pt3
-        lda pt3
-        cmp #12
-        bcc .row
-        rts
+.const hal_put_tile = tile_put
 
 ; hal_title: Titelbild, 960 Zeichencodes (24 Zeilen * 40), in den Bildschirmspeicher kopieren.  Aendert A, X, Y, sp, dp.
 ;   Quelle ist title_chars (im Bildschirm-Editor gezeichnet, Export build/export/title.asm).  Kopiert werden 3 volle Seiten
@@ -370,7 +298,7 @@ hal_title:
 ;   Dieselben Kachelzeichen sehen auf der Wiese, in der Hoehle, in der Burg und am Himmel verschieden aus, weil sich je Bild
 ;   COLPF0, COLPF1 und COLPF2 aendern (Schattenregister COLOR0..2).  COLPF3 (gruen) bleibt immer gleich.
 ;   Der erste Balken (sky0) geht zusaetzlich nach COLOR4 = COLBK, weil das OS ihn dort fuer den obersten Balken einsetzt;
-;   die Balken 1..5 holt der DLI aus skyc.  Die Karte (240 Byte = 20 x 12 Kacheln) wird aus maps_lo/maps_hi nach LMAP kopiert;
+;   die Balken 1..5 holt der DLI aus skyc.  Die Karte (240 Byte = 20 x 12 Kacheln) kopiert screen_select_a der Kachel-Bibliothek nach LMAP;
 ;   die Spiellogik loescht daraus spaeter eingesammelte Muenzen.
 hal_load_level:
         sta pt0
@@ -393,17 +321,9 @@ hal_load_level:
         sta skyc+4
         lda lvl_sky5,x
         sta skyc+5
-        lda maps_lo,x
-        sta sp
-        lda maps_hi,x
-        sta sp+1
-        ldy #0
--       lda (sp),y
-        sta LMAP,y
-        iny
-        cpy #240
-        bne -
-        jsr hal_draw_level
+        lda pt0                  ; Bildnummer = Screen-Nummer der Bank levels
+        jsr screen_select_a      ; Karte nach LMAP kopieren
+        jsr screen_draw_all
         jmp hal_hud
 
 ; hal_hud: Statuszeile (Zeile 0) und Laufschrift (Zeile 23, die letzte)

@@ -22,6 +22,8 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Bauen** – aus dem Quelltext das fertige Programm für das Zielsystem erzeugen (Taste F7). Der Fachbegriff „kompilieren“ oder „assemblieren“ meint dasselbe.
 
+**Befehlspalette** – ein Suchfenster (Cmd/Strg+K), das Befehle, Dateien und Aktionen des offenen Studios findet. → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+
 **Bildschirmcode** – die Zahlen, die der Bildschirmspeicher von C64 und Verwandten erwartet. Sie unterscheiden sich von PETSCII. Im Assembler wandelt `.screen` Text in Bildschirmcodes um.
 
 **Byte** – ein Speicherplatz für eine Zahl von 0 bis 255 (acht Bit).
@@ -38,9 +40,13 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 ## E
 
+**Eigenschaft** (Kachel) – ein frei benanntes Merkmal einer Kachel, zum Beispiel „solide“; dein Programm kann es abfragen. → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
+
 **Emulator** – ein Programm, das einen alten Computer auf dem heutigen Rechner nachbildet. VintageCoder startet dein Programm in einem Emulator wie VICE (Commodore), atari800 oder Altirra (Atari) und Xemu (MEGA65).
 
 ## F
+
+**Farb-RAM** – der Speicherbereich, der beim C64 die Farbe jeder Zelle des Textbildschirms enthält (ab `$D800`). → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
 
 **Frame** – Ein Einzelbild eines Sprites; mehrere Frames hintereinander ergeben eine Animation.
 
@@ -58,11 +64,15 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Instrument / Hüllkurve (ADSR)** – Klangfarbe eines Tons; die Hüllkurve beschreibt den Lautstärkeverlauf: Attack (Anstieg), Decay (Abfall), Sustain (Haltepegel), Release (Ausklingen).
 
+**Interleave** – der Abstand, mit dem aufeinanderfolgende Sektoren einer Datei auf der Diskette liegen; er bestimmt die Ladezeit. → [Disk-Studio](kapitel:disk-studio)
+
 ## K
 
 **Kachel (Tile) / Kachelsatz / Karte** – Eine Kachel ist ein Baustein aus mehreren Zeichen (z. B. 2×2). Ein Kachelsatz sammelt Kacheln, eine Karte (Screen-Bank) sagt, welche Kachel wo steht. → [Bildschirm- und Kachel-Editor](kapitel:bildschirm-kacheln)
 
 **KERNAL** – das Betriebssystem der Commodore-Computer, fest im ROM. Es bietet Routinen wie `CHROUT` (ein Zeichen ausgeben), die man mit `jsr` aufruft.
+
+**Kette** (Diskette) – eine Datei besteht aus Sektoren; jeder Sektor verrät, wo der nächste liegt. → [Disk-Studio](kapitel:disk-studio)
 
 **Kommentar** – Text im Quelltext, den der Übersetzer überliest. Im Assembler beginnt er mit `;` (oder `//`), im BASIC am Zeilenanfang mit `;`.
 
@@ -96,11 +106,17 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Palette** – Tabelle, die Farbnummern Farben zuordnet. Der MEGA65 hat 256 frei änderbare Einträge. → [Paletten](kapitel:paletten)
 
+**Panel (rechtes Panel) und Schublade** – Bereiche des Fensters: das Panel rechts (Gliederung, Hilfe, Zeichen, Karte, Emulator), die Schublade unten (Probleme, Protokoll, Tests). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+
 **PETSCII** – der Zeichencode der Commodore-Computer (Buchstaben, Grafikzeichen, Steuerzeichen wie „Bildschirm löschen“).
+
+**Pixelwert** – die „Farbe“, die ein Bildpunkt als Nummer trägt (zum Beispiel 0 = durchsichtig); welche echte Farbe dahintersteckt, bestimmt ein Register oder die Palette. → [Sprite-Editor](kapitel:sprites)
 
 **PLAY** – BASIC-65-Befehl des MEGA65, der eine Zeichenkette aus Noten abspielt. → [PLAY-Tracker](kapitel:play-tracker)
 
 **PMG (Player/Missile-Grafik)** – Die Sprites des Atari: vier Player (8 Punkte breit) und vier Missiles. → [Sprite- und PMG-Editor](kapitel:sprites)
+
+**Profil** – legt fest, welches System und welche Art von Datei ein Zeichensatz, Sprite oder Bildschirm ist (zum Beispiel `c64.char.hires`). → [Zeichensatz-Editor](kapitel:zeichensatz)
 
 **Projekt** – ein Ordner mit einer Projektdatei (`.vcprj`), deinen Quelltexten und den gebauten Programmen.
 
@@ -114,11 +130,15 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Register** – eine winzige Speicherzelle im Prozessor (A, X, Y) oder in einem Chip (zum Beispiel das Register der Rahmenfarbe bei `$d020`).
 
+**Restzelle** – eine Zelle des Bildschirms, die nicht in das Kachelraster passt. → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
+
 **ROM** – fest eingebauter Speicher eines Computers mit Betriebssystem, BASIC und Zeichensatz. VintageCoder liefert keine Original-ROMs mit; du legst deine eigenen Abbilder bereit.
 
 ## S
 
 **Segment** – Zusammenhängender Block erzeugter Bytes an fester Adresse; `.segment` gibt ihm Namen und erlaubten Bereich (Fehler E301 bei Verletzung).
+
+**Sektor** – ein Stück einer Diskette (meist 256 Byte); Spur und Sektor geben seine Lage an. → [Disk-Studio](kapitel:disk-studio)
 
 **SID / POKEY** – Klangchips des C64 (3 Stimmen) bzw. Atari (4 Stimmen).
 
@@ -128,9 +148,13 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Steuerzeichen** – ein Zeichen, das etwas bewirkt statt etwas anzuzeigen, zum Beispiel „Bildschirm löschen“. In Quelltexten schreibt man sie in geschweiften Klammern: `{clr}`.
 
+**Stimme (Kanal)** – eine Tonspur, die ein Klangchip gleichzeitig spielen kann. → [Tracker](kapitel:tracker)
+
 **Studio** – ein Editor in VintageCoder für Grafik oder Klang: Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten und Tracker.
 
 ## T
+
+**Takt** (Tracker) – die Zahl der Bilder je Zeile; bestimmt das Tempo. → [Tracker](kapitel:tracker)
 
 **Target** – siehe *Zielsystem*. In der Projektdatei und im Quelltext (`.target c64`) steht die Kennung des Zielsystems.
 
@@ -138,9 +162,17 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 ## V
 
+**VC-Standard** – die eigenen Zeichensätze von VintageCoder (frei unter CC0, weitergebbar), die ohne ROM an die Stelle der Original-Schrift treten. → [Zeichensatz-Editor](kapitel:zeichensatz)
+
 **Videonorm (PAL/NTSC)** – Fernsehnorm mit 50 bzw. 60 Bildern pro Sekunde; bestimmt Farbaussehen (Atari) und Tempo von Musik.
 
 ## Z
+
+**Zeichensatz** – die Tabelle, die jedem Bildschirmcode ein Bildpunktmuster (meist 8×8 Punkte) zuordnet. → [Zeichensatz-Editor](kapitel:zeichensatz)
+
+**Zelle** – ein Platz auf dem Textbildschirm (ein Zeichen groß); im Tracker ein Eintrag aus Note und Instrument. → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
+
+**Zen-Modus** – blendet Spalte, Schublade und Panel aus, damit nur die Arbeitsfläche bleibt (Cmd/Strg+Umschalt+B). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
 
 **Zeropage** – die ersten 256 Bytes des Speichers (Adressen `$00` bis `$ff`). Der Prozessor erreicht sie mit kürzeren und schnelleren Befehlen.
 

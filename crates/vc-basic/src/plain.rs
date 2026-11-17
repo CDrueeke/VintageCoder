@@ -15,10 +15,12 @@ pub struct PlainOptions {
     pub step: u32,
     /// größte erlaubte Zeilennummer (CBM 63999, Atari 32767)
     pub max_line: u32,
+    /// Zahlenpass (`$hex`, `%binär`), siehe `numbers`
+    pub numbers: crate::numbers::NumberOptions,
 }
 
 impl PlainOptions {
-    pub fn new(file: impl Into<String>, max_line: u32) -> Self { PlainOptions { file: file.into(), start: 10, step: 10, max_line } }
+    pub fn new(file: impl Into<String>, max_line: u32) -> Self { PlainOptions { file: file.into(), start: 10, step: 10, max_line, numbers: crate::numbers::defaults() } }
 }
 
 #[derive(Debug, Clone)]
@@ -97,7 +99,7 @@ pub fn expand_includes(src: &str, file: &str) -> Result<(String, LineMap), Vec<D
             let path = base.join(name);
             let key = path.to_string_lossy().into_owned();
             if stack.len() >= 8 || stack.contains(&key) { return Err(Diagnostic::error("B121", file, n + 1, format!("#include \"{name}\": zu tief verschachtelt oder zyklisch"))); }
-            let text = std::fs::read_to_string(&path).map_err(|_| Diagnostic::error("B120", file, n + 1, format!("#include \"{name}\": Datei nicht gefunden (bei exportierten Dateien: erst bauen bzw. exportieren)")))?;
+            let text = vc_core::textfile::read_source(&path).map_err(|_| Diagnostic::error("B120", file, n + 1, format!("#include \"{name}\": Datei nicht gefunden (bei exportierten Dateien: erst bauen bzw. exportieren)")))?;
             stack.push(key.clone());
             go(&text, &key, stack, out, map)?;
             stack.pop();

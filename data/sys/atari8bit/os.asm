@@ -1,4 +1,4 @@
-// Atari 8-Bit: Betriebssystem (Nullseite, Schattenregister, IOCB, Vektoren), PIA
+// Atari 8-Bit: Betriebssystem (Zeropage, Schattenregister, IOCB, Vektoren), PIA
 // Konstanten für den Assembler: #include <atari8bit/os.asm>
 
 // ---- PIA ($D300)
@@ -7,7 +7,7 @@
 .const PACTL                 = $D302   // Steuerung Port A
 .const PBCTL                 = $D303   // Steuerung Port B
 
-// ---- Nullseite
+// ---- Zeropage
 .const WARMST                = $0008   // Warmstart-Flag
 .const BOOT                  = $0009   // Boot-Status
 .const DOSVEC                = $000A   // DOS-Startvektor

@@ -64,7 +64,7 @@ rust() {
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 BIN="${CARGO_TARGET_DIR:-target}/release"
 
-build() { cargo build --release -p vc-app -p vc-cli; ls -l "$BIN/vintagecoder" "$BIN/vcc"; }
+build() { cargo build --release -p vc-gui -p vc-cli; ls -l "$BIN/vintagecoder" "$BIN/vcc"; }
 
 tests() { cargo test --workspace; }
 

@@ -182,7 +182,7 @@ pub(crate) fn expand(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out
             let base = Path::new(file).parent().map(Path::to_path_buf).unwrap_or_default();
             let found = std::iter::once(base).chain(dirs.iter().cloned()).map(|d| d.join(name)).find(|p| p.is_file());
             match (found, depth < 16) {
-                (Some(p), true) => match std::fs::read_to_string(&p) {
+                (Some(p), true) => match vc_core::textfile::read_source(&p) {
                     Ok(sub) => expand(&sub, &p.to_string_lossy(), dirs, depth + 1, out, errs, env),
                     Err(e) => errs.push(Diagnostic::error("B110", file, i + 1, format!("{}: {e}", p.display()))),
                 },

@@ -1,0 +1,3 @@
+# Zurueckgezogene Versionen (eine je Zeile, MAJOR.MINOR.PATCH); wird von "tools/release.py manifest" gelesen.
+# Eine hier eingetragene Version wird in update.json als zurueckgezogen gefuehrt: die IDE weist Anwender dieser Version darauf hin und bietet
+# die naechste nicht zurueckgezogene Version an. Leer lassen, solange nichts zurueckgezogen wurde.

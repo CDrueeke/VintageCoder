@@ -33,14 +33,14 @@
 ;   $6800-$71FF  Sprites (4 Saetze, siehe unten)        $7200-$80D1  Titelbild, Kachelkarten, Musikdaten (Stand dieser Fassung; die Daten
 ;                                                                    ab $8000 liegen ausserhalb der VIC-Bank, werden aber nur von der CPU gelesen)
 ;   $9000-$90EF  Bildkarte im RAM (LMAP)                $4400-$47E7  Bildschirm (VIC-Bank 1 = $4000-$7FFF), Sprite-Zeiger $47F8
-;   Nullseite: $10-$43 Spiellogik, $50-$56 HAL, $F7-$FA Musik        Farb-RAM: $D800 (Hires-Text: Farbwert < 8)
+;   Zeropage: $10-$43 Spiellogik, $50-$56 HAL, $F7-$FA Musik        Farb-RAM: $D800 (Hires-Text: Farbwert < 8)
 ;   Zwischen $4000 und $5FFF liegt nur der Bildschirm bei $4400; der Rest der Bank 1 bis $5FFF ist unbelegt.
 ; =====================================================================================================================
 .target mega65                          ; Zielsystem: MEGA65 (Chip- und Speicherkarte des MEGA65 fuer den Assembler und die IDE)
 .cpu 45gs02 { illegals = deny }         ; CPU 45GS02 (6502-kompatibel; zusaetzlich map, eom, taz u. a.); undokumentierte Befehle sind verboten
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
-.const ZP   = $10                       ; Nullseiten-Variablen der Spiellogik beginnen bei $10
+.const ZP   = $10                       ; Zeropage-Variablen der Spiellogik beginnen bei $10
 .const LMAP = $9000              ; Bildkarte im RAM (240 Byte), Muenzen werden daraus geloescht
 
 .org $2001                              ; BASIC-65-Startadresse (am C64 ist es $0801): ein PRG wird hierhin geladen

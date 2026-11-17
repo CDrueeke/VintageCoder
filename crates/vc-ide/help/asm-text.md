@@ -205,6 +205,8 @@ Steuerzeichen wie „Bildschirm löschen“ lassen sich nicht tippen. Bei `.pets
 
 - Der Wert in der Klammer ist das **fertige Byte** und wird nicht noch einmal umgewandelt.
 - Groß-/Kleinschreibung und `_` oder `-` statt Leerzeichen sind egal: `{RVS_ON}` = `{rvs on}`.
+- Die Namen stehen in einer Tabelle für Assembler und BASIC (`data/chars/`). Jede Sprache hat ihre **Hauptnamen** (hier `{orange}`, `{ret}`, `{right}`; im BASIC `{orng}`, `{return}`, `{rght}`), und **alle Namen gelten in beiden Sprachen**.
+- Im Editor erscheinen die Angaben in eigener Farbe, Farbcodes als Farbfeld und unbekannte Namen rot unterschlängelt; ein Hover zeigt Code und Wirkung, und nach `{` bietet der Editor die Namen an. Das Panel „Zeichen“ (Symbol Ω im rechten Panel) listet alle.
 - Bei `.text` ohne Kodierung (`ascii`) sind Klammern gewöhnliche Zeichen.
 - Ein unbekannter Name, eine offene Klammer oder eine falsche Zahl melden **E208**.
 
@@ -248,7 +250,9 @@ error[E208]: {clr}: Namen gibt es nur mit .petscii/.atascii oder .encoding "pets
 | `{right}` | `$1D` | Cursor rechts |
 | `{grn}` | `$1E` | Grün |
 | `{blu}` | `$1F` | Blau |
+| `{stop}` | `$03` | STOP-Taste |
 | `{space}` | `$20` | Leerzeichen |
+| `{pound}` | `$5C` | Pfund-Zeichen (£) |
 | `{orange}` | `$81` | Orange |
 | `{f1}` `{f3}` `{f5}` `{f7}` | `$85` `$86` `$87` `$88` | Funktionstasten |
 | `{f2}` `{f4}` `{f6}` `{f8}` | `$89` `$8A` `$8B` `$8C` | Funktionstasten |
@@ -269,6 +273,7 @@ error[E208]: {clr}: Namen gibt es nur mit .petscii/.atascii oder .encoding "pets
 | `{yel}` | `$9E` | Gelb |
 | `{cyn}` | `$9F` | Türkis |
 | `{shift space}` | `$A0` | Umschalt+Leerzeichen |
+| `{pi}` | `$FF` | Pi (π) |
 
 ### Namen für ATASCII
 

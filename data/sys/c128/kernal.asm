@@ -107,7 +107,7 @@
  sta MMU_CR_FF00
 .endmacro
 
-// Byte aus anderer Bank holen: ptr = Nullseitenadresse des 16-Bit-Zeigers, bank = Bankwert; Index in Y, Ergebnis in A
+// Byte aus anderer Bank holen: ptr = Zeropage-Adresse des 16-Bit-Zeigers, bank = Bankwert; Index in Y, Ergebnis in A
 .macro fetch_far(ptr, bank)
  lda #ptr
  ldx #bank

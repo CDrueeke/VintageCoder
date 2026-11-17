@@ -15,8 +15,8 @@
 .const MMU_PCRD                = $D504   // Vorkonfiguration D
 .const MMU_MCR                 = $D505   // Betriebsart (40/80, C64-Modus, Prozessor)
 .const MMU_RCR                 = $D506   // RAM-Konfiguration (gemeinsamer Bereich, VIC-Bank)
-.const MMU_P0L                 = $D507   // Nullseiten-Zeiger niedrig
-.const MMU_P0H                 = $D508   // Nullseiten-Zeiger hoch (Bank)
+.const MMU_P0L                 = $D507   // Zeropage-Zeiger niedrig
+.const MMU_P0H                 = $D508   // Zeropage-Zeiger hoch (Bank)
 .const MMU_P1L                 = $D509   // Stapelseiten-Zeiger niedrig
 .const MMU_P1H                 = $D50A   // Stapelseiten-Zeiger hoch (Bank)
 .const MMU_VR                  = $D50B   // MMU-Version

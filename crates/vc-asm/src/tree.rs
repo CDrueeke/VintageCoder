@@ -41,13 +41,47 @@ pub fn quoted(args: &str) -> Option<&str> {
 }
 
 pub fn load(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out: &mut Vec<RawLine>,
-            files: &mut Vec<(String, String)>) -> Result<(), Diagnostic> {
-    load_in(text, file, dirs, depth, out, files, "", &mut std::collections::HashSet::new())
+            files: &mut Vec<(String, String)>, overrides: &HashMap<String, String>) -> Result<(), Diagnostic> {
+    load_in(text, file, dirs, depth, out, files, "", &mut std::collections::HashSet::new(), overrides)
+}
+
+/// Pfad rein textlich vereinheitlichen (`\` → `/`, `.` und `..` aufgelöst): Schlüssel für [`crate::Options::overrides`] und Vergleich von Dateien
+pub fn norm_path(p: &str) -> String {
+    let p = p.replace('\\', "/");
+    let abs = p.starts_with('/');
+    let mut parts: Vec<&str> = vec![];
+    for s in p.split('/') {
+        match s {
+            "" | "." => {}
+            ".." => { if parts.last().map_or(false, |l| *l != "..") { parts.pop(); } else if !abs { parts.push(".."); } }
+            _ => parts.push(s),
+        }
+    }
+    format!("{}{}", if abs { "/" } else { "" }, parts.join("/"))
+}
+
+/// Die in `text` eingebundenen Dateinamen (`.include`/`#include`, mit `as name`), in Reihenfolge; ohne sie aufzulösen.
+pub fn include_names(text: &str) -> Vec<String> {
+    let mut v = vec![];
+    for l in text.lines() {
+        let st = strip_comment(l).trim();
+        let mut words = st.splitn(2, char::is_whitespace);
+        let first = words.next().unwrap_or("");
+        let is_hash = first.eq_ignore_ascii_case("#include");
+        if !(is_hash || first.eq_ignore_ascii_case(".include")) { continue; }
+        let arg = words.next().unwrap_or("");
+        let arg = match arg.rfind(" as ").or_else(|| arg.to_ascii_lowercase().rfind(" as ")) {
+            Some(k) if arg[..k].trim_end().ends_with(['"', '>']) => arg[..k].trim(),
+            _ => arg,
+        };
+        if let Some(n) = quoted(arg).or_else(|| if is_hash { angled(arg) } else { None }) { v.push(n.to_string()); }
+    }
+    v
 }
 
 /// `ns` ist der Namensraumpfad der aktuellen Datei, `once` die bereits per `#include` geladenen (Datei, Namensraum)-Paare.
 fn load_in(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out: &mut Vec<RawLine>,
-           files: &mut Vec<(String, String)>, ns: &str, once: &mut std::collections::HashSet<(PathBuf, String)>) -> Result<(), Diagnostic> {
+           files: &mut Vec<(String, String)>, ns: &str, once: &mut std::collections::HashSet<(PathBuf, String)>, overrides: &HashMap<String, String>) -> Result<(), Diagnostic> {
     files.push((file.to_string(), text.to_string()));
     let rc: Rc<str> = Rc::from(file);
     for (i, l) in text.lines().enumerate() {
@@ -76,9 +110,9 @@ fn load_in(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out: &mut Vec
             // `#include` bindet jede Datei nur einmal ein (wie `#pragma once`): so dürfen Bibliotheken einander einbinden; mit `as name` immer (eigener Namensraum)
             let sub_ns = match alias { Some(a) if ns.is_empty() => a.to_string(), Some(a) => format!("{ns}.{a}"), None => ns.to_string() };
             if is_hash && !once.insert((path.clone(), sub_ns.clone())) { continue; }
-            let sub = std::fs::read_to_string(&path).map_err(|e| Diagnostic::error("E212", file, i + 1, format!("{}: {e}", path.display())))?;
+            let sub = match overrides.get(&norm_path(&path.to_string_lossy())) { Some(t) => Ok(t.clone()), None => vc_core::textfile::read_source(&path) }.map_err(|e| Diagnostic::error("E212", file, i + 1, format!("{}: {e}", path.display())))?;
             if let Some(a) = alias { out.push(RawLine { file: rc.clone(), line: i + 1, text: format!(".namespace {a} {{") }); }
-            load_in(&sub, &path.to_string_lossy(), dirs, depth + 1, out, files, &sub_ns, once)?;
+            load_in(&sub, &path.to_string_lossy(), dirs, depth + 1, out, files, &sub_ns, once, overrides)?;
             if alias.is_some() { out.push(RawLine { file: rc.clone(), line: i + 1, text: "}".into() }); }
         } else {
             out.push(RawLine { file: rc.clone(), line: i + 1, text: l.to_string() });

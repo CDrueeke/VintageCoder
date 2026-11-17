@@ -15,7 +15,7 @@
 ;                            copy1000, sfx_update, irq
 ;   Die HAL liest vom Kern: lvl, sc0..sc2 und die Ausgabewerte; aus lib/levels.inc: lvl_mc1/2, lvl_sky0..5, txt_hud, txt_lv_lo/hi,
 ;   CH_DIGIT0, CH_STAR; aus jumprun.asm: maps_lo/hi; aus dem Export: title_chars, title_attrs, lv1_tiles, lv1_colors.  Sie veraendert nur
-;   eigene Nullseitenzellen und darf in allen Routinen A, X, Y und die Flags beliebig aendern.
+;   eigene Zeropage-Zellen und darf in allen Routinen A, X, Y und die Flags beliebig aendern.
 ;   Unterschiede zu den anderen Systemen (Sprites, Klang, Start): siehe core.asm, Abschnitt "Unterschiede".
 ;
 ; Sie ist die Schwester von hal_c64.asm: Der MEGA65 enthaelt einen C64-kompatiblen Bildchip
@@ -60,13 +60,13 @@
 ;   (Das Programm selbst liegt bei $2001-$2F2E, also unterhalb der VIC-Bank; die Bank-Daten werden von jumprun.asm
 ;   mit .org an die festen Adressen gelegt.)
 ;
-; ZEIGER IM NULLSEITENBEREICH: $50-$56 (sp, cp: Bildschirm- und Farb-RAM-Zeiger; pt0-pt2: Hilfsspeicher dieser Datei).
+; ZEIGER IM ZEROPAGE-BEREICH: $50-$56 (sp, cp: Bildschirm- und Farb-RAM-Zeiger; pt0-pt2: Hilfsspeicher dieser Datei).
 ; =====================================================================================================================
 
 #include <mega65/gs4502.asm>   // Makro mega65_enable_vic4 (schaltet den VIC-IV frei, siehe hal_init)
 .const SCREEN = $4400                  ; Bildschirm in VIC-Bank 1 ($4000-$7FFF): Bank-Anfang $4000 + $0400 aus $D018
 .const COLOR  = $d800                  ; Farb-RAM-Fenster; bei $01 = $35 sichtbar (der Farbspeicher liegt fest, nicht in der VIC-Bank)
-; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Nullseite; die Spiellogik belegt $10-$43, die Musik $F7-$FA)
+; Zeiger fuer (indirekt),y-Zugriffe und Hilfsspeicher der HAL (Zeropage; die Spiellogik belegt $10-$43, die Musik $F7-$FA)
 .const sp  = $50                 ; Zeiger (2 Byte) auf Quelle bzw. Bildschirmzelle
 .const cp  = $52                 ; Zeiger (2 Byte) auf Ziel bzw. Farb-RAM-Zelle
 .const pt0 = $54                 ; Hilfsbyte 0 (Kachelnummer, Zwischenwerte)

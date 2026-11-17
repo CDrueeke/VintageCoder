@@ -198,6 +198,10 @@ pub fn import_data(root: &Path, file_name: &str, data: &[u8], is_program: bool, 
         let text = basic_listing(dd, data, b)?;
         let rel = write_unique(root, &o.dir, &format!("{}.bas", stem_of(file_name)), text.as_bytes())?;
         out.notes.push(format!("BASIC ({}, {} Zeilen) als Quelltext übernommen", b.dialect, b.lines));
+        // Hex-Vorschläge nur als Hinweis: der Text bleibt dezimal, der Anwender wählt im Editor (Bearbeiten ▸ Hex-Vorschläge) Zeile für Zeile
+        if let Ok(s) = crate::hexhint::suggestions(dd, &b.dialect, b.system, &text) {
+            if !s.is_empty() { out.notes.push(format!("{} Adresse(n) in POKE/PEEK/SYS/WAIT sind Chipregister und lassen sich als Hex schreiben (Editor: Bearbeiten ▸ Hex-Vorschläge …; nichts wurde geändert)", s.len())); }
+        }
         out.files.push(rel);
         if b.tail > 0 { out.notes.push(format!("Hinter dem BASIC-Programm folgen {} Bytes (Maschinencode?): Original bleibt erhalten", b.tail)); }
         if o.raw || b.tail > 0 {

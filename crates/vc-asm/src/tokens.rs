@@ -16,38 +16,30 @@ pub enum Names {
     Atascii,
 }
 
-/// (Name, Code, Beschreibung); Namen klein, mit Leerzeichen statt `_`/`-`
-pub const PETSCII_NAMES: &[(&str, u8, &str)] = &[
-    ("wht", 0x05, "Weiß"), ("ret", 0x0D, "Wagenrücklauf (RETURN)"), ("lower", 0x0E, "Klein-/Großschrift einschalten"), ("down", 0x11, "Cursor runter"),
-    ("rvs on", 0x12, "Invers an"), ("home", 0x13, "Cursor links oben"), ("del", 0x14, "Zeichen links löschen"), ("red", 0x1C, "Rot"),
-    ("right", 0x1D, "Cursor rechts"), ("grn", 0x1E, "Grün"), ("blu", 0x1F, "Blau"),
-    ("orange", 0x81, "Orange"), ("f1", 0x85, "F1"), ("f3", 0x86, "F3"), ("f5", 0x87, "F5"), ("f7", 0x88, "F7"), ("f2", 0x89, "F2"), ("f4", 0x8A, "F4"),
-    ("f6", 0x8B, "F6"), ("f8", 0x8C, "F8"), ("shift ret", 0x8D, "Zeilenvorschub (Umschalt+RETURN)"), ("upper", 0x8E, "Groß-/Grafikschrift einschalten"),
-    ("blk", 0x90, "Schwarz"), ("up", 0x91, "Cursor hoch"), ("rvs off", 0x92, "Invers aus"), ("clr", 0x93, "Bildschirm löschen"), ("inst", 0x94, "Zeichen einfügen"),
-    ("brn", 0x95, "Braun"), ("lred", 0x96, "Hellrot"), ("gry1", 0x97, "Dunkelgrau"), ("gry2", 0x98, "Mittelgrau"), ("lgrn", 0x99, "Hellgrün"),
-    ("lblu", 0x9A, "Hellblau"), ("gry3", 0x9B, "Hellgrau"), ("pur", 0x9C, "Violett"), ("left", 0x9D, "Cursor links"), ("yel", 0x9E, "Gelb"), ("cyn", 0x9F, "Türkis"),
-    ("space", 0x20, "Leerzeichen"), ("shift space", 0xA0, "Umschalt+Leerzeichen"),
-];
-
-pub const ATASCII_NAMES: &[(&str, u8, &str)] = &[
-    ("esc", 0x1B, "Escape (nächstes Zeichen wird nur dargestellt)"), ("up", 0x1C, "Cursor hoch"), ("down", 0x1D, "Cursor runter"), ("left", 0x1E, "Cursor links"),
-    ("right", 0x1F, "Cursor rechts"), ("clr", 0x7D, "Bildschirm löschen"), ("bs", 0x7E, "Rückschritt"), ("tab", 0x7F, "Tabulator"), ("eol", 0x9B, "Zeilenende"),
-    ("del line", 0x9C, "Zeile löschen"), ("ins line", 0x9D, "Zeile einfügen"), ("clr tab", 0x9E, "Tabulator löschen"), ("set tab", 0x9F, "Tabulator setzen"),
-    ("bell", 0xFD, "Klingel"), ("del char", 0xFE, "Zeichen löschen"), ("ins char", 0xFF, "Zeichen einfügen"),
-];
-
+/// (Hauptname im Assembler, Code, Beschreibung) aus der gemeinsamen Namensquelle `data/chars/` (`vc_core::chars`)
 pub fn names_of(n: Names) -> &'static [(&'static str, u8, &'static str)] {
-    match n { Names::Petscii => PETSCII_NAMES, Names::Atascii => ATASCII_NAMES, _ => &[] }
+    use std::sync::OnceLock;
+    type Row = (&'static str, u8, &'static str);
+    static PET: OnceLock<Vec<Row>> = OnceLock::new();
+    static ATA: OnceLock<Vec<Row>> = OnceLock::new();
+    let rows = |f| vc_core::chars::table(f).iter().map(|c| (c.name.as_str(), c.code, c.desc.as_str())).collect::<Vec<Row>>();
+    match n {
+        Names::Petscii => PET.get_or_init(|| rows(vc_core::chars::Family::Petscii)),
+        Names::Atascii => ATA.get_or_init(|| rows(vc_core::chars::Family::Atascii)),
+        _ => &[],
+    }
 }
 
 /// Name vereinheitlichen: klein, `_` und `-` wie Leerzeichen, mehrfache Leerzeichen zusammenfassen
-pub fn normalize(name: &str) -> String {
-    name.trim().to_ascii_lowercase().replace(['_', '-'], " ").split_whitespace().collect::<Vec<_>>().join(" ")
-}
+pub fn normalize(name: &str) -> String { vc_core::chars::normalize(name) }
 
+/// Code zu einem Namen; jeder Name der Tabelle gilt (auch die BASIC-Schreibweisen, `orng` wie `orange`)
 pub fn lookup(n: Names, name: &str) -> Option<u8> {
-    let name = normalize(name);
-    names_of(n).iter().find(|(k, _, _)| *k == name).map(|(_, c, _)| *c)
+    match n {
+        Names::Petscii => vc_core::chars::lookup(vc_core::chars::Family::Petscii, name),
+        Names::Atascii => vc_core::chars::lookup(vc_core::chars::Family::Atascii, name),
+        _ => None,
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

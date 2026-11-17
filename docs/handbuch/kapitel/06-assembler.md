@@ -51,9 +51,9 @@ loop:   lda text,x          ; ein Zeichen holen ...
 text:   .screen "hallo"     ; Text als Bildschirmcodes
 ```
 
-2. Drücke **F5**. Der Emulator startet, der Rahmen wird rot, und oben links steht „HALLO“.
+2. Drücke **F5** (Startprogramm starten; bei der Vorlage ist `main.asm` das Startprogramm). Der Emulator startet, der Rahmen wird rot, und oben links steht „HALLO“.
 
-![Der Quelltext im Editor und rechts daneben der C64-Bildschirm mit rotem Rahmen und dem Wort HALLO in der oberen linken Ecke](bild:asm-erstes-programm "Das erste Programm: roter Rahmen und ein Gruß")
+![Der Quelltext main.asm eines neuen Projekts im Editor, links der Projektbaum.](bild:asm-erstes-programm "Der Editor mit dem Quelltext einer Projektvorlage")
 
 Zeile für Zeile:
 
@@ -198,6 +198,8 @@ Die wichtigsten Direktiven auf einen Blick:
 
 > **Tipp:** Die Zeile musst du nicht tippen: Ziehe die Datei aus dem Projektbaum in den Quelltext oder wähle im Projektbaum **Als Include einfügen**. VintageCoder wählt `.include` oder `.incbin` und den Pfad (siehe [Der Code-Editor](kapitel:editor)).
 
+> **Eingebundene Dateien:** Eine Datei, die ein anderer Quelltext einbindet, prüft der Editor im Kontext dieser Datei (bevorzugt des Startprogramms) und mit dem noch nicht gespeicherten Text. Marken, Konstanten und Makros der einbindenden Datei gelten dort also als bekannt, und die Adressspalte stimmt auch in der eingebundenen Datei. Fehler der einbindenden Datei erscheinen in deren eigener Datei. Eine Bibliotheksdatei, die niemand einbindet, zeigt fehlende Symbole nur als Hinweis.
+
 Alle Direktiven stehen in den Hilfeseiten [Direktiven](hilfe:asm-directives) und [Spickzettel und Fehlercodes](hilfe:asm-index).
 
 ## Makros: Abkürzungen für mehrere Zeilen
@@ -222,7 +224,7 @@ start:  farbe(0)
 
 Das Makro heißt `farbe` und hat einen **Parameter** `c`. Beim Aufruf `farbe(6)` wird überall `c` durch `6` ersetzt. Das Listing zeigt, was daraus wird: bei jedem Aufruf stehen die drei Befehle neu im Programm.
 
-![Der Quelltext mit dem Makro farbe und rechts das Listing, das zeigt, wie jeder Aufruf zu drei Befehlen wird](bild:asm-makro "Ein Makro wird bei jedem Aufruf eingesetzt")
+![Der Quelltext mit dem Makro music_init, das bei jedem Aufruf als Befehlsfolge eingesetzt wird.](bild:asm-makro "Ein Makro wird bei jedem Aufruf eingesetzt")
 
 > **Achtung:** Ein Makro ist **kein Unterprogramm**. Es gibt weder `jsr` noch `rts` dafür: Der Code steht bei jedem Aufruf neu im Programm. Das ist schnell, kostet aber Speicher. Mehr über Makros, Scopes und Strukturen steht in der Hilfeseite [Labels, Makros, Scopes, Strukturen](hilfe:asm-macros).
 
@@ -291,7 +293,7 @@ start:  lda #300
 error[E203]: Wert 300 außerhalb -128..255
 ```
 
-![Der Editor mit einer rot unterstrichenen Zeile „jmp ende“, daneben der Reiter Probleme mit der Meldung „E202: unbekanntes Symbol ende“](bild:asm-fehler "Eine Fehlermeldung lesen: Code, Beschreibung und Zeile")
+![Der Editor mit der rot unterlegten Zeile „jmp ende“; darunter der Reiter Probleme mit der Meldung „E202: unbekanntes Symbol „ende““.](bild:asm-fehler "Eine Fehlermeldung lesen: Code, Beschreibung und Zeile")
 
 Ein Klick auf die Meldung im Reiter **Probleme** springt zur Zeile. Alle Fehlercodes erklärt der [Spickzettel](hilfe:asm-index).
 
@@ -307,4 +309,4 @@ Ein Klick auf die Meldung im Reiter **Probleme** springt zur Zeile. Alle Fehlerc
 
 ## Wie geht es weiter?
 
-Du kennst jetzt die Bausteine eines Assembler-Programms. Weiter geht es mit dem anderen Weg zu einem Programm, [BASIC in der IDE](kapitel:basic). Wie du das Ergebnis baust, im Bauprotokoll liest und startest, steht im Kapitel [Bauen und Starten](kapitel:bauen-starten). Wenn dein Programm nicht tut, was du willst, hilft der [Debugger](kapitel:debugger). Zum Nachschlagen nutzt du die Hilfeseiten [Assembler](hilfe:assembler) und [Direktiven](hilfe:asm-directives).
+Du kennst jetzt die Bausteine eines Assembler-Programms. Weiter geht es mit dem anderen Weg zu einem Programm, [BASIC in der IDE](kapitel:basic). Wie du das Ergebnis baust, die Meldungen liest und startest, steht im Kapitel [Bauen und Starten](kapitel:bauen-starten). Wenn dein Programm nicht tut, was du willst, hilft der [Debugger](kapitel:debugger). Zum Nachschlagen nutzt du die Hilfeseiten [Assembler](hilfe:assembler) und [Direktiven](hilfe:asm-directives).

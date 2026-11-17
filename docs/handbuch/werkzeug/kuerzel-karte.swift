@@ -4,7 +4,7 @@ import AppKit
 let groups: [(String, [(String, String)])] = [
  ("Bauen und Starten", [("F7","Projekt bauen"),("Umschalt+F7","aktive Datei bauen"),("F5","bauen und starten"),("Umschalt+F5","aktive Datei starten"),("F6","Startprogramm debuggen"),("Umschalt+F6","aktive Datei debuggen")]),
  ("Debugger", [("F8","Weiter"),("F11","Schritt (JSR hinein)"),("F10","Über (JSR durch)"),("Umschalt+F11","Raus (bis Rücksprung)"),("Klick auf Zeilennummer","Haltepunkt setzen/löschen")]),
- ("Dateien", [("Cmd/Strg+Umschalt+N","Neues Projekt"),("Cmd/Strg+O","Projekt öffnen"),("Cmd/Strg+N","Neue Quelldatei"),("Cmd/Strg+S","Speichern"),("Cmd/Strg+Alt+S","Alle speichern"),("Cmd/Strg+W","Datei schließen"),("Cmd/Strg+,","Einstellungen")]),
+ ("Dateien", [("Cmd/Strg+Umschalt+N","Neues Projekt"),("Cmd/Strg+O","Projekt öffnen"),("Cmd/Strg+N","Neuer Reiter"),("Cmd/Strg+S","Speichern"),("Cmd/Strg+Alt+S","Alle speichern"),("Cmd/Strg+W","Datei schließen"),("Cmd/Strg+,","Einstellungen")]),
  ("Bearbeiten und Suchen", [("Cmd/Strg+Z","Rückgängig"),("Cmd/Strg+Umschalt+Z","Wiederholen"),("Cmd/Strg+F","Suchen"),("Cmd/Strg+Alt+F","Ersetzen"),("Cmd/Strg+L","Gehe zu Zeile"),("Cmd/Strg+Umschalt+F","In Projekt suchen"),("Cmd/Strg+Umschalt+Y","Zeichen einfügen"),("Ctrl+Leertaste","Vervollständigung"),("F1","Hilfe zum Wort")]),
  ("Ansicht", [("Cmd/Strg+K","Befehlspalette"),("Cmd/Strg+B","Seitenleiste"),("Cmd/Strg+Alt+B","Inspektor"),("Cmd/Strg+J","Fußpanel"),("Cmd/Strg+Umschalt+Enter","Maximieren"),("Cmd/Strg+\\","Editor teilen")]),
 ]

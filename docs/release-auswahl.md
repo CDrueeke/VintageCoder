@@ -76,12 +76,12 @@ Geprüft wird: `data/release.json` nennt genau die gewählten Anbindungen und Zi
 Von Hand zusätzlich:
 
 ```bash
-VC_RELEASE=build/stage-macos/data/release.json cargo run -p vc-app     # IDE mit der Auswahl
+VC_RELEASE=build/stage-macos/data/release.json cargo run -p vc-gui     # IDE mit der Auswahl
 VC_RELEASE=build/stage-macos/data/release.json vcc emulator list
 python3 tools/release.py stage --os linux --out build/pruefung --features tools/testdata/nur-cli-c64.md --no-bin --force
 ```
 
-Der IDE-Selbsttest `mindestauswahl_zeigt_nichts_abgewaehltes` (`cargo test -p vc-app`) prüft Menüs, Befehle, Reiter, Hilfe und Anbindungen für drei Mindestauswahlen.
+Der Selbsttest `mindestauswahl_zeigt_nichts_abgewaehltes` (`cargo test -p vc-ide`) prüft Hilfeseiten, Anbindungen und die Liste der Zielsysteme für drei Mindestauswahlen. Menüs, Befehle und Studios der Oberfläche richten sich noch nicht nach der Studio-Auswahl (im Release sind alle Studios gewählt); Anbindungen, Zielsysteme, Hilfe und Update-Prüfung folgen der Auswahl.
 
 ## Grenzen
 

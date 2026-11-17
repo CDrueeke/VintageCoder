@@ -1,0 +1,9 @@
+[package]
+name = "vc-md"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Markdown für den VintageCoder-Editor: Parser mit Quellzeilen, Zeilenfarben, Links, Gliederung, Schreibhilfen (ohne Oberfläche)"
+
+[dependencies]
+pulldown-cmark = { version = "0.13", default-features = false }

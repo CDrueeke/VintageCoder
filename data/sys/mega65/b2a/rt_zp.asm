@@ -1,4 +1,4 @@
-// BASIC→Assembler (basic2asm), Laufzeit MEGA65 (BASIC 65, Programm bei $2001): Nullseite, Variablen und Speichergrenzen. Nur Stufe 1 und 3 (Ganzzahl und
+// BASIC→Assembler (basic2asm), Laufzeit MEGA65 (BASIC 65, Programm bei $2001): Zeropage, Variablen und Speichergrenzen. Nur Stufe 1 und 3 (Ganzzahl und
 // Zeichenketten): das ROM bietet keine verwendbaren Fließkommaroutinen (siehe Konzept, Abschnitt 10.4 und rom-disasm).
 // Einbinden mit: #include <mega65/b2a/rt_zp.asm> (am Anfang des Programms, vor allem Code)
 //

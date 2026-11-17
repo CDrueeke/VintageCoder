@@ -6,7 +6,7 @@
 //! aus (`-prg … -prgmode 65`), der Test wartet, hält an und liest den Bildschirm ($0800, 80 Spalten). Ohne Audiogerät `SDL_AUDIODRIVER=dummy` setzen, sonst beendet sich Xemu.
 //!
 //! Tests:
-//!  * `probe_zeropage`: misst, welche Nullseitenbytes KERNAL und Interrupt im Lauf ändern (Block der Laufzeit: `data/sys/mega65/b2a/rt_zp.asm`, $40-$53).
+//!  * `probe_zeropage`: misst, welche Zeropage-Bytes KERNAL und Interrupt im Lauf ändern (Block der Laufzeit: `data/sys/mega65/b2a/rt_zp.asm`, $40-$53).
 //!  * `programs_run_on_mega65`: übersetzte BASIC-Programme (Ganzzahl, Zeichenketten) laufen und schreiben den erwarteten Text auf den Bildschirm.
 use std::path::PathBuf;
 use std::time::Duration;
@@ -117,7 +117,7 @@ done:   jmp done
     let a = m.read_mem(0x1E00, 256).unwrap();
     let b = m.read_mem(0x1F00, 256).unwrap();
     let diff: Vec<String> = (0..256).filter(|&i| a[i] != b[i]).map(|i| format!("${i:02X}:{:02X}->{:02X}", a[i], b[i])).collect();
-    eprintln!("Nullseite geändert: {}", diff.join(" "));
+    eprintln!("Zeropage geändert: {}", diff.join(" "));
     // Der Block der Laufzeit ($40-$53) darf sich nicht geändert haben
     let hit: Vec<&String> = diff.iter().filter(|d| { let i = usize::from_str_radix(&d[1..3], 16).unwrap(); (0x40..0x54).contains(&i) }).collect();
     assert!(hit.is_empty(), "KERNAL/Interrupt ändern den Block $40-$53: {hit:?}");

@@ -75,7 +75,7 @@
 ;            1-15 Grundfarben, 32-223 Steine (24 Typen x 8 Stufen), 224-231 Wand, 232-233 Logo-Rand, 234 schwarz (Rand 640 x 400), 251 Randblitz/pulsierender Rand;
 ;            Bank 1 = Sprites ($D070 Bits 2-3): 0-15 Grundfarben, 16-47 Schlaeger (Sprites 1 und 2), 48-95 Kugeln (Sprites 3-5), 96-127 Schuesse (Sprites 6, 7)
 ;
-; NULLSEITE (Zeropage)
+; ZEROPAGE
 ;   $01  CPU-Port (= $35)   $10-$3B  Spielzustand: Ball, Schlaeger, Punkte, Hilfsspeicher t0-t3, Zeiger sp/cp/tp (siehe .const unten)
 ;   $40-$5D  Namenseingabe, Schlaegerbreite, Kapsel, Extras, Demo/Titel, Logo, Sprite-Sammelbits   $5E-$8B  Laser, Interrupt/Verlauf (bp, bflash), Lauftext,
 ;   Titellogo, Bonus-/Bosslevel, Ticker   $8C-$8F  W_SRC (Zeiger der wandernden Steine)   $90-$97  Klangerzeugung (SYN_ZP)
@@ -99,7 +99,7 @@
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseiten-Variablen des Spiels ($10-$3F)
+; Zeropage-Variablen des Spiels ($10-$3F)
 ; ---------------------------------------------------------------------------------------------------------------------
 .const bxl     = $10                    ; Ball-X, Festkomma 1/64 px, Low-Byte
 .const bxh     = $11                    ;                           High-Byte
@@ -222,7 +222,7 @@
 
 .const MAP     = $c000                  ; Steinkarte im RAM
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2).  load_ball/save_ball kopieren einen Ball in die
-; Nullseite (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
+; Zeropage (bxl..vyh), mit der die Bewegungs- und Kollisionsroutinen arbeiten.
 .const shact   = $c120                  ; Laserschuesse (2 Stueck): 1 = aktiv
 .const shu     = $c122                  ;   X-Lage in Einheiten zu 2 px (px / 2, damit 8 Bit reichen: max. 150)
 .const shy     = $c124                  ;   Y-Lage (Oberkante) in px
@@ -448,7 +448,7 @@ mega_init:
 ; ---------------------------------------------------------------------------------------------------------------------
 copy_font:
         ; MEGA65: Das C64-Zeichen-ROM liegt im Chip-Speicher bei $2D000 (nicht im Adressraum der CPU).  Wir lesen es ueber einen
-        ; 32-Bit-Zeiger (Nullseite $E0-$E3, Z = 0) und kopieren die ersten 2 KB (Grossbuchstaben und Grafik) nach $8800.
+        ; 32-Bit-Zeiger (Zeropage $E0-$E3, Z = 0) und kopieren die ersten 2 KB (Grossbuchstaben und Grafik) nach $8800.
         lda #$00
         sta $e0                         ; Zeiger $0002_D000: Low-Byte 0 ...
         lda #$d0
@@ -3514,7 +3514,7 @@ ov1:    clc
 .ovn:   clc
         rts
 
-; wcoll: trifft der Ball (Nullseite, nach der Bewegung) einen wandernden Stein?  Z = 1 nein; sonst A = Typ, bcol/brow/bidx gesetzt (wie probe).
+; wcoll: trifft der Ball (Zeropage, nach der Bewegung) einen wandernden Stein?  Z = 1 nein; sonst A = Typ, bcol/brow/bidx gesetzt (wie probe).
 wcoll:
         jsr get_px
         lda byl
@@ -4546,7 +4546,7 @@ place_ball:
         sta bact + 2
         rts
 
-; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Nullseite holen / dorthin zurueckschreiben.   Veraendert A, X.
+; load_ball / save_ball: Ball cb aus dem Ballspeicher in die Zeropage holen / dorthin zurueckschreiben.   Veraendert A, X.
 load_ball:
         ldx cb
         lda b_xl,x
@@ -4566,7 +4566,7 @@ load_ball:
         lda b_vyh,x
         sta vyh
         rts
-; save_ball: die Nullseitenwerte des aktuellen Balls (bxl..vyh) in den Ballspeicher (Schlitz cb) zurueckschreiben.
+; save_ball: die Zeropage-Werte des aktuellen Balls (bxl..vyh) in den Ballspeicher (Schlitz cb) zurueckschreiben.
 save_ball:
         ldx cb
         lda bxl
@@ -4617,7 +4617,7 @@ move_all:
 .alive: lda #0
         rts
 
-; pick_ball: den tiefsten aktiven Ball in die Nullseite laden (der Autoplay/Demo folgt ihm).
+; pick_ball: den tiefsten aktiven Ball in die Zeropage laden (der Autoplay/Demo folgt ihm).
 pick_ball:
         lda #0
         sta t2                          ; bester Y-Wert (High-Byte)
@@ -4649,7 +4649,7 @@ multiball:
         bne .mb1
         rts                             ; kein aktiver Ball
 .mbf:   stx cb
-        jsr load_ball                   ; Quelle in die Nullseite
+        jsr load_ball                   ; Quelle in die Zeropage
         lda #1
         sta t1                          ; naechste Zone: 1, dann 6
         ldx #0
@@ -4676,7 +4676,7 @@ multiball:
 launch: lda #0
         sta stuck
         sta cb
-        jsr load_ball                   ; Ball 0 (der haftende) in die Nullseite
+        jsr load_ball                   ; Ball 0 (der haftende) in die Zeropage
         lda #SFX_START
         jsr sfx_play
         jsr rand_byte
@@ -6912,7 +6912,7 @@ name_draw:
 ;   dann links nach rechts schreiben), 3 nach links wegscrollen (neu von rechts), 4 nach rechts, 5 Wischer (Kante laeuft pixelweise von links
 ;   nach rechts), 6 Aufloesen (zufaellige Pixelzeilen werden ausgetauscht).  Dazu eine laufende Regenbogenfarbe ueber die Zeichen.
 ;   ABLAUF: warten (tkw Bilder), naechsten Text aus der Folge holen, Effekt starten, Schritte ausfuehren, fertig -> warten.
-; Zustand (Nullseite): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
+; Zustand (Zeropage): tkrow Zeile, tkst 0 = warten / 1 = Effekt, tkw Wartebilder, tkeff Effekt, tkstep Schritt, tkmsg Folgenindex, tkseq 0 Titel / 1 Demo
 ; =====================================================================================================================
 .const TK_BUF = $8f00                   ; Bitmuster der Zeichen 224..255 ($4800 + 224 * 8)
 .const TK_CHR = 224                     ; erstes Ticker-Zeichen

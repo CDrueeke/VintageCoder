@@ -16,6 +16,8 @@ pub struct AtariDialect {
     pub lomem_offset: u16,
     /// Turbo BASIC XL: erweiterte Token, Labels (PROC/EXEC), bis 256 Variablen
     pub turbo: bool,
+    /// `$hex`/`%binär` als Literal im Interpreter (`numberLiterals`)
+    pub number_literals: crate::numbers::NumberRules,
 }
 
 impl AtariDialect {
@@ -30,7 +32,7 @@ impl AtariDialect {
         };
         let ops = v["ops"].as_object().ok_or("ops fehlt")?.iter().map(|(k, c)| (k.clone(), c.as_str().and_then(parse_num).unwrap_or(0) as u8)).collect();
         Ok(AtariDialect { id: id.into(), statements: rows("statements")?, functions: rows("functions")?, ops,
-                          lomem_offset: v["lomemOffset"].as_str().and_then(parse_num).unwrap_or(0x100) as u16, turbo: v["turbo"].as_bool().unwrap_or(false) })
+                          lomem_offset: v["lomemOffset"].as_str().and_then(parse_num).unwrap_or(0x100) as u16, turbo: v["turbo"].as_bool().unwrap_or(false), number_literals: crate::numbers::NumberRules::from_json(&v) })
     }
     fn op(&self, n: &str) -> u8 { self.ops[n] }
     #[allow(dead_code)]
@@ -100,17 +102,19 @@ enum End { Normal, Raw, Then }
 
 struct Parser<'a> { ch: Vec<char>, i: usize, d: &'a AtariDialect, vars: &'a mut Vec<String>, raw: HashMap<String, String> }
 
-const CONTROL: &[(&str, u8)] = &[("clr", 0x7D), ("up", 0x1C), ("down", 0x1D), ("left", 0x1E), ("right", 0x1F), ("esc", 0x1B), ("tab", 0x7F), ("del", 0x7E), ("eol", 0x9B), ("bell", 0xFD)];
+pub const CONTROL: &[(&str, u8)] = &[("clr", 0x7D), ("up", 0x1C), ("down", 0x1D), ("left", 0x1E), ("right", 0x1F), ("esc", 0x1B), ("tab", 0x7F), ("del", 0x7E), ("eol", 0x9B), ("bell", 0xFD)];
 
 fn atascii_string(inner: &str) -> Result<Vec<u8>, String> {
     let c: Vec<char> = inner.chars().collect();
     let (mut out, mut i) = (vec![], 0);
     while i < c.len() {
         if c[i] == '{' {
+            if c.get(i + 1) == Some(&'{') { out.push(b'{'); i += 2; continue; }   // `{{` ergibt ein einzelnes `{`
             let end = c[i..].iter().position(|x| *x == '}').ok_or("'}' fehlt")? + i;
-            let name: String = c[i + 1..end].iter().collect::<String>().to_ascii_lowercase();
-            out.push(if let Some(h) = name.strip_prefix('$') { u8::from_str_radix(h, 16).map_err(|_| format!("ungültiger Code {{{name}}}"))? }
-                     else { CONTROL.iter().find(|(n, _)| *n == name).map(|(_, v)| *v).ok_or(format!("unbekannter Steuercode {{{name}}}"))? });
+            let body: String = c[i + 1..end].iter().collect();
+            // Name des Dialekts (`CONTROL`) zuerst, dann die gemeinsame Tabelle (`data/chars/`: alle Schreibweisen, `{155}`, `{$9b}`, `{down*3}`)
+            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Atascii, &body, &|n| CONTROL.iter().find(|(k, _)| *k == n).map(|(_, v)| *v))?;
+            out.extend(std::iter::repeat(code).take(count));
             i = end + 1;
         } else if (c[i] as u32) < 0x7F && (c[i] as u32) >= 0x20 { out.push(c[i] as u8); i += 1; }
         else { return Err(format!("Zeichen '{}' nicht im ATASCII-Bereich (nutze {{$xx}})", c[i])); }
@@ -725,5 +729,22 @@ impl AtariProgram {
             off = end;
         }
         s
+    }
+}
+
+#[cfg(test)]
+mod char_tests {
+    use super::*;
+
+    #[test]
+    fn atascii_names_numbers_repeats_and_braces() {
+        assert_eq!(atascii_string("{clr}A{eol}").unwrap(), vec![0x7D, b'A', 0x9B]);
+        assert_eq!(atascii_string("{155}{$9b}").unwrap(), vec![0x9B, 0x9B], "Zahl dezimal und hexadezimal");
+        assert_eq!(atascii_string("{down*3}").unwrap(), vec![0x1D, 0x1D, 0x1D], "Wiederholung");
+        assert_eq!(atascii_string("{bs}{del}").unwrap(), vec![0x7E, 0x7E], "Name der Tabelle und des Dialekts");
+        assert_eq!(atascii_string("{Del Line}{del_char}").unwrap(), vec![0x9C, 0xFE], "Namen der Tabelle, `_` wie Leerzeichen");
+        assert_eq!(atascii_string("a{{b").unwrap(), b"a{b".to_vec(), "doppelte Klammer ergibt eine einzelne");
+        assert!(atascii_string("{wht}").is_err(), "PETSCII-Namen gelten nicht");
+        assert!(atascii_string("{300}").is_err());
     }
 }

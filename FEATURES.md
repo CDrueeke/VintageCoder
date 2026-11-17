@@ -10,7 +10,7 @@ python3 tools/release.py stage --os windows|macos|linux --out build/stage-<os> -
 
 Die Kommandozeile `vcc` mit Assembler, BASIC, Bau, Test und dem Sprachserver `vc-lsp` ist **immer** dabei. Entwicklungsstände, Release-Kriterien und Lücken stehen in `STATUS.md`; die Technik (Abhängigkeiten, Dateien je Zeile) in `release/registry.json`. Eine Auswahl gilt für alle drei Betriebssysteme. Die Versionsnummer vergibt nur der Projektinhaber (`CHANGELOG.md`).
 
-**Stand 2026-11-12:** Gewählt (`[x]`) ist der Umfang der Alpha-Version 0.1.0 (C64, Atari 8 Bit, MEGA65, Plus/4 mit Studios und Beispielen). Abgewählt sind C128, VC-20, PET, CBM-II, echte MEGA65-Hardware und der Extraktor; sie sind im Quelltext vorhanden, aber in den Paketen ausgeblendet. Die Stände sind keine vollständige manuelle Abnahme; was je Paket geprüft wurde, steht in `STATUS.md`.
+**Stand 2026-11-17:** Gewählt (`[x]`) ist der Umfang des nächsten Releases: C64, Atari 8 Bit, MEGA65, Plus/4 mit C16/116, C128 und VC-20, jeweils mit Studios, Anbindungen und Beispielen. Abgewählt sind PET/CBM, CBM-II, die echte MEGA65 (serieller Monitor) und der Extraktor; sie sind im Quelltext vorhanden, aber in den Paketen ausgeblendet. Die Stände sind keine vollständige manuelle Abnahme; was je Paket geprüft wurde, steht in `STATUS.md`.
 
 Ausführlich: IDE-Hilfe „Release-Auswahl“ und `docs/release-auswahl.md`; Vorlage für die Release-Notiz: `release/notes-template.md`.
 
@@ -34,6 +34,7 @@ Muster einer Zeile (Kommentare werden vom Skript ignoriert):
 | Kennung | Inhalt | Stand | Release |
 |---|---|---|---|
 | `IDE-APP` | **Entwicklungsumgebung** `vintagecoder` (Editor, Projektbaum, Debugger, Einstellungen). Ohne sie entsteht ein reines Kommandozeilenpaket. | Stabil | [x] |
+| `IDE-UPDATE` | **Update-Prüfung**: sucht auf Wunsch nach einer neuen Version, zeigt die Änderungen und einen Link zur Releaseseite (Einstellungen ▸ Updates, `vcc update`). Kein Laden, kein Installieren. Ohne sie enthält das Paket keinerlei Update-Funktion und baut nie eine solche Verbindung auf. | Beta | [x] |
 
 ## 2. Studios (nur wirksam mit `IDE-APP`)
 
@@ -75,8 +76,8 @@ Gemeint ist die **Anbindung im Programm** (Erkennung, Parameterkatalog, Einstell
 | `SYS-C16` | Commodore 16 / 116 (16 KB, braucht `SYS-PLUS4`) | Beta | [x] |
 | `SYS-C128` | Commodore 128 | Beta | [x] |
 | `SYS-VC20` | VC-20 | Beta | [x] |
-| `SYS-PET` | PET/CBM (BASIC) | Spike | [x] |
-| `SYS-CBM2` | CBM-II (nur BASIC) | Spike | [x] |
+| `SYS-PET` | PET/CBM (BASIC) | Spike | [ ] |
+| `SYS-CBM2` | CBM-II (nur BASIC) | Spike | [ ] |
 
 ## 5. Beispielprojekte (je gewähltem Zielsystem)
 

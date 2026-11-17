@@ -70,7 +70,7 @@
 ;       Falle.
 ;   $8000-$81FF Zeichen-ROM (Quelle der Textzeichen)   $9400-$95F9 Farb-RAM (22 x 23 Zellen, nur Bit 0..3)
 ;
-; NULLSEITE: $02 Zufall (2 Byte), $04 Musik (4), $08 Bestenliste (6), $10-$62 Spielzustand (siehe unten), $8C Eingabe (4). Das Programm kehrt nie zu
+; ZEROPAGE: $02 Zufall (2 Byte), $04 Musik (4), $08 Bestenliste (6), $10-$62 Spielzustand (siehe unten), $8C Eingabe (4). Das Programm kehrt nie zu
 ;   BASIC zurueck, darf also die BASIC-Zeiger belegen; die KERNAL-Variablen ab $90 (Status, Geraetenummer ...) bleiben unberuehrt, die Dateizugriffe
 ;   brauchen sie.
 ;
@@ -101,7 +101,7 @@
 .branchlong auto
 
 ; ---------------------------------------------------------------------------------------------------------------------
-; Nullseite: Spielzustand $10-$62 (Bibliotheken: Zufall $02, Musik $04, Bestenliste $08, Eingabe $8C).  Alles sind Bytes; 16-Bit-Werte liegen als Low/High
+; Zeropage: Spielzustand $10-$62 (Bibliotheken: Zufall $02, Musik $04, Bestenliste $08, Eingabe $8C).  Alles sind Bytes; 16-Bit-Werte liegen als Low/High
 ; nebeneinander (Low zuerst).  Die Hilfsspeicher t0..t5 gelten nur innerhalb einer Routine; jede Routine nennt, welche sie verwendet.
 ; ---------------------------------------------------------------------------------------------------------------------
 ; -- Ball: Position ist Festkomma 8.8 (Bildpunkt = High-Byte, Bruchteil = Low-Byte), Geschwindigkeit in 1/256 Punkt je Bild (vorzeichenbehaftet)

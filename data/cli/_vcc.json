@@ -21,6 +21,8 @@
     { "name": "VC_XEMU_SD", "help": "Ordner mit MEGA65.ROM für Xemu." },
     { "name": "VC_XEMU_ARGS", "help": "zusätzliche Argumente beim Start von Xemu, durch Leerzeichen getrennt." },
     { "name": "VC_STRUCTURES", "help": "Datei mit eigenen Projektvorlagen (sonst structures.json im Konfigurationsordner)." },
+    { "name": "VC_UPDATE_URL", "help": "Quelle der Versionsliste für vcc update (Ordner, Datei oder https-Adresse; sonst der feste Release update-feed). Ändert nie das Ziel des Links." },
+    { "name": "VC_UPDATE_DIR", "help": "Ordner für Befund und Prüfprotokoll der Update-Prüfung (sonst updates im Konfigurationsordner)." },
     { "name": "VC_DEBUG_LOG", "help": "Debug-Protokoll einschalten: 1 (Standarddatei logs/vintagecoder.log im Konfigurationsordner) oder ein Dateipfad; 0 schaltet aus. Gilt für vintagecoder und vcc." },
     { "name": "VC_WIN", "help": "Fenstergröße der IDE, z. B. 1400x860 (nur vintagecoder)." },
     { "name": "COLUMNS", "help": "Breite für den Zeilenumbruch der Hilfe (Standard: 100)." },

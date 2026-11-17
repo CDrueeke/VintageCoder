@@ -135,6 +135,38 @@
    "timeoutMs": 2000
   },
   {
+   "name": "tile_erase zweimal: Kacheln der Karte neu gezeichnet (Referenz)",
+   "call": "t_erase",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_restore 4 x 3 aus der Karte (Referenz)",
+   "call": "t_restore",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_restore stellt den Hintergrund unter einer Figur wieder her (= Screen 1)",
+   "call": "t_restore_bg",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "tile_row: Zeile 5 aus Kachel 3 (Referenz)",
+   "call": "t_row",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
    "name": "screen_map_get (0,0) von Screen 1 = 2",
    "setup": {
     "x": 0,

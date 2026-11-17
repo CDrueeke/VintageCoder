@@ -1,0 +1,10 @@
+[package]
+name = "vc-gui-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "VintageCoder Oberflaeche (Iced): Farbrollen, Texte, Befehlstabelle"
+
+[dependencies]
+iced = { version = "=0.14.0", default-features = false, features = ["tokio", "advanced"] }
+vc-ide-model = { path = "../vc-ide-model" }

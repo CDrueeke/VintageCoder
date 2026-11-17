@@ -8,7 +8,7 @@
 .const MEGA65_ROM = 920418   // zum Abfragen im Quelltext: .if MEGA65_ROM == 920418
 #include <mega65/kernal.asm>
 
-// ---- Nullseite $00-$0A: Monitor- und JSR_FAR-Register
+// ---- Zeropage $00-$0A: Monitor- und JSR_FAR-Register
 .const D6510                   = $00
 .const R6510                   = $01
 .const BANK                    = $02
@@ -21,7 +21,7 @@
 .const Z_REG                   = $09
 .const STKPTR                  = $0A
 
-// ---- Nullseite $0B-$8F: BASIC
+// ---- Zeropage $0B-$8F: BASIC
 .const UNIFLG                  = $0B
 .const VERCK                   = $0C
 .const COUNT                   = $0D
@@ -105,7 +105,7 @@
 .const BLNMODE                 = $89
 .const DOS_EOF                 = $8B
 
-// ---- Nullseite $90-$FA: KERNAL und Editor
+// ---- Zeropage $90-$FA: KERNAL und Editor
 .const STATUS                  = $90
 .const STKEY                   = $91
 .const PARTIAL                 = $92

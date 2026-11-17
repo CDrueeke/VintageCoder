@@ -21,7 +21,7 @@ hat keine Sprites und nur 22 x 23 Zeichen; die Spiellogik ist deshalb eine **sch
 - **Klang (VIC-I, 3 Toene + Rauschen, gemeinsame Lautstaerke):** Titellied (16 Takte aus dem C64-Lied, Melodie Sopran, Bass Bass, Arpeggio Alt, Schlagzeug als Rauschstoss), Effekte auf Alt/Rauschen.
 - **Noch nicht / ungeprueft:** Klang ungehoert (nur Registerwerte geprueft); Tastatur und Joystick nicht im Emulator getippt (Matrix gegen die KERNAL-Dekodiertabelle `$EC5E` geprueft); NTSC nicht getestet;
   Verhalten ohne Erweiterung (laeuft nicht).
-- **Bibliotheken:** `lib/{input,hiscore,rand,sound}.asm` (Vertrag: siehe die Kopfkommentare der Dateien). Nullseite: Zufall `$02`, Musik `$04`, Bestenliste `$08`, Spiel `$10-$62`, Eingabe `$8C`.
+- **Bibliotheken:** `lib/{input,hiscore,rand,sound}.asm` (Vertrag: siehe die Kopfkommentare der Dateien). Zeropage: Zufall `$02`, Musik `$04`, Bestenliste `$08`, Spiel `$10-$62`, Eingabe `$8C`.
 - **Tests:** `python3 tools/run_tests.py` (nach `vcc build .`): startet xvic mit `-memory 8k` und dem Text-Monitor, ruft Unterprogramme einzeln auf. Grund: `vcc test --backend vice` startet xvic ohne
   Speichererweiterung. Der Pfad zu `xvic` steht oben in `tools/run_tests.py` (`EXE`, dort ein macOS-Pfad) und muss ggf. angepasst werden. 81 Pruefungen: Ladegroessen und Grenzen, BCD-Punkte, Zufall, Geschwindigkeitstabelle, Schlaegerabprall, Steinkollision, Steinarten inkl. Explosion, Muenzen (alle 6 Arten), alle 22 Levels, Zeichen-Sprites mit
   unabhaengig berechneten Bitmustern, Bestenliste, Klangwerte.

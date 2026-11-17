@@ -3,7 +3,7 @@
 // Datei "PRALL.HS" (127 Byte): "PRBL", Version 1, 10 x (8 Zeichen + 3 Byte Punkte lo/mid/hi + 1 Byte Level), CRC-16.
 // Zugriff über das KERNAL des PET (BASIC 4) als sequentielle Datei (OPEN/CHKIN/CHRIN, CHKOUT/CHROUT), Diskette am Gerät, von dem das Programm gestartet wurde
 // ($D4 beim Start gemerkt; ohne Diskettenstart gibt es keine Dateizugriffe und hs_load/hs_save melden HS_NODEV). Ergebnis in A (HS_*), Z=1 bei HS_OK.
-// WICHTIG: Das KERNAL des PET hat keine SETLFS/SETNAM-Einsprunge; die Dateiparameter stehen in der Nullseite ($D1 Namenslaenge, $D2 logische Datei, $D3 Sekundaeradresse,
+// WICHTIG: Das KERNAL des PET hat keine SETLFS/SETNAM-Einsprunge; die Dateiparameter stehen in der Zeropage ($D1 Namenslaenge, $D2 logische Datei, $D3 Sekundaeradresse,
 //   $D4 Geraet, $DA/$DB Namenszeiger).  Fehler beim OPEN (Geraet fehlt) bricht das KERNAL mit einer BASIC-Fehlermeldung ab; darum wird ohne Diskettenstart gar nicht geoeffnet.
 //   hs_default   Liste mit Standardeinträgen füllen
 //   hs_load      Datei laden; bei Fehler bleibt die Standardliste, A = HS_NODEV/HS_NOFILE/HS_BADSUM
@@ -14,7 +14,7 @@
 
 #include <pet/kernal.asm>
 
-// KERNAL-Nullseite des PET (BASIC 4) fuer OPEN
+// KERNAL-Zeropage des PET (BASIC 4) fuer OPEN
 .const ZP_FNLEN = $d1
 .const ZP_LA    = $d2
 .const ZP_SA    = $d3
@@ -22,7 +22,7 @@
 .const ZP_FNADR = $da
 .const ZP_ST    = $96           // Status der letzten E/A-Operation
 // WICHTIG: Die Einsprunge OPEN ($FFC0) und CLOSE ($FFC3) der Sprungtabelle sind beim PET (BASIC 4) die BASIC-ANWEISUNGEN: sie lesen Parameter aus dem BASIC-Text.
-//   Das eigentliche KERNAL-OPEN liegt bei $F563 (Parameter in der Nullseite), das KERNAL-CLOSE bei $F2E0 (A = Datei).  CHKIN/CHKOUT/CHRIN/CHROUT/CLRCHN stimmen.
+//   Das eigentliche KERNAL-OPEN liegt bei $F563 (Parameter in der Zeropage), das KERNAL-CLOSE bei $F2E0 (A = Datei).  CHKIN/CHKOUT/CHRIN/CHROUT/CLRCHN stimmen.
 .const OPEN_RAW  = $F563
 .const CLOSE_RAW = $F2E0
 

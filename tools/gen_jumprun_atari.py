@@ -12,7 +12,8 @@ Atari-Besonderheiten gegenueber dem C64 (siehe Konzept "Hugo & Gumbo"):
 
 Was erzeugt wird (alles unter examples/atari/jumprun):
   graphics/chars.vcchar   Zeichensatz (128 Zeichen zu 4 x 8 Mehrfarbpixeln, Profil atari.char.antic4)
-  graphics/lv1..lv4.vctiles  Kachelkarten (Kachel = 2 x 2 Zeichen, 20 x 12 Kacheln je Bild)
+  graphics/hg.vctiles        Kachelsatz (Kachel = 2 x 2 Zeichen, 21 Kacheln)
+  graphics/levels.vcscreen   Screen-Bank mit den vier Bildern (20 x 12 Kacheln je Bild)
   graphics/title.vcscreen    Titelbild (24 x 40 Zeichencodes)
   music/tune.vcsong          Musik (3 Stimmen, Kanal 4 bleibt frei)
   lib/levels.inc                Tabellen und Spielerdaten fuer den Assembler (nicht von Hand aendern)
@@ -69,16 +70,30 @@ def charset():
     for i, ch in enumerate(A.FONT_CHARS): fr[CH_FONT + i] = font_char(ch)
     return {"format": 1, "kind": "charset", "profile": "atari.char.antic4", "name": "chars", "colors": {"fg": 14, "bg": 0, "mc1": 34, "mc2": 42}, "frames": [{"rows": f} for f in fr]}
 
-def tilemap(i):
-    # Kachelkarte von Bild i: Kachel t besteht aus den Zeichen 1 + (t-1)*4 .. +3 (Kachel 0 ist leer = Zeichen 0); 'solid' = tragende Kachel.
-    # 'map' ist das 20 x 12 grosse Raster der Kachelnummern aus A.LEVELS.
+def tileset():
+    # Kachelsatz "hg": 21 Kacheln zu 2 x 2 Zeichen, einmal für alle vier Bilder (wie beim C64). Eigenschaften: "solid" (Bit 0, tragend) und "ladder" (Bit 1, Leiter);
+    # die Werte 1 und 2 sind dieselben wie die frühere Tabelle tile_attr. Gras und Busch tragen in jeder Zelle "sel" (Zeichenbit 7 = Farbe COLPF3, gruen): der Export
+    # setzt das Bit selbst, die Hilfstabelle tile_hi entfaellt. pins: alle 128 Zeichen behalten ihre Nummer, der Zielzeichensatz hg_chars ist also chars.vcchar.
     tiles = []
     for t, (sym, name, fn, attr, m, own) in enumerate(A.TILES):
-        chars = [0, 0, 0, 0] if t == 0 else [1 + (t - 1) * 4 + k for k in range(4)]
-        tiles.append({"name": name, "chars": chars, "color": 0, "solid": attr == 1})
-    grid = A.LEVELS[i]()
-    return {"format": 1, "kind": "tilemap", "profile": "atari.tilemap.2x2", "name": f"lv{i+1}", "colors": {"bg": 0, "fg": 14}, "charset": "graphics/chars.vcchar", "tiles": tiles,
-            "map": [[A.TILE_INDEX[s] for s in row] for row in grid]}
+        codes = [0, 0, 0, 0] if t == 0 else [1 + (t - 1) * 4 + k for k in range(4)]
+        cells = [{"c": c, "sel": True} for c in codes] if sym in GREEN else codes
+        tile = {"name": name, "cells": cells}
+        if attr == 1: tile["props"] = ["solid"]
+        elif attr == 2: tile["props"] = ["ladder"]
+        tiles.append(tile)
+    return {"format": 1, "kind": "tileset", "profile": "atari.tileset", "name": "hg", "size": {"w": 2, "h": 2}, "colorMode": "none",
+            "charsets": ["graphics/chars.vcchar"], "pins": [{"cs": 0, "from": 0, "to": 127}],
+            "propDefs": [{"name": "solid", "bit": 0}, {"name": "ladder", "bit": 1}], "tiles": tiles}
+
+def bank():
+    # Screen-Bank "levels" mit den vier Bildern lv1..lv4 (je 20 x 12 Kacheln = 40 x 24 Zeichen).
+    screens = []
+    for i in range(4):
+        grid = A.LEVELS[i]()
+        screens.append({"name": f"lv{i+1}", "w": 40, "h": 24, "colors": {"bg": 0, "fg": 14},
+                        "tiles": {"set": 0, "origin": [0, 0], "grid": [[A.TILE_INDEX[s] for s in row] for row in grid]}})
+    return {"format": 1, "kind": "screen", "profile": "atari.screen.antic2", "name": "levels", "tilesets": ["graphics/hg.vctiles"], "screens": screens}
 
 def title():
     # Titelbild: 24 Zeilen x 40 Zeichencodes.  'HUGO' (Zeile 1) in Farbe 2, '&GUMBO' (Zeile 9) in Farbe 3 mit Bit 7 (COLPF3 = gruen),
@@ -183,10 +198,7 @@ def inc():
     # die Spielerdaten.  Die Farbwerte in 'pal' sind Atari-Farben (Farbton * 16 + Helligkeit), je Bild (COLPF0, COLPF1, COLPF2) und sechs Himmelsbalken;
     # Bild 2 (Hoehle) hat schwarzen Himmel (00), Bild 4 (Wolken) endet im untersten Balken mit schwarz.
     L = ["; levels.inc - ERZEUGT von tools/gen_jumprun_atari.py (Spielwege aus tools/jumprun_art.py) - nicht von Hand aendern", ""]
-    L.append("; Kacheleigenschaften je Kachelnummer: 0 leer, 1 tragend, 2 Leiter")
-    L.append("tile_attr:\n        .byte " + ",".join(str(t[3]) for t in A.TILES))
-    L.append("; Zeichenbit 7 je Kachel (gruen = COLPF3): 128 fuer Gras und Busch, sonst 0")
-    L.append("tile_hi:\n        .byte " + ",".join('128' if t[0] in GREEN else '0' for t in A.TILES))
+    L.append("; Kacheleigenschaften (0 leer, 1 tragend, 2 Leiter) und Zeichenbit 7 (Gras, Busch) stehen im Kachelsatz graphics/hg.vctiles (Export: hg_props, hg_p_solid, hg_p_ladder)")
     # Farben je Bild: COLPF0, COLPF1, COLPF2 und sechs Himmelsbalken (COLBK); Atari-Farbwert = Farbton * 16 + Helligkeit
     pal = [((0x24, 0x2a, 0x0e), [0x9c, 0x9a, 0x98, 0x96, 0x94, 0x92]), ((0x04, 0x08, 0x0e), [0x00] * 6),
            ((0x34, 0x3a, 0x0e), [0x84, 0x86, 0x88, 0x8a, 0x8c, 0x8c]), ((0x84, 0x8a, 0x0e), [0x72, 0x72, 0x74, 0x74, 0x76, 0x00])]
@@ -221,7 +233,7 @@ def main():
     _ap = argparse.ArgumentParser(
         description="""Erzeugt die Assets des Atari-Beispiels examples/atari/jumprun aus den gemeinsamen Kunstdaten (tools/jumprun_art.py).
 
-Schreibt im Projektordner examples/atari/jumprun (UTF-8, vorhandene Dateien werden überschrieben, fehlende Ordner angelegt): Zeichensatz (graphics/chars.vcchar), je Bild eine Kachelkarte (graphics/lv1..lv4.vctiles), Titelbild (graphics/title.vcscreen), Song (music/tune.vcsong) und lib/levels.inc. Die JSON-Dateien sind normale Projektdateien der Editoren. Pfade werden relativ zum Ort des Skripts bestimmt; der Arbeitsordner ist egal.""",
+Schreibt im Projektordner examples/atari/jumprun (UTF-8, vorhandene Dateien werden überschrieben, fehlende Ordner angelegt): Zeichensatz (graphics/chars.vcchar), Kachelsatz (graphics/hg.vctiles), Screen-Bank (graphics/levels.vcscreen), Titelbild (graphics/title.vcscreen), Song (music/tune.vcsong) und lib/levels.inc. Die JSON-Dateien sind normale Projektdateien der Editoren. Pfade werden relativ zum Ort des Skripts bestimmt; der Arbeitsordner ist egal.""",
         epilog="""Beispiele:
   python3 tools/gen_jumprun_atari.py
   cd tools && python3 gen_jumprun_atari.py
@@ -230,7 +242,7 @@ Das Werkzeug hat keine weiteren Optionen; -h/--help zeigt nur diesen Text und fu
         formatter_class=argparse.RawDescriptionHelpFormatter)
     _ap.parse_args()
     w('graphics/chars.vcchar', charset())
-    for i in range(4): w(f'graphics/lv{i+1}.vctiles', tilemap(i))
+    w('graphics/hg.vctiles', tileset()); w('graphics/levels.vcscreen', bank())
     w('graphics/title.vcscreen', title())
     w('music/tune.vcsong', song())
     os.makedirs(os.path.join(OUT, 'lib'), exist_ok=True)

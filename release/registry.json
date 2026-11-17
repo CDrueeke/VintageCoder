@@ -8,6 +8,12 @@
       "needs": [],
       "files": []
     },
+    "IDE-UPDATE": {
+      "kind": "ide",
+      "id": "update",
+      "needs": [],
+      "files": []
+    },
 
     "STU-SPRITE":  { "kind": "studio", "id": "sprite", "help": ["sprite", "sprites"],  "needs": ["IDE-APP"] },
     "STU-CHAR":    { "kind": "studio", "id": "char", "help": ["charset", "zeichensatz"],    "needs": ["IDE-APP"] },
@@ -167,6 +173,7 @@
     "data/roms/**",
     "data/profile/**",
     "data/palettes/index.json",
+        "data/charsets/**",
     "data/templates/index.json",
     "data/templates/structures.json",
     "data/templates/systems.json",
@@ -176,14 +183,14 @@
 
   "root_files": ["LICENSE", "THIRD-PARTY-NOTICES.md", "README.md"],
   "root_dirs": ["docs", "editors"],
-  "ide_files": ["crates/vc-app/assets/fonts/Inter-OFL.txt", "crates/vc-app/assets/fonts/JetBrainsMono-OFL.txt"],
+  "ide_files": ["crates/vc-gui-ui/assets/fonts/Inter-OFL.txt", "crates/vc-gui-ui/assets/fonts/JetBrainsMono-OFL.txt"],
 
   "examples_ignore": ["examples/c64/lib/**"],
   "examples_exclude_dirs": ["rom", "snapshot", "dump", "build"],
 
   "notes": ["BAS-B2A", "ASM-CART", "ASM-45GS02"],
 
-  "preview_ok": ["SYS-PET", "SYS-CBM2"],
+  "preview_ok": [],
   "forbidden_ide_words_parts": [["Inte", "lliJ"], ["CL", "ion"], ["Rust", "Rover"], ["PyC", "harm"], ["WebS", "torm"], ["Ecl", "ipse"], ["Sub", "lime"], ["Visual", " Studio"], ["VS", " Code"], ["VSC", "ode"], ["Neo", "vim"], ["Em", "acs"], ["Xc", "ode"]],
 
   "ide_words_allow_technical": ["editors/ext/"],

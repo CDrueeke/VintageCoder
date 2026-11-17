@@ -26,7 +26,7 @@
 ; SPEICHERPLAN
 ;   $1001 BASIC-Starter, danach main, die Prüfroutinen, die Kacheldaten und -karten (data_*.inc) und die Laufzeit der Bibliothek
 ;   (tiles_runtime).  Das Programm bleibt unter $4000 (.assert am Ende); bei TILE_MAPRAM liegt der Kartenpuffer bei $3000.
-;   Nullseite: Kachelgruppe $F7-$FE (TILE_ZP der Bibliothek), Prüfroutinen $22-$28; die .vctest-Datei verbietet $02-$21.
+;   Zeropage: Kachelgruppe $F7-$FE (TILE_ZP der Bibliothek), Prüfroutinen $22-$28; die .vctest-Datei verbietet $02-$21.
 ; =====================================================================================================================
 .target c16
 .cpu 7501 { illegals = deny }

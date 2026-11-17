@@ -1,0 +1,11 @@
+[package]
+name = "vc-gui-editor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "VintageCoder Oberflaeche (Iced): Editor-Modell und -Widget"
+
+[dependencies]
+iced = { version = "=0.14.0", features = ["advanced"] }
+vc-gui-ui = { path = "../vc-gui-ui" }
+vc-ide-model = { path = "../vc-ide-model" }

@@ -79,3 +79,78 @@ pub fn create_with(data: &Path, dir: &Path, name: &str, systems: &[String], temp
     written.insert(0, pf.clone());
     Ok(json!({ "ok": true, "dir": dir.to_string_lossy(), "project": pf, "files": written }))
 }
+
+// ---------------------------------------------------------------------------------------------- Zeichensatz des Projekts
+
+/// Zeichensatz eines neuen Projekts: `Auto` = dein ROM hat Vorrang (nur ein `rom:`-Verweis in der Datei), sonst der eigene Standardsatz; `Eigen` = immer der eigene Satz (weitergebbar); `Keine`
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Zeichensatz { Auto, Eigen, Keine }
+impl Zeichensatz {
+    pub fn parse(s: &str) -> Option<Zeichensatz> { match s { "auto" => Some(Zeichensatz::Auto), "own" | "eigen" => Some(Zeichensatz::Eigen), "none" | "keine" => Some(Zeichensatz::Keine), _ => None } }
+}
+
+/// Legt den Zeichensatz des Projekts an (nach `create`): je System das erste Zeichensatzprofil mit eigenem Satz. Mit ROM (`Auto`) nur der Verweis in `graphics/`, sonst die **Kopie**
+/// des eigenen Satzes in `graphics/vc-standard/` samt `HERKUNFT.txt`. Liefert die angelegten Dateien (relativ). Vorhandene Dateien bleiben unberührt.
+pub fn zeichensatz_anlegen(data: &Path, dir: &Path, systems: &[String], wahl: Zeichensatz) -> Result<Vec<String>, String> { zeichensatz_plan(data, dir, systems, wahl, false) }
+
+/// Welche Dateien `zeichensatz_anlegen` anlegen würde (für die Vorschau im Dialog); schreibt nichts
+pub fn zeichensatz_vorschau(data: &Path, systems: &[String], wahl: Zeichensatz) -> Vec<String> { zeichensatz_plan(data, Path::new("."), systems, wahl, true).unwrap_or_default() }
+
+fn zeichensatz_plan(data: &Path, dir: &Path, systems: &[String], wahl: Zeichensatz, trocken: bool) -> Result<Vec<String>, String> {
+    if wahl == Zeichensatz::Keine { return Ok(vec![]) }
+    let profiles = crate::load_profiles(data)?; let (mut files, mut sets) = (vec![], vec![]);
+    for sys in systems {
+        let Some(p) = profiles.iter().find(|p| p.kind == "charset" && p.target == *sys && !crate::project::eigene_saetze(data, &p.id).is_empty()) else { continue };
+        if wahl == Zeichensatz::Auto && !crate::project::std_charsets_for_profile(data, &p.id, true).is_empty() {
+            if let Some(r) = crate::project::default_std_charset(data, &p.id) {
+                if trocken { if let Ok(rr) = crate::romref::RomRef::parse(&r) { files.push(format!("{}/{}_{}.vcchar", crate::naming::out_dir("graphics", "charset"), rr.system, rr.set)) } continue }
+                match crate::project::add_std_charset(dir, &r, &p.id, "graphics", false) { Ok(v) => { if let Some(x) = v["path"].as_str() { files.push(x.to_string()) } } Err(e) if e.contains("existiert") => {} Err(e) => return Err(e) } continue }
+        }
+        let alle = crate::project::eigene_saetze(data, &p.id);
+        let e = alle.iter().find(|e| e.satz == "upper" || e.satz == "standard").unwrap_or(&alle[0]).clone();
+        let rel = format!("graphics/vc-standard/{}.vcchar", e.id); let ziel = dir.join(&rel);
+        if trocken { files.push(rel); sets.push(e); continue }
+        if ziel.exists() { continue }
+        std::fs::create_dir_all(ziel.parent().unwrap()).map_err(|x| x.to_string())?;
+        std::fs::copy(&e.datei, &ziel).map_err(|x| format!("{}: {x}", e.datei.display()))?; files.push(rel); sets.push(e);
+    }
+    if !sets.is_empty() {
+        let t = herkunft_text(&sets);
+        let h = dir.join("graphics/vc-standard/HERKUNFT.txt"); if trocken { files.push("graphics/vc-standard/HERKUNFT.txt".into()) } else if !h.exists() { std::fs::write(&h, t).map_err(|x| x.to_string())?; files.push("graphics/vc-standard/HERKUNFT.txt".into()) }
+    }
+    Ok(files)
+}
+
+/// Text der `HERKUNFT.txt` neben den kopierten eigenen Zeichensätzen
+pub fn herkunft_text(sets: &[crate::project::EigenSatz]) -> String {
+    let mut t = String::from("Herkunft der Zeichensätze in diesem Ordner\n===========================================\n\nDiese Dateien sind die eigenen Standardzeichensätze „VC-Standard“ von VintageCoder.\nUrheber: das VintageCoder-Projekt. Lizenz: CC0-1.0 (gemeinfrei, frei weitergebbar, auch in eigenen Programmen).\nEs wurden keine Original-ROMs und keine Nachbauten von Original-Zeichen benutzt.\nDie Gestaltung entstand aus den Regeln des Stilblatts und ist vom Projektinhaber freigegeben. Bei einfachen Formen in einem 8x8-Raster (Klammern, Punkt, Komma, Strich, Doppelpunkt, I-Familie, Linien- und Rahmenzeichen) sind Übereinstimmungen mit anderen Zeichensätzen funktional bedingt; eine lokale Abstandsprüfung ergab bei wenigen solcher Zeichen kleine Abstände, der Projektinhaber hat die Sätze trotzdem freigegeben. Das ist keine Rechtsaussage.\n\nSätze:\n");
+        for e in sets { t.push_str(&format!("  {} (Revision {}, Lizenz {}): {}\n", e.id, e.revision, e.lizenz, e.name)) }
+    t
+}
+
+/// Einen eigenen Standardzeichensatz als Kopie ins Projekt legen (`graphics/vc-standard/<id>.vcchar`, dazu `HERKUNFT.txt`, falls es sie noch nicht gibt); liefert den relativen Pfad
+pub fn eigenen_satz_kopieren(data: &Path, dir: &Path, id: &str) -> Result<String, String> {
+    let e = crate::project::eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| format!("Eigener Zeichensatz „{id}“ ist nicht mitgeliefert"))?;
+    let rel = format!("graphics/vc-standard/{}.vcchar", e.id); let ziel = dir.join(&rel);
+    if ziel.exists() { return Err(format!("{rel} existiert bereits")) }
+    std::fs::create_dir_all(ziel.parent().unwrap()).map_err(|x| x.to_string())?; std::fs::copy(&e.datei, &ziel).map_err(|x| format!("{}: {x}", e.datei.display()))?;
+    let h = dir.join("graphics/vc-standard/HERKUNFT.txt"); if !h.exists() { std::fs::write(&h, herkunft_text(&[e])).map_err(|x| x.to_string())?; }
+    Ok(rel)
+}
+
+#[cfg(test)]
+mod zeichensatz_tests {
+    use super::*;
+    fn data() -> std::path::PathBuf { std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data") }
+    #[test] fn eigener_satz_wird_als_kopie_mit_herkunft_angelegt_keine_wahl_legt_nichts_an() {
+        let t = std::env::temp_dir().join(format!("vc-zs-{}", std::process::id())); let _ = std::fs::remove_dir_all(&t); std::fs::create_dir_all(&t).unwrap();
+        assert_eq!(zeichensatz_anlegen(&data(), &t, &["c64".into()], Zeichensatz::Keine).unwrap(), Vec::<String>::new());
+        let f = zeichensatz_anlegen(&data(), &t, &["c64".into(), "atari8".into()], Zeichensatz::Eigen).unwrap();
+        assert!(f.contains(&"graphics/vc-standard/vc-c64-upper.vcchar".to_string()) && f.contains(&"graphics/vc-standard/vc-atari-standard.vcchar".to_string()) && f.contains(&"graphics/vc-standard/HERKUNFT.txt".to_string()), "{f:?}");
+        let v: Value = serde_json::from_str(&std::fs::read_to_string(t.join("graphics/vc-standard/vc-c64-upper.vcchar")).unwrap()).unwrap(); assert_eq!(v["origin"]["license"], "CC0-1.0", "origin bleibt in der Kopie");
+        assert!(std::fs::read_to_string(t.join("graphics/vc-standard/HERKUNFT.txt")).unwrap().contains("keine Original-ROMs"));
+        assert!(zeichensatz_anlegen(&data(), &t, &["c64".into()], Zeichensatz::Eigen).unwrap().is_empty(), "zweiter Lauf: nichts überschrieben");
+        assert_eq!(Zeichensatz::parse("auto"), Some(Zeichensatz::Auto)); assert_eq!(Zeichensatz::parse("x"), None);
+        let _ = std::fs::remove_dir_all(&t);
+    }
+}

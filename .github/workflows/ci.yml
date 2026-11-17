@@ -52,6 +52,12 @@ jobs:
           python3 -m unittest tools.test_release
           python3 -m unittest tools.test_linux_pkg
           python3 -m unittest tools.test_export_check
+          python3 -m unittest tools.test_source_archive
+          python3 -m unittest tools.test_gui_notices
+          python3 -m unittest tools.test_check_schreibweise
+          python3 -m unittest tools.test_check_kuerzel
+          python3 -m unittest tools.test_charsets
+          python3 tools/check_schreibweise.py
       - name: Staging je Testauswahl
         run: python3 tools/ci_staging.py --bin-dir target/debug
 
@@ -80,6 +86,9 @@ jobs:
           python3 -m unittest tools.test_release
           python3 -m unittest tools.test_linux_pkg
           python3 -m unittest tools.test_export_check
+          python3 -m unittest tools.test_check_schreibweise
+          python3 -m unittest tools.test_charsets
+          python3 tools/check_schreibweise.py
       - name: Staging je Testauswahl
         run: python3 tools/ci_staging.py --bin-dir target/debug
 

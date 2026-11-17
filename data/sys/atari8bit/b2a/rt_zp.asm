@@ -1,7 +1,7 @@
-// BASIC→Assembler (basic2asm), Laufzeit Atari 8 Bit: Nullseite, Variablen und Speichergrenzen.
+// BASIC→Assembler (basic2asm), Laufzeit Atari 8 Bit: Zeropage, Variablen und Speichergrenzen.
 // Einbinden mit: #include <atari8bit/b2a/rt_zp.asm> (am Anfang des Programms, vor allem Code); danach #include <atari8bit/os.asm> ist bereits geschehen.
 //
-// Die Laufzeit nutzt keine Routine des Atari-BASIC-Moduls; Fließkomma (Stufe 2) rechnet mit dem Fließkommapaket des OS (FR0 $D4-$D9, FR1 $E0-$E5 und die Hilfszellen $DA-$DF, $E6-$FF). Die Nullseite von $80 an gehört
+// Die Laufzeit nutzt keine Routine des Atari-BASIC-Moduls; Fließkomma (Stufe 2) rechnet mit dem Fließkommapaket des OS (FR0 $D4-$D9, FR1 $E0-$E5 und die Hilfszellen $DA-$DF, $E6-$FF). Die Zeropage von $80 an gehört
 // dem BASIC-Modul; wird das Programm als XEX gestartet, braucht niemand diese Zellen mehr. Der Block wird trotzdem beim Start gesichert und
 // bei Ende zurückgeschrieben (RT_ZSAVE), damit ein Rücksprung ins DOS oder BASIC die Zeiger wiederfindet.
 

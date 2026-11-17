@@ -2,7 +2,9 @@
 //! Gemeinsame Grundtypen: Diagnostics.
 use std::fmt;
 
+pub mod chars;
 pub mod paths;
+pub mod textfile;
 pub mod userdirs;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

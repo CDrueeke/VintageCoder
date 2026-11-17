@@ -6,10 +6,10 @@ VintageCoder liefert **keine Original-ROMs** (KERNAL, BASIC, Zeichensätze, Betr
 
 ## Wozu ROMs?
 - **Emulatoren:** VICE bekommt `-kernal`, `-basic`, `-chargen` usw., atari800 `-xlxe_rom`, `-osb_rom`, `-basic_rom`, Xemu (MEGA65) `-rom`. Ohne ROM benutzen VICE und atari800 ihre eigenen bzw. eingebauten Ersatz-ROMs; **Xemu braucht eine MEGA65-ROM-Datei von genau 131072 Byte**. Altirra verwaltet seine Firmware selbst.
-- **Zeichensätze:** Der Zeichensatz-Editor, der Zeichenwähler und „Standardzeichensatz hinzufügen“ lesen die Schrift des Systems aus deinem ROM. Fehlt es, erscheint eine **eingebaute Ersatzschrift** (Eigenbau, ohne Grafikzeichen) mit Hinweis.
+- **Zeichensätze:** Der Zeichensatz-Editor, der Zeichenwähler und „Standardzeichensatz hinzufügen“ lesen die Schrift des Systems aus deinem ROM. Fehlt es, erscheint der **eigene Standardsatz** von VintageCoder (VC-Standard, CC0, weitergebbar) mit Hinweis; im Neuen-Projekt-Dialog wählst du unter „Zeichensatz des Projekts“, ob er als Kopie ins Projekt kommt (`vcc new --charset`).
 
 ## Wohin damit?
-Einstellungen ▸ **ROMs** zeigt den Ordner, den Status je Rolle und bietet „Ordner öffnen“, „Neu prüfen“, „Auswählen …“ und eine Ablagezone: ROM-Dateien oder **ZIP-Archive** dorthin ziehen, die Vorschau bestätigen, fertig. Der Assistent „ROMs einrichten …“ (Willkommensseite, Menü *Datei*, Befehlspalette) führt in drei Schritten dorthin. Auf der Kommandozeile: `vcc roms list|check|path|where|import`.
+Einstellungen ▸ **ROMs** zeigt den Ordner, den Status je Rolle und bietet „Ordner öffnen“, „Neu prüfen“ und „Auswählen …“. ROM-Dateien oder **ZIP-Archive** lassen sich auf das Fenster ziehen oder mit „Auswählen …“ wählen; sie kommen erst nach deiner Bestätigung in den ROM-Ordner. Der Teil-Assistent **Hilfe ▸ Konfigurationsassistent: nur ROMs …** (Mac-Menü, sonst Befehlspalette) führt in drei Schritten dorthin: Zielsysteme, ROMs, Zusammenfassung. Auf der Kommandozeile: `vcc roms list|check|path|where|import`.
 
 Suchreihenfolge (die erste Fundstelle je Rolle gilt):
 1. Einstellung für eine einzelne Datei (z. B. atari800 „OS-ROM“, Xemu „Ordner mit MEGA65.ROM“)
@@ -40,9 +40,9 @@ Mehrere Dateien derselben Rolle sind erlaubt; die Standardrevision gewinnt, in d
 Liegt neben dem Programm ein Ordner `roms/` (oder eine Datei `portable`), gilt er zuerst und neue ROMs werden dort abgelegt, wenn er beschreibbar ist. „Neben dem Programm“ heißt unter Windows und Linux der Ordner der ausführbaren Datei (AppImage: neben der `.AppImage`), unter macOS der Ordner, der `VintageCoder.app` enthält. **Nie im App-Bundle:** Schreiben dort würde die Signatur ungültig machen. Läuft die App noch aus ihrem Download-Ordner („App-Translocation“), ist der Modus nicht verfügbar; einmal nach „Programme“ verschieben. `vcc roms where` zeigt alles.
 
 ## Zeichensätze als Verweis
-Eine Zeichensatzdatei kann statt der Zeichen einen **Verweis** enthalten: `"base": "rom:c64/chargen#upper"` (Format 2) plus nur deine eigenen Änderungen unter `overrides`. Die Original-Zeichen stehen so weder im Projekt noch im Repository. Verweise: `rom:<system>/<rolle>[@<revision>]#<satz>`, z. B. `rom:c64/chargen#lower`, `rom:atari8/os#standard`, `rom:plus4/kernal#standard`. Mit `@<revision>` (z. B. `@906143-02`) braucht es genau dieses Abbild. Alte Dateien (Format 1) bleiben lesbar.
+Eine Zeichensatzdatei kann statt der Zeichen einen **Verweis** enthalten: `"base": "rom:c64/chargen#upper"` (Format 2) plus nur deine eigenen Änderungen unter `overrides`. Die Original-Zeichen stehen so weder im Projekt noch im Repository. Verweise: `rom:<system>/<rolle>[@<revision>]#<satz>`, z. B. `rom:c64/chargen#lower`, `rom:atari8/os#standard`, `rom:plus4/kernal#upper` (Plus/4: `upper` und `lower`; `standard` gilt weiter als `upper`). Mit `@<revision>` (z. B. `@906143-02`) braucht es genau dieses Abbild. Alte Dateien (Format 1) bleiben lesbar.
 
 ## Fehlt etwas?
-- *„ROM … nicht gefunden“* beim Start: Datei ablegen (Fehlerdialog ▸ „ROMs einrichten …“). Die Meldung nennt Zielordner, erwartete Größe und alle gesuchten Orte.
-- Zeichensatz sieht „falsch“ aus: vermutlich die Ersatzschrift (Hinweis im Editor). ROM ablegen, „Neu prüfen“.
+- *„ROM … nicht gefunden“* beim Start: Datei ablegen (Teil-Assistent „nur ROMs“ oder Einstellungen ▸ ROMs). Die Meldung nennt Zielordner, erwartete Größe und alle gesuchten Orte.
+- Zeichensatz sieht „falsch“ aus: vermutlich der eigene Standardsatz statt deines ROMs (Karte „Herkunft“ im Editor). ROM ablegen, „Neu prüfen“.
 - Unbekannte Revision: funktioniert, aber Symbole und Offsets können abweichen.

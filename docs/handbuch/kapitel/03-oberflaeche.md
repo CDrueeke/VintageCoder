@@ -3,176 +3,122 @@ id: oberflaeche
 titel: Die Oberfläche im Überblick
 reihenfolge: 3
 stufe: Einsteiger
-zeit: 15 Minuten
+zeit: 20 Minuten
 siehe_auch: [erstes-projekt, projekte, editor]
 referenz: [layout, settings, shortcuts, overview]
 ---
 
 # Die Oberfläche im Überblick
 
-**Ziel:** Du kennst die Bereiche des VintageCoder-Fensters und weißt, wofür sie da sind. Du kannst sie ein- und ausblenden, zwischen den beiden Arbeitsplätzen **Code** und **Debug** umschalten, die Befehlspalette benutzen und Farbschema und Größe einstellen.
+**Ziel:** Du kennst die Bereiche des VintageCoder-Fensters und weißt, wofür sie da sind. Du kannst sie ein- und ausblenden, einen Bereich groß machen, den **Zen-Modus** benutzen, die Befehlspalette aufrufen und Farbschema und Größe der Oberfläche ändern.
 
 ## Das brauchst du
 
-- Ein geöffnetes Projekt, zum Beispiel das aus dem Kapitel [Dein erstes Projekt](kapitel:erstes-projekt). Ohne Projekt zeigt VintageCoder nur die Willkommensseite; Seitenleiste, Inspektor und Fußpanel sind dann ausgeblendet.
+- Ein geöffnetes Projekt, zum Beispiel das aus dem Kapitel [Dein erstes Projekt](kapitel:erstes-projekt). Ist keine Datei offen, zeigt VintageCoder im Dokumentenfeld die **Startseite** (zuletzt geöffnete Projekte, Beispiele, Neues Projekt). Du holst sie mit dem Befehl **Startseite** (Menü **Datei**) jederzeit als Reiter zurück.
 
 ## Das Gerüst des Fensters
 
-Das Fenster hat ein **festes Gerüst** aus Zonen. Du kannst ihre Größe ziehen und sie ein- und ausblenden, aber du kannst sie nicht frei umbauen. Das macht die Oberfläche übersichtlich: Alles ist immer dort, wo du es erwartest.
+Das Fenster hat **vier Bereiche um ein Dokumentenfeld** und zwei Dauerleisten. Du kannst die Bereiche in der Größe ziehen, einklappen und groß machen, aber nicht frei umbauen. So ist alles immer dort, wo du es erwartest.
 
-![Das Gesamtfenster mit sechs nummerierten Marken: ① Befehlsleiste, ② Aktivitätsleiste und Seitenleiste mit dem Projektbaum, ③ Editorbereich, ④ Inspektor, ⑤ Fußpanel, ⑥ Statusleiste](bild:ui-gesamt "Das VintageCoder-Fenster mit allen Zonen")
+| Zone | Wofür sie da ist |
+|---|---|
+| **Menüleiste** (nur Windows und Linux, ganz oben) | Datei, Bearbeiten, Ansicht, Projekt, Hilfe mit denselben Befehlen und Kürzeln wie die Menüleiste des Macs; Alt+D, Alt+B, Alt+A, Alt+P, Alt+H öffnen ein Menü (nur hier; auf dem Mac gibt es dieses Kürzel nicht, dort gilt die Menüleiste des Systems; der Buchstabe ist im Menünamen unterstrichen; AltGr auf deutschen Tastaturen löst nichts aus); lange Menüs (Bearbeiten, Ansicht, Projekt) haben Untermenüs: Pfeil rechts oder Enter öffnet eines, Pfeil links geht zurück; im Zen-Modus ausgeblendet |
+| **Kopfzeile** | der Projektname, das **Ziel** („C64 · VICE x64sc ▾“; Klick wählt das Startziel: Emulator oder eine eingetragene Maschine), die Knöpfe **Starten**, **Debuggen**, **Bauen**, das **Suchfeld** (öffnet die Befehlspalette) und das Zahnrad für die Einstellungen |
+| **Linke Spalte** | umschaltbar zwischen **Dateien** (der Projektbaum: Ordner und Dateien mit Art-Marken) und **Suche** im Projekt |
+| **Dokumentenfeld** (Mitte) | alle geöffneten Dateien als **Reiter**: Quelltext, Studios, Notizen, Projekt-Einstellungen, Hilfe, Einstellungen |
+| **Schublade** (unten) | **Protokoll**, **Probleme**, **Tests**; während einer Debug-Sitzung zusätzlich der Reiter **Debug** (Register, Disassembler, Speicher, Beobachten) |
+| **Rechtes Panel** | **Gliederung**, **Hilfe**, **Zeichen**, **Karte** (Speicherkarte); in einer Debug-Sitzung zusätzlich **Bild** (das Emulator-Bild) |
+| **Statusleiste** (ganz unten) | Zustand (bereit, baut, Debug), Zeile und Spalte, Dialekt, Kodierung, Sprachdienst und Update-Hinweis; auf Wunsch der **Takt** des Zielsystems |
 
-| Nr. | Zone | Wofür sie da ist |
-|---|---|---|
-| ① | **Befehlsleiste** | oben: Projekt, Ziel („Auf: …“), die Knöpfe Starten, Debuggen und Bauen, Suche und der Umschalter **Code | Debug** |
-| ② | **Aktivitätsleiste** und **Seitenleiste** | links: Symbole für Projekt, Suche, Tests, Referenz und Einstellungen; daneben das, was das gewählte Symbol zeigt (zum Beispiel der Projektbaum) |
-| ③ | **Editorbereich** | in der Mitte: alle geöffneten Dateien als Reiter |
-| ④ | **Inspektor** | rechts: Zusatzinformationen zum aktiven Dokument (Gliederung, Referenz, Hilfe …) |
-| ⑤ | **Fußpanel** | unten: Ausgabe, Bauprotokoll, Probleme, Tests |
-| ⑥ | **Statusleiste** | ganz unten: nur Anzeige |
+![Die Menüleiste im Fenster: oben die Titel Datei, Bearbeiten, Ansicht, Projekt und Hilfe, darunter das geöffnete Menü Bearbeiten mit Kürzeln und den Untermenüs (Suchen und Ersetzen, Markdown, Falten …); nicht mögliche Einträge sind grau und nennen ihren Grund.](bild:menueleiste "Die Menüleiste im Fenster (hier das Menü Bearbeiten mit Untermenüs): unter Windows und Linux so, unter macOS liegt sie in der Menüleiste des Systems")
 
-Unter Windows sitzt über der Befehlsleiste außerdem die **Menüzeile** (Datei, Bearbeiten, Ansicht, Projekt, Debug, Fenster, Hilfe). Auf dem Mac steht dieselbe Menüleiste wie bei jedem Programm am oberen Bildschirmrand.
+### Kopfzeile
 
-### Befehlsleiste
+Von links nach rechts: das Logo, der **Projektname** (darunter die Beschriftung „Projekt“; sie ist kein Menü, die Projekt-Einstellungen öffnest du über **Projekt ▸ Projekt-Einstellungen …** oder die Befehlspalette), das **Ziel**, **Starten** (F5, startet das Startprogramm), **Debuggen** (F6) und **Bauen** (F7), das **Suchfeld** (**Cmd/Strg+K**) und das Zahnrad für die Einstellungen. Das Ziel ist ein Knopf mit dem System und dem Startziel („C64 · VICE x64sc ▾“). Er öffnet eine Liste mit dem Emulator des Systems und den eingetragenen Maschinen; deine Wahl gilt für diese Sitzung. Das dauerhafte Startziel stellst du in den Einstellungen ein. Bei schmalem Fenster zeigt die Kopfzeile nur Symbole; was nicht mehr hineinpasst, steckt in einem Überlaufmenü.
 
-Von links nach rechts:
+Einen eigenen Speichern-Knopf gibt es im Fenster nicht: **Cmd/Strg+S** speichert, ein Punkt am Reiter zeigt Ungespeichertes. Vor jedem Bauen wird ohnehin gespeichert.
 
-- **Projekt**: der Name des Projekts mit dem Zielchip. Ein Klick öffnet eine Auswahl der zuletzt geöffneten Projekte mit „Neues Projekt …“, „Projekt öffnen …“ und „Projekt-Einstellungen …“.
-- **Auf: …**: das Zielsystem und das Startziel, zum Beispiel „C64 PAL → VICE x64sc“. Hier wählst du aus, ob F5 im Emulator oder auf einer eingetragenen Hardware-Maschine startet.
-- **Starten** (F5, grün), **Debuggen** (F6, bernstein) und **Bauen** (F7, blau).
-- **Suche** (Cmd/Strg+K): die Befehlspalette, siehe unten.
-- **Code | Debug**: der Schalter für den Arbeitsplatz.
+### Linke Spalte
 
-Einen Speichern-Knopf gibt es nicht. Du speicherst mit **Cmd/Strg+S**; ein Punkt am Reiter und der Hinweis „ungespeichert“ in der Befehlsleiste zeigen dir, dass noch etwas offen ist. Vor jedem Bauen wird ohnehin gespeichert.
+- **Dateien:** der Projektbaum. Mehr dazu im Kapitel [Projekte und Dateien](kapitel:projekte). Mit den Pfeiltasten wählst du Einträge, **→** und **←** klappen Ordner auf und zu, **Enter** öffnet, **F2** benennt um, **Entf** löscht (mit Rückfrage). Neues legst du mit dem Knopf **＋** („Neue Datei im gewählten Ordner“) oder mit Rechtsklick auf die freie Fläche an. Daneben stehen ein Filterfeld, **⟳** („Baum neu einlesen“) und **⊟** („Alle Ordner zuklappen“).
+- **Suche** (**Cmd/Strg+Umschalt+F**): sucht Text in allen Textdateien des Projekts.
 
-### Aktivitätsleiste und Seitenleiste
+**Cmd/Strg+B** klappt die Spalte ein und aus.
 
-Die schmale Leiste ganz links hat fünf Symbole. Das Symbol bestimmt, was die Seitenleiste daneben zeigt:
+### Dokumentenfeld
 
-- **Projekt:** der Projektbaum mit all deinen Dateien (mehr dazu im Kapitel [Projekte und Dateien](kapitel:projekte)).
-- **Suche** (Cmd/Strg+Umschalt+F): sucht Text in allen Textdateien des Projekts.
-- **Tests:** die Tests des Projekts (siehe [Automatisch testen](kapitel:tests)).
-- **Referenz:** öffnet den Reiter „Referenz“ im Inspektor.
-- **Einstellungen:** öffnet die Einstellungen als Reiter.
+Hier öffnen Dateien als Reiter. **Cmd/Strg+W** schließt (bei Ungespeichertem fragt VintageCoder), **Cmd/Strg+N** öffnet einen **unbenannten Reiter**, in dem du sofort schreibst. **Cmd/Strg+Umschalt+T** öffnet eine **Notiz**; unbenannte Reiter und Notizen sichert VintageCoder alle paar Sekunden lokal. Den Editor kannst du **teilen** (**Cmd/Strg+Alt+T**) und Reiter in die andere Hälfte schicken.
 
-Ein Klick auf das Symbol, dessen Inhalt gerade zu sehen ist, blendet die Seitenleiste aus.
+Studios (Sprite, Zeichensatz, Bildschirm, Kacheln, Bank, Palette, Tracker, Diskette) sind **Dokumente wie andere Dateien**: Ihre Datei öffnet im Dokumentenfeld mit dem passenden Studio. Alle Studios haben denselben Aufbau mit sechs Zonen (siehe [Grafik und Klang im Überblick](kapitel:grafik-ueberblick)).
 
-### Inspektor
+### Schublade und rechtes Panel
 
-Der Inspektor richtet sich nach dem **aktiven Dokument**:
+Die **Schublade** öffnet sich von selbst, wenn es etwas zu zeigen gibt (Baufehler, Testlauf, Debug), und lässt sich mit **Cmd/Strg+J** ein- und ausklappen. **Protokoll** zeigt, was beim Bauen und Starten geschehen ist, **Probleme** zeigt Fehler und Warnungen mit Datei und Zeile (Klick springt zur Stelle), **Tests** die Testergebnisse.
 
-- Bei einem **Quelltext**: **Gliederung** (die Labels, Konstanten und Makros der Datei; bei BASIC die angesprungenen Zeilen; ein Klick springt zur Stelle), **Memory Map**, **Referenz** und **Hilfe**.
-- Bei einem **Studio** (Sprite, Zeichensatz …): **Studio** (Dateipfad, Exportdateien, Stellen im Quelltext, die die Datei nennen), **Memory Map** und **Hilfe**.
-- Im **Debug-Arbeitsplatz**: **Register**, **Beobachten**, **Haltepunkte** und **Hilfe**.
+Das **rechte Panel** ist ein schmaler Streifen mit Symbolen, bis du ihn aufklappst (**Cmd/Strg+Alt+B** oder Klick auf ein Symbol): ≡ **Gliederung** (Marken der Datei), ? **Hilfe**, Ω **Zeichen** (PETSCII/ATASCII und Steuerzeichen zum Einfügen) und ▦ **Karte** (Speicherkarte). In einer Debug-Sitzung kommt ◉ **Bild** dazu, das Emulator-Bild.
 
-### Fußpanel
+## Schritt für Schritt: Bereiche ein- und ausblenden
 
-Im Arbeitsplatz **Code** hat das Fußpanel vier Reiter:
+1. **Cmd/Strg+B**: linke Spalte ein oder aus. *Erwartet:* Der Projektbaum verschwindet, das Dokumentenfeld wird breiter.
+2. **Cmd/Strg+J**: Schublade. *Erwartet:* Protokoll, Probleme und Tests klappen aus oder ein.
+3. **Cmd/Strg+Alt+B**: rechtes Panel.
+4. **Zen-Modus (Cmd/Strg+Umschalt+B):** blendet Spalte, Schublade und Panel gemeinsam aus; in den Studios verschwinden auch Liste und Seitenspalte. *Erwartet:* Es bleiben Kopfzeile, Werkzeugleiste, Fläche und Fußzeile. Derselbe Befehl bringt alles zurück.
+5. Die Größen änderst du, indem du den Rand zwischen zwei Bereichen mit der Maus ziehst.
 
-- **Ausgabe:** Meldungen vom Bauen, Starten und Debuggen.
-- **Bauprotokoll:** was beim Bauen jeder Stufe passiert ist (siehe [Bauen und Starten](kapitel:bauen-starten)).
-- **Probleme:** Fehler und Warnungen mit Datei und Zeile. Ein Klick springt zur Stelle.
-- **Tests:** Ergebnisse der Tests.
+## Einen Bereich groß machen
 
-Die Reiter **Probleme** und **Tests** tragen Zahlenmarken: Probleme zeigt rot die Zahl der Fehler (sonst gelb die der Warnungen), Tests zeigt „bestanden/alle“.
+Jeder Bereich hat oben eine kleine Kopfzeile mit **Minimieren ▁** und **Maximieren ⤢**. Maximieren klappt alle anderen Bereiche zu Streifen ein; **Wiederherstellen ⤡** (oder ein Doppelklick auf die Bereichskopfzeile) bringt die vorige Aufteilung zurück. Mit der Tastatur: **Cmd/Strg+Umschalt+Enter** schaltet den Bereich mit dem Fokus um. Das Dokumentenfeld wird nur maximiert, nie minimiert: Es bleibt immer ein Bereich mit Inhalt.
 
-### Statusleiste
+> **Tipp:** Wenn du dich verklickt hast und nichts mehr stimmt: **Ansicht ▸ Bereiche ▸ Layout zurücksetzen** stellt die Standardgrößen wieder her.
 
-Die Statusleiste unten zeigt nur an: das **Ziel** (zum Beispiel „Ziel: C64 PAL“), die Assembler-Version, die **Cursorposition** („Zeile 5, Spalte 12“), die **Sprache** der aktiven Datei, eine kurze Meldung zum letzten Vorgang und rechts, ob der **Emulator** des Ziels „bereit“ oder „fehlt“ ist. Hast du Tests ausgeführt, zeigt eine Marke „Tests 13/16“; ein Klick darauf öffnet den Reiter „Tests“.
-
-## Schritt für Schritt: Zonen ein- und ausblenden
-
-1. Drücke **Cmd/Strg+B**. Die Seitenleiste verschwindet. Noch einmal drücken blendet sie wieder ein.
-2. **Cmd/Strg+Alt+B** blendet den **Inspektor** ein und aus.
-3. **Cmd/Strg+J** blendet das **Fußpanel** ein und aus.
-4. **Cmd/Strg+Umschalt+Eingabe** blendet alle drei **zeitweise** aus, damit der Editor den ganzen Platz bekommt. Derselbe Befehl bringt sie zurück (auch im Menü als **Ansicht ▸ Maximieren**).
-5. Die Größen der Zonen änderst du, indem du den Rand zwischen zwei Zonen mit der Maus ziehst.
-
-Alle diese Befehle stehen auch im Menü **Ansicht**.
-
-![Dasselbe Fenster mit ausgeblendetem Inspektor und Fußpanel: Der Editor nimmt die ganze Breite und Höhe neben der Seitenleiste ein](bild:ui-zonen "Zonen lassen sich ein- und ausblenden, hier ohne Inspektor und Fußpanel")
-
-> **Tipp:** Wenn du dich verklickt hast und nichts mehr stimmt: **Ansicht ▸ Layout zurücksetzen** stellt die Standardgrößen und alle Reiter wieder her.
+Alle diese Befehle stehen im Menü **Ansicht** und in der Befehlspalette.
 
 ## Schmale Fenster
 
-Das Fenster darf schmal werden. Ab **1280 Punkten** Breite ist alles sichtbar. Zwischen **1000 und 1279 Punkten** klappt der Inspektor zu einem schmalen Streifen mit senkrechter Beschriftung zusammen. Ein Klick auf den Streifen (oder Cmd/Strg+Alt+B) öffnet ihn als **Schublade** über dem Editor. **Unter 1000 Punkten** wird auch die Seitenleiste zur Schublade. Eine Schublade schließt du mit einem Klick in den Editor, mit Esc oder indem du eine Datei öffnest. Der Editorbereich behält immer mindestens 480 Punkte.
+Das Fenster darf schmal werden. Unter etwa 900 Punkten Breite schwebt die linke Spalte über dem Dokument und das Panel legt sich darüber; ganz schmal bleibt eine Seite sichtbar mit einem Zurück-Knopf. Die Studios stellen sich nach der Breite des Dokumentenfelds ein: weniger Karten, kürzere Leisten, der Rest steckt im Menü **⋯**.
 
-## Reiter: Vorschau oder fest
+## Die Befehlspalette
 
-Alle Dokumente öffnen im **Editorbereich** als Reiter, immer an derselben Stelle:
+Die **Befehlspalette** ist die schnellste Art, etwas zu finden: ein Befehl, eine Datei oder eine Aktion des Studios, das gerade offen ist.
 
-- **Einfachklick** auf eine Datei im Projektbaum öffnet einen **Vorschau-Reiter** (der Titel steht kursiv). Ein weiterer Einfachklick auf eine andere Datei ersetzt ihn, sodass sich nicht Dutzende Reiter ansammeln.
-- **Doppelklick** auf die Datei (oder auf den Reiter) macht den Reiter **fest**. Auch sobald du in der Datei etwas änderst, wird er fest.
-- Jede Datei gibt es nur **einmal** als Reiter: Öffnest du sie ein zweites Mal, kommt der vorhandene Reiter nach vorn.
-- **Cmd/Strg+Klick** auf eine Datei (oder Rechtsklick ▸ „Im zweiten Editorbereich öffnen“) öffnet sie im **zweiten Editorbereich**. Den Editor kannst du genau einmal teilen (**Cmd/Strg+\\**); Reiter ziehst du mit der Maus zwischen den beiden Hälften.
-- **Cmd/Strg+W** schließt die aktive Datei.
+1. Drücke **Cmd/Strg+K** oder klicke auf das Suchfeld. Es öffnet sich ein Fenster mit einem Eingabefeld.
+2. Tippe ein paar Buchstaben, zum Beispiel `bauen`. Die Liste zeigt passende Befehle, Dateien deines Projekts und Studio-Aktionen („Studio: Frame duplizieren“ …).
+3. Wähle mit den Pfeiltasten und drücke Enter, oder klicke auf einen Eintrag. Esc schließt das Fenster.
 
-![Die Reiterleiste des Editors mit festen Reitern und der Marke der Dateiart](bild:ui-reiter "Feste Reiter und ein kursiver Vorschau-Reiter")
-
-Neben den Quelltexten gibt es besondere Reiter: **Willkommen**, **Übersicht** (die [Projekt-Übersicht](kapitel:projekte)), **Einstellungen**, **Hilfe** und die Studios für Grafik und Klang.
-
-## Schritt für Schritt: Zwischen Code und Debug umschalten
-
-Mit dem Schalter **Code | Debug** rechts in der Befehlsleiste (oder im Menü **Ansicht ▸ Arbeitsplatz Code / Arbeitsplatz Debug**) wechselst du den **Arbeitsplatz**. Er ändert nur, was Inspektor und Fußpanel zeigen:
-
-| | Code | Debug |
-|---|---|---|
-| Inspektor | Gliederung, Memory Map, Referenz, Hilfe | Register, Beobachten, Haltepunkte, Hilfe |
-| Fußpanel | Ausgabe, Bauprotokoll, Probleme, Tests | Disassembler, Speicher, Emulator, Momentaufnahme, Live-Bild, Ausgabe, Probleme |
-
-F6 schaltet beim Debuggen selbst auf den Debug-Arbeitsplatz um, das Ende der Debug-Sitzung führt zurück zu „Code“. Größen und Sichtbarkeit der Zonen merkt sich VintageCoder für jeden Arbeitsplatz getrennt. Die Panels des Debuggers beschreibt das Kapitel [Der Debugger](kapitel:debugger).
-
-![Der Arbeitsplatz Code: im Fußpanel die Reiter Ausgabe, Bauprotokoll, Probleme und Tests, im Inspektor Gliederung, Memory Map, Referenz und Hilfe](bild:ui-modus-code "Arbeitsplatz Code")
-
-![Der Arbeitsplatz Debug: im Inspektor Register, Beobachten und Haltepunkte, im Fußpanel Disassembler, Speicher und weitere Reiter](bild:ui-modus-debug "Arbeitsplatz Debug")
-
-## Schritt für Schritt: Die Befehlspalette
-
-Die **Befehlspalette** ist die schnellste Art, etwas zu finden: ein Befehl, eine Datei oder ein Studio.
-
-1. Drücke **Cmd/Strg+K** (auch **Cmd/Strg+P** geht) oder klicke auf das Suchfeld in der Befehlsleiste. Es öffnet sich ein Fenster mit einem Eingabefeld „Befehl, Datei oder Studio suchen …“.
-2. Tippe ein paar Buchstaben, zum Beispiel `bauen`. Die Liste darunter zeigt passende Befehle, Dateien deines Projekts und Studios.
-3. Wähle mit den Pfeiltasten aus und drücke Enter, oder klicke auf einen Eintrag. Esc schließt das Fenster.
-
-Befehle, die jetzt nicht möglich sind (zum Beispiel „Speichern“ ohne offene Datei), sind nicht wählbar. Hinter den Befehlen steht ihr Tastenkürzel, so lernst du die Kürzel nebenbei.
-
-![Die Befehlspalette mit dem Suchtext „bau“: Treffer sind „Projekt bauen F7“, „Aktive Datei bauen Umschalt+F7“ und weitere](bild:befehlspalette "Die Befehlspalette (Cmd/Strg+K) findet Befehle, Dateien und Studios")
+Befehle, die jetzt nicht möglich sind, sind ausgegraut und nennen den Grund. Hinter den Befehlen steht ihr Tastenkürzel, so lernst du die Kürzel nebenbei.
 
 ## Einstellungen
 
-**Datei ▸ Einstellungen …** (auf dem Mac im Menü „VintageCoder“; Kürzel **Cmd/Strg+Komma**) öffnet die Einstellungen als Reiter. Sie gelten für **alle Projekte**. Die Seiten:
+Das Zahnrad (oder **Cmd/Strg+Komma**, auf dem Mac auch **Ansicht ▸ Einstellungen**) öffnet die Einstellungen als Reiter. Sie gelten für **alle Projekte**. Die Seiten:
 
-- **Allgemein:** Farbschema und Größe der Oberfläche.
-- **Zielsysteme und Hardware:** Emulatoren, Startziel und echte Hardware (siehe [Installation und Ersteinrichtung](kapitel:installation) und [Bauen und Starten](kapitel:bauen-starten)). Eine geführte Alternative ist der **Konfigurationsassistent** (Menü **Hilfe ▸ Konfigurationsassistent**), der dieselben Einstellungen Schritt für Schritt abfragt und vor dem Schreiben eine Änderungsliste zeigt.
-- **Toolchain:** zeigt, was eingebaut ist (Assembler, Include-Suche, BASIC-Dialekt je System).
-- **Editor:** Schriftgröße, Adressspalte und Einzeltasten in den Grafik-Editoren.
-- **Tastenkürzel:** die Liste ist fest; Anpassen ist noch nicht möglich.
+- **Allgemein:** Farbschema (**Dunkel**, **Hell**, **System**, **Hoher Kontrast**) und Größe der Oberfläche; **Konfiguration sichern** (exportieren, importieren, zurücksetzen); **Einrichtung** (Knopf für den Konfigurationsassistenten); **Fehlersuche** (Debug-Protokoll); **Hilfe** (ob die Bilder des Handbuchs geladen werden); **Updates** (nur in Paketen mit Update-Prüfung) und der Ort der Einstellungsdatei.
+- **Zielsysteme und Hardware:** Emulatoren, Startziel und echte Hardware (siehe [Installation und Ersteinrichtung](kapitel:installation) und [Bauen und Starten](kapitel:bauen-starten)). Eine geführte Alternative ist der **Konfigurationsassistent** im Menü **Hilfe**.
+- **ROMs:** wo deine ROM-Dateien liegen und was erkannt wurde.
+- **Toolchain:** was eingebaut ist (Assembler, Include-Suche, BASIC-Dialekt je System).
+- **Editor:** Schriftgröße, Zeilenumbruch, Zeile beim Verlassen formatieren (Assembler, BASIC), Menüleiste anzeigen (Windows und Linux), **Einzeltasten der Studios**, **Kürzel-Diagnose** (schreibt zu jedem Kürzel eine Zeile ins Protokoll; nur zur Fehlersuche, nichts wird übertragen), Tastaturlayout für die Tracker-Klaviertasten, **Tasten auf der Klaviatur**, **Startbild**, **Takt in der Statusleiste** und **Sicherung** unbenannter Reiter.
+- **Tastenkürzel:** die Liste der Kürzel mit Suchfeld.
 
-Außerdem gibt es die Seite **ROMs**. Änderungen an Zielsystemen und Hardware gelten erst, wenn du unten auf **Änderungen anwenden** klickst; **Zurücksetzen** verwirft sie.
-
-![Der Reiter Einstellungen mit der Seitenleiste der Seiten (Allgemein, Zielsysteme und Hardware, Toolchain, Editor, Tastenkürzel) und der Seite Allgemein mit Farbschema und Größe](bild:einstellungen "Der Reiter „Einstellungen“")
+Auf den Seiten **Zielsysteme und Hardware** und **Toolchain** (Assembler-Optionen) gelten Änderungen erst, wenn du unten auf **Speichern** klickst; **Verwerfen** nimmt sie zurück. Darüber steht „● Ungespeicherte Änderungen“. Auswahlen mit mehreren Knöpfen (zum Beispiel Farbschema, Debug-Protokoll, Bilder laden, Update-Häufigkeit, Editor-Schalter) wirken dagegen sofort.
 
 ## Farbschema und Größe
 
-Du hast die Wahl zwischen **Dunkel**, **Hell** und **Wie das System**. Du findest sie im Menü **Ansicht ▸ Farbschema** und in den Einstellungen unter **Allgemein**. Die Größe der ganzen Oberfläche änderst du mit **Cmd/Strg+Plus** (größer), **Cmd/Strg+Minus** (kleiner) und **Cmd/Strg+0** (Originalgröße). Nur die Schrift des Editors ändern die Einträge **Ansicht ▸ Editor-Schrift größer / kleiner**. **Darstellung zurücksetzen** stellt Schema und Größe wieder her.
+In den Einstellungen (Seite **Allgemein**) wählst du **Dunkel**, **Hell**, **System** oder **Hoher Kontrast**. Im Menü **Ansicht** und in der Befehlspalette gibt es dafür **Hell/Dunkel umschalten** und **Hoher Kontrast ein/aus**. Die Größe der ganzen Oberfläche änderst du mit **Cmd/Strg+Plus**, **Cmd/Strg+Minus** und **Cmd/Strg+0** (Originalgröße). Nur die Schrift im Quelltext änderst du über die Befehlspalette (**Cmd/Strg+K**): „Editor-Schrift größer“ und „Editor-Schrift kleiner“ (je ein Punkt, auch im Menü **Ansicht**). „Darstellung zurücksetzen“ stellt Oberflächengröße, Editor-Schrift und Layout auf die Vorgabe zurück; Farbschema und andere Einstellungen bleiben.
 
-![Links das Farbschema Dunkel, rechts Hell: derselbe Ausschnitt des Fensters in beiden Schemata](bild:theme-hell-dunkel "Das Farbschema Dunkel und Hell im Vergleich")
+## Wenn du von der bisherigen Oberfläche kommst
 
-> **Info:** Alle Bilder in diesem Handbuch zeigen das dunkle Schema.
+Beim **allerersten Start** übernimmt VintageCoder Farbschema, Größe und Schrift aus den Einstellungen der bisherigen Oberfläche (Datei `view.json` im Konfigurationsordner), soweit sie vorhanden ist. Die alte Datei wird nur gelesen und bleibt unverändert; das Aussehen der neuen Oberfläche steht danach in einer eigenen Datei (`oberflaeche.json`). Die neue und die bisherige Oberfläche teilen sich denselben Konfigurationsordner: Zielsysteme, Emulatoren, Maschinen (`settings.json`) und die Liste der zuletzt geöffneten Projekte liegen in denselben Dateien wie bisher und bleiben erhalten. Die **Anordnung der Bereiche** beginnt neu. Sichere deine Projekte trotzdem wie immer, bevor du sie in einer neuen Version öffnest.
 
 ## Dein Layout wird gemerkt
 
-Du musst Größen und Sichtbarkeit der Zonen nicht speichern: VintageCoder merkt sie sich selbst, getrennt für **Code** und **Debug**. Gespeichert werden nur Zahlen und Schalter, in der Datei `layout.json` im Konfigurationsordner. Mit **Ansicht ▸ Layout zurücksetzen** kehrst du zu den Standardwerten zurück.
+Du musst Größen und Sichtbarkeit der Bereiche nicht speichern: VintageCoder merkt sie sich selbst. Gespeichert werden nur Zahlen und Schalter, nie Inhalte. Ein maximierter Bereich wird nicht gemerkt: Beim nächsten Start ist das gemerkte Normal-Layout da.
 
 ## Häufige Stolpersteine
 
-- **Seitenleiste, Inspektor und Fußpanel fehlen.** Ohne geöffnetes Projekt sind sie ausgeblendet. Öffne ein Projekt. Sind sie trotz Projekt weg, hast du sie vielleicht mit Cmd/Strg+Umschalt+Eingabe ausgeblendet; derselbe Befehl bringt sie zurück.
-- **Der Inspektor ist nur ein schmaler Streifen.** Das Fenster ist schmaler als 1280 Punkte; klicke auf den Streifen, um ihn als Schublade zu öffnen, oder vergrößere das Fenster.
-- **Ein Reiter ersetzt sich ständig.** Das ist ein Vorschau-Reiter (Titel kursiv). Doppelklick macht ihn fest.
-- **Das Layout ist verkorkst.** **Ansicht ▸ Layout zurücksetzen**.
-- **Cmd/Strg+B baut nicht.** Das Kürzel blendet die Seitenleiste ein und aus. Gebaut wird mit F7.
+- **Spalte, Schublade und Panel fehlen.** Du hast vielleicht den **Zen-Modus** (Cmd/Strg+Umschalt+B) oder einen maximierten Bereich eingeschaltet; derselbe Befehl bringt sie zurück. Ist die linke Spalte in einem schmalen Fenster nur ein Streifen, klappt ein Klick auf sein Symbol sie auf.
+- **Das Panel ist nur ein schmaler Streifen.** Das ist der Normalfall: Ein Klick auf ein Symbol klappt es auf.
+- **Das Layout ist verkorkst.** **Ansicht ▸ Bereiche ▸ Layout zurücksetzen**.
+- **Cmd/Strg+B baut nicht.** Das Kürzel blendet die linke Spalte ein und aus. Gebaut wird mit F7.
 
 ## Wie geht es weiter?
 
-Im nächsten Kapitel geht es um das, was in der Seitenleiste steht: [Projekte und Dateien](kapitel:projekte). Danach lernst du den [Code-Editor](kapitel:editor) kennen.
+Im nächsten Kapitel geht es um das, was in der linken Spalte steht: [Projekte und Dateien](kapitel:projekte). Danach lernst du den [Code-Editor](kapitel:editor) kennen.

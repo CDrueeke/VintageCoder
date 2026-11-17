@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "kind": "tileset",
+ "profile": "atari.tileset",
+ "name": "alevel_tiles",
+ "size": {
+  "w": 2,
+  "h": 2
+ },
+ "colorMode": "none",
+ "charsets": [
+  "graphics/afont.vcchar"
+ ],
+ "pins": [
+  {
+   "cs": 0,
+   "from": 0,
+   "to": 127
+  }
+ ],
+ "propDefs": [
+  {
+   "name": "solid",
+   "bit": 0
+  }
+ ],
+ "tiles": [
+  {
+   "name": "leer",
+   "cells": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "stein",
+   "cells": [
+    1,
+    2,
+    2,
+    1
+   ],
+   "props": [
+    "solid"
+   ]
+  },
+  {
+   "name": "gras",
+   "cells": [
+    8,
+    8,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "kiste",
+   "cells": [
+    2,
+    1,
+    1,
+    2
+   ],
+   "props": [
+    "solid"
+   ]
+  }
+ ]
+}

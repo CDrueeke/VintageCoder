@@ -36,22 +36,22 @@ Alles, was nicht Programmtext ist, nennen wir **Assets** (englisch für „Best�
 
 ## Schritt für Schritt: ein Asset anlegen und öffnen
 
-1. Klicke im Projektbaum (linke Seitenleiste) auf das **+** in der Kopfzeile. Das Menü bietet neben „Quelltext …“ und „Ordner …“ die Einträge **Sprite …**, **Zeichensatz …**, **Bildschirm …**, **Kacheln …**, **Palette …**, **Song …** und **PLAY …**. Dasselbe erreichst du über das Menü **Datei ▸ Neu: Sprite, Zeichensatz, Song …**.
-2. Im Dialog **Neu anlegen** gibst du einen **Namen** ein und wählst unter **Profil** die passende Variante. Mit **Anlegen** entsteht die Datei.
+1. Klicke in der linken Spalte auf den Knopf **＋** („Neue Datei im gewählten Ordner“). Dasselbe erreichst du über **Datei ▸ Neue Datei …**.
+2. Im Dialog **Neue Datei** wählst du die **Art**: neben Assembler, BASIC, Text und Notiz stehen dort **Sprites / PMG**, **Zeichensätze**, **Bildschirme**, **Kacheln**, **Paletten**, **Tracker** und **PLAY-Tracker** (dazu leere Disketten). Bei den Grafik- und Klangarten wählst du außerdem das **Profil**, also die passende Variante. Dann gibst du den **Namen** ein und bestätigst mit **OK**. Unter dem Namen steht, wo die Datei angelegt wird.
 3. Die neue Datei öffnet sich im passenden Studio. Ein **Doppelklick** auf eine vorhandene Datei im Projektbaum öffnet sie genauso.
 
 ## Der gemeinsame Aufbau der Studios
 
 Sprite-, Zeichensatz-, Bildschirm- und Kachel-Editor sehen sich bewusst ähnlich. Wenn du einen kennst, findest du dich in den anderen zurecht:
 
-1. **Kopfzeile:** Dateiname (ein Punkt dahinter bedeutet „ungespeicherte Änderungen“) und farbige Chips für Zielsystem und Profil.
-2. **Werkzeugleiste:** Speichern, Undo und Redo, Zeichenwerkzeuge, Importe, Zoom.
-3. **Links** die Liste (Frames, Zeichen oder Kacheln), **in der Mitte** die Zeichenfläche, **rechts** Pixelwerte, Farben und Vorschau.
-4. **Fuß:** der **Export-Streifen** mit Format, Ausgabedatei und dem Knopf **Export …**.
+1. **Kopfzeile:** ein kleines Kürzel für die Art (zum Beispiel SPR, CHR, SCR, PAL), der Dateiname (ein Punkt dahinter bedeutet „ungespeicherte Änderungen“), die Maße und rechts die Knöpfe **Exportieren …** und **Speichern**. Im Sprite- und Zeichensatz-Editor kommt **PNG laden …** dazu.
+2. **Werkzeugleiste:** eine Reihe mit Zeichenwerkzeugen, Rückgängig und Wiederholen, Transformieren, Zoom sowie **Raster** und **Zwiebel**. Was nicht in die Reihe passt, steht im Menü **⋯**.
+3. **Links** die Liste (Frames, Zeichen oder Kacheln), **in der Mitte** die Zeichenfläche, **rechts** die Seitenspalte aus Karten mit Pixelwerten, Farben und Eigenschaften.
+4. **Fußzeile:** Zellposition, Zoom und Meldungen, rechts der Hinweis **? Tasten** mit den Einzeltasten des Studios.
 
-Die Studios öffnen als Reiter im Editorbereich. Wenn du mehr Platz oder einen zweiten Bildschirm hast, kannst du ein Studio in ein **eigenes Fenster lösen** (Rechtsklick auf den Reiter ▸ „In eigenem Fenster lösen“) und es mit **Fenster ▸ Gelöste Studios zurückholen** wieder einbetten.
+Die Studios öffnen als Reiter im Editorbereich.
 
-Die Zeichenfläche passt ihren Zoom automatisch an den freien Platz an. Willst du selbst bestimmen, schaltest du in der Werkzeugleiste **Anpassen** aus und stellst den Zoom mit dem Regler oder mit **Strg/Cmd + Mausrad** ein.
+Die Zeichenfläche passt ihren Zoom automatisch an den freien Platz an. Willst du selbst bestimmen, nutze in der Werkzeugleiste **−** und **+** oder **Strg/Cmd + Mausrad**. Die Tasten **+** und **−** wirken ebenso, **0** passt die Fläche wieder ein (Knopf **Einpassen**).
 
 Sinnvolle Grundregeln für alle Studios:
 
@@ -66,9 +66,7 @@ Dein Programm kann die Textdatei nicht lesen, es braucht **Bytes**. Der **Export
 Es gibt zwei Wege:
 
 - **Automatisch:** Beim **Bauen** (F7) schreibt VintageCoder veraltete Assets selbst nach `build/export/<name>.asm`. Du musst nichts tun, außer die Datei im Quelltext einzubinden.
-- **Von Hand:** Der Knopf **Export …** im Fuß des Studios öffnet den Export-Dialog.
-
-Der Fuß zeigt neben dem Namen der Ausgabedatei einen Chip: **aktuell** (der Export ist neuer als dein Asset) oder **veraltet** (du hast seither geändert).
+- **Von Hand:** Der Knopf **Exportieren …** in der Kopfzeile des Studios (oder **Cmd/Strg+Umschalt+E**, auch im Menü **Datei**) öffnet den Export-Dialog.
 
 ### Der Export-Dialog
 
@@ -88,7 +86,7 @@ Im Feld **Name** steht die Marke, die als Vorsilbe aller Namen im Export dient. 
 - **In Projekt speichern:** schreibt die Dateien nach `build/export/`.
 - **In aktiven Code einfügen:** speichert, exportiert als Assembler und setzt eine `.include`-Zeile in den zuletzt benutzten Assembler-Quelltext. Das gelingt auch, wenn du die Datei aus dem Projektbaum in den Editor ziehst.
 
-![Export-Dialog mit Formatwahl, Vorschau und den drei Aktionen](bild:grafik-exportieren "Der Export-Dialog: ① Format, ② Name und Adresse, ③ Vorschau, ④ Aktionen")
+![Export-Dialog eines Sprites: Ausgabeformat, Name, Umfang mit Vorschau des erzeugten Textes und die Aktionen Im Emulator testen, In Projekt speichern, In aktiven Code einfügen](bild:grafik-exportieren "Der Export-Dialog: Format, Name, Vorschau und die Aktionen")
 
 > **Tipp:** Brauchst du nur die Daten im Programm, lass den automatischen Export arbeiten. Der Dialog lohnt sich, wenn du ein anderes Format brauchst oder die Bytes einmal ansehen möchtest.
 
@@ -133,7 +131,7 @@ Die letzten beiden Zeilen sind der ganze „Einbau“: `.org $2000` legt die Adr
 ## Häufige Stolpersteine
 
 - **„Label nicht gefunden“ beim Bauen:** Der Name nach dem Export (`hero`, `font`, …) richtet sich nach dem Namen im Asset, nicht nach dem Dateinamen. Im Export-Dialog siehst du den Namen im Feld **Name**.
-- **Änderungen erscheinen nicht im Programm:** Zeigt der Fuß **veraltet**, wurde nicht neu exportiert. Bauen (F7) oder **Export …** nutzen. Vorher mit Strg/Cmd+S speichern.
+- **Änderungen erscheinen nicht im Programm:** Dann wurde nach deiner Änderung nicht neu exportiert. Baue mit F7 oder nutze **Exportieren …**. Speichere vorher mit Strg/Cmd+S.
 - **Ein Studio öffnet nicht:** Das Asset braucht ein geöffnetes Projekt. Ohne Projekt gibt es keinen Projektbaum.
 
 ## Wie geht es weiter?

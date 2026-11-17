@@ -1,0 +1,115 @@
+=== bit_setzen
+; vc:poke regs begin
+; $D011 Steuerregister 1: BMM=1
+poke 53265, peek(53265) or 32
+; vc:poke end
+=== bit_loeschen
+; vc:poke regs begin
+; $D011 Steuerregister 1: BMM=0
+poke 53265, peek(53265) and 223
+; vc:poke end
+=== setzen_und_loeschen
+; vc:poke regs begin
+; $D011 Steuerregister 1: BMM=0 DEN=1
+poke 53265, (peek(53265) and 207) or 16
+; vc:poke end
+=== feld_mehrbit
+; vc:poke regs begin
+; $D011 Steuerregister 1: YSCROLL=3
+poke 53265, (peek(53265) and 248) or 3
+; vc:poke end
+=== ganzes_byte
+; vc:poke regs begin
+; $D011 Steuerregister 1 = 59
+poke 53265, 59
+; vc:poke end
+=== schreibregister_teil_warnt
+; vc:poke regs begin
+; $D418 Filtermodus und Lautstärke: VOL=15
+poke 54296, 15
+; vc:poke end
+!! sid.mode_vol: Schreibregister, der nicht gelesene Rest wird 0 gesetzt
+=== ohne_kommentare_ohne_marken
+poke 53280, 6 : poke 53281, 0
+=== sid_init_mit_variable
+; vc:poke regs begin
+; $D418 Filtermodus und Lautstärke = 15
+; $D405 Stimme 1 Attack/Decay = 9
+; $D406 Stimme 1 Sustain/Release = 240
+; $D400 Stimme 1 Frequenz Low = 103
+; $D401 Stimme 1 Frequenz High = 17
+; $D404 Stimme 1 Steuerung (Wellenform, Gate) = 17
+s = 54272
+poke s + 24, 15 : poke s + 5, 9 : poke s + 6, 240 : poke s, 103 : poke s + 1, 17
+poke s + 4, 17
+; vc:poke end
+=== sprites_variable_mehrere_je_zeile
+; vc:poke regs begin
+; $D015 Sprites aktivieren = 7
+; $D027 Sprite 0 Farbe = 1
+; $D028 Sprite 1 Farbe = 2
+; $D029 Sprite 2 Farbe = 3
+; $D000 Sprite 0 X (Bit 0-7) = 100
+; $D001 Sprite 0 Y = 120
+; $D01C Sprites Multicolor = 4
+v = 53248
+poke v + 21, 7 : poke v + 39, 1 : poke v + 40, 2 : poke v + 41, 3 : poke v, 100
+poke v + 1, 120 : poke v + 28, 4
+; vc:poke end
+=== sprites_je_zeile_eine
+; vc:poke regs begin
+; $D015 Sprites aktivieren = 7
+; $D027 Sprite 0 Farbe = 1
+; $D028 Sprite 1 Farbe = 2
+; $D029 Sprite 2 Farbe = 3
+; $D000 Sprite 0 X (Bit 0-7) = 100
+v = 53248
+poke v + 21, 7
+poke v + 39, 1
+poke v + 40, 2
+poke v + 41, 3
+poke v, 100
+; vc:poke end
+=== wenige_ohne_variable
+; vc:poke regs begin
+; $D015 Sprites aktivieren = 7
+; $D027 Sprite 0 Farbe = 1
+poke 53269, 7 : poke 53287, 1
+; vc:poke end
+=== variable_belegt_waehlt_anderen_namen
+; vc:poke regs begin
+; $D015 Sprites aktivieren = 7
+; $D027 Sprite 0 Farbe = 1
+v1 = 53248
+poke v1 + 21, 7 : poke v1 + 39, 1
+; vc:poke end
+=== hex_zahlen
+; vc:poke regs begin
+; $D011 Steuerregister 1: BMM=1
+; $D020 Rahmenfarbe = 6
+poke $D011, peek($D011) or $20 : poke $D020, $06
+; vc:poke end
+=== zeilennummern_und_rem
+100 rem vc:poke regs begin
+110 rem $D011 Steuerregister 1: BMM=1
+120 rem $D020 Rahmenfarbe = 6
+130 poke 53265, peek(53265) or 32 : poke 53280, 6
+140 rem vc:poke end
+=== rem_ohne_nummern
+rem vc:poke regs begin
+rem $D020 Rahmenfarbe = 6
+poke 53280, 6
+rem vc:poke end
+=== andere_bits_nicht_erhalten
+; vc:poke regs begin
+; $D011 Steuerregister 1: BMM=1
+poke 53265, 32
+; vc:poke end
+=== gesperrt_ohne_bestaetigung
+!! gesperrt: vic2.ctrl1 (Bankumschaltung)
+=== gesperrt_mit_bestaetigung
+; vc:poke regs begin
+; $D011 Steuerregister 1 = 1
+poke 53265, 1
+; vc:poke end
+!! vic2.ctrl1: gesperrtes Register (Bankumschaltung), nur nach Bestätigung erzeugt

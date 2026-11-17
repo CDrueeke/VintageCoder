@@ -11,7 +11,7 @@ Aufruf (Arbeitsordner egal):
 Beispiel:
   python3 tools/test_linux_pkg.py VersionTests
 """
-import io, json, os, shutil, sys, tempfile, unittest
+import io, json, os, re, shutil, sys, tempfile, unittest
 from contextlib import redirect_stdout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -139,6 +139,7 @@ class StagedTests(unittest.TestCase):
         st = self.stage("nur-ide-c64-ohne-emulator")
         files = lp.stage_files(st)
         for f in ("usr/bin/vintagecoder", "usr/share/applications/vintagecoder.desktop", "usr/share/icons/hicolor/512x512/apps/vintagecoder.png",
+                  "usr/share/icons/hicolor/16x16/apps/vintagecoder.png", "usr/share/icons/hicolor/scalable/apps/vintagecoder.svg",
                   "usr/share/man/man1/vintagecoder.1", "usr/share/doc/vintagecoder/licenses/Inter-OFL.txt"):
             self.assertIn(f, files)
         self.assertNotIn("usr/bin/data", files)
@@ -321,7 +322,7 @@ class StagedTests(unittest.TestCase):
         self.assertEqual(rc, 0, buf.getvalue())
         names = [n for n in os.listdir(out) if n.endswith(".tar.gz")]
         self.assertEqual(len(names), 1)
-        self.assertRegex(names[0], r"^vintagecoder-0\.1\.0-linux-[a-z0-9_]+\.tar\.gz$")
+        self.assertRegex(names[0], r"^vintagecoder-%s-linux-[a-z0-9_]+\.tar\.gz$" % re.escape(release.cargo_version()))
         import tarfile
         with tarfile.open(os.path.join(out, names[0])) as tf:
             tn = tf.getnames()

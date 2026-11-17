@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-BASIC 1 "" "VintageCoder 0.1.0" "VintageCoder Handbuch"
+.TH VCC\-BASIC 1 "" "VintageCoder 0.2.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-basic \- BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
 .SH ÜBERSICHT
@@ -9,6 +9,8 @@ vcc\-basic \- BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
 .B vcc basic \-\-tokenize <liste.lst> [optionen]
 .br
 .B vcc basic \-\-detokenize <datei.prg> [optionen]
+.br
+.B vcc basic \-\-suggest\-hex <datei.bas|datei.lst> [optionen]
 .br
 .B vcc basic ast <datei.bas> [optionen]
 .br
@@ -126,6 +128,34 @@ Statt des klassischen Listings Text mit Marken (@L10) ausgeben; nur Commodore.
 .TP
 \fB\-o\fR \fIausgabe\fR
 Listing in eine Datei schreiben. Standard: Ausgabe auf stdout.
+.SS Form suggest\-hex
+Hex\-Vorschläge für Chipregister\-Adressen anzeigen oder ausgewählte übernehmen
+.PP
+.TP
+\fIdatei\fR
+Natives BASIC mit Dezimaladressen (z. B. ein importiertes Programm).
+.PP
+\fBZielsystem und Dialekt\fR
+.TP
+\fB\-\-suggest\-hex\fR
+Schaltet auf diese Form um. Erforderlich.
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem (Datei in data/targets); bestimmt Dialekt und die bekannten Chipregister. Standard: c64.
+.TP
+\fB\-\-dialect\fR \fIid\fR
+BASIC\-Dialekt (Datei in data/basic). Standard: Dialekt des Zielsystems.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
+.PP
+\fBAusgabe\fR
+.TP
+\fB\-\-apply\fR \fIliste\fR
+Nummern der Vorschläge (aus der Liste, durch Komma getrennt), die in die Ausgabedatei geschrieben werden. Ohne \-\-apply wird nur aufgelistet; es wird nie etwas ohne Auswahl geändert. Standard: nur auflisten.
+.TP
+\fB\-o\fR \fIausgabe\fR
+Ausgabedatei für \-\-apply (die Quelldatei wird nie überschrieben).
 .SS Form ast
 Syntaxbaum eines BASIC\-Programms ausgeben
 .PP
@@ -201,6 +231,20 @@ Atari\-Datei in eine Textdatei zurückwandeln:
 vcc basic \-\-detokenize farben.bas \-\-target atari8 \-o farben.lst
 .fi
 .RE
+Vorschläge ansehen:
+.PP
+.RS 8
+.nf
+vcc basic \-\-suggest\-hex spiel.bas \-\-target c64
+.fi
+.RE
+Vorschläge 1 und 3 übernehmen:
+.PP
+.RS 8
+.nf
+vcc basic \-\-suggest\-hex spiel.bas \-\-apply 1,3 \-o spiel_hex.bas
+.fi
+.RE
 Syntaxbaum als JSON:
 .PP
 .RS 8
@@ -223,6 +267,8 @@ Die Optionen \-I, \-D, \-\-pack, \-\-map und \-\-labels wirken nur beim Überset
 Eine Zeile ohne Zeilennummer ist ein Fehler (B100). Für Quelltext mit Marken und Direktiven die Form ohne \-\-tokenize verwenden.
 .PP
 Schlüsselwörter erscheinen bei Commodore klein, beim Atari groß; Steuerzeichen stehen als {clr} usw. Beginnt die Datei mit zwei Nullbytes, weist die Fehlermeldung auf \-\-target atari8 hin.
+.PP
+Vorgeschlagen werden nur vollständige Dezimaladressen ab 256 als Argument von POKE, PEEK, SYS, WAIT und USR, die ein Chipregister des Zielsystems sind. Rechenausdrücke, DATA und Zeichenketten bleiben unberührt.
 .PP
 Der Aufruf nutzt den Parser von basic2asm; dessen übrige Optionen (\-o, \-\-map, \-\-stage, \-\-float, \-\-int\-div, \-\-style, \-\-runtime, \-\-no\-track\-line, \-\-no\-rem, \-\-check) werden angenommen, haben hier aber keine Wirkung.
 .PP
