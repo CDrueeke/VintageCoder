@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Windows: GUI-Anwendung ohne Konsolenfenster (die CLI `vcc` bleibt Konsolenprogramm).
+#![cfg_attr(windows, windows_subsystem = "windows")]
 //! VintageCoder, neue Oberfläche (Iced), Stufe 1: Gerüst und Editor.
 //! Aufruf: `vintagecoder [Projektordner]`. Elm-Aufbau: `App` (Modell), `Msg`, `update`, `view`, `subscription`.
 mod aussen;

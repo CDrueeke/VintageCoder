@@ -54,7 +54,7 @@ impl Vice {
         let port = free_port();
         // Windows: Der Autostart-Befehl des Binär-Monitors lässt VICE 3.9 abstürzen (Zugriffsverletzung, Exitcode 0xC0000005), deshalb
         // wird das Programm dort über die Kommandozeile (`-autostart`) geladen; der Monitor ist schon vor dem Programmstart verbunden.
-        let cli_autostart: Vec<String> = if cfg!(windows) && !prg.is_empty() { vec!["-autostart".into(), prg.to_string()] } else { vec![] };
+        let cli_autostart: Vec<String> = if cfg!(windows) && !prg.is_empty() { vec!["-autostart".into(), prg.strip_prefix(r"\\?\").filter(|r| !r.starts_with("UNC\\")).unwrap_or(prg).to_string()] } else { vec![] };
         let marker = format!("ip4://127.0.0.1:{port}");
         let child = Command::new(&exe).args(["-binarymonitor", "-binarymonitoraddress", &marker, "+confirmonexit"]).args(&cli_autostart).args(extra)
             .stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().map_err(|e| format!("{exe}: {e}"))?;

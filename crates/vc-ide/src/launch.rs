@@ -14,6 +14,9 @@ static ASYNC_ERRORS: Mutex<Vec<String>> = Mutex::new(Vec::new());
 /// Fehlermeldungen aus Hintergrundstarts abholen (leer, wenn nichts schiefging)
 pub fn take_errors() -> Vec<String> { std::mem::take(&mut *ASYNC_ERRORS.lock().unwrap_or_else(|e| e.into_inner())) }
 
+/// Windows: Pfade mit dem Präfix `\\?\` (aus `canonicalize`) versteht kein Emulator (VICE: „Cannot open file“), deshalb ohne Präfix übergeben.
+fn ohne_praefix(p: &Path) -> std::path::PathBuf { let t = p.to_string_lossy(); match t.strip_prefix(r"\\?\") { Some(r) if !r.starts_with("UNC\\") => std::path::PathBuf::from(r), _ => p.to_path_buf() } }
+
 fn kill(mut c: Child) { let _ = c.kill(); let _ = c.wait(); }
 
 /// Beendet den zuletzt gestarteten Emulator (falls er noch läuft); liefert, ob einer beendet wurde.
@@ -88,6 +91,7 @@ pub fn project_root_of(path: &Path) -> std::path::PathBuf {
 
 /// Startet `path` (absoluter Pfad des Artefakts) für `target`; `extra` = Argumente aus [`project_args`]; liefert die Kommandozeile
 pub fn spawn(path: &Path, target: &str, atari_variant: &str, extra: &[String]) -> Result<String, String> {
+    let path = &ohne_praefix(path);
     stop_running();
     let generation = GENERATION.load(Ordering::SeqCst);
     // Windows: der Artefaktpfad kommt als `<Projekt>\build/x.xex`; Altirra liest ein "/" als Schalter ("Cannot open file …\build"), daher einheitlich mit "\"
@@ -187,6 +191,7 @@ fn with_lines(head: String, lines: &[String]) -> String {
 /// Legt ein Diskettenimage im Standard-Emulator des Systems ein (Laufwerk 8 bei VICE, Laufwerk 1 bei atari800/Altirra) und startet ihn; ein
 /// früher gestarteter Emulator wird beendet. Es wird nichts geladen: bei Commodore tippt man `LOAD"*",8,1`, der Atari bootet die Diskette selbst.
 pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<String, String> {
+    let image = &ohne_praefix(image);
     if target == "mega65" { return Err("MEGA65: Einlegen im Emulator ist noch nicht umgesetzt".into()); }
     stop_running();
     let settings = crate::settings::effective();
@@ -227,6 +232,7 @@ pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<St
 
 /// Startet `path` auf einer echten Maschine aus den Einstellungen: Ultimate 64 (REST: Reset, Laden, RUN) bzw. MEGA65 (Monitor über die serielle Schnittstelle).
 pub fn run_on_machine(m: &crate::settings::Machine, path: &Path, target: &str) -> Result<String, String> {
+    let path = &ohne_praefix(path);
     crate::emulators::require_device(&m.kind)?;
     stop_running();
     let prg = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -268,6 +274,7 @@ pub fn run_on_machine(m: &crate::settings::Machine, path: &Path, target: &str) -
 /// Startet ein Programm von einer Diskette auf einer echten MEGA65 über Ethernet: Diskette auf die SD-Karte kopieren, einbinden, `prg` starten.
 /// UNGEPRÜFT (nur gegen Attrappen-Befehle getestet). Über USB gibt es das nicht.
 pub fn run_disk_on_machine(m: &crate::settings::Machine, disk: &Path, prg: &Path, target: &str) -> Result<String, String> {
+    let (disk, prg) = (&ohne_praefix(disk), &ohne_praefix(prg));
     crate::emulators::require_device(&m.kind)?;
     if m.kind != "mega65" || target != "mega65" { return Err("Diskette auf Hardware starten gibt es nur für den MEGA65".into()); }
     if m.link_for(crate::mega65net::Action::Start) != crate::mega65net::Link::Eth { return Err("Eine Diskette lässt sich nur über Ethernet auf den MEGA65 bringen (Einstellungen → Hardware, Verbindung „Starten“)".into()); }
@@ -279,3 +286,6 @@ pub fn run_disk_on_machine(m: &crate::settings::Machine, disk: &Path, prg: &Path
 pub fn machine_runs_disks(m: &crate::settings::Machine) -> bool {
     m.kind == "mega65" && m.link_for(crate::mega65net::Action::Start) == crate::mega65net::Link::Eth && m.link_for(crate::mega65net::Action::Copy) == crate::mega65net::Link::Eth
 }
+
+#[cfg(test)]
+mod praefix_tests { use super::*; #[test] fn praefix_wird_entfernt() { assert_eq!(ohne_praefix(Path::new(r"\\?\C:\a\b.prg")), std::path::PathBuf::from(r"C:\a\b.prg")); assert_eq!(ohne_praefix(Path::new(r"\\?\UNC\s\f")), std::path::PathBuf::from(r"\\?\UNC\s\f")); assert_eq!(ohne_praefix(Path::new("/tmp/x")), std::path::PathBuf::from("/tmp/x")); } }
