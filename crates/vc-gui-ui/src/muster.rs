@@ -107,7 +107,7 @@ pub fn knopf_el<'a, M: Clone + 'a>(pal: Pal, inhalt: Element<'a, M>, tipp: &str,
     if quadrat { b = b.width(KNOPF_HOEHE + 4.0) }
     if let Some(m) = wirkt { b = b.on_press(m) }
     if tipp.is_empty() { return b.into() }
-    iced::widget::tooltip(b, container(text(tipp.to_string()).size(schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| container::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 4.0.into() }, ..Default::default() }), iced::widget::tooltip::Position::Bottom).gap(4).into()
+    iced::widget::tooltip(b, container(text(crate::befehle::plattform_text(tipp)).size(schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| container::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 4.0.into() }, ..Default::default() }), iced::widget::tooltip::Position::Bottom).gap(4).into()
 }
 
 /// Zone 5: Seitenspalte aus Karten (feste Breite, Abstand 8); scrollt nur, wenn die Karten nicht passen: der einzige Scrollbereich des Studios

@@ -163,28 +163,40 @@ pub struct App {
     vorschlag_noetig: bool, vorschlag_req: u64, vorschlag_fuer: (u64, vc_gui_editor::core::Pos), hover_req: u64, lsp_gen: u32, exportiert: Vec<String>, hexe: HashMap<String, hexansicht::HexDoc>, baum_zug: Option<BaumZug>, /** ein Vorhörton klingt: Tick für die Klaviatur-Anzeige */ probe_aktiv: bool, /** Startbild sichtbar */ splash: bool, zahlen: Option<zahlen::ZahlenDlg>, /** per Tastatur oder Klick gewählte Zeile des Dateibaums (rel; Ordner und Dateien) */ baum_sel: Option<String>, /** geparste Markdown-Dokumente (nach Inhalt) */ md_cache: std::cell::RefCell<HashMap<u64, std::rc::Rc<vc_md::Doc>>>, /** Markdown-Dateien, die als Quelltext (nicht als Vorschau) offen sind */ md_quelltext: HashSet<String>, md_als: HashSet<String>, zeichen: Option<zeichendlg::ZeichenDlg>, hex: Option<hexdlg::HexDlg>, /** wie viele Blöcke große Markdown-Texte zeigen */ md_grenze: usize, /** QWERTY-Zeichen der gerade gedrückten physischen Taste (nur während der Verarbeitung einer Taste) */ phys: Option<char>, layout_gelernt: Option<einstellungen::Tastaturlayout>, layout_system: Option<einstellungen::Tastaturlayout>, disks: HashMap<String, vc_ide_model::diskdoc::DiskDoc>, screens: HashMap<String, screenstudio::ScreenStudio>, tilesets: HashMap<String, tilestudio::TileStudio>, banken: HashMap<String, bankstudio::BankStudio>, songs: HashMap<String, songstudio::SongStudio>, audio: audio::Audio, audio_song: Option<String>, song_import: Option<songstudio::SongImport>,
 }
 
+/// Ordner der Hardware-Datenbank (`data/`) wie bei `vcc`: Umgebungsvariable `VC_DATA`, sonst ab dem Ort des Programms (installierte App, Quellbaum),
+/// sonst ab dem aktuellen Ordner. Kein zur Übersetzungszeit eingebrannter Pfad.
+fn daten_ordner() -> PathBuf {
+    if let Some(p) = std::env::var_os("VC_DATA").filter(|p| !p.is_empty()) { return PathBuf::from(p) }
+    std::env::current_exe().ok().and_then(|e| vc_ide::find_data_dir(&e)).or_else(|| std::env::current_dir().ok().and_then(|d| vc_ide::find_data_dir(&d))).unwrap_or_default()
+}
+/// Platzhalter-Ordner für den Start ohne Projekt (leer; die Startseite zeigt keine Dateien)
+fn leerer_ordner() -> PathBuf { let d = std::env::temp_dir().join("vintagecoder-ohne-projekt"); let _ = std::fs::create_dir_all(&d); d }
+
 impl App {
-    fn neu() -> (App, Task<Msg>) {
+    fn neu() -> (App, Task<Msg>) { Self::neu_aus(std::env::args().collect(), cfg!(debug_assertions)) }
+    /// `args` wie die Kommandozeile (erstes Element: Programmname); `entwicklung`: ohne Projektangabe das Beispiel „prallball“ aus dem Quellbaum öffnen
+    /// (nur für Entwickler und Tests). Sonst erscheint die Startseite: ohne Projekt, ohne Eintrag in „Zuletzt geöffnet“.
+    fn neu_aus(args: Vec<String>, entwicklung: bool) -> (App, Task<Msg>) {
         // Testlauf: nie Prozesse starten (Finder, Papierkorb über osascript, Emulatoren): Sicherung für alle Module, die `VC_TEST_NO_SPAWN` beachten
         #[cfg(test)] std::env::set_var("VC_TEST_NO_SPAWN", "1");
         // Testlauf: „Zuletzt geöffnet“ nie in die echte Konfiguration schreiben, sondern je Test-Thread in eine eigene Wegwerfdatei
         #[cfg(test)] if !vc_ide_model::recent::umgeleitet() { vc_ide_model::recent::umleiten(Some(std::env::temp_dir().join(format!("vcgui-recent-test-{}-{:?}.json", std::process::id(), std::thread::current().id())))) }
-        let args: Vec<String> = std::env::args().collect();
-        let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..").canonicalize().unwrap_or_default();
+        let data = daten_ordner();
         let start = args.iter().skip(1).filter(|a| !a.starts_with("--")).map(PathBuf::from).find(|a| a.exists()).and_then(|a| project::ziel_fuer(&a));
-        let (root, start_datei, start_vcprj) = match start { Some(z) => (z.root, z.datei, z.vcprj), None => (repo.join("examples/c64/prallball"), None, None) };
-        let (proj, start_fehler) = match project::pruefen(&root, start_vcprj) { Ok(p) => (p, None), Err(e) => (project::laden(&root), Some(e)) };
+        let ohne_projekt = start.is_none() && !entwicklung;
+        let (root, start_datei, start_vcprj) = match start { Some(z) => (z.root, z.datei, z.vcprj), None if entwicklung => (data.parent().map(|p| p.join("examples/c64/prallball")).unwrap_or_default(), None, None), None => (leerer_ordner(), None, None) };
+        let (proj, start_fehler) = if ohne_projekt { (project::laden(&root), None) } else { match project::pruefen(&root, start_vcprj) { Ok(p) => (p, None), Err(e) => (project::laden(&root), Some(e)) } };
         let namen = project::dateien(&proj);
-        let (lsp_start, lsp_rx) = lsp::Lsp::start(&root, &repo.join("data")); *LSP_EMPFAENGER.lock().unwrap() = Some(lsp_rx);
-        let mut app = App { einst: Einstellungen::laden(), sys_dunkel: true, data: repo.join("data"), root, proj, namen, tabs: vec![], aktiv: 0, editoren: HashMap::new(), schublade: 0, log: vec![t::BEREIT.into()], probleme: vec![], baut: false,
+        let (lsp_start, lsp_rx) = lsp::Lsp::start(&root, &data); *LSP_EMPFAENGER.lock().unwrap() = Some(lsp_rx);
+        let mut app = App { einst: Einstellungen::laden(), sys_dunkel: true, data: data.clone(), root, proj, namen, tabs: vec![], aktiv: 0, editoren: HashMap::new(), schublade: 0, log: vec![t::BEREIT.into()], probleme: vec![], baut: false,
             palette: Palette { offen: false, frage: String::new(), auswahl: 0 }, seite: Seite::Dateien, baum_ziel: String::new(), baum_zu: Default::default(), baum_filter: String::new(), baum_datei: if cfg!(test) { None } else { vc_ide_model::treestate::file() }, suche_frage: String::new(), funde: vec![], sucht: false, suche_fertig: false,
             find: FindLeiste { offen: false, ersetzen: false, frage: String::new(), mit: String::new(), gross_klein: false, info: String::new() }, goto: GotoLeiste { offen: false, text: String::new() },
-            pretty_zeile: None, hinweis: String::new(), menue_test: std::env::var_os("VC_MENUE_IM_FENSTER").is_some_and(|v| v == "1"), kuerzel_windows: false, doppel: None, doppel_ms: if cfg!(test) { 0 } else { 300 }, gliederung: RefCell::new((String::new(), 0, vec![])), logos: [image::Handle::from_bytes(WORT_FUER_DUNKEL), image::Handle::from_bytes(WORT_FUER_HELL), image::Handle::from_bytes(ICON)], unbenannt: 0, danach: Danach::Nichts, info: None, run_on: String::new(), ziel_menue: false, kopf_menue: false, textmeta: HashMap::new(), lesefehler: HashSet::new(), scratch: vec![], scratch_n: 0, scratch_datei: if cfg!(test) { None } else { vc_ide_model::scratchsave::file() }, scratch_stand: String::new(), scratch_rest: None, scratch_kept: vec![], neu_projekt: None, kopier: None, pe: None, wiz: None, upd: Default::default(), wechsel_ohne_speichern: false, beenden_frage: None, start: Default::default(), satz: setui::Satz::neu(), paletten: HashMap::new(), pal_hex: String::new(), import: None, export: None, letzte_asm: None, studios: HashMap::new(), farben: studio::Farben::laden(&repo.join("data")), debug_spalte: 0, trenner: false, reg_alt: None, reg_neu: None, rueckfrage: None, emu_bild: None, emu_ms: 0.0, emu_auto: true, emu_live: false, emu_text: String::new(), tests: testlauf::TestLauf::default(), test_debug: false, snap_name: "momentaufnahme".into(), snap_sprites: true, snap_tiles: false, snap_rom: true, karte: KartenZustand::default(), dbg: None, run_to: None, snap: debug::Snap::default(), bp_an: HashSet::new(), dbg_fehler: 0, dbg_notizen: 0, mem_text: "0400".into(), beob: vec![], beob_text: String::new(), punkt_text: String::new(), lsp: lsp_start, lsp_gesendet: HashMap::new(), diagnosen: HashMap::new(), panel_seite: PanelSeite::Gliederung, hilfe: HilfeZustand::default(), zeichen_suche: String::new(), ed_fokus: 0, ed_aktiv: true, zeichen_cache: RefCell::new((false, 255, vec![])), andere: None, fokus_rechts: false, ziehen: None, ueber_tab: None, fenster: iced::Size::new(1280.0, 800.0), kontext: None, ziel: None, def_req: 0, layout: Layout::aus_gemerkt(Gemerkt { seitenleiste_minimiert: false, schublade_minimiert: false, panel_minimiert: true }), fokus_bereich: Bereich::Dokument, marken: Default::default(), marken_datei: if cfg!(test) { None } else { vc_ide_model::cursors::file() }, baum: None, papierkorb: vc_ide_model::fileops::can_trash(), vorschlag_noetig: false, vorschlag_req: 0, vorschlag_fuer: (0, Default::default()), hover_req: 0, lsp_gen: 0, exportiert: vec![], disks: HashMap::new(), hexe: HashMap::new(), baum_zug: None, probe_aktiv: false, splash: false, zahlen: None, baum_sel: None, md_cache: Default::default(), md_quelltext: HashSet::new(), md_als: HashSet::new(), zeichen: None, hex: None, md_grenze: mdansicht::BLOECKE, phys: None, layout_gelernt: None, layout_system: tastatur::system_layout(), screens: HashMap::new(), tilesets: HashMap::new(), banken: HashMap::new(), songs: HashMap::new(), audio: audio::Audio::neu(), audio_song: None, song_import: None };
+            pretty_zeile: None, hinweis: String::new(), menue_test: std::env::var_os("VC_MENUE_IM_FENSTER").is_some_and(|v| v == "1"), kuerzel_windows: false, doppel: None, doppel_ms: if cfg!(test) { 0 } else { 300 }, gliederung: RefCell::new((String::new(), 0, vec![])), logos: [image::Handle::from_bytes(WORT_FUER_DUNKEL), image::Handle::from_bytes(WORT_FUER_HELL), image::Handle::from_bytes(ICON)], unbenannt: 0, danach: Danach::Nichts, info: None, run_on: String::new(), ziel_menue: false, kopf_menue: false, textmeta: HashMap::new(), lesefehler: HashSet::new(), scratch: vec![], scratch_n: 0, scratch_datei: if cfg!(test) { None } else { vc_ide_model::scratchsave::file() }, scratch_stand: String::new(), scratch_rest: None, scratch_kept: vec![], neu_projekt: None, kopier: None, pe: None, wiz: None, upd: Default::default(), wechsel_ohne_speichern: false, beenden_frage: None, start: Default::default(), satz: setui::Satz::neu(), paletten: HashMap::new(), pal_hex: String::new(), import: None, export: None, letzte_asm: None, studios: HashMap::new(), farben: studio::Farben::laden(&data), debug_spalte: 0, trenner: false, reg_alt: None, reg_neu: None, rueckfrage: None, emu_bild: None, emu_ms: 0.0, emu_auto: true, emu_live: false, emu_text: String::new(), tests: testlauf::TestLauf::default(), test_debug: false, snap_name: "momentaufnahme".into(), snap_sprites: true, snap_tiles: false, snap_rom: true, karte: KartenZustand::default(), dbg: None, run_to: None, snap: debug::Snap::default(), bp_an: HashSet::new(), dbg_fehler: 0, dbg_notizen: 0, mem_text: "0400".into(), beob: vec![], beob_text: String::new(), punkt_text: String::new(), lsp: lsp_start, lsp_gesendet: HashMap::new(), diagnosen: HashMap::new(), panel_seite: PanelSeite::Gliederung, hilfe: HilfeZustand::default(), zeichen_suche: String::new(), ed_fokus: 0, ed_aktiv: true, zeichen_cache: RefCell::new((false, 255, vec![])), andere: None, fokus_rechts: false, ziehen: None, ueber_tab: None, fenster: iced::Size::new(1280.0, 800.0), kontext: None, ziel: None, def_req: 0, layout: Layout::aus_gemerkt(Gemerkt { seitenleiste_minimiert: false, schublade_minimiert: false, panel_minimiert: true }), fokus_bereich: Bereich::Dokument, marken: Default::default(), marken_datei: if cfg!(test) { None } else { vc_ide_model::cursors::file() }, baum: None, papierkorb: vc_ide_model::fileops::can_trash(), vorschlag_noetig: false, vorschlag_req: 0, vorschlag_fuer: (0, Default::default()), hover_req: 0, lsp_gen: 0, exportiert: vec![], disks: HashMap::new(), hexe: HashMap::new(), baum_zug: None, probe_aktiv: false, splash: false, zahlen: None, baum_sel: None, md_cache: Default::default(), md_quelltext: HashSet::new(), md_als: HashSet::new(), zeichen: None, hex: None, md_grenze: mdansicht::BLOECKE, phys: None, layout_gelernt: None, layout_system: tastatur::system_layout(), screens: HashMap::new(), tilesets: HashMap::new(), banken: HashMap::new(), songs: HashMap::new(), audio: audio::Audio::neu(), audio_song: None, song_import: None };
         app.marken = app.marken_datei.as_ref().map(|f| vc_ide_model::cursors::load_from(f, &app.root)).unwrap_or_default();
         app.baum_zu = app.baum_datei.as_ref().map(|f| vc_ide_model::treestate::load_from(f, &app.root)).unwrap_or_default();
         app.layout = Layout::aus_gemerkt(Gemerkt { seitenleiste_minimiert: !app.einst.seitenleiste, schublade_minimiert: !app.einst.schublade, panel_minimiert: !app.einst.panel });
         app.panel_seite = match app.einst.panel_reiter { 1 => PanelSeite::Hilfe, 2 => PanelSeite::Zeichen, _ => PanelSeite::Gliederung };
-        app.start_laden(); app.zuletzt_merken();
+        app.start_laden(); if !ohne_projekt { app.zuletzt_merken() }
         // Ersteinrichtung: weder wizard.json noch settings.json → der Assistent öffnet sich von selbst (nie im Test, nie mit VC_NO_WIZARD)
         if !cfg!(test) && !vc_ide::setup::auto_start_suppressed() { if let Some(p) = app.wiz_pfade() { if vc_ide::setup::start_state(&p) == vc_ide::setup::Start::FirstRun { app.wiz_oeffnen(None) } } }
         if !cfg!(test) && vc_ide_model::scratchsave::enabled() { if let Some(f) = &app.scratch_datei { let e = vc_ide_model::scratchsave::load_from(f, vc_ide_model::scratchsave::now_secs()); if !e.is_empty() { app.scratch_rest = Some(e) } } }
@@ -616,7 +628,7 @@ impl App {
             let mut gruppe = None;
             for x in self.studio_aktionen().into_iter().filter(|x| x.menue) {
                 if gruppe.is_some_and(|g| g != x.gruppe) { zeilen.push(Zeile { name: String::new(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None) }
-                gruppe = Some(x.gruppe); zeilen.push(Zeile { name: x.name, kuerzel: x.kuerzel, aktiv: x.aktiv, msg: Some(Msg::KontextMsg(Box::new(x.msg))) }); cmds.push(None);
+                gruppe = Some(x.gruppe); zeilen.push(Zeile { name: x.name, kuerzel: befehle::plattform_text(&x.kuerzel), aktiv: x.aktiv, msg: Some(Msg::KontextMsg(Box::new(x.msg))) }); cmds.push(None);
             }
             return (zeilen, cmds);
         }
@@ -1133,7 +1145,7 @@ impl App {
                 let l = ed.lines.len(); let k = k.unwrap_or(ed.cursor.line + 1);
                 if k < l { ed.replace(Pos { line: k, col: 0 }, Pos { line: k, col: 0 }, &format!("{}\n", plan.line)) }
                 else { let e = Pos { line: l - 1, col: ed.line_len(l - 1) }; ed.replace(e, e, &format!("\n{}", plan.line)) }
-                self.hinweis = format!("Eingebunden: {}{} (Cmd/Strg+Z nimmt es zurück)", plan.line, plan.alt.map(|(a, _)| format!(" · Alternative von Hand: {a}")).unwrap_or_default());
+                self.hinweis = format!("Eingebunden: {}{} ({}+Z nimmt es zurück)", plan.line, plan.alt.map(|(a, _)| format!(" · Alternative von Hand: {a}")).unwrap_or_default(), befehle::plattform_text("Cmd"));
             }
             Err(vc_ide_model::dropinc::Reject::Already(z)) => {
                 if let Some(ed) = self.editoren.get_mut(&n) { let z = z.min(ed.lines.len() - 1); ed.set_cursor(Pos { line: z, col: 0 }, false); ed.center_pending = Some(z) }
@@ -1414,7 +1426,9 @@ impl App {
         match r {
             Err(e) => { self.log.push(format!("Fehler: {e}")); false }
             Ok(v) => {
-                if let Some(d) = v["diagnostics"].as_array() { for x in d { self.probleme.push(Problem { datei: x["file"].as_str().unwrap_or("").into(), zeile: x["line"].as_u64().unwrap_or(0) as usize, text: x["message"].as_str().unwrap_or("").into(), fehler: x["severity"] == "error" }) } }
+                // W203 (zu weiter Sprung automatisch verlängert) hat der Nutzer mit `.branchlong auto` selbst bestellt: kein Problem, eine Protokollzeile genügt
+                if let Some(d) = v["diagnostics"].as_array() { let lang = d.iter().filter(|x| x["code"] == "W203").count(); if lang > 0 { self.log.push(format!("{lang} Sprünge automatisch verlängert (.branchlong auto)")) } }
+                if let Some(d) = v["diagnostics"].as_array() { for x in d.iter().filter(|x| x["code"] != "W203") { self.probleme.push(Problem { datei: x["file"].as_str().unwrap_or("").into(), zeile: x["line"].as_u64().unwrap_or(0) as usize, text: x["message"].as_str().unwrap_or("").into(), fehler: x["severity"] == "error" }) } }
                 if v["ok"] == true {
                     self.log.push(format!("Fertig: {} Bytes → {}", v["size"], v["artifact"]));
                     if let Some(d) = v["disk"].as_object() { self.log.push(format!("Disk {} ({} Bytes): {}", d["file"].as_str().unwrap_or(""), d["size"], d["programs"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default())) }
@@ -1579,7 +1593,7 @@ impl App {
     fn palette_eintraege(&self) -> Vec<Eintrag> {
         let mut v: Vec<Eintrag> = befehle::filtere(&self.palette.frage).into_iter().map(|i| Eintrag::Befehl(i.cmd)).collect();
         let q = self.palette.frage.to_lowercase();
-        v.extend(self.studio_aktionen().into_iter().filter(|x| x.aktiv && (q.is_empty() || format!("studio {}", x.name).to_lowercase().contains(&q) || x.name.to_lowercase().contains(&q))).map(|x| Eintrag::Studio(x.name, x.kuerzel, Box::new(x.msg))));
+        v.extend(self.studio_aktionen().into_iter().filter(|x| x.aktiv && (q.is_empty() || format!("studio {}", x.name).to_lowercase().contains(&q) || x.name.to_lowercase().contains(&q))).map(|x| Eintrag::Studio(x.name, befehle::plattform_text(&x.kuerzel), Box::new(x.msg))));
         if !q.is_empty() { v.extend(self.namen.iter().filter(|n| n.to_lowercase().contains(&q)).take(12).map(|n| Eintrag::Datei(n.clone()))) }
         if !cfg!(test) && (q.len() >= 2 || q == "z") { for r in vc_ide_model::recent::load(Some(&self.data)).into_iter().filter(|r| !r.missing && (r.name.to_lowercase().contains(&q) || r.path.to_string_lossy().to_lowercase().contains(&q) || "zuletzt geöffnet".contains(&q))).take(6) { v.push(Eintrag::Projekt(r.path, r.name)) } }
         v
@@ -2770,6 +2784,16 @@ mod tests {
         bewege(&mut app, Point::new(100.0, 300.0)); let p = ort(3, 8.0); bewege(&mut app, p); warte_und_zeichne(&mut app, p); antwort(&mut app); assert!(app.ed().unwrap().hover.is_some());
         let _ = app.update(Msg::Ed(EdMsg::Insert("x".into()))); assert!(app.ed().unwrap().hover.is_none(), "Tippen schließt");
         let _ = std::fs::remove_dir_all(&tmp);
+    }
+    /// W203 (Sprung automatisch verlängert, mit `.branchlong auto` selbst bestellt) zählt nicht unter „Probleme“, sondern steht als eine Protokollzeile
+    #[test] fn lange_spruenge_w203_stehen_im_protokoll_nicht_in_den_problemen() {
+        let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.log.clear();
+        let d = |code: &str, sev: &str| serde_json::json!({ "file": "a.asm", "line": 3, "message": "m", "severity": sev, "code": code });
+        let _ = app.update(Msg::BauFertig(Ok(serde_json::json!({ "ok": false, "diagnostics": [d("W203", "warning"), d("W203", "warning"), d("W203", "warning"), d("W200", "warning"), d("E202", "error")] }))));
+        assert_eq!(app.probleme.len(), 2, "nur die übrigen Meldungen sind Probleme"); assert!(app.probleme.iter().all(|p| !p.text.is_empty()));
+        assert!(app.log.iter().any(|l| l == "3 Sprünge automatisch verlängert (.branchlong auto)"), "{:?}", app.log);
+        let _ = app.update(Msg::BauFertig(Ok(serde_json::json!({ "ok": false, "diagnostics": [d("W200", "warning")] }))));
+        assert_eq!(app.probleme.len(), 1); assert!(!app.log.iter().rev().take(2).any(|l| l.contains("Sprünge")), "ohne W203 keine Zeile");
     }
     #[test] fn starten_baut_zuerst_und_startet_nur_nach_erfolg() {
         let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.root = std::env::temp_dir(); app.log.clear(); app.namen.clear(); app.tabs.clear();
@@ -4541,6 +4565,18 @@ mod tests {
         // ausdrücklich zuklappen funktioniert weiter
         let _ = app.update(Msg::Set(SetAkt::Arg(ArgAkt::Auf("args:asm".into(), true)))); assert!(kopf(&mut app).unwrap().starts_with("▸ "), "zugeklappt");
         let _ = std::fs::remove_dir_all(&tmp);
+    }
+    /// Start ohne Projektangabe (wie das ausgelieferte Programm): Startseite, kein Reiter, keine Meldung, nichts in „Zuletzt geöffnet“; kein Pfad aus dem Quellbaum
+    #[test] fn start_ohne_argument_zeigt_die_startseite_ohne_projekt() {
+        let tmpf = std::env::temp_dir().join(format!("vcgui-start-ohne-{}.json", std::process::id())); let _ = std::fs::remove_file(&tmpf); vc_ide_model::recent::umleiten(Some(tmpf.clone()));
+        let (mut app, _) = App::neu_aus(vec!["vintagecoder".into()], false);
+        assert!(app.tabs.is_empty() && app.editoren.is_empty(), "kein Reiter"); assert!(app.root.ends_with("vintagecoder-ohne-projekt") && !app.root.to_string_lossy().contains("examples"), "{:?}", app.root);
+        assert!(app.proj.pf.is_none() && app.log.iter().all(|l| !l.to_lowercase().contains("fehler")), "{:?}", app.log);
+        assert!(vc_ide_model::recent::load(Some(&app.data)).is_empty() && !tmpf.exists(), "nichts in Zuletzt geöffnet geschrieben");
+        let k = knoten_sammeln(&mut app, 1280, 800); assert!(k.iter().any(|k| k.text == "Neues Projekt") && k.iter().any(|k| k.text == "Zuletzt geöffnete Projekte"), "Startseite");
+        // Entwicklungsmodus (cargo run, Tests): öffnet wie früher das Beispiel
+        let (dev, _) = App::neu_aus(vec!["vintagecoder".into()], true); assert!(dev.root.ends_with("examples/c64/prallball") && !dev.tabs.is_empty());
+        let _ = std::fs::remove_file(&tmpf);
     }
     fn targets_first_kind(sys: &str) -> String { vc_ide::targets::system(sys).unwrap().kinds().iter().find(|k| vc_ide::emulators::enabled(k.id)).map(|k| k.id.to_string()).expect("Emulator-Sorte") }
     #[test] fn startseite_zuletzt_geoeffnet_anheften_entfernen_beispiele_und_hardware_test_ueber_aussen() {

@@ -214,6 +214,10 @@ pub fn fuer_anzeige(tasten: &str, mac: bool) -> String {
     else { tasten.replace("Cmd", "Strg").replace("Komma", ",") }
 }
 
+/// Freier Text mit Tastenangaben („Rückgängig (Cmd+Z)“, „Cmd/Strg+Z“): auf Windows und Linux wird „Cmd“ zu „Strg“, auf macOS bleibt der Text.
+pub fn plattform_text(text: &str) -> String { plattform_text_fuer(text, cfg!(target_os = "macos")) }
+pub fn plattform_text_fuer(text: &str, mac: bool) -> String { if mac || !text.contains("Cmd") { text.to_string() } else { text.replace("Cmd/Strg", "Strg").replace("Strg/Cmd", "Strg").replace("Cmd", "Strg") } }
+
 /// Unscharfe Suche für die Palette: alle Wörter müssen vorkommen (Groß/Klein egal), Treffer am Wortanfang zuerst
 pub fn filtere(frage: &str) -> Vec<&'static Info> {
     let q = frage.to_lowercase(); let w: Vec<&str> = q.split_whitespace().collect();
@@ -252,6 +256,7 @@ mod tests {
     #[test] fn kuerzel_zerlegen_und_anzeigen() {
         assert_eq!(zerlege("Cmd+Umschalt+F"), Some((true, true, false, "F"))); assert_eq!(zerlege("F7"), Some((false, false, false, "F7")));
         assert_eq!(fuer_anzeige("Cmd+Umschalt+F", true), "⌘⇧F"); assert_eq!(fuer_anzeige("Cmd+S", false), "Strg+S");
+        assert_eq!(plattform_text_fuer("Auch mit Cmd + und −, zurück mit Cmd 0 (Cmd/Strg+Z)", false), "Auch mit Strg + und −, zurück mit Strg 0 (Strg+Z)"); assert_eq!(plattform_text_fuer("Rückgängig (Cmd+Z)", true), "Rückgängig (Cmd+Z)");
     }
     #[test] fn palette_filtert() {
         assert_eq!(filtere("bauen")[0].cmd, Cmd::Bauen); assert!(filtere("zzz").is_empty()); assert!(filtere("").len() == BEFEHLE.len());

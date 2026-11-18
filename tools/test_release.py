@@ -26,6 +26,38 @@ def rows_for(ids, reg, stand=None):
     return [{"id": k, "label": k, "stand": st.get(k, "Stabil"), "checked": k in ids, "section": "", "line": i} for i, k in enumerate(reg["features"], 1)]
 
 
+class BuildPfadeTests(unittest.TestCase):
+    """Release-Bau ohne Pfade der Build-Umgebung: `--remap-path-prefix` und Pfadscan."""
+
+    def test_release_env_ergaenzt_rustflags_und_laesst_das_vorhandene(self):
+        env = release.release_env({"RUSTFLAGS": "-C target-cpu=native", "HOME": "/x"})
+        self.assertTrue(env["RUSTFLAGS"].startswith("-C target-cpu=native --remap-path-prefix="))
+        self.assertIn("--remap-path-prefix=%s=/build" % release.ROOT, env["RUSTFLAGS"])
+        self.assertIn("=/cargo", env["RUSTFLAGS"]); self.assertIn("=/home", env["RUSTFLAGS"])
+        enc = release.release_env({"CARGO_ENCODED_RUSTFLAGS": "-Cfoo"})
+        self.assertTrue(enc["CARGO_ENCODED_RUSTFLAGS"].startswith("-Cfoo\x1f--remap-path-prefix=")); self.assertNotIn("RUSTFLAGS", enc)
+
+    def test_reihenfolge_projektordner_zuletzt(self):
+        # rustc nimmt bei mehreren Treffern den letzten: Quellordner und Cargo vor dem allgemeinen Benutzerordner waere falsch
+        ziele = [b for _, b in release.remap_pairs()]
+        self.assertEqual(ziele[0], "/home"); self.assertEqual(ziele[-1], "/build")
+
+    def test_pfadscan_findet_pfade_nennt_nur_zahl_und_dateien(self):
+        with tempfile.TemporaryDirectory() as t:
+            sauber, schmutzig = os.path.join(t, "sauber"), os.path.join(t, "schmutzig")
+            U, W = "/Us" + "ers", "C:\\Us" + "ers"  # nicht ausgeschrieben, damit der Verbotsscan den Test nicht als Fund wertet
+            # frei stehender Text mit /Users/ (Beispiele, Schwaerzungslisten) ist kein Fund
+            open(sauber, "wb").write((b"\x00panic at /cargo/registry/src/x/lib.rs\x00 Beispiel " + U.encode() + b"/ich/Projekte/demo \x00 ~" + U.encode() + b"//home/\\" + U[1:].encode() + b"\\users"))
+            open(schmutzig, "wb").write((b"\x00panic at " + U.encode() + b"/Beispielname/.cargo/registry/src/x/lib.rs\x00" + W.encode() + b"\\Anderer\\.rustup\\toolchains\x00"))
+            r = release.path_leaks([sauber, schmutzig], home=U + "/Beispielname", user="Beispielname")
+            self.assertEqual([os.path.basename(f) for f, _ in r], ["schmutzig"]); self.assertGreaterEqual(r[0][1], 2)
+            self.assertEqual(release.path_leaks([sauber], home=U + "/Beispielname", user="Beispielname"), [])
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = release.main(["pfadscan", schmutzig, "--home", U + "/Beispielname", "--user", "Beispielname"])
+            self.assertEqual(rc, 1); self.assertNotIn("Beispielname", buf.getvalue().replace(os.path.basename(schmutzig), "")); self.assertIn("schmutzig", buf.getvalue())
+
+
 class BuildPaketeTests(unittest.TestCase):
     def test_stage_build_baut_die_oberflaeche_nur_mit_ide_app(self):
         self.assertEqual(release.build_pakete(True), ["-p", "vc-cli", "-p", "vc-lsp", "-p", "vc-gui"])

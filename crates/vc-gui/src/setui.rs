@@ -118,7 +118,7 @@ impl App {
                 self.seg(pal, vc_gui_ui::texte::DUNKEL, sc == crate::einstellungen::Schema::Dunkel, Msg::SetSchema(crate::einstellungen::Schema::Dunkel)), self.seg(pal, vc_gui_ui::texte::HELL, sc == crate::einstellungen::Schema::Hell, Msg::SetSchema(crate::einstellungen::Schema::Hell)),
                 self.seg(pal, vc_gui_ui::texte::SYSTEM, sc == crate::einstellungen::Schema::System, Msg::SetSchema(crate::einstellungen::Schema::System)), self.seg(pal, vc_gui_ui::texte::KONTRAST, sc == crate::einstellungen::Schema::Kontrast, Msg::SetSchema(crate::einstellungen::Schema::Kontrast))].spacing(6).wrap().vertical_spacing(6).into()),
             zeile(pal, vc_gui_ui::texte::OBERFLAECHE, row![knopf(pal, "−", Some(Msg::SetZoom(g.zoom - 0.1)), pal.text, false), text(format!("{:.0} %", g.zoom * 100.0)).size(13).color(pal.text), knopf(pal, "+", Some(Msg::SetZoom(g.zoom + 0.1)), pal.text, false)].spacing(10).align_y(Alignment::Center).into()),
-            klein(pal, "Größe der ganzen Oberfläche; auch mit Cmd + und −, zurück mit Cmd 0."),
+            klein(pal, &befehle::plattform_text("Größe der ganzen Oberfläche; auch mit Cmd + und −, zurück mit Cmd 0.")),
         ]);
         let letzter = vc_ide::setup::Paths::current().map(|p| vc_ide::setup::WizardState::load(&p.wizard).last_run).filter(|d| !d.is_empty());
         let konfig = karte(pal, vec![zeile(pal, "Konfiguration", row![knopf(pal, "Exportieren …", Some(Msg::KonfigWahl(crate::konfig::KArt::Export)), pal.text, false), knopf(pal, "Importieren …", Some(Msg::KonfigWahl(crate::konfig::KArt::Import)), pal.text, false), knopf(pal, "Zurücksetzen …", Some(Msg::KonfigResetFrage), pal.text, false)].spacing(8).wrap().vertical_spacing(8).into()),

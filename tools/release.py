@@ -607,6 +607,70 @@ def stage_layout(os_name, out):
             "doc": os.path.join(out, DOC_SUB.get(os_name, ""))}
 
 
+def _sysroot():
+    try:
+        return subprocess.run(["rustc", "--print", "sysroot"], capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return ""
+
+
+def remap_pairs():
+    """Pfade der Build-Umgebung und ihr Ersatz fuer `--remap-path-prefix` (Reihenfolge: allgemein zuerst; bei mehreren Treffern gilt in rustc der letzte):
+    Benutzerordner -> /home, Rustup/Sysroot -> /rustup und /rustc, CARGO_HOME -> /cargo, Quellordner -> /build."""
+    home = os.path.expanduser("~")
+    cargo_home = os.environ.get("CARGO_HOME") or os.path.join(home, ".cargo")
+    rustup_home = os.environ.get("RUSTUP_HOME") or os.path.join(home, ".rustup")
+    pairs = [(home, "/home"), (rustup_home, "/rustup"), (_sysroot(), "/rustc"), (cargo_home, "/cargo"), (ROOT, "/build")]
+    seen, out = set(), []
+    for src, dst in pairs:
+        if src and src not in seen and os.path.normpath(src) not in ("/", "."):
+            seen.add(src); out.append((src, dst))
+    return out
+
+
+def release_env(env=None):
+    """Umgebung fuer den Release-Bau: RUSTFLAGS (bzw. CARGO_ENCODED_RUSTFLAGS) um `--remap-path-prefix` ergaenzt, damit weder Benutzername noch Cargo-,
+    Rustup- oder Projektpfad im Programm stehen (Panic-Meldungen, Dateinamen der Bibliotheken). Nur fuer Release-Pakete, nicht fuer die Entwicklung."""
+    env = dict(os.environ if env is None else env)
+    flags = ["--remap-path-prefix=%s=%s" % (a, b) for a, b in remap_pairs()]
+    if env.get("CARGO_ENCODED_RUSTFLAGS"):
+        env["CARGO_ENCODED_RUSTFLAGS"] += "\x1f" + "\x1f".join(flags)
+    else:
+        env["RUSTFLAGS"] = ((env.get("RUSTFLAGS", "") + " ") if env.get("RUSTFLAGS") else "") + " ".join(flags)
+    return env
+
+
+def path_leaks(files, home=None, user=None, extra=()):
+    """Pfadscan: Programmdateien nach Pfaden der Build-Umgebung durchsuchen (Benutzerordner, Benutzername als Pfadteil, Cargo-/Rustup-Ordner, Projektordner,
+    sowie `/Users/<name>/.cargo`, `C:\\Users\\<name>\\.rustup` u. ae. unabhaengig vom Namen). Liefert [(Datei, Anzahl verschiedener Treffer)]; der Treffer selbst wird nie ausgegeben.
+    Frei stehender Text wie `/Users/` in Beispielen oder Schwaerzungslisten zaehlt nicht."""
+    home = os.path.expanduser("~") if home is None else home
+    if user is None:
+        try:
+            import getpass; user = getpass.getuser()
+        except Exception:
+            user = ""
+    cargo_home = os.environ.get("CARGO_HOME") or os.path.join(home, ".cargo"); rustup_home = os.environ.get("RUSTUP_HOME") or os.path.join(home, ".rustup")
+    lit = {home, home.replace("\\", "/"), home.replace("/", "\\"), cargo_home, rustup_home, ROOT, ROOT.replace("\\", "/"), *extra}
+    if len(user) >= 4:
+        # nur als Teil eines Benutzerordners (der Name allein kommt auch in Adressen vor, z. B. als GitHub-Konto)
+        lit |= {"/users/" + user + "/", "\\users\\" + user + "\\", "/home/" + user + "/"}
+    needles = [x.lower().encode("utf-8") for x in lit if x and x not in ("/", "\\") and len(x) >= 4]
+    rx = re.compile(rb"(?:/users/|c:\\users\\|/home/|/root/)[^/\\\x00\s]{0,64}[/\\]?\.?(?:cargo|rustup)[/\\]")
+    out = []
+    for f in files:
+        with open(f, "rb") as fh:
+            data = fh.read().lower()
+        found = set()
+        for n in needles:
+            if n in data:
+                found.add(n)
+        found |= set(rx.findall(data))
+        if found:
+            out.append((f, len(found)))
+    return out
+
+
 def build_pakete(ide):
     """Cargo-Pakete fuer `stage --build`: vcc (vc-cli) und vc-lsp immer, die Oberflaeche (vc-gui, Programm `vintagecoder`) nur bei IDE-APP."""
     return ["-p", "vc-cli", "-p", "vc-lsp"] + (["-p", "vc-gui"] if ide else [])
@@ -717,7 +781,7 @@ def cmd_stage(args):
     if args.build:
         pkgs = build_pakete(ide)
         print("cargo build --release " + " ".join(pkgs))
-        subprocess.run(["cargo", "build", "--release"] + pkgs, cwd=ROOT, check=True)
+        subprocess.run(["cargo", "build", "--release"] + pkgs, cwd=ROOT, check=True, env=release_env())
     bin_dir = args.bin_dir or (cargo_bin_dir() if args.build else os.path.join(ROOT, "target", "release"))
     lay = stage_layout(os_name, out)
     bin_sub = BIN_SUB[os_name]
@@ -767,7 +831,13 @@ def cmd_stage(args):
     ierrs = sys_include_closure(walk("data", root=lay["share"]), root=lay["share"])
     ferrs, fwarns = forbidden_scan(out, reg, share_sub)
     ex_errs = example_include_check(lay["share"], plan["examples"])
-    errs = ierrs + ferrs + ex_errs
+    leaks = path_leaks([os.path.join(out, bin_sub, b) for b in bins])
+    pfad_errs = []
+    if leaks:
+        text = "Pfadscan: %s enthaelt Pfade der Build-Umgebung (Benutzerordner, Cargo- oder Projektpfad): %s" % (", ".join(os.path.basename(f) for f, _ in leaks), sum(n for _, n in leaks))
+        if args.build: pfad_errs.append(text + " Treffer (--remap-path-prefix greift nicht?)")
+        else: print("Hinweis: " + text + " Treffer (Programme von --bin-dir/--no-bin, nicht von diesem Bau; im Release-Paket wuerde das ablehnen)")
+    errs = ierrs + ferrs + ex_errs + pfad_errs
     for w in fwarns:
         print("Warnung: " + w)
         res.warnings.append(w)
@@ -1240,11 +1310,24 @@ nichts wird hochgeladen. Versionsnummer nur aus Cargo.toml (oder --version).""",
     mf.add_argument("--project-format", type=int, metavar="N", help="hoechstes Projektformat dieser Version (das Programm warnt, wenn es hoeher ist als sein eigenes)")
     mf.add_argument("--date", metavar="ZEIT", help="Veroeffentlichungszeit (ISO 8601, Standard: jetzt, UTC)")
     mf.add_argument("--keep", type=int, default=10, metavar="N", help="Anzahl der neuesten Abschnitte in der Liste (Standard: 10, hoechstens %d)" % FEED_MAX_RELEASES)
+    ps = sub.add_parser("pfadscan", help="Programmdateien auf Pfade der Build-Umgebung pruefen",
+                        description="Sucht in Programmdateien (auch in einer installierten Fassung) nach Benutzerordner, Benutzername als Pfadteil, Cargo-/Rustup-Ordner und Projektpfad des Rechners, auf dem das Programm GEBAUT wurde (--home/--user angeben, wenn auf einem anderen Rechner geprueft wird). Gibt nur Zahl und Dateinamen aus, nie den Treffer. Rueckgabewert 1 bei Treffern.")
+    ps.add_argument("dateien", nargs="+", metavar="DATEI")
+    ps.add_argument("--home", help="Benutzerordner des Bauenden (Standard: der eigene)")
+    ps.add_argument("--user", help="Benutzername des Bauenden (Standard: der eigene)")
     bs = sub.add_parser("bootstrap", help="Entwurf von registry.json erzeugen",
                         description="Liest data/targets, data/args und examples/*/*/*.vcprj und schreibt einen Entwurf (stdout oder --out). Einmalig; die Registry wird danach von Hand gepflegt.")
     bs.add_argument("--out", metavar="DATEI", help="Datei statt stdout")
     bs.add_argument("--force", action="store_true", help="vorhandene Datei ueberschreiben")
     return ap
+
+
+def cmd_pfadscan(args):
+    leaks = path_leaks(args.dateien, home=args.home, user=args.user)
+    for f, n in leaks:
+        print("%s: %d Pfad(e) der Build-Umgebung" % (f, n))
+    print("Pfadscan: %d Datei(en) mit Treffern von %d" % (len(leaks), len(args.dateien)))
+    return 1 if leaks else 0
 
 
 def main(argv=None):
@@ -1258,6 +1341,8 @@ def main(argv=None):
             return cmd_bootstrap(args)
         if args.cmd == "manifest":
             return cmd_manifest(args)
+        if args.cmd == "pfadscan":
+            return cmd_pfadscan(args)
         if getattr(args, "explain", None):
             return cmd_explain(args)
         return {"check": cmd_check, "plan": cmd_plan, "stage": cmd_stage, "package": cmd_package}[args.cmd](args)

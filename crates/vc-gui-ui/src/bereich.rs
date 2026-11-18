@@ -34,7 +34,7 @@ fn symbol<'a, M: 'a>(pal: Pal, art: u8) -> Element<'a, M> {
 fn knopf<'a, M: Clone + 'a>(pal: Pal, art: u8, name: String, kuerzel: &str, auf: M) -> Element<'a, M> {
     let inhalt = container(symbol::<M>(pal, art)).center_x(Length::Fixed(24.0)).center_y(Length::Fixed(24.0));
     let b = button(inhalt).padding(0).on_press(auf).style(move |_, st| button::Style { background: Some(if matches!(st, button::Status::Hovered | button::Status::Pressed) { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: pal.line, width: 1.0, radius: 5.0.into() }, text_color: pal.text, ..Default::default() });
-    let hinweis: Element<'a, M> = container(iced::widget::column![text(name).size(12).color(pal.text), text(kuerzel.to_string()).size(11).color(pal.mute)].spacing(1)).padding([5, 8]).style(move |_| container::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, ..Default::default() }).into();
+    let hinweis: Element<'a, M> = container(iced::widget::column![text(name).size(12).color(pal.text), text(crate::befehle::plattform_text(kuerzel)).size(11).color(pal.mute)].spacing(1)).padding([5, 8]).style(move |_| container::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, ..Default::default() }).into();
     tooltip(b, hinweis, tooltip::Position::Bottom).into()
 }
 

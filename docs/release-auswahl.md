@@ -46,6 +46,7 @@ release/registry.json ─┘                                    (data/release.js
 - [ ] Jede gewählte Zeile hat mindestens den Stand Beta, eine Hilfeseite oder einen Hilfeabschnitt und einen Eintrag im `CHANGELOG.md` (Kriterien 2 und 4).
 - [ ] Für jedes gewählte Zielsystem gibt es ein Beispiel oder einen Test (Kriterium 3; `check` warnt sonst).
 - [ ] Staging für jedes Betriebssystem erzeugt, Verbotsscan ohne Treffer (keine ROMs, keine Emulator-Programme).
+- [ ] Programme ohne Pfade der Build-Umgebung: `stage --build` setzt `--remap-path-prefix` (Quellordner `/build`, Cargo `/cargo`, Benutzerordner `/home`) und lehnt Treffer des Pfadscans ab; von Hand nachpruefen mit `python3 tools/release.py pfadscan <Programmdateien>` (auch fuer die installierte Fassung unter Windows und Linux, mit `--home`/`--user` des Baurechners; ausgegeben werden nur Zahl und Dateiname).
 - [ ] `release-report.md` gelesen; Hinweise in die Release-Notiz übernommen.
 - [ ] `python3 tools/ci_staging.py` grün (Stichproben unten).
 - [ ] IDE mit der Auswahl gestartet (`VC_RELEASE=<Staging>/data/release.json`), nichts Abgewähltes sichtbar.
