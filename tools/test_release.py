@@ -42,6 +42,22 @@ class BuildPfadeTests(unittest.TestCase):
         ziele = [b for _, b in release.remap_pairs()]
         self.assertEqual(ziele[0], "/home"); self.assertEqual(ziele[-1], "/build")
 
+    def test_pfadscan_projektordner_nur_als_ganzer_pfadanfang(self):
+        # Docker-Bau: Quelle unter /src; "/src" steckt aber in jedem Cargo-Pfad (.../registry/src/...): kein Fund
+        with tempfile.TemporaryDirectory() as t:
+            f = os.path.join(t, "prog")
+            open(f, "wb").write(b"\x00panic at /cargo/registry/src/index.crates.io-abc/foo-1.0/src/lib.rs\x00crates/vc-x/src/main.rs\x00/build/x.rs\x00")
+            self.assertEqual(release.path_leaks([f], home="/root", user="root", root="/src"), [])
+            # ein tieferer Projektordner zaehlt, aber nur als ganzer Pfadanfang
+            open(f, "wb").write(b"\x00panic at /srv/projekte/vc/crates/x/src/main.rs\x00")
+            self.assertEqual(len(release.path_leaks([f], home="/root", user="root", root="/srv/projekte/vc")), 1)
+            open(f, "wb").write(b"\x00panic at /var/srv/projekte/vc2/x.rs und /xsrv/projekte/vc/x.rs\x00")
+            self.assertEqual(release.path_leaks([f], home="/root", user="root", root="/srv/projekte/vc"), [])
+            # echter Benutzerpfad schlaegt an
+            U = "/Us" + "ers"  # nicht ausgeschrieben (Verbotsscan des Exports)
+            open(f, "wb").write(b"\x00" + U.encode() + b"/Beispielname/Projekte/vc/src/lib.rs\x00")
+            self.assertEqual(len(release.path_leaks([f], home=U + "/Beispielname", user="Beispielname", root="/src")), 1)
+
     def test_pfadscan_findet_pfade_nennt_nur_zahl_und_dateien(self):
         with tempfile.TemporaryDirectory() as t:
             sauber, schmutzig = os.path.join(t, "sauber"), os.path.join(t, "schmutzig")

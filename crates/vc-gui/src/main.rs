@@ -170,7 +170,8 @@ fn daten_ordner() -> PathBuf {
     std::env::current_exe().ok().and_then(|e| vc_ide::find_data_dir(&e)).or_else(|| std::env::current_dir().ok().and_then(|d| vc_ide::find_data_dir(&d))).unwrap_or_default()
 }
 /// Platzhalter-Ordner für den Start ohne Projekt (leer; die Startseite zeigt keine Dateien)
-fn leerer_ordner() -> PathBuf { let d = std::env::temp_dir().join("vintagecoder-ohne-projekt"); let _ = std::fs::create_dir_all(&d); d }
+fn ohne_projekt_ordner() -> PathBuf { std::env::temp_dir().join("vintagecoder-ohne-projekt") }
+fn leerer_ordner() -> PathBuf { let d = ohne_projekt_ordner(); let _ = std::fs::create_dir_all(&d); d }
 
 impl App {
     fn neu() -> (App, Task<Msg>) { Self::neu_aus(std::env::args().collect(), cfg!(debug_assertions)) }
@@ -1618,7 +1619,7 @@ impl App {
         }
         let tipp = |inhalt: Element<'a, Msg>, name: &str, cmd: Cmd| -> Element<'a, Msg> { tipp_fn(pal, inhalt, name, cmd) };
         let ziffer = |s: &'static str| -> &'static str { s.split_once(' ').map(|(a, _)| a).unwrap_or(s) };
-        let name = self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        let name = if self.root == ohne_projekt_ordner() { "Kein Projekt".to_string() } else { self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default() };
         let kuerzen = |n: &str, max: usize| -> String { if n.chars().count() > max { format!("{}…", n.chars().take(max.saturating_sub(1)).collect::<String>()) } else { n.to_string() } };
         let (max_name, chip_kurz) = match stufe { 0 => (40, false), 1 => (if self.dbg.is_some() { 14 } else { 22 }, self.dbg.is_some()), 2 => (14, true), _ => (10, true) };
         let projekt = column![text(kuerzen(&name, max_name)).size(14).color(pal.text).wrapping(iced::widget::text::Wrapping::None), text("Projekt ▾").size(11).color(pal.mute)].spacing(1);
@@ -4574,6 +4575,10 @@ mod tests {
         assert!(app.proj.pf.is_none() && app.log.iter().all(|l| !l.to_lowercase().contains("fehler")), "{:?}", app.log);
         assert!(vc_ide_model::recent::load(Some(&app.data)).is_empty() && !tmpf.exists(), "nichts in Zuletzt geöffnet geschrieben");
         let k = knoten_sammeln(&mut app, 1280, 800); assert!(k.iter().any(|k| k.text == "Neues Projekt") && k.iter().any(|k| k.text == "Zuletzt geöffnete Projekte"), "Startseite");
+        assert!(k.iter().any(|k| k.text == "Kein Projekt") && !k.iter().any(|k| k.text.contains("ohne-projekt")), "Kopf nennt kein Projekt statt des Platzhalterordners");
+        // der Platzhaltername steht in keiner Breite irgendwo (Kopf, Statuszeile, Bereiche, Menüs), auch nicht mit geöffneter Befehlspalette
+        for b in [480.0, 800.0, 1280.0, 1920.0] { let k = knoten_sammeln(&mut app, b as u32, 800); assert!(!k.iter().any(|k| k.text.contains("ohne-projekt") || k.text.contains("vcgui")), "Breite {b}"); }
+        let _ = app.befehl(Cmd::Palette); let k = knoten_sammeln(&mut app, 1280, 800); assert!(!k.iter().any(|k| k.text.contains("ohne-projekt")), "Befehlspalette");
         // Entwicklungsmodus (cargo run, Tests): öffnet wie früher das Beispiel
         let (dev, _) = App::neu_aus(vec!["vintagecoder".into()], true); assert!(dev.root.ends_with("examples/c64/prallball") && !dev.tabs.is_empty());
         let _ = std::fs::remove_file(&tmpf);

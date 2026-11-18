@@ -640,7 +640,7 @@ def release_env(env=None):
     return env
 
 
-def path_leaks(files, home=None, user=None, extra=()):
+def path_leaks(files, home=None, user=None, extra=(), root=None):
     """Pfadscan: Programmdateien nach Pfaden der Build-Umgebung durchsuchen (Benutzerordner, Benutzername als Pfadteil, Cargo-/Rustup-Ordner, Projektordner,
     sowie `/Users/<name>/.cargo`, `C:\\Users\\<name>\\.rustup` u. ae. unabhaengig vom Namen). Liefert [(Datei, Anzahl verschiedener Treffer)]; der Treffer selbst wird nie ausgegeben.
     Frei stehender Text wie `/Users/` in Beispielen oder Schwaerzungslisten zaehlt nicht."""
@@ -651,11 +651,15 @@ def path_leaks(files, home=None, user=None, extra=()):
         except Exception:
             user = ""
     cargo_home = os.environ.get("CARGO_HOME") or os.path.join(home, ".cargo"); rustup_home = os.environ.get("RUSTUP_HOME") or os.path.join(home, ".rustup")
-    lit = {home, home.replace("\\", "/"), home.replace("/", "\\"), cargo_home, rustup_home, ROOT, ROOT.replace("\\", "/"), *extra}
+    root = ROOT if root is None else root
+    lit = {home, home.replace("\\", "/"), home.replace("/", "\\"), cargo_home, rustup_home, root, root.replace("\\", "/"), *extra}
     if len(user) >= 4:
         # nur als Teil eines Benutzerordners (der Name allein kommt auch in Adressen vor, z. B. als GitHub-Konto)
         lit |= {"/users/" + user + "/", "\\users\\" + user + "\\", "/home/" + user + "/"}
-    needles = [x.lower().encode("utf-8") for x in lit if x and x not in ("/", "\\") and len(x) >= 4]
+    # Ein Pfad mit nur einem Bestandteil (/src, /build, /root, C:\\) ist als Suchbegriff zu allgemein (z. B. "/src" in "/cargo/registry/src/..."): er faellt weg;
+    # alle anderen zaehlen nur als ganzer Pfadanfang (davor und dahinter kein Pfadzeichen).
+    def spezifisch(x): return len([t for t in re.split(r"[\\/]+", x) if t and not t.endswith(":")]) >= 2
+    needles = [re.compile(rb"(?<![\w.\-/\\])" + re.escape(x.lower().encode("utf-8")) + (rb"" if x[-1] in "/\\" else rb"(?![\w.\-])")) for x in lit if x and len(x) >= 4 and spezifisch(x)]
     rx = re.compile(rb"(?:/users/|c:\\users\\|/home/|/root/)[^/\\\x00\s]{0,64}[/\\]?\.?(?:cargo|rustup)[/\\]")
     out = []
     for f in files:
@@ -663,8 +667,9 @@ def path_leaks(files, home=None, user=None, extra=()):
             data = fh.read().lower()
         found = set()
         for n in needles:
-            if n in data:
-                found.add(n)
+            m = n.search(data)
+            if m:
+                found.add(n.pattern)
         found |= set(rx.findall(data))
         if found:
             out.append((f, len(found)))

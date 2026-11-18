@@ -69,6 +69,7 @@ python3 tools/release.py package --os linux --format deb --distro debian --stage
 python3 tools/release.py check --features tools/testdata/nur-cli-c64.md
 python3 tools/release.py bootstrap --out /tmp/registry-entwurf.json
 python3 tools/release.py manifest --out build/update-feed   # Versionsliste update.json für die Update-Prüfung (veröffentlicht nichts)
+python3 tools/release.py pfadscan bin/vcc bin/vintagecoder   # Programme auf Pfade der Build-Umgebung prüfen (Staging macht das beim Bau selbst)
 ```
 
 Wichtige Optionen: `--features DATEI` (andere Auswahldatei, etwa eine Testauswahl), `--allow-unfinished` (gewählte Zeilen mit Stand unter Beta zulassen, der Bericht markiert sie), `--auto-deps` (fehlende harte Abhängigkeiten ergänzen und melden, nur für Experimente), `--explain KENNUNG`, `-v`. Bei `stage`: `--os windows|macos|linux`, `--out ORDNER`, `--build` (vorher `cargo build --release`, ein Bau je Betriebssystem), `--bin-dir` (fertige Programme), `--force`, `--dry-run`, `--reproducible` (keine Zeitstempel, gleiche Prüfsummen), `--archive` (Linux: zusätzlich `tar.gz`), `--verify-build` (jedes ausgelieferte Beispiel mit dem Staging-`vcc` bauen). Das Skript liest die Versionsnummer nur aus `Cargo.toml`; vergeben wird sie ausschließlich vom Projektinhaber.
