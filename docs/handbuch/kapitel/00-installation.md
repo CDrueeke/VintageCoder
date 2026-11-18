@@ -42,7 +42,7 @@ Wie du die Datei öffnest, steht in den folgenden Abschnitten.
 
 ## Windows
 
-> **Info:** Die Windows-Fassung ist noch **in Arbeit**. Das Setup-Programm gibt es, es ist aber noch nicht so gründlich erprobt wie die macOS-Fassung. Geprüft sind Installation, Start und Deinstallation unter Windows 11 (x86_64); Windows 10, 32-Bit-Windows und Windows auf ARM sind nicht geprüft beziehungsweise nicht unterstützt.
+> **Info:** Das Setup-Programm ist unter Windows 11 (x86_64) geprüft: Installation, Start und Deinstallation. Windows 10 ist nicht geprüft; 32-Bit-Windows und Windows auf ARM werden nicht unterstützt.
 
 1. Starte das Setup-Programm `VintageCoder-<Version>-Setup.exe`. Weil es **nicht signiert** ist, kann Windows SmartScreen vorher „Der Computer wurde durch Windows geschützt“ (je nach Version „Windows hat den PC geschützt“) melden. Klicke dann auf **Weitere Informationen** und danach auf **Trotzdem ausführen**, wenn du die Datei aus dem offiziellen Release oder von der Webseite des Projekts geladen hast. Folge dann den Fragen. Das Setup braucht nur dann Administratorrechte, wenn du für alle Benutzer installieren willst.
 2. Im Setup stehen drei Wahlmöglichkeiten:
@@ -103,7 +103,7 @@ Prüfe danach mit `vcc --version` und starte die Oberfläche wie oben beschriebe
 
 Das Archiv `vintagecoder-<Version>-linux-x86_64.tar.gz` braucht keine Installation: Entpacke es (`tar xzf vintagecoder-<Version>-linux-x86_64.tar.gz`) und starte `usr/bin/vcc --version`; die Daten findet das Programm von selbst. Mit `sudo cp -a usr/. /usr/local/` installierst du es nach `/usr/local`. Für die Oberfläche (`usr/bin/vintagecoder`) müssen die üblichen Bibliotheken vorhanden sein (ALSA, xkbcommon-x11, GL/EGL, Wayland, Xcursor, Xrandr, Xi); die Liste steht in der Hilfeseite „Linux“. Voraussetzung ist glibc 2.39 oder neuer. Für das Archiv ist nur die Kommandozeile geprüft, nicht die Oberfläche.
 
-> **Info:** Die Linux-Pakete wurden in frischen Containern der jeweiligen Distribution installiert und getestet (Installation, `vcc`, Start der Oberfläche mit Software-Darstellung). Auf einem echten Desktop mit Ton, Dateidialogen und Wayland-/X11-Sitzung sind sie noch nicht geprüft.
+> **Info:** Die Linux-Pakete wurden in frischen Containern der jeweiligen Distribution (Installation, `vcc`, Start der Oberfläche mit Software-Darstellung) und zusätzlich auf einer Ubuntu-24.04-Testmaschine mit Desktop (virtuelle Maschine) geprüft; dort liefen die Menüleiste, die Alt-Kürzel, der Dateidialog und der Papierkorb. **Ton** und eine **Wayland-Sitzung** sind noch nicht geprüft.
 
 ## Der erste Start
 

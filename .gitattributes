@@ -15,3 +15,19 @@
 *.vctest text eol=lf
 *.rs text eol=lf
 *.md text eol=lf
+# Skripte und Werkzeuge: immer LF (ein CRLF-Checkout bricht sonst "bash\r" im Linux-Bau) und ausführbar eingecheckt (100755, siehe `release.py check`)
+*.sh text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.js text eol=lf
+Makefile text eol=lf
+LICENSE text eol=lf
+# Binärdateien nie umwandeln
+*.png binary
+*.ico binary
+*.icns binary
+*.ttf binary
+*.otf binary
+*.prg binary
+*.bin binary

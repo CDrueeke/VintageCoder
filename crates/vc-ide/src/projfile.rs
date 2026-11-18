@@ -139,6 +139,8 @@ pub struct ProjectFile {
     #[serde(default, skip_serializing_if = "Vec::is_empty")] pub folders: Vec<FolderDef>,
     /// Regeln nach Dateimuster, vor `layout` (Abschnitt `rules`)
     #[serde(default, skip_serializing_if = "Vec::is_empty")] pub rules: Vec<Rule>,
+    /// Lizenzhinweis beim Übersetzen: gesperrte (`deny`) und erlaubte (`allow`) Lizenzen, z. B. `"licenses": {"deny": ["GPL-3.0-only"]}`
+    #[serde(default, skip_serializing_if = "crate::license::Policy::is_empty")] pub licenses: crate::license::Policy,
     #[serde(flatten)] pub extra: Map<String, Value>,
 }
 fn one() -> u32 { 1 }

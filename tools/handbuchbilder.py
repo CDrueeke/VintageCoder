@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Handbuchbilder aus den Rohbildern der Oberfläche zusammenstellen (nur macOS, nutzt `sips`).
 
 Ablauf:

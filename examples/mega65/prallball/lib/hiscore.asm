@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Bestenliste MEGA65 (PRALLBALL). Einbinden: .include "lib/hiscore.asm"
 // Datei "PRALL.HS" (127 Byte): "PRBL", Version 1, 10 x (8 Zeichen + 3 Byte Punkte lo/mid/hi + 1 Byte Level), CRC-16.
 // MEGA65: Zugriff über das KERNAL des C65-Modus, Gerät 8 (Xemu: "XEMU EXTERNAL", echter MEGA65: SD-Karte), als sequenzielle Datei (OPEN/CHRIN/CHROUT):

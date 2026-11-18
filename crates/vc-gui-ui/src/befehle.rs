@@ -92,7 +92,7 @@ pub const BEFEHLE: &[Info] = &[
     i(Cmd::StudioVerkleinern, "studio_verkleinern", "Ansicht", "Studio: Fläche verkleinern", "", Projekt),
     i(Cmd::StudioEinpassen, "studio_einpassen", "Ansicht", "Studio: Fläche einpassen", "", Projekt),
     i(Cmd::StudioRaster, "studio_raster", "Ansicht", "Studio: Raster ein-/ausschalten", "", Projekt),
-    i(Cmd::StudioZwiebel, "studio_zwiebel", "Ansicht", "Studio: Zwiebelhaut ein-/ausschalten", "", Projekt),
+    i(Cmd::StudioZwiebel, "studio_zwiebel", "Ansicht", "Studio: Onion Skin ein-/ausschalten", "", Projekt),
     i(Cmd::TrackerNoten, "tracker_noten", "Ansicht", "Tracker: Noten", "Cmd+1", Projekt),
     i(Cmd::TrackerInstrumente, "tracker_instrumente", "Ansicht", "Tracker: Instrumente", "Cmd+2", Projekt),
     i(Cmd::TrackerAblauf, "tracker_ablauf", "Ansicht", "Tracker: Ablauf", "Cmd+3", Projekt),

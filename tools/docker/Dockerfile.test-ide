@@ -1,0 +1,13 @@
+# Test-Image fuer den IDE-Start unter Xvfb (tools/linux-package-test.sh, Abschnitt 4). NICHT das Image zum Bauen der Pakete (Dockerfile.debian usw.)
+# und nicht Teil der Pakete: es bringt nur die Laufzeit mit, die ein frisches Debian/Ubuntu ohne Desktop nicht hat (virtueller Bildschirm,
+# Software-Darstellung per Mesa/lavapipe, D-Bus, Portal, xkbcommon-x11).
+#   docker build --platform linux/amd64 -t vc-test-ide -f tools/docker/Dockerfile.test-ide tools/docker
+#   docker run --rm --platform linux/amd64 -v "$PWD/tools":/tools:ro -v "$PWD/build/pakete/debian":/pakete:ro vc-test-ide bash /tools/linux-package-test.sh debian /pakete
+# Fuer Ubuntu: --build-arg BASE=ubuntu:24.04
+ARG BASE=debian:stable
+FROM ${BASE}
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      xvfb xauth x11-utils dbus-x11 xdg-desktop-portal-gtk libxkbcommon-x11-0 \
+      libgl1-mesa-dri libglx-mesa0 mesa-vulkan-drivers libvulkan1 \
+    && rm -rf /var/lib/apt/lists/*

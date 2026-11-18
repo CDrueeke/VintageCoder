@@ -39,7 +39,8 @@ if [ -x "$SRC/bin/vintagecoder" ]; then
   sed "s/@VERSION@/$VERSION/g" "$SRC/macos/Info.plist.in" > "$APP/Contents/Info.plist"
   [ -f "$SRC/macos/VintageCoder.icns" ] && cp "$SRC/macos/VintageCoder.icns" "$APP/Contents/Resources/" \
     && /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string VintageCoder" "$APP/Contents/Info.plist"
-  cp "$SRC/LICENSE" "$SRC/THIRD-PARTY-NOTICES.md" "$SRC/README.md" "$APP/Contents/Resources/"
+  cp "$SRC/LICENSE" "$SRC/LICENSING.md" "$SRC/THIRD-PARTY-NOTICES.md" "$SRC/README.md" "$APP/Contents/Resources/"
+  cp -RX "$SRC/LICENSES" "$APP/Contents/Resources/LICENSES"
   cp -RX "$SRC/data" "$APP/Contents/Resources/data"
   for d in docs editors; do if [ -d "$SRC/$d" ]; then cp -RX "$SRC/$d" "$APP/Contents/Resources/$d"; fi; done
   find "$APP" \( -name .DS_Store -o -name '._*' \) -delete
@@ -51,7 +52,8 @@ if [ -x "$SRC/bin/vintagecoder" ]; then
   DMGSRC=$(mktemp -d)
   cp -RX "$APP" "$DMGSRC/"; ln -s /Applications "$DMGSRC/Applications"
   cp "$SRC/macos/Kommandozeile installieren.command" "$DMGSRC/"
-  cp "$SRC/LICENSE" "$SRC/THIRD-PARTY-NOTICES.md" "$DMGSRC/"
+  cp "$SRC/LICENSE" "$SRC/LICENSING.md" "$SRC/THIRD-PARTY-NOTICES.md" "$DMGSRC/"
+  cp -RX "$SRC/LICENSES" "$DMGSRC/LICENSES"
   if [ -d "$SRC/examples" ]; then cp -RX "$SRC/examples" "$DMGSRC/Beispiele"; fi
   find "$DMGSRC" -name '._*' -delete; xattr -cr "$DMGSRC" 2>/dev/null || true
   RESULT=$OUT/VintageCoder-$VERSION-macos-$ARCH.dmg
@@ -68,7 +70,7 @@ else
   PKG=$WORK/$TOP
   mkdir -p "$PKG"
   cp -RX "$SRC/bin" "$PKG/bin"
-  for f in data docs editors examples LICENSE THIRD-PARTY-NOTICES.md README.md release-report.md; do if [ -e "$SRC/$f" ]; then cp -RX "$SRC/$f" "$PKG/$f"; fi; done
+  for f in data docs editors examples LICENSE LICENSING.md LICENSES THIRD-PARTY-NOTICES.md README.md release-report.md; do if [ -e "$SRC/$f" ]; then cp -RX "$SRC/$f" "$PKG/$f"; fi; done
   cat > "$PKG/Kommandozeile installieren.command" <<'EOS'
 #!/bin/bash
 # Verlinkt vcc und vc-lsp aus diesem Ordner nach /usr/local/bin (bin/ und data/ müssen nebeneinander bleiben).

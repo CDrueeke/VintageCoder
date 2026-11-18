@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Bestenliste Atari 8 Bit (PRALLBALL). Einbinden: .include "lib/hiscore.asm"
 // Datei "D:PRALL.HSC" (127 Byte): "PRBL", Version 1, 10 x (8 Zeichen + 3 Byte Punkte lo/mid/hi als BCD + 1 Byte Level), CRC-16/CCITT.
 // Zugriff über das CIO des Betriebssystems (Kanal 1).  Ergebnis in A (HS_*), Z=1 bei HS_OK.

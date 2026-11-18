@@ -10,7 +10,7 @@ Aufruf (Arbeitsordner egal):
 Beispiel:
   python3 tools/test_release.py ParserTests
 """
-import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tempfile, unittest
+import hashlib, io, json, os, pathlib, re, shutil, subprocess, sys, tempfile, unittest
 from contextlib import redirect_stdout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -84,6 +84,20 @@ class BuildPaketeTests(unittest.TestCase):
         root = pathlib.Path(__file__).resolve().parent.parent
         self.assertIn('name = "vintagecoder"', (root / "crates" / "vc-gui" / "Cargo.toml").read_text(encoding="utf-8"))
         self.assertFalse((root / "crates" / "vc-app").exists())
+
+
+class RepoDateienTests(unittest.TestCase):
+    def test_skript_ohne_ausfuehrungsrecht_und_crlf_werden_gemeldet(self):
+        rows = [("100755", "i/lf", "tools/a.sh"), ("100644", "i/lf", "tools/b.sh"), ("100644", "i/lf", "docs/c.sh"),
+                ("100644", "i/crlf", "tools/d.py"), ("100644", "i/crlf", "examples/e.bas"), ("100755", "i/crlf", "installer/f.sh")]
+        m = release.repo_file_issues(rows)
+        self.assertEqual(len(m), 3, m)
+        self.assertTrue(any("tools/b.sh" in x and "Ausführungsrecht" in x for x in m))
+        self.assertTrue(any("tools/d.py" in x and "CRLF" in x for x in m))
+        self.assertTrue(any("installer/f.sh" in x and "CRLF" in x for x in m))
+
+    def test_repository_ist_in_ordnung(self):
+        self.assertEqual(release.check_repo_files_fehler(), [])
 
 
 class ParserTests(unittest.TestCase):
@@ -286,7 +300,7 @@ class StageTests(unittest.TestCase):
         self.assertFalse([f for f in files if "vintagecoder" in f.lower().replace("data/", "") and f.startswith(("bin/", "vintagecoder"))])
         self.assertEqual(sorted(f for f in files if f.startswith("data/targets/")), ["data/targets/c64.target.json"])
         self.assertEqual({f.split("/")[1] for f in files if f.startswith("examples/")}, {"c64"})
-        self.assertFalse([f for f in files if f.startswith(("licenses/", "macos/Info", "data/sys/atari8bit", "data/sys/mega65", "data/sys/vcs2600"))])
+        self.assertFalse([f for f in files if f.startswith(("macos/Info", "data/sys/atari8bit", "data/sys/mega65", "data/sys/vcs2600"))])
         rj = json.load(open(os.path.join(out, "data", "release.json"), encoding="utf-8"))
         self.assertEqual((rj["ide"], rj["studios"], rj["links"], rj["targets"], rj["examples"]), (False, [], [], ["c64"], ["EX-HELLO"]))
         self.assertIn("data/cli/build.json", files)
@@ -325,6 +339,30 @@ class StageTests(unittest.TestCase):
         self.assertTrue(all(f.split("/")[1] in ("atari", "common") for f in files if f.startswith("examples/")))
         self.assertIn("data/args/atari800.json", files)
         self.assertNotIn("data/args/altirra.json", files)
+
+    def test_lizenzdateien_liegen_in_jedem_staging(self):
+        """LICENSING.md und LICENSES/MIT-0.txt gehören zu Windows-Setup, macOS-App und Linux-Paketen (Lizenzfreigabe 0.2.1)."""
+        for os_name, prefix in (("windows", ""), ("macos", ""), ("linux", "usr/share/doc/vintagecoder/")):
+            rc, out, log = self.stage("nur-cli-c64", os_name)
+            self.assertEqual(rc, 0, log)
+            files = self.files(out)
+            for f in ("LICENSE", "LICENSING.md", "LICENSES/MIT-0.txt"):
+                self.assertIn(prefix + f, files, "%s fehlt im Staging für %s" % (f, os_name))
+
+    def test_installer_und_app_paket_nehmen_die_lizenzdateien_mit(self):
+        iss = open(os.path.join(release.ROOT, "installer", "vintagecoder.iss"), encoding="utf-8-sig").read()
+        self.assertIn("LICENSING.md", iss)
+        self.assertIn("LICENSES\\*", iss)
+        self.assertIn("InfoBeforeFile=lizenzhinweis.txt", iss)
+        mac = open(os.path.join(release.ROOT, "installer", "build-macos.sh"), encoding="utf-8").read()
+        self.assertEqual(mac.count("LICENSING.md"), 3, "App (Resources), Abbild und Kommandozeilen-Archiv")
+        self.assertIn('"$APP/Contents/Resources/LICENSES"', mac)
+
+    def test_lizenzhinweis_des_installers_gleicht_dem_programmtext(self):
+        src = open(os.path.join(release.ROOT, "crates", "vc-ide", "src", "license.rs"), encoding="utf-8").read()
+        m = re.search(r'NOTICE_SHORT: &str = "(.*?)";', src)
+        txt = open(os.path.join(release.ROOT, "installer", "lizenzhinweis.txt"), encoding="utf-8-sig").read().strip()
+        self.assertEqual(txt, m.group(1))
 
     def test_voll_und_betriebssysteme(self):
         for os_name, marker in (("windows", "installer.inc"), ("macos", "macos/Kommandozeile installieren.command"), ("linux", "usr/share/man/man1/vcc.1")):

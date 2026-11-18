@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek PET (PRALLBALL). Einbinden: .include "lib/input.asm"
 //
 // Der PET hat keinen Joystickanschluss; gespielt wird mit der Tastatur: Z oder , = links, X oder . = rechts, Leertaste = Feuer, P = Pause,

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // PRALLBALL fuer den Commodore PET (4000er, 40 Spalten, BASIC 4) - Ball-und-Schlaeger-Spiel.
 //
 // Der PET hat nur Text: keine Farbe, keine Sprites, keinen Klangchip.  Das Bild besteht aus 40 x 25 Zeichen; gezeichnet wird mit den Viertelblock-

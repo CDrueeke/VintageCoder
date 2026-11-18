@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Testbibliothek (Postfach-Modus, Testkonzept Stufe 3): das Testprogramm prüft sich selbst und schreibt das Ergebnis in ein
 // Postfach im RAM. Der Läufer (vcc test, Reiter „Tests“) startet das Programm und liest nur Speicher: Emulator wie Hardware.
 //

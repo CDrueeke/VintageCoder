@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // VintageCoder – Anbindung des Language Servers (vc-lsp) an einen Editor mit Erweiterungsschnittstelle. Nicht automatisch getestet.
 const vscode = require("vscode");
 const { LanguageClient } = require("vscode-languageclient/node");

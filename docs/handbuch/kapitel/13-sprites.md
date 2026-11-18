@@ -36,7 +36,7 @@ Im fertigen Programm landet ein Sprite als **Datenblock** im Speicher (63 Bytes 
 - **Register:** eine Speicherstelle, in die du Zahlen schreibst, um den Chip zu steuern (zum Beispiel `$D027` für die Farbe von Sprite 0).
 - **Sprite-Zeiger:** ein Byte, das dem Chip sagt, in welchem 64-Byte-Block die Daten eines Sprites liegen.
 - **PMG (Player/Missile-Grafik):** so heißen die Sprites beim Atari.
-- **Zwiebelhaut:** das vorige Frame schimmert blass durch, damit du Bewegungen sauber setzt. Der Schalter heißt **Zwiebel**.
+- **Onion Skin:** das vorige Frame schimmert blass durch, damit du Bewegungen sauber setzt. Der Schalter heißt **Onion Skin**.
 
 ## Das brauchst du
 
@@ -70,7 +70,7 @@ Das Studio hat **sechs Zonen**, wie alle Studios in VintageCoder:
 | Zone | Was sie zeigt |
 |---|---|
 | Kopfzeile | Art der Datei (**SPR** für C64, **PMG** für Atari), Name, **●** bei ungespeicherten Änderungen, Maße; rechts die Dateiaktionen (**PNG laden …**, **Exportieren …**, **Speichern**). Bei wenig Platz stehen weniger Knöpfe da, der Rest steckt im **⋯**-Menü. |
-| Werkzeugleiste | genau eine Reihe: Stift, Radierer, Füllen, Linie, Rahmen, Auswahl, Pipette; Rückgängig/Wiederholen, **Transformieren ▾**, Zoom (− + Einpassen), Raster, Zwiebel. |
+| Werkzeugleiste | genau eine Reihe: Stift, Radierer, Füllen, Linie, Rahmen, Auswahl, Pipette; Rückgängig/Wiederholen, **Transformieren ▾**, Zoom (− + Einpassen), Raster, Onion Skin. |
 | Liste | die **Frames** des Sprites (bei Atari die vier Player). Klick wählt, die Pfeiltasten links/rechts wechseln das Frame. |
 | Fläche | das gewählte Frame, stark vergrößert und immer eingepasst; Mausrad mit **Cmd/Strg** zoomt. |
 | Karten (Seitenspalte) | **Werkzeug** (die Zeichenfarbe, also die Pixelwerte), **Dokument** (Modus dieses Frames, Farben, Palette) und **Sprite** (Hardware-Flags und Animationen). In schmalen Fenstern steht auch die Liste der **Frames** als Karte hier. |
@@ -92,7 +92,7 @@ Das Studio hat **sechs Zonen**, wie alle Studios in VintageCoder:
 | Cmd/Strg+S | Speichern |
 | Cmd/Strg+Umschalt+E | Export-Dialog |
 
-Zoom, Raster und Zwiebelhaut findest du auch in der **Befehlspalette** (Cmd/Strg+K, Einträge „Studio: …“). Das Kontextmenü der Fläche (Rechtsklick mit dem Auswahlwerkzeug, Menü-Taste oder Umschalt+F10) bietet Rückgängig, Wiederholen, Ausschneiden, Kopieren, Einfügen und Exportieren.
+Zoom, Raster und Onion Skin findest du auch in der **Befehlspalette** (Cmd/Strg+K, Einträge „Studio: …“). Das Kontextmenü der Fläche (Rechtsklick mit dem Auswahlwerkzeug, Menü-Taste oder Umschalt+F10) bietet Rückgängig, Wiederholen, Ausschneiden, Kopieren, Einfügen und Exportieren.
 
 ### Hires oder Multicolor – je Frame
 
@@ -122,12 +122,12 @@ Die drei Schalter gelten für die ganze Datei. Sie landen im Export als Konstant
 
 > **Info:** Breite (`SIZEP0` bis `SIZEP3`) und Priorität der Player stellst du im Programm selbst ein (siehe das Beispiel unten). Dafür gibt es in der Oberfläche noch keine Schalter.
 
-## Frames, Animation und Zwiebelhaut
+## Frames, Animation und Onion Skin
 
 Eine **Animation** entsteht aus mehreren Frames, die kurz nacheinander gezeigt werden (wie ein Daumenkino).
 
 1. Links unter **Frames** legst du mit **+** ein neues leeres Frame an, mit **Dupl.** eine Kopie des gewählten, mit **Löschen** entfernst du eines. Die Pfeiltasten links/rechts wechseln das Frame.
-2. Schalte **Zwiebel** ein (Werkzeugleiste): Das vorige Frame erscheint blass als Schatten unter deinem Bild. So triffst du die Abstände. Beim ersten Frame ist der Schalter ausgegraut, denn es gibt kein voriges.
+2. Schalte **Onion Skin** ein (Werkzeugleiste): Das vorige Frame erscheint blass als Schatten unter deinem Bild. So triffst du die Abstände. Beim ersten Frame ist der Schalter ausgegraut, denn es gibt kein voriges.
 3. Für eine Folge benutzt du den Abschnitt **Animationen** in der Karte **Sprite**. Die Vorschau dort läuft in Echtzeit: **+ Neu** legt eine Animation an (mehrere Animationen wählst du über ihre Knöpfe), **Frame anhängen** fügt das gewählte Frame als Schritt hinzu. Jeder Schritt hat eine **Dauer** (in „B“ = Bildern; 1 Bild = 1/50 Sekunde), du kannst ihn mit den Pfeilen verschieben oder mit × entfernen. Der **Ablauf** ist **Schleife**, **Hin und zurück** oder **Einmal** (ein Klick auf den Knopf schaltet weiter). **Löschen** entfernt die ganze Animation.
 
 ![Das Sprite-Studio mit der Karte „Sprite“: unter „Animationen“ die Animation „laufen“ mit Vorschau, Schrittzahl, Schleife und den Schritten mit Dauer in Bildern.](bild:sprite-animation "Das Animationsfeld: Schritte mit Dauer in Bildern, darüber Ablauf und Name")

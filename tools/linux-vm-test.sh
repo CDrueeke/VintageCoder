@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # VintageCoder auf einer frischen Linux-Maschine (VM) einrichten, bauen und prüfen.
 # Getestet werden soll auf: Debian (12/13), Ubuntu (24.04 LTS oder neuer), Fedora (aktuell), openSUSE (Leap 16 / Tumbleweed).
 # Stand: in Docker-Containern (arm64, ohne Fenstersystem, unter xvfb) gelaufen: Debian 13 (deps, build, test, smoke), Ubuntu 24.04, Fedora 45 und

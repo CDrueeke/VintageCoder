@@ -39,7 +39,7 @@ Tests, die einen Emulator, echte Hardware oder Original-ROMs brauchen, überspri
 ## Code und Sprache
 
 - **Bezeichner** (Funktionen, Variablen, Dateinamen im Code) sind **englisch**, **Anzeigetexte**, Hilfe, Handbuch und Kommentare zum Verständnis **deutsch**.
-- Rust-Code im Stil der Umgebung halten (`cargo fmt` ohne Besonderheiten, keine neuen Compiler-Warnungen). Jede Quelldatei beginnt mit `// SPDX-License-Identifier: GPL-3.0-or-later` (Python-Skripte mit `#`).
+- Rust-Code im Stil der Umgebung halten (`cargo fmt` ohne Besonderheiten, keine neuen Compiler-Warnungen). Jede Quelldatei beginnt mit `// SPDX-License-Identifier: GPL-3.0-or-later` (Python-Skripte mit `#`); **Ausnahme:** Dateien unter `data/sys/`, `data/templates/` und `examples/` tragen `SPDX-License-Identifier: MIT-0` (Ordnervermerk in der Datei `LICENSE` des Ordners).
 - Keine Abhängigkeiten ohne Not; neue Bibliotheken müssen eine mit der GPL-3.0 vereinbare Lizenz haben und stehen dann in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 - **Textdateien** (Quelltexte, Markdown, JSON, Projektdateien) sind **UTF-8 ohne BOM** mit **LF** als Zeilenende; `.gitattributes` erzwingt LF. Die IDE schreibt beim Speichern immer so und liest fremde Dateien (BOM, CRLF, Windows-1252) mit einem Hinweis.
 - **Oberfläche (neue Oberfläche `vc-gui`):** Jedes neue oder überarbeitete Studio und jede neue Seite folgt dem gemeinsamen Muster. Pflicht ist der **Studio-Rahmen** aus `crates/vc-gui-ui` (Kopfzeile mit allen Datei-Aktionen, genau eine Werkzeugleiste, Liste, eingepasste Arbeitsfläche ohne Scrollbalken, Seitenspalte aus Karten „Werkzeug“ und „Dokument“, Fußzeile), die drei Breitenklassen (breit ab 900, mittel 640 bis 899, schmal unter 640 px), das 4-px-Raster und nur Farbrollen aus `Pal`. Ein Studio ohne Studio-Rahmen wird nicht angenommen.
@@ -49,4 +49,4 @@ Tests, die einen Emulator, echte Hardware oder Original-ROMs brauchen, überspri
 
 ## Lizenz der Beiträge
 
-VintageCoder steht unter der **GNU General Public License, Version 3 oder später** (`GPL-3.0-or-later`, siehe [LICENSE](LICENSE)). Mit einem Beitrag erklärst du dich einverstanden, dass er unter dieser Lizenz veröffentlicht wird, und bestätigst, dass du ihn selbst geschrieben hast oder die Rechte dafür besitzt.
+VintageCoder steht unter der **GNU General Public License, Version 3 oder später** (`GPL-3.0-or-later`, siehe [LICENSE](LICENSE)). Mit einem Beitrag erklärst du dich einverstanden, dass er unter dieser Lizenz veröffentlicht wird, und bestätigst, dass du ihn selbst geschrieben hast oder die Rechte dafür besitzt. **Beiträge zu `data/sys/`, `data/templates/` und `examples/`** kommen unter der **MIT-0-Lizenz** (siehe `LICENSES/MIT-0.txt`), damit sie frei in eigene Programme eingesetzt werden können.

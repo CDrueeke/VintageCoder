@@ -164,6 +164,7 @@ pub fn overview(short: bool) -> String {
     let _ = writeln!(out, "  {}man-Seite eines Befehls (roff) ausgeben", pad("man", 14));
     let _ = writeln!(out, "  {}Vervollständigung für powershell, bash, zsh oder fish ausgeben", pad("completion", 14));
     let _ = writeln!(out, "  {}Version anzeigen", pad("version", 14));
+    let _ = writeln!(out, "  {}Lizenzhinweis anzeigen (Einzelheiten: LICENSING.md)", pad("--license", 14));
     let _ = writeln!(out, "\n{}", st.bold("Beispiele"));
     let cw = p.overview_examples.iter().map(|e| e.cmd.chars().count()).max().unwrap_or(0) + 2;
     for e in &p.overview_examples { let _ = writeln!(out, "  {}{}", pad(&e.cmd, cw), st.dim(&format!("# {}", e.title))); }
@@ -474,7 +475,7 @@ mod tests {
         let mut table: BTreeSet<String> = BTreeSet::new();
         for c in &prog().cmds { for f in &c.forms { for o in &f.options { table.insert(o.flag.clone()); if !o.short.is_empty() { table.insert(o.short.clone()); } } } }
         // Schalter, die nur die Hilfe selbst betreffen
-        let own: BTreeSet<&str> = ["--help", "-h", "--version", "-V", "--all"].into_iter().collect();
+        let own: BTreeSet<&str> = ["--help", "-h", "--version", "-V", "--all", "--license"].into_iter().collect();
         let missing: Vec<&String> = src.iter().filter(|f| !table.contains(*f) && !own.contains(f.as_str())).collect();
         let stale: Vec<&String> = table.iter().filter(|f| !src.contains(*f)).collect();
         assert!(missing.is_empty(), "Optionen im Quelltext, aber nicht in data/cli: {missing:?}");

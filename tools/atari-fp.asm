@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Namen der Zeropage und Puffer des Atari-Fließkommapakets (aus der öffentlichen Systemdokumentation), nur für tools/romdis.py
 .const FR0     = $D4
 .const FRE     = $DE

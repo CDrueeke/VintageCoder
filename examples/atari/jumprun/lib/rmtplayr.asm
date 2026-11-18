@@ -1,5 +1,7 @@
+; SPDX-License-Identifier: GPL-3.0-only
+; SPDX-FileCopyrightText: 2002-2009 Radek Sterba / Raster / C.P.U.
 ; RMT-Player nach VintageCoder-Syntax übertragen (Original: Raster Music Tracker 1.28, rmtplayr.a65,
-; (c) Radek Sterba / Raster / C.P.U. 2002-2009, GPLv3). Aus dem RMT-Player übertragen – nicht von Hand ändern.
+; (c) Radek Sterba / Raster / C.P.U. 2002-2009, GPLv3 = GPL-3.0-only). Aus dem RMT-Player übertragen – nicht von Hand ändern.
 ;
 ; Raster Music Tracker, RMT Atari routine version 1.20090108
 ; (c) Radek Sterba, Raster/C.P.U., 2002 - 2009

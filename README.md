@@ -56,7 +56,7 @@ Die Pakete für Version 0.1.0 (Alpha) gibt es unter [GitHub ▸ Releases](https:
 > - **Windows (SmartScreen):** **Weitere Informationen ▸ Trotzdem ausführen**.
 > - **Linux:** die `.deb`- und `.rpm`-Pakete sind ebenfalls nicht signiert; `zypper` fragt oder braucht `--allow-unsigned-rpm`.
 >
-> Prüfe Downloads mit `SHA256SUMS` und lade nur aus dem offiziellen Release oder von der Website. Weitere Schritte und die Installation je System stehen im Handbuch, Kapitel [Installation und Ersteinrichtung](docs/handbuch/kapitel/00-installation.md). Der Stand der Prüfung: Die Linux-Pakete wurden in frischen Containern installiert und getestet, die Oberfläche dabei nur mit Software-Darstellung; Windows-Installer und macOS-Paket sind nur teilweise geprüft (siehe [STATUS.md](STATUS.md)).
+> Prüfe Downloads mit `SHA256SUMS` und lade nur aus dem offiziellen Release oder von der Website. Weitere Schritte und die Installation je System stehen im Handbuch, Kapitel [Installation und Ersteinrichtung](docs/handbuch/kapitel/00-installation.md). Der Stand der Prüfung: Die Linux-Pakete wurden in frischen Containern und auf einer Ubuntu-24.04-Testmaschine mit Desktop geprüft (Ton und Wayland nicht); das Windows-Setup ist unter Windows 11 geprüft; das macOS-Paket ist nur teilweise geprüft (siehe [STATUS.md](STATUS.md)).
 
 ### Aus dem Quelltext bauen
 
@@ -104,8 +104,12 @@ VintageCoder entsteht mit starker KI-Unterstützung: Der Quelltext wird weitgehe
 
 VintageCoder steht unter der **GNU General Public License, Version 3 oder später** ([LICENSE](LICENSE)). Die Software wird ohne jede Gewährleistung bereitgestellt, insbesondere ohne Haftung für Datenverlust oder Schäden an Daten und Hardware. Herkunft und Lizenzen enthaltener Fremdinhalte: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
+Was du mit VintageCoder, mit der Sprache VCASM und mit den erzeugten Dateien tun darfst, steht in [LICENSING.md](LICENSING.md).
+
+**Unter der MIT-No-Attribution-Lizenz (MIT-0, ohne Pflicht zum Urheberhinweis; nicht unter der GPL)** stehen die **Systemdateien** (`data/sys/`), die **Vorlagen** (`data/templates/`) und die **Beispielprojekte** (`examples/`), damit sie frei in eigene Programme eingesetzt werden können (Lizenztext: [LICENSES/MIT-0.txt](LICENSES/MIT-0.txt), Vermerk in der Datei `LICENSE` des jeweiligen Ordners; Fremdanteile wie der RMT-Player behalten ihren eigenen Vermerk).
+
 **Ausgenommen von der GPL** sind das Logo (die Dateien unter `branding/`) und der Name „VintageCoder“: Ihre Verwendung ist nicht frei.
 
-Die Beispielprojekte unter `examples/` sind eigene Werke des Projekts; Fremdanteile (zum Beispiel der RMT-Player) sind in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) genannt.
+Die Beispielprojekte unter `examples/` sind eigene Werke des Projekts (MIT-0); Fremdanteile (zum Beispiel der RMT-Player) sind in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) genannt.
 
 Website: <https://vintagecoder.drueeke.de>

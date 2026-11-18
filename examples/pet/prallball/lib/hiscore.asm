@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Bestenliste PET (PRALLBALL). Einbinden: .include "lib/hiscore.asm"
 // Datei "PRALL.HS" (127 Byte): "PRBL", Version 1, 10 x (8 Zeichen + 3 Byte Punkte lo/mid/hi + 1 Byte Level), CRC-16.
 // Zugriff über das KERNAL des PET (BASIC 4) als sequentielle Datei (OPEN/CHKIN/CHRIN, CHKOUT/CHROUT), Diskette am Gerät, von dem das Programm gestartet wurde

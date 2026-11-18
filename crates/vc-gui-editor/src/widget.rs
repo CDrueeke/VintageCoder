@@ -131,9 +131,13 @@ where R: text::Renderer<Font = Font> {
         let st = tree.state.downcast_ref::<State>(); let b = layout.bounds(); let pal = self.pal; let ed = self.ed;
         let (cw, lh) = (st.cw, st.lh);
         let Some(clip) = b.intersection(viewport) else { return };
+        // Alles innerhalb der eigenen Grenzen halten: die letzte, nur zum Teil sichtbare Zeile (und die Zeile darunter) darf nicht in die Nachbarflächen
+        // (Schublade, Statusleiste) hineinragen. Die Ebene beschneidet auf `clip`; der Text meldet die größere Fläche `viewport` als eigenen Beschnitt, denn der
+        // Software-Renderer schneidet Text nur dann an der Ebene ab, wenn dessen eigener Beschnitt über die Ebene hinausragt.
+        r.with_layer(clip, |r| {
         let q = |r: &mut R, bounds: Rectangle, c: Color| r.fill_quad(Quad { bounds, ..Quad::default() }, c);
         let txt = |r: &mut R, s: &str, x: f32, y: f32, c: Color| {
-            r.fill_text(Text { content: s.to_string(), bounds: Size::new(f32::INFINITY, lh), size: Pixels(self.size), line_height: text::LineHeight::Absolute(Pixels(lh)), font: vc_gui_ui::fonts::MONO, align_x: text::Alignment::Default, align_y: alignment::Vertical::Top, shaping: text::Shaping::Basic, wrapping: text::Wrapping::None }, Point::new(x, y), c, clip);
+            r.fill_text(Text { content: s.to_string(), bounds: Size::new(f32::INFINITY, lh), size: Pixels(self.size), line_height: text::LineHeight::Absolute(Pixels(lh)), font: vc_gui_ui::fonts::MONO, align_x: text::Alignment::Default, align_y: alignment::Vertical::Top, shaping: text::Shaping::Basic, wrapping: text::Wrapping::None }, Point::new(x, y), c, *viewport);
         };
         q(r, b, pal.editor);
         q(r, Rectangle { width: GUTTER, ..b }, pal.panel);
@@ -144,6 +148,9 @@ where R: text::Renderer<Font = Font> {
         let mut cursor_xy: Option<(f32, f32)> = None;
         for i in 0..rows {
             let y = b.y + i as f32 * lh - frac;
+            // Steht das Fenster so, dass die letzte Zeile nur halb Platz hätte, bleibt sie weg (die Seitengröße der Tasten und des Cursors rechnet ohnehin mit ganzen Zeilen);
+            // beim sanften Scrollen (Bruchteil ungleich 0) gehören angeschnittene Zeilen am Rand dazu
+            if !zeile_passt(frac, y, lh, b.y + b.height) { break }
             if line >= ed.lines.len() { if ed.einfuegemarke == Some(ed.lines.len()) { q(r, Rectangle { x: b.x + GUTTER, y: y - 1.0, width: b.width - GUTTER, height: 2.0 }, pal.accent) } break }
             if sub == 0 && ed.einfuegemarke == Some(line) { q(r, Rectangle { x: b.x + GUTTER, y: y - 1.0, width: b.width - GUTTER, height: 2.0 }, pal.accent) }
             let text = &ed.lines[line];
@@ -203,6 +210,7 @@ where R: text::Renderer<Font = Font> {
         }) }
         if let Some((track, thumb, _)) = self.vbar(b) { q(r, track, Color { a: 0.25, ..pal.panel2 }); r.fill_quad(Quad { bounds: thumb, border: Border { radius: 3.0.into(), ..Border::default() }, ..Quad::default() }, Color { a: if st.vb_drag.is_some() { 0.8 } else { 0.45 }, ..pal.mute }) }
         if let Some((track, thumb, _)) = self.hbar(b) { q(r, track, Color { a: 0.35, ..pal.panel2 }); r.fill_quad(Quad { bounds: thumb, border: Border { radius: 3.0.into(), ..Border::default() }, ..Quad::default() }, Color { a: if st.sb_drag.is_some() { 0.8 } else { 0.5 }, ..pal.mute }) }
+        });
         let _ = cursor; DRAW_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed); DRAW_N.fetch_add(1, Ordering::Relaxed);
     }
 
@@ -326,3 +334,20 @@ where R: text::Renderer<Font = Font> {
     }
 }
 impl<'a, M: 'a, R> From<EditorView<'a, M>> for Element<'a, M, iced::Theme, R> where R: text::Renderer<Font = Font> + 'a { fn from(v: EditorView<'a, M>) -> Self { Element::new(v) } }
+
+/// Gehört die Zeile mit Oberkante `y` zur Anzeige? Eine nur halb Platz findende letzte Zeile bleibt weg (Seitengröße und Cursor rechnen mit ganzen Zeilen);
+/// beim sanften Scrollen (Bruchteil `frac` ungleich 0) gehören angeschnittene Zeilen am Rand dazu.
+fn zeile_passt(frac: f32, y: f32, lh: f32, unten: f32) -> bool { frac != 0.0 || y + lh <= unten + 0.5 }
+
+#[cfg(test)]
+mod zeilen_tests {
+    use super::zeile_passt;
+    #[test]
+    fn halbe_letzte_zeile_bleibt_weg_ausser_beim_sanften_scrollen() {
+        let (lh, unten) = (19.0, 100.0);          // 5 ganze Zeilen und ein Rest von 5 Punkten
+        for i in 0..5 { assert!(zeile_passt(0.0, i as f32 * lh, lh, unten), "Zeile {i} passt ganz hinein"); }
+        assert!(!zeile_passt(0.0, 5.0 * lh, lh, unten), "die sechste hätte nur 5 von 19 Punkten Platz");
+        assert!(zeile_passt(0.0, 4.0 * lh + 24.0, lh, 4.0 * lh + 24.0 + lh), "genau passend");
+        assert!(zeile_passt(0.4 * lh, 5.0 * lh, lh, unten), "sanftes Scrollen zeigt angeschnittene Zeilen");
+    }
+}

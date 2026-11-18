@@ -188,7 +188,7 @@ impl PixelDoc {
 
     /// Palettenindex (im Farbwerk des Ziels) eines Pixelwerts; `None` = transparent
     pub fn farb_index(&self, v: u8) -> Option<usize> { self.farb_index_frame(self.fi, v) }
-    /// Wie `farb_index`, aber für Frame `fi` (Vorschau, Zwiebelhaut): Spielerfarbe bei Player/Missile und Modus (Hires/Multicolor) des Sprites gehören dem jeweiligen Frame, nicht dem gewählten
+    /// Wie `farb_index`, aber für Frame `fi` (Vorschau, Onion Skin): Spielerfarbe bei Player/Missile und Modus (Hires/Multicolor) des Sprites gehören dem jeweiligen Frame, nicht dem gewählten
     pub fn farb_index_frame(&self, fi: usize, v: u8) -> Option<usize> {
         let vi = v as usize;
         if self.bpp == 8 { return Some(vi) }

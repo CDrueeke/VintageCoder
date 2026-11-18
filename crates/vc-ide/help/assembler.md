@@ -2,6 +2,8 @@
 
 Ein **Assembler** übersetzt Programme, die du in lesbaren Kürzeln wie `lda #$00` schreibst, in die Zahlen, die der Prozessor wirklich ausführt (den **Maschinencode**). Der Assembler von VintageCoder beherrscht die 6502-Familie: 6502, 6510 (C64), 7501 (Plus/4), 8502 (C128), „Sally“ (Atari) und die 45GS02 des MEGA65 – also alle Zielsysteme der Entwicklungsumgebung. Er rechnet beim Übersetzen mit Ausdrücken, kennt Makros, Schleifen, Namensräume und Module.
 
+**Die Sprache VCASM ist frei.** Syntax und Bedeutung (Befehle, Direktiven, Ausdrücke, Makros) darf jeder in eigenen Werkzeugen umsetzen, unabhängig von der Lizenz von VintageCoder; was du übersetzt, gehört dir. Siehe [Lizenz und freie Nutzung](help:license).
+
 ## Die Handbuchseiten
 
 | Seite | Inhalt |

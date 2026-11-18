@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang C128 (PRALLBALL): Effekte auf SID-Stimme 3. Einbinden: .include "lib/sound.asm"
 // Die Titelmusik (mus_*) folgt in Phase P1 (Tracker-Export); hier sind nur Stubs, die den Vertrag festlegen.
 //   sfx_init      SID stumm schalten, Lautstärke 15

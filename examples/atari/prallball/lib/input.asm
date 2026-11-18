@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek Atari 8 Bit (PRALLBALL). Einbinden: .include "lib/input.asm"
 //
 // Quellen: Joystick Port 1 (PIA PORTA $D300, Bits 0..3; Feuerknopf TRIG0 $D010), Tastatur (POKEY KBCODE $D209 / OS-Zeichen CH $02FC),

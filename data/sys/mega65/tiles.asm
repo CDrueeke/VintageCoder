@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Kachel-Bibliothek für den MEGA65 im VIC-II-Textmodus (Konzept Kachel- und Screen-Editor, Abschnitt 6).
 // Einbinden: #include <mega65/tiles.asm>. Die Befehle und Schalter stehen im Kopf von common/tiles.asm.
 //

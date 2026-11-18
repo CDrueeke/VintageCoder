@@ -2,11 +2,11 @@
 ; Der Installer packt nur noch das Staging ein, das "python tools\release.py stage --os windows --out <Ordner> --build" erzeugt
 ; (Programme, data\, Beispiele, Lizenzen, installer.inc). Was drin ist, bestimmt FEATURES.md.
 ; Bauen: installer\build-installer.ps1 (ruft das Skript auf und dann ISCC).
-; Direkt: ISCC.exe /DAppVersion=0.2.0 /DStage=<Staging-Ordner> vintagecoder.iss
+; Direkt: ISCC.exe /DAppVersion=0.2.1 /DStage=<Staging-Ordner> vintagecoder.iss
 ; installer.inc im Staging setzt HasIde (mit Entwicklungsumgebung) und HasExamples (mit Beispielen).
 
 #ifndef AppVersion
-  #define AppVersion "0.2.0"
+  #define AppVersion "0.2.1"
 #endif
 #ifndef Stage
   #define Stage "..\build\stage-windows"
@@ -32,6 +32,7 @@ DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#IconFile}
 SetupIconFile=windows\VintageCoder.ico
 LicenseFile={#Stage}\LICENSE
+InfoBeforeFile=lizenzhinweis.txt
 OutputDir=output
 OutputBaseFilename=VintageCoder{#OutSuffix}-{#AppVersion}-Setup
 Compression=lzma2
@@ -62,7 +63,6 @@ Name: "examples"; Description: "&Beispielprojekte nach ""Dokumente\VintageCoder\
 #ifdef HasIde
 Source: "{#Stage}\vintagecoder.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\VintageCoder.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
 Source: "{#Stage}\vcc.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\vc-lsp.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -70,6 +70,8 @@ Source: "{#Stage}\vc-lsp.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Lizenz, Hinweise auf fremde Inhalte, Dokumentation, Erweiterungen
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\LICENSING.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\LICENSES\*"; DestDir: "{app}\LICENSES"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Stage}\THIRD-PARTY-NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\docs\*"; DestDir: "{app}\docs"; Excludes: ".DS_Store"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist

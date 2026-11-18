@@ -2,6 +2,8 @@
 
 Alle Studios (Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten, Songs) haben in der Werkzeugleiste den Knopf **Exportieren …** (Menü Datei ▸ Exportieren …, **Cmd/Strg+Umschalt+E**, auch im Rechtsklickmenü der Zeichenfläche). Er öffnet den Export-Dialog; Esc schließt ihn. Einen Streifen mit Ausgabedatei und dem Chip „aktuell“ oder „veraltet“ gibt es in der Oberfläche noch nicht.
 
+Die exportierten Dateien und die Formate sind frei nutzbar (siehe [Lizenz und freie Nutzung](help:license)).
+
 ## Der Dialog
 - **Ausgabeformat** (Segmentschalter):
 

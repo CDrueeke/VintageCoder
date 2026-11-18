@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek C128 (PRALLBALL). Einbinden: .include "lib/input.asm"
 //
 // C128: Joystick und Tastatur wie am C64 (CIA1) plus die zusaetzlichen Tasten des C128 ueber VIC_KEYSCAN ($D02F):

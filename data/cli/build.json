@@ -49,6 +49,42 @@
           "default_text": "",
           "repeat": false,
           "required": false
+        },
+        {
+          "flag": "--license-report",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Gibt die Lizenzen aller übersetzten Quelltexte aus (Datei, Lizenz, Urheber, Fundstelle) und schreibt sie nach build/LICENSES.txt.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Mit --license-report: den Bericht als JSON auf der Standardausgabe (die Zeilen OK/FEHLER gehen dann auf die Fehlerausgabe).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--deny-license",
+          "short": "",
+          "value": "liste",
+          "group": "bau",
+          "help": "Der Bau scheitert (Code L002), wenn ein übersetzter Quelltext unter einer dieser SPDX-Lizenzen steht, z. B. GPL-3.0-only,GPL-3.0-or-later (Endung * als Platzhalter, z. B. GPL-*). Dauerhaft: \"licenses\": {\"deny\": [...]} in der Projektdatei.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
         }
       ],
       "examples": [
@@ -61,13 +97,18 @@
           "cmd": "vcc build examples/c64/cart_demo"
         },
         {
+          "title": "Lizenzen der Quelltexte auflisten",
+          "cmd": "vcc build examples/atari/music_demo --license-report"
+        },
+        {
           "title": "nur das Startprogramm",
           "cmd": "vcc build examples/mega65/prallball/prallball.vcprj --main"
         }
       ],
       "notes": [
         "Je Quelle erscheint eine Zeile OK oder FEHLER, das Startprogramm ist markiert; Meldungen stehen auf der Fehlerausgabe.",
-        "Warnungen zur Projektdatei (z. B. fehlende Dateien aus assets) kommen vorab. Ein Projekt ohne Quellen ist ein Fehler."
+        "Warnungen zur Projektdatei (z. B. fehlende Dateien aus assets) kommen vorab. Ein Projekt ohne Quellen ist ein Fehler.",
+        "Lizenzhinweis: Enthält ein Programm Quelltext unter einer Copyleft-Lizenz (GPL, LGPL, AGPL), steht auf der Fehlerausgabe ein Hinweis (L001); das ist kein Fehler. Gelesen wird die Zeile SPDX-License-Identifier im Kopf der Dateien; Dateien ohne Kennung bleiben neutral. In der Projektdatei erlaubt \"licenses\": {\"allow\": [...]} eine Lizenz (kein Hinweis), \"deny\" sperrt sie."
       ],
       "exit": {
         "0": "alles gebaut",

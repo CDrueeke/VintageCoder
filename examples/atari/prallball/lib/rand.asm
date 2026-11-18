@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Zufall Atari 8 Bit (PRALLBALL). Einbinden: .include "lib/rand.asm"
 //
 // Der POKEY liefert ein echtes Hardware-Zufallsregister: RANDOM ($D20A) ist ein 17-Bit-Schieberegister, das mit dem POKEY-Takt weiterläuft;

@@ -405,6 +405,9 @@ vcc build [projekt] [optionen]
 |---|---|---|
 | `--main` | Baut nur das Startprogramm (main der Projektdatei); die Diskette entsteht dann nicht. |  |
 | `--data-dir` `<ordner>` | Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche. |  |
+| `--license-report` | Gibt die Lizenzen aller übersetzten Quelltexte aus (Datei, Lizenz, Urheber, Fundstelle) und schreibt sie nach build/LICENSES.txt. |  |
+| `--json` | Mit --license-report: den Bericht als JSON auf der Standardausgabe (die Zeilen OK/FEHLER gehen dann auf die Fehlerausgabe). |  |
+| `--deny-license` `<liste>` | Der Bau scheitert (Code L002), wenn ein übersetzter Quelltext unter einer dieser SPDX-Lizenzen steht, z. B. GPL-3.0-only,GPL-3.0-or-later (Endung * als Platzhalter, z. B. GPL-*). Dauerhaft: "licenses": {"deny": [...]} in der Projektdatei. |  |
 
 Beispiele:
 
@@ -419,6 +422,11 @@ vcc build examples/c64/cart_demo
 ```
 
 ```bash
+# Lizenzen der Quelltexte auflisten
+vcc build examples/atari/music_demo --license-report
+```
+
+```bash
 # nur das Startprogramm
 vcc build examples/mega65/prallball/prallball.vcprj --main
 ```
@@ -426,6 +434,8 @@ vcc build examples/mega65/prallball/prallball.vcprj --main
 > **Hinweis:** Je Quelle erscheint eine Zeile OK oder FEHLER, das Startprogramm ist markiert; Meldungen stehen auf der Fehlerausgabe.
 
 > **Hinweis:** Warnungen zur Projektdatei (z. B. fehlende Dateien aus assets) kommen vorab. Ein Projekt ohne Quellen ist ein Fehler.
+
+> **Hinweis:** Lizenzhinweis: Enthält ein Programm Quelltext unter einer Copyleft-Lizenz (GPL, LGPL, AGPL), steht auf der Fehlerausgabe ein Hinweis (L001); das ist kein Fehler. Gelesen wird die Zeile SPDX-License-Identifier im Kopf der Dateien; Dateien ohne Kennung bleiben neutral. In der Projektdatei erlaubt "licenses": {"allow": [...]} eine Lizenz (kein Hinweis), "deny" sperrt sie.
 
 Rückgabe: `0` = alles gebaut · `1` = eine Quelle oder die Diskette fehlgeschlagen, oder keine Projektdatei gefunden · `2` = falscher Aufruf
 

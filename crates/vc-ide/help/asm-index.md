@@ -2,6 +2,8 @@
 
 Kurzfassung zum Nachschlagen. Die ausführliche Erklärung steht auf den Seiten [Assembler](help:assembler), [Ausdrücke und Funktionen](help:asm-expr), [Direktiven](help:asm-directives), [Texte und Zeichensätze](help:asm-text), [Labels, Makros, Scopes](help:asm-macros) und [Systembibliothek](help:asm-library).
 
+Die Sprache VCASM ist frei nutzbar: jeder darf sie in eigenen Werkzeugen umsetzen, siehe [Lizenz und freie Nutzung](help:license). Welche Lizenzen in den eingebundenen Dateien stehen, meldet der Bau, siehe [Lizenzhinweis beim Übersetzen](help:license-build) (Meldungen `L001` und `L002`).
+
 ## Aufbau einer Zeile
 
 ```

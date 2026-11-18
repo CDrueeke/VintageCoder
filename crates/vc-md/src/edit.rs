@@ -183,7 +183,7 @@ pub fn toggle_task(text: &str, idx: usize) -> Option<Edit> {
 
 fn fence_before(c: &[char], line_start: usize) -> bool {
     let text = string(&c[..line_start]); let mut st = lex::State::new(&string(c));
-    for (n, l) in text.split('\n').enumerate() { if n * 0 == 0 && line_start == 0 { break; } let _ = lex::line(l, n, &mut st); }
+    for (n, l) in text.split('\n').enumerate() { if line_start == 0 { break; } let _ = lex::line(l, n, &mut st); }
     st.in_fence()
 }
 fn front_at(c: &[char], line_start: usize) -> bool { let n = c[..line_start].iter().filter(|x| **x == '\n').count(); lex::State::new(&string(c)).in_front(n) }

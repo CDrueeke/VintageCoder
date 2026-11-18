@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang VC-20 (PRALLBALL): Effekte und Titelmusik auf dem VIC-I. Einbinden: .include "lib/sound.asm"
 // Vertrag wie auf allen Systemen:
 //   sfx_init      Lautstaerke 15 (Hilfsfarbe weiss), alle Stimmen still

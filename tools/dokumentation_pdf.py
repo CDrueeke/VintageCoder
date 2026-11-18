@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Baut aus Handbuch (docs/handbuch) und IDE-Hilfe (crates/vc-ide/help) das IDE-Handbuch und die VCASM-Dokumentation
 als PDF und als Markdown.
 
@@ -171,7 +172,7 @@ def build_ide():
     secs.append(f'<section class="kap" id="k-glossar">{render(glbody, "k", known)}</section>')
     parts.append(toc(entries))
     parts += secs
-    parts.append('<section class="kap legal"><h2>Lizenz und Haftung</h2><p>VintageCoder steht unter der GNU General Public License, Version 3 oder später. Die Software wird ohne jede Gewährleistung bereitgestellt, insbesondere ohne Haftung für Datenverlust oder Schäden an Daten und Hardware. Herkunft und Lizenzen enthaltener Fremdinhalte: THIRD-PARTY-NOTICES.md im Quelltext.</p></section>')
+    parts.append('<section class="kap legal"><h2>Lizenz und Haftung</h2><p>VintageCoder steht unter der GNU General Public License, Version 3 oder später. Was du mit VintageCoder erzeugst, gehört dir und ist frei nutzbar; die Sprache VCASM und die Dateiformate sind frei; Systemdateien, Vorlagen und Beispiele stehen unter MIT-0 (Einzelheiten: LICENSING.md). Die Software wird ohne jede Gewährleistung bereitgestellt, insbesondere ohne Haftung für Datenverlust oder Schäden an Daten und Hardware. Herkunft und Lizenzen enthaltener Fremdinhalte: THIRD-PARTY-NOTICES.md im Quelltext.</p></section>')
     return "VintageCoder – Handbuch", "".join(parts) and page("VintageCoder – Handbuch", parts)
 
 

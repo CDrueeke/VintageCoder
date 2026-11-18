@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // C128: VDC-Hires-Prototyp (Machbarkeitsstudie fuer den PRALLBALL-Ausbau).
 //
 // Zweck: Zeigen und MESSEN, ob die VDC im Bitmapmodus 640 x 200 fuer ein Breakout-Spiel schnell genug ist.  Kein Spiel, kein Klang, keine Eingabe.

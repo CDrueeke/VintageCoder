@@ -8,7 +8,7 @@ Sie ist eine technische Zusammenstellung, keine Rechtsberatung.
 
 | Inhalt | Herkunft | Lizenz |
 |---|---|---|
-| `examples/atari/music_demo/lib/rmtplayr.asm`, `rmt.inc` sowie `examples/atari/jumprun/lib/rmtplayr.asm`, `rmt.inc` | RMT-Player (Raster Music Tracker 1.28, `rmtplayr.a65`), © Radek Štěrba / Raster / C.P.U. 2002–2009, http://raster.atari.org. In VintageCoder-Syntax übertragen | laut Dateikopf **GPLv3**; der Kopf sagt nicht, ob „nur v3“ oder „v3 oder später“ – die Dateien behalten ihren eigenen Vermerk |
+| `examples/atari/music_demo/lib/rmtplayr.asm`, `rmt.inc` sowie `examples/atari/jumprun/lib/rmtplayr.asm`, `rmt.inc` | RMT-Player (Raster Music Tracker 1.28, `rmtplayr.a65`), © Radek Štěrba / Raster / C.P.U. 2002–2009, http://raster.atari.org. In VintageCoder-Syntax übertragen | Lizenz laut Quell-Repository (VinsCool/RASTER-Music-Tracker, abgerufen 2026-11-18): **GNU GPL v3.0** (nur Version 3, kein „oder später“ vermerkt), SPDX `GPL-3.0-only`; Urheber Radek Štěrba / Raster / C.P.U. 2002–2009. Das Repository nennt sich „Unofficial version by VinsCool“ (Patch 16); unsere Dateien sind aus RMT 1.28 übertragen (siehe Dateikopf), nicht aus dieser Fassung. Die Dateien behalten ihren eigenen Vermerk |
 
 ## 2. Aus fremden Quellen erzeugte Daten
 
@@ -553,7 +553,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 
 ## 4b. Beispiele und Testdaten
 
-- `examples/`: Beispielprojekte des Projekts unter der Lizenz von VintageCoder. In den Beispielen sind keine Urheberhinweise Dritter vermerkt; der einzige bekannte Fremdanteil ist der RMT-Player (Abschnitt 1). Einige Beispiele folgen bekannten Spielprinzipien (zum Beispiel „Prallball“ als Breakout-ähnliches Spiel).
+- `examples/`: Beispielprojekte des Projekts unter der **MIT-0-Lizenz** (Fremdanteile ausgenommen). In den Beispielen sind keine Urheberhinweise Dritter vermerkt; der einzige bekannte Fremdanteil ist der RMT-Player (Abschnitt 1). Einige Beispiele folgen bekannten Spielprinzipien (zum Beispiel „Prallball“ als Breakout-ähnliches Spiel).
 - `crates/vc-emu/tests/data/*.bin`: UDP-Pakete, die der Projektinhaber an einem eigenen Ultimate 64 II aufgezeichnet hat (Firmware 3.14d); sie enthalten keine ROM-Daten.
 - `crates/vc-basic/tests/fixtures/`: kleine BASIC-Quellen mit zugehörigen Tokenproben (`.prg`, `.bin`) für die Tokenizer-Tests; keine ROM-Auszüge (Größen 0,2 bis 0,7 KB).
 - `crates/vc-media/tests/fixtures/atari800-window.png`: Bildschirmfoto eines Fensters des Emulators atari800 (GPL-2.0-or-later) für einen Importtest.

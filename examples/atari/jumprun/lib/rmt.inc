@@ -1,3 +1,5 @@
+; SPDX-License-Identifier: GPL-3.0-only
+; SPDX-FileCopyrightText: 2002-2009 Radek Sterba / Raster / C.P.U.
 ; rmt.inc – Atari 8-Bit: Wiedergabe von RMT-Modulen (Raster Music Tracker) mit dem Original-RMT-Player.
 ;
 ; Der Player (rmtplayr.asm) ist der RMT-Player 1.28 (Radek Sterba / Raster, GPLv3) in der Schreibweise dieses Assemblers;

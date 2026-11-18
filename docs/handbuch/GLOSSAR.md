@@ -98,7 +98,7 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 ## O
 
-**Onion-Skin** – Anzeige des vorigen Frames als blasser Schatten unter dem aktuellen, damit man Bewegungen sauber zeichnet.
+**Onion Skin** – (englisch, wird nicht übersetzt) Anzeige des vorigen Frames als blasser Schatten unter dem aktuellen, damit man Bewegungen sauber zeichnet.
 
 **Opcode** – die Zahl, die einen Prozessorbefehl bezeichnet. Das Listing zeigt sie vor dem Operanden: bei `a9 02` ist `a9` der Opcode von `lda #`.
 

@@ -123,6 +123,7 @@ impl App {
             let mut c = column![row![image(self.logos[2].clone()).height(54), column![text(format!("VintageCoder {}", version())).size(20).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), klein(pal, "Entwicklungsumgebung für Retro-Computer")].spacing(2)].spacing(14).align_y(Alignment::Center),
                 klein(pal, "Assembler, BASIC, Grafik- und Klang-Editoren, Debugger und Emulator-Anbindung für C64, Atari, MEGA65 und weitere Systeme."),
                 text("Alpha-Version: enthält wahrscheinlich noch viele Fehler. Keine Gewährleistung, keine Haftung für Datenverlust (siehe Lizenz).").size(12).color(pal.warn)].spacing(10);
+            c = c.push(klein(pal, vc_ide::license::NOTICE_SHORT));
             c = c.push(karte(pal, vec![row![text("Lizenz").size(12.5).color(pal.mute).width(90), text(LIZENZ).size(13)].into(), row![text("Autor").size(12.5).color(pal.mute).width(90), text("Christian Drüeke").size(13)].into(), 
                 row![text("Dank").size(12.5).color(pal.mute).width(90), text("an die Community „N3rdroom“ (Discord)").size(13)].into(),
                 row![text("Webseite").size(12.5).color(pal.mute).width(90), knopf(pal, WEBSITE, Some(i(InfoAkt::Web(WEBSITE))), pal.accent, false)].spacing(0).into(), row![text("Quelltext").size(12.5).color(pal.mute).width(90), knopf(pal, REPOSITORY, Some(i(InfoAkt::Web(REPOSITORY))), pal.accent, false)].spacing(0).into()]));

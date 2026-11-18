@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Im Bau-Container (Image vc-build-<distro>, tools/docker/): Programme bauen, Linux-Staging erzeugen und Pakete bauen.
 #
 #   tools/linux-build.sh <distro> [ausgabeordner]      distro: debian | ubuntu | fedora | opensuse (Standard Ausgabe: /out)

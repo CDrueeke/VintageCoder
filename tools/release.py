@@ -455,8 +455,61 @@ def print_result(res, verbose=False):
             print("Hinweis: %d Dateien unter data/ gehoeren keiner Zeile und gelten als immer dabei (-v zeigt sie)" % k)
 
 
+def check_spdx_fehler():
+    """Lizenzkennungen (tools/check_spdx.py): jede Textdatei trägt eine SPDX-Zeile oder steht unter einem Ordnervermerk."""
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    try:
+        import check_spdx
+        return check_spdx.pruefe()
+    finally:
+        sys.path.pop(0)
+
+
+EXEC_DIRS = ("installer/", "tools/", "crates/")      # Skripte hier sind ausführbar eingecheckt (100755)
+
+
+def repo_file_issues(rows):
+    """Zeilen von `git ls-files -s --eol`: Mode, Zeilenenden im Index und Pfad. Meldet Skripte (*.sh) ohne Ausführungsrecht in installer/, tools/, crates/
+    und Skripte (*.sh, *.py) mit CRLF im Index (ein CRLF-Checkout bricht sonst "bash\\r" im Linux-Bau)."""
+    out = []
+    for mode, eol, path in rows:
+        if path.endswith(".sh") and path.startswith(EXEC_DIRS) and mode != "100755":
+            out.append("%s: Skript ohne Ausführungsrecht (git update-index --chmod=+x)" % path)
+        if path.endswith((".sh", ".py")) and eol == "i/crlf":
+            out.append("%s: CRLF im Index (.gitattributes: eol=lf; git add --renormalize)" % path)
+    return out
+
+
+def check_repo_files_fehler():
+    """Rechte und Zeilenenden der Skripte laut Git (ohne Git oder außerhalb eines Repositorys: keine Prüfung)."""
+    try:
+        r = subprocess.run(["git", "ls-files", "-s", "--eol"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    except OSError:
+        return []
+    if r.returncode != 0:
+        return []
+    rows = []
+    for line in r.stdout.splitlines():
+        meta, _, path = line.partition("\t")
+        parts = meta.split()
+        if len(parts) >= 5:
+            rows.append((parts[0], parts[3], path))
+    out = repo_file_issues(rows)
+    try:
+        ga = open(os.path.join(ROOT, ".gitattributes"), encoding="utf-8").read()
+    except OSError:
+        ga = ""
+    if "*.sh text eol=lf" not in ga:
+        out.append(".gitattributes: Regel '*.sh text eol=lf' fehlt")
+    return out
+
+
 def cmd_check(args):
     reg, rows, eff, skipped, res = run_check(args)
+    for m in check_spdx_fehler():
+        res.errors.append("SPDX: " + m)
+    for m in check_repo_files_fehler():
+        res.errors.append("Repository: " + m)
     print_result(res, args.verbose)
     n_sel = sum(1 for r in rows if r["checked"])
     print("%d Zeilen in FEATURES.md, %d angehakt, %d Fehler, %d Warnungen" % (len(rows), n_sel, len(res.errors), len(res.warnings)))
@@ -821,7 +874,7 @@ def cmd_stage(args):
             copy_file(p, out, dest_rel=posix_join(doc_sub, p))
     if ide:
         for rel in reg.get("ide_files", []):
-            copy_file(rel, out, dest_rel=posix_join(doc_sub, "licenses/" + os.path.basename(rel)))
+            copy_file(rel, out, dest_rel=posix_join(doc_sub, "LICENSES/" + os.path.basename(rel)))
 
     # 4. release.json
     digest = input_digest(rows, eff, args.registry or os.path.join(ROOT, "release", "registry.json"), args.features)

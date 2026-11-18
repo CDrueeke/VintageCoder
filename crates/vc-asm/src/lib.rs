@@ -3,6 +3,7 @@
 mod cart;
 mod disasm;
 mod expr;
+pub mod license;
 mod parse;
 pub mod tokens;
 mod tree;

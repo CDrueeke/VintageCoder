@@ -140,11 +140,21 @@ class StagedTests(unittest.TestCase):
         files = lp.stage_files(st)
         for f in ("usr/bin/vintagecoder", "usr/share/applications/vintagecoder.desktop", "usr/share/icons/hicolor/512x512/apps/vintagecoder.png",
                   "usr/share/icons/hicolor/16x16/apps/vintagecoder.png", "usr/share/icons/hicolor/scalable/apps/vintagecoder.svg",
-                  "usr/share/man/man1/vintagecoder.1", "usr/share/doc/vintagecoder/licenses/Inter-OFL.txt"):
+                  "usr/share/man/man1/vintagecoder.1", "usr/share/doc/vintagecoder/LICENSES/Inter-OFL.txt"):
             self.assertIn(f, files)
         self.assertNotIn("usr/bin/data", files)
         with open(os.path.join(st, "usr/share/applications/vintagecoder.desktop"), encoding="utf-8") as fh:
             self.assertIn("Exec=vintagecoder %f", fh.read())
+
+    def test_lizenzdateien_im_cli_paket_schriftlizenzen_nur_im_ide_paket(self):
+        st = self.stage("nur-ide-c64-ohne-emulator")
+        comp = lp.split_components(lp.stage_files(st), True)
+        doc = "usr/share/doc/vintagecoder/"
+        for f in ("LICENSE", "LICENSING.md", "LICENSES/MIT-0.txt"):
+            self.assertIn(doc + f, comp["cli"], f)
+        self.assertNotIn(doc + "LICENSES/Inter-OFL.txt", comp["cli"])
+        self.assertIn(doc + "LICENSES/Inter-OFL.txt", comp["ide"])
+        self.assertNotIn(doc + "LICENSES/MIT-0.txt", comp["ide"])
 
     def test_komponenten(self):
         ohne = lp.split_components(lp.stage_files(self.stage("nur-cli-c64")), False)
@@ -200,10 +210,13 @@ class StagedTests(unittest.TestCase):
         self.assertEqual(self.rel("fedora", "cli", [])["depends"], [])             # rpm findet die Bibliotheken selbst
 
     def test_anbindungen_nur_mit_auswahl(self):
-        self.assertEqual(self.rel("debian", "cli", ["vice", "atari800"])["recommends"], ["vice", "atari800"])
-        self.assertEqual(self.rel("debian", "cli", ["atari800"])["recommends"], ["atari800"])
-        self.assertEqual(self.rel("debian", "cli", ["altirra", "xemu", "ultimate"])["recommends"], [])      # keine Distributionspakete
-        self.assertEqual(self.rel("debian", "cli", [])["recommends"], [])
+        # Debian 13: vice und atari800 liegen nur in contrib, Ubuntu 24.04 nur in multiverse (beide nicht im Standard aktiv): nur „Suggests“
+        for d in ("debian", "ubuntu"):
+            r = self.rel(d, "cli", ["vice", "atari800"])
+            self.assertEqual((r["recommends"], r["suggests"]), ([], ["vice", "atari800"]), d)
+            self.assertEqual(self.rel(d, "cli", ["atari800"])["suggests"], ["atari800"], d)
+        self.assertEqual(self.rel("debian", "cli", ["altirra", "xemu", "ultimate"])["suggests"], [])      # keine Distributionspakete
+        self.assertEqual(self.rel("debian", "cli", [])["suggests"], [])
         f = self.rel("fedora", "cli", ["vice", "atari800"])
         self.assertEqual((f["recommends"], f["suggests"]), (["atari800"], ["vice"]))
         o = self.rel("opensuse", "cli", ["vice", "atari800"])
@@ -229,9 +242,9 @@ class StagedTests(unittest.TestCase):
         self.assertIn("atari800", links)
         self.assertNotIn("vice", links)
         r = self.rel("debian", "cli", links)
-        self.assertEqual(r["recommends"], ["atari800"])
+        self.assertEqual(r["suggests"], ["atari800"])
         links = lp.read_selection(self.stage("nur-ide-c64-ohne-emulator"))[1]
-        self.assertEqual(self.rel("debian", "cli", links)["recommends"], [])
+        self.assertEqual(self.rel("debian", "cli", links)["suggests"], [])
 
     # --- control und spec
 
@@ -240,9 +253,9 @@ class StagedTests(unittest.TestCase):
         c = lp.render_control(self.cfg, "cli", "0.1.0", "amd64", rel, 1234)
         lines = c.splitlines()
         self.assertEqual(lines[0], "Package: vintagecoder-cli")
-        for want in ("Version: 0.1.0", "Architecture: amd64", "Installed-Size: 1234", "Depends: libc6", "Recommends: atari800"):
+        for want in ("Version: 0.1.0", "Architecture: amd64", "Installed-Size: 1234", "Depends: libc6", "Suggests: atari800"):
             self.assertIn(want, lines)
-        self.assertFalse([l for l in lines if l.startswith("Suggests")])
+        self.assertFalse([l for l in lines if l.startswith("Recommends")])
         self.assertTrue(c.endswith("\n"))
         i = [n for n, l in enumerate(lines) if l.startswith("Description: ")][0]
         self.assertTrue(all(l.startswith(" ") for l in lines[i + 1:]))

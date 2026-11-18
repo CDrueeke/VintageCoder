@@ -16,7 +16,7 @@ Hast du kein Mailprogramm eingerichtet (etwa nur ein Webmail), nimm **In Zwische
 
 Im Betreff: Version, Commit des Baus, Betriebssystem mit Version und Architektur sowie die Installationsart. Beispiel:
 
-`VintageCoder 0.2.0 (Commit abc1234) · macOS 27.2 arm64 · Paket: macOS-Programmpaket`
+`VintageCoder 0.2.1 (Commit abc1234) · macOS 27.2 arm64 · Paket: macOS-Programmpaket`
 
 Im Text unter **Angaben zur Installation**: Version, Commit, System, Installationsart (Windows-Installer, macOS-Programmpaket, Linux-Paket, Quellbau oder unbekannt), Installationsordner, Datenordner, Konfigurationsordner, das Zielsystem des offenen Projekts und die Release-Auswahl dieser Installation (welche Studios, Anbindungen und Zielsysteme enthalten sind).
 

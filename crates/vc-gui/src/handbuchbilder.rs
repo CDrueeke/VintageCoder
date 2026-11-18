@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Bilder für Handbuch und Hilfe aus der neuen Oberfläche (wird in `mod tests` eingebunden).
 // `cargo test -p vc-gui handbuch_bilder -- --ignored` schreibt nach `build/handbuch/<kennung>.png` (dunkel, 1600×1007, Beispielprojekt „Hugo & Gumbo“
 // oder ein anderes Beispiel, ohne Marken); nur Auswahl: `VC_ZUSTAENDE=editor-suchen,asm-fehler`. Nichts Persönliches: neutraler Projektordner und

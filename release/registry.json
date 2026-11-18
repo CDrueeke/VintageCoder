@@ -181,8 +181,8 @@
   ],
   "never": ["data/sys/vcs2600/**"],
 
-  "root_files": ["LICENSE", "THIRD-PARTY-NOTICES.md", "README.md"],
-  "root_dirs": ["docs", "editors"],
+  "root_files": ["LICENSE", "LICENSING.md", "THIRD-PARTY-NOTICES.md", "README.md"],
+  "root_dirs": ["docs", "editors", "LICENSES"],
   "ide_files": ["crates/vc-gui-ui/assets/fonts/Inter-OFL.txt", "crates/vc-gui-ui/assets/fonts/JetBrainsMono-OFL.txt"],
 
   "examples_ignore": ["examples/c64/lib/**"],

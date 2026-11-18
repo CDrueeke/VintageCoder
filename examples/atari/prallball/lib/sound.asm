@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang Atari 8 Bit (PRALLBALL): Effekte auf POKEY-Kanal 4, Titelmusik auf allen vier Kanälen.
 // Einbinden: .include "lib/sound.asm"   (setzt POKEY-Register aus <atari8bit/pokey.asm> voraus; hier mit eigenen Namen, damit die Datei allein steht)
 //

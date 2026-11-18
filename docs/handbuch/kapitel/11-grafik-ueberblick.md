@@ -45,7 +45,7 @@ Alles, was nicht Programmtext ist, nennen wir **Assets** (englisch für „Best�
 Sprite-, Zeichensatz-, Bildschirm- und Kachel-Editor sehen sich bewusst ähnlich. Wenn du einen kennst, findest du dich in den anderen zurecht:
 
 1. **Kopfzeile:** ein kleines Kürzel für die Art (zum Beispiel SPR, CHR, SCR, PAL), der Dateiname (ein Punkt dahinter bedeutet „ungespeicherte Änderungen“), die Maße und rechts die Knöpfe **Exportieren …** und **Speichern**. Im Sprite- und Zeichensatz-Editor kommt **PNG laden …** dazu.
-2. **Werkzeugleiste:** eine Reihe mit Zeichenwerkzeugen, Rückgängig und Wiederholen, Transformieren, Zoom sowie **Raster** und **Zwiebel**. Was nicht in die Reihe passt, steht im Menü **⋯**.
+2. **Werkzeugleiste:** eine Reihe mit Zeichenwerkzeugen, Rückgängig und Wiederholen, Transformieren, Zoom sowie **Raster** und **Onion Skin**. Was nicht in die Reihe passt, steht im Menü **⋯**.
 3. **Links** die Liste (Frames, Zeichen oder Kacheln), **in der Mitte** die Zeichenfläche, **rechts** die Seitenspalte aus Karten mit Pixelwerten, Farben und Eigenschaften.
 4. **Fußzeile:** Zellposition, Zoom und Meldungen, rechts der Hinweis **? Tasten** mit den Einzeltasten des Studios.
 

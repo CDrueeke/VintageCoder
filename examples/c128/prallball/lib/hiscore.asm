@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Bestenliste C128 (PRALLBALL). Einbinden: .include "lib/hiscore.asm"
 // Datei "PRALL.HS" (127 Byte): "PRBL", Version 1, 10 x (8 Zeichen + 3 Byte Punkte lo/mid/hi + 1 Byte Level), CRC-16.
 // Zugriff über KERNAL (Diskette, Gerät, von dem das Programm gestartet wurde ($BA, sonst 8)). Ergebnis in A (HS_*), Z=1 bei HS_OK.

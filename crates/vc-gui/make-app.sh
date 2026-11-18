@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Stufe 1: baut ein macOS-.app der neuen Oberflaeche (Dev-Stand, nicht der Release-Installer) (ohne Installer, ad hoc signiert). Ausgabe: build/gui/VintageCoder.app
 set -e
 cd "$(dirname "$0")/../.."
@@ -16,7 +17,7 @@ cat > "$APP/Contents/Info.plist" <<'P'
 <key>CFBundleIdentifier</key><string>de.drueeke.vintagecoder.neu</string>
 <key>CFBundleIconFile</key><string>VintageCoder</string>
 <key>CFBundleExecutable</key><string>vintagecoder</string>
-<key>CFBundleVersion</key><string>0.0.0</string><key>CFBundleShortVersionString</key><string>0.2.0-dev</string>
+<key>CFBundleVersion</key><string>0.0.0</string><key>CFBundleShortVersionString</key><string>0.2.1-dev</string>
 <key>CFBundlePackageType</key><string>APPL</string><key>NSHighResolutionCapable</key><true/>
 </dict></plist>
 P

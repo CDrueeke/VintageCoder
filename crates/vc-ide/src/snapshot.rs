@@ -222,7 +222,7 @@ mod tests {
         fn cpu(&mut self, a: u16, n: usize) -> Result<Vec<u8>, String> { Ok((0..n).map(|i| { let x = a as usize + i; if self.cpu_io && (0xD000..0xE000).contains(&x) { self.io[x - 0xD000] } else { self.ram[x] } }).collect()) }
         fn ram(&mut self, a: u16, n: usize) -> Result<Vec<u8>, String> { Ok(self.ram[a as usize..a as usize + n].to_vec()) }
         fn io(&mut self, a: u16, n: usize) -> Result<Vec<u8>, String> { Ok(self.io[a as usize - 0xD000..a as usize - 0xD000 + n].to_vec()) }
-        fn chargen(&mut self, o: u16, n: usize) -> Result<Vec<u8>, String> { Ok(vec![0xAA; n + o as usize * 0]) }
+        fn chargen(&mut self, _o: u16, n: usize) -> Result<Vec<u8>, String> { Ok(vec![0xAA; n]) }
     }
     fn profiles() -> Vec<Profile> { vc_media::load_profiles(&PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data")).unwrap() }
 

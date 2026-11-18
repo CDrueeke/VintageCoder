@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang MEGA65 (PRALLBALL): vier SID-Chips.  Einbinden: .include "lib/sound.asm"
 //   SID 1 ($D400)  Musik wie am C64 (Melodie, Bass, Schlagzeug)
 //   SID 2 ($D420)  Chor: dieselbe Musik, etwas verstimmt (+0,6 %): klingt breiter und lebendiger (vermutlich liegen SID 1 und SID 2 auf dem MEGA65 auf verschiedenen Stereoseiten; in data/chips nicht belegt)

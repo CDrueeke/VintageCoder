@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang PET (PRALLBALL). Einbinden: .include "lib/sound.asm"
 // Der PET hat keinen Klangchip.  Er hat nur einen Ton ueber das Schieberegister der VIA (Leitung CB2): Zeitgeber 2 gibt den Schiebetakt vor
 // (Tonhoehe), das Schieberegister ein Bitmuster (Klangfarbe), die Hilfssteuerung ($E84B) schaltet es ein ($10) und aus ($00).  Einstimmig, nur Pieptoene.

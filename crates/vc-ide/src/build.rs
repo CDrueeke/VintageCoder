@@ -129,6 +129,18 @@ pub fn build_with(c: &Ctx, rel: &str, target: Option<&str>, dialect: Option<&str
                     if let Some(r) = out.run { log.line(format!("Startadresse: ${r:04X}")); }
                     for b in &out.cycles { log.line(format!("Zyklen „{}“: {}–{}{}", b.name, b.min, b.max, b.budget.map(|x| format!(" (Budget {x})")).unwrap_or_default())); }
                     for w in &out.warnings { log.line(diag_line(c.root, w)); }
+                    // Lizenzen der eingebundenen Quelltexte: Hinweis bei Copyleft (kein Fehler), Sperre aus der Projektdatei oder von `--deny-license`
+                    let licenses = vc_asm::license::scan(&out.sources);
+                    let unlicensed = out.sources.len() - licenses.len();
+                    let (policy, show) = (crate::license::policy_for(c.root), |f: &str| crate::license::show_path(c.root, c.data, f));
+                    let bans = crate::license::denied(&licenses, &policy, &show);
+                    if !bans.is_empty() {
+                        log.done(Status::Ok);
+                        let diags: Vec<Diagnostic> = bans.iter().map(|m| Diagnostic::error("L002", &abs, 0, m.clone())).collect();
+                        return Ok(fail(c.root, rel, &tid, &diags, log));
+                    }
+                    let license_notes = crate::license::copyleft_notes(&licenses, &policy, &show);
+                    for n in &license_notes { log.line(format!("Hinweis (L001): {n}")); }
                     log.done(if out.warnings.is_empty() { Status::Ok } else { Status::Warn });
                     // `.cartridge` im Quelltext → Modulformat (crt für C64, car für Atari)
                     log.stage("Ausgabe schreiben");
@@ -165,7 +177,9 @@ pub fn build_with(c: &Ctx, rel: &str, target: Option<&str>, dialect: Option<&str
                     let symbols: Vec<Value> = out.symbols.iter().take(500).map(|(n, v)| json!({ "name": n, "value": v })).collect();
                     Ok(json!({
                         "ok": true, "file": rel, "target": tid, "kind": "asm", "artifact": format!("build/{stem}.{ext}"), "size": bytes.len(),
-                        "diagnostics": out.warnings.iter().map(|d| diag_json(c.root, d)).chain(media_diags.iter().cloned()).collect::<Vec<_>>(),
+                        "diagnostics": out.warnings.iter().map(|d| diag_json(c.root, d)).chain(media_diags.iter().cloned())
+                            .chain(license_notes.iter().map(|n| json!({ "file": rel, "line": 0, "severity": "info", "code": "L001", "message": format!("Hinweis (L001): {n}") }))).collect::<Vec<_>>(),
+                        "licenses": licenses.iter().map(|e| crate::license::entry_json(e, &show)).collect::<Vec<_>>(), "unlicensed": unlicensed,
                         "export": exported,
                         "segments": out.segments.iter().map(|s| json!({ "start": s.start, "length": s.bytes.len() })).collect::<Vec<_>>(),
                         "symbols": symbols,

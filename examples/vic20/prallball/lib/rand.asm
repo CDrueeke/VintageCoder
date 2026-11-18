@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Zufall VC-20: 16-Bit-Galois-LFSR (PRALLBALL). Einbinden: .include "lib/rand.asm"
 //   rand_seed   A = Startwert (0 wird zu $A5), mischt die Rasterzeile des VIC-I ($9004) ein
 //   rand_byte   A = nächste Zufallszahl 0..255 (verändert nur A)

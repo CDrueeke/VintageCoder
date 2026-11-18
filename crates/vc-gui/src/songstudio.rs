@@ -58,7 +58,7 @@ impl<'a> Raster<'a> {
         match ins { Some(i) => format!("Kanal {} · {}", c + 1, self.d.instrument_name(i)), None => format!("Kanal {}", c + 1) }
     }
     fn zelle_bei(&self, p: iced::Point) -> Option<(usize, usize)> {
-        let (x, y) = (p.x - NB, p.y - KOPF); if x < 0.0 || y < 0.0 { return None }
+        let (x, y) = (p.x - NB, p.y); if x < 0.0 || y < 0.0 { return None }
         let (pos, r) = ((x / self.kb) as usize, (y / ZH) as usize); let c = *self.sichtbar.get(pos)?; (r < self.d.zeilen()).then_some((r, c))
     }
 }
@@ -81,7 +81,7 @@ impl<'a> canvas::Program<Msg> for Raster<'a> {
         let txt = |f: &mut canvas::Frame, s: String, x: f32, y: f32, farbe: Color, ausrichtung: iced::alignment::Horizontal, font: iced::Font| f.fill_text(canvas::Text { content: s, position: iced::Point::new(x, y), color: farbe, size: iced::Pixels(13.0), font, align_x: ausrichtung.into(), align_y: iced::alignment::Vertical::Center, ..Default::default() });
         let zeilennr = |rr: usize| format!("{rr:02}");
         for rr in 0..d.zeilen() {
-            let y = KOPF + rr as f32 * ZH;
+            let y = rr as f32 * ZH;
             // Zeilenband über die ganze Breite: Taktband alle vier Zeilen, Cursorzeile leicht in Akzent, gespielte Zeile kräftiger
             if rr % 4 == 0 { f.fill_rectangle(iced::Point::new(0.0, y), iced::Size::new(breite, ZH), pal.panel2) }
             if d.cursor.0 == rr { f.fill_rectangle(iced::Point::new(0.0, y), iced::Size::new(breite, ZH), Color { a: 0.14, ..pal.accent }) }
@@ -100,20 +100,36 @@ impl<'a> canvas::Program<Msg> for Raster<'a> {
                 if pos > 0 { f.stroke(&canvas::Path::line(iced::Point::new(x, y), iced::Point::new(x, y + ZH)), canvas::Stroke::default().with_color(pal.line).with_width(1.0)) }
             }
         }
-        // Kanalköpfe und Zeilennummern bleiben beim Scrollen am Rand sichtbar (kleben an der oberen und linken Kante des sichtbaren Ausschnitts)
-        let (vx, vy) = self.versatz; let hintergrund = Color { a: 1.0, ..pal.editor };
-        f.fill_rectangle(iced::Point::new(vx, vy), iced::Size::new(b.width.max(breite), KOPF), hintergrund);
-        for (pos, &c) in self.sichtbar.iter().enumerate() { txt(&mut f, self.kanal_kopf(c), NB + pos as f32 * kb + kb / 2.0, vy + KOPF / 2.0, pal.mute, iced::alignment::Horizontal::Center, vc_gui_ui::fonts::UI) }
-        f.stroke(&canvas::Path::line(iced::Point::new(vx, vy + KOPF), iced::Point::new(vx + b.width.max(breite), vy + KOPF)), canvas::Stroke::default().with_color(pal.line).with_width(1.0));
+        // Zeilennummern bleiben beim waagerechten Scrollen am linken Rand sichtbar (kleben an der linken Kante des sichtbaren Ausschnitts).
+        // Die Kanalköpfe stehen nicht hier, sondern in einer eigenen Kopfzeile über dem Raster (`Kopfzeile`): im Raster selbst hinge ihre Lage am gemerkten Scrollwert und
+        // hinkte beim Mitscrollen einen Takt hinterher, sodass kurz eine Rasterzeile über den Köpfen stand.
+        let (vx, hintergrund) = (self.versatz.0, Color { a: 1.0, ..pal.editor });
         if vx > 0.5 {
-            f.fill_rectangle(iced::Point::new(vx, vy + KOPF), iced::Size::new(NB, b.height.max(KOPF + ZH * d.zeilen() as f32)), hintergrund);
-            for rr in 0..d.zeilen() { let y = KOPF + rr as f32 * ZH; txt(&mut f, zeilennr(rr), vx + NB - 6.0, y + ZH / 2.0, if rr % 4 == 0 { pal.mute } else { Color { a: 0.6, ..pal.mute } }, iced::alignment::Horizontal::Right, mono) }
-            f.fill_rectangle(iced::Point::new(vx, vy), iced::Size::new(NB, KOPF), hintergrund);
-            f.stroke(&canvas::Path::line(iced::Point::new(vx + NB, vy), iced::Point::new(vx + NB, vy + b.height.max(breite))), canvas::Stroke::default().with_color(pal.line).with_width(1.0));
+            f.fill_rectangle(iced::Point::new(vx, 0.0), iced::Size::new(NB, b.height.max(ZH * d.zeilen() as f32)), hintergrund);
+            for rr in 0..d.zeilen() { let y = rr as f32 * ZH; txt(&mut f, zeilennr(rr), vx + NB - 6.0, y + ZH / 2.0, if rr % 4 == 0 { pal.mute } else { Color { a: 0.6, ..pal.mute } }, iced::alignment::Horizontal::Right, mono) }
+            f.stroke(&canvas::Path::line(iced::Point::new(vx + NB, 0.0), iced::Point::new(vx + NB, b.height.max(breite))), canvas::Stroke::default().with_color(pal.line).with_width(1.0));
         }
         vec![f.into_geometry()]
     }
     fn mouse_interaction(&self, _st: &bool, _b: iced::Rectangle, _c: iced::mouse::Cursor) -> iced::mouse::Interaction { iced::mouse::Interaction::Crosshair }
+}
+
+/// Kanalköpfe über dem Raster: feststehend (scrollt nicht senkrecht mit), nur die waagerechte Lage folgt dem Raster
+struct Kopfzeile<'a> { d: &'a SongDoc, pal: Pal, kb: f32, sichtbar: Vec<usize>, vx: f32 }
+impl<'a> canvas::Program<Msg> for Kopfzeile<'a> {
+    type State = ();
+    fn draw(&self, _st: &(), r: &iced::Renderer, _t: &Theme, b: iced::Rectangle, _c: iced::mouse::Cursor) -> Vec<canvas::Geometry> {
+        let mut f = canvas::Frame::new(r, b.size());
+        let (pal, kb) = (self.pal, self.kb);
+        let helper = Raster { d: self.d, pal, rel: String::new(), spiel: None, versatz: (0.0, 0.0), kb, breite: b.width, sichtbar: self.sichtbar.clone() };
+        f.fill_rectangle(iced::Point::ORIGIN, b.size(), Color { a: 1.0, ..pal.editor });
+        for (pos, &c) in self.sichtbar.iter().enumerate() {
+            f.fill_text(canvas::Text { content: helper.kanal_kopf(c), position: iced::Point::new(NB + pos as f32 * kb + kb / 2.0 - self.vx, KOPF / 2.0), color: pal.mute, size: iced::Pixels(13.0), font: vc_gui_ui::fonts::UI, align_x: iced::alignment::Horizontal::Center.into(), align_y: iced::alignment::Vertical::Center, ..Default::default() });
+        }
+        f.fill_rectangle(iced::Point::ORIGIN, iced::Size::new(NB, KOPF), Color { a: 1.0, ..pal.editor });
+        f.stroke(&canvas::Path::line(iced::Point::new(0.0, KOPF - 0.5), iced::Point::new(b.width, KOPF - 0.5)), canvas::Stroke::default().with_color(pal.line).with_width(1.0));
+        vec![f.into_geometry()]
+    }
 }
 
 pub const RASTER_ID: &str = "song-raster";
@@ -132,10 +148,10 @@ impl App {
     pub(crate) fn song_nachfuehren(&mut self) -> Task<Msg> {
         let Some(rel) = self.name().filter(|n| self.songs.contains_key(n)) else { return Task::none() };
         let Some(s) = self.songs.get_mut(&rel) else { return Task::none() }; let (ox, oy, w, h) = s.ansicht; if w < 1.0 || h < 1.0 { return Task::none() }
-        let (r, c) = s.doc.cursor; let c = s.sichtbar().iter().position(|x| *x == c).unwrap_or(0); let kb = s.kb.get(); let (x0, x1) = (NB + c as f32 * kb, NB + (c + 1) as f32 * kb); let (y0, y1) = (KOPF + r as f32 * ZH, KOPF + (r + 1) as f32 * ZH);
-        // die klebenden Ränder (Zeilennummern links, Kanalköpfe oben) verdecken Zellen: sichtbar ist der Bereich dahinter
+        let (r, c) = s.doc.cursor; let c = s.sichtbar().iter().position(|x| *x == c).unwrap_or(0); let kb = s.kb.get(); let (x0, x1) = (NB + c as f32 * kb, NB + (c + 1) as f32 * kb); let (y0, y1) = (r as f32 * ZH, (r + 1) as f32 * ZH);
+        // der klebende Rand (Zeilennummern links) verdeckt Zellen: sichtbar ist der Bereich dahinter; die Kanalköpfe stehen außerhalb des Rasters
         let nx = if x0 < ox + NB { Some((x0 - NB).max(0.0)) } else if x1 > ox + w { Some(x1 - w) } else { None };
-        let ny = if y0 < oy + KOPF { Some((y0 - KOPF).max(0.0)) } else if y1 > oy + h { Some(y1 - h) } else { None };
+        let ny = if y0 < oy { Some(y0.max(0.0)) } else if y1 > oy + h { Some(y1 - h) } else { None };
         if nx.is_none() && ny.is_none() { return Task::none() }
         if let Some(x) = nx { s.ansicht.0 = x } if let Some(y) = ny { s.ansicht.1 = y }
         iced::widget::operation::scroll_to(iced::widget::Id::new(RASTER_ID), iced::widget::scrollable::AbsoluteOffset { x: nx, y: ny })
@@ -363,7 +379,7 @@ impl App {
                 if s.live_stand == 0 { s.live_stand = stand } else if stand != s.live_stand { s.live_stand = stand; self.audio.aktualisieren(s.doc.song_daten(s.spiel_muster.is_some())) }
                 // W2: das Raster scrollt senkrecht mit, die gespielte Zeile möglichst mittig, an den Mustergrenzen nie über den Rand
                 if s.mitlaufen && s.modus == SongModus::Noten && s.ansicht.3 > 1.0 && s.spiel.is_some_and(|(oo, _)| s.spiel_muster.is_some() || s.doc.reihenfolge().get(oo) == Some(&s.doc.muster)) {
-                    let (h, gesamt) = (s.ansicht.3, KOPF + ZH * s.doc.zeilen() as f32); let ziel = (KOPF + z as f32 * ZH + ZH / 2.0 - h / 2.0).clamp(0.0, (gesamt - h).max(0.0));
+                    let (h, gesamt) = (s.ansicht.3, ZH * s.doc.zeilen() as f32); let ziel = (z as f32 * ZH + ZH / 2.0 - h / 2.0).clamp(0.0, (gesamt - h).max(0.0));
                     if (ziel - s.ansicht.1).abs() > 1.0 { s.scroll_ziel = Some(ziel); s.ansicht.1 = ziel; task = iced::widget::operation::scroll_to(iced::widget::Id::new(RASTER_ID), iced::widget::scrollable::AbsoluteOffset { x: None, y: Some(ziel) }) }
                 }
             } else { s.live_stand = 0 }
@@ -420,8 +436,11 @@ impl App {
         let verfuegbar = (breite - match klasse { muster::Klasse::Breit => 150.0 + 2.0 * abstand::GRUPPE + muster::SEITE_BREITE, muster::Klasse::Mittel => muster::SEITE_BREITE, muster::Klasse::Schmal => 0.0 } - 2.0 * abstand::GRUPPE - 14.0).max(NB + 60.0);
         let sichtbar = s.sichtbar(); let nk = sichtbar.len().max(1);
         let kb = ((verfuegbar - NB) / nk as f32).floor().clamp(if nk > 6 { 84.0 } else { 112.0 }, 200.0); s.kb.set(kb);
-        let bw = (NB + kb * nk as f32).max(verfuegbar); let bh = KOPF + ZH * d.zeilen() as f32;
-        let raster = scrollable(canvas::Canvas::new(Raster { d, pal, rel: rel.to_string(), versatz: (s.ansicht.0, s.ansicht.1), kb, breite: bw, sichtbar: sichtbar.clone(), spiel: s.spiel.filter(|(o, _)| match s.spiel_muster { Some(m) => m == d.muster, None => ord.get(*o) == Some(&d.muster) }).map(|(_, z)| z) }).width(bw).height(bh)).id(iced::widget::Id::new(RASTER_ID)).on_scroll({ let rel = rel.to_string(); move |v| { let (o, b) = (v.absolute_offset(), v.bounds()); Msg::SongScroll(rel.clone(), o.x, o.y, b.width, b.height) } }).direction(iced::widget::scrollable::Direction::Both { vertical: Default::default(), horizontal: Default::default() }).width(Length::Fill).height(Length::Fill);
+        let bw = (NB + kb * nk as f32).max(verfuegbar); let bh = ZH * d.zeilen() as f32;
+        let raster_flaeche = scrollable(canvas::Canvas::new(Raster { d, pal, rel: rel.to_string(), versatz: (s.ansicht.0, s.ansicht.1), kb, breite: bw, sichtbar: sichtbar.clone(), spiel: s.spiel.filter(|(o, _)| match s.spiel_muster { Some(m) => m == d.muster, None => ord.get(*o) == Some(&d.muster) }).map(|(_, z)| z) }).width(bw).height(bh)).id(iced::widget::Id::new(RASTER_ID)).on_scroll({ let rel = rel.to_string(); move |v| { let (o, b) = (v.absolute_offset(), v.bounds()); Msg::SongScroll(rel.clone(), o.x, o.y, b.width, b.height) } }).direction(iced::widget::scrollable::Direction::Both { vertical: Default::default(), horizontal: Default::default() }).width(Length::Fill).height(Length::Fill);
+        // Kanalköpfe feststehend über dem Raster (waagerecht folgen sie dessen Scrollwert)
+        let kopfzeile = canvas::Canvas::new(Kopfzeile { d, pal, kb, sichtbar: sichtbar.clone(), vx: s.ansicht.0 }).width(Length::Fill).height(KOPF);
+        let raster = iced::widget::column![kopfzeile, raster_flaeche];
         // ---- Zone 3 (Noten, Ablauf): Muster als Karten, „+“ im Kopf
         let muster_liste: Element<Msg> = { let mut l = iced::widget::column![iced::widget::row![kopf(&format!("Muster · {}", d.anzahl_muster())), space::horizontal(), muster::knopf(pal, "+", "Leeres Muster anlegen", Some(Msg::SongAkt(r.clone(), GAkt::MusterNeu)), false, false)].align_y(Alignment::Center)].spacing(abstand::GRUPPE);
             for p in 0..d.anzahl_muster() { let an = d.muster == p; let n = ord.iter().filter(|&&q| q == p).count();

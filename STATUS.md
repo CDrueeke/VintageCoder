@@ -1,6 +1,6 @@
 # VintageCoder: Entwicklungsstand
 
-Stand: 2026-11-17 · Version im Quelltext: 0.2.0 (Alpha, noch nicht veröffentlicht; veröffentlicht ist 0.1.0). Sie bringt die **neue Oberfläche** (`vc-gui`, Iced); ihr Release-Umfang steht in `FEATURES.md`. Der Abschnitt „Stand der Version 0.1.0“ beschreibt den früheren Paketstand.
+Stand: 2026-11-17 · Version im Quelltext: 0.2.1 (Alpha, noch nicht veröffentlicht; veröffentlicht ist 0.2.0). Sie bringt die **neue Oberfläche** (`vc-gui`, Iced); ihr Release-Umfang steht in `FEATURES.md`. Der Abschnitt „Stand der Version 0.1.0“ beschreibt den früheren Paketstand.
 
 Was in ein Release kommt, wird **nur in `FEATURES.md`** angehakt. Diese Datei hat keine Häkchen: sie führt die Stände der wählbaren und der festen Bestandteile, die Release-Kriterien und die bekannten Lücken. Die Versionsnummer vergibt ausschließlich der Projektinhaber; Änderungen folgen dem Entwicklungsstand (`CHANGELOG.md`, Abschnitt „Unveröffentlicht“).
 

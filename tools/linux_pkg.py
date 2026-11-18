@@ -10,6 +10,8 @@ import gzip, hashlib, io, json, os, re, shutil, subprocess, sys, tarfile, tempfi
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SHARE = "usr/share/vintagecoder"
 DOC = "usr/share/doc/vintagecoder"
+# Schriftlizenzen der Oberfläche (liegen mit MIT-0.txt zusammen in LICENSES/; nur diese gehören zum IDE-Paket)
+IDE_LICENSE_FILES = (DOC + "/LICENSES/Inter-OFL.txt", DOC + "/LICENSES/JetBrainsMono-OFL.txt")
 DISTROS = ["debian", "ubuntu", "fedora", "opensuse"]
 FORMATS = ["deb", "rpm", "tar"]
 REPRODUCIBLE_EPOCH = 1767225600          # 2026-01-01T00:00:00Z fuer --reproducible
@@ -135,7 +137,7 @@ def stage_files(stage):
 def is_ide_file(rel):
     """Gehoert die Datei zum Paket 'vintagecoder' (IDE) statt zu 'vintagecoder-cli'?"""
     return (rel == "usr/bin/vintagecoder" or rel == "usr/share/man/man1/vintagecoder.1"
-            or rel.startswith(("usr/share/applications/", "usr/share/icons/", DOC + "/licenses/")))
+            or rel.startswith(("usr/share/applications/", "usr/share/icons/")) or rel in IDE_LICENSE_FILES)
 
 
 def split_components(files, ide):

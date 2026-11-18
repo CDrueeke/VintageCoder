@@ -6,6 +6,28 @@ der Projektinhaber fest. Änderungen für die nächste Version stehen unter „U
 
 ## Unveröffentlicht
 
+## 0.2.1 (Alpha)
+
+0.2.1 stellt die Lizenz klar und behebt Fehler aus den Prüfungen von 0.2.0.
+
+### Lizenz
+- **Frei nutzbar:** Alle mit VintageCoder erzeugten Dateien (Programme, Quelltexte, Abbilder, Projekt- und Assetdateien) sind frei nutzbar; die Syntax des VCASM und die Dateiformate sind frei; `vcc` und `vc-lsp` dürfen von beliebiger Software aufgerufen werden. Die Erklärung steht in `LICENSING.md`.
+- **MIT-0** für die Systemdateien (`data/sys`), die Vorlagen und die Beispiele (ohne Pflicht zum Urheberhinweis). Der RMT-Player in den Atari-Beispielen bleibt unter GPL v3 (Radek Štěrba / Raster / C.P.U.).
+- **Lizenzhinweis beim Übersetzen** (L001, kein Fehler), `vcc build --license-report` (Bericht `build/LICENSES.txt`, auch `--json`), `--deny-license` und `licenses.deny`/`allow` in der Projektdatei; `vcc --license`; `LICENSING.md` und `LICENSES/` liegen in den Paketen.
+
+### Fehlerkorrekturen
+- Emulator beendet sich sofort: Meldung mit den letzten Ausgabezeilen und Hinweis auf Einstellungen ▸ ROMs.
+- Esc schließt Einrichtungsassistent und Befehlsleiste.
+- Linux: Anwendungskennung `vintagecoder` (Dock-Symbol).
+- `VC_WIN` gilt wieder; Tracker: Kanalköpfe stehen fest; Editor: keine halbe letzte Zeile über der Schublade.
+
+### Geändert
+- „Onion Skin“ bleibt englisch (Programm, Hilfe, Handbuch, Glossar).
+- Handbuch „Installation“ aktualisiert; Debian-/Ubuntu-Pakete: `vice` und `atari800` nur noch „Suggests“.
+
+### Bekannte Einschränkungen
+- Weiterhin Alpha. Unter Wayland entscheidet der Fenstermanager über die Anfangsgröße. Ton unter Linux nicht geprüft.
+
 ## 0.2.0 (Alpha)
 
 Die größte Änderung ist die neue Oberfläche: Sie ist neu aufgebaut, zeigt sich in sechs festen Bereichen und lässt sich vollständig mit Tastatur und Befehlspalette bedienen. Assembler, BASIC und Kommandozeile bleiben im Kern, wie sie sind. VintageCoder ist weiter in Entwicklung und enthält mit Sicherheit noch Fehler; Stände und Einschränkungen stehen in STATUS.md.

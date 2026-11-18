@@ -1,6 +1,6 @@
 # Über VintageCoder
 
-Die Seite **Über VintageCoder** zeigt Name und Versionsnummer, die Lizenz (GPL-3.0-or-later), den Autor, den Dank an die Community „N3rdroom“ (Discord), den Hinweis „Alpha-Version“, den Link zur Projektseite und die Drittanbieter-Hinweise (`THIRD-PARTY-NOTICES`).
+Die Seite **Über VintageCoder** zeigt Name und Versionsnummer, die Lizenz (GPL-3.0-or-later; dazu ein kurzer Hinweis, dass deine Ausgaben frei nutzbar sind, siehe [Lizenz und freie Nutzung](help:license)), den Autor, den Dank an die Community „N3rdroom“ (Discord), den Hinweis „Alpha-Version“, den Link zur Projektseite und die Drittanbieter-Hinweise (`THIRD-PARTY-NOTICES`).
 
 Aufruf:
 

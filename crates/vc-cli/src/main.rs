@@ -38,6 +38,7 @@ fn main() -> ExitCode {
     if vc_ide::debuglog::init(false) { vc_ide::debuglog::install_panic_hook(); vc_ide::debuglog::log("aufruf", &format!("vcc {}", args.join(" "))); }
     match args.first().map(String::as_str) {
         Some("--version") | Some("-V") | Some("version") => { println!("vcc {}", env!("CARGO_PKG_VERSION")); ExitCode::SUCCESS }
+        Some("--license") => { println!("{}", vc_ide::license::NOTICE_SHORT); ExitCode::SUCCESS }
         Some("asm") => asm(&args[1..]),
         Some("dis") => dis(&args[1..]),
         Some("inc") => inc(&args[1..]),
@@ -916,10 +917,19 @@ fn confirm_hardware(label: &str, yes: bool) -> Result<(), String> {
 
 fn build_cmd(args: &[String]) -> ExitCode {
     let (mut path, mut only_main, mut data_dir) = (None, false, None);
+    let (mut report, mut json, mut deny) = (false, false, vec![]);
     let mut it = args.iter();
     while let Some(a) = it.next() {
-        match a.as_str() { "--main" => only_main = true, "--data-dir" => data_dir = it.next().cloned(), s if !s.starts_with('-') => path = Some(s.to_string()), s => { return help::unknown_option("build", s); } }
+        match a.as_str() {
+            "--main" => only_main = true, "--data-dir" => data_dir = it.next().cloned(),
+            "--license-report" => report = true, "--json" => json = true,
+            "--deny-license" => match it.next() { Some(l) => deny.extend(l.split(',').map(|x| x.trim().to_string()).filter(|x| !x.is_empty())), None => return fail("--deny-license erwartet eine Liste von SPDX-Kennungen (z. B. GPL-3.0-only,GPL-3.0-or-later)") },
+            s if !s.starts_with('-') => path = Some(s.to_string()),
+            s => { return help::unknown_option("build", s); }
+        }
     }
+    if json && !report { return fail("--json gilt nur zusammen mit --license-report"); }
+    if !deny.is_empty() { vc_ide::license::set_cli_policy(vc_ide::license::Policy { deny, allow: vec![] }); }
     let p = PathBuf::from(path.unwrap_or_else(|| ".".into()));
     let (root, file) = if p.is_dir() { match vc_ide::projfile::find(&p) { Some(f) => (p.clone(), f), None => return fail(format!("{}: keine .vcprj gefunden", p.display())) } } else { (p.parent().filter(|d| !d.as_os_str().is_empty()).map(Path::to_path_buf).unwrap_or_else(|| PathBuf::from(".")), p.clone()) };
     let pf = match vc_ide::projfile::ProjectFile::load(&file) { Ok(x) => x, Err(e) => return fail(e) };
@@ -934,14 +944,33 @@ fn build_cmd(args: &[String]) -> ExitCode {
     let r = vc_ide::projfile::build_project(&vc_ide::build::Ctx { root: &root, data: &data }, &pf, if only_main { main.as_deref() } else { None });
     for x in r["results"].as_array().into_iter().flatten() {
         for d in x["diagnostics"].as_array().into_iter().flatten() {
+            if d["severity"] == "info" { eprintln!("{}", d["message"].as_str().unwrap_or("")); continue; }
             eprintln!("{}:{}: {} {}: {}", d["file"].as_str().unwrap_or(""), d["line"], d["severity"].as_str().unwrap_or(""), d["code"].as_str().unwrap_or(""), d["message"].as_str().unwrap_or(""));
         }
         let f = x["file"].as_str().unwrap_or("?");
-        if x["ok"] == true { println!("OK      {f} -> {} ({} Bytes){}", x["artifact"].as_str().unwrap_or("?"), x["size"], if main.as_deref() == Some(f) { "   [Startprogramm]" } else { "" }); } else { println!("FEHLER  {f}"); }
+        let line = if x["ok"] == true { format!("OK      {f} -> {} ({} Bytes){}", x["artifact"].as_str().unwrap_or("?"), x["size"], if main.as_deref() == Some(f) { "   [Startprogramm]" } else { "" }) } else { format!("FEHLER  {f}") };
+        if json { eprintln!("{line}") } else { println!("{line}") }
     }
-    if let Some(d) = r["disk"].as_object() { println!("Disk    {} ({} Bytes): {}", d["file"].as_str().unwrap_or(""), d["size"], d["programs"].as_array().map(|a| a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default()); }
+    if let Some(d) = r["disk"].as_object() { let l = format!("Disk    {} ({} Bytes): {}", d["file"].as_str().unwrap_or(""), d["size"], d["programs"].as_array().map(|a| a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default()); if json { eprintln!("{l}") } else { println!("{l}") } }
     if let Some(e) = r["disk_error"].as_str() { eprintln!("Diskette: {e}"); }
+    if report { license_report(&root, &r, json); }
     if r["ok"] == true { ExitCode::SUCCESS } else { ExitCode::FAILURE }
+}
+
+/// `vcc build --license-report [--json]`: Lizenzen aller übersetzten Quelltexte ausgeben und nach `build/LICENSES.txt` schreiben
+fn license_report(root: &Path, r: &serde_json::Value, json: bool) {
+    let progs: Vec<(String, String, Vec<vc_asm::license::LicenseEntry>, usize)> = r["results"].as_array().into_iter().flatten().filter(|x| x["licenses"].is_array()).map(|x| {
+        let es = x["licenses"].as_array().into_iter().flatten().map(|e| vc_asm::license::LicenseEntry {
+            file: e["file"].as_str().unwrap_or("").into(), license: e["license"].as_str().unwrap_or("").into(), holder: e["holder"].as_str().unwrap_or("").into(),
+            origin: match e["notice"].as_str() { Some(f) => vc_asm::license::Origin::Folder(f.into()), None => vc_asm::license::Origin::Header } }).collect();
+        (x["file"].as_str().unwrap_or("?").to_string(), x["target"].as_str().unwrap_or("?").to_string(), es, x["unlicensed"].as_u64().unwrap_or(0) as usize)
+    }).collect();
+    let show = |f: &str| f.to_string();
+    let text = vc_ide::license::report_text(&progs, &show);
+    let dir = root.join("build");
+    let _ = std::fs::create_dir_all(&dir);
+    match std::fs::write(dir.join("LICENSES.txt"), &text) { Ok(_) => eprintln!("Lizenzbericht: build/LICENSES.txt"), Err(e) => eprintln!("build/LICENSES.txt: {e}") }
+    if json { println!("{}", serde_json::to_string_pretty(&vc_ide::license::report_json(&progs, &show)).unwrap_or_default()); } else { print!("{text}"); }
 }
 
 /// `vcc basic --suggest-hex`: Chipregister-Adressen, die sich als Hex schreiben lassen, auflisten; mit `--apply` die gewählten in eine Ausgabedatei schreiben

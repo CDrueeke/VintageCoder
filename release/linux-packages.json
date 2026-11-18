@@ -36,10 +36,10 @@
         "suggests": ["pipewire-alsa | pulseaudio"]
       },
       "links": {
-        "vice": {"level": "recommends", "package": "vice"},
-        "atari800": {"level": "recommends", "package": "atari800"}
+        "vice": {"level": "suggests", "package": "vice"},
+        "atari800": {"level": "suggests", "package": "atari800"}
       },
-      "pruefen": ["Debian stable (13): libasound2 ist nur noch ein virtueller Name von libasound2t64; die Alternative 'libasound2t64 | libasound2' deckt beide Stände ab", "Klangweg: 'pipewire-alsa | pulseaudio' (Alternative mit einem Paket, das ALSA-Programme an PipeWire/Pulse leitet); Namen im Container pruefen"]
+      "pruefen": ["Debian stable (13): vice (3.9) und atari800 (5.2.0) liegen nur in der Sektion 'contrib', die im Standard nicht aktiv ist: deshalb nur 'Suggests' (ein 'Recommends' bliebe unerfüllt)", "Debian stable (13): libasound2 ist nur noch ein virtueller Name von libasound2t64; die Alternative 'libasound2t64 | libasound2' deckt beide Stände ab", "Klangweg: 'pipewire-alsa | pulseaudio' (Alternative mit einem Paket, das ALSA-Programme an PipeWire/Pulse leitet); Namen im Container pruefen"]
     },
     "ubuntu": {
       "format": "deb",
@@ -50,10 +50,10 @@
         "suggests": ["pipewire-alsa | pulseaudio"]
       },
       "links": {
-        "vice": {"level": "recommends", "package": "vice"},
-        "atari800": {"level": "recommends", "package": "atari800"}
+        "vice": {"level": "suggests", "package": "vice"},
+        "atari800": {"level": "suggests", "package": "atari800"}
       },
-      "pruefen": ["Ubuntu 24.04: libasound2t64 (t64-Umstellung), libasound2 nur noch virtuell", "vice und atari800 liegen in 'universe': Recommends wird nur erfuellt, wenn universe aktiv ist (im Standard-Container nicht)"]
+      "pruefen": ["Ubuntu 24.04: libasound2t64 (t64-Umstellung), libasound2 nur noch virtuell", "vice (3.7.1, für den Debugger zu alt) und atari800 (5.0.0) liegen in 'multiverse' (nicht 'universe'), das im Standard-Container nicht aktiv ist: deshalb nur 'Suggests'"]
     },
     "fedora": {
       "format": "rpm",

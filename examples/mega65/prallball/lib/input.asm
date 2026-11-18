@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek MEGA65 (PRALLBALL; Code wie am C64: der MEGA65 hat dieselben CIA-Ports). Einbinden: .include "lib/input.asm"
 //
 // Quellen: Joystick Port 2 (CIA1 $DC00), Tastatur (Z links, X rechts, Q hoch, A runter, Leertaste Feuer, P Pause, RUN/STOP Abbruch;

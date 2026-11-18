@@ -112,7 +112,7 @@ pub enum Msg {
     Start, A11yBereit, SystemSchema(iced::theme::Mode),
     Ed(EdMsg), Menue(String), Befehl(Cmd), Taste(keyboard::Key, keyboard::Modifiers), /** Taste mit physischer Position (Klaviertasten gelten nach der Position, nicht nach der Beschriftung) */ TasteP(keyboard::Key, keyboard::Modifiers, keyboard::key::Physical),
     OeffneDatei(String), Reiter(usize), Schliesse(usize), Schublade(usize),
-    ImportAn(usize, bool), ImportKopie(usize), ImportName(usize, String), ImportOrdner(usize, String), ImportKonflikt(usize, vc_ide::importfiles::Conflict), ImportOk, ImportAbbruch, ExportFormat(String), ExportName(String), ExportAdresse(String), ExportTab(String), ExportAus(exportdlg::ExportAus), PaletteAkt(String, palettestudio::PAkt), PngGewaehlt(String, Option<PathBuf>), StudioTick, StudioMaus(String, studio::Maus), StudioAkt(String, studio::Aktion), DisHaltepunkt(u16), DebugSpalte(usize), TrennerStart, TrennerMaus(iced::Point), TrennerLos, RueckfrageJa, RueckfrageNein, EmuBild, EmuAuto(bool), EmuLive(bool), EmuQuelle(usize), EmuText(String), EmuSenden, TestAlle, TestFehler, TestStopp, TestBackend, TestFilter(String), TestNurFehler(bool), TestWahl(PathBuf, String), TestDebug(PathBuf, String), TestQuelle(String, usize), TestTick, SnapErkennen, SnapName(String), SnapSprites(bool), SnapKacheln(bool), SnapRom(bool), SnapSpeichern, ZielMenue, KopfMenue, KopfWahl(Cmd), Set(setui::SetAkt), StartSeite(startui::StartAkt), ScratchTick, ScratchRest(u8), SongScroll(String, f32, f32, f32, f32), NeuProj(neuprojekt::NpAkt), Kopieren(kopierdlg::KopAkt), ProjEinst(projeinst::PeAkt), Wiz(assistent::WizAkt), Info(infodlg::InfoAkt), FensterZu, BeendenAntwort(u8), ZielWahl(String), KarteSeite(u8), KarteFilter(&'static str), KartePreset(String), DebugTick, MemText(String), MemGo, BeobText(String), BeobAdd, BeobDel(usize), PunktDel(u32), BauFertig(Result<serde_json::Value, String>), Gestartet(Result<String, String>), GotoProblem(usize),
+    ImportAn(usize, bool), ImportKopie(usize), ImportName(usize, String), ImportOrdner(usize, String), ImportKonflikt(usize, vc_ide::importfiles::Conflict), ImportOk, ImportAbbruch, ExportFormat(String), ExportName(String), ExportAdresse(String), ExportTab(String), ExportAus(exportdlg::ExportAus), PaletteAkt(String, palettestudio::PAkt), PngGewaehlt(String, Option<PathBuf>), StudioTick, StudioMaus(String, studio::Maus), StudioAkt(String, studio::Aktion), DisHaltepunkt(u16), DebugSpalte(usize), TrennerStart, TrennerMaus(iced::Point), TrennerLos, RueckfrageJa, RueckfrageNein, EmuBild, EmuAuto(bool), EmuLive(bool), EmuQuelle(usize), EmuText(String), EmuSenden, TestAlle, TestFehler, TestStopp, TestBackend, TestFilter(String), TestNurFehler(bool), TestWahl(PathBuf, String), TestDebug(PathBuf, String), TestQuelle(String, usize), TestTick, SnapErkennen, SnapName(String), SnapSprites(bool), SnapKacheln(bool), SnapRom(bool), SnapSpeichern, ZielMenue, KopfMenue, KopfWahl(Cmd), Set(setui::SetAkt), StartSeite(startui::StartAkt), ScratchTick, ScratchRest(u8), SongScroll(String, f32, f32, f32, f32), NeuProj(neuprojekt::NpAkt), Kopieren(kopierdlg::KopAkt), ProjEinst(projeinst::PeAkt), Wiz(assistent::WizAkt), Info(infodlg::InfoAkt), FensterZu, BeendenAntwort(u8), ZielWahl(String), KarteSeite(u8), KarteFilter(&'static str), KartePreset(String), DebugTick, MemText(String), MemGo, BeobText(String), BeobAdd, BeobDel(usize), PunktDel(u32), BauFertig(Result<serde_json::Value, String>), Gestartet(Result<String, String>), StartFehler(Vec<String>), GotoProblem(usize),
     PaletteFrage(String), PaletteAuswahl(i32), PaletteLos(usize),
     SeiteWahl(Seite), BaumKlapp(String), BaumFilter(String), BaumNeuLaden, BaumAlleZu, SucheFrage(String), SucheLos, SucheFertig(Vec<project::Fund>), GotoFund(usize),
     FindFrage(String), ErsetzFrage(String), FindSchritt(i32), ErsetzeEins, ErsetzeAlle, FindGrossKlein, FindZu,
@@ -172,6 +172,19 @@ fn daten_ordner() -> PathBuf {
 /// Platzhalter-Ordner für den Start ohne Projekt (leer; die Startseite zeigt keine Dateien)
 fn ohne_projekt_ordner() -> PathBuf { std::env::temp_dir().join("vintagecoder-ohne-projekt") }
 fn leerer_ordner() -> PathBuf { let d = ohne_projekt_ordner(); let _ = std::fs::create_dir_all(&d); d }
+
+/// Ereignisse des Fensters für die Programmlogik. Tasten kommen nur an, wenn kein Widget sie verbraucht hat – außer Esc: ein Texteingabefeld
+/// mit Fokus (Befehlsleiste, Assistent) verbraucht Esc selbst, trotzdem soll es Leiste und Assistent schließen.
+fn fenster_ereignis(e: iced::Event, status: iced::event::Status) -> Option<Msg> {
+    match e {
+        iced::Event::Window(iced::window::Event::FileDropped(p)) => Some(Msg::Abgelegt(p)),
+        iced::Event::Window(iced::window::Event::Resized(s)) => Some(Msg::Fenster(s)),
+        iced::Event::Window(iced::window::Event::CloseRequested) => Some(Msg::FensterZu),
+        iced::Event::Keyboard(keyboard::Event::KeyPressed { key, modifiers, physical_key, .. })
+            if status == iced::event::Status::Ignored || matches!(key, keyboard::Key::Named(keyboard::key::Named::Escape)) => Some(Msg::TasteP(key, modifiers, physical_key)),
+        _ => None,
+    }
+}
 
 impl App {
     fn neu() -> (App, Task<Msg>) { Self::neu_aus(std::env::args().collect(), cfg!(debug_assertions)) }
@@ -809,6 +822,11 @@ impl App {
                 if self.kontext.is_none() && !self.palette.offen && (matches!(&k, keyboard::Key::Named(keyboard::key::Named::ContextMenu)) || (mods.shift() && matches!(&k, keyboard::Key::Named(keyboard::key::Named::F10)))) {
                     if let Some(rel) = self.name().filter(|_| !self.studio_aktionen().is_empty()) { let pos = iced::Point::new(self.fenster.width * 0.45, self.fenster.height * 0.3); return self.update_innen(Msg::KontextAuf(Art::FlaecheStudio, pos, Some(rel))) }
                 }
+                if matches!(k, keyboard::Key::Named(keyboard::key::Named::Escape)) && self.wiz.is_some() && !self.palette.offen && self.rueckfrage.is_none() {
+                    // Esc im Einrichtungsassistenten: wie „Abbrechen“ (auf der letzten Seite wie „Fertig“)
+                    let fertig = self.wiz.as_ref().is_some_and(|w| w.thema() == vc_ide::setup::Topic::Done);
+                    return self.wiz_akt(if fertig { assistent::WizAkt::Schliessen } else { assistent::WizAkt::Abbruch });
+                }
                 if matches!(k, keyboard::Key::Named(keyboard::key::Named::Escape)) { self.palette.offen = false; self.find.offen = false; self.goto.offen = false; self.baum = None; self.kontext = None; self.ziel_menue = false; self.rueckfrage = None; self.export = None; self.import = None; if let Some(e) = self.ed() { e.clear_search() } if let Some(n) = self.name().filter(|n| self.studios.contains_key(n)) { self.studio_aktion(&n, studio::Aktion::AuswahlAus) } self.editor_fokus(); return Task::none() }
                 // Menüleiste im Fenster: Alt+Buchstabe öffnet das Menü (D Datei, B Bearbeiten, A Ansicht, P Projekt, H Hilfe; F10 bleibt „Schritt über“), links/rechts wechselt das Menü
                 if self.alt_mnemonics() && mods.alt() && !mods.command() && !mods.control() && !mods.shift() {
@@ -1024,6 +1042,9 @@ impl App {
             Msg::KopfMenue => self.kopf_menue = !self.kopf_menue,
             Msg::KopfWahl(c) => { self.kopf_menue = false; return self.befehl(c) }
             Msg::ZielWahl(id) => { self.ziel_menue = false; self.log.push(format!("Ziel: {}", self.ziel_name(&id))); self.run_on = id }
+            // Endet der Emulator in den ersten Sekunden mit Fehler, steht seine letzte Ausgabe mit einem Hinweis im Protokoll (z. B. VICE ohne ROM-Dateien)
+            Msg::StartFehler(zeilen) => { if !zeilen.is_empty() { for m in zeilen { for l in m.lines() { self.log.push(l.to_string()) } } self.schublade = 0; self.einst.schublade = true } }
+            Msg::Gestartet(Ok(c)) if !cfg!(test) => { self.log.push(format!("Gestartet: {c}")); return Task::perform(async { tokio::task::spawn_blocking(|| vc_ide::launch::wait_early_exit(std::time::Duration::from_secs(8))).await.unwrap_or_default() }, Msg::StartFehler) }
             Msg::Gestartet(r) => match r { Ok(c) => self.log.push(format!("Gestartet: {c}")), Err(e) => { self.log.push(format!("Start fehlgeschlagen: {}", debug::freundlich(&e))); if debug::freundlich(&e) != e { self.log.push(format!("  Einzelheit: {e}")) } self.schublade = 0; self.einst.schublade = true } },
             Msg::GotoProblem(i) => { if let Some(p) = self.probleme.get(i).cloned() { self.zeige(&p.datei, p.zeile) } }
             Msg::PaletteFrage(q) => { self.palette.frage = q; self.palette.auswahl = 0 }
@@ -1429,6 +1450,8 @@ impl App {
             Ok(v) => {
                 // W203 (zu weiter Sprung automatisch verlängert) hat der Nutzer mit `.branchlong auto` selbst bestellt: kein Problem, eine Protokollzeile genügt
                 if let Some(d) = v["diagnostics"].as_array() { let lang = d.iter().filter(|x| x["code"] == "W203").count(); if lang > 0 { self.log.push(format!("{lang} Sprünge automatisch verlängert (.branchlong auto)")) } }
+                // Lizenzhinweis (L001, Copyleft im Quelltext): steht im Protokoll und als Information unter „Probleme“, ist kein Fehler
+                if let Some(d) = v["diagnostics"].as_array() { for x in d.iter().filter(|x| x["severity"] == "info") { if let Some(m) = x["message"].as_str() { self.log.push(m.to_string()) } } }
                 if let Some(d) = v["diagnostics"].as_array() { for x in d.iter().filter(|x| x["code"] != "W203") { self.probleme.push(Problem { datei: x["file"].as_str().unwrap_or("").into(), zeile: x["line"].as_u64().unwrap_or(0) as usize, text: x["message"].as_str().unwrap_or("").into(), fehler: x["severity"] == "error" }) } }
                 if v["ok"] == true {
                     self.log.push(format!("Fertig: {} Bytes → {}", v["size"], v["artifact"]));
@@ -2100,12 +2123,7 @@ impl App {
         stack![container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Background::Color(Color { a: 0.5, ..Color::BLACK })), ..Default::default() }), container(karte).center_x(Length::Fill).padding(90)].into()
     }
     fn abo(&self) -> Subscription<Msg> {
-        let mut v = vec![iced::event::listen_with(|e, status, _| match e {
-            iced::Event::Window(iced::window::Event::FileDropped(p)) => Some(Msg::Abgelegt(p)),
-            iced::Event::Window(iced::window::Event::Resized(s)) => Some(Msg::Fenster(s)),
-            iced::Event::Window(iced::window::Event::CloseRequested) => Some(Msg::FensterZu),
-            iced::Event::Keyboard(keyboard::Event::KeyPressed { key, modifiers, physical_key, .. }) if status == iced::event::Status::Ignored => Some(Msg::TasteP(key, modifiers, physical_key)),
-            _ => None })];
+        let mut v = vec![iced::event::listen_with(|e, status, _| fenster_ereignis(e, status))];
         if self.splash { v.push(iced::time::every(std::time::Duration::from_millis(2000)).map(|_| Msg::SplashZu)) }
         if !self.scratch.is_empty() { v.push(iced::time::every(std::time::Duration::from_secs(3)).map(|_| Msg::ScratchTick)) }
         if self.trenner { v.push(iced::event::listen_with(|e, _, _| match e {
@@ -2216,6 +2234,31 @@ fn knopf<'a>(pal: Pal, s: &str, auf: Option<Msg>, c: Color, haupt: bool) -> Elem
 }
 fn reiter_knopf<'a>(pal: Pal, s: &str, sel: bool, m: Msg) -> Element<'a, Msg> { button(text(s.to_string()).size(12.5).color(pal.text)).padding([4, 10]).on_press(m).style(move |_, _| button::Style { background: sel.then(|| pal.panel2.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }
 
+/// Fenstereinstellungen. Unter Linux ist die Anwendungskennung des Fensters (Wayland `app_id`, X11 `WM_CLASS`) `vintagecoder`: sie muss zu
+/// `StartupWMClass` der .desktop-Datei der Pakete passen, sonst zeigt die Leiste (Dock) kein Programmsymbol und fasst die Fenster nicht zusammen.
+fn fenster_einstellungen() -> iced::window::Settings {
+    #[cfg_attr(not(target_os = "linux"), allow(unused_mut))]
+    let mut s = iced::window::Settings { size: fenstergroesse(std::env::var("VC_WIN").ok().as_deref()), icon: iced::window::icon::from_file_data(ICON, None).ok(), ..Default::default() };
+    #[cfg(target_os = "linux")]
+    { s.platform_specific.application_id = ANWENDUNGSKENNUNG.into(); }
+    s
+}
+
+/// Anfangsgröße des Fensters: Umgebungsvariable `VC_WIN=BreitexHöhe` (z. B. 1400x860, 480 bis 10000 Punkte), sonst 1600×1000.
+/// Unter Wayland entscheidet der Fenstermanager über die Anfangsgröße (GNOME öffnet große Fenster maximiert); X11 hält sich an die Angabe.
+fn fenstergroesse(wert: Option<&str>) -> iced::Size {
+    let standard = iced::Size::new(1600.0, 1000.0);
+    let Some((b, h)) = wert.and_then(|w| w.trim().split_once(['x', 'X'])) else { return standard };
+    match (b.trim().parse::<f32>(), h.trim().parse::<f32>()) {
+        (Ok(b), Ok(h)) if (480.0..=10000.0).contains(&b) && (320.0..=10000.0).contains(&h) => iced::Size::new(b, h),
+        _ => standard,
+    }
+}
+
+/// Wie `Icon=` und `StartupWMClass=` in `installer/linux/vintagecoder.desktop`
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+const ANWENDUNGSKENNUNG: &str = "vintagecoder";
+
 fn main() -> iced::Result {
     iced::application(App::neu, App::update, App::view)
         .title("VintageCoder")
@@ -2223,7 +2266,7 @@ fn main() -> iced::Result {
         .theme(|a: &App| if a.dunkel() { Theme::Dark } else { Theme::Light })
         .scale_factor(|a: &App| a.einst.zoom)
         .exit_on_close_request(false)
-        .window(iced::window::Settings { size: iced::Size::new(1600.0, 1000.0), icon: iced::window::icon::from_file_data(ICON, None).ok(), ..Default::default() })
+        .window(fenster_einstellungen())
         .font(vc_gui_ui::fonts::INTER_REGULAR).font(vc_gui_ui::fonts::INTER_SEMIBOLD).font(vc_gui_ui::fonts::JETBRAINS_REGULAR).font(vc_gui_ui::fonts::JETBRAINS_BOLD)
         .default_font(vc_gui_ui::fonts::UI)
         .antialiasing(false)
@@ -2795,6 +2838,50 @@ mod tests {
         assert!(app.log.iter().any(|l| l == "3 Sprünge automatisch verlängert (.branchlong auto)"), "{:?}", app.log);
         let _ = app.update(Msg::BauFertig(Ok(serde_json::json!({ "ok": false, "diagnostics": [d("W200", "warning")] }))));
         assert_eq!(app.probleme.len(), 1); assert!(!app.log.iter().rev().take(2).any(|l| l.contains("Sprünge")), "ohne W203 keine Zeile");
+    }
+    /// Lizenzhinweis L001 (Copyleft im Quelltext): Protokollzeile und Information unter „Probleme“, kein Fehler, Bau bleibt gültig
+    #[test] fn lizenzhinweis_l001_ist_eine_information_kein_fehler() {
+        let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.log.clear();
+        let hinweis = "Hinweis (L001): Das Programm enthält Quelltext unter GPL-3.0-only (lib/rmtplayr.asm, Radek Sterba).";
+        let _ = app.update(Msg::BauFertig(Ok(serde_json::json!({ "ok": true, "size": 10, "artifact": "build/a.xex", "target": "atari8", "diagnostics": [{ "file": "a.asm", "line": 0, "message": hinweis, "severity": "info", "code": "L001" }] }))));
+        assert!(app.log.iter().any(|l| l == hinweis), "{:?}", app.log);
+        assert_eq!(app.probleme.len(), 1); assert!(!app.probleme[0].fehler, "Information, kein Fehler");
+        assert!(app.log.iter().any(|l| l.starts_with("Fertig")), "der Bau gilt als fertig");
+    }
+    /// Meldung „Emulator sofort beendet“ (aus dem Hintergrund) landet zeilenweise im Protokoll und öffnet es
+    #[test] fn emulator_sofortabbruch_steht_im_protokoll() {
+        let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.log.clear(); app.einst.schublade = false;
+        let _ = app.update(Msg::StartFehler(vec![]));
+        assert!(app.log.is_empty() && !app.einst.schublade, "ohne Meldung bleibt alles still");
+        let _ = app.update(Msg::StartFehler(vec!["Der Emulator hat sich sofort beendet, Rückgabewert 1. Fehlende ROM-Dateien? Siehe Einstellungen ▸ ROMs.\nAusgabe des Emulators:\n  Couldn't load kernal ROM".into()]));
+        assert_eq!(app.log.len(), 3, "{:?}", app.log); assert!(app.log[2].contains("kernal ROM") && app.einst.schublade && app.schublade == 0);
+    }
+    /// Esc schließt den Einrichtungsassistenten und die Befehlsleiste, auch wenn ein Eingabefeld mit Fokus die Taste selbst verbraucht
+    #[test] fn esc_schliesst_assistent_und_befehlsleiste() {
+        use iced::event::Status; use iced::keyboard::{Event as KE, Key, Modifiers, Location, key::Named};
+        let taste = |k: Named| iced::Event::Keyboard(KE::KeyPressed { key: Key::Named(k), modified_key: Key::Named(k), physical_key: iced::keyboard::key::Physical::Unidentified(iced::keyboard::key::NativeCode::Unidentified), location: Location::Standard, modifiers: Modifiers::empty(), text: None, repeat: false });
+        assert!(matches!(fenster_ereignis(taste(Named::Escape), Status::Captured), Some(Msg::TasteP(..))), "Esc kommt auch an, wenn ein Eingabefeld es verbraucht hat");
+        assert!(fenster_ereignis(taste(Named::ArrowDown), Status::Captured).is_none(), "andere verbrauchte Tasten bleiben beim Widget");
+        assert!(matches!(fenster_ereignis(taste(Named::ArrowDown), Status::Ignored), Some(Msg::TasteP(..))));
+        let (mut app, tmp) = studio_app(); app.log.clear();
+        let _ = app.befehl(Cmd::Assistent); assert!(app.wiz.is_some());
+        let _ = app.update(Msg::Taste(Key::Named(Named::Escape), Modifiers::empty())); assert!(app.wiz.is_none(), "Esc bricht den Assistenten ab");
+        let _ = app.befehl(Cmd::Palette); assert!(app.palette.offen);
+        let _ = app.update(Msg::Taste(Key::Named(Named::Escape), Modifiers::empty())); assert!(!app.palette.offen, "Esc schließt die Befehlsleiste");
+        let _ = std::fs::remove_dir_all(tmp);
+    }
+    /// Die Anwendungskennung des Fensters (Linux: app_id / WM_CLASS) gleicht `StartupWMClass` und `Icon` der .desktop-Datei der Pakete
+    #[test] fn anwendungskennung_gleicht_der_desktop_datei() {
+        let d = include_str!("../../../installer/linux/vintagecoder.desktop");
+        assert!(d.lines().any(|l| l == format!("StartupWMClass={ANWENDUNGSKENNUNG}")), "{d}");
+        assert!(d.lines().any(|l| l == format!("Icon={ANWENDUNGSKENNUNG}")));
+        let s = fenster_einstellungen(); assert!(s.icon.is_some(), "Fenstersymbol gesetzt");
+        #[cfg(target_os = "linux")] assert_eq!(s.platform_specific.application_id, "vintagecoder");
+    }
+    #[test] fn vc_win_setzt_die_anfangsgroesse() {
+        assert_eq!(fenstergroesse(Some("1400x860")), iced::Size::new(1400.0, 860.0));
+        assert_eq!(fenstergroesse(Some(" 1280X800 ")), iced::Size::new(1280.0, 800.0));
+        for falsch in [None, Some(""), Some("gross"), Some("100x100"), Some("1400"), Some("1400x"), Some("99999x800")] { assert_eq!(fenstergroesse(falsch), iced::Size::new(1600.0, 1000.0), "{falsch:?}"); }
     }
     #[test] fn starten_baut_zuerst_und_startet_nur_nach_erfolg() {
         let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.root = std::env::temp_dir(); app.log.clear(); app.namen.clear(); app.tabs.clear();
@@ -3810,7 +3897,7 @@ mod tests {
         let (mut app, tmp) = song_app(); let rel = "music/tune.vcsong";
         assert!(app.songs.contains_key(rel) && app.name().as_deref() == Some(rel) && app.editoren.len() == 1, "Song öffnet im Tracker-Studio"); let _ = simuliere(&mut app, &[]);
         let klick = |app: &mut App, x: f32, y: f32| { let p = Point::new(x, y); let _ = simuliere(app, &[(Event::Mouse(mouse::Event::CursorMoved { position: p }), p), (Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)), p), (Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)), p)]); };
-        app.songs.get_mut(rel).unwrap().leisten_zu = Some(true); let _ = simuliere(&mut app, &[]); let (ox, oy) = scroll_ecke(&mut app, 300.0); let kb = app.songs[rel].kb.get(); let zelle = move |c: usize, r: usize| (ox + 34.0 + c as f32 * kb + kb / 2.0, oy + 24.0 + r as f32 * 20.0 + 10.0);
+        app.songs.get_mut(rel).unwrap().leisten_zu = Some(true); let _ = simuliere(&mut app, &[]); let (ox, oy) = scroll_ecke(&mut app, 300.0); let kb = app.songs[rel].kb.get(); let zelle = move |c: usize, r: usize| (ox + 34.0 + c as f32 * kb + kb / 2.0, oy + r as f32 * 20.0 + 10.0);   // die Kanalköpfe stehen über dem Raster, nicht darin
         let taste = |app: &mut App, z: &str| { let (ev, key, mods) = kuerzel_ev(z); let (msgs, st) = ui_status(app, ev, Point::new(500.0, 400.0)); for m in msgs { let _ = app.update(m); } if st.iter().all(|s| *s == iced::event::Status::Ignored) { let _ = app.update(Msg::Taste(key, mods)); } };
         // Klick setzt den Cursor
         let (x, y) = zelle(1, 3); klick(&mut app, x, y); assert_eq!(app.songs[rel].doc.cursor, (3, 1), "Klick auf Zeile 3, Kanal 2");
@@ -4872,7 +4959,7 @@ mod tests {
         let _ = simuliere(&mut app, &[(Event::Window(iced::window::Event::RedrawRequested(std::time::Instant::now())), mitte)]);
         let (ox, _, w, h) = app.songs[rel].ansicht; assert!(w > 100.0 && h > 100.0, "Viewport gemeldet: {:?}", app.songs[rel].ansicht);
         let taste = |app: &mut App, n: Named, mods: Modifiers| { let _ = app.update(Msg::Taste(Key::Named(n), mods)); };
-        let zelle_sichtbar = |app: &App| { let s = &app.songs[rel]; let (ox, oy, w, h) = s.ansicht; let (r, c) = s.doc.cursor; let kb = s.kb.get(); let (x0, x1) = (34.0 + c as f32 * kb, 34.0 + (c + 1) as f32 * kb); let (y0, y1) = (24.0 + r as f32 * 20.0, 24.0 + (r + 1) as f32 * 20.0); x0 >= ox + 34.0 - 0.5 && x1 <= ox + w + 0.5 && y0 >= oy + 24.0 - 0.5 && y1 <= oy + h + 0.5 };
+        let zelle_sichtbar = |app: &App| { let s = &app.songs[rel]; let (ox, oy, w, h) = s.ansicht; let (r, c) = s.doc.cursor; let kb = s.kb.get(); let (x0, x1) = (34.0 + c as f32 * kb, 34.0 + (c + 1) as f32 * kb); let (y0, y1) = (r as f32 * 20.0, (r + 1) as f32 * 20.0); x0 >= ox + 34.0 - 0.5 && x1 <= ox + w + 0.5 && y0 >= oy - 0.5 && y1 <= oy + h + 0.5 };
         for _ in 0..11 { taste(&mut app, Named::ArrowRight, Modifiers::empty()); assert!(zelle_sichtbar(&app), "Cursor Kanal {} sichtbar, Ausschnitt {:?}", app.songs[rel].doc.cursor.1, app.songs[rel].ansicht) }
         assert_eq!(app.songs[rel].doc.cursor.1, 11); assert!(app.songs[rel].ansicht.0 > ox + 1.0, "horizontal nachgeführt: {:?}", app.songs[rel].ansicht);
         for _ in 0..31 { taste(&mut app, Named::ArrowDown, Modifiers::empty()); assert!(zelle_sichtbar(&app), "Zeile {} sichtbar", app.songs[rel].doc.cursor.0) }
@@ -5268,7 +5355,7 @@ mod tests {
         let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); assert!(app.projekt_oeffnen(repo.join("examples/atari/pmg_ship"))); app.oeffne("graphics/ship.vcpmg");
         let erwartet = [58usize, 134, 196, 14];
         for aktiv in 0..4 { let d = &mut app.studios.get_mut("graphics/ship.vcpmg").unwrap().doc; d.frame_waehlen(aktiv); for (i, w) in erwartet.iter().enumerate() { assert_eq!(d.farb_index_frame(i, 1), Some(*w), "Vorschau Frame {i}, aktiv {aktiv}"); assert_eq!(d.farb_index_frame(i, 0), None) } }
-        // Die gezeichneten Vorschau- und Zwiebelfarben im Bild: Frame P1 sieht bei aktivem P0 und P3 gleich aus (Bildvergleich der Vorschau-Pixel)
+        // Die gezeichneten Vorschau- und Onion-Skin-Farben im Bild: Frame P1 sieht bei aktivem P0 und P3 gleich aus (Bildvergleich der Vorschau-Pixel)
         let farben = studio::Farben::laden(&app.data); let sd = &app.studios["graphics/ship.vcpmg"].doc; assert_ne!(farben.farbe(&sd.target, "pal", erwartet[0]), farben.farbe(&sd.target, "pal", erwartet[1]));
         // C64-Sprite mit zwei Modi: Hires-Frame und Multicolor-Frame behalten ihre Farbrollen unabhängig vom gewählten Frame
         let (mut app2, tmp) = studio_app(); let rel = "hero.vcsprite"; let _ = app2.update(Msg::StudioAkt(rel.into(), studio::Aktion::FrameDup));

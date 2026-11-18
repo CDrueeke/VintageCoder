@@ -26,6 +26,79 @@ pub fn stop_running() -> bool {
     match old { Some(c) => { kill(c); true } None => false }
 }
 
+/// Wie lange nach dem Start ein Ende des Emulators als „sofort beendet“ gilt
+const EARLY_EXIT: std::time::Duration = std::time::Duration::from_secs(5);
+/// So viele Ausgabezeilen des Emulators bleiben für die Meldung erhalten
+const TAIL_LINES: usize = 12;
+
+/// Liest die Ausgabe des Emulators (Standardausgabe und Fehlerausgabe) laufend mit und behält nur die letzten Zeilen
+fn pump(mut r: impl std::io::Read + Send + 'static, tail: std::sync::Arc<Mutex<std::collections::VecDeque<String>>>) {
+    std::thread::spawn(move || {
+        let mut buf = vec![];
+        let mut chunk = [0u8; 4096];
+        loop {
+            match r.read(&mut chunk) { Ok(0) | Err(_) => break, Ok(n) => buf.extend_from_slice(&chunk[..n]) }
+            while let Some(i) = buf.iter().position(|b| *b == b'\n') {
+                let line = String::from_utf8_lossy(&buf[..i]).trim_end_matches('\r').trim().to_string();
+                buf.drain(..=i);
+                if line.is_empty() { continue; }
+                if let Ok(mut t) = tail.lock() { t.push_back(line); while t.len() > TAIL_LINES { t.pop_front(); } }
+            }
+            if buf.len() > 64 * 1024 { buf.clear(); }
+        }
+        let rest = String::from_utf8_lossy(&buf).trim().to_string();
+        if !rest.is_empty() { if let Ok(mut t) = tail.lock() { t.push_back(rest); while t.len() > TAIL_LINES { t.pop_front(); } } }
+    });
+}
+
+/// Startet den Emulator, merkt sich seine Ausgabe und meldet ein Ende kurz nach dem Start (Rückgabewert ungleich 0, z. B. VICE ohne ROM-Dateien):
+/// die Meldung (letzte Ausgabezeilen und ein Hinweis) holt [`take_errors`] bzw. [`wait_early_exit`] ab. Ein später Abbruch oder ein vom Nutzer beendeter Emulator bleibt still.
+fn spawn_watched(cmd: &str, args: &[String]) -> Result<(), String> { spawn_watched_in(cmd, args, EARLY_EXIT) }
+
+fn spawn_watched_in(cmd: &str, args: &[String], window: std::time::Duration) -> Result<(), String> {
+    let mut child = std::process::Command::new(cmd).args(args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped())
+        .spawn().map_err(|e| format!("{cmd}: {e}"))?;
+    let tail = std::sync::Arc::new(Mutex::new(std::collections::VecDeque::new()));
+    if let Some(o) = child.stdout.take() { pump(o, tail.clone()); }
+    if let Some(e) = child.stderr.take() { pump(e, tail.clone()); }
+    let pid = child.id();
+    register(child);
+    std::thread::spawn(move || {
+        let t0 = std::time::Instant::now();
+        while t0.elapsed() < window {
+            let status = {
+                let mut g = RUNNING.lock().unwrap_or_else(|e| e.into_inner());
+                match g.as_mut() { Some(c) if c.id() == pid => c.try_wait(), _ => return }     // beendet oder ersetzt: nichts melden
+            };
+            match status {
+                Ok(Some(st)) => {
+                    if st.success() { return; }
+                    std::thread::sleep(std::time::Duration::from_millis(200));      // die Lesefäden die letzten Zeilen holen lassen
+                    let code = st.code().map(|c| format!(", Rückgabewert {c}")).unwrap_or_default();
+                    let mut m = format!("Der Emulator hat sich sofort beendet{code}. Fehlende ROM-Dateien? Siehe Einstellungen ▸ ROMs.");
+                    let lines: Vec<String> = tail.lock().map(|t| t.iter().cloned().collect()).unwrap_or_default();
+                    if !lines.is_empty() { m.push_str("\nAusgabe des Emulators:"); for l in lines { m.push_str(&format!("\n  {}", l.chars().take(300).collect::<String>())); } }
+                    ASYNC_ERRORS.lock().unwrap_or_else(|e| e.into_inner()).push(m);
+                    return;
+                }
+                Ok(None) => std::thread::sleep(std::time::Duration::from_millis(100)),
+                Err(_) => return,
+            }
+        }
+    });
+    Ok(())
+}
+
+/// Wartet bis zu `timeout` auf Meldungen aus Hintergrundstarts (Emulator sofort beendet, Xemu-Start fehlgeschlagen); leer, wenn nichts schiefging
+pub fn wait_early_exit(timeout: std::time::Duration) -> Vec<String> {
+    let t0 = std::time::Instant::now();
+    loop {
+        let v = take_errors();
+        if !v.is_empty() || t0.elapsed() >= timeout { return v; }
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
 fn register(c: Child) { if let Ok(mut g) = RUNNING.lock() { *g = Some(c); } else { kill(c); } }
 
 fn which(name: &str, extra: &[&str]) -> Option<String> { vc_emu::find_program(name, extra) }
@@ -177,9 +250,7 @@ pub fn spawn(path: &Path, target: &str, atari_variant: &str, extra: &[String]) -
             rom_lines = rp.lines();
             args.extend(rp.args); args.extend(extra.iter().cloned()); args.extend(user);
         }
-        let child = std::process::Command::new(&cmd).args(&args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-            .spawn().map_err(|e| format!("{cmd}: {e}"))?;
-        register(child);
+        spawn_watched(&cmd, &args)?;
     Ok(with_lines(format!("{cmd} {}", args.join(" ")), &rom_lines))
 }
 
@@ -224,9 +295,7 @@ pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<St
         (prog, v)
     };
     args.retain(|a| !a.is_empty());
-    let child = std::process::Command::new(&cmd).args(&args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-        .spawn().map_err(|e| format!("{cmd}: {e}"))?;
-    register(child);
+    spawn_watched(&cmd, &args)?;
     Ok(format!("{cmd} {}", args.join(" ")))
 }
 
@@ -289,3 +358,30 @@ pub fn machine_runs_disks(m: &crate::settings::Machine) -> bool {
 
 #[cfg(test)]
 mod praefix_tests { use super::*; #[test] fn praefix_wird_entfernt() { assert_eq!(ohne_praefix(Path::new(r"\\?\C:\a\b.prg")), std::path::PathBuf::from(r"C:\a\b.prg")); assert_eq!(ohne_praefix(Path::new(r"\\?\UNC\s\f")), std::path::PathBuf::from(r"\\?\UNC\s\f")); assert_eq!(ohne_praefix(Path::new("/tmp/x")), std::path::PathBuf::from("/tmp/x")); } }
+
+#[cfg(all(test, unix))]
+mod early_exit_tests {
+    use super::*;
+    use std::time::Duration;
+    fn sh(script: &str) -> Vec<String> { vec!["-c".into(), script.into()] }
+    /// Die Tests teilen die Meldungsliste und das laufende Programm; deshalb nacheinander
+    #[test]
+    fn immediate_exit_reports_last_output_and_hint_others_stay_silent() {
+        take_errors();
+        spawn_watched_in("sh", &sh("echo \"Couldn't load kernal ROM\" >&2; echo zweite zeile; exit 1"), Duration::from_secs(3)).unwrap();
+        let v = wait_early_exit(Duration::from_secs(6));
+        assert_eq!(v.len(), 1, "{v:?}");
+        assert!(v[0].contains("sofort beendet") && v[0].contains("Rückgabewert 1") && v[0].contains("Einstellungen ▸ ROMs"), "{}", v[0]);
+        assert!(v[0].contains("Couldn't load kernal ROM") && v[0].contains("zweite zeile"), "{}", v[0]);
+        // Rückgabewert 0: kein Fehler
+        spawn_watched_in("sh", &sh("echo fertig; exit 0"), Duration::from_secs(2)).unwrap();
+        assert!(wait_early_exit(Duration::from_millis(2500)).is_empty());
+        // läuft weiter: nichts gemeldet; stop_running beendet ihn still
+        spawn_watched_in("sh", &sh("sleep 30"), Duration::from_secs(1)).unwrap();
+        assert!(wait_early_exit(Duration::from_millis(1500)).is_empty());
+        assert!(stop_running());
+        // später Abbruch (nach dem Fenster): still
+        spawn_watched_in("sh", &sh("sleep 1.5; exit 3"), Duration::from_millis(500)).unwrap();
+        assert!(wait_early_exit(Duration::from_millis(2500)).is_empty());
+    }
+}

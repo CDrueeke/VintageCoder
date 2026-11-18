@@ -3,7 +3,7 @@
 """Schreibweisen-Scan: Der Fachbegriff fuer die ersten 256 Bytes des Speichers heisst in allen Texten des Projekts (Code, Oberflaeche,
 Dokumentation, Hilfe, Handbuch, Tests, Beispiele, Aenderungsprotokoll) immer so, wie ihn die Hardware-Handbuecher schreiben; eine
 deutsche Uebersetzung kommt nie vor. Jeder Treffer (ohne Beachtung der Gross-/Kleinschreibung) in einer versionierten Textdatei ist ein
-Fehler. Ebenso verboten ist die Vorsilbe „Kil…ler“ (z. B. in „…feature“): stattdessen „Zusatzfunktion“. Die verbotenen Woerter stehen hier nur in Teilen, damit diese Datei selbst nicht trifft.
+Fehler. Ebenso verboten ist die deutsche Uebersetzung von „Onion Skin“ (das Wort bleibt englisch) und die Vorsilbe „Kil…ler“ (z. B. in „…feature“): stattdessen „Zusatzfunktion“. Die verbotenen Woerter stehen hier nur in Teilen, damit diese Datei selbst nicht trifft.
 
 Aufruf (im Repository):
   python3 tools/check_schreibweise.py            alle versionierten Dateien (git ls-files); Rueckgabewert 1 bei Funden
@@ -11,7 +11,7 @@ Aufruf (im Repository):
 Nur Standardbibliothek."""
 import os, re, subprocess, sys
 
-VERBOTEN = re.compile("|".join(["".join(["null", "seit"]), "".join(["kil", "ler"])]), re.I)
+VERBOTEN = re.compile("|".join(["".join(["null", "seit"]), "".join(["kil", "ler"]), "".join(["zwiebel", "haut"])]), re.I)
 SELF = {"tools/check_schreibweise.py", "tools/test_check_schreibweise.py"}
 BINAER_ENDUNGEN = {".png", ".icns", ".ico", ".otf", ".ttf", ".prg", ".d64", ".atr", ".bin", ".rom", ".zip", ".gz"}
 

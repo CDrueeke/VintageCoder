@@ -170,13 +170,14 @@ fn runf_with(src: &str, input: &str, keys: &[u8]) -> Option<Run> {
 }
 
 #[test]
+#[allow(clippy::approx_constant)]
 fn bcd_encoding_matches_the_os_format() {
     use vc_basic::b2a::bcd;
     assert_eq!(bcd(1.0).unwrap(), [0x40, 1, 0, 0, 0, 0]);
     assert_eq!(bcd(100.0).unwrap(), [0x41, 1, 0, 0, 0, 0]);
     assert_eq!(bcd(0.5).unwrap(), [0x3F, 0x50, 0, 0, 0, 0]);
     assert_eq!(bcd(-12.5).unwrap(), [0xC0, 0x12, 0x50, 0, 0, 0]);
-    assert_eq!(bcd(3.14159265).unwrap(), [0x40, 3, 0x14, 0x15, 0x92, 0x65]);
+    #[allow(clippy::approx_constant)] let pi = 3.14159265; assert_eq!(bcd(pi).unwrap(), [0x40, 3, 0x14, 0x15, 0x92, 0x65]);
     assert_eq!(bcd(9.9999999995).unwrap(), [0x40, 0x10, 0, 0, 0, 0]);
     assert_eq!(bcd(0.0).unwrap(), [0; 6]);
     assert!(bcd(1e99).is_err());

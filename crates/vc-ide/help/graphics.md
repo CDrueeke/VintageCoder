@@ -17,7 +17,7 @@ Sprites, Zeichensätze, Bildschirme und Kacheln haben denselben Aufbau. Jede Art
 **Zeichenfläche und Platz:** Sprite-, Zeichensatz-, Bildschirm-, Kachel- und Screen-Studio passen den Zoom ihrer Zeichenfläche an den freien Platz im Reiter an (ganze Pixelvielfache, mit Mindest- und Höchstgröße). **−** und **+** in der Werkzeugleiste, die Tasten **+** und **−** oder **Strg/Cmd + Mausrad** legen den Zoom fest; **Einpassen** (Taste **0**) kehrt zur automatischen Anpassung zurück. Schrift und Knöpfe bleiben dabei unverändert. Wird der Reiter schmal (etwa im halbierten Editorbereich), steht die Liste als Karte in der Seitenspalte, und die Werkzeugleiste zeigt weniger Knöpfe; der Rest steckt im Menü **⋯**.
 
 - **Kopfzeile:** ein Kürzel für die Art (z. B. SPR, CHR, SCR, PAL), Dateiname (ein Punkt zeigt ungespeicherte Änderungen), Maße (bei Sprites auch der Modus des Frames) und die Knöpfe **Exportieren …** und **Speichern** (im Sprite- und Zeichensatz-Editor auch **PNG laden …**). **Exportieren …** öffnet den [Export-Dialog](help:export).
-- **Werkzeugleiste:** eine Reihe mit den Zeichenwerkzeugen, Rückgängig, Wiederholen, **Transformieren**, Zoom, Raster und Zwiebel.
+- **Werkzeugleiste:** eine Reihe mit den Zeichenwerkzeugen, Rückgängig, Wiederholen, **Transformieren**, Zoom, Raster und Onion Skin.
 - **Links** die Liste oder Matrix (Frames, Zeichen, Kacheln), **in der Mitte** die Zeichenfläche, **rechts** die Seitenspalte aus Karten (Pixelwerte, Farben, Eigenschaften).
 - **Fußzeile:** Zelle unter der Maus, Zoom und Meldungen; rechts **? Tasten** mit den Einzeltasten.
 
@@ -46,4 +46,4 @@ Hinweis: ROM-Abbilder der Originalgeräte sind urheberrechtlich geschützt. Die 
 Ein Zeichensatz lässt sich auch als Bild austauschen: **16 Zeichen je Zeile in Leserichtung**, gesetzte Pixel hell auf dunklem Grund (128×128 Pixel für 256 Zeichen zu 8×8; ganzzahlig vergrößerte Bilder gehen auch).
 - Import: „Datei ▸ Zeichensatz aus PNG-Raster importieren …“ (Dialog „Zeichensatz hinzufügen“, Reiter *Aus PNG-Raster*) oder `vcc media import-sheet raster.png --profile c64.char.hires --name font [--invert]`.
 - Export: noch nicht in der Oberfläche; auf der Kommandozeile `vcc media export-sheet graphics/font.vcchar font.png`.
-Das Bild wird beim Import in einen Zeichensatz umgewandelt; im Programm landen wie immer die Bytes aus dem Export (`build/export/…`). Hinweis zum Urheberrecht: Das Dateiformat ändert nichts daran, ob Zeichen eines Originalgeräts geschützt sind.
+Das Bild wird beim Import in einen Zeichensatz umgewandelt; im Programm landen wie immer die Bytes aus dem Export (`build/export/…`). Die Dateiformate von VintageCoder (`.vcsprite`, `.vcchar`, `.vcscreen`, `.vctiles`, `.vcpal`, `.vcsong` und weitere) sind frei nutzbar; jeder darf sie lesen und schreiben. Hinweis zum Urheberrecht: Das Dateiformat ändert nichts daran, ob Zeichen eines Originalgeräts geschützt sind.

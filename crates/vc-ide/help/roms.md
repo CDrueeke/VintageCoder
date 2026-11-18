@@ -46,3 +46,6 @@ Eine Zeichensatzdatei kann statt der Zeichen einen **Verweis** enthalten: `"base
 - *„ROM … nicht gefunden“* beim Start: Datei ablegen (Teil-Assistent „nur ROMs“ oder Einstellungen ▸ ROMs). Die Meldung nennt Zielordner, erwartete Größe und alle gesuchten Orte.
 - Zeichensatz sieht „falsch“ aus: vermutlich der eigene Standardsatz statt deines ROMs (Karte „Herkunft“ im Editor). ROM ablegen, „Neu prüfen“.
 - Unbekannte Revision: funktioniert, aber Symbole und Offsets können abweichen.
+
+## Der Emulator beendet sich sofort
+Beendet sich der Emulator kurz nach dem Start mit einem Fehler (zum Beispiel ein über die Paketverwaltung installiertes VICE ohne ROM-Dateien), schreibt VintageCoder die letzten Zeilen seiner Ausgabe (etwa „Couldn't load kernal ROM“) ins **Protokoll** und nennt den Hinweis: fehlende ROM-Dateien, siehe **Einstellungen ▸ ROMs**. Ein Emulator, den du selbst schließt, löst keine Meldung aus.

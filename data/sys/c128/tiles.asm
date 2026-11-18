@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Kachel-Bibliothek für den C128, 40-Spalten-Bildschirm des VIC-IIe (Konzept Kachel- und Screen-Editor, Abschnitt 6).
 // Einbinden: #include <c128/tiles.asm>. Die Befehle und Schalter stehen im Kopf von common/tiles.asm.
 //

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Erzeugt die Listings in ausgabe/ aus deinen eigenen ROMs (nicht im Repository; ROM-Ordner siehe `vcc roms where`).
 # Vorher: KLASEK_HEADS=<Datei> python3 tools/romnames.py  (optional: zusätzliche lokale Namen *.local.names) (Namensdateien tools/names/*.names)
 cd "$(dirname "$0")/.."

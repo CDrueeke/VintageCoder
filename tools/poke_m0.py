@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Messplan M0 des POKE-Designers (Entscheidung 16): Laufzeit von POKE-Formen in VICE.
 
 Nur von Hand starten, nie in der CI (startet einen Emulator). Schreibt nichts nach examples/ oder ins Projekt, sondern in einen

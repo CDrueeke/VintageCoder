@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Klang Plus/4 (PRALLBALL): Effekte und Titelmusik auf den zwei Stimmen des TED. Einbinden: .include "lib/sound.asm"
 // Vertrag wie auf allen Systemen:
 //   sfx_init      TED-Klang einrichten (Lautstaerke 8, beide Stimmen stumm)

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek VC-20 (PRALLBALL). Einbinden: .include "lib/input.asm"
 //
 // Quellen: Joystick (einziger Anschluss: hoch/runter/links/Feuer an VIA1 $9111 Bit 2..5, RECHTS an VIA2 $9120 Bit 7), Tastatur (VIA2: Spalten

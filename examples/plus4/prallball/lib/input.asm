@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Eingabe-Bibliothek Plus/4 (PRALLBALL). Einbinden: .include "lib/input.asm"
 //
 // Quellen: Joystick (TED-Tastaturlatch $FF08, beide Anschlüsse vereint), Tastatur (Z links, X rechts, Q hoch, A runter, Leertaste Feuer,

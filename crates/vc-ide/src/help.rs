@@ -21,6 +21,7 @@ pub const TOPICS: &[Topic] = &[
     Topic { id: "linux", group: "Erste Schritte", title: "Linux", body: include_str!("../help/linux.md") },
     Topic { id: "overview", group: "Erste Schritte", title: "Projekt-Übersicht", body: include_str!("../help/overview.md") },
     Topic { id: "about", group: "Erste Schritte", title: "Über VintageCoder", body: include_str!("../help/about.md") },
+    Topic { id: "license", group: "Erste Schritte", title: "Lizenz und freie Nutzung", body: include_str!("../help/license.md") },
     Topic { id: "feedback", group: "Erste Schritte", title: "Feedback senden", body: include_str!("../help/feedback.md") },
     Topic { id: "updates", group: "Erste Schritte", title: "Nach Updates suchen", body: include_str!("../help/updates.md") },
     Topic { id: "editor", group: "Programmieren", title: "Editor", body: include_str!("../help/editor.md") },
@@ -38,6 +39,7 @@ pub const TOPICS: &[Topic] = &[
     Topic { id: "basic-dialects", group: "Programmieren", title: "BASIC: Dialekte und Zielsysteme", body: include_str!("../help/basic-dialects.md") },
     Topic { id: "basic-tools", group: "Programmieren", title: "BASIC: Werkzeuge und Fehlersuche", body: include_str!("../help/basic-tools.md") },
     Topic { id: "basic-index", group: "Programmieren", title: "BASIC: Spickzettel und Fehlercodes", body: include_str!("../help/basic-index.md") },
+    Topic { id: "license-build", group: "Programmieren", title: "Lizenzhinweis beim Übersetzen", body: include_str!("../help/license-build.md") },
     Topic { id: "build", group: "Programmieren", title: "Bauen und Starten", body: include_str!("../help/build.md") },
     Topic { id: "cli", group: "Programmieren", title: "Kommandozeile (vcc)", body: include_str!("../help/cli.md") },
     Topic { id: "debugger", group: "Testen", title: "Debugger", body: include_str!("../help/debugger.md") },
@@ -182,6 +184,7 @@ const CHAPTERS: &[&str] = &[
     include_str!("../../../docs/handbuch/kapitel/18-disk-studio.md"),
     include_str!("../../../docs/handbuch/kapitel/19-systeme.md"),
     include_str!("../../../docs/handbuch/kapitel/20-kuerzel-faq.md"),
+    include_str!("../../../docs/handbuch/kapitel/21-lizenz.md"),
 ];
 
 /// Bilder des Handbuchs (Kennung, Alt-Text, Unterschrift); Bilder, die hier fehlen, sind noch nicht aufgenommen
@@ -267,7 +270,7 @@ fn mnemonic_page(cpu: &Cpu, word: &str) -> Option<Value> {
     let mut any_illegal = false;
     for o in &ops {
         let syn = o.mode.syntax(); any_illegal |= o.group != "official";
-        let pre = if quad { 2 + (o.mode == Mode::Izz) as u8 * 0 } else { 0 };
+        let pre = if quad { 2 } else { 0 };
         md.push_str(&format!("| {} | `{} {}` | `{}${:02X}` | {} | {}{}{} | {} |\n", o.mode.label(), w.to_ascii_lowercase(), syn.to_ascii_lowercase(), if quad { "42 42 " } else { "" }, o.opcode, o.bytes + pre, o.cycles,
             if o.page_cross { "+1" } else { "" }, if o.branch { "+1/+2" } else { "" }, if o.affects.is_empty() { "–".into() } else { o.affects.clone() }));
     }

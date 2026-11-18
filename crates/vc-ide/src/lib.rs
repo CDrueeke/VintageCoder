@@ -22,6 +22,7 @@ pub mod help_images;
 pub mod hexhint;
 pub mod importfiles;
 pub mod launch;
+pub mod license;
 pub mod livebild;
 pub mod listen;
 pub mod mega65net;

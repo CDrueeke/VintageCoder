@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT-0
 // Zufall PET: 16-Bit-Galois-LFSR (PRALLBALL). Einbinden: .include "lib/rand.asm"
 //   rand_seed   A = Startwert (0 wird zu $A5); mischt den Zeitgeber 1 der VIA ($E845) ein, der frei laeuft
 //   rand_byte   A = naechste Zufallszahl 0..255 (veraendert nur A)
