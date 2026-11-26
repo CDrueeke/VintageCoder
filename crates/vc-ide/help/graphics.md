@@ -1,37 +1,42 @@
 # Sprites, Zeichensätze, Bildschirme und Songs
 
-Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten und Songs liegen als Textdateien `<name>.vc<art>` (z. B. `font.vcchar`) im Projekt (Pixel als Hex-Zeilen, gut diff-bar). Ein Doppelklick in der linken Spalte öffnet den passenden Editor. **Datei ▸ Neue Datei …** (oder der Knopf **＋** in der linken Spalte) öffnet den Dialog „Neue Datei“: Dort wählst du die **Art** und bei Grafik und Klang das **Profil** (z. B. `c64.sprite.multicolor`).
+Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten und Songs liegen als Textdateien `<name>.vc<art>` (z. B. `font.vcchar`) im Projekt (Pixel als Hex-Zeilen, gut diff-bar). Du findest die Editoren im Hauptbereich **Grafik** (zweite Reihe: Sprites, Zeichensatz, Kacheln, Bildschirm, Palette); den Tracker für Songs findest du im Hauptbereich **Musik**. Ein Doppelklick auf die Datei im Projektbaum öffnet den passenden Editor. Neue Dateien legst du für Sprites und Zeichensätze im Editor selbst an (**Neue Sprite-Datei …**, **Neuer Zeichensatz …**): Im Dialog wählst du unter **Art und System** das **Profil** (z. B. `c64.sprite.multicolor`), den **Namen** und den **Ordner im Projekt**. Kachelsätze, Bildschirme, Paletten und Songs öffnest du aus dem Projekt; einen eigenen Dialog zum Anlegen gibt es dafür nicht.
 
-| Editor | Inhalt |
-|---|---|
-| [Sprite/PMG](help:sprite) | C64-Sprites, Atari Player/Missiles |
-| [Zeichensatz](help:charset) | 256 bzw. 128 Zeichen |
-| [Bildschirm](help:screen) | Textbildschirme 40×25/24 und Screen-Banken aus Kacheln |
-| [Kacheln](help:tiles) | 2×2-Kacheln und Karte |
-| [Tracker](help:tracker) | Songs (SID, POKEY) |
-| [PLAY-Tracker](help:play) | Songs für den PLAY-Befehl des MEGA65 |
+| Editor | Inhalt | In der neuen Oberfläche |
+|---|---|---|
+| [Sprite/PMG](help:sprite) | C64-Sprites, Atari Player/Missiles | gebaut |
+| [Zeichensatz](help:charset) | 256 bzw. 128 Zeichen | gebaut |
+| Palette | Paletten (MEGA65) | gebaut |
+| [Bildschirm](help:screen) | Textbildschirme 40×25/24 und Screen-Banken aus Kacheln | gebaut |
+| [Kacheln](help:tiles) | 2×2-Kacheln | gebaut |
+| [Karten](help:screen) | Screen-Banken als Karten aus Kacheln (Levels) | gebaut |
+| [Tracker](help:tracker) | Songs (SID, POKEY), Hauptbereich **Musik** | gebaut |
+| [PLAY-Tracker](help:play) | Songs für den PLAY-Befehl des MEGA65, ebenfalls im Hauptbereich **Musik** | gebaut |
 
-## Aufbau der Studios
-Sprites, Zeichensätze, Bildschirme und Kacheln haben denselben Aufbau. Jede Art öffnet als Reiter im Editorbereich (Doppelklick auf die Datei in der linken Spalte, *Datei ▸ Neue Datei …* legt eine an).
+## Aufbau der Editoren
+Sprite-, Zeichensatz-, Palette-, Kachel- und Bildschirm-Editor haben einen ähnlichen Aufbau und zeigen immer eine Datei. Ist sie geändert, steht in der Fußzeile „● ungespeichert“.
 
-**Zeichenfläche und Platz:** Sprite-, Zeichensatz-, Bildschirm-, Kachel- und Screen-Studio passen den Zoom ihrer Zeichenfläche an den freien Platz im Reiter an (ganze Pixelvielfache, mit Mindest- und Höchstgröße). **−** und **+** in der Werkzeugleiste, die Tasten **+** und **−** oder **Strg/Cmd + Mausrad** legen den Zoom fest; **Einpassen** (Taste **0**) kehrt zur automatischen Anpassung zurück. Schrift und Knöpfe bleiben dabei unverändert. Wird der Reiter schmal (etwa im halbierten Editorbereich), steht die Liste als Karte in der Seitenspalte, und die Werkzeugleiste zeigt weniger Knöpfe; der Rest steckt im Menü **⋯**.
+- **Links** die Liste: im Sprite-Editor die Sprite-Dateien und die Bilder (Frames), im Zeichensatz-Editor die Zeichenübersicht, im Palette-Editor das Farbraster, im Kachel-Editor der Kachelsatz, im Bildschirm-Editor die Zeichentafel mit der Zeichenfarbe.
+- **In der Mitte** die **Werkzeugleiste** mit den Zeichenwerkzeugen, Rückgängig, Wiederholen, Spiegeln, **Raster**, Zoom und (nur Sprites) **Onion Skin**, darunter die Zeichenfläche. Rechts in der Leiste stehen die Dateiknöpfe **Exportieren …** und **Speichern** (im Sprite- und Zeichensatz-Editor auch **PNG laden …**). Kachel- und Bildschirm-Editor haben ihre eigenen Werkzeuge, siehe [Kacheln](help:tiles) und [Bildschirm](help:screen).
+- **Rechts** die Karten mit Farben, Pixelwerten und Eigenschaften.
+- **Fußzeile:** Name, Größe, Zellposition und Meldungen.
 
-- **Kopfzeile:** ein Kürzel für die Art (z. B. SPR, CHR, SCR, PAL), Dateiname (ein Punkt zeigt ungespeicherte Änderungen), Maße (bei Sprites auch der Modus des Frames) und die Knöpfe **Exportieren …** und **Speichern** (im Sprite- und Zeichensatz-Editor auch **PNG laden …**). **Exportieren …** öffnet den [Export-Dialog](help:export).
-- **Werkzeugleiste:** eine Reihe mit den Zeichenwerkzeugen, Rückgängig, Wiederholen, **Transformieren**, Zoom, Raster und Onion Skin.
-- **Links** die Liste oder Matrix (Frames, Zeichen, Kacheln), **in der Mitte** die Zeichenfläche, **rechts** die Seitenspalte aus Karten (Pixelwerte, Farben, Eigenschaften).
-- **Fußzeile:** Zelle unter der Maus, Zoom und Meldungen; rechts **? Tasten** mit den Einzeltasten.
+![Der Reiter Grafik mit der Seite „Sprites“ und der Datei hero.vcsprite: links die Sprite-Dateien und zwei Bilder, in der Mitte das 12x21 Pixel große Multicolor-Sprite einer Figur in Gelb, Rotbraun und Blau, rechts die Karten „Farben“, „Sprite“ (Mehrfarbig an), „Vorschau im Spiel“ und „Verschieben“. Unter der Zeichenfläche steht der Hinweis „Keine Animation“.](bild:sprite-c64 "Der Sprite-Editor mit einem Multicolor-Sprite.")
+
+**Zeichenfläche und Platz (Sprites, Zeichensätze):** Die Zeichenfläche passt ihren Zoom an den freien Platz an. **−** und **+** in der Werkzeugleiste, die Tasten **+** und **−** oder **Cmd/Strg + Mausrad** legen den Zoom fest; **Einpassen** (Taste **0**) kehrt zur automatischen Anpassung zurück. Wird das Fenster schmal, ordnen die Editoren ihre Karten untereinander an.
 
 ## Gemeinsame Bedienung
-- Strg/Cmd+S speichert, Strg/Cmd+Z und Umschalt+Z machen rückgängig und wiederholen. **Exportieren …** (Kopfzeile, Strg/Cmd+Umschalt+E) öffnet den Export-Dialog; er schreibt nach `build/export/` (Assembler, Konstanten, Binär, PRG mit Adresse, BASIC DATA), siehe [Export](help:export).
-- Beim Bauen werden veraltete Sprites, Zeichensätze, Bildschirme und Songs automatisch exportiert.
-- Die Farben kommen je Zielsystem aus `data/palettes`. Beim Atari wählt **Videonorm** in der rechten Spalte PAL, NTSC oder die Norm des Projekts; das ändert nur die Ansicht der Farben, nicht die Datei.
-- **PNG laden …** importiert ein Bild: Skalieren, Quantisieren auf die Zielpalette, Meldung bei Farbkonflikten.
+- Cmd/Strg+S speichert, Cmd/Strg+Z und Cmd/Strg+Umschalt+Z machen rückgängig und wiederholen. **Exportieren …** (Werkzeugleiste, Cmd/Strg+Umschalt+E) öffnet den Export-Dialog, siehe [Export](help:export).
+- Mit der rechten Maustaste löschst du auf der Zeichenfläche (Sprite-, Zeichensatz-Editor).
+- Die Farben kommen je Zielsystem aus `data/palettes`. Beim Atari wählt die **Palettenansicht** in der Karte **Farben** *Projekt*, *PAL* oder *NTSC*; das ändert nur die Ansicht der Farben, nicht die Datei.
+- **PNG laden …** importiert ein Bild in das gewählte Bild oder Zeichen: Skalieren, Quantisieren auf die Zielpalette, Meldung bei Farbkonflikten.
+- Die Einzeltasten der Werkzeuge stehen unter [Tastenkürzel](help:shortcuts).
 
 ## Laden im Programm
 Bibliotheken zum Laden von Zeichensatz, Bildschirm und Kacheln: `examples/c64/gfx_demo/lib/gfx.inc`, `examples/atari/gfx_demo/lib/gfx.inc` ; für BASIC bindest du die exportierten `DATA`-Zeilen mit `#include` ein (siehe [BASIC](help:basic-directives)).
 
 ## Zeichensätze aus dem ROM übernehmen
-„Datei ▸ Zeichensatz aus ROM importieren …“ (Dialog „Zeichensatz hinzufügen“, Reiter *Aus ROM*; oder `vcc media import-rom <datei> --profile ID --offset N --name NAME`) liest den eingebauten Zeichensatz eines Systems aus einem ROM-Abbild und legt ihn als Zeichensatz unter `graphics/` an (diese Kopie enthält die Original-Zeichen und ist nicht zum Einchecken gedacht). Die App **erkennt das Abbild an Größe und Prüfsumme** und bietet dessen Zeichensätze an; nur unbekannte Dateien werden nach der Dateigröße geraten, so:
+Der Befehl `vcc media import-rom <datei> --profile ID --offset N --name NAME` liest den eingebauten Zeichensatz eines Systems aus einem ROM-Abbild und legt ihn als Zeichensatz unter `graphics/` an (diese Kopie enthält die Original-Zeichen und ist nicht zum Einchecken gedacht). Er **erkennt das Abbild an Größe und Prüfsumme**; nur unbekannte Dateien werden nach der Dateigröße geraten, so:
 
 | Datei | Größe | Zeichensatz |
 |---|---|---|
@@ -40,10 +45,10 @@ Bibliotheken zum Laden von Zeichensatz, Bildschirm und Kacheln: `examples/c64/gf
 | Atari 400/800 (`ATARIOSB.ROM`) | 10240 | ab `$800` |
 | Open-ROMs-Zeichensatz (`chargen_openroms.rom`) | 4096 | C64- und MEGA65-Profil (Vollfarbe, Vordergrund = Farbe 1) |
 
-Hinweis: ROM-Abbilder der Originalgeräte sind urheberrechtlich geschützt. Die importierten Zeichensätze bleiben in deinem Projekt; vor einer Veröffentlichung prüfen. Frei verwendbar sind die Open-ROMs-Zeichensätze.
+Hinweis: Die importierten Zeichensätze bleiben in deinem Projekt. Frei verwendbar sind die Open-ROMs-Zeichensätze.
 
 ## Zeichensätze als PNG-Raster
 Ein Zeichensatz lässt sich auch als Bild austauschen: **16 Zeichen je Zeile in Leserichtung**, gesetzte Pixel hell auf dunklem Grund (128×128 Pixel für 256 Zeichen zu 8×8; ganzzahlig vergrößerte Bilder gehen auch).
-- Import: „Datei ▸ Zeichensatz aus PNG-Raster importieren …“ (Dialog „Zeichensatz hinzufügen“, Reiter *Aus PNG-Raster*) oder `vcc media import-sheet raster.png --profile c64.char.hires --name font [--invert]`.
-- Export: noch nicht in der Oberfläche; auf der Kommandozeile `vcc media export-sheet graphics/font.vcchar font.png`.
-Das Bild wird beim Import in einen Zeichensatz umgewandelt; im Programm landen wie immer die Bytes aus dem Export (`build/export/…`). Die Dateiformate von VintageCoder (`.vcsprite`, `.vcchar`, `.vcscreen`, `.vctiles`, `.vcpal`, `.vcsong` und weitere) sind frei nutzbar; jeder darf sie lesen und schreiben. Hinweis zum Urheberrecht: Das Dateiformat ändert nichts daran, ob Zeichen eines Originalgeräts geschützt sind.
+- Import: `vcc media import-sheet raster.png --profile c64.char.hires --name font [--invert]`.
+- Export: `vcc media export-sheet graphics/font.vcchar font.png`.
+Das Bild wird beim Import in einen Zeichensatz umgewandelt; im Programm landen wie immer die Bytes der Mediendatei (beim Einbinden umgewandelt). Die Dateiformate von VintageCoder (`.vcsprite`, `.vcchar`, `.vcscreen`, `.vctiles`, `.vcpal`, `.vcsong` und weitere) sind frei nutzbar; jeder darf sie lesen und schreiben. Hinweis zum Urheberrecht: Das Dateiformat ändert nichts daran, ob Zeichen eines Originalgeräts geschützt sind.

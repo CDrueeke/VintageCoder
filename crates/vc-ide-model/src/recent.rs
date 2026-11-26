@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 const MAX_UNPINNED: usize = 12;
 
 /// Kurzname eines Zielsystems für Marken
-pub fn short_name(system: &str) -> &'static str {
-    match system { "c64" => "C64", "c128" => "C128", "plus4" => "Plus/4", "c16" => "C16", "vic20" => "VC-20", "atari8" => "Atari 8 Bit", "mega65" => "MEGA65", _ => "?" }
+pub fn short_name(system: &str) -> String {
+    match system { "c64" => "C64".into(), "c128" => "C128".into(), "plus4" => vc_i18n::t!("recent-plus-4"), "c16" => "C16".into(), "vic20" => "VC-20".into(), "atari8" => vc_i18n::t!("recent-atari-8-bit"), "mega65" => "MEGA65".into(), _ => "?".into() }
 }
 
 pub fn dialect_label(id: &str) -> &'static str {
@@ -83,6 +83,8 @@ pub fn load(data: Option<&Path>) -> Vec<Recent> {
         Some(Recent { name: e["name"].as_str().map(String::from).unwrap_or_else(|| path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()), pinned: e["pinned"].as_bool().unwrap_or(false), last: e["last"].as_u64().unwrap_or(0), path, missing, info })
     }).collect();
     sort(&mut v);
+    // dasselbe Projekt nur einmal (Schreibweise des Pfads kann abweichen); der erste Eintrag der Sortierung bleibt
+    let mut gesehen = std::collections::HashSet::new(); v.retain(|r| gesehen.insert(schluessel(&r.path)));
     v
 }
 
@@ -93,14 +95,27 @@ pub fn save(v: &[Recent]) {
     let Some(f) = file() else { return };
     if let Some(d) = f.parent() { let _ = std::fs::create_dir_all(d); }
     let a: Vec<Value> = v.iter().map(|r| json!({ "path": r.path.to_string_lossy(), "name": r.name, "pinned": r.pinned, "last": r.last })).collect();
-    let _ = std::fs::write(f, serde_json::to_string_pretty(&a).unwrap_or_default() + "\n");
+    let _ = vc_core::atomar::schreiben(f, serde_json::to_string_pretty(&a).unwrap_or_default() + "\n");
 }
 
 /// Projekt als zuletzt geöffnet eintragen (vorn), ältere nicht angeheftete Einträge fallen heraus
+/// Vergleichsschlüssel eines Pfads: `/` statt `\`, ohne Schlusstrenner, unter Windows ohne Beachtung der Groß-/Kleinschreibung (C:/tmp/x und c:\\TMP\\X sind dasselbe Projekt)
+pub fn schluessel(p: &Path) -> String {
+    // Gibt es den Pfad, löst canonicalize Symlinks, `//` und `.`/`..` auf (dasselbe Projekt über andere Wege = ein Eintrag); sonst nur die Schreibweise vereinheitlichen
+    let echt = std::fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf());
+    let mut s = echt.to_string_lossy().replace('\\', "/");
+    if let Some(r) = s.strip_prefix("//?/") { s = r.to_string(); }   // Windows: \\?\-Vorsatz von canonicalize
+    let mut o = String::with_capacity(s.len()); let mut vor = ' ';
+    for (i, c) in s.chars().enumerate() { if c == '/' && vor == '/' && !(cfg!(windows) && i == 1) { continue } o.push(c); vor = c; }   // `//` zusammenfassen (UNC-Anfang unter Windows bleibt)
+    let o = o.trim_end_matches('/').to_string();
+    if cfg!(windows) { o.to_lowercase() } else { o }
+}
 pub fn touch(v: &mut Vec<Recent>, root: &Path, name: &str, data: Option<&Path>) {
-    let pinned = v.iter().find(|r| r.path == root).map_or(false, |r| r.pinned);
-    v.retain(|r| r.path != root);
-    v.push(Recent { path: root.to_path_buf(), name: name.to_string(), pinned, last: now(), missing: false, info: read_info(root, data) });
+    let k = schluessel(root);
+    let pinned = v.iter().find(|r| schluessel(&r.path) == k).map_or(false, |r| r.pinned);
+    v.retain(|r| schluessel(&r.path) != k);
+    // vorn einfügen: bei gleicher Sekunde (stabile Sortierung) bleibt das zuletzt geöffnete Projekt vorn
+    v.insert(0, Recent { path: root.to_path_buf(), name: name.to_string(), pinned, last: now(), missing: false, info: read_info(root, data) });
     sort(v);
     let mut n = 0;
     v.retain(|r| { if r.pinned { true } else { n += 1; n <= MAX_UNPINNED } });
@@ -115,7 +130,7 @@ pub fn toggle_pin(v: &mut Vec<Recent>, i: usize) { if let Some(r) = v.get_mut(i)
 pub fn ago(last: u64, now: u64) -> String {
     if last == 0 { return String::new(); }
     let d = now.saturating_sub(last);
-    match d { 0..=59 => "gerade eben".into(), 60..=3599 => format!("vor {} Min.", d / 60), 3600..=86399 => format!("vor {} Std.", d / 3600), 86400..=172799 => "gestern".into(), _ => format!("vor {} Tagen", d / 86400) }
+    match d { 0..=59 => vc_i18n::t!("recent-gerade-eben").into(), 60..=3599 => vc_i18n::t!("recent-vor-p1-min", p1 = d / 60), 3600..=86399 => vc_i18n::t!("recent-vor-p1-std", p1 = d / 3600), 86400..=172799 => vc_i18n::t!("recent-gestern"), _ => vc_i18n::t!("recent-vor-p1-tagen", p1 = d / 86400) }
 }
 
 /// Pfad mit `~` für den Home-Ordner
@@ -141,5 +156,30 @@ mod tests {
         assert_eq!(v[1].name, "p14");
         let mut n = 0; v.retain(|r| { if r.pinned { true } else { n += 1; n <= MAX_UNPINNED } });
         assert_eq!(v.len(), 1 + MAX_UNPINNED);
+    }
+}
+
+#[cfg(test)]
+mod schluessel_tests {
+    use super::*;
+    #[test] fn pfadschluessel_vereinheitlicht_trenner_und_schluss() {
+        assert_eq!(schluessel(Path::new("a/b/")), schluessel(Path::new("a/b")));
+        assert_eq!(schluessel(Path::new("a\\b")), schluessel(Path::new("a/b")));
+        assert_ne!(schluessel(Path::new("a/b")), schluessel(Path::new("a/c")));
+    }
+    #[test] fn doppelte_trenner_und_symlinks_ergeben_denselben_schluessel() {
+        let d = std::env::temp_dir().join(format!("vc_recent_schl_{}", std::process::id())); let _ = std::fs::remove_dir_all(&d); std::fs::create_dir_all(d.join("jumprun")).unwrap();
+        let a = d.join("jumprun"); let b = PathBuf::from(format!("{}//jumprun/", d.display())); let c = d.join("jumprun").join("..").join("jumprun");
+        assert_eq!(schluessel(&a), schluessel(&b), "// und Schluss-/ gelten nicht"); assert_eq!(schluessel(&a), schluessel(&c), ".. wird aufgelöst");
+        #[cfg(unix)] { let l = d.join("link"); std::os::unix::fs::symlink(&a, &l).unwrap(); assert_eq!(schluessel(&a), schluessel(&l), "Symlink = dasselbe Projekt"); }
+        assert_eq!(schluessel(Path::new("/gibt//es/nicht/")), schluessel(Path::new("/gibt/es/nicht")), "auch bei nicht vorhandenem Pfad");
+        std::fs::remove_dir_all(d).ok();
+    }
+    #[test] fn zuletzt_geoeffnetes_steht_auch_bei_gleicher_sekunde_vorn() {
+        std::env::set_var("VC_SHOT", "1");   // `touch` speichert sonst in die echte Liste des Benutzers
+        let d = std::env::temp_dir().join(format!("vc-recent-sek-{}", std::process::id())); let _ = std::fs::remove_dir_all(&d); let (a, b) = (d.join("a"), d.join("b")); std::fs::create_dir_all(&a).unwrap(); std::fs::create_dir_all(&b).unwrap();
+        let mut v: Vec<Recent> = vec![]; touch(&mut v, &a, "a", None); touch(&mut v, &b, "b", None);
+        assert_eq!(v[0].name, "b", "gleiche Sekunde: das zweite Projekt steht vorn"); touch(&mut v, &a, "a", None); assert_eq!(v[0].name, "a");
+        let _ = std::fs::remove_dir_all(&d);
     }
 }

@@ -23,7 +23,7 @@ pub fn presence(e: &EmulatorCfg) -> Presence {
     if !e.path.trim().is_empty() {
         return match check_program(&e.path) { Ok(t) => Presence { found: true, auto: false, text: t }, Err(t) => Presence { found: false, auto: false, text: t } };
     }
-    match discover(&e.kind) { Some(p) => Presence { found: true, auto: true, text: p }, None => Presence { found: false, auto: true, text: "nicht gefunden – Pfad eintragen".into() } }
+    match discover(&e.kind) { Some(p) => Presence { found: true, auto: true, text: p }, None => Presence { found: false, auto: true, text: vc_i18n::t!("platform-nicht-gefunden-pfad-eintragen").into() } }
 }
 
 /// Pfad, den die automatische Suche für die Emulator-Sorte findet
@@ -32,7 +32,7 @@ pub fn discover(kind: &str) -> Option<String> { crate::launch::detect(kind) }
 /// Probestart: startet den Emulator mit seinen Argumenten (ohne Programm) und prüft, dass er läuft; beendet ihn danach wieder.
 /// Ein früher gestarteter Emulator wird zuvor beendet (es läuft immer nur einer).
 pub fn test_launch(e: &EmulatorCfg) -> Result<String, String> {
-    let exe = if e.path.trim().is_empty() { discover(&e.kind).ok_or("Programm nicht gefunden – Pfad eintragen")? } else { check_program(&e.path)?; program_exe(&e.path).to_string_lossy().into_owned() };
+    let exe = if e.path.trim().is_empty() { discover(&e.kind).ok_or(vc_i18n::t!("platform-programm-nicht-gefunden-pfad-eintragen"))? } else { check_program(&e.path)?; program_exe(&e.path).to_string_lossy().into_owned() };
     // ohne Projekt gibt es keine Platzhalterwerte: Parameter mit Platzhaltern entfallen beim Test-Start
     let mut args = crate::args::build_plain(crate::args::catalog_of_kind(&e.kind).as_deref(), &e.opts, &e.args);
     // ROMs aus dem ROM-Verzeichnis (bei atari800 auch die alte Eintragung „OS-ROM“); Xemu bekommt seine ROM beim Start über `Mega65`
@@ -41,7 +41,7 @@ pub fn test_launch(e: &EmulatorCfg) -> Result<String, String> {
         args.extend(crate::roms::plan(&e.kind, &crate::roms::store(None, Some(&r)), &args.clone()).args);
     }
     crate::launch::stop_running();
-    let mut child = Command::new(&exe).args(&args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped()).spawn().map_err(|er| format!("{exe}: {er}"))?;
+    let mut child = Command::new(&exe).args(&args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped()).spawn().map_err(|er| vc_i18n::t!("platform-exe-er", exe = &exe, er = &er))?;
     let t0 = Instant::now();
     while t0.elapsed() < Duration::from_millis(2500) {
         if let Some(status) = child.try_wait().map_err(|er| er.to_string())? {
@@ -49,17 +49,17 @@ pub fn test_launch(e: &EmulatorCfg) -> Result<String, String> {
             if let Some(mut s) = child.stderr.take() { let _ = s.read_to_string(&mut err); }
             let tail: Vec<&str> = err.lines().rev().filter(|l| !l.trim().is_empty()).take(2).collect();
             let tail = tail.into_iter().rev().collect::<Vec<_>>().join(" / ");
-            return Err(if status.success() { "Emulator hat sich sofort beendet (Argumente prüfen)".into() } else { format!("Emulator beendet sich mit {}{}", status_text(&status), if tail.is_empty() { String::new() } else { format!(": {tail}") }) });
+            return Err(if status.success() { vc_i18n::t!("platform-emulator-hat-sich-sofort-beendet-argumente").into() } else { vc_i18n::t!("platform-emulator-beendet-sich-mit-p1-p2", p1 = status_text(&status), p2 = if tail.is_empty() { String::new() } else { format!(": {tail}") }) });
         }
         std::thread::sleep(Duration::from_millis(50));
     }
     let _ = child.kill(); let _ = child.wait();
-    Ok(format!("läuft ({exe})"))
+    Ok(vc_i18n::t!("platform-laeuft-exe", exe = &exe))
 }
 
 /// Exit-Code lesbar: Windows meldet -1 als `0xffffffff`, daher als vorzeichenbehaftete Zahl („Code -1“)
 fn status_text(s: &std::process::ExitStatus) -> String {
-    match s.code() { Some(c) => format!("Code {c}"), None => s.to_string() }
+    match s.code() { Some(c) => vc_i18n::t!("platform-code-c", c = &c), None => s.to_string() }
 }
 
 /// Verbindungstest einer echten Maschine mit Zeitlimit; liefert Meldung und Dauer
@@ -67,7 +67,7 @@ pub fn test_hardware(m: &Machine, limit: Duration) -> Result<(String, Duration),
     let (tx, rx) = std::sync::mpsc::channel();
     let m = m.clone();
     std::thread::spawn(move || { let t0 = Instant::now(); let r = crate::settings::test_machine(&m); let _ = tx.send(r.map(|t| (t, t0.elapsed()))); });
-    rx.recv_timeout(limit).map_err(|_| format!("keine Antwort innerhalb von {} s", limit.as_secs()))?
+    rx.recv_timeout(limit).map_err(|_| vc_i18n::t!("platform-keine-antwort-innerhalb-von-p1-s", p1 = limit.as_secs()))?
 }
 
 /// Verbindungstest einer MEGA65 über eine bestimmte Verbindung mit Zeitlimit (Ethernet: UNGEPRÜFT)
@@ -75,7 +75,7 @@ pub fn test_hardware_link(m: &Machine, link: crate::mega65net::Link, limit: Dura
     let (tx, rx) = std::sync::mpsc::channel();
     let m = m.clone();
     std::thread::spawn(move || { let _ = tx.send(crate::settings::test_machine_link(&m, link)); });
-    rx.recv_timeout(limit).map_err(|_| format!("keine Antwort innerhalb von {} s", limit.as_secs()))?
+    rx.recv_timeout(limit).map_err(|_| vc_i18n::t!("platform-keine-antwort-innerhalb-von-p1-s", p1 = limit.as_secs()))?
 }
 
 /// Serielle Ports des Rechners (macOS/Linux: USB-Seriell-Geräte, Windows: COM-Ports)

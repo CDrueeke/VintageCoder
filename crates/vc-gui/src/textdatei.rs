@@ -9,7 +9,7 @@ pub struct Meta { pub crlf: bool, pub latin1: bool, pub bom: bool }
 /// Neue Dokumente: UTF-8 ohne BOM, Zeilenende der Plattform (Windows CRLF, sonst LF)
 impl Default for Meta { fn default() -> Self { Meta { crlf: cfg!(windows), latin1: false, bom: false } } }
 impl Meta {
-    pub fn kodierung(&self) -> &'static str { if self.latin1 { "ISO-8859-1" } else if self.bom { "UTF-8 mit BOM" } else { "UTF-8" } }
+    pub fn kodierung(&self) -> String { if self.latin1 { "ISO-8859-1".to_string() } else if self.bom { vc_i18n::t!("textdatei-utf-8-mit-bom") } else { "UTF-8".to_string() } }
     pub fn zeilenende(&self) -> &'static str { if self.crlf { "CRLF" } else { "LF" } }
 }
 
@@ -32,7 +32,7 @@ pub fn kodieren(text: &str, meta: &Meta) -> Result<Vec<u8>, String> {
     let t = if meta.crlf { text.replace('\n', "\r\n") } else { text.to_string() };
     if meta.latin1 {
         let mut out = Vec::with_capacity(t.len());
-        for c in t.chars() { if (c as u32) < 256 { out.push(c as u32 as u8) } else { return Err(format!("Zeichen „{c}“ gibt es in ISO-8859-1 nicht: Kodierung auf UTF-8 stellen")) } }
+        for c in t.chars() { if (c as u32) < 256 { out.push(c as u32 as u8) } else { return Err(vc_i18n::t!("textdatei-zeichen-c-gibt-es-in-iso", c = &c)) } }
         return Ok(out)
     }
     let mut out = if meta.bom { vec![0xEF, 0xBB, 0xBF] } else { vec![] }; out.extend_from_slice(t.as_bytes()); Ok(out)

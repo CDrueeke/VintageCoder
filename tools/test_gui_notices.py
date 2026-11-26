@@ -6,7 +6,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import gui_notices as g
 
 # Lizenzkennungen, die für die Weitergabe unter der GPL-3.0-or-later unbedenklich sind (SPDX-Teile eines Ausdrucks)
-ERLAUBT = {"MIT", "Apache-2.0", "Zlib", "Unicode-3.0", "Unlicense", "BSD-3-Clause", "BSD-2-Clause", "BSL-1.0", "0BSD", "ISC", "OFL-1.1", "CC0-1.0", "LGPL-2.1-or-later", "GPL-2.0-only", "MPL-2.0", "LLVM-exception", "Unicode-DFS-2016", "BSD-1-Clause", "Apache-2.0 WITH LLVM-exception"}
+ERLAUBT = {"MIT", "MIT-0", "Apache-2.0", "Zlib", "Unicode-3.0", "Unlicense", "BSD-3-Clause", "BSD-2-Clause", "BSL-1.0", "0BSD", "ISC", "OFL-1.1", "CC0-1.0", "LGPL-2.1-or-later", "GPL-2.0-only", "MPL-2.0", "LLVM-exception", "Unicode-DFS-2016", "BSD-1-Clause", "Apache-2.0 WITH LLVM-exception"}
 
 class GuiNotices(unittest.TestCase):
     @classmethod

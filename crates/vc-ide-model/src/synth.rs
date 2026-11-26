@@ -11,7 +11,7 @@ pub enum Wave { Triangle, Saw, Pulse, Noise }
 impl Wave {
     pub fn parse(s: &str) -> Wave { match s { "saw" => Wave::Saw, "pulse" => Wave::Pulse, "noise" => Wave::Noise, _ => Wave::Triangle } }
     pub fn key(self) -> &'static str { match self { Wave::Triangle => "triangle", Wave::Saw => "saw", Wave::Pulse => "pulse", Wave::Noise => "noise" } }
-    pub fn label(self) -> &'static str { match self { Wave::Triangle => "Dreieck", Wave::Saw => "Sägezahn", Wave::Pulse => "Rechteck/Puls", Wave::Noise => "Rauschen" } }
+    pub fn label(self) -> String { match self { Wave::Triangle => vc_i18n::t!("synth-dreieck"), Wave::Saw => vc_i18n::t!("synth-saegezahn"), Wave::Pulse => vc_i18n::t!("synth-rechteck-puls"), Wave::Noise => vc_i18n::t!("synth-rauschen") } }
 }
 
 #[derive(Clone, Debug, PartialEq)]

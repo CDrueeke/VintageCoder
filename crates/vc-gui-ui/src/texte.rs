@@ -1,91 +1,91 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Alle sichtbaren Texte an einer Stelle (Konzept Abschnitt 13): Deutsch, du-Form, Infinitiv auf Knöpfen. Kein Text im Widgetcode.
-pub const APP_TITEL: &str = "VintageCoder";
-pub const STARTEN: &str = "▶ Starten";
-pub const DEBUGGEN: &str = "● Debuggen";
-pub const BAUEN: &str = "▣ Bauen";
-pub const BAUT: &str = "… Baut";
-pub const SUCHFELD: &str = "Befehl oder Datei suchen";
-pub const DATEIEN: &str = "Dateien";
-pub const SUCHE: &str = "Suche";
-pub const TEILEN_MIND_ZWEI: &str = "Zum Teilen müssen mindestens zwei Reiter offen sein.";
-pub const ABLEGEN_RECHTS: &str = "Hier ablegen: Editor teilen";
-pub const STREIFEN: &str = "Rechte Leiste";
-pub const AUSGEKLAPPT: &str = "ausgeklappt";
-pub const EINGEKLAPPT: &str = "eingeklappt";
-pub const SPALTE: &str = "Linke Spalte"; pub const GRUPPE_EXPORT: &str = "Exportiert (build/export)";
-pub const DOKUMENTE: &str = "Dokumentenfeld";
-pub const SCHUBLADE: &str = "Schublade";
-pub const PANEL: &str = "Rechtes Panel";
-pub const NORMAL: &str = "normal";
-pub const MINIMIERT: &str = "minimiert";
-pub const MAXIMIERT: &str = "maximiert";
+pub fn app_titel() -> String { vc_i18n::t!("texte-app-titel") }
+pub fn starten() -> String { vc_i18n::t!("texte-starten") }
+pub fn debuggen() -> String { vc_i18n::t!("texte-debuggen") }
+pub fn bauen() -> String { vc_i18n::t!("texte-bauen") }
+pub fn baut() -> String { vc_i18n::t!("texte-baut") }
+pub fn suchfeld() -> String { vc_i18n::t!("texte-suchfeld") }
+pub fn dateien() -> String { vc_i18n::t!("texte-dateien") }
+pub fn suche() -> String { vc_i18n::t!("texte-suche") }
+pub fn teilen_mind_zwei() -> String { vc_i18n::t!("texte-teilen-mind-zwei") }
+pub fn ablegen_rechts() -> String { vc_i18n::t!("texte-ablegen-rechts") }
+pub fn streifen() -> String { vc_i18n::t!("texte-streifen") }
+pub fn ausgeklappt() -> String { vc_i18n::t!("texte-ausgeklappt") }
+pub fn eingeklappt() -> String { vc_i18n::t!("texte-eingeklappt") }
+pub fn spalte() -> String { vc_i18n::t!("texte-spalte") } pub fn gruppe_export() -> String { vc_i18n::t!("texte-gruppe-export") }
+pub fn dokumente() -> String { vc_i18n::t!("texte-dokumente") }
+pub fn schublade() -> String { vc_i18n::t!("texte-schublade") }
+pub fn panel() -> String { vc_i18n::t!("texte-panel") }
+pub fn normal() -> String { vc_i18n::t!("texte-normal") }
+pub fn minimiert() -> String { vc_i18n::t!("texte-minimiert") }
+pub fn maximiert() -> String { vc_i18n::t!("texte-maximiert") }
 /// Name eines Bereichsknopfs für Hinweis und Bildschirmleser, z. B. „Schublade maximieren“
 pub fn knopfname(bereich: &str, aktion: &str) -> String { format!("{bereich} {aktion}") }
-pub const HILFE_TITEL: &str = "Hilfe";
-pub const ZEICHEN: &str = "Zeichen";
-pub const HILFE_SUCHE: &str = "Suchen: Thema, Befehl, Register …";
-pub const HILFE_ZURUECK: &str = "‹ Zurück";
-pub const HILFE_NICHTS: &str = "Nichts gefunden.";
-pub const ZEICHEN_SUCHE: &str = "Name, Zahl ($c1) oder Zeichen";
-pub const ZEICHEN_NICHT_HIER: &str = "Hier lässt sich kein Zeichen einfügen.";
-pub const ART_ASM: &str = "Assembler";
-pub const ART_BASIC: &str = "BASIC";
-pub const ART_TEXT: &str = "Text";
-pub const ART_NOTIZ: &str = "Notiz";
-pub const DLG_NEUE_DATEI: &str = "Neue Datei";
-pub const DLG_NEUER_ORDNER: &str = "Neuer Ordner";
-pub const DLG_UMBENENNEN: &str = "Datei umbenennen";
-pub const DLG_LOESCHEN: &str = "Datei löschen";
-pub const DLG_ART: &str = "Art";
-pub const DLG_NAME: &str = "Name (der Ordner steht davor)";
-pub const DLG_PROFIL: &str = "Profil";
-pub const BAUM_PFAD: &str = "Pfad, z. B. lib/musik.asm";
-pub const BAUM_OK: &str = "OK";
-pub const BAUM_ABBRUCH: &str = "Abbrechen";
-pub const BAUM_FRAGE_KORB: &str = "kommt in den Papierkorb. Löschen?";
-pub const BAUM_FRAGE_ENDGUELTIG: &str = "wird endgültig gelöscht (kein Papierkorb). Löschen?";
-pub const BAUM_KEINE_DATEI: &str = "Zuerst eine Datei öffnen.";
-pub const PROTOKOLL: &str = "Protokoll";
-pub const PROBLEME: &str = "Probleme";
-pub const BEREIT: &str = "Bereit";
-pub const KEINE_DATEI: &str = "Keine Datei geöffnet. Cmd+K, Cmd+O oder links wählen.";
-pub const KEIN_PROJEKT: &str = "Kein Projekt geöffnet";
-pub const SUCHE_LEER: &str = "Nichts gefunden.";
-pub const SUCHE_PLATZHALTER: &str = "In allen Dateien suchen …";
-pub const FINDEN: &str = "Suchen";
-pub const ERSETZEN: &str = "Ersetzen";
-pub const ALLE: &str = "Alle";
-pub const ZEILE: &str = "Zeile";
-pub const TREFFER: &str = "Treffer";
-pub const KEIN_TREFFER: &str = "kein Treffer";
-pub const GLIEDERUNG: &str = "Gliederung";
-pub const GLIEDERUNG_LEER: &str = "Keine Marken in dieser Datei.";
-pub const EINSTELLUNGEN: &str = "Einstellungen";
-pub const FARBSCHEMA: &str = "Farbschema";
-pub const DUNKEL: &str = "Dunkel";
-pub const HELL: &str = "Hell";
-pub const SYSTEM: &str = "System";
-pub const KONTRAST: &str = "Hoher Kontrast";
-pub const OBERFLAECHE: &str = "Oberfläche";
-pub const EDITOR_SCHRIFT: &str = "Editor-Schrift";
-pub const UMBRUCH: &str = "Zeilenumbruch";
+pub fn hilfe_titel() -> String { vc_i18n::t!("texte-hilfe-titel") }
+pub fn zeichen() -> String { vc_i18n::t!("texte-zeichen") }
+pub fn hilfe_suche() -> String { vc_i18n::t!("texte-hilfe-suche") }
+pub fn hilfe_zurueck() -> String { vc_i18n::t!("texte-hilfe-zurueck") }
+pub fn hilfe_nichts() -> String { vc_i18n::t!("texte-hilfe-nichts") }
+pub fn zeichen_suche() -> String { vc_i18n::t!("texte-zeichen-suche") }
+pub fn zeichen_nicht_hier() -> String { vc_i18n::t!("texte-zeichen-nicht-hier") }
+pub fn art_asm() -> String { vc_i18n::t!("texte-art-asm") }
+pub fn art_basic() -> String { vc_i18n::t!("texte-art-basic") }
+pub fn art_text() -> String { vc_i18n::t!("texte-art-text") }
+pub fn art_notiz() -> String { vc_i18n::t!("texte-art-notiz") }
+pub fn dlg_neue_datei() -> String { vc_i18n::t!("texte-dlg-neue-datei") }
+pub fn dlg_neuer_ordner() -> String { vc_i18n::t!("texte-dlg-neuer-ordner") }
+pub fn dlg_umbenennen() -> String { vc_i18n::t!("texte-dlg-umbenennen") }
+pub fn dlg_loeschen() -> String { vc_i18n::t!("texte-dlg-loeschen") }
+pub fn dlg_art() -> String { vc_i18n::t!("texte-dlg-art") }
+pub fn dlg_name() -> String { vc_i18n::t!("texte-dlg-name") }
+pub fn dlg_profil() -> String { vc_i18n::t!("texte-dlg-profil") }
+pub fn baum_pfad() -> String { vc_i18n::t!("texte-baum-pfad") }
+pub fn baum_ok() -> String { vc_i18n::t!("texte-baum-ok") }
+pub fn baum_abbruch() -> String { vc_i18n::t!("texte-baum-abbruch") }
+pub fn baum_frage_korb() -> String { vc_i18n::t!("texte-baum-frage-korb") }
+pub fn baum_frage_endgueltig() -> String { vc_i18n::t!("texte-baum-frage-endgueltig") }
+pub fn baum_keine_datei() -> String { vc_i18n::t!("texte-baum-keine-datei") }
+pub fn protokoll() -> String { vc_i18n::t!("texte-protokoll") }
+pub fn probleme() -> String { vc_i18n::t!("texte-probleme") }
+pub fn bereit() -> String { vc_i18n::t!("texte-bereit") }
+pub fn keine_datei() -> String { vc_i18n::t!("texte-keine-datei") }
+pub fn kein_projekt() -> String { vc_i18n::t!("texte-kein-projekt") }
+pub fn suche_leer() -> String { vc_i18n::t!("texte-suche-leer") }
+pub fn suche_platzhalter() -> String { vc_i18n::t!("texte-suche-platzhalter") }
+pub fn finden() -> String { vc_i18n::t!("texte-finden") }
+pub fn ersetzen() -> String { vc_i18n::t!("texte-ersetzen") }
+pub fn alle() -> String { vc_i18n::t!("texte-alle") }
+pub fn zeile() -> String { vc_i18n::t!("texte-zeile") }
+pub fn treffer() -> String { vc_i18n::t!("texte-treffer") }
+pub fn kein_treffer() -> String { vc_i18n::t!("texte-kein-treffer") }
+pub fn gliederung() -> String { vc_i18n::t!("texte-gliederung") }
+pub fn gliederung_leer() -> String { vc_i18n::t!("texte-gliederung-leer") }
+pub fn einstellungen() -> String { vc_i18n::t!("texte-einstellungen") }
+pub fn farbschema() -> String { vc_i18n::t!("texte-farbschema") }
+pub fn dunkel() -> String { vc_i18n::t!("texte-dunkel") }
+pub fn hell() -> String { vc_i18n::t!("texte-hell") }
+pub fn system() -> String { vc_i18n::t!("texte-system") }
+pub fn kontrast() -> String { vc_i18n::t!("texte-kontrast") }
+pub fn oberflaeche() -> String { vc_i18n::t!("texte-oberflaeche") }
+pub fn editor_schrift() -> String { vc_i18n::t!("texte-editor-schrift") }
+pub fn umbruch() -> String { vc_i18n::t!("texte-umbruch") }
 #[cfg(test)] mod tests { use super::*;
-    #[test] fn texte_nicht_leer() { for t in [STARTEN, DEBUGGEN, BAUEN, SUCHFELD, KEINE_DATEI, GLIEDERUNG_LEER, FARBSCHEMA] { assert!(!t.trim().is_empty()) } }
+    #[test] fn texte_nicht_leer() { for t in [starten(), debuggen(), bauen(), suchfeld(), keine_datei(), gliederung_leer(), farbschema()] { assert!(!t.trim().is_empty() && !t.contains('⟦')) } }
 }
 
 // Debuggen (Panel)
-pub const DEBUGGEN_PANEL: &str = "Debuggen";
-pub const DBG_WEITER: &str = "▶ Weiter"; pub const DBG_PAUSE: &str = "⏸ Anhalten"; pub const DBG_ENDE: &str = "■ Beenden";
-pub const DBG_UEBER: &str = "Schritt über"; pub const DBG_HINEIN: &str = "Hinein"; pub const DBG_RAUS: &str = "Hinaus";
-pub const DBG_STARTET: &str = "Emulator startet …"; pub const DBG_LAEUFT: &str = "Programm läuft"; pub const DBG_ANGEHALTEN: &str = "Angehalten bei"; pub const DBG_WARTET: &str = "Warte auf den Emulator …";
-pub const DBG_REGISTER: &str = "REGISTER"; pub const DBG_DISASSEMBLER: &str = "DISASSEMBLER"; pub const DBG_SPEICHER: &str = "SPEICHER (Adresse hexadezimal, * = geändert)"; pub const DBG_BEOBACHTEN: &str = "BEOBACHTEN"; pub const DBG_HALTEPUNKTE: &str = "HALTEPUNKTE"; pub const DBG_AUSDRUCK: &str = "Ausdruck, z. B. $d020";
-pub const KARTE: &str = "Karte"; pub const KARTE_LEER: &str = "Noch nichts gebaut: Nach dem Bauen zeigt die Karte, wo dein Programm im Speicher liegt.";
-pub const DBG_MOMENT: &str = "MOMENTAUFNAHME"; pub const DBG_MOMENT_ERKENNEN: &str = "Bildschirm erkennen"; pub const DBG_MOMENT_SPRITES: &str = "Sprites speichern"; pub const DBG_MOMENT_KACHELN: &str = "Zeichen als Kacheln"; pub const DBG_MOMENT_ROM: &str = "Zeichensatz aus dem ROM lesen"; pub const DBG_MOMENT_NAME: &str = "Name"; pub const DBG_MOMENT_SPEICHERN: &str = "Als Dateien speichern";
-pub const TESTS: &str = "Tests"; pub const TESTS_LEER: &str = "Noch keine Tests gelaufen. „Alle ausführen“ prüft die statischen Regeln und die Tests der .vctest-Dateien."; pub const TESTS_WAHL: &str = "Wähle einen Test: Erwartung, Messwert, Register und Zyklen erscheinen hier."; pub const TEST_DEBUG: &str = "Diesen Test debuggen";
-pub const EMULATOR_BILD: &str = "Bild"; pub const EMU_AKTUALISIEREN: &str = "Bild holen"; pub const EMU_AUTO: &str = "bei jedem Halt"; pub const EMU_LIVE: &str = "Zeitlupe live"; pub const EMU_LAEUFT: &str = "Das Programm läuft: Anhalten oder „Zeitlupe live“ zeigt das Bild."; pub const EMU_KEIN_BILD: &str = "Noch kein Bild: „Bild holen“."; pub const EMU_TEXT: &str = "Text an den Emulator senden (Enter)";
-pub const RQ_TITEL: &str = "Debug-Sitzung läuft"; pub const RQ_BEENDEN: &str = "Sitzung beenden"; pub const TESTS_PARALLEL: &str = "Die Debug-Sitzung läuft weiter; die Tests starten einen eigenen Emulator.";
-pub const DEBUG_REITER: &str = "Debug"; pub const DBG_REG_LAEUFT: &str = "Das Programm läuft. „Anhalten“ zeigt die Werte."; pub const DBG_SPEICHER_TITEL: &str = "SPEICHER"; pub const DBG_SPEICHER_FELD: &str = "Adresse, z. B. D020 oder start"; pub const DBG_KEINE_HALTEPUNKTE: &str = "Keine Haltepunkte. Mit F9 im Editor oder per Klick auf den Rand des Disassemblers setzen.";
-pub const EXPORT_TITEL: &str = "Export"; pub const EXPORT_KEIN_STUDIO: &str = "Kein Studio als Ziel: Öffne ein Sprite, einen Zeichensatz oder eine Palette im Studio und klicke dann auf „Exportieren …“."; pub const EXPORT_NAME: &str = "Name"; pub const EXPORT_LADEADRESSE: &str = "Ladeadresse"; pub const EXPORT_ADRESSE: &str = "Adresse"; pub const EXPORT_FORMAT: &str = "AUSGABEFORMAT"; pub const EXPORT_UMFANG: &str = "UMFANG"; pub const EXPORT_TAB_TEXT: &str = "Quelltext"; pub const EXPORT_TESTEN: &str = "Im Emulator testen"; pub const EXPORT_SPEICHERN: &str = "In Projekt speichern"; pub const EXPORT_EINFUEGEN: &str = "In aktiven Code einfügen";
-pub const IMPORT_TITEL: &str = "Dateien ins Projekt übernehmen"; pub const IMPORT_HINWEIS: &str = "Art, Kategorie und Zielordner sind Vorschläge; Namen lassen sich ändern. Bei einem Namenskonflikt wählst du Umbenennen, Ersetzen oder Überspringen.";
-pub const PALETTE_HINWEIS: &str = "Die MEGA65-Palette hat 8 Bit je Kanal. Der Export kümmert sich um die vertauschten Halbbytes der Register $D100/$D200/$D300.";
+pub fn debuggen_panel() -> String { vc_i18n::t!("texte-debuggen-panel") }
+pub fn dbg_weiter() -> String { vc_i18n::t!("texte-dbg-weiter") } pub fn dbg_pause() -> String { vc_i18n::t!("texte-dbg-pause") } pub fn dbg_ende() -> String { vc_i18n::t!("texte-dbg-ende") }
+pub fn dbg_ueber() -> String { vc_i18n::t!("texte-dbg-ueber") } pub fn dbg_hinein() -> String { vc_i18n::t!("texte-dbg-hinein") } pub fn dbg_raus() -> String { vc_i18n::t!("texte-dbg-raus") }
+pub fn dbg_startet() -> String { vc_i18n::t!("texte-dbg-startet") } pub fn dbg_laeuft() -> String { vc_i18n::t!("texte-dbg-laeuft") } pub fn dbg_angehalten() -> String { vc_i18n::t!("texte-dbg-angehalten") } pub fn dbg_wartet() -> String { vc_i18n::t!("texte-dbg-wartet") }
+pub fn dbg_register() -> String { vc_i18n::t!("texte-dbg-register") } pub fn dbg_disassembler() -> String { vc_i18n::t!("texte-dbg-disassembler") } pub fn dbg_speicher() -> String { vc_i18n::t!("texte-dbg-speicher") } pub fn dbg_beobachten() -> String { vc_i18n::t!("texte-dbg-beobachten") } pub fn dbg_haltepunkte() -> String { vc_i18n::t!("texte-dbg-haltepunkte") } pub fn dbg_ausdruck() -> String { vc_i18n::t!("texte-dbg-ausdruck") }
+pub fn karte() -> String { vc_i18n::t!("texte-karte") } pub fn karte_leer() -> String { vc_i18n::t!("texte-karte-leer") }
+pub fn dbg_moment() -> String { vc_i18n::t!("texte-dbg-moment") } pub fn dbg_moment_erkennen() -> String { vc_i18n::t!("texte-dbg-moment-erkennen") } pub fn dbg_moment_sprites() -> String { vc_i18n::t!("texte-dbg-moment-sprites") } pub fn dbg_moment_kacheln() -> String { vc_i18n::t!("texte-dbg-moment-kacheln") } pub fn dbg_moment_rom() -> String { vc_i18n::t!("texte-dbg-moment-rom") } pub fn dbg_moment_name() -> String { vc_i18n::t!("texte-dbg-moment-name") } pub fn dbg_moment_speichern() -> String { vc_i18n::t!("texte-dbg-moment-speichern") }
+pub fn tests() -> String { vc_i18n::t!("texte-tests") } pub fn tests_leer() -> String { vc_i18n::t!("texte-tests-leer") } pub fn tests_wahl() -> String { vc_i18n::t!("texte-tests-wahl") } pub fn test_debug() -> String { vc_i18n::t!("texte-test-debug") }
+pub fn emulator_bild() -> String { vc_i18n::t!("texte-emulator-bild") } pub fn emu_aktualisieren() -> String { vc_i18n::t!("texte-emu-aktualisieren") } pub fn emu_auto() -> String { vc_i18n::t!("texte-emu-auto") } pub fn emu_live() -> String { vc_i18n::t!("texte-emu-live") } pub fn emu_laeuft() -> String { vc_i18n::t!("texte-emu-laeuft") } pub fn emu_kein_bild() -> String { vc_i18n::t!("texte-emu-kein-bild") } pub fn emu_text() -> String { vc_i18n::t!("texte-emu-text") }
+pub fn rq_titel() -> String { vc_i18n::t!("texte-rq-titel") } pub fn rq_beenden() -> String { vc_i18n::t!("texte-rq-beenden") } pub fn tests_parallel() -> String { vc_i18n::t!("texte-tests-parallel") }
+pub fn debug_reiter() -> String { vc_i18n::t!("texte-debug-reiter") } pub fn dbg_reg_laeuft() -> String { vc_i18n::t!("texte-dbg-reg-laeuft") } pub fn dbg_speicher_titel() -> String { vc_i18n::t!("texte-dbg-speicher-titel") } pub fn dbg_speicher_feld() -> String { vc_i18n::t!("texte-dbg-speicher-feld") } pub fn dbg_keine_haltepunkte() -> String { vc_i18n::t!("texte-dbg-keine-haltepunkte") }
+pub fn export_titel() -> String { vc_i18n::t!("texte-export-titel") } pub fn export_kein_studio() -> String { vc_i18n::t!("texte-export-kein-studio") } pub fn export_name() -> String { vc_i18n::t!("texte-export-name") } pub fn export_ladeadresse() -> String { vc_i18n::t!("texte-export-ladeadresse") } pub fn export_adresse() -> String { vc_i18n::t!("texte-export-adresse") } pub fn export_format() -> String { vc_i18n::t!("texte-export-format") } pub fn export_umfang() -> String { vc_i18n::t!("texte-export-umfang") } pub fn export_tab_text() -> String { vc_i18n::t!("texte-export-tab-text") } pub fn export_testen() -> String { vc_i18n::t!("texte-export-testen") } pub fn export_speichern() -> String { vc_i18n::t!("texte-export-speichern") } pub fn export_einfuegen() -> String { vc_i18n::t!("texte-export-einfuegen") }
+pub fn import_titel() -> String { vc_i18n::t!("texte-import-titel") } pub fn import_hinweis() -> String { vc_i18n::t!("texte-import-hinweis") }
+pub fn palette_hinweis() -> String { vc_i18n::t!("texte-palette-hinweis") }

@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "project": {
+    "name": "PET: Native BASIC",
+    "description": "BASIC without line numbers, with labels (@name); write text in lower case (appears as capitals)"
+  },
+  "targets": [
+    { "id": "pet", "system": "pet", "variant": "pal", "cpu": "nmos6502", "illegals": "deny", "emulator": "vice" }
+  ],
+  "sources": [
+    { "targets": ["pet"], "kind": "basic", "files": ["hello.bas"] }
+  ],
+  "main": "hello.bas"
+}

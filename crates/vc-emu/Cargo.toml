@@ -5,5 +5,6 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+vc-i18n = { path = "../vc-i18n" }
 socket2 = { version = "0.6", features = ["all"] }
 serde_json.workspace = true

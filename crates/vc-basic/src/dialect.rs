@@ -23,19 +23,40 @@ pub struct Dialect {
     pub control: Vec<(String, u8)>,
     /// `$hex`/`%binär` als Literal im Interpreter (`numberLiterals`); fehlt das Feld: keine
     pub number_literals: crate::numbers::NumberRules,
+    /// Wörter, hinter denen Zeilennummern als Sprungziele stehen (`jumps` der Dialektdatei)
+    pub jumps: Vec<String>,
+    /// Wörter, die zur Laufzeit die Zeilennummer liefern (`runtimeLine`)
+    pub runtime_line: Vec<String>,
+    /// `'` leitet einen Kommentar ein (`quoteComment`; Commodore: nein)
+    pub quote_comment: bool,
+    /// Argumentzahlen der Anweisungen und Funktionen (`syntax`) für die Prüfung
+    pub syntax: Syntax,
+    /// Schlüsselwörter anderer Commodore-Dialekte, die dieser nicht kennt (für `B157`)
+    pub foreign: std::collections::HashSet<String>,
     by_name: HashMap<String, Vec<u8>>,
     by_token: HashMap<Vec<u8>, String>,
+}
+
+/// Zulässige Argumentzahl `(kleinste, größte)` je Schlüsselwort
+#[derive(Debug, Clone, Default)]
+pub struct Syntax { pub statements: HashMap<String, (usize, usize)>, pub functions: HashMap<String, (usize, usize)> }
+
+fn arity(v: &Value) -> HashMap<String, (usize, usize)> {
+    v.as_object().map(|o| o.iter().filter_map(|(k, x)| {
+        let s = x.as_str()?;
+        let (a, b) = s.split_once('-').unwrap_or((s, s));
+        Some((k.to_ascii_uppercase(), (a.trim().parse().ok()?, b.trim().parse().ok()?)))
+    }).collect()).unwrap_or_default()
 }
 
 impl Dialect {
     pub fn load(data_dir: &Path, id: &str) -> Result<Dialect, String> {
         let path = data_dir.join("basic").join(format!("{id}.dialect.json"));
-        let text = vc_core::read_static(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
+        let v: Value = crate::dialects::load_json(data_dir, id)?;
         let rows = |key: &str| -> Result<Vec<(String, Vec<u8>)>, String> {
-            v[key].as_array().ok_or(format!("{key} fehlt"))?.iter().map(|r| {
-                let n = r[0].as_str().ok_or("Name fehlt")?.to_string();
-                let c = r[1].as_str().and_then(parse_num).ok_or("Code ungültig")?;
+            v[key].as_array().ok_or_else(|| vc_i18n::t!("basic-dialect-key-missing", key = key))?.iter().map(|r| {
+                let n = r[0].as_str().ok_or_else(|| vc_i18n::t!("basic-dialect-name-missing"))?.to_string();
+                let c = r[1].as_str().and_then(parse_num).ok_or_else(|| vc_i18n::t!("basic-dialect-code-invalid"))?;
                 Ok((n, if c > 0xFF { vec![(c >> 8) as u8, c as u8] } else { vec![c as u8] }))
             }).collect()
         };
@@ -52,10 +73,17 @@ impl Dialect {
             by_name: tokens.iter().map(|(n, c)| (n.clone(), c.clone())).collect(),
             by_token: tokens.iter().map(|(n, c)| (c.clone(), n.clone())).collect(),
             number_literals: crate::numbers::NumberRules::from_json(&v),
+            jumps: v["jumps"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_else(|| ["GOTO", "GOSUB", "THEN", "RUN"].iter().map(|s| s.to_string()).collect()),
+            runtime_line: v["runtimeLine"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default(),
+            quote_comment: v["quoteComment"].as_bool().unwrap_or(false),
+            syntax: Syntax { statements: arity(&v["syntax"]["statements"]), functions: arity(&v["syntax"]["functions"]) },
+            foreign: Default::default(),
             tokens, control,
         };
+        let mut d = d;
+        d.foreign = foreign_words(data_dir, &d);
         for need in ["REM", "DATA", "GOTO", "GOSUB", "THEN", "IF", "NOT", "PRINT", "PRINT#", "INPUT", "INPUT#", "TAB(", "SPC(", "ON", "RESTORE", "RUN"] {
-            if !d.by_name.contains_key(need) { return Err(format!("{}: Pflicht-Keyword {need} fehlt", path.display())); }
+            if !d.by_name.contains_key(need) { return Err(vc_i18n::t!("basic-dialect-keyword-required", path = path.display().to_string(), need = need)); }
         }
         Ok(d)
     }
@@ -86,4 +114,19 @@ impl Dialect {
     pub fn control_code(&self, name: &str) -> Option<u8> { self.control.iter().find(|(n, _)| n == name).map(|(_, c)| *c) }
     pub fn control_name(&self, code: u8) -> Option<&str> { self.control.iter().find(|(_, c)| *c == code).map(|(n, _)| n.as_str()) }
     pub fn is_reserved_var(&self, name: &str) -> bool { self.reserved_vars.iter().any(|r| r.eq_ignore_ascii_case(name)) }
+}
+
+/// Wörter anderer Commodore-Dialekte (Dateien in `data/basic`), die `d` nicht kennt; Fehler beim Lesen einzelner Dateien werden übergangen
+fn foreign_words(data_dir: &Path, d: &Dialect) -> std::collections::HashSet<String> {
+    let mut out = std::collections::HashSet::new();
+    for other in crate::dialects::list(data_dir) {
+        if other.family != "cbm" || other.id == d.id { continue; }
+        let Ok(v) = crate::dialects::load_json(data_dir, &other.id) else { continue };
+        for r in v["tokens"].as_array().into_iter().flatten() {
+            let Some(w) = r[0].as_str() else { continue };
+            let w = w.trim_end_matches(|c| matches!(c, '(' | '#' | '$')).to_ascii_uppercase();
+            if w.len() >= 3 && w.chars().all(|c| c.is_ascii_alphabetic()) && !d.by_name.keys().any(|k| k.trim_end_matches(|c| matches!(c, '(' | '#' | '$')).eq_ignore_ascii_case(&w)) { out.insert(w); }
+        }
+    }
+    out
 }

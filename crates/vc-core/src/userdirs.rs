@@ -8,8 +8,17 @@ pub fn home_dir() -> Option<PathBuf> {
     std::env::var_os("HOME").filter(|h| !h.is_empty()).or_else(|| std::env::var_os("USERPROFILE").filter(|h| !h.is_empty())).map(PathBuf::from)
 }
 
-/// Ordner für Einstellungen und Layout (wird beim Schreiben bei Bedarf angelegt)
+/// Läuft dieser Prozess als Testprogramm von `cargo test` (Programmdatei unter `target/<profil>/deps`, Cargo-Umgebung gesetzt)?
+fn laeuft_als_cargo_test() -> bool {
+    std::env::var_os("CARGO_MANIFEST_DIR").is_some() && std::env::current_exe().ok().is_some_and(|e| e.parent().and_then(|p| p.file_name()).is_some_and(|n| n == "deps"))
+}
+
+/// Ordner für Einstellungen und Layout (wird beim Schreiben bei Bedarf angelegt).
+/// `VC_CONFIG_DIR` ersetzt ihn (Tests, Prüfpakete); in einem Testprogramm von `cargo test` ohne diese Variable liefert er einen eigenen Temp-Ordner,
+/// **nie** die echte Konfiguration des Benutzers (Tests dürfen dort nichts lesen oder überschreiben).
 pub fn config_dir() -> Option<PathBuf> {
+    if let Some(d) = std::env::var_os("VC_CONFIG_DIR").filter(|d| !d.is_empty()) { return Some(PathBuf::from(d)); }
+    if laeuft_als_cargo_test() { return Some(std::env::temp_dir().join(format!("vc-test-config-{}", std::process::id()))); }
     #[cfg(windows)]
     if let Some(a) = std::env::var_os("APPDATA").filter(|a| !a.is_empty()) { return Some(PathBuf::from(a).join("vintagecoder")); }
     unix_config_dir()
@@ -44,6 +53,10 @@ pub fn expand_home(p: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test] fn tests_beruehren_nie_die_echte_konfiguration() {
+        if std::env::var_os("VC_CONFIG_DIR").is_some() { return; }
+        let d = config_dir().unwrap(); assert!(d.starts_with(std::env::temp_dir()), "{}", d.display());
+    }
     use super::*;
 
     #[test]
@@ -64,9 +77,17 @@ mod tests {
         assert_eq!(linux_config_dir(Some(std::path::Path::new("relativ")), Some(h)).unwrap(), h.join(".config/vintagecoder"));
     }
 
+    /// Hermetisch: die Umgebungsvariable wird im Test gesetzt und entfernt (nicht vom Aufrufer geerbt) und danach wiederhergestellt;
+    /// beide Werte liegen im Temp-Ordner, damit der Test `tests_beruehren_nie_die_echte_konfiguration` nebenher nichts anderes sieht.
     #[test]
     fn config_dir_is_below_a_user_folder() {
+        let alt = std::env::var_os("VC_CONFIG_DIR");
+        let eigen = std::env::temp_dir().join(format!("vc-test-config-explizit-{}", std::process::id()));
+        std::env::set_var("VC_CONFIG_DIR", &eigen);
+        assert_eq!(config_dir().unwrap(), eigen, "VC_CONFIG_DIR gilt");
+        std::env::remove_var("VC_CONFIG_DIR");
         let d = config_dir().expect("Konfigurationsordner");
-        assert!(d.ends_with("vintagecoder"), "{}", d.display());
+        assert!(d.to_string_lossy().contains("vc-test-config"), "{}", d.display());
+        match alt { Some(v) => std::env::set_var("VC_CONFIG_DIR", v), None => {} }
     }
 }

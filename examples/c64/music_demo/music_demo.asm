@@ -4,8 +4,8 @@
 ;   lib/music.inc (Makros music_init, music_play, music_stop, music_runtime); dieses Programm sorgt nur dafür, dass `music_play`
 ;   genau einmal je Bild aufgerufen wird.
 ;
-; Vorbereitung und Bedienung: `vcc build examples/c64/music_demo` exportiert den Song selbst (von Hand: `vcc media export
-;   music/tune.vcsong`; erzeugt build/export/tune.asm). PRG laden, RUN: der Song läuft, bis man RESET drückt. Das Programm hat keine
+; Vorbereitung und Bedienung: `vcc build examples/c64/music_demo` wandelt den Song beim Einbinden selbst um (von Hand: `vcc media export
+;   music/tune.vcsong`). PRG laden, RUN: der Song läuft, bis man RESET drückt. Das Programm hat keine
 ;   Bedienung; die Tastatur wird nicht mehr abgefragt (der KERNAL-Teil des IRQ mit der Tastaturabfrage wird übergangen).
 ;
 ; Der Song (music/tune.vcsong): 3 Stimmen, Tempo 6 Bilder je Zeile, 32 Zeilen je Pattern, 2 Patterns in der Reihenfolge 0, 1, 0, 1 und
@@ -63,4 +63,4 @@ irq:    lda #$01
         jmp $ea81                   ; Register zurückholen, RTI
 
 music_runtime                       ; Spielroutine (music_play, mus_step, Zustand, Frequenztabelle) – hinter dem Hauptprogramm
-.include "build/export/tune.asm"    ; Songdaten: tune_order, tune_patterns, tune_ins und die Konstanten tune_speed, tune_rows, tune_patsize
+.include "music/tune.vcsong"    ; Songdaten: tune_order, tune_patterns, tune_ins und die Konstanten tune_speed, tune_rows, tune_patsize

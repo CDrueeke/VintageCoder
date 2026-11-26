@@ -9,7 +9,7 @@ fn dec1(v: f64) -> String { format!("{v:.1}").replace('.', ",") }
 
 /// Größe in Bytes als „812 B“ oder „14,8 KB“
 pub fn fmt_size(bytes: usize) -> String {
-    if bytes < 1024 { format!("{bytes} B") } else { format!("{} KB", dec1(bytes as f64 / 1024.0)) }
+    if bytes < 1024 { vc_i18n::t!("overview-facts-bytes-b", bytes = &bytes) } else { vc_i18n::t!("overview-facts-p1-kb", p1 = dec1(bytes as f64 / 1024.0)) }
 }
 
 /// „1 Sprite“ / „2 Sprites“
@@ -17,7 +17,7 @@ pub fn count_label(n: usize, one: &str, many: &str) -> String { format!("{n} {}"
 
 /// „gerade eben“, „vor 42 s“, „vor 3 Min.“, „vor 2 Std.“
 pub fn ago(secs: u64) -> String {
-    match secs { 0..=1 => "gerade eben".into(), 2..=59 => format!("vor {secs} s"), 60..=3599 => format!("vor {} Min.", secs / 60), _ => format!("vor {} Std.", secs / 3600) }
+    match secs { 0..=1 => vc_i18n::t!("overview-facts-gerade-eben").into(), 2..=59 => vc_i18n::t!("overview-facts-vor-secs-s", secs = &secs), 60..=3599 => vc_i18n::t!("overview-facts-vor-p1-min", p1 = secs / 60), _ => vc_i18n::t!("overview-facts-vor-p1-std", p1 = secs / 3600) }
 }
 
 /// Belegter Speicher aus den Segmenten der letzten Übersetzung (Start, Länge)
@@ -44,12 +44,12 @@ impl MediaCounts {
     /// Erste Zeile (Grafik) und zweite Zeile (Rest) der Kachel
     pub fn lines(&self) -> (String, String) {
         let mut a = vec![]; let mut b = vec![];
-        if self.sprites > 0 { a.push(count_label(self.sprites, "Sprite", "Sprites")); }
-        if self.charsets > 0 { a.push(count_label(self.charsets, "Zeichensatz", "Zeichensätze")); }
-        if self.screens > 0 { b.push(count_label(self.screens, "Bildschirm", "Bildschirme")); }
-        if self.tiles > 0 { b.push(count_label(self.tiles, "Kachelkarte", "Kachelkarten")); }
-        if self.songs > 0 { b.push(count_label(self.songs, "Lied", "Lieder")); }
-        if self.palettes > 0 { b.push(count_label(self.palettes, "Palette", "Paletten")); }
+        if self.sprites > 0 { a.push(count_label(self.sprites, &vc_i18n::t!("overview-facts-sprite"), &vc_i18n::t!("overview-facts-sprites"))); }
+        if self.charsets > 0 { a.push(count_label(self.charsets, &vc_i18n::t!("overview-facts-zeichensatz"), &vc_i18n::t!("overview-facts-zeichensaetze"))); }
+        if self.screens > 0 { b.push(count_label(self.screens, &vc_i18n::t!("overview-facts-bildschirm"), &vc_i18n::t!("overview-facts-bildschirme"))); }
+        if self.tiles > 0 { b.push(count_label(self.tiles, &vc_i18n::t!("overview-facts-kachelkarte"), &vc_i18n::t!("overview-facts-kachelkarten"))); }
+        if self.songs > 0 { b.push(count_label(self.songs, &vc_i18n::t!("overview-facts-lied"), &vc_i18n::t!("overview-facts-lieder"))); }
+        if self.palettes > 0 { b.push(count_label(self.palettes, &vc_i18n::t!("overview-facts-palette"), &vc_i18n::t!("overview-facts-paletten"))); }
         (a.join(" · "), b.join(" · "))
     }
 }
@@ -117,7 +117,7 @@ pub fn file_rows(root: &std::path::Path, entries: &[Entry], pf: Option<&ProjectF
 
 /// Bezeichnung der Art: `vcasm` bzw. BASIC mit ausdrücklich gewähltem Dialekt
 pub fn kind_chip(r: &SrcRow) -> String {
-    match r.kind.as_str() { "asm" => "vcasm".into(), "basic" if r.dialect.is_empty() => "BASIC".into(), "basic" => format!("BASIC · {}", r.dialect), k => k.to_string() }
+    match r.kind.as_str() { "asm" => "vcasm".into(), "basic" if r.dialect.is_empty() => "BASIC".into(), "basic" => vc_i18n::t!("overview-facts-basic-p1", p1 = &r.dialect), k => k.to_string() }
 }
 
 /// Zustand der Diskette des Projekts
@@ -153,7 +153,7 @@ pub enum Probe { Running, Ok(String), Err(String) }
 
 /// Zeile des Verbindungsdiagramms
 #[derive(Debug, PartialEq)]
-pub struct Backend { pub name: &'static str, pub protocol: &'static str, pub dot: Dot }
+pub struct Backend { pub name: String, pub protocol: String, pub dot: Dot }
 
 /// Welches Protokoll spricht diese Emulator-Sorte? `None`: wird nur gestartet, ohne Monitor
 pub fn protocol_of(kind: &str) -> Option<&'static str> {
@@ -169,10 +169,10 @@ pub fn backends(found: &[String], hw: &[(String, Option<Probe>)]) -> Vec<Backend
         if mine.iter().any(|p| matches!(p, Some(Probe::Ok(_)))) { Dot::Ready } else if mine.iter().any(|p| matches!(p, Some(Probe::Err(_)))) { Dot::Bad } else { Dot::Idle }
     };
     vec![
-        Backend { name: "VICE", protocol: "Binärmonitor", dot: emu("vice") },
-        Backend { name: "atari800", protocol: "Textmonitor", dot: emu("atari800") },
-        Backend { name: "Ultimate", protocol: "REST", dot: machine("ultimate64") },
-        Backend { name: "MEGA65", protocol: "UART", dot: machine("mega65") },
+        Backend { name: "VICE".into(), protocol: vc_i18n::t!("overview-facts-binaermonitor"), dot: emu("vice") },
+        Backend { name: "atari800".into(), protocol: vc_i18n::t!("overview-facts-textmonitor"), dot: emu("atari800") },
+        Backend { name: vc_i18n::t!("overview-facts-ultimate"), protocol: "REST".into(), dot: machine("ultimate64") },
+        Backend { name: "MEGA65".into(), protocol: "UART".into(), dot: machine("mega65") },
     ]
 }
 

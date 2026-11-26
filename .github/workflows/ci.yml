@@ -56,12 +56,14 @@ jobs:
           python3 -m unittest tools.test_gui_notices
           python3 -m unittest tools.test_check_schreibweise
           python3 -m unittest tools.test_check_spdx
+          python3 -m unittest tools.test_check_i18n
           python3 -m unittest tools.test_check_kuerzel
           python3 -m unittest tools.test_charsets
           python3 tools/check_schreibweise.py
           python3 tools/check_spdx.py
+          python3 tools/check_i18n.py
       - name: Staging je Testauswahl
-        run: python3 tools/ci_staging.py --bin-dir target/debug
+        run: python3 tools/ci_staging.py --bin-dir target/debug --oberflaeche egui
 
   linux:
     name: Bauen und Testen (ubuntu-latest)
@@ -90,11 +92,13 @@ jobs:
           python3 -m unittest tools.test_export_check
           python3 -m unittest tools.test_check_schreibweise
           python3 -m unittest tools.test_check_spdx
+          python3 -m unittest tools.test_check_i18n
           python3 -m unittest tools.test_charsets
           python3 tools/check_schreibweise.py
           python3 tools/check_spdx.py
+          python3 tools/check_i18n.py
       - name: Staging je Testauswahl
-        run: python3 tools/ci_staging.py --bin-dir target/debug
+        run: python3 tools/ci_staging.py --bin-dir target/debug --oberflaeche egui
 
   windows:
     name: Bauen und Testen (windows-latest, von Hand)

@@ -16,7 +16,7 @@ use vc_roms::{systems, RomEnv, RomStore, Status};
 /// Gelesener ROM-Stand als teilbarer Wert (der Dienst ist nicht `Clone`)
 #[derive(Clone)]
 pub struct StandPtr(pub Arc<RomStore>);
-impl std::fmt::Debug for StandPtr { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str("RomStand") } }
+impl std::fmt::Debug for StandPtr { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str(&vc_i18n::t!("romui-romstand")) } }
 
 #[derive(Clone, Debug)]
 pub enum RomAkt {
@@ -38,10 +38,10 @@ impl Default for RomZ {
 
 fn farbe(pal: Pal, s: Status) -> Color { match s { Status::Recognized => pal.ok, Status::UnknownRevision | Status::Replacement => pal.warn, Status::Missing | Status::Unusable => pal.err } }
 /// Gesamtampel eines Systems: ok = alles Erforderliche als Original erkannt, warn = benutzbar mit Ersatz, err = Erforderliches fehlt
-fn ampel(pal: Pal, store: &RomStore, system: &str) -> (Color, &'static str) {
-    if !store.missing_required(system).is_empty() { return (pal.err, "erforderliche ROM fehlt") }
+fn ampel(pal: Pal, store: &RomStore, system: &str) -> (Color, String) {
+    if !store.missing_required(system).is_empty() { return (pal.err, vc_i18n::t!("romui-erforderliche-rom-fehlt")) }
     let alle_original = systems::system(system).is_some_and(|sd| sd.roles.iter().filter(|r| r.required).all(|r| store.resolve(system, r.id).status == Status::Recognized)) && (system != "atari8" || store.resolve(system, "os").status == Status::Recognized);
-    if alle_original { (pal.ok, "alles Erforderliche als Original erkannt") } else { (pal.warn, "benutzbar, aber Ersatz oder unbekannte Revision") }
+    if alle_original { (pal.ok, vc_i18n::t!("romui-alles-erforderliche-als-original-erkannt")) } else { (pal.warn, vc_i18n::t!("romui-benutzbar-aber-ersatz-oder-unbekannte-revision")) }
 }
 fn kurz(sha: &str) -> String { format!("{}…", &sha[..12.min(sha.len())]) }
 fn groessen(s: &[usize]) -> String { s.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(" / ") }
@@ -97,13 +97,13 @@ impl App {
             RomAkt::SucheAbbrechen => { if let Some(s) = &self.satz.roms.sucht { s.store(true, Ordering::Relaxed) } }
             RomAkt::Gefunden(items, vollstaendig) => {
                 if self.satz.roms.sucht.take().is_some() {
-                    let titel = if items.is_empty() { if vollstaendig { "In anderen Programmen wurden keine bekannten ROMs gefunden".to_string() } else { "Suche abgebrochen, nichts gefunden".to_string() } } else { format!("{} ROM-Datei(en) in anderen Programmen gefunden{}", items.len(), if vollstaendig { "" } else { " (Suche vorzeitig beendet)" }) };
+                    let titel = if items.is_empty() { if vollstaendig { vc_i18n::t!("romui-in-anderen-programmen-wurden-keine-bekannten").to_string() } else { vc_i18n::t!("romui-suche-abgebrochen-nichts-gefunden").to_string() } } else { vc_i18n::t!("romui-p1-rom-datei-en-in-anderen", p1 = items.len(), p2 = if vollstaendig { String::new() } else { format!(" {}", vc_i18n::t!("romui-suche-vorzeitig-beendet")) }) };
                     self.satz.roms.vorschau = Some(Vorschau { titel, items: items.into_iter().map(|i| { let c = i.action == Action::Copy; (i, c) }).collect() });
                 }
             }
-            RomAkt::Waehlen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title("ROM-Datei wählen").pick_file().await.map(|f| f.path().to_path_buf()) }, |p| Msg::Set(SetAkt::Rom(RomAkt::Gewaehlt(p)))),
-            RomAkt::Gewaehlt(p) => { if let Some(p) = p { self.rom_plan(vec![p], "Gewählte Datei".into()) } }
-            RomAkt::Abgelegt(p) => { let n = 1; self.rom_plan(vec![p], format!("{n} Datei(en) abgelegt")) }
+            RomAkt::Waehlen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("romui-rom-datei-waehlen")).pick_file().await.map(|f| f.path().to_path_buf()) }, |p| Msg::Set(SetAkt::Rom(RomAkt::Gewaehlt(p)))),
+            RomAkt::Gewaehlt(p) => { if let Some(p) = p { self.rom_plan(vec![p], vc_i18n::t!("romui-gewaehlte-datei").into()) } }
+            RomAkt::Abgelegt(p) => { let n = 1; self.rom_plan(vec![p], vc_i18n::t!("romui-n-datei-en-abgelegt", n = &n)) }
             RomAkt::Haken(i, an) => { if let Some((it, h)) = self.satz.roms.vorschau.as_mut().and_then(|v| v.items.get_mut(i)) { if it.action == Action::Copy { *h = an } } }
             RomAkt::Alle(an) => { if let Some(v) = &mut self.satz.roms.vorschau { for (it, h) in v.items.iter_mut() { if it.action == Action::Copy { *h = an } } } }
             RomAkt::VorschauZu => self.satz.roms.vorschau = None,
@@ -111,13 +111,13 @@ impl App {
                 let Some(v) = self.satz.roms.vorschau.take() else { return Task::none() };
                 let (mut ok, mut fehler) = (0, vec![]);
                 for (it, h) in v.items.iter().filter(|(i, h)| *h && i.action == Action::Copy) { let _ = h; match import::execute(it) { Ok(_) => ok += 1, Err(e) => fehler.push(e) } }
-                self.satz.roms.meldung = Some((fehler.is_empty(), if fehler.is_empty() { format!("{ok} ROM-Datei(en) kopiert.") } else { format!("{ok} kopiert, Fehler: {}", fehler.join("; ")) }));
+                self.satz.roms.meldung = Some((fehler.is_empty(), if fehler.is_empty() { vc_i18n::t!("romui-ok-rom-datei-en-kopiert", ok = &ok) } else { vc_i18n::t!("romui-ok-kopiert-fehler-p2", ok = &ok, p2 = fehler.join("; ")) }));
                 if !cfg!(test) { vc_media::romref::rescan_async() }
                 return self.rom_laden()
             }
             RomAkt::Fest(s, r, f) => {
                 let wurzel = self.satz.roms.stand.as_ref().and_then(|s| s.env.install_dir());
-                match wurzel { Some(w) => match vc_roms::store::pin(&w, &s, &r, f.as_deref()) { Ok(()) => { self.satz.roms.meldung = Some((true, "Auswahl gespeichert (roms.json).".into())); return self.rom_laden() } Err(e) => self.satz.roms.meldung = Some((false, e)) }, None => self.satz.roms.meldung = Some((false, "Kein ROM-Ordner verfügbar.".into())) }
+                match wurzel { Some(w) => match vc_roms::store::pin(&w, &s, &r, f.as_deref()) { Ok(()) => { self.satz.roms.meldung = Some((true, vc_i18n::t!("romui-auswahl-gespeichert-roms-json").into())); return self.rom_laden() } Err(e) => self.satz.roms.meldung = Some((false, e)) }, None => self.satz.roms.meldung = Some((false, vc_i18n::t!("romui-kein-rom-ordner-verfuegbar").into())) }
             }
         }
         Task::none()
@@ -125,21 +125,21 @@ impl App {
 
     pub(crate) fn seite_roms(&self, pal: Pal) -> Element<'_, Msg> {
         let z = &self.satz.roms;
-        let Some(store) = &z.stand else { return column![abschnitt(pal, "ROMs", "Prüfe ROM-Orte …")].into() };
+        let Some(store) = &z.stand else { return column![abschnitt(pal, vc_i18n::t!("romui-roms"), vc_i18n::t!("romui-pruefe-rom-orte"))].into() };
         let r = |a: RomAkt| Msg::Set(SetAkt::Rom(a));
         let dir = store.env.install_dir();
-        let mut kopf = vec![row![text("ROM-Ordner").size(13).color(pal.text).width(170), mono(pal, dir.as_ref().map(|d| d.display().to_string()).unwrap_or_else(|| "–".into()))].spacing(12).into(),
-            row![knopf(pal, "Ordner öffnen", dir.as_ref().map(|_| r(RomAkt::OrdnerOeffnen)), pal.text, false), knopf(pal, if z.laedt { "Prüfe …" } else { "Neu prüfen" }, (!z.laedt).then(|| r(RomAkt::Neu)), pal.text, false)].spacing(8).into()];
+        let mut kopf = vec![row![text(vc_i18n::t!("romui-rom-ordner")).size(13).color(pal.text).width(170), mono(pal, dir.as_ref().map(|d| d.display().to_string()).unwrap_or_else(|| "–".into()))].spacing(12).into(),
+            row![knopf(pal, vc_i18n::t!("romui-ordner-oeffnen"), dir.as_ref().map(|_| r(RomAkt::OrdnerOeffnen)), pal.text, false), knopf(pal, if z.laedt { vc_i18n::t!("romui-pruefe") } else { vc_i18n::t!("romui-neu-pruefen") }, (!z.laedt).then(|| r(RomAkt::Neu)), pal.text, false)].spacing(8).into()];
         let port: String = match &store.env.portable {
-            Some(vc_roms::Portable::Active { dir, by_marker }) => format!("aktiv: {}{}", dir.display(), if *by_marker { " (Markierungsdatei „portable“)" } else { "" }),
-            Some(vc_roms::Portable::Unavailable(w)) => format!("nicht verfügbar: {w}"),
-            Some(vc_roms::Portable::Off { base: Some(b) }) => format!("aus · aktivieren: Ordner „roms“ oder Datei „portable“ in {} anlegen", b.display()),
-            _ => "aus".into() };
-        kopf.push(row![text("Portabler Modus").size(13).color(pal.text).width(170), klein(pal, port)].spacing(12).into());
-        if store.env.vc_roms.is_some() && self.satz.roms.test_ordner.is_none() { kopf.push(text("Die Umgebungsvariable VC_ROMS ersetzt Benutzer- und Programmordner.").size(11.5).color(pal.warn).into()) }
-        let mut orte = vec![klein(pal, "Gesuchte Orte")];
-        for s in store.searched() { orte.push(row![text(s.stage.label()).size(11.5).color(if s.files > 0 { pal.ok } else { pal.mute }).width(120), mono(pal, s.path.display().to_string()), klein(pal, if s.exists { format!("{} Datei(en)", s.files) } else { "nicht vorhanden".into() })].spacing(8).wrap().into()) }
-        if !store.env.use_foreign { orte.push(klein(pal, "ROM-Ordner anderer Programme werden nicht durchsucht (Schalter unten).")) }
+            Some(vc_roms::Portable::Active { dir, by_marker }) => vc_i18n::t!("romui-aktiv-p1-p2", p1 = dir.display(), p2 = if *by_marker { format!(" {}", vc_i18n::t!("romui-markierungsdatei-portable")) } else { String::new() }),
+            Some(vc_roms::Portable::Unavailable(w)) => vc_i18n::t!("romui-nicht-verfuegbar-w", w = &w),
+            Some(vc_roms::Portable::Off { base: Some(b) }) => vc_i18n::t!("romui-aus-aktivieren-ordner-roms-oder-datei", p1 = b.display()),
+            _ => vc_i18n::t!("setui-aus-klein") };
+        kopf.push(row![text(vc_i18n::t!("romui-portabler-modus")).size(13).color(pal.text).width(170), klein(pal, port)].spacing(12).into());
+        if store.env.vc_roms.is_some() && self.satz.roms.test_ordner.is_none() { kopf.push(text(vc_i18n::t!("romui-die-umgebungsvariable-vc-roms-ersetzt-benutzer")).size(11.5).color(pal.warn).into()) }
+        let mut orte = vec![klein(pal, vc_i18n::t!("romui-gesuchte-orte"))];
+        for s in store.searched() { orte.push(row![text(s.stage.label()).size(11.5).color(if s.files > 0 { pal.ok } else { pal.mute }).width(120), mono(pal, s.path.display().to_string()), klein(pal, if s.exists { vc_i18n::t!("romui-p1-datei-en", p1 = &s.files) } else { vc_i18n::t!("romui-nicht-vorhanden").into() })].spacing(8).wrap().into()) }
+        if !store.env.use_foreign { orte.push(klein(pal, vc_i18n::t!("romui-rom-ordner-anderer-programme-werden-nicht"))) }
         kopf.push(column(orte).spacing(2).into());
         let reiter = iced::widget::row(systems::SYSTEMS.iter().enumerate().map(|(i, sd)| {
             let (c, tipp) = ampel(pal, store, sd.id); let on = z.system == i;
@@ -151,9 +151,9 @@ impl App {
             let rs = store.resolve(sd.id, rd.id);
             let atari_os = sd.id == "atari8" && systems::OS_ALTERNATIVES.contains(&rd.id);
             let noetig = rd.required || (atari_os && !store.resolve("atari8", "os").is_usable());
-            let (st_text, st_farbe) = match rs.status { Status::Missing => (if noetig { "Fehlt" } else { "Fehlt (optional)" }, if noetig { pal.err } else { pal.mute }), s => (s.label(), farbe(pal, s)) };
-            let datei: Element<Msg> = match &rs.path { Some(p) => mono(pal, dateiname(p)), None => klein(pal, format!("z. B. {}", rd.file)) };
-            let mut knoepfe = row![knopf(pal, "Auswählen …", Some(r(RomAkt::Waehlen)), pal.text, false)].spacing(6);
+            let (st_text, st_farbe) = match rs.status { Status::Missing => (if noetig { vc_i18n::t!("romui-fehlt") } else { vc_i18n::t!("romui-fehlt-optional") }, if noetig { pal.err } else { pal.mute }), s => (s.label().to_string(), farbe(pal, s)) };
+            let datei: Element<Msg> = match &rs.path { Some(p) => mono(pal, dateiname(p)), None => klein(pal, vc_i18n::t!("romui-z-b-p1", p1 = &rd.file)) };
+            let mut knoepfe = row![knopf(pal, vc_i18n::t!("romui-auswaehlen"), Some(r(RomAkt::Waehlen)), pal.text, false)].spacing(6);
             if !rs.others.is_empty() {
                 // Festnageln: je Datei ein Knopf, dazu „Automatisch“
                 let benutzt = rs.path.as_ref().map(|p| dateiname(p));
@@ -161,22 +161,22 @@ impl App {
                     let n = dateiname(&f.0); let aktiv = Some(&n) == benutzt.as_ref() && f.1;
                     knoepfe = knoepfe.push(button(text(format!("{}{n}", if aktiv { "✓ " } else { "" })).size(12).color(pal.text)).padding([4, 8]).on_press(r(RomAkt::Fest(sd.id.to_string(), rd.id.to_string(), Some(n)))).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { color: if aktiv { pal.accent } else { pal.line }, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }));
                 }
-                knoepfe = knoepfe.push(knopf(pal, "Automatisch", Some(r(RomAkt::Fest(sd.id.to_string(), rd.id.to_string(), None))), pal.text, false));
+                knoepfe = knoepfe.push(knopf(pal, vc_i18n::t!("romui-automatisch"), Some(r(RomAkt::Fest(sd.id.to_string(), rd.id.to_string(), None))), pal.text, false));
             }
             let detail = match (&rs.path, &rs.crc32, &rs.sha1) {
-                (Some(_), Some(c), Some(sha)) => { let mut t = vec![rs.place_label.clone().unwrap_or_default()]; if let Some(l) = &rs.label { t.push(l.clone()) } t.push(format!("{} Byte", rs.size.unwrap_or(0))); t.push(format!("CRC-32 {c:08X}")); t.push(format!("SHA-1 {}", kurz(sha))); if !rs.others.is_empty() { t.push(format!("+{} weitere Datei(en) derselben Rolle", rs.others.len())) } t.join("  ·  ") }
-                _ => format!("Erwartet {} Byte", groessen(rd.sizes)) };
+                (Some(_), Some(c), Some(sha)) => { let mut t = vec![rs.place_label.clone().unwrap_or_default()]; if let Some(l) = &rs.label { t.push(l.clone()) } t.push(vc_i18n::t!("romui-p1-byte", p1 = rs.size.unwrap_or(0))); t.push(vc_i18n::t!("romui-crc-32-c", c = format!("{:08X}", c))); t.push(vc_i18n::t!("romui-sha-1-p1", p1 = kurz(sha))); if !rs.others.is_empty() { t.push(vc_i18n::t!("romui-p1-weitere-datei-en-derselben-rolle", p1 = rs.others.len())) } t.join("  ·  ") }
+                _ => vc_i18n::t!("romui-erwartet-p1-byte", p1 = groessen(rd.sizes)) };
             rollen.push(column![row![text(st_text).size(12.5).color(st_farbe).width(140), text(rd.label).size(13).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).width(170), datei].spacing(10).align_y(Alignment::Center).wrap().vertical_spacing(4), knoepfe.wrap().vertical_spacing(4), klein(pal, detail)].spacing(3).into());
         }
-        if sd.id == "atari8" { rollen.push(klein(pal, "Von den Betriebssystemen genügt eines; das erste vorhandene (XL/XE, dann 400/800 B, dann A) wird benutzt. Ohne ROM läuft atari800 mit seinem eingebauten Ersatz.")) }
-        if sd.id == "mega65" { rollen.push(klein(pal, "Xemu braucht eine ROM-Datei von genau 131072 Byte; eine unbekannte Fassung wird mit Warnung benutzt.")) }
+        if sd.id == "atari8" { rollen.push(klein(pal, vc_i18n::t!("romui-von-den-betriebssystemen-genuegt-eines-das"))) }
+        if sd.id == "mega65" { rollen.push(klein(pal, vc_i18n::t!("romui-xemu-braucht-eine-rom-datei-von"))) }
         let fremd_an = self.satz.gespeichert.roms.use_foreign;
-        let mut fremd = vec![row![checkbox(fremd_an).label("ROMs anderer Programme mitbenutzen (VICE, Xemu, atari800 …)").on_toggle(|an| Msg::Set(SetAkt::Rom(RomAkt::Fremde(an)))).size(16).text_size(13)].into(), klein(pal, "Nur lesend. Nichts wird kopiert, außer du importierst ausdrücklich.")];
-        fremd.push(if z.sucht.is_some() { row![text("Suche in anderen Programmen läuft …").size(13).color(pal.text), knopf(pal, "Abbrechen", Some(r(RomAkt::SucheAbbrechen)), pal.text, false)].spacing(10).align_y(Alignment::Center).into() }
-            else { row![knopf(pal, "ROMs aus VICE importieren …", Some(r(RomAkt::Suchen)), pal.text, false), knopf(pal, "Woher bekomme ich ROMs?", Some(r(RomAkt::Hilfe)), pal.text, false)].spacing(8).wrap().vertical_spacing(6).into() });
-        if z.hilfe { fremd.push(klein(pal, "• Aus dem eigenen Gerät auslesen (EPROM-Programmer, Kartuschen- und Dump-Werkzeuge).\n• Käuflich mit Lizenz, z. B. als Sammlung eines Anbieters, der die Systemdateien lizenziert.\n• Freie Ersatz-ROMs: Open-ROMs (C64, MEGA65), Altirra (Atari). VintageCoder liefert keine Original-ROMs mit.")) }
-        let mut spalte = column![abschnitt(pal, "ROMs", "Deine eigenen ROM-Abbilder. VintageCoder liefert keine Original-ROMs mit; erkannt wird am Inhalt (Prüfsumme), der Dateiname ist egal."), karte(pal, kopf), reiter, karte(pal, rollen),
-            klein(pal, format!("ROM-Dateien oder ZIP-Archive lassen sich auf das Fenster ziehen (für {} bevorzugt) oder mit „Auswählen …“ wählen; sie kommen erst nach Bestätigung in den ROM-Ordner.", sd.label)), karte(pal, fremd)].spacing(8);
+        let mut fremd = vec![row![checkbox(fremd_an).label(vc_i18n::t!("romui-roms-anderer-programme-mitbenutzen-vice-xemu")).on_toggle(|an| Msg::Set(SetAkt::Rom(RomAkt::Fremde(an)))).size(16).text_size(13)].into(), klein(pal, vc_i18n::t!("romui-nur-lesend-nichts-wird-kopiert-ausser"))];
+        fremd.push(if z.sucht.is_some() { row![text(vc_i18n::t!("romui-suche-in-anderen-programmen-laeuft")).size(13).color(pal.text), knopf(pal, vc_i18n::t!("romui-abbrechen"), Some(r(RomAkt::SucheAbbrechen)), pal.text, false)].spacing(10).align_y(Alignment::Center).into() }
+            else { row![knopf(pal, vc_i18n::t!("romui-roms-aus-vice-importieren"), Some(r(RomAkt::Suchen)), pal.text, false), knopf(pal, vc_i18n::t!("romui-woher-bekomme-ich-roms"), Some(r(RomAkt::Hilfe)), pal.text, false)].spacing(8).wrap().vertical_spacing(6).into() });
+        if z.hilfe { fremd.push(klein(pal, vc_i18n::t!("romui-aus-dem-eigenen-geraet-auslesen-eprom"))) }
+        let mut spalte = column![abschnitt(pal, vc_i18n::t!("romui-roms"), vc_i18n::t!("romui-deine-eigenen-rom-abbilder-vintagecoder-liefert")), karte(pal, kopf), reiter, karte(pal, rollen),
+            klein(pal, vc_i18n::t!("romui-rom-dateien-oder-zip-archive-lassen", p1 = &sd.label)), karte(pal, fremd)].spacing(8);
         if let Some(v) = &z.vorschau { spalte = spalte.push(self.rom_vorschau(pal, v)) }
         if let Some((gut, m)) = &z.meldung { spalte = spalte.push(text(m.clone()).size(12.5).color(if *gut { pal.ok } else { pal.err })) }
         spalte.into()
@@ -185,10 +185,10 @@ impl App {
     fn rom_vorschau<'a>(&'a self, pal: Pal, v: &'a Vorschau) -> Element<'a, Msg> {
         let r = |a: RomAkt| Msg::Set(SetAkt::Rom(a));
         let n = v.items.iter().filter(|(i, h)| *h && i.action == Action::Copy).count(); let kopierbar = v.items.iter().filter(|(i, _)| i.action == Action::Copy).count();
-        let mut z = row![knopf(pal, &format!("{n} Datei(en) kopieren"), (n > 0).then(|| r(RomAkt::Kopieren)), pal.text, true), knopf(pal, "Abbrechen", Some(r(RomAkt::VorschauZu)), pal.text, false)].spacing(8);
-        if kopierbar > 0 { z = z.push(knopf(pal, "Alle abwählen", Some(r(RomAkt::Alle(false))), pal.text, false)).push(knopf(pal, "Alle wählen", Some(r(RomAkt::Alle(true))), pal.text, false)) }
+        let mut z = row![knopf(pal, vc_i18n::t!("romui-n-datei-en-kopieren", n = &n), (n > 0).then(|| r(RomAkt::Kopieren)), pal.text, true), knopf(pal, vc_i18n::t!("romui-abbrechen"), Some(r(RomAkt::VorschauZu)), pal.text, false)].spacing(8);
+        if kopierbar > 0 { z = z.push(knopf(pal, vc_i18n::t!("romui-alle-abwaehlen"), Some(r(RomAkt::Alle(false))), pal.text, false)).push(knopf(pal, vc_i18n::t!("romui-alle-waehlen"), Some(r(RomAkt::Alle(true))), pal.text, false)) }
         let mut liste = column![].spacing(6);
-        if v.items.is_empty() { liste = liste.push(klein(pal, "Nichts zu übernehmen.")) }
+        if v.items.is_empty() { liste = liste.push(klein(pal, vc_i18n::t!("romui-nichts-zu-uebernehmen"))) }
         // nach System gruppiert (Reihenfolge der Systeme), innerhalb stabil
         let mut ord: Vec<usize> = (0..v.items.len()).collect();
         let rang = |s: &Option<String>| systems::SYSTEMS.iter().position(|d| Some(d.id) == s.as_deref()).unwrap_or(usize::MAX);
@@ -199,11 +199,11 @@ impl App {
             if letzte.as_ref() != Some(&it.system) { liste = liste.push(text(it.system.as_deref().and_then(systems::system).map(|d| d.label).unwrap_or("Sonstige").to_string()).size(12).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute)); letzte = Some(it.system.clone()) }
             let rolle = it.role.as_deref().and_then(|x| systems::role(it.system.as_deref().unwrap_or(""), x)).map(|x| x.label).unwrap_or("?");
             let name = it.data.as_ref().and_then(|_| it.dest.as_ref().map(|d| dateiname(d))).unwrap_or_else(|| dateiname(&it.src));
-            let (status, sf) = match &it.action { Action::Copy => if it.label.is_some() { ("Erkannt", pal.ok) } else { ("Unbekannte Revision", pal.warn) }, Action::AlreadyPresent(_) => ("Schon vorhanden", pal.mute), Action::Skip(_) => ("Übersprungen", pal.mute) };
+            let (status, sf) = match &it.action { Action::Copy => if it.label.is_some() { (vc_i18n::t!("romui-erkannt"), pal.ok) } else { (vc_i18n::t!("romui-unbekannte-revision"), pal.warn) }, Action::AlreadyPresent(_) => (vc_i18n::t!("romui-schon-vorhanden"), pal.mute), Action::Skip(_) => (vc_i18n::t!("romui-uebersprungen"), pal.mute) };
             let notiz = match &it.action { Action::Skip(w) => w.clone(), _ => format!("{}{}", it.label.clone().unwrap_or_default(), it.source_label.as_ref().map(|s| format!("  [{s}]")).unwrap_or_default()) };
             let haken: Element<Msg> = if it.action == Action::Copy { checkbox(*an).on_toggle(move |b| r(RomAkt::Haken(i, b))).size(16).into() } else { iced::widget::space::horizontal().width(16).into() };
             liste = liste.push(row![haken, text(status).size(12).color(sf).width(130), text(rolle).size(12.5).color(pal.text).width(130), mono(pal, name), klein(pal, notiz)].spacing(8).align_y(Alignment::Center).wrap().vertical_spacing(2));
         }
-        karte(pal, vec![text(v.titel.clone()).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(), z.wrap().vertical_spacing(6).into(), klein(pal, "Ziel: ROM-Ordner; vorhandene Dateien werden nie überschrieben."), scrollable(liste).height(Length::Fixed(260.0)).into()])
+        karte(pal, vec![text(v.titel.clone()).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(), z.wrap().vertical_spacing(6).into(), klein(pal, vc_i18n::t!("romui-ziel-rom-ordner-vorhandene-dateien-werden")), scrollable(liste).height(Length::Fixed(260.0)).into()])
     }
 }

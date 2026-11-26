@@ -1,6 +1,6 @@
 # Hugo & Gumbo (MEGA65)
 
-Selbstlaufende Jump-and-Run-Demo in Assembler, hier im **VIC-II-Modus des MEGA65**: gleiche Spiellogik (`../../common/jumprun/core.asm`),
+Selbstlaufende Jump-and-Run-Demo in Assembler, hier im **VIC-II-Modus des MEGA65**: gleiche Spiellogik (`lib/core.asm`),
 gleiche Bilder und Sprites wie die C64-Version, Hardware-Schicht `hal_mega65.asm`.
 
 - Anpassungen: 45GS02-Code, BASIC-65-Umfeld abschalten (MAP/EOM, `$01 = $35`, VIC-IV freischalten, 40 Spalten), VIC-Bank 1 (`$4000`–`$7FFF`),

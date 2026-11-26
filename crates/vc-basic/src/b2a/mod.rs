@@ -8,7 +8,7 @@ mod parse;
 pub mod print;
 
 use crate::{number_lines, Dialect, PlainOptions};
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic};
 
 pub use gen::{bcd, mbf, target_info, TargetInfo, TARGETS};
 pub use parse::{parse_numbered, parse_numbered_for, parse_numbered_with};
@@ -109,7 +109,7 @@ fn atari_check(src: &str, file: &str) -> Vec<Diagnostic> {
             if w == "REM" || w == "DATA" { break; }
             if st > 0 && b[st - 1] == '@' { continue; }
             if ATARI_ONLY.contains(&w.as_str()) {
-                errs.push(Diagnostic::error("E311", file, n + 1, format!("'{w}' ist Atari-BASIC und wird nicht übersetzt (Kanal- und Dateibefehle, XIO, TRAP, NOTE/POINT, PADDLE u. a.)")));
+                errs.push(Diagnostic::error("E311", file, n + 1, msg!("diag-basic-e311-atari-only", w = w)));
             }
         }
     }
@@ -145,7 +145,7 @@ fn prepare(src: &str, d: &Dialect, o: &B2aOptions) -> Result<Prepared, Vec<Diagn
     let atari_src;
     let atari_d;
     let is_atari = target_info(&o.target).map_or(false, |t| t.atari);
-    if o.turbo && !is_atari { return Err(vec![Diagnostic::error("E344", &o.file, 0, "Turbo BASIC XL gibt es nur für das Ziel atari8")]); }
+    if o.turbo && !is_atari { return Err(vec![Diagnostic::error("E344", &o.file, 0, msg!("diag-basic-e344-turbo-target"))]); }
     let d: &Dialect = if is_atari { atari_d = atari_dialect(d, o.turbo); &atari_d } else { d };
     let src = if is_atari {
         let e = atari_check(src, &o.file);
@@ -174,13 +174,14 @@ fn embed_includes(asm: &str, sys: &std::path::Path, depth: usize, file: &str) ->
         let t = line.trim();
         if let Some(rest) = t.strip_prefix("#include <") {
             let name = rest.trim_end_matches('>');
-            let path = sys.join(name);
-            let text = vc_core::read_static(&path).map_err(|e| vec![Diagnostic::error("E192", file, 0, format!("embed: {}: {e}", path.display()))])?;
-            if depth > 8 { return Err(vec![Diagnostic::error("E192", file, 0, format!("embed: Include-Schleife bei {name}"))]); }
+            // Englisch: gibt es `<sys>/en/<name>` (gleicher Code, übersetzte Kommentare), gilt diese Fassung; die Kommentare stehen in der erzeugten Datei
+            let path = { let en = sys.join("en").join(name); if vc_i18n::language() == vc_i18n::Lang::En && en.is_file() { en } else { sys.join(name) } };
+            let text = vc_core::read_static(&path).map_err(|e| vec![Diagnostic::error("E192", file, 0, msg!("diag-basic-e192-embed-read", path = path.display().to_string(), error = e.to_string()))])?;
+            if depth > 8 { return Err(vec![Diagnostic::error("E192", file, 0, msg!("diag-basic-e192-embed-loop", name = name))]); }
             out.push_str(&format!("; ---------------- {name} ----------------\n"));
             out.push_str(&embed_includes(&text, sys, depth + 1, file)?);
             if !out.ends_with('\n') { out.push('\n'); }
-            out.push_str(&format!("; ---------------- Ende {name} ----------------\n"));
+            out.push_str(&format!("; ---------------- {} {name} ----------------\n", vc_i18n::t!("basic-embed-end")));
         } else { out.push_str(line); out.push('\n'); }
     }
     Ok(out)
@@ -198,7 +199,7 @@ pub fn roundtrip(src: &str, d: &Dialect, o: &B2aOptions) -> Result<String, Vec<D
     let key = |p: &ast::Program| p.lines.iter().map(|l| (l.number, l.stmts.clone())).collect::<Vec<_>>();
     if key(&first) != key(&second) {
         let at = key(&first).iter().zip(key(&second)).position(|(a, b)| *a != b).map_or(0, |i| first.lines[i].number);
-        return Err(vec![Diagnostic::error("E191", &o.file, 0, format!("Rundreise ergibt einen anderen Syntaxbaum (erste Abweichung in Zeile {at})"))]);
+        return Err(vec![Diagnostic::error("E191", &o.file, 0, msg!("diag-basic-e191-roundtrip", at = at))]);
     }
     Ok(text)
 }
@@ -216,14 +217,14 @@ pub fn convert(src: &str, d: &Dialect, o: &B2aOptions) -> Result<Converted, Vec<
     let mut c = gen::generate(&prog, d, &labels, &comments, o)?;
     c.names = names;
     if o.embed {
-        let Some(dd) = &o.data_dir else { return Err(vec![Diagnostic::error("E192", &o.file, 0, "embed braucht den Ordner data (B2aOptions::data_dir)")]) };
+        let Some(dd) = &o.data_dir else { return Err(vec![Diagnostic::error("E192", &o.file, 0, msg!("diag-basic-e192-embed-data-dir"))]) };
         c.asm = embed_includes(&c.asm, &dd.join("sys"), 0, &o.file)?;
     }
     warnings.append(&mut c.warnings);
     c.warnings = warnings;
     if target_info(&o.target).map_or(false, |t| t.atari) {
-        let num = if c.stage >= 2 { "Zahlen sind 6-Byte-BCD des OS-Fließkommapakets (wie Atari-BASIC); TAN gibt es nicht" } else { "Zahlen sind 16-Bit-Ganzzahlen statt BCD mit 10 Stellen" };
-        c.warnings.push(Diagnostic::warning("I150", &o.file, 0, format!("Atari: {num}; PRINT gibt Zahlen wie Atari-BASIC ohne Vorzeichenstelle aus; Fehlermeldungen heißen wie bei CBM (z. B. ILLEGAL QUANTITY)")));
+        let m = if c.stage >= 2 { msg!("diag-basic-i150-atari-bcd") } else { msg!("diag-basic-i150-atari-int") };
+        c.warnings.push(Diagnostic::warning("I150", &o.file, 0, m));
     }
     Ok(c)
 }

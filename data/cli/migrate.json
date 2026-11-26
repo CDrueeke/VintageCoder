@@ -10,6 +10,7 @@
     {
       "id": "",
       "usage": "vcc migrate [projektordner]",
+      "summary": "Projekt vom alten Dateischema auf das neue umstellen",
       "args": [
         {
           "name": "projektordner",
@@ -37,6 +38,51 @@
       "see_also": [
         "build"
       ]
+    },
+    {
+      "id": "includes",
+      "usage": "vcc migrate includes [projektordner] [--apply]",
+      "args": [
+        {
+          "name": "projektordner",
+          "required": false,
+          "repeat": false,
+          "help": "Wurzel des Projekts; Standard ist der Arbeitsordner."
+        }
+      ],
+      "option_groups": [],
+      "options": [
+        {
+          "flag": "--apply",
+          "short": "",
+          "value": "",
+          "group": "",
+          "help": "Umstellung wirklich schreiben; ohne diese Option wird nur angezeigt, was sich ändern würde.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Anzeigen, was sich ändern würde",
+          "cmd": "vcc migrate includes"
+        },
+        {
+          "title": "Umstellung schreiben",
+          "cmd": "vcc migrate includes examples/c64/jumprun --apply"
+        }
+      ],
+      "notes": [
+        "Aus .include \"build/export/hero.asm\" wird .include \"graphics/hero.vcsprite\" (BASIC: #include). Eine Zeile mit hero.anim.asm direkt dahinter entfällt: der Include der Mediendatei liefert Daten und Tabellen zusammen.",
+        "Gibt es zu einem Namen kein oder mehrere Medien im Projekt, bleibt die Zeile unverändert und wird gemeldet."
+      ],
+      "see_also": [
+        "build"
+      ],
+      "summary": "Alte Include-Pfade build/export/… auf die Mediendatei umstellen"
     }
   ]
 }

@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "project": {
+    "name": "MEGA65: Troxx",
+    "description": "Troxx for the MEGA65 (VIC-IV): 80 x 50 characters with full-color tiles, 256-color palette, 16-color sprites, fill animation by DMA, 40 MHz, several SIDs, one or two players (taking turns or simultaneously)"
+  },
+  "targets": [
+    {
+      "id": "mega65",
+      "system": "mega65",
+      "cpu": "45gs02",
+      "illegals": "deny",
+      "emulator": "xemu"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "mega65"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm"
+}

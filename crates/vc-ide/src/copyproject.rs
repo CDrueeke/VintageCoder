@@ -29,13 +29,13 @@ const RESERVED: [&str; 22] = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3"
 /// Prüft und bereinigt den Namen des neuen Projekts (zugleich Ordner- und Dateiname, auf allen Systemen gültig)
 pub fn validate_name(name: &str) -> Result<String, String> {
     let n = name.trim();
-    if n.is_empty() { return Err("Der Name ist leer.".into()); }
-    if n.chars().count() > 100 { return Err("Der Name ist zu lang (höchstens 100 Zeichen).".into()); }
-    if let Some(c) = n.chars().find(|c| c.is_control() || "/\\:*?\"<>|".contains(*c)) { return Err(format!("Das Zeichen „{c}“ ist im Namen nicht erlaubt (/ \\ : * ? \" < > |).")); }
-    if n.starts_with('.') { return Err("Der Name darf nicht mit einem Punkt beginnen.".into()); }
-    if n.ends_with('.') || n.ends_with(' ') { return Err("Der Name darf nicht mit Punkt oder Leerzeichen enden (Windows).".into()); }
+    if n.is_empty() { return Err(vc_i18n::t!("copyproject-der-name-ist-leer").into()); }
+    if n.chars().count() > 100 { return Err(vc_i18n::t!("copyproject-der-name-ist-zu-lang-hoechstens").into()); }
+    if let Some(c) = n.chars().find(|c| c.is_control() || "/\\:*?\"<>|".contains(*c)) { return Err(vc_i18n::t!("copyproject-das-zeichen-c-ist-im-namen", c = &c)); }
+    if n.starts_with('.') { return Err(vc_i18n::t!("copyproject-der-name-darf-nicht-mit-einem").into()); }
+    if n.ends_with('.') || n.ends_with(' ') { return Err(vc_i18n::t!("copyproject-der-name-darf-nicht-mit-punkt").into()); }
     let stem = n.split('.').next().unwrap_or(n).to_ascii_uppercase();
-    if RESERVED.contains(&stem.as_str()) { return Err(format!("„{n}“ ist unter Windows ein reservierter Name.")); }
+    if RESERVED.contains(&stem.as_str()) { return Err(vc_i18n::t!("copyproject-n-ist-unter-windows-ein-reservierter", n = &n)); }
     Ok(n.to_string())
 }
 
@@ -44,14 +44,14 @@ pub fn project_file_of(root: &Path) -> Result<PathBuf, String> {
     let mut v: Vec<PathBuf> = std::fs::read_dir(root).map_err(|e| format!("{}: {e}", root.display()))?
         .filter_map(|e| e.ok()).map(|e| e.path()).filter(|p| p.is_file() && p.extension().map_or(false, |x| x == "vcprj")).collect();
     v.sort();
-    v.into_iter().next().ok_or_else(|| format!("Im Ordner {} liegt keine Projektdatei (*.vcprj).", root.display()))
+    v.into_iter().next().ok_or_else(|| vc_i18n::t!("copyproject-im-ordner-p1-liegt-keine-projektdatei", p1 = root.display()))
 }
 
 fn skipped_name(rel: &Path, is_top_dir: bool, name: &str, opts: &Options) -> Option<String> {
     let _ = rel;
     if name == ".DS_Store" || name == "Thumbs.db" { return Some(String::new()); }   // Systemmüll: stumm überspringen
-    if is_top_dir && name == "build" && !opts.with_build { return Some("build/ (Bauordner; lässt sich neu erzeugen)".into()); }
-    if is_top_dir && name == ".git" && !opts.with_git { return Some(".git/ (Versionsgeschichte; die Kopie beginnt ohne)".into()); }
+    if is_top_dir && name == "build" && !opts.with_build { return Some(vc_i18n::t!("copyproject-build-bauordner-laesst-sich-neu-erzeugen").into()); }
+    if is_top_dir && name == ".git" && !opts.with_git { return Some(format!(".git/ ({})", vc_i18n::t!("copyproject-versionsgeschichte-die-kopie-beginnt-ohne"))); }
     None
 }
 
@@ -73,10 +73,10 @@ fn walk(root: &Path, dir: &Path, opts: &Options, on_file: &mut dyn FnMut(&Path, 
         let top = dir == root;
         if let Some(why) = skipped_name(&rel, top, &name, opts) { if !why.is_empty() { skipped.push(why); } continue; }
         let ft = e.file_type().map_err(|e| format!("{}: {e}", path.display()))?;
-        if ft.is_symlink() { skipped.push(format!("{} (symbolische Verknüpfung)", rel.display())); continue; }
+        if ft.is_symlink() { skipped.push(vc_i18n::t!("copyproject-p1-symbolische-verknuepfung", p1 = rel.display())); continue; }
         if ft.is_dir() { on_dir(&rel, true)?; walk(root, &path, opts, on_file, on_dir, skipped)?; }
         else if ft.is_file() { let size = e.metadata().map(|m| m.len()).unwrap_or(0); on_file(&rel, size)?; }
-        else { skipped.push(format!("{} (keine gewöhnliche Datei)", rel.display())); }
+        else { skipped.push(vc_i18n::t!("copyproject-p1-keine-gewoehnliche-datei", p1 = rel.display())); }
     }
     Ok(())
 }
@@ -89,10 +89,10 @@ pub fn copy_project(root: &Path, parent: &Path, name: &str, opts: &Options) -> R
     std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
     let parent = parent.canonicalize().map_err(|e| format!("{}: {e}", parent.display()))?;
     let dest = parent.join(&name);
-    if dest == root || dest.starts_with(&root) { return Err("Das Ziel liegt im Quellordner des Projekts. Wähle einen anderen Ort.".into()); }
-    if root.starts_with(&dest) { return Err("Das Ziel enthält das Quellprojekt. Wähle einen anderen Namen oder Ort.".into()); }
+    if dest == root || dest.starts_with(&root) { return Err(vc_i18n::t!("copyproject-das-ziel-liegt-im-quellordner-des").into()); }
+    if root.starts_with(&dest) { return Err(vc_i18n::t!("copyproject-das-ziel-enthaelt-das-quellprojekt-waehle").into()); }
     if dest.exists() && !(dest.is_dir() && std::fs::read_dir(&dest).map_or(false, |mut d| d.next().is_none())) {
-        return Err(format!("„{}“ gibt es schon und ist nicht leer. Wähle einen anderen Namen oder Ort.", dest.display()));
+        return Err(vc_i18n::t!("copyproject-p1-gibt-es-schon-und-ist", p1 = dest.display()));
     }
     let tmp = parent.join(format!(".{name}.kopie-tmp"));
     if tmp.exists() { let _ = std::fs::remove_dir_all(&tmp); }
@@ -111,7 +111,7 @@ pub fn copy_project(root: &Path, parent: &Path, name: &str, opts: &Options) -> R
         let copied_old = tmp.join(&old_rel);
         let new_file_tmp = tmp.join(format!("{name}.vcprj"));
         let text = std::fs::read_to_string(&copied_old).map_err(|e| format!("{}: {e}", old_rel.display()))?;
-        let mut v: serde_json::Value = serde_json::from_str(&text).map_err(|e| format!("{}: keine gültige Projektdatei ({e})", old_rel.display()))?;
+        let mut v: serde_json::Value = serde_json::from_str(&text).map_err(|e| vc_i18n::t!("copyproject-p1-keine-gueltige-projektdatei-e", p1 = old_rel.display(), e = e.to_string()))?;
         if !v.get("project").map_or(false, |p| p.is_object()) { v["project"] = serde_json::json!({}); }
         v["project"]["name"] = serde_json::Value::String(name.clone());
         let mut out = serde_json::to_string_pretty(&v).map_err(|e| e.to_string())?; out.push('\n');

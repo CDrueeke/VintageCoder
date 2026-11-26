@@ -27,8 +27,8 @@ impl HexDoc {
 
 /// Eine Zeile: Adresse, 16 Bytes (nach 8 eine Lücke), ASCII (Nichtdruckbares als Punkt)
 pub fn zeile(adr: usize, c: &[u8]) -> String {
-    let mut s = format!("{adr:08X}  ");
-    for i in 0..16 { match c.get(i) { Some(b) => s.push_str(&format!("{b:02X} ")), None => s.push_str("   ") } if i == 7 { s.push(' ') } }
+    let mut s = format!("{}  ", vc_i18n::t!("hexansicht-adr", adr = format!("{:08X}", adr)));
+    for i in 0..16 { match c.get(i) { Some(b) => s.push_str(&format!("{} ", vc_i18n::t!("hexansicht-b", b = format!("{:02X}", b)))), None => s.push_str("   ") } if i == 7 { s.push(' ') } }
     s.push_str(" |"); for b in c { s.push(if (0x20..0x7F).contains(b) { *b as char } else { '.' }) } s.push('|'); s
 }
 
@@ -60,15 +60,15 @@ impl App {
             iced::widget::tooltip(b, container(text(tipp.to_string()).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).gap(4).into()
         };
         let n = d.seiten();
-        let kopf = muster::kopfzeile(pal, klasse, "Hex", rel.rsplit('/').next().unwrap_or(rel), false, &format!("{} Bytes · nur Lesen", d.gesamt), vec![tb("Im Standardprogramm öffnen", "Öffnet die Datei mit dem Programm, das das System dafür kennt", Some(HAkt::Extern))]);
+        let kopf = muster::kopfzeile(pal, klasse, &vc_i18n::t!("hexansicht-hex"), rel.rsplit('/').next().unwrap_or(rel), false, &vc_i18n::t!("hexansicht-p1-bytes-nur-lesen", p1 = &d.gesamt), vec![tb(&vc_i18n::t!("hexansicht-im-standardprogramm-oeffnen"), &vc_i18n::t!("hexansicht-oeffnet-die-datei-mit-dem-programm"), Some(HAkt::Extern))]);
         let von = d.seite * SEITE; let bis = (von + SEITE).min(d.bytes.len());
-        let leiste = muster::leiste(pal, iced::widget::row![tb("⏮", "Zum Anfang", (d.seite > 0).then_some(HAkt::Anfang)), tb("◀", "Vorige Seite (4 KiB)", (d.seite > 0).then_some(HAkt::Seite(-1))), text(format!("Seite {} von {n} · {von:08X}–{:08X}", d.seite + 1, bis.saturating_sub(1).max(von))).size(12).color(pal.text), tb("▶", "Nächste Seite (4 KiB)", (d.seite + 1 < n).then_some(HAkt::Seite(1))), tb("⏭", "Zum Ende (der gelesenen Daten)", (d.seite + 1 < n).then_some(HAkt::Ende))].spacing(8).align_y(Alignment::Center).into());
+        let leiste = muster::leiste(pal, iced::widget::row![tb("⏮", &vc_i18n::t!("hexansicht-zum-anfang"), (d.seite > 0).then_some(HAkt::Anfang)), tb("◀", &vc_i18n::t!("hexansicht-vorige-seite-4-kib"), (d.seite > 0).then_some(HAkt::Seite(-1))), text(vc_i18n::t!("hexansicht-seite-p1-von-n-von-p4", p1 = d.seite + 1, n = &n, von = format!("{:08X}", von), p4 = format!("{:08X}", bis.saturating_sub(1).max(von)))).size(12).color(pal.text), tb("▶", &vc_i18n::t!("hexansicht-naechste-seite-4-kib"), (d.seite + 1 < n).then_some(HAkt::Seite(1))), tb("⏭", &vc_i18n::t!("hexansicht-zum-ende-der-gelesenen-daten"), (d.seite + 1 < n).then_some(HAkt::Ende))].spacing(8).align_y(Alignment::Center).into());
         let mut zeilen = iced::widget::column![].spacing(0);
         for z in d.zeilen() { zeilen = zeilen.push(text(z).size(12.5).font(vc_gui_ui::fonts::MONO).color(pal.text)) }
         let flaeche_el = scrollable(container(zeilen).padding(12)).width(Length::Fill).height(Length::Fill);
-        let hinweis = if d.gesamt as usize > d.bytes.len() { format!("Gezeigt werden die ersten {} MiB von {} Bytes.", MAX / 1024 / 1024, d.gesamt) } else { "Die ganze Datei ist geladen.".to_string() };
-        let seite = muster::seitenspalte(klasse, vec![muster::karte(pal, "Nur Lesen", "ℹ", "Binärdatei", None, text("Diese Ansicht verändert die Datei nie. Zum Bearbeiten gibt es kein Werkzeug im Projekt: dafür ein Programm des Systems benutzen.").size(12).color(pal.mute).into()), muster::karte(pal, "Umfang", "ℹ", "", None, text(hinweis).size(12).color(pal.mute).into())]);
-        let fuss = muster::fusszeile(pal, &format!("{} Bytes", d.gesamt), text("").into());
+        let hinweis = if d.gesamt as usize > d.bytes.len() { vc_i18n::t!("hexansicht-gezeigt-werden-die-ersten-p1-mib", p1 = MAX / 1024 / 1024, p2 = &d.gesamt) } else { vc_i18n::t!("hexansicht-die-ganze-datei-ist-geladen").to_string() };
+        let seite = muster::seitenspalte(klasse, vec![muster::karte(pal, &vc_i18n::t!("hexansicht-nur-lesen"), "ℹ", &vc_i18n::t!("hexansicht-binaerdatei"), None, text(vc_i18n::t!("hexansicht-diese-ansicht-veraendert-die-datei-nie")).size(12).color(pal.mute).into()), muster::karte(pal, &vc_i18n::t!("hexansicht-umfang"), "ℹ", "", None, text(hinweis).size(12).color(pal.mute).into())]);
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("hexansicht-p1-bytes", p1 = &d.gesamt), text("").into());
         muster::studio_rahmen(pal, klasse, muster::Studio { liste_breite: 0.0, kopf, leiste, liste: None, flaeche: container(flaeche_el).style(move |_| flaeche(pal.editor, pal.line)).width(Length::Fill).height(Length::Fill).into(), seite, fuss })
     }
 }

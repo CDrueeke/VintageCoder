@@ -1,0 +1,49 @@
+[package]
+name = "vc-shell"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "VintageCoder: Tauri-Hülle der neuen Oberfläche (Web-Teil in ui/)"
+
+[lib]
+name = "vc_shell_lib"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "vintagecoder"
+path = "src/main.rs"
+
+[features]
+# Prüfbrücke (nur Entwicklung): Tauri-Befehle zusätzlich über WebSocket auf localhost. Nie im Auslieferungsbau.
+testbridge = ["dep:tungstenite", "dev-extensions"]
+# Entwicklerschalter für Erweiterungen (VC_EXTENSIONS_DEV=<Ordner mit entpackten Paketen>), für Handprüfungen; nie im Auslieferungsbau.
+dev-extensions = ["vc-ide/dev-extensions"]
+# Selbstmessung für die Abnahme (Messungen G1): Fenster misst sich, schreibt das Ergebnis in die Datei aus VC_SELFTEST_OUT und beendet sich. Nie im Auslieferungsbau.
+selftest = []
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { workspace = true }
+serde_json = { workspace = true }
+cpal = "=0.18.2"
+tungstenite = { version = "0.26", optional = true }
+vc-core = { path = "../vc-core" }
+vc-i18n = { path = "../vc-i18n" }
+vc-commands = { path = "../vc-commands" }
+vc-ide = { path = "../vc-ide" }
+vc-ide-model = { path = "../vc-ide-model" }
+vc-disk = { path = "../vc-disk" }
+vc-lsp = { path = "../vc-lsp" }
+vc-target = { path = "../vc-target" }
+vc-media = { path = "../vc-media" }
+vc-emu = { path = "../vc-emu" }
+vc-roms = { path = "../vc-roms" }
+vc-md = { path = "../vc-md" }
+tauri-plugin-single-instance = "=2.5.5"   # Einzel-Instanz (Windows/Linux): ein zweiter Aufruf übergibt seine Pfade an die laufende App
+
+[dev-dependencies]
+vc-disk = { path = "../vc-disk" }

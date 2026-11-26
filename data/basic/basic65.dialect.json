@@ -2,6 +2,12 @@
   "$schema": "https://vintagecoder.dev/schema/basic-dialect-1.json",
   "id": "basic65",
   "family": "cbm",
+  "name": "BASIC 65",
+  "kind": "builtin",
+  "systems": ["mega65"],
+  "jumps": ["GOTO", "GOSUB", "THEN", "ELSE", "RUN", "RESTORE", "TRAP", "RESUME"],
+  "runtimeLine": ["EL"],
+  "provenance": {"source": "petcat 3.10 -k65 (tools/gen_dialect.py)", "checked": "2026-11-22"},
   "backend": "linked_lines",
   "loadAddr": "$2001",
   "varSigChars": 2,
@@ -14,6 +20,10 @@
   "capabilities": {"doLoop": true, "graphic": true, "spriteCmds": true, "trap": true},
   "numberLiterals": {"hex": true, "bin": true, "bits": 32},
   "_comment": "Erzeugt von tools/gen_dialect.py aus petcat -k65 / -w65. Codes wie $FE3C bestehen aus Präfix und Folgebyte.",
+  "syntax": {
+    "statements": {"POKE": "2", "WAIT": "2-3", "CLOSE": "1"},
+    "functions": {"ABS": "1", "ATN": "1", "COS": "1", "EXP": "1", "FRE": "1", "INT": "1", "LOG": "1", "PEEK": "1", "POS": "1", "RND": "1", "SGN": "1", "SIN": "1", "SQR": "1", "TAN": "1", "USR": "1", "ASC": "1", "CHR$": "1", "LEN": "1", "LEFT$": "2", "MID$": "2-3", "RIGHT$": "2", "STR$": "1", "VAL": "1", "TAB(": "1", "SPC(": "1", "HEX$": "1", "DEC": "1", "INSTR": "2-3"}
+  },
   "tokens": [
     ["END", "$80"],
     ["FOR", "$81"],

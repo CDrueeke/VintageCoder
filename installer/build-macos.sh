@@ -42,7 +42,8 @@ if [ -x "$SRC/bin/vintagecoder" ]; then
   cp "$SRC/LICENSE" "$SRC/LICENSING.md" "$SRC/THIRD-PARTY-NOTICES.md" "$SRC/README.md" "$APP/Contents/Resources/"
   cp -RX "$SRC/LICENSES" "$APP/Contents/Resources/LICENSES"
   cp -RX "$SRC/data" "$APP/Contents/Resources/data"
-  for d in docs editors; do if [ -d "$SRC/$d" ]; then cp -RX "$SRC/$d" "$APP/Contents/Resources/$d"; fi; done
+  # examples: die Oberfläche sucht die Beispiele unter Contents/Resources/examples (neben data/); schreibgeschützt, Beispiele werden zum Öffnen kopiert
+  for d in docs editors examples; do if [ -d "$SRC/$d" ]; then cp -RX "$SRC/$d" "$APP/Contents/Resources/$d"; fi; done
   find "$APP" \( -name .DS_Store -o -name '._*' \) -delete
   xattr -cr "$APP"
 

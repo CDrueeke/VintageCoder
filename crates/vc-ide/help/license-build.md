@@ -11,7 +11,7 @@ Enthält das Programm Quelltext unter einer **Copyleft-Lizenz** (GPL, LGPL, AGPL
 
 > Hinweis (L001): Das Programm enthält Quelltext unter GPL-3.0-only (lib/rmtplayr.asm, …). Wer das Programm weitergibt, muss die Bedingungen dieser Lizenz einhalten (u. a. den Quelltext bereitstellen). Mit --license-report erhältst du die Liste.
 
-Der Hinweis ist **kein Fehler** und kein Rechtsurteil; der Bau gelingt wie sonst. Das bekannte Beispiel ist der RMT-Player im Atari-Beispiel `music_demo`; das Beispiel `prallball` (nur MIT-0) löst nichts aus.
+Der Hinweis ist **kein Fehler**; der Bau gelingt wie sonst. Das bekannte Beispiel ist der RMT-Player im Atari-Beispiel `music_demo`; das Beispiel `prallball` (nur MIT-0) löst nichts aus.
 
 ## Bericht
 `vcc build --license-report` listet alle beitragenden Dateien mit Lizenz, Urheber und Fundstelle (Kopfzeile oder Ordnervermerk), auch die unter MIT-0, CC0 oder eigene, und schreibt dieselbe Liste nach `build/LICENSES.txt`. Mit `--json` kommt der Bericht als JSON. Die Systemdateien der Zielsysteme erscheinen als `data/sys/…`.
@@ -33,4 +33,4 @@ In der Projektdatei (`.vcprj`) steht dafür der Abschnitt `licenses`:
 - **Binärdaten** (Musik-, Bild- und Programmdateien, die du mit `.incbin` einbindest) werden nicht erkannt, ebenso wenig BASIC-Programme.
 - Die Prüfung gilt für Assembler-Quelltexte; sie ersetzt keine Prüfung deiner Fremdanteile.
 
-Mehr zur Lizenz von VintageCoder und zu deinen Ausgaben: [Lizenz und freie Nutzung](help:license).
+Mehr zur Lizenz von VintageCoder und zu deinen Ausgaben: [Lizenz und Danksagungen](help:license).

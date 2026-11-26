@@ -1,0 +1,25 @@
+{
+ "source": "chips/petpia1.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Port A: Tastaturzeile (Bit 0-3), Kassettentasten, EOI-Eingang",
+   "en": "Port A: keyboard row (bits 0-3), cassette keys, EOI input",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Steuerregister A (CA2: EOI-Ausgang)",
+   "en": "Control register A (CA2: EOI output)",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Port B: Tastaturspalte (Eingang)",
+   "en": "Port B: keyboard column (input)",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Steuerregister B (CB1: 60-Hz-Bildunterbrechung, CB2: Kassettenmotor)",
+   "en": "Control register B (CB1: 60 Hz screen interrupt, CB2: cassette motor)",
+   "status": "maschinell"
+  }
+ }
+}

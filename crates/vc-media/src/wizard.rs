@@ -9,14 +9,17 @@ use std::path::Path;
 
 fn read_json(p: &Path) -> Result<Value, String> {
     let t = std::fs::read_to_string(p).map_err(|e| format!("{}: {e}", p.display()))?;
-    serde_json::from_str(&t).map_err(|e| format!("{}: {e}", p.display()))
+    let mut v: Value = serde_json::from_str(&t).map_err(|e| format!("{}: {e}", p.display()))?;
+    // englische Texte der Vorlagen und Systeme (data/i18n/en/templates/<datei>)
+    if let Some(n) = p.file_name().and_then(|n| n.to_str()) { vc_i18n::localize_json(&mut v, &format!("templates/{n}")); }
+    Ok(v)
 }
 
 /// Verfügbare Vorlagen und Systeme (für Auswahldialoge)
 pub fn templates(data: &Path) -> Result<Value, String> {
     let idx = read_json(&data.join("templates/index.json"))?;
     let sys = read_json(&data.join("templates/systems.json"))?;
-    let systems: Vec<Value> = sys["systems"].as_object().ok_or("systems fehlt")?.iter().filter(|(k, _)| vc_target::target_available(data, k)).map(|(k, v)| json!({ "id": k, "label": v["label"] })).collect();
+    let systems: Vec<Value> = sys["systems"].as_object().ok_or(vc_i18n::t!("media-systems-fehlt"))?.iter().filter(|(k, _)| vc_target::target_available(data, k)).map(|(k, v)| json!({ "id": k, "label": v["label"] })).collect();
     Ok(json!({ "templates": idx["templates"], "systems": systems }))
 }
 
@@ -31,24 +34,24 @@ pub fn create(data: &Path, dir: &Path, name: &str, systems: &[String], template:
 /// Wie `create`, mit einer Variante der Vorlage (`variants` in `index.json`, z. B. `cartridge` bei `asm-hello`): Die Variante ersetzt
 /// Dateien und Quellen der Vorlage und hat eigene Systeme.
 pub fn create_with(data: &Path, dir: &Path, name: &str, systems: &[String], template: &str, variant: Option<&str>) -> Result<Value, String> {
-    if !valid_name(name) { return Err("Projektname: nur Buchstaben, Ziffern, _ und -".into()); }
-    if systems.is_empty() { return Err("mindestens ein Zielsystem wählen".into()); }
+    if !valid_name(name) { return Err(vc_i18n::t!("media-projektname-nur-buchstaben-ziffern-und").into()); }
+    if systems.is_empty() { return Err(vc_i18n::t!("media-mindestens-ein-zielsystem-waehlen").into()); }
     let idx = read_json(&data.join("templates/index.json"))?;
     let sys = read_json(&data.join("templates/systems.json"))?;
-    let t = idx["templates"].as_array().and_then(|a| a.iter().find(|x| x["id"] == template)).ok_or_else(|| format!("Vorlage '{template}' unbekannt"))?;
+    let t = idx["templates"].as_array().and_then(|a| a.iter().find(|x| x["id"] == template)).ok_or_else(|| vc_i18n::t!("media-wizard-vorlage-unbekannt", template = &template))?;
     let t = match variant {
         None => t,
-        Some(v) => t["variants"].as_array().and_then(|a| a.iter().find(|x| x["id"] == v)).ok_or_else(|| format!("Vorlage '{template}' hat keine Variante '{v}'"))?,
+        Some(v) => t["variants"].as_array().and_then(|a| a.iter().find(|x| x["id"] == v)).ok_or_else(|| vc_i18n::t!("media-vorlage-template-hat-keine-variante-v", template = &template, v = &v))?,
     };
     let label = match variant { None => template.to_string(), Some(v) => format!("{template}/{v}") };
     let allowed: Vec<&str> = t["systems"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect()).unwrap_or_default();
     for s in systems {
-        if sys["systems"].get(s.as_str()).is_none() { return Err(format!("Zielsystem '{s}' unbekannt")); }
+        if sys["systems"].get(s.as_str()).is_none() { return Err(vc_i18n::t!("media-wizard-zielsystem-unbekannt", s = &s)); }
         if !vc_target::target_available(data, s) { return Err(vc_target::missing_message(s)); }
-        if !allowed.contains(&s.as_str()) { return Err(format!("Vorlage '{label}' gibt es nicht für '{s}' (möglich: {})", allowed.join(", "))); }
+        if !allowed.contains(&s.as_str()) { return Err(vc_i18n::t!("media-vorlage-label-gibt-es-nicht-fuer", label = &label, s = &s, p3 = allowed.join(", "))); }
     }
     if let Ok(rd) = std::fs::read_dir(dir) {
-        if rd.flatten().any(|e| e.path().extension().map_or(false, |x| x == "vcprj")) { return Err(format!("{} enthält schon ein Projekt", dir.display())); }
+        if rd.flatten().any(|e| e.path().extension().map_or(false, |x| x == "vcprj")) { return Err(vc_i18n::t!("media-p1-enthaelt-schon-ein-projekt", p1 = dir.display())); }
     }
     std::fs::create_dir_all(dir.join("src")).map_err(|e| e.to_string())?;
     let subst = |s: &str, sy: &str| s.replace("{system}", sy).replace("{{name}}", name);
@@ -56,12 +59,15 @@ pub fn create_with(data: &Path, dir: &Path, name: &str, systems: &[String], temp
     for s in systems {
         let mut files = vec![];
         for f in t["files"].as_array().into_iter().flatten() {
-            let from = data.join("templates").join(subst(f["from"].as_str().ok_or("from fehlt")?, s));
-            let to = subst(f["to"].as_str().ok_or("to fehlt")?, s);
-            if to.starts_with('/') || to.contains("..") { return Err(format!("Vorlage: unzulässiger Zielpfad '{to}'")); }
+            let from_rel = subst(f["from"].as_str().ok_or(vc_i18n::t!("media-from-fehlt"))?, s);
+            // Englisch: gibt es `templates/en/<pfad>`, gilt diese Fassung (Kommentare und Bildschirmtexte der Vorlage), sonst das Original
+            let en = data.join("templates/en").join(&from_rel);
+            let from = if vc_i18n::language() == vc_i18n::Lang::En && en.is_file() { en } else { data.join("templates").join(&from_rel) };
+            let to = subst(f["to"].as_str().ok_or(vc_i18n::t!("media-to-fehlt"))?, s);
+            if to.starts_with('/') || to.contains("..") { return Err(vc_i18n::t!("media-vorlage-unzulaessiger-zielpfad-to", to = &to)); }
             let text = std::fs::read_to_string(&from).map_err(|e| format!("{}: {e}", from.display()))?;
             let dest = dir.join(&to);
-            if dest.exists() { return Err(format!("{to} existiert bereits")); }
+            if dest.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &to)); }
             std::fs::create_dir_all(dest.parent().unwrap()).map_err(|e| e.to_string())?;
             std::fs::write(&dest, subst(&text, s)).map_err(|e| e.to_string())?;
             written.push(to);
@@ -72,7 +78,7 @@ pub fn create_with(data: &Path, dir: &Path, name: &str, systems: &[String], temp
             if !fs.is_empty() { sources.push(json!({ "targets": [s], "kind": kind, "files": fs })); }
         }
     }
-    let proj = json!({ "format": 1, "project": { "name": name, "description": format!("Vorlage '{}' ({})", t["name"].as_str().unwrap_or(&label), systems.join(", ")) },
+    let proj = json!({ "format": 1, "project": { "name": name, "description": vc_i18n::t!("media-wizard-projektbeschreibung", name = t["name"].as_str().unwrap_or(&label), systems = systems.join(", ")) },
         "targets": systems.iter().map(|s| sys["systems"][s.as_str()]["target"].clone()).collect::<Vec<_>>(), "sources": sources });
     let pf = format!("{name}.vcprj");
     std::fs::write(dir.join(&pf), serde_json::to_string_pretty(&proj).unwrap() + "\n").map_err(|e| e.to_string())?;
@@ -104,7 +110,9 @@ fn zeichensatz_plan(data: &Path, dir: &Path, systems: &[String], wahl: Zeichensa
         if wahl == Zeichensatz::Auto && !crate::project::std_charsets_for_profile(data, &p.id, true).is_empty() {
             if let Some(r) = crate::project::default_std_charset(data, &p.id) {
                 if trocken { if let Ok(rr) = crate::romref::RomRef::parse(&r) { files.push(format!("{}/{}_{}.vcchar", crate::naming::out_dir("graphics", "charset"), rr.system, rr.set)) } continue }
-                match crate::project::add_std_charset(dir, &r, &p.id, "graphics", false) { Ok(v) => { if let Some(x) = v["path"].as_str() { files.push(x.to_string()) } } Err(e) if e.contains("existiert") => {} Err(e) => return Err(e) } continue }
+                // vorhandene Datei bleibt unberührt (Pfad wie in add_std_charset); kein Abgleich mit Meldungstext
+                if let Ok(rr) = crate::romref::RomRef::parse(&r) { if dir.join(format!("{}/{}_{}.vcchar", crate::naming::out_dir("graphics", "charset"), rr.system, rr.set)).exists() { continue } }
+                match crate::project::add_std_charset(dir, &r, &p.id, "graphics", false) { Ok(v) => { if let Some(x) = v["path"].as_str() { files.push(x.to_string()) } } Err(e) => return Err(e) } continue }
         }
         let alle = crate::project::eigene_saetze(data, &p.id);
         let e = alle.iter().find(|e| e.satz == "upper" || e.satz == "standard").unwrap_or(&alle[0]).clone();
@@ -123,16 +131,16 @@ fn zeichensatz_plan(data: &Path, dir: &Path, systems: &[String], wahl: Zeichensa
 
 /// Text der `HERKUNFT.txt` neben den kopierten eigenen Zeichensätzen
 pub fn herkunft_text(sets: &[crate::project::EigenSatz]) -> String {
-    let mut t = String::from("Herkunft der Zeichensätze in diesem Ordner\n===========================================\n\nDiese Dateien sind die eigenen Standardzeichensätze „VC-Standard“ von VintageCoder.\nUrheber: das VintageCoder-Projekt. Lizenz: CC0-1.0 (gemeinfrei, frei weitergebbar, auch in eigenen Programmen).\nEs wurden keine Original-ROMs und keine Nachbauten von Original-Zeichen benutzt.\nDie Gestaltung entstand aus den Regeln des Stilblatts und ist vom Projektinhaber freigegeben. Bei einfachen Formen in einem 8x8-Raster (Klammern, Punkt, Komma, Strich, Doppelpunkt, I-Familie, Linien- und Rahmenzeichen) sind Übereinstimmungen mit anderen Zeichensätzen funktional bedingt; eine lokale Abstandsprüfung ergab bei wenigen solcher Zeichen kleine Abstände, der Projektinhaber hat die Sätze trotzdem freigegeben. Das ist keine Rechtsaussage.\n\nSätze:\n");
+    let mut t = vc_i18n::t!("media-herkunft-text") + "\n";
         for e in sets { t.push_str(&format!("  {} (Revision {}, Lizenz {}): {}\n", e.id, e.revision, e.lizenz, e.name)) }
     t
 }
 
 /// Einen eigenen Standardzeichensatz als Kopie ins Projekt legen (`graphics/vc-standard/<id>.vcchar`, dazu `HERKUNFT.txt`, falls es sie noch nicht gibt); liefert den relativen Pfad
 pub fn eigenen_satz_kopieren(data: &Path, dir: &Path, id: &str) -> Result<String, String> {
-    let e = crate::project::eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| format!("Eigener Zeichensatz „{id}“ ist nicht mitgeliefert"))?;
+    let e = crate::project::eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| vc_i18n::t!("media-eigener-zeichensatz-id-ist-nicht-mitgeliefert", id = &id))?;
     let rel = format!("graphics/vc-standard/{}.vcchar", e.id); let ziel = dir.join(&rel);
-    if ziel.exists() { return Err(format!("{rel} existiert bereits")) }
+    if ziel.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)) }
     std::fs::create_dir_all(ziel.parent().unwrap()).map_err(|x| x.to_string())?; std::fs::copy(&e.datei, &ziel).map_err(|x| format!("{}: {x}", e.datei.display()))?;
     let h = dir.join("graphics/vc-standard/HERKUNFT.txt"); if !h.exists() { std::fs::write(&h, herkunft_text(&[e])).map_err(|x| x.to_string())?; }
     Ok(rel)
@@ -142,6 +150,25 @@ pub fn eigenen_satz_kopieren(data: &Path, dir: &Path, id: &str) -> Result<String
 mod zeichensatz_tests {
     use super::*;
     fn data() -> std::path::PathBuf { std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data") }
+    #[test] fn englische_wizard_fehler_und_vorhandene_datei_und_zweiter_aufruf() {
+        let t = std::env::temp_dir().join(format!("vc-zs-en-{}", std::process::id())); let _ = std::fs::remove_dir_all(&t); std::fs::create_dir_all(&t).unwrap();
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        let e1 = create(&data(), &t, "p", &["c64".into()], "gibt-es-nicht").unwrap_err();
+        let e2 = create(&data(), &t, "p", &["gibt-es-nicht".into()], "asm-hello").unwrap_err();
+        // vorhandene Datei: Meldung mit Pfad, englisch
+        let rel = format!("{}/c64_upper.vcchar", crate::naming::out_dir("graphics", "charset"));
+        std::fs::create_dir_all(t.join(&rel).parent().unwrap()).unwrap(); std::fs::write(t.join(&rel), "{}").unwrap();
+        let e3 = crate::project::add_std_charset(&t, "rom:c64/chargen#upper", "c64-charset", "graphics", false).unwrap_err();
+        let a = zeichensatz_anlegen(&data(), &t, &["c64".into()], Zeichensatz::Auto);
+        let b = zeichensatz_anlegen(&data(), &t, &["c64".into()], Zeichensatz::Auto);
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert_eq!(e1, "Template 'gibt-es-nicht' unknown");
+        assert_eq!(e2, "Target system 'gibt-es-nicht' unknown");
+        assert_eq!(e3, format!("{rel} already exists"));
+        assert!(a.is_ok() && b.is_ok(), "{a:?} {b:?}: vorhandener Zeichensatz wird übersprungen, kein Fehler");
+        assert!(create(&data(), &t, "p", &["c64".into()], "gibt-es-nicht").unwrap_err().contains("unbekannt"), "Deutsch bleibt Standard");
+        let _ = std::fs::remove_dir_all(&t);
+    }
     #[test] fn eigener_satz_wird_als_kopie_mit_herkunft_angelegt_keine_wahl_legt_nichts_an() {
         let t = std::env::temp_dir().join(format!("vc-zs-{}", std::process::id())); let _ = std::fs::remove_dir_all(&t); std::fs::create_dir_all(&t).unwrap();
         assert_eq!(zeichensatz_anlegen(&data(), &t, &["c64".into()], Zeichensatz::Keine).unwrap(), Vec::<String>::new());

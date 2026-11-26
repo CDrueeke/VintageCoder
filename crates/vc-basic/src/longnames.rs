@@ -21,7 +21,7 @@ use crate::atari::AtariDialect;
 use crate::classic::match_keyword;
 use crate::dialect::Dialect;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic};
 
 /// Zeile, die die langen Namen einschaltet
 pub const DIRECTIVE: &str = "#longnames";
@@ -80,10 +80,14 @@ pub struct NameEntry {
 }
 
 impl NameEntry {
+    /// Art des Namens als Anzeigetext in der aktuellen Sprache (`kind` bleibt die feste deutsche Kennung)
+    pub fn kind_l(&self) -> String {
+        match self.kind { "Funktion" => vc_i18n::t!("basic-names-kind-function"), "Text" => vc_i18n::t!("basic-names-kind-text"), "Ganzzahl" => vc_i18n::t!("basic-names-kind-integer"), _ => vc_i18n::t!("basic-names-kind-number") }
+    }
     /// Zeile der Zuordnungstabelle, z. B. `feld(…)  →  FE(…)  (Zahl, Feld)`
     pub fn line(&self) -> String {
         let form = |n: &str| match (self.scalar, self.array) { (_, true) if !self.scalar => format!("{n}(…)"), (true, true) => format!("{n}, {n}(…)"), _ => n.to_string() };
-        let what = if self.array && !self.scalar { format!("{}, Feld", self.kind) } else { self.kind.to_string() };
+        let what = if self.array && !self.scalar { vc_i18n::t!("basic-names-kind-array", kind = self.kind_l()) } else { self.kind_l() };
         format!("{:<26} →  {:<10} ({what})", form(&self.long), form(&self.short))
     }
 }
@@ -207,7 +211,7 @@ pub fn rename(text: &str, t: Target, file: &str) -> Result<Renamed, Vec<Diagnost
                 let shown = if matches!(t, Target::Atari(_)) && lower_style.contains(&(*func, key.clone())) { c.to_ascii_lowercase() } else { c.clone() };
                 map.insert((*func, key.clone()), shown);
                 if !*func { natural_groups.entry(nat).or_default().push(key.clone()); } }
-            None => errs.push(Diagnostic::error("B131", file, *line, format!("Für den Namen '{key}' ist kein freier Kurzname mehr übrig (zu viele Variablen)"))),
+            None => errs.push(Diagnostic::error("B131", file, *line, msg!("diag-basic-b131-no-short-name", key = key.as_str()))),
         }
     }
     if !errs.is_empty() { return Err(errs); }
@@ -216,9 +220,8 @@ pub fn rename(text: &str, t: Target, file: &str) -> Result<Renamed, Vec<Diagnost
         let first_line = keys.iter().filter_map(|k| order.iter().find(|((f, n), _)| !*f && n == k).map(|(_, l)| *l)).max().unwrap_or(1);
         let shorts: Vec<String> = keys.iter().map(|k| map[&(false, k.clone())].clone()).collect();
         if sig <= 8 {
-            warns.push(Diagnostic::warning("W313", file, first_line, format!(
-                "{} unterscheiden sich erst nach den ersten {sig} Zeichen ('{nat}'); sie werden hier getrennt ({}). Ein BASIC ohne diese Umsetzung sähe nur eine Variable",
-                keys.iter().map(|k| format!("'{k}'")).collect::<Vec<_>>().join(", "), shorts.join(", "))));
+            warns.push(Diagnostic::warning("W313", file, first_line, msg!("diag-basic-w313-names-collide",
+                names = keys.iter().map(|k| format!("'{k}'")).collect::<Vec<_>>().join(", "), sig = sig, nat = nat.as_str(), shorts = shorts.join(", "))));
         }
     }
     let mut out = String::new();
@@ -232,7 +235,7 @@ pub fn rename(text: &str, t: Target, file: &str) -> Result<Renamed, Vec<Diagnost
     for ((func, key), _) in &order {
         for ((f, k, suf), (scalar, array)) in &kinds {
             if f != func || k != key { continue; }
-            let kind = if *func { "Funktion" } else { match suf.as_str() { "$" => "Text", "%" => "Ganzzahl", _ => "Zahl" } };
+            let kind = if *func { "Funktion" } else { match suf.as_str() { "$" => "Text", "%" => "Ganzzahl", _ => "Zahl" } };   // interne Kennung (deutsch, auch in JSON); Anzeige über `kind_l`
             names.push(NameEntry { long: format!("{k}{suf}"), short: format!("{}{suf}", map[&(*func, key.clone())]), kind, scalar: *scalar, array: *array });
         }
     }
@@ -265,4 +268,19 @@ pub fn lookup(text: &str, t: Target, word: &str) -> Vec<NameEntry> {
     if !has_directive(text) { return vec![]; }
     let base = word.trim_end_matches(['$', '%']).to_ascii_lowercase();
     match rename(text, t, "") { Ok(r) => r.names.into_iter().filter(|n| n.long.trim_end_matches(['$', '%']) == base).collect(), Err(_) => vec![] }
+}
+
+#[cfg(test)]
+mod kind_l_tests {
+    use super::*;
+
+    #[test]
+    fn art_in_beiden_sprachen() {
+        let e = NameEntry { long: "feld".into(), short: "FE".into(), kind: "Zahl", scalar: false, array: true };
+        assert_eq!(e.line().trim_end().rsplit('(').next().unwrap(), "Zahl, Feld)");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        let l = e.line();
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert!(l.ends_with("(Number, array)"), "{l}");
+    }
 }

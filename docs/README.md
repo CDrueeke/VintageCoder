@@ -9,4 +9,5 @@ Linux in einer virtuellen Maschine prüfen: [linux-vm-checkliste.md](linux-vm-ch
 Update-Feed der Update-Prüfung: [update-feed.md](update-feed.md).
 Format der Parameterkataloge (`data/args`): [args-catalog.md](args-catalog.md).
 Ein Release zusammenstellen (Auswahl in `FEATURES.md`, `tools/release.py`, Checkliste, Stichproben): [release-auswahl.md](release-auswahl.md).
+Mehrsprachigkeit (Kataloge, `t!`, Pseudo-Sprache, Regel G9): [i18n.md](i18n.md).
 Sprachserver `vc-lsp` für andere Editoren (Funktionen, Einbinden): [sprachserver.md](sprachserver.md).

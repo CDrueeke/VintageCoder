@@ -8,6 +8,15 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Werkzeug { Zeichen, Text, Fuellen, Rahmen, Pipette, Loeschen }
+impl Werkzeug {
+    /// Bezeichnung in der gewählten Sprache
+    pub fn label(self) -> String {
+        match self {
+            Werkzeug::Zeichen => vc_i18n::t!("screendoc-werkzeug-zeichen"), Werkzeug::Text => vc_i18n::t!("screendoc-werkzeug-text"), Werkzeug::Fuellen => vc_i18n::t!("screendoc-werkzeug-fuellen"),
+            Werkzeug::Rahmen => vc_i18n::t!("screendoc-werkzeug-rahmen"), Werkzeug::Pipette => vc_i18n::t!("screendoc-werkzeug-pipette"), Werkzeug::Loeschen => vc_i18n::t!("screendoc-werkzeug-loeschen"),
+        }
+    }
+}
 
 pub struct ScreenDoc {
     pub rel: String, abs: PathBuf, root: PathBuf,
@@ -47,8 +56,8 @@ pub fn ist_textbildschirm(v: &Value) -> bool { v["kind"] == "screen" && !v["scre
 impl ScreenDoc {
     pub fn oeffnen(root: &Path, rel: &str, data: &Path) -> Result<ScreenDoc, String> {
         let abs = root.join(rel);
-        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
-        if !ist_textbildschirm(&media) { return Err(format!("{rel}: kein Textbildschirm")) }
+        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("screendoc-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("screendoc-rel-e", rel = &rel, e = e.to_string()))?;
+        if !ist_textbildschirm(&media) { return Err(vc_i18n::t!("screendoc-rel-kein-textbildschirm", rel = &rel)) }
         let profiles = vc_media::load_profiles(data)?; let p = vc_media::profile(&profiles, media["profile"].as_str().unwrap_or(""))?;
         let glyphs = media["charset"].as_str().and_then(|c| Glyphs::laden(root, c));
         let farb_ram = p.raw["colorRam"].as_bool().unwrap_or(false);
@@ -66,8 +75,8 @@ impl ScreenDoc {
     pub fn kann_redo(&self) -> bool { !self.redo.is_empty() }
     fn glyphs_neu(&mut self) { self.glyphs = self.media["charset"].as_str().and_then(|c| Glyphs::laden(&self.root, c)) }
     pub fn save(&mut self) -> Result<(), String> {
-        std::fs::write(&self.abs, vc_media::project::format_media(&self.media)).map_err(|e| format!("{}: {e}", self.rel))?;
-        self.saved = self.media.to_string(); self.status = "gespeichert".into(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, vc_media::project::format_media(&self.media)).map_err(|e| format!("{}: {e}", self.rel))?;
+        self.saved = self.media.to_string(); self.status = vc_i18n::t!("screendoc-gespeichert"); Ok(())
     }
     /// Text der Mediendatei, wie er gespeichert würde (Export-Vorschau)
     pub fn media_text(&self) -> String { vc_media::project::format_media(&self.media) }

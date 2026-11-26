@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-vintagecoder-project">
+    <comment>VintageCoder-Projekt</comment>
+    <comment xml:lang="de">VintageCoder-Projekt</comment>
+    <icon name="vintagecoder"/>
+    <glob pattern="*.vcprj"/>
+  </mime-type>
+  <mime-type type="application/x-vintagecoder-media">
+    <comment>VintageCoder media file</comment>
+    <comment xml:lang="de">VintageCoder-Mediendatei</comment>
+    <icon name="vintagecoder"/>
+    <glob pattern="*.vcsprite"/>
+    <glob pattern="*.vcpmg"/>
+    <glob pattern="*.vcchar"/>
+    <glob pattern="*.vctiles"/>
+    <glob pattern="*.vcsong"/>
+    <glob pattern="*.vcscreen"/>
+    <glob pattern="*.vcpal"/>
+  </mime-type>
+</mime-info>

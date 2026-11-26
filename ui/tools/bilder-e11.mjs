@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Bilderstrecke für die Abnahme (E11 Hex und Speicher): Playwright (WebKit), Prüfbrücke. Aufruf: node tools/bilder-e11.mjs <Kopie c64/jumprun> <Ausgabeordner>
+import { webkit } from "playwright";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+const [proj, out] = process.argv.slice(2);
+if (!out) { console.error("Aufruf: node tools/bilder-e11.mjs <jumprun> <Ausgabe>"); process.exit(2); }
+mkdirSync(out, { recursive: true });
+const roh = Buffer.alloc(5000); for (let i = 0; i < roh.length; i++) roh[i] = (i * 7) % 251; roh[6] = 0xA9; roh[7] = 0x00; roh.write("HELLO", 40, "latin1"); writeFileSync(join(proj, "test.bin"), roh);
+writeFileSync(join(proj, "x.prg"), Buffer.from([0x01, 0x08, 0x0b, 0x08, 0x0a, 0x00, 0x9e, 0x32, 0x30, 0x36, 0x31, 0x00, 0x00, 0x00, 0x60]));
+const browser = await webkit.launch(); const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const liste = []; const bild = async (name, punkt, soll) => { await page.waitForTimeout(500); await page.screenshot({ path: join(out, name + ".png") }); liste.push([punkt, name + ".png", soll]); };
+const V = (js, a) => page.evaluate(js, a); const w = (ms = 500) => page.waitForTimeout(ms);
+await page.goto("http://127.0.0.1:1420/?bridge=17420"); await page.waitForFunction(() => window.__vc && window.__vc.ui.ready);
+await V(async () => { await window.__vc.setLanguage("de"); window.__vc.setTheme("dark"); });
+await V(async (p) => { await window.__vc.openProject(p); }, proj); await page.waitForTimeout(900);
+await V(() => window.__vc.runCommand("nav:daten:hex")); await w(700);
+await bild("e11-01-hex-leer", "E11-1", "Hex-Ansicht ohne gewählte Datei: Liste der Binärdateien, Hinweis");
+await page.locator("[data-hx=file]", { hasText: "test.bin" }).click(); await w();
+await page.locator("[data-hx=byte][data-o='6']").click(); await page.locator("[data-hx=byte][data-o='9']").click({ modifiers: ["Shift"] }); await w(300);
+await bild("e11-02-hex-auswahl-breit", "E11-2/3", "Hex-Ansicht dunkel: Adresse, 16 Bytes, Text; Auswahl $0006–$0009 mit Deutung (Byte, Wort, Text), Seitenwahl rechts");
+await page.locator("[data-hx=suche]").fill("HELLO"); await page.locator("[data-hx=suchen]").click(); await w(600);
+await bild("e11-03-hex-suche", "E11-4", "Suche nach Text „HELLO“: Treffer ist ausgewählt, Status „Gefunden bei …“");
+await page.getByRole("radio", { name: "8 Byte" }).click(); await w(600);
+await bild("e11-04-hex-8-byte", "E11-5", "Acht Byte je Zeile");
+await page.getByRole("radio", { name: "16 Byte" }).click(); await page.locator("[data-hx=suche]").fill("gibtsnicht"); await page.locator("[data-hx=suchen]").click(); await w(300);
+await bild("e11-05-hex-nichts-gefunden", "E11-4", "Suche ohne Treffer: Hinweis „Nichts gefunden.“");
+await V(() => window.__vc.openFile("x.prg")); await w(800);
+await bild("e11-06-hex-prg", "E11-6", "PRG-Datei: Ladeadresse $0801 wird genannt, ganze Datei geladen");
+await page.setViewportSize({ width: 640, height: 900 }); await bild("e11-07-hex-schmal-640", "E11-9", "Schmal (640 px): Spalten untereinander"); await page.setViewportSize({ width: 1440, height: 900 });
+await V(() => window.__vc.setTheme("light")); await bild("e11-08-hex-hell", "E11-9", "Helles Farbschema"); await V(() => window.__vc.setTheme("dark"));
+await V(() => window.__vc.runCommand("nav:daten:speicher")); await w(700);
+await bild("e11-09-speicher-leer", "E11-10", "Speicherkarte vor dem ersten Bau: Hinweis „Noch nichts gebaut“");
+await V(() => { void window.__vc.runCommand("bauen"); }); await page.waitForFunction(() => /gebaut/.test(document.querySelector("footer.status")?.innerText ?? ""), null, { timeout: 120000 }); await w(1500);
+await bild("e11-10-speicher-breit", "E11-11/12", "Speicherkarte dunkel: 16 × 16 Seiten, Programmbelegung als Balken und Rand, links Bereiche und Belegung, rechts Seite, Prüfungen, Prozessorport");
+await page.locator("[data-spk=seite][data-p='8']").click(); await w(600);
+await bild("e11-11-speicher-seite", "E11-13", "Seite $08 gewählt: Symbole der Seite, Quellzeilen als Links, Prüfungen");
+await page.locator("[data-spk=preset]").nth(3).click(); await w(600); await page.getByRole("radio", { name: "ROM", exact: true }).click(); await w(300);
+await bild("e11-12-speicher-preset-filter", "E11-14/15", "Anderer Prozessorport ($34: alles RAM) und Filter ROM: nur ROM-Seiten sind kräftig");
+await page.setViewportSize({ width: 640, height: 900 }); await bild("e11-13-speicher-schmal-640", "E11-16", "Schmal (640 px)"); await page.setViewportSize({ width: 1440, height: 900 });
+await V(() => window.__vc.setTheme("light")); await bild("e11-14-speicher-hell", "E11-16", "Helles Farbschema"); await V(async () => { window.__vc.setTheme("dark"); await window.__vc.setLanguage("en"); }); await bild("e11-15-speicher-englisch", "E11-16", "Englisch (maschinell, nicht abgenommen)"); await V(async () => { await window.__vc.setLanguage("de"); });
+writeFileSync(join(out, "LIESMICH.md"), "# Bilderstrecke E11 Hex und Speicher (de, dunkel, wenn nicht anders genannt)\n\nErzeugt mit `node ui/tools/bilder-e11.mjs` (Playwright/WebKit, Prüfbrücke, echter Kern).\n\n| Handprüfpunkt | Bild | Was zu sehen sein muss |\n|---|---|---|\n" + liste.map(([p, f, s]) => `| ${p} | ${f} | ${s} |`).join("\n") + "\n\nNur von Hand zu prüfen: Mausauswahl und Tastatur im Hex-Raster, große Dateien (Blättern), Gefühl, VoiceOver.\n");
+console.log(liste.length + " Bilder"); await browser.close();

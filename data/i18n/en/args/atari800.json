@@ -1,0 +1,560 @@
+{
+ "source": "args/atari800.json",
+ "entries": {
+  "/label": {
+   "de": "atari800 (Atari 8 Bit)",
+   "en": "atari800 (Atari 8-bit)",
+   "status": "maschinell"
+  },
+  "/groups/0/label": {
+   "de": "Ablauf",
+   "en": "Run",
+   "status": "maschinell"
+  },
+  "/groups/1/label": {
+   "de": "Maschine und Speicher",
+   "en": "Machine and memory",
+   "status": "maschinell"
+  },
+  "/groups/2/label": {
+   "de": "Bild",
+   "en": "Video",
+   "status": "maschinell"
+  },
+  "/groups/3/label": {
+   "de": "Ton",
+   "en": "Sound",
+   "status": "maschinell"
+  },
+  "/groups/4/label": {
+   "de": "Eingabe",
+   "en": "Input",
+   "status": "maschinell"
+  },
+  "/groups/5/label": {
+   "de": "Monitor und Fehlersuche",
+   "en": "Monitor and debugging",
+   "status": "maschinell"
+  },
+  "/groups/6/label": {
+   "de": "Dateien und Laufwerke",
+   "en": "Files and drives",
+   "status": "maschinell"
+  },
+  "/params/0/label": {
+   "de": "Turbo",
+   "en": "Turbo",
+   "status": "unverändert"
+  },
+  "/params/0/hint": {
+   "de": "Lässt den Atari so schnell wie möglich laufen.",
+   "en": "Runs the Atari as fast as possible.",
+   "status": "maschinell"
+  },
+  "/params/1/label": {
+   "de": "Bildwiederholrate",
+   "en": "Frame rate",
+   "status": "maschinell"
+  },
+  "/params/1/hint": {
+   "de": "Zeigt nur jedes n-te Bild: 1 = jedes Bild, 2 = jedes zweite usw.",
+   "en": "Shows only every nth frame: 1 = every frame, 2 = every second frame and so on.",
+   "status": "maschinell"
+  },
+  "/params/2/label": {
+   "de": "Einstellungen beim Beenden speichern",
+   "en": "Save settings on exit",
+   "status": "maschinell"
+  },
+  "/params/2/hint": {
+   "de": "Schreibt die Einstellungen beim Beenden in die Konfigurationsdatei.",
+   "en": "Writes the settings to the configuration file on exit.",
+   "status": "maschinell"
+  },
+  "/params/3/label": {
+   "de": "Konfigurationsdatei",
+   "en": "Configuration file",
+   "status": "maschinell"
+  },
+  "/params/3/hint": {
+   "de": "Verwendet diese Konfigurationsdatei statt ~/.atari800.cfg.",
+   "en": "Uses this configuration file instead of ~/.atari800.cfg.",
+   "status": "maschinell"
+  },
+  "/params/4/label": {
+   "de": "MapRAM (XL/XE)",
+   "en": "MapRAM (XL/XE)",
+   "status": "unverändert"
+  },
+  "/params/4/hint": {
+   "de": "Schaltet den RAM unter dem ROM-Bereich (MapRAM) für XL/XE ein.",
+   "en": "Turns on the RAM under the ROM area (MapRAM) for XL/XE.",
+   "status": "maschinell"
+  },
+  "/params/5/label": {
+   "de": "Zwei POKEYs (Stereo)",
+   "en": "Two POKEYs (stereo)",
+   "status": "maschinell"
+  },
+  "/params/5/hint": {
+   "de": "Bildet zwei POKEY-Chips nach.",
+   "en": "Emulates two POKEY chips.",
+   "status": "maschinell"
+  },
+  "/params/6/label": {
+   "de": "Ton an",
+   "en": "Sound on",
+   "status": "maschinell"
+  },
+  "/params/6/hint": {
+   "de": "Schaltet die Tonausgabe ein oder aus.",
+   "en": "Turns sound output on or off.",
+   "status": "maschinell"
+  },
+  "/params/7/label": {
+   "de": "Lautstärke (0 bis 100)",
+   "en": "Volume (0 to 100)",
+   "status": "maschinell"
+  },
+  "/params/7/hint": {
+   "de": "Lautstärke der Tonausgabe.",
+   "en": "Volume of the sound output.",
+   "status": "maschinell"
+  },
+  "/params/8/label": {
+   "de": "Abtastrate (Hz)",
+   "en": "Sample rate (Hz)",
+   "status": "maschinell"
+  },
+  "/params/8/hint": {
+   "de": "Abtastrate der Tonausgabe in Hertz.",
+   "en": "Sample rate of the sound output in hertz.",
+   "status": "maschinell"
+  },
+  "/params/9/label": {
+   "de": "Tonverzögerung (ms)",
+   "en": "Sound delay (ms)",
+   "status": "maschinell"
+  },
+  "/params/9/hint": {
+   "de": "Zielverzögerung des Tons in Millisekunden.",
+   "en": "Target delay of the sound in milliseconds.",
+   "status": "maschinell"
+  },
+  "/params/10/label": {
+   "de": "Vollbild",
+   "en": "Full screen",
+   "status": "maschinell"
+  },
+  "/params/10/hint": {
+   "de": "Startet im Vollbild.",
+   "en": "Starts in full screen.",
+   "status": "maschinell"
+  },
+  "/params/11/label": {
+   "de": "Artefaktfarben",
+   "en": "Artifact colors",
+   "status": "maschinell"
+  },
+  "/params/11/hint": {
+   "de": "Modus der Farbartefakte in Hochauflösung (0 = aus).",
+   "en": "Mode of the color artifacts in high resolution (0 = off).",
+   "status": "maschinell"
+  },
+  "/params/11/choices/0/label": {
+   "de": "aus",
+   "en": "off",
+   "status": "maschinell"
+  },
+  "/params/12/label": {
+   "de": "NTSC-Artefakte",
+   "en": "NTSC artifacts",
+   "status": "maschinell"
+  },
+  "/params/12/hint": {
+   "de": "Art der Videoartefakte bei NTSC.",
+   "en": "Type of video artifacts for NTSC.",
+   "status": "maschinell"
+  },
+  "/params/12/choices/0/label": {
+   "de": "keine",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/12/choices/1/label": {
+   "de": "alt",
+   "en": "old",
+   "status": "maschinell"
+  },
+  "/params/12/choices/2/label": {
+   "de": "neu",
+   "en": "new",
+   "status": "maschinell"
+  },
+  "/params/12/choices/3/label": {
+   "de": "voll",
+   "en": "full",
+   "status": "maschinell"
+  },
+  "/params/13/label": {
+   "de": "PAL-Artefakte",
+   "en": "PAL artifacts",
+   "status": "maschinell"
+  },
+  "/params/13/hint": {
+   "de": "Art der Videoartefakte bei PAL.",
+   "en": "Type of video artifacts for PAL.",
+   "status": "maschinell"
+  },
+  "/params/13/choices/0/label": {
+   "de": "keine",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/13/choices/1/label": {
+   "de": "einfach",
+   "en": "simple",
+   "status": "maschinell"
+  },
+  "/params/13/choices/2/label": {
+   "de": "Mischung",
+   "en": "blend",
+   "status": "maschinell"
+  },
+  "/params/14/label": {
+   "de": "Farbvoreinstellung",
+   "en": "Color preset",
+   "status": "maschinell"
+  },
+  "/params/14/hint": {
+   "de": "Vorgegebene Farbanpassung.",
+   "en": "Predefined color adjustment.",
+   "status": "maschinell"
+  },
+  "/params/14/choices/0/label": {
+   "de": "Standard",
+   "en": "Default",
+   "status": "maschinell"
+  },
+  "/params/14/choices/1/label": {
+   "de": "Tiefschwarz",
+   "en": "Deep black",
+   "status": "maschinell"
+  },
+  "/params/14/choices/2/label": {
+   "de": "Lebhaft",
+   "en": "Vivid",
+   "status": "maschinell"
+  },
+  "/params/15/label": {
+   "de": "Skalierung",
+   "en": "Scaling",
+   "status": "maschinell"
+  },
+  "/params/15/hint": {
+   "de": "Wie das Bild gestreckt wird.",
+   "en": "How the picture is stretched.",
+   "status": "maschinell"
+  },
+  "/params/15/choices/0/label": {
+   "de": "keine",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/15/choices/1/label": {
+   "de": "ganzzahlig",
+   "en": "integer",
+   "status": "maschinell"
+  },
+  "/params/15/choices/2/label": {
+   "de": "voll",
+   "en": "full",
+   "status": "maschinell"
+  },
+  "/params/16/label": {
+   "de": "Seitenverhältnis",
+   "en": "Aspect ratio",
+   "status": "maschinell"
+  },
+  "/params/16/hint": {
+   "de": "Seitenverhältnis des Bildes.",
+   "en": "Aspect ratio of the picture.",
+   "status": "maschinell"
+  },
+  "/params/16/choices/0/label": {
+   "de": "keines",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/16/choices/1/label": {
+   "de": "quadratische Pixel",
+   "en": "square pixels",
+   "status": "maschinell"
+  },
+  "/params/16/choices/2/label": {
+   "de": "wie am Fernseher",
+   "en": "like on a TV",
+   "status": "maschinell"
+  },
+  "/params/17/label": {
+   "de": "Vertikale Synchronisation",
+   "en": "Vertical sync",
+   "status": "maschinell"
+  },
+  "/params/17/hint": {
+   "de": "Gleicht die Ausgabe mit dem Bildwechsel des Monitors ab.",
+   "en": "Synchronizes the output with the refresh of the monitor.",
+   "status": "maschinell"
+  },
+  "/params/18/label": {
+   "de": "Geschwindigkeit anzeigen",
+   "en": "Show speed",
+   "status": "maschinell"
+  },
+  "/params/18/hint": {
+   "de": "Zeigt die tatsächliche Geschwindigkeit in Prozent an.",
+   "en": "Shows the actual speed in percent.",
+   "status": "maschinell"
+  },
+  "/params/19/label": {
+   "de": "Fensterbreite",
+   "en": "Window width",
+   "status": "maschinell"
+  },
+  "/params/19/hint": {
+   "de": "Breite des Fensters in Pixeln.",
+   "en": "Width of the window in pixels.",
+   "status": "maschinell"
+  },
+  "/params/20/label": {
+   "de": "Fensterhöhe",
+   "en": "Window height",
+   "status": "maschinell"
+  },
+  "/params/20/hint": {
+   "de": "Höhe des Fensters in Pixeln.",
+   "en": "Height of the window in pixels.",
+   "status": "maschinell"
+  },
+  "/params/21/label": {
+   "de": "Maus",
+   "en": "Mouse",
+   "status": "maschinell"
+  },
+  "/params/21/hint": {
+   "de": "Welches Gerät die Maus nachbildet.",
+   "en": "Which device the mouse emulates.",
+   "status": "maschinell"
+  },
+  "/params/21/choices/0/label": {
+   "de": "keine",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/21/choices/1/label": {
+   "de": "Paddles",
+   "en": "Paddles",
+   "status": "unverändert"
+  },
+  "/params/21/choices/2/label": {
+   "de": "Touch Tablet",
+   "en": "Touch Tablet",
+   "status": "unverändert"
+  },
+  "/params/21/choices/3/label": {
+   "de": "Koala Pad",
+   "en": "Koala Pad",
+   "status": "unverändert"
+  },
+  "/params/21/choices/4/label": {
+   "de": "Lichtgriffel",
+   "en": "Light pen",
+   "status": "maschinell"
+  },
+  "/params/21/choices/5/label": {
+   "de": "Lightgun",
+   "en": "Lightgun",
+   "status": "unverändert"
+  },
+  "/params/21/choices/6/label": {
+   "de": "Amiga-Maus",
+   "en": "Amiga mouse",
+   "status": "maschinell"
+  },
+  "/params/21/choices/7/label": {
+   "de": "Atari-ST-Maus",
+   "en": "Atari ST mouse",
+   "status": "maschinell"
+  },
+  "/params/21/choices/8/label": {
+   "de": "Trak-Ball",
+   "en": "Trak-Ball",
+   "status": "unverändert"
+  },
+  "/params/21/choices/9/label": {
+   "de": "Joystick",
+   "en": "Joystick",
+   "status": "unverändert"
+  },
+  "/params/22/label": {
+   "de": "Joystick aus",
+   "en": "Joystick off",
+   "status": "maschinell"
+  },
+  "/params/22/hint": {
+   "de": "Schaltet die Joystickunterstützung ab.",
+   "en": "Turns off joystick support.",
+   "status": "maschinell"
+  },
+  "/params/23/label": {
+   "de": "Tastatur als Joystick 0",
+   "en": "Keyboard as joystick 0",
+   "status": "maschinell"
+  },
+  "/params/23/hint": {
+   "de": "Die Tastatur bedient Joystickport 0.",
+   "en": "The keyboard operates joystick port 0.",
+   "status": "maschinell"
+  },
+  "/params/24/label": {
+   "de": "Tastatur als Joystick 1",
+   "en": "Keyboard as joystick 1",
+   "status": "maschinell"
+  },
+  "/params/24/hint": {
+   "de": "Die Tastatur bedient Joystickport 1.",
+   "en": "The keyboard operates joystick port 1.",
+   "status": "maschinell"
+  },
+  "/params/25/label": {
+   "de": "Maus einfangen",
+   "en": "Grab mouse",
+   "status": "maschinell"
+  },
+  "/params/25/hint": {
+   "de": "Hält den Mauszeiger im Fenster.",
+   "en": "Keeps the mouse pointer in the window.",
+   "status": "maschinell"
+  },
+  "/params/26/label": {
+   "de": "Halt bei BRK",
+   "en": "Stop on BRK",
+   "status": "maschinell"
+  },
+  "/params/26/hint": {
+   "de": "Hält den Monitor an, wenn ein BRK-Befehl ausgeführt wird.",
+   "en": "Stops the monitor when a BRK instruction is executed.",
+   "status": "maschinell"
+  },
+  "/params/27/label": {
+   "de": "Haltepunkt bei Adresse",
+   "en": "Breakpoint at address",
+   "status": "maschinell"
+  },
+  "/params/27/hint": {
+   "de": "Hält den Monitor an, wenn der Programmzähler diese Adresse (hexadezimal) erreicht.",
+   "en": "Stops the monitor when the program counter reaches this address (hexadecimal).",
+   "status": "maschinell"
+  },
+  "/params/28/label": {
+   "de": "Label-Datei für den Monitor",
+   "en": "Label file for the monitor",
+   "status": "maschinell"
+  },
+  "/params/28/hint": {
+   "de": "Lädt Labels aus dieser Datei in den Monitor des atari800.",
+   "en": "Loads labels from this file into the atari800 monitor.",
+   "status": "maschinell"
+  },
+  "/params/29/label": {
+   "de": "Im Monitor starten",
+   "en": "Start in monitor",
+   "status": "maschinell"
+  },
+  "/params/29/hint": {
+   "de": "Startet den Emulator direkt im Monitor (Textkonsole).",
+   "en": "Starts the emulator directly in the monitor (text console).",
+   "status": "maschinell"
+  },
+  "/params/30/label": {
+   "de": "Eingaben aufzeichnen",
+   "en": "Record input",
+   "status": "maschinell"
+  },
+  "/params/30/hint": {
+   "de": "Schreibt alle Eingaben in diese Datei.",
+   "en": "Writes all input to this file.",
+   "status": "maschinell"
+  },
+  "/params/31/label": {
+   "de": "Eingaben abspielen",
+   "en": "Play back input",
+   "status": "maschinell"
+  },
+  "/params/31/hint": {
+   "de": "Spielt zuvor aufgezeichnete Eingaben aus dieser Datei ab.",
+   "en": "Plays back input recorded earlier from this file.",
+   "status": "maschinell"
+  },
+  "/params/32/label": {
+   "de": "Muster für Bildschirmfotos",
+   "en": "Screenshot pattern",
+   "status": "maschinell"
+  },
+  "/params/32/hint": {
+   "de": "Dateiname bzw. Muster für Bildschirmfotos.",
+   "en": "File name or pattern for screenshots.",
+   "status": "maschinell"
+  },
+  "/params/33/label": {
+   "de": "Kassettenimage",
+   "en": "Cassette image",
+   "status": "maschinell"
+  },
+  "/params/33/hint": {
+   "de": "Legt dieses Kassettenimage ein.",
+   "en": "Inserts this cassette image.",
+   "status": "maschinell"
+  },
+  "/params/34/label": {
+   "de": "Kassette einlegen und booten",
+   "en": "Insert cassette and boot",
+   "status": "maschinell"
+  },
+  "/params/34/hint": {
+   "de": "Legt das Kassettenimage ein und bootet davon.",
+   "en": "Inserts the cassette image and boots from it.",
+   "status": "maschinell"
+  },
+  "/params/35/label": {
+   "de": "Ordner für H1:",
+   "en": "Folder for H1:",
+   "status": "maschinell"
+  },
+  "/params/35/hint": {
+   "de": "Ordner des Hosts, der als Gerät H1: erscheint.",
+   "en": "Folder of the host that appears as device H1:.",
+   "status": "maschinell"
+  },
+  "/params/36/label": {
+   "de": "Ordner für H:-Programme",
+   "en": "Folder for H: programs",
+   "status": "maschinell"
+  },
+  "/params/36/hint": {
+   "de": "Ordner für Atari-Programme auf dem Host-Gerät H:.",
+   "en": "Folder for Atari programs on the host device H:.",
+   "status": "maschinell"
+  },
+  "/params/37/label": {
+   "de": "H: schreibgeschützt",
+   "en": "H: read-only",
+   "status": "maschinell"
+  },
+  "/params/37/hint": {
+   "de": "Das Host-Gerät H: ist schreibgeschützt.",
+   "en": "The host device H: is read-only.",
+   "status": "maschinell"
+  }
+ }
+}

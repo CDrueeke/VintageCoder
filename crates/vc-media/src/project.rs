@@ -52,14 +52,14 @@ pub fn create(root: &Path, data: &Path, name: &str, profile_id: &str, dir: &str)
 
 /// Wie [`create`]; mit `blank` ist ein Zeichensatz leer.
 pub fn create_with(root: &Path, data: &Path, name: &str, profile_id: &str, dir: &str, blank: bool) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let profiles = load_profiles(data)?;
     let p = profile(&profiles, profile_id)?;
     let allowed = project_systems(root, data);
-    if !allowed.is_empty() && !allowed.contains(&p.target) { return Err(format!("Profil '{}' gehört zum System '{}', das Projekt hat nur: {}", p.id, p.target, allowed.join(", "))); }
+    if !allowed.is_empty() && !allowed.contains(&p.target) { return Err(vc_i18n::t!("media-profil-p1-gehoert-zum-system-p2", p1 = &p.id, p2 = &p.target, p3 = allowed.join(", "))); }
     let rel = format!("{}/{name}{}", crate::naming::out_dir(dir, &p.kind), crate::naming::ext_for_kind(&p.kind));
     let path = root.join(&rel);
-    if path.exists() { return Err(format!("{rel} existiert bereits")); }
+    if path.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)); }
     std::fs::create_dir_all(path.parent().unwrap()).map_err(|e| e.to_string())?;
     let mut media = new_media(p, name);
     if p.kind == "charset" && !blank {
@@ -69,7 +69,7 @@ pub fn create_with(root: &Path, data: &Path, name: &str, profile_id: &str, dir: 
         }
         media = crate::romref::for_saving(&media);
     }
-    std::fs::write(&path, format_media(&media)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&path, format_media(&media)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": rel }))
 }
 
@@ -80,35 +80,48 @@ fn parts(a: &Media, p: &Profile) -> Result<Vec<(String, Vec<u8>)>, String> {
         "song" => crate::song::encode(&a.root, p)?,
         "palette" => crate::encode_palette(a)?,
         "tilemap" => { let (t, m, c) = encode_tilemap(a, p)?; vec![("tiles".to_string(), t), ("map".to_string(), m), ("colors".to_string(), c)] }
-        k => return Err(format!("Export für '{k}' nicht unterstützt")),
+        k => return Err(vc_i18n::t!("media-export-fuer-k-nicht-unterstuetzt", k = &k)),
     })
 }
 
 pub fn export(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, start: u32, step: u32) -> Result<Value, String> { export_mit(root, data, rel, format, label, address, start, step, None) }
 
+/// Vorschau eines Textexports: bis 40 Zeilen ganz; längere zeigen den Anfang und das Ende (dort stehen bei Sprites und Player/Missile die Konstanten), die Mitte entfällt mit Hinweis
+fn vorschau_kuerzen(t: &str) -> String {
+    let z: Vec<&str> = t.lines().collect();
+    if z.len() <= 40 { return z.join("\n"); }
+    let (kopf, fuss) = (26, 12); let weg = z.len() - kopf - fuss;
+    format!("{}\n; {}\n{}", z[..kopf].join("\n"), vc_i18n::t!("export-vorschau-gekuerzt", n = &weg), z[z.len() - fuss..].join("\n"))
+}
+
 /// Wie [`export`]; `layout` überschreibt bei Kachelsätzen und Screen-Bänken das Layout der Datei (Export-Dialog)
 pub fn export_mit(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, _start: u32, _step: u32, layout: Option<crate::tiles::TilesLayout>) -> Result<Value, String> {
+    export_in(root, data, rel, format, label, address, layout, &root.join(crate::naming::EXPORT_DIR))
+}
+
+/// Wie [`export_mit`], schreibt aber in `dir` (Einbinden von Medien: Zwischenspeicher statt `build/export`); die Pfade im Ergebnis sind relativ zu `root`
+pub fn export_in(root: &Path, data: &Path, rel: &str, format: &str, label: Option<&str>, address: Option<u16>, layout: Option<crate::tiles::TilesLayout>, dir: &Path) -> Result<Value, String> {
+    let shown = vc_core::paths::rel_path(root, dir);
     let text = std::fs::read_to_string(root.join(rel)).map_err(|e| format!("{rel}: {e}"))?;
     let a = parse_media(&text)?;
     let profiles = load_profiles(data)?;
     let p = profile(&profiles, &a.profile)?;
     let label = label.map(String::from).unwrap_or_else(|| a.name.replace('-', "_"));
-    if p.kind == "song" && p.raw["chip"] == "pokey" { return export_rmt(root, &a, p, &label, format, address); }
+    if p.kind == "song" && p.raw["chip"] == "pokey" { return export_rmt(root, dir, &shown, &a, p, &label, format, address); }
     if p.kind == "play" {
         if format != "bas" && format != "data" { return Err("PLAY-Song: Exportformat 'bas' (BASIC-Programm) verwenden".into()); }
         let txt = crate::play::to_basic(&a.root, &label)?;
-        let dir = root.join("build/export"); std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-        let file = format!("{}.bas", a.name); std::fs::write(dir.join(&file), txt.as_bytes()).map_err(|e| e.to_string())?;
-        let preview: String = txt.lines().take(40).collect::<Vec<_>>().join("\n");
-        return Ok(json!({ "ok": true, "files": [{ "path": format!("build/export/{file}"), "size": txt.len() }], "preview": preview }));
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+        let file = format!("{}.bas", a.name); vc_core::atomar::schreiben(dir.join(&file), txt.as_bytes()).map_err(|e| e.to_string())?;
+        let preview: String = vorschau_kuerzen(&txt);
+        return Ok(json!({ "ok": true, "files": [{ "path": format!("{shown}/{file}"), "size": txt.len() }], "preview": preview }));
     }
     let tiles_out = if p.kind == "tileset" || crate::tiles::is_bank(&a.root) { Some(crate::tiles::export_parts_mit(root, &a.root, &profiles, &label, layout.unwrap_or_else(|| crate::tiles::TilesLayout::aus_medium(&a.root)))?) } else { None };
     let ps = match &tiles_out { Some(t) => t.parts.clone(), None => parts(&a, p)? };
-    let dir = root.join("build/export");
-    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     let mut files = vec![];
     let preview: String;
-    let mut write = |name: String, bytes: &[u8]| -> Result<(), String> { std::fs::write(dir.join(&name), bytes).map_err(|e| e.to_string())?; files.push(json!({ "path": format!("build/export/{name}"), "size": bytes.len() })); Ok(()) };
+    let mut write = |name: String, bytes: &[u8]| -> Result<(), String> { vc_core::atomar::schreiben(dir.join(&name), bytes).map_err(|e| e.to_string())?; files.push(json!({ "path": format!("{shown}/{name}"), "size": bytes.len() })); Ok(()) };
     let lab = |suffix: &str| if suffix.is_empty() { label.clone() } else { format!("{label}_{suffix}") };
     match format {
         "asm" => {
@@ -131,14 +144,14 @@ pub fn export_mit(root: &Path, data: &Path, rel: &str, format: &str, label: Opti
             write(format!("{}.inc", a.name), s.as_bytes())?;
             preview = s;
         }
-        "bin" => { for (suf, b) in &ps { write(if suf.is_empty() { format!("{}.bin", a.name) } else { format!("{}.{suf}.bin", a.name) }, b)?; } preview = format!("{} Datei(en)", files.len()); }
+        "bin" => { for (suf, b) in &ps { write(if suf.is_empty() { format!("{}.bin", a.name) } else { format!("{}.{suf}.bin", a.name) }, b)?; } preview = vc_i18n::t!("media-p1-datei-en", p1 = files.len()); }
         "prg" => {
-            let mut addr = address.ok_or("PRG-Export braucht eine Adresse")?;
+            let mut addr = address.ok_or(vc_i18n::t!("media-prg-export-braucht-eine-adresse"))?;
             for (suf, b) in &ps { write(if suf.is_empty() { format!("{}.prg", a.name) } else { format!("{}.{suf}.prg", a.name) }, &export_prg(addr, b))?; addr = addr.wrapping_add(b.len() as u16); }
-            preview = format!("{} Datei(en), Ladeadresse ${:04X}", files.len(), address.unwrap());
+            preview = vc_i18n::t!("media-p1-datei-en-ladeadresse-p2", p1 = files.len(), p2 = format!("{:04X}", address.unwrap()));
         }
         "sbas" => {
-            let mut s = format!("' erzeugt von VintageCoder – Daten für strukturiertes BASIC (Reihenfolge: {})\n", ps.iter().map(|(n, _)| if n.is_empty() { "daten" } else { n.as_str() }).collect::<Vec<_>>().join(", "));
+            let mut s = format!("{}\n", vc_i18n::t!("media-erzeugt-von-vintagecoder-daten-fuer-strukturiertes", p1 = ps.iter().map(|(n, _)| if n.is_empty() { "daten" } else { n.as_str() }).collect::<Vec<_>>().join(", ")));
             for (suf, b) in &ps { s.push_str(&format!("@{}_data:\n{}", lab(suf), export_sbas_data(b))); }
             if let Some(t) = &tiles_out { s.push_str(&t.consts_sbas); } else {
             s.push_str(&export_colors_sbas(&label, &a.root));
@@ -157,7 +170,7 @@ pub fn export_mit(root: &Path, data: &Path, rel: &str, format: &str, label: Opti
         }
         f => return Err(format!("unbekanntes Exportformat '{f}' (asm, inc, bin, prg, data, sbas)")),
     }
-    let preview: String = preview.lines().take(40).collect::<Vec<_>>().join("\n");
+    let preview: String = vorschau_kuerzen(&preview);
     let mut ergebnis = json!({ "ok": true, "files": files, "preview": preview });
     if let Some(t) = &tiles_out { ergebnis["tilesReport"] = json!(t.report); if !t.tiles_use.is_empty() { ergebnis["tilesUse"] = json!(t.tiles_use); } }
     Ok(ergebnis)
@@ -168,9 +181,9 @@ pub fn import_png(root: &Path, data: &Path, rel: &str, png: &[u8], frame: usize,
     let path = root.join(rel);
     let text = std::fs::read_to_string(&path).map_err(|e| format!("{rel}: {e}"))?;
     let mut v: Value = serde_json::from_str(&text).map_err(|e| format!("{rel}: {e}"))?;
-    let profiles = load_profiles(data)?; let p = profile(&profiles, v["profile"].as_str().ok_or("profile fehlt")?)?;
+    let profiles = load_profiles(data)?; let p = profile(&profiles, v["profile"].as_str().ok_or(vc_i18n::t!("media-profile-fehlt"))?)?;
     let report = crate::import::import_png(png, &mut v, p, data, frame, auto, sys)?;
-    std::fs::write(&path, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&path, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "report": report, "media": v }))
 }
 
@@ -179,7 +192,7 @@ pub fn base64_decode(s: &str) -> Result<Vec<u8>, String> {
     let s = s.split_once(',').filter(|(h, _)| h.starts_with("data:")).map(|(_, b)| b).unwrap_or(s);
     let (mut out, mut acc, mut bits) = (Vec::new(), 0u32, 0u32);
     for c in s.bytes() {
-        let v = match c { b'A'..=b'Z' => c - b'A', b'a'..=b'z' => c - b'a' + 26, b'0'..=b'9' => c - b'0' + 52, b'+' => 62, b'/' => 63, b'=' => break, b' ' | b'\n' | b'\r' | b'\t' => continue, _ => return Err("Base64: ungültiges Zeichen".into()) } as u32;
+        let v = match c { b'A'..=b'Z' => c - b'A', b'a'..=b'z' => c - b'a' + 26, b'0'..=b'9' => c - b'0' + 52, b'+' => 62, b'/' => 63, b'=' => break, b' ' | b'\n' | b'\r' | b'\t' => continue, _ => return Err(vc_i18n::t!("media-base64-ungueltiges-zeichen").into()) } as u32;
         acc = (acc << 6) | v; bits += 6; if bits >= 8 { bits -= 8; out.push((acc >> bits) as u8); acc &= (1 << bits) - 1; }
     }
     Ok(out)
@@ -245,30 +258,30 @@ fn export_dims(label: &str, root: &Value, p: &Profile, sbas: bool) -> String {
 }
 
 /// POKEY-Songs: Export als RMT-Modul (ASM mit verschiebbaren Zeigern oder `.rmt`-Datei für eine feste Adresse)
-fn export_rmt(root: &Path, a: &Media, p: &Profile, label: &str, format: &str, address: Option<u16>) -> Result<Value, String> {
+fn export_rmt(_root: &Path, dir: &Path, shown: &str, a: &Media, p: &Profile, label: &str, format: &str, address: Option<u16>) -> Result<Value, String> {
     let m = crate::song::rmt_build(&a.root, p)?;
-    let dir = root.join("build/export"); std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     let (name, bytes, preview): (String, Vec<u8>, String) = match format {
         "asm" => { let mut t = m.to_asm(&format!("{label}_rmt")); t.push_str(&crate::song::consts(label, &a.root, p, false)); (format!("{}.asm", a.name), t.clone().into_bytes(), t) }
         "rmt" => { let f = m.to_file(address.unwrap_or(0x4000)); let n = f.len(); (format!("{}.rmt", a.name), f, format!("RMT-Modul, {n} Bytes, Ladeadresse ${:04X}", address.unwrap_or(0x4000))) }
-        f => return Err(format!("POKEY-Songs werden als RMT-Modul exportiert: Format 'asm' oder 'rmt' (nicht '{f}')")),
+        f => return Err(vc_i18n::t!("media-pokey-songs-werden-als-rmt-modul", f = &f)),
     };
-    std::fs::write(dir.join(&name), &bytes).map_err(|e| e.to_string())?;
-    Ok(json!({ "ok": true, "files": [{ "path": format!("build/export/{name}"), "size": bytes.len() }], "preview": preview }))
+    vc_core::atomar::schreiben(dir.join(&name), &bytes).map_err(|e| e.to_string())?;
+    Ok(json!({ "ok": true, "files": [{ "path": format!("{shown}/{name}"), "size": bytes.len() }], "preview": preview }))
 }
 
 /// Song in das Profil `to_profile` (anderer Chip) konvertieren und als `<dir>/<name>.vc<art>` schreiben
 pub fn convert_song(root: &Path, data: &Path, rel: &str, to_profile: &str, name: &str, dir: &str) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let text = std::fs::read_to_string(root.join(rel)).map_err(|e| format!("{rel}: {e}"))?;
     let a = parse_media(&text)?; let profiles = load_profiles(data)?;
     let (from, to) = (profile(&profiles, &a.profile)?, profile(&profiles, to_profile)?);
     let (mut v, warnings) = crate::song::convert(&a.root, from, to)?;
     v["name"] = json!(name);
     let out_rel = format!("{}/{name}{}", crate::naming::out_dir(dir, &to.kind), crate::naming::ext_for_kind(&to.kind)); let out = root.join(&out_rel);
-    if out.exists() { return Err(format!("{out_rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &out_rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": out_rel, "warnings": warnings }))
 }
 
@@ -281,7 +294,7 @@ pub fn import_song(root: &Path, data: &Path, src: &Path, to_profile: &str, name:
 
 /// Wie [`import_song`]; `sid` gilt für `*.sid`-Dateien (Subtune und aufzunehmende Sekunden)
 pub fn import_song_with(root: &Path, data: &Path, src: &Path, to_profile: &str, name: &str, dir: &str, sid: &crate::sid::SidOpts) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let profiles = load_profiles(data)?;
     let to = profile(&profiles, to_profile)?;
     let is_sng = src.extension().map_or(false, |e| e.eq_ignore_ascii_case("sng"));
@@ -302,23 +315,23 @@ pub fn import_song_with(root: &Path, data: &Path, src: &Path, to_profile: &str, 
         let text = std::fs::read_to_string(src).map_err(|e| format!("{}: {e}", src.display()))?;
         let a = parse_media(&text)?;
         let from = profile(&profiles, &a.profile)?;
-        if from.kind != "song" { return Err(format!("{}: kein Song (Profil {})", src.display(), a.profile)); }
+        if from.kind != "song" { return Err(vc_i18n::t!("media-p1-kein-song-profil-p2", p1 = src.display(), p2 = &a.profile)); }
         (from, a.root, vec![], a.profile.clone())
     };
     let mut v = if from.raw["chip"] == to.raw["chip"] {
         // gleicher Chip (z. B. C64-SID in den MEGA65 mit vier SIDs): Stimmen auffüllen, wenn das Ziel mehr hat
         let (fc, tc) = (from.raw["channels"].as_u64().unwrap_or(3) as usize, to.raw["channels"].as_u64().unwrap_or(3) as usize);
-        if fc > tc { return Err(format!("Der Song hat {fc} Stimmen, das Ziel nur {tc}")); }
+        if fc > tc { return Err(vc_i18n::t!("media-der-song-hat-fc-stimmen-das", fc = &fc, tc = &tc)); }
         let mut v = src_root; v["profile"] = json!(to.id);
         if fc < tc { for p in v["patterns"].as_array_mut().into_iter().flatten() { for row in p["rows"].as_array_mut().into_iter().flatten() { if let Some(r) = row.as_array_mut() { while r.len() < tc { r.push(json!("--- --")); } } } } }
-        if fc < tc { warnings.push(format!("Gleicher Chip: {} leere Stimme(n) ergänzt", tc - fc)); } else if !is_sng && !is_sid { warnings.push("Gleicher Chip: der Song wurde unverändert übernommen".into()); }
+        if fc < tc { warnings.push(vc_i18n::t!("media-gleicher-chip-p1-leere-stimme-n", p1 = tc - fc)); } else if !is_sng && !is_sid { warnings.push(vc_i18n::t!("media-gleicher-chip-der-song-wurde-unveraendert").into()); }
         v
     } else { let (v, w) = crate::song::convert(&src_root, from, to)?; warnings.extend(w); v };
     v["name"] = json!(name);
     let out_rel = format!("{}/{name}{}", crate::naming::out_dir(dir, &to.kind), crate::naming::ext_for_kind(&to.kind)); let out = root.join(&out_rel);
-    if out.exists() { return Err(format!("{out_rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &out_rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": out_rel, "warnings": warnings, "from": from_name }))
 }
 
@@ -327,10 +340,10 @@ pub fn import_song_with(root: &Path, data: &Path, src: &Path, to_profile: &str, 
 /// liegt als `<dir>/<name>.vc<art>` im Projekt. Liefert Pfad, Hinweise, Quelle und Zahl der Sprites.
 pub fn import_sprite(root: &Path, data: &Path, src: &Path, to_profile: &str, name: &str, dir: &str, o: &crate::spriteimport::SprOpts) -> Result<Value, String> {
     use crate::spriteimport::{self as si, C64Spr};
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let profiles = load_profiles(data)?;
     let to = profile(&profiles, to_profile)?;
-    if !matches!(to.kind.as_str(), "sprite" | "pmg") { return Err(format!("Profil '{}' ist kein Sprite-Profil", to.id)); }
+    if !matches!(to.kind.as_str(), "sprite" | "pmg") { return Err(vc_i18n::t!("media-profil-p1-ist-kein-sprite-profil", p1 = &to.id)); }
     let ext = src.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
     let bytes = std::fs::read(src).map_err(|e| format!("{}: {e}", src.display()))?;
     let mut warn: Vec<String> = vec![];
@@ -345,60 +358,60 @@ pub fn import_sprite(root: &Path, data: &Path, src: &Path, to_profile: &str, nam
             match (fp.kind.as_str(), fp.target.as_str()) {
                 ("sprite", "c64") => { let c = &m.root["colors"]; let col = [c["sprite"].as_u64().unwrap_or(1) as u8, c["mc1"].as_u64().unwrap_or(2) as u8, c["mc2"].as_u64().unwrap_or(6) as u8]; (Source::C64(si::read_c64_media(&m.root, fp)?, col), m.profile.clone()) }
                 ("pmg", _) => (Source::Pmg(m.root.clone()), m.profile.clone()),
-                (k, _) => return Err(format!("{}: kein Sprite (Art '{k}', Profil {})", src.display(), m.profile)),
+                (k, _) => return Err(vc_i18n::t!("media-p1-kein-sprite-art-k-profil", p1 = src.display(), k = &k, p3 = &m.profile)),
             }
         }
         _ => {
             // Rohdaten; bei `.prg` die zwei Bytes Ladeadresse überspringen
             let mut oo = o.clone(); if ext == "prg" { oo.offset += 2; }
             let v = si::read_raw(&bytes, &oo, to.kind == "sprite" && to.bpp == 2)?;
-            if o.mc.is_none() && to.kind == "sprite" { warn.push(format!("Rohdaten ohne Modusangabe: gelesen als {} (Modus des Zielprofils)", if to.bpp == 2 { "Multicolor" } else { "Hires" })); }
+            if o.mc.is_none() && to.kind == "sprite" { warn.push(vc_i18n::t!("media-rohdaten-ohne-modusangabe-gelesen-als", mode = if to.bpp == 2 { "Multicolor" } else { "Hires" })); }
             (Source::C64(v, default_colors), "rohdaten".to_string())
         }
     };
     let media = match (to.kind.as_str(), source) {
-        ("sprite", _) if to.target != "c64" => return Err(format!("Sprite-Import in '{}' wird nicht unterstützt", to.id)),
+        ("sprite", _) if to.target != "c64" => return Err(vc_i18n::t!("media-sprite-import-in-p1-wird-nicht", p1 = &to.id)),
         ("sprite", Source::C64(v, col)) => si::c64_media(&v, col, to, name),
         ("sprite", Source::Pmg(m)) => { let s = si::pmg_to_c64(&m, &mut warn)?; si::c64_media(&[s], default_colors, to, name) }
         ("pmg", Source::C64(v, _)) => {
-            if o.frame >= v.len() { return Err(format!("Sprite {} gibt es nicht (die Quelle hat {})", o.frame, v.len())); }
-            if v.len() > 1 { warn.push(format!("Die Quelle hat {} Sprites; übernommen wird Sprite {} (ein PMG-Asset hat einen Satz aus 4 Playern)", v.len(), o.frame)); }
+            if o.frame >= v.len() { return Err(vc_i18n::t!("media-sprite-p1-gibt-es-nicht-die", p1 = &o.frame, p2 = v.len())); }
+            if v.len() > 1 { warn.push(vc_i18n::t!("media-die-quelle-hat-p1-sprites-uebernommen", p1 = v.len(), p2 = &o.frame)); }
             si::c64_to_pmg(&v[o.frame], to, name, &mut warn)
         }
         ("pmg", Source::Pmg(mut m)) => { m["profile"] = json!(to.id); m["name"] = json!(name); m }
-        _ => return Err("Import für dieses Profil nicht unterstützt".into()),
+        _ => return Err(vc_i18n::t!("media-import-fuer-dieses-profil-nicht-unterstuetzt").into()),
     };
     let n = media["frames"].as_array().map_or(0, |f| f.len());
     let rel = format!("{}/{name}{}", crate::naming::out_dir(dir, &to.kind), crate::naming::ext_for_kind(&to.kind)); let out = root.join(&rel);
-    if out.exists() { return Err(format!("{rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&media)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&media)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": rel, "warnings": warn, "from": from_name, "count": n }))
 }
 
 /// RMT-Modul (`rel` = Datei im Projekt) in einen POKEY-Song `<dir>/<name>.vc<art>` importieren
 pub fn import_rmt(root: &Path, data: &Path, rel: &str, name: &str, dir: &str) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let bytes = std::fs::read(root.join(rel)).map_err(|e| format!("{rel}: {e}"))?;
     let profiles = load_profiles(data)?; let p = profile(&profiles, "atari.pokey.song")?;
     let (v, warnings) = crate::song::rmt_import(&bytes, p, name)?;
     let out_rel = format!("{}/{name}.vcsong", crate::naming::out_dir(dir, "song")); let out = root.join(&out_rel);
-    if out.exists() { return Err(format!("{out_rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &out_rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": out_rel, "warnings": warnings }))
 }
 
 /// ROM-Abbild (Datei irgendwo auf der Platte) als Zeichensatz-Media `<dir>/<name>.vc<art>` ins Projekt übernehmen
 pub fn import_rom(root: &Path, data: &Path, file: &Path, profile_id: &str, offset: usize, name: &str, dir: &str) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let bytes = std::fs::read(file).map_err(|e| format!("{}: {e}", file.display()))?;
     let profiles = load_profiles(data)?; let p = profile(&profiles, profile_id)?;
     let v = crate::import_rom(p, &bytes, offset, name)?;
     let rel = format!("{}/{name}.vcchar", crate::naming::out_dir(dir, "charset")); let out = root.join(&rel);
-    if out.exists() { return Err(format!("{rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": rel }))
 }
 
@@ -436,12 +449,13 @@ pub struct EigenSatz { pub id: String, pub system: String, pub profil: String, p
 /// Alle mitgelieferten eigenen Sätze (leer, wenn `data/charsets/index.json` fehlt); `profil` leer = alle
 pub fn eigene_saetze(data: &Path, profil: &str) -> Vec<EigenSatz> {
     let Ok(t) = std::fs::read_to_string(data.join("charsets").join("index.json")) else { return vec![] };
-    let Ok(v) = serde_json::from_str::<Value>(&t) else { return vec![] };
+    let Ok(mut v) = serde_json::from_str::<Value>(&t) else { return vec![] };
+    vc_i18n::localize_json(&mut v, "charsets/index.json");
     v["saetze"].as_array().map(|a| a.iter().filter_map(|x| Some(EigenSatz { id: x["id"].as_str()?.into(), system: x["system"].as_str()?.into(), profil: x["profil"].as_str()?.into(), satz: x["satz"].as_str().unwrap_or("").into(), name: x["name"].as_str()?.into(), datei: data.join("charsets").join(x["datei"].as_str()?), revision: x["revision"].as_u64().unwrap_or(1), lizenz: x["lizenz"].as_str().unwrap_or("").into(), zeichen: x["zeichen"].as_u64().unwrap_or(0) })).filter(|e| profil.is_empty() || e.profil == profil).collect()).unwrap_or_default()
 }
 /// Inhalt eines eigenen Satzes als Media-Wert (mit `frames` und `origin`)
 pub fn eigener_satz_media(data: &Path, id: &str) -> Result<Value, String> {
-    let e = eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| format!("Eigener Zeichensatz „{id}“ ist nicht mitgeliefert"))?;
+    let e = eigene_saetze(data, "").into_iter().find(|e| e.id == id).ok_or_else(|| vc_i18n::t!("media-eigener-zeichensatz-id-ist-nicht-mitgeliefert", id = &id))?;
     let t = std::fs::read_to_string(&e.datei).map_err(|x| format!("{}: {x}", e.datei.display()))?;
     serde_json::from_str(&t).map_err(|x| format!("{}: {x}", e.datei.display()))
 }
@@ -476,7 +490,7 @@ pub fn add_std_charset(root: &Path, reference: &str, profile_id: &str, dir: &str
     let r = crate::romref::RomRef::parse(reference)?;
     let name = format!("{}_{}", r.system, r.set);
     let rel = format!("{}/{name}.vcchar", crate::naming::out_dir(dir, "charset")); let out = root.join(&rel);
-    if out.exists() { return Err(format!("{rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)); }
     let mut v = std_charset_media(profile_id, reference)?;
     v["name"] = json!(name);
     let warning = v["rom_missing"].as_str().map(String::from);
@@ -485,7 +499,7 @@ pub fn add_std_charset(root: &Path, reference: &str, profile_id: &str, dir: &str
         v["format"] = json!(1);
     } else { v = crate::romref::for_saving(&v); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": rel, "warning": warning }))
 }
 
@@ -517,30 +531,30 @@ pub fn recognize_rom(file: &Path) -> RomRecognition {
 }
 
 /// Bekannte ROM-Abbilder mit Zeichensatz: (Beschreibung, passendes Profil, Offset) – nach Dateigröße
-pub fn rom_candidates(len: usize) -> Vec<(&'static str, &'static str, usize)> {
+pub fn rom_candidates(len: usize) -> Vec<(String, &'static str, usize)> {
     match len {
-        4096 => vec![("C64: Großbuchstaben und Grafik (Satz 1)", "c64.char.hires", 0), ("C64: Groß-/Kleinschreibung (Satz 2)", "c64.char.hires", 0x800), ("C128: Zeichensatz Satz 1", "c128.char.hires", 0), ("C128: Zeichensatz Satz 2", "c128.char.hires", 0x800), ("MEGA65 (Vollfarbe): Satz 1", "mega65.char.fcm", 0), ("MEGA65 (Vollfarbe): Satz 2", "mega65.char.fcm", 0x800), ("VC-20: Großbuchstaben und Grafik (Satz 1)", "vic20.char.hires", 0), ("VC-20: Groß-/Kleinschreibung (Satz 2)", "vic20.char.hires", 0x800)],
-        2048 => vec![("C64: Zeichensatz", "c64.char.hires", 0), ("MEGA65 (Vollfarbe)", "mega65.char.fcm", 0)],
-        16384 => vec![("Atari XL/XE-Betriebssystem: Zeichensatz bei $E000", "atari.char.antic2", 0x2000), ("Atari XL/XE-Betriebssystem: internationaler Zeichensatz bei $CC00", "atari.char.antic2", 0x0C00),
-                      ("Plus/4 (KERNAL-ROM): Zeichensatz bei $D000", "plus4.char.hires", 0x1000)],
-        10240 => vec![("Atari 400/800 (OS-B): Zeichensatz bei $E000", "atari.char.antic2", 0x800)],
-        8192 => vec![("Atari: Zeichensatz bei $E000 (ROM $C000–$FFFF → Offset $2000)", "atari.char.antic2", 0x2000), ("C128 (Zeichen-ROM): 80-Spalten-Zeichensatz (VDC 8×16)", "c128.char.vdc", 0x1000),
-                     ("C128 (Zeichen-ROM): 40-Spalten-Zeichensatz Satz 1", "c128.char.hires", 0), ("C128 (Zeichen-ROM): 40-Spalten-Zeichensatz Satz 2", "c128.char.hires", 0x800)],
-        1024 => vec![("Atari: Zeichensatz", "atari.char.antic2", 0)],
+        4096 => vec![(vc_i18n::t!("media-c64-grossbuchstaben-und-grafik-satz-1"), "c64.char.hires", 0), (vc_i18n::t!("media-c64-gross-kleinschreibung-satz-2"), "c64.char.hires", 0x800), (vc_i18n::t!("media-c128-zeichensatz-satz-1"), "c128.char.hires", 0), (vc_i18n::t!("media-c128-zeichensatz-satz-2"), "c128.char.hires", 0x800), (vc_i18n::t!("media-mega65-vollfarbe-satz-1"), "mega65.char.fcm", 0), (vc_i18n::t!("media-mega65-vollfarbe-satz-2"), "mega65.char.fcm", 0x800), (vc_i18n::t!("media-vc-20-grossbuchstaben-und-grafik-satz"), "vic20.char.hires", 0), (vc_i18n::t!("media-vc-20-gross-kleinschreibung-satz-2"), "vic20.char.hires", 0x800)],
+        2048 => vec![(vc_i18n::t!("media-rom-c64-zeichensatz"), "c64.char.hires", 0), (vc_i18n::t!("media-rom-mega65-vollfarbe"), "mega65.char.fcm", 0)],
+        16384 => vec![(vc_i18n::t!("media-atari-xl-xe-betriebssystem-zeichensatz-bei"), "atari.char.antic2", 0x2000), (vc_i18n::t!("media-atari-xl-xe-betriebssystem-internationaler-zeichensatz"), "atari.char.antic2", 0x0C00),
+                      (vc_i18n::t!("media-plus-4-kernal-rom-zeichensatz-bei"), "plus4.char.hires", 0x1000)],
+        10240 => vec![(vc_i18n::t!("media-atari-400-800-os-b-zeichensatz"), "atari.char.antic2", 0x800)],
+        8192 => vec![(vc_i18n::t!("media-atari-zeichensatz-bei-e000-rom-c000"), "atari.char.antic2", 0x2000), (vc_i18n::t!("media-c128-zeichen-rom-80-spalten-zeichensatz"), "c128.char.vdc", 0x1000),
+                     (vc_i18n::t!("media-rom-c128-zeichen-rom-40-spalten-zeichensatz-satz-1"), "c128.char.hires", 0), (vc_i18n::t!("media-rom-c128-zeichen-rom-40-spalten-zeichensatz-satz-2"), "c128.char.hires", 0x800)],
+        1024 => vec![(vc_i18n::t!("media-rom-atari-zeichensatz"), "atari.char.antic2", 0)],
         _ => vec![],
     }
 }
 
 /// PNG-Raster als Zeichensatz-Media `<dir>/<name>.vc<art>` ins Projekt übernehmen
 pub fn import_sheet(root: &Path, data: &Path, file: &Path, profile_id: &str, invert: bool, name: &str, dir: &str) -> Result<Value, String> {
-    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Name: nur Buchstaben, Ziffern, _ und -".into()); }
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err(vc_i18n::t!("media-name-nur-buchstaben-ziffern-und").into()); }
     let bytes = std::fs::read(file).map_err(|e| format!("{}: {e}", file.display()))?;
     let profiles = load_profiles(data)?; let p = profile(&profiles, profile_id)?;
     let v = crate::import_sheet(p, &bytes, name, invert)?;
     let rel = format!("{}/{name}.vcchar", crate::naming::out_dir(dir, "charset")); let out = root.join(&rel);
-    if out.exists() { return Err(format!("{rel} existiert bereits")); }
+    if out.exists() { return Err(vc_i18n::t!("media-datei-existiert-bereits", rel = &rel)); }
     std::fs::create_dir_all(out.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&out, format_media(&v)).map_err(|e| e.to_string())?;
+    vc_core::atomar::schreiben(&out, format_media(&v)).map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true, "path": rel }))
 }
 
@@ -548,7 +562,7 @@ pub fn import_sheet(root: &Path, data: &Path, file: &Path, profile_id: &str, inv
 pub fn export_sheet(root: &Path, data: &Path, rel: &str, out: &Path) -> Result<(), String> {
     let a = parse_media(&std::fs::read_to_string(root.join(rel)).map_err(|e| format!("{rel}: {e}"))?)?;
     let profiles = load_profiles(data)?; let p = profile(&profiles, &a.profile)?;
-    std::fs::write(out, crate::export_sheet(p, &a.root)?).map_err(|e| format!("{}: {e}", out.display()))
+    vc_core::atomar::schreiben(out, crate::export_sheet(p, &a.root)?).map_err(|e| format!("{}: {e}", out.display()))
 }
 
 /// Wandelt alte Kachelkarten (`kind: tilemap`) im Projekt um: Dateien eines Ordners mit **gleichem Kachelsatz** ergeben einen Kachelsatz
@@ -586,13 +600,13 @@ pub fn migrate_tiles_in(root: &Path, data: &Path, only: Option<&str>, remove_old
         for (_, v) in &g { let (s, sc) = crate::tiles::migrate_tilemap(v, tw, th, cram, &set_name)?; if set.is_null() { set = s; } screens.push(sc); }
         let rel = |p: &Path| vc_core::paths::rel_path(root, p);
         let set_path = dir.join(format!("{set_name}.vctiles")); let bank_path = dir.join(format!("{bank_name}.vcscreen"));
-        if set_path.exists() || bank_path.exists() { return Err(format!("{} oder {} existiert bereits", rel(&set_path), rel(&bank_path))); }
+        if set_path.exists() || bank_path.exists() { return Err(vc_i18n::t!("media-p1-oder-p2-existiert-bereits", p1 = rel(&set_path), p2 = rel(&bank_path))); }
         let tp = profiles.iter().find(|x| x.kind == "screen" && x.target == p.target).map(|x| x.id.clone()).unwrap_or_else(|| "c64.screen.text".into());
         let bank = json!({ "format": 1, "kind": "screen", "profile": tp, "name": bank_name, "tilesets": [rel(&set_path)], "screens": screens });
-        std::fs::write(&set_path, format_media(&set)).map_err(|e| e.to_string())?; std::fs::write(&bank_path, format_media(&bank)).map_err(|e| e.to_string())?;
+        vc_core::atomar::schreiben(&set_path, format_media(&set)).map_err(|e| e.to_string())?; vc_core::atomar::schreiben(&bank_path, format_media(&bank)).map_err(|e| e.to_string())?;
         report.push(format!("{} Karte(n) → {} + {}", g.len(), rel(&set_path), rel(&bank_path)));
-        if remove_old { for (f, _) in &g { std::fs::remove_file(f).map_err(|e| e.to_string())?; report.push(format!("  entfernt: {}", rel(f))); } }
+        if remove_old { for (f, _) in &g { std::fs::remove_file(f).map_err(|e| e.to_string())?; report.push(format!("  {}", vc_i18n::t!("media-entfernt-p1", p1 = rel(f)))); } }
     }
-    if report.is_empty() { report.push("keine alten Kachelkarten gefunden".into()); }
+    if report.is_empty() { report.push(vc_i18n::t!("media-keine-alten-kachelkarten-gefunden").into()); }
     Ok(report)
 }

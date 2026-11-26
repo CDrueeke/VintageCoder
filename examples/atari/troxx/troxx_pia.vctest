@@ -1,0 +1,176 @@
+{
+ "kind": "test",
+ "target": "atari8",
+ "program": "build/pia.xex",
+ "static": [],
+ "tests": [
+  {
+   "name": "input.read_port: Anschluss 1 keine Richtung",
+   "setup": {
+    "a": 255,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 hoch",
+   "setup": {
+    "a": 254,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 runter",
+   "setup": {
+    "a": 253,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 links",
+   "setup": {
+    "a": 251,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 rechts",
+   "setup": {
+    "a": 247,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 hoch und rechts",
+   "setup": {
+    "a": 246,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1: Anschluss 2 gedrueckt stoert nicht",
+   "setup": {
+    "a": 15,
+    "x": 1
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 keine Richtung",
+   "setup": {
+    "a": 255,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 hoch",
+   "setup": {
+    "a": 239,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 runter",
+   "setup": {
+    "a": 223,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 links",
+   "setup": {
+    "a": 191,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 rechts",
+   "setup": {
+    "a": 127,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 runter und links",
+   "setup": {
+    "a": 159,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2: Anschluss 1 gedrueckt stoert nicht",
+   "setup": {
+    "a": 240,
+    "x": 2
+   },
+   "call": "pia_read",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  }
+ ]
+}

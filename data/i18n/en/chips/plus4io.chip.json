@@ -1,0 +1,15 @@
+{
+ "source": "chips/plus4io.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "6529-Port (Kassettentaste, Zusatz)",
+   "en": "6529 port (cassette key, extra)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Tastaturmatrix: Spaltenauswahl; Bit 2 Joystick-Auswahl",
+   "en": "Keyboard matrix: column select; bit 2 joystick select",
+   "status": "maschinell"
+  }
+ }
+}

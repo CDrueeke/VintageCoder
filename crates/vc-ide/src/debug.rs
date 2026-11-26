@@ -50,7 +50,7 @@ pub fn default_launcher() -> Launcher {
                 let xargs = xemu.debug_args(&crate::args::ArgCtx::from_launch(&root, art, &s.target, ""))?;
                 let rp = crate::roms::plan("xemu", &crate::roms::store(Some(&root), Some(&xemu)), &xargs);
                 if let Some(e) = rp.error { return Err(e); }
-                let rom = rp.xemu_rom.ok_or("MEGA65-ROM nicht gefunden")?.to_string_lossy().into_owned();
+                let rom = rp.xemu_rom.ok_or_else(|| vc_i18n::t!("rest-debug-mega65-rom").to_string())?.to_string_lossy().into_owned();
                 vc_emu::Mega65::launch_xemu_rom(xemu.path.as_deref(), &rom, &xargs)?
             } else { vc_emu::Mega65::connect(spec)? };
             let prg = std::fs::read(&s.artifact).map_err(|e| format!("{}: {e}", s.artifact))?;
@@ -115,7 +115,7 @@ impl Ctx for EvalCtx<'_> {
             "fn" => (r.flags >> 7 & 1) as i64, "fv" => (r.flags >> 6 & 1) as i64, "fb" => (r.flags >> 4 & 1) as i64, "fd" => (r.flags >> 3 & 1) as i64, "fi" => (r.flags >> 2 & 1) as i64, "fz" => (r.flags >> 1 & 1) as i64, "fc" => (r.flags & 1) as i64,
             other => return r.extra.iter().find(|(n, _)| n.eq_ignore_ascii_case(other)).map(|(_, v)| *v as i64) })
     }
-    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| "Speicher nicht lesbar".to_string()) }
+    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| vc_i18n::t!("rest-debug-speicher-nicht-lesbar").to_string()) }
 }
 
 impl Session {
@@ -224,9 +224,9 @@ impl Session {
 
     /// `into`: Einzelschritt; `over`: JSR wird übersprungen (temporärer Haltepunkt hinter dem Aufruf).
     pub fn step(&mut self, kind: &str) -> Result<(), String> {
-        if !self.backend.caps().step { return Err("Dieser Adapter unterstützt keinen Einzelschritt".into()); }
+        if !self.backend.caps().step { return Err(vc_i18n::t!("rest-debug-kein-einzelschritt").into()); }
         if let Some(why) = self.backend.step_blocked() { return Err(why); }
-        if self.backend.state() == RunState::Running { return Err("Emulator läuft – zuerst anhalten".into()); }
+        if self.backend.state() == RunState::Running { return Err(vc_i18n::t!("rest-debug-emulator-laeuft").into()); }
         self.user_stop = true;
         if kind == "out" { return self.step_out(); }
         if kind == "over" {
@@ -238,7 +238,7 @@ impl Session {
                 self.backend.cont()?;
                 let ok = self.wait_stopped(5000);
                 if temp { if !ok { self.backend.pause().ok(); } self.backend.clear_breakpoint(ret).ok(); }
-                return if ok { Ok(()) } else { Err("Unterprogramm kehrt nicht zurück (innerhalb von 5 s)".into()) };
+                return if ok { Ok(()) } else { Err(vc_i18n::t!("rest-debug-kein-ruecksprung-5s").into()) };
             }
         }
         self.backend.step()
@@ -253,7 +253,7 @@ impl Session {
             let op = self.backend.read_mem(pc, 1)?.first().copied().unwrap_or(0);
             if op == 0x20 { self.step("over")?; } else { self.backend.step()?; }
             if op == 0x60 || op == 0x40 { return Ok(()); }
-            if Instant::now() > end { return Err("Kein Rücksprung innerhalb von 10 s (Schleife im Unterprogramm?) – Haltepunkt am Rücksprung setzen".into()); }
+            if Instant::now() > end { return Err(vc_i18n::t!("rest-debug-kein-ruecksprung-10s").into()); }
         }
     }
 

@@ -1,0 +1,162 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "6423619453e0" },
+  "command": "disk",
+  "group": "daten",
+  "summary": "Create and list disk images and extract files from them",
+  "description": [
+    "Works with the formats D64 (1541), D71 (1571), D81 (1581) and ATR (Atari, DOS 2). When you create an image, the subcommand sets its type. When you list or extract, the file extension sets it.",
+    "With `--add`, the first colon separates the file from the disk name. A path with a drive letter (C:\\...) therefore cannot be combined with a name. Use relative paths in that case."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "d64",
+      "usage": "vcc disk d64 -o <out.d64> [--name <name>] [--id <id>] [--add <file[:NAME]>]...",
+      "summary": "Create a D64 image (1541) with programs",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--name", "short": "", "value": "name", "group": "image", "help": "Disk name in the directory header.", "choices": [], "default": "VINTAGECODER", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--id", "short": "", "value": "id", "group": "image", "help": "Disk ID in the directory header.", "choices": [], "default": "VC", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--add", "short": "", "value": "file[:NAME]", "group": "image", "help": "Write a program file (PRG) to the disk, optionally under a different name.", "choices": [], "default": "", "default_text": "File name without extension, in uppercase", "repeat": true, "required": false },
+        { "flag": "--keep", "short": "", "value": "", "group": "allgemein", "help": "Accepted and ignored.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Disk with one program", "cmd": "vcc disk d64 -o game.d64 --name GAME --id 01 --add jumprun.prg:JUMPRUN" }
+      ],
+      "notes": ["The output shows the size and the free blocks."],
+      "see_also": ["import", "build"]
+    },
+    {
+      "id": "d71",
+      "usage": "vcc disk d71 -o <out.d71> [--name <name>] [--id <id>] [--add <file[:NAME]>]...",
+      "summary": "Create a D71 image (1571) with programs",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--name", "short": "", "value": "name", "group": "image", "help": "Disk name in the directory header.", "choices": [], "default": "VINTAGECODER", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--id", "short": "", "value": "id", "group": "image", "help": "Disk ID in the directory header.", "choices": [], "default": "VC", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--add", "short": "", "value": "file[:NAME]", "group": "image", "help": "Write a program file (PRG) to the disk, optionally under a different name.", "choices": [], "default": "", "default_text": "File name without extension, in uppercase", "repeat": true, "required": false },
+        { "flag": "--keep", "short": "", "value": "", "group": "allgemein", "help": "Accepted and ignored.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "D71 with one program", "cmd": "vcc disk d71 -o game.d71 --add jumprun.prg" }
+      ],
+      "see_also": ["import", "build"]
+    },
+    {
+      "id": "d81",
+      "usage": "vcc disk d81 -o <out.d81> [--name <name>] [--id <id>] [--add <file[:NAME]>]...",
+      "summary": "Create a D81 image (1581) with programs",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--name", "short": "", "value": "name", "group": "image", "help": "Disk name in the directory header.", "choices": [], "default": "VINTAGECODER", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--id", "short": "", "value": "id", "group": "image", "help": "Disk ID in the directory header.", "choices": [], "default": "VC", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--add", "short": "", "value": "file[:NAME]", "group": "image", "help": "Write a program file (PRG) to the disk, optionally under a different name.", "choices": [], "default": "", "default_text": "File name without extension, in uppercase", "repeat": true, "required": false },
+        { "flag": "--keep", "short": "", "value": "", "group": "allgemein", "help": "Accepted and ignored.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "D81 for MEGA65 or C128", "cmd": "vcc disk d81 -o game.d81 --name GAME --add jumprun.prg" }
+      ],
+      "see_also": ["import", "build"]
+    },
+    {
+      "id": "atr",
+      "usage": "vcc disk atr -o <out.atr> [--add <file[:NAME.EXT]>]...",
+      "summary": "Create an ATR image (Atari DOS 2) with files",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--add", "short": "", "value": "file[:NAME.EXT]", "group": "image", "help": "Write a file to the DOS 2 file system, optionally under a different name.", "choices": [], "default": "", "default_text": "File name in uppercase, with extension", "repeat": true, "required": false },
+        { "flag": "--name", "short": "", "value": "name", "group": "allgemein", "help": "Accepted, but has no effect on ATR images.", "choices": [], "default": "VINTAGECODER", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--id", "short": "", "value": "id", "group": "allgemein", "help": "Accepted, but has no effect on ATR images.", "choices": [], "default": "VC", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--keep", "short": "", "value": "", "group": "allgemein", "help": "Accepted and ignored.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "ATR with one file as AUTORUN.SYS", "cmd": "vcc disk atr -o game.atr --add jumprun.xex:AUTORUN.SYS" }
+      ],
+      "notes": ["The image is 90 KB (720 sectors of 128 bytes). The form `atr-boot` creates a bootable disk without a file system."],
+      "see_also": ["import", "build"]
+    },
+    {
+      "id": "atr-boot",
+      "usage": "vcc disk atr -o <out.atr> --boot <prog.xex>",
+      "summary": "Create a bootable ATR disk from an XEX program",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--boot", "short": "", "value": "prog.xex", "group": "image", "help": "XEX program that the disk loads at power-on (boot loader from the hardware database).", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Folder of the hardware database. It provides the boot loader.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Bootable disk", "cmd": "vcc disk atr -o jumprun.atr --boot jumprun.xex" }
+      ],
+      "notes": ["`--boot` cannot be combined with `--add`: the boot disk has no file system. `vcc disk list` reports this.", "A file without an XEX signature ($FFFF at the start) causes an error."],
+      "see_also": ["build"]
+    },
+    {
+      "id": "atr-edit",
+      "usage": "vcc disk atr -o <out.atr> --base <in.atr> [--put <file[:NAME.EXT]>]... [--delete <NAME.EXT>]... [--add <file[:NAME.EXT]>]... [--force]",
+      "summary": "Change an existing ATR image (replace, delete and add files)",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "General" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "image", "help": "Output file of the image (not the base image).", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--base", "short": "", "value": "in.atr", "group": "image", "help": "Base image (ATR, DOS 2); it stays unchanged, the result goes to the output file.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--put", "short": "", "value": "file[:NAME.EXT]", "group": "image", "help": "Add a file or replace it, optionally under a different name.", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--delete", "short": "", "value": "NAME.EXT", "group": "image", "help": "Delete a file from the disk (its sectors become free).", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--add", "short": "", "value": "file[:NAME.EXT]", "group": "image", "help": "Add a file; if the name already exists, that is an error.", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--force", "short": "", "value": "", "group": "allgemein", "help": "Write-protected files may be deleted with --delete.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "path", "group": "allgemein", "help": "Accepted and ignored.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Reduce the base image", "cmd": "vcc disk atr -o new.atr --base turbo.atr --delete COMPILER.COM --delete RUNTIME.COM --force" }
+      ],
+      "notes": ["Write-protected files (`*` in vcc disk list) can only be deleted with --force and --put never overwrites them. The image is checked afterwards; on errors no output file is written.", "The output shows the size and the free sectors. For Turbo BASIC XL projects see vcc turbo."],
+      "see_also": ["turbo", "build"]
+    },
+    {
+      "id": "list",
+      "usage": "vcc disk list <image.d64|d71|d81|atr>",
+      "summary": "Show and check the directory of an image",
+      "args": [ { "name": "image", "required": true, "repeat": false, "help": "Disk image. The extension (d64, d71, d81, atr) sets the format." } ],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        { "title": "Show the directory", "cmd": "vcc disk list game.d64" },
+        { "title": "Show an Atari disk", "cmd": "vcc disk list game.atr" }
+      ],
+      "notes": ["Commodore: block count, name, file type and free blocks. Atari: name, sectors, start sector, `*` for protected files, and free sectors.", "The check (BAM or VTOC, directory, file chains) reports differences as \"Problem:\" on stderr."],
+      "exit": { "0": "no errors", "1": "file not readable or problem found in the image", "2": "wrong usage" },
+      "see_also": ["import"]
+    },
+    {
+      "id": "extract",
+      "usage": "vcc disk extract <image.d64|d71|d81|atr> <NAME> [-o <file>]",
+      "summary": "Extract a file from an image",
+      "args": [
+        { "name": "image", "required": true, "repeat": false, "help": "Disk image. The extension sets the format." },
+        { "name": "NAME", "required": true, "repeat": false, "help": "File name on the disk." }
+      ],
+      "option_groups": [],
+      "options": [
+        { "flag": "-o", "short": "", "value": "file", "group": "", "help": "Target file.", "choices": [], "default": "", "default_text": "Commodore: NAME in lowercase with extension .prg; Atari: NAME in lowercase", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Extract a program from a D64", "cmd": "vcc disk extract game.d64 JUMPRUN -o jumprun.prg" },
+        { "title": "Extract a file from an ATR", "cmd": "vcc disk extract game.atr AUTORUN.SYS -o autorun.sys" }
+      ],
+      "see_also": ["import"]
+    }
+  ]
+}

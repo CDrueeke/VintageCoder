@@ -15,149 +15,153 @@ pub enum Cmd {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Braucht { Nichts, Projekt, Editor }
 
-pub struct Info { pub cmd: Cmd, pub menue: &'static str, pub name: &'static str, pub tasten: &'static str, pub braucht: Braucht, pub id: &'static str }
+pub struct Info { pub cmd: Cmd, pub menue: &'static str, pub tasten: &'static str, pub braucht: Braucht, pub id: &'static str }
+impl Info {
+    /// Name des Befehls in der aktuellen Sprache (Katalog `cmd-<Kennung>`)
+    pub fn name(&self) -> String { vc_i18n::translate(&format!("cmd-{}", self.id), &[]) }
+}
 
-const fn i(cmd: Cmd, id: &'static str, menue: &'static str, name: &'static str, tasten: &'static str, braucht: Braucht) -> Info { Info { cmd, menue, name, tasten, braucht, id } }
+const fn i(cmd: Cmd, id: &'static str, menue: &'static str, tasten: &'static str, braucht: Braucht) -> Info { Info { cmd, menue, tasten, braucht, id } }
 use Braucht::*;
 
 pub const BEFEHLE: &[Info] = &[
-    i(Cmd::Ueber, "ueber", "Hilfe", "Über VintageCoder", "", Nichts),
-    i(Cmd::Feedback, "feedback", "Hilfe", "Feedback senden …", "", Nichts),
-    i(Cmd::UpdatePruefen, "update_pruefen", "Hilfe", "Nach Updates suchen …", "", Nichts),
-    i(Cmd::Assistent, "assistent", "Hilfe", "Konfigurationsassistent …", "", Nichts),
-    i(Cmd::MdFett, "md_fett", "Bearbeiten", "Markdown: Fett", "", Editor),
-    i(Cmd::MdKursiv, "md_kursiv", "Bearbeiten", "Markdown: Kursiv", "Cmd+I", Editor),
-    i(Cmd::MdCode, "md_code", "Bearbeiten", "Markdown: Code", "Cmd+E", Editor),
-    i(Cmd::MdDurchgestrichen, "md_durchgestrichen", "Bearbeiten", "Markdown: Durchgestrichen", "Cmd+Umschalt+X", Editor),
-    i(Cmd::MdLink, "md_link", "Bearbeiten", "Markdown: Link einfügen", "Cmd+Umschalt+K", Editor),
-    i(Cmd::MdBild, "md_bild", "Bearbeiten", "Markdown: Bild einfügen …", "", Editor),
-    i(Cmd::MdUeberschriftTiefer, "md_tiefer", "Bearbeiten", "Markdown: Überschrift eine Ebene tiefer (# ergänzen)", "", Editor),
-    i(Cmd::MdUeberschriftHoeher, "md_hoeher", "Bearbeiten", "Markdown: Überschrift eine Ebene höher (# entfernen)", "", Editor),
-    i(Cmd::MdAufzaehlung, "md_aufzaehlung", "Bearbeiten", "Markdown: Aufzählung", "", Editor),
-    i(Cmd::MdNummerierung, "md_nummerierung", "Bearbeiten", "Markdown: Nummerierung", "", Editor),
-    i(Cmd::MdAufgaben, "md_aufgaben", "Bearbeiten", "Markdown: Aufgabenliste", "", Editor),
-    i(Cmd::MdZitat, "md_zitat", "Bearbeiten", "Markdown: Zitat", "", Editor),
-    i(Cmd::MdAufgabeUmschalten, "md_aufgabe", "Bearbeiten", "Markdown: Aufgabe abhaken / wieder öffnen", "", Editor),
-    i(Cmd::MdTabelleNeu, "md_tabelle", "Bearbeiten", "Markdown: Tabelle einfügen", "", Editor),
-    i(Cmd::MdTabelleAusrichten, "md_ausrichten", "Bearbeiten", "Markdown: Tabelle ausrichten", "", Editor),
-    i(Cmd::MdAlsMarkdown, "md_als", "Bearbeiten", "Markdown: Datei als Markdown behandeln / als Text", "", Editor),
-    i(Cmd::HilfeImReiter, "hilfe_reiter", "Hilfe", "Hilfe im Reiter öffnen", "", Nichts),
-    i(Cmd::ArtText, "art_text", "Bearbeiten", "Art: Text", "", Editor),
-    i(Cmd::ArtAsm, "art_asm", "Bearbeiten", "Art: Assembler", "", Editor),
-    i(Cmd::ArtBasic, "art_basic", "Bearbeiten", "Art: BASIC", "", Editor),
-    i(Cmd::HexVorschlaege, "hex_vorschlaege", "Bearbeiten", "BASIC: Hex-Vorschläge für Adressen …", "", Editor),
-    i(Cmd::StdZeichensatz, "std_zeichensatz", "Datei", "Standardzeichensatz hinzufügen …", "", Projekt),
-    i(Cmd::ZeichensatzAusRom, "zeichensatz_rom", "Datei", "Zeichensatz aus ROM importieren …", "", Projekt),
-    i(Cmd::ZeichensatzAusPng, "zeichensatz_png", "Datei", "Zeichensatz aus PNG-Raster importieren …", "", Projekt),
-    i(Cmd::AssistentNeues, "assistent_neues", "Hilfe", "Konfigurationsassistent: Nach Neuem suchen …", "", Nichts),
-    i(Cmd::AssistentRoms, "assistent_roms", "Hilfe", "Konfigurationsassistent: nur ROMs …", "", Nichts),
-    i(Cmd::AssistentEmulatoren, "assistent_emulatoren", "Hilfe", "Konfigurationsassistent: nur Emulatoren …", "", Nichts),
-    i(Cmd::AssistentHardware, "assistent_hardware", "Hilfe", "Konfigurationsassistent: nur echte Hardware …", "", Nichts),
-    i(Cmd::AssistentDesign, "assistent_design", "Hilfe", "Konfigurationsassistent: nur Design und Editor …", "", Nichts),
-    i(Cmd::ProjektNeu, "projekt_neu", "Datei", "Neues Projekt …", "Cmd+Alt+N", Nichts),
-    i(Cmd::ProjektEinstellungen, "projekt_einstellungen", "Projekt", "Projekt-Einstellungen …", "", Projekt),
-    i(Cmd::ProjektKopieren, "projekt_kopieren", "Datei", "Projekt kopieren …", "", Projekt),
-    i(Cmd::ProjektOrdnerOeffnen, "projekt_ordner_oeffnen", "Datei", "Projektordner öffnen …", "", Nichts),
-    i(Cmd::ProjektOeffnen, "projekt_oeffnen", "Datei", "Projekt öffnen … (Projektdatei)", "Cmd+Umschalt+O", Nichts),
-    i(Cmd::NeuerReiter, "neuer_reiter", "Datei", "Neuer Reiter (unbenannt)", "Cmd+N", Nichts),
-    i(Cmd::NeueNotiz, "neue_notiz", "Datei", "Neue Notiz", "Cmd+Umschalt+T", Projekt),
-    i(Cmd::DateiOeffnen, "datei_oeffnen", "Datei", "Datei öffnen …", "Cmd+O", Nichts),
-    i(Cmd::Speichern, "speichern", "Datei", "Speichern", "Cmd+S", Editor),
-    i(Cmd::AlleSpeichern, "alle_speichern", "Datei", "Alle speichern", "Cmd+Alt+S", Projekt),
-    i(Cmd::DateiSchliessen, "datei_schliessen", "Datei", "Datei schließen", "Cmd+W", Editor),
-    i(Cmd::NeueDatei, "neue_datei", "Datei", "Neue Datei …", "", Projekt),
-    i(Cmd::NeuerOrdner, "neuer_ordner", "Baum", "Neuer Ordner …", "", Projekt),
-    i(Cmd::NeueNotizDialog, "neue_notiz_dialog", "Baum", "Neue Notiz …", "", Projekt),
-    i(Cmd::ZielOeffnen, "ziel_oeffnen", "Baum", "Öffnen", "", Projekt),
-    i(Cmd::DateiUmbenennen, "datei_umbenennen", "Baum", "Umbenennen …", "", Projekt),
-    i(Cmd::DateiLoeschen, "datei_loeschen", "Baum", "Löschen …", "", Projekt),
-    i(Cmd::AlsInclude, "als_include", "Baum", "Als Include einfügen", "", Projekt),
-    i(Cmd::PfadKopieren, "pfad_kopieren", "Baum", "Pfad kopieren", "", Projekt),
-    i(Cmd::ImOrdnerZeigen, "im_ordner_zeigen", "Baum", "Im Ordner zeigen", "", Projekt),
-    i(Cmd::BaumRueckgaengig, "baum_rueckgaengig", "Baum", "Verschieben im Baum rückgängig", "", Projekt),
-    i(Cmd::HexAnsicht, "hex_ansicht", "Baum", "Als Hex ansehen (nur Lesen)", "", Projekt),
-    i(Cmd::Ausschneiden, "ausschneiden", "Bearbeiten", "Ausschneiden", "", Editor),
-    i(Cmd::Kopieren, "kopieren", "Bearbeiten", "Kopieren", "", Editor),
-    i(Cmd::Einfuegen, "einfuegen", "Bearbeiten", "Einfügen", "", Editor),
-    i(Cmd::GeheZuDefinition, "gehe_zu_definition", "Bearbeiten", "Gehe zu Definition", "F12", Editor),
-    i(Cmd::HaltepunktUmschalten, "haltepunkt_umschalten", "Bearbeiten", "Haltepunkt umschalten", "F9", Editor),
-    i(Cmd::Rueckgaengig, "rueckgaengig", "Bearbeiten", "Rückgängig", "Cmd+Z", Editor),
-    i(Cmd::Wiederholen, "wiederholen", "Bearbeiten", "Wiederholen", "Cmd+Umschalt+Z", Editor),
-    i(Cmd::Suchen, "suchen", "Bearbeiten", "Suchen …", "Cmd+F", Editor),
-    i(Cmd::Ersetzen, "ersetzen", "Bearbeiten", "Ersetzen …", "Cmd+Alt+F", Editor),
-    i(Cmd::GeheZuZeile, "gehe_zu_zeile", "Bearbeiten", "Gehe zu Zeile …", "Cmd+L", Editor),
-    i(Cmd::InProjektSuchen, "in_projekt_suchen", "Bearbeiten", "In Projekt suchen …", "Cmd+Umschalt+F", Projekt),
-    i(Cmd::Palette, "palette", "Ansicht", "Befehl oder Datei suchen …", "Cmd+K", Nichts),
-    i(Cmd::StudioVergroessern, "studio_vergroessern", "Ansicht", "Studio: Fläche vergrößern", "", Projekt),
-    i(Cmd::StudioVerkleinern, "studio_verkleinern", "Ansicht", "Studio: Fläche verkleinern", "", Projekt),
-    i(Cmd::StudioEinpassen, "studio_einpassen", "Ansicht", "Studio: Fläche einpassen", "", Projekt),
-    i(Cmd::StudioRaster, "studio_raster", "Ansicht", "Studio: Raster ein-/ausschalten", "", Projekt),
-    i(Cmd::StudioZwiebel, "studio_zwiebel", "Ansicht", "Studio: Onion Skin ein-/ausschalten", "", Projekt),
-    i(Cmd::TrackerNoten, "tracker_noten", "Ansicht", "Tracker: Noten", "Cmd+1", Projekt),
-    i(Cmd::TrackerInstrumente, "tracker_instrumente", "Ansicht", "Tracker: Instrumente", "Cmd+2", Projekt),
-    i(Cmd::TrackerAblauf, "tracker_ablauf", "Ansicht", "Tracker: Ablauf", "Cmd+3", Projekt),
-    i(Cmd::Zen, "zen", "Ansicht", "Zen-Modus: nur die Fläche (Seitenleiste, Liste, Seitenspalte, Schublade ausblenden)", "Cmd+Umschalt+B", Nichts),
-    i(Cmd::Zahlenwerkzeuge, "zahlenwerkzeuge", "Bearbeiten", "Zahlenwerkzeuge …", "", Nichts),
-    i(Cmd::AlleAuswaehlen, "alle_auswaehlen", "Bearbeiten", "Alles auswählen", "", Editor),
-    i(Cmd::AllesFalten, "alles_falten", "Bearbeiten", "Alles falten", "", Editor),
-    i(Cmd::AllesEntfalten, "alles_entfalten", "Bearbeiten", "Alles entfalten", "", Editor),
-    i(Cmd::Vervollstaendigen, "vervollstaendigen", "Bearbeiten", "Vervollständigung öffnen", "", Editor),
-    i(Cmd::ProblemSpringen, "problem_springen", "Projekt", "Problem: Zur Zeile springen", "", Nichts),
-    i(Cmd::ProblemKopieren, "problem_kopieren", "Projekt", "Problem: Meldung kopieren", "", Nichts),
-    i(Cmd::ProblemeAlleKopieren, "probleme_alle_kopieren", "Projekt", "Alle Probleme kopieren", "", Nichts),
-    i(Cmd::ProtokollKopieren, "protokoll_kopieren", "Projekt", "Protokoll kopieren", "", Nichts),
-    i(Cmd::ProtokollLeeren, "protokoll_leeren", "Projekt", "Protokoll leeren (Ausgabe leeren)", "", Nichts),
-    i(Cmd::ZeileFormatieren, "zeile_formatieren", "Bearbeiten", "Zeile formatieren", "", Editor),
-    i(Cmd::DateiFormatieren, "datei_formatieren", "Bearbeiten", "Datei formatieren", "", Editor),
-    i(Cmd::BasicNachAsm, "basic_nach_asm", "Datei", "BASIC in Assembler umwandeln", "", Projekt),
-    i(Cmd::MdUmschalten, "md_umschalten", "Ansicht", "Markdown: Vorschau / Quelltext umschalten", "", Projekt),
-    i(Cmd::Seitenleiste, "seitenleiste", "Ansicht", "Linke Spalte ein-/ausklappen", "Cmd+B", Nichts),
-    i(Cmd::Schublade, "schublade", "Ansicht", "Schublade ein-/ausklappen (Probleme, Protokoll)", "Cmd+J", Nichts),
-    i(Cmd::Panel, "panel", "Ansicht", "Rechtes Panel ein-/ausklappen", "Cmd+Alt+B", Nichts),
-    i(Cmd::ZoomPlus, "zoom_plus", "Ansicht", "Oberfläche vergrößern", "Cmd+Plus", Nichts),
-    i(Cmd::ZoomMinus, "zoom_minus", "Ansicht", "Oberfläche verkleinern", "Cmd+Minus", Nichts),
-    i(Cmd::ZoomNull, "zoom_null", "Ansicht", "Oberfläche: Originalgröße", "Cmd+0", Nichts),
-    i(Cmd::HellDunkel, "hell_dunkel", "Ansicht", "Hell/Dunkel umschalten", "", Nichts),
-    i(Cmd::Beenden, "beenden", "Datei", "VintageCoder beenden", "Cmd+Q", Nichts),
-    i(Cmd::Startseite, "startseite", "Datei", "Startseite", "", Nichts),
-    i(Cmd::Zeilenende, "zeilenende", "Bearbeiten", "Zeilenende umschalten (LF/CRLF)", "", Editor),
-    i(Cmd::Kodierung, "kodierung", "Bearbeiten", "Kodierung umschalten (UTF-8/ISO-8859-1)", "", Editor),
-    i(Cmd::HoherKontrast, "hoher_kontrast", "Ansicht", "Hoher Kontrast ein/aus", "", Nichts),
-    i(Cmd::Umbruch, "umbruch", "Ansicht", "Zeilenumbruch im Editor", "", Editor),
-    i(Cmd::NaechsterReiter, "naechster_reiter", "Ansicht", "Nächster Reiter", "Cmd+Alt+Rechts", Nichts),
-    i(Cmd::VorigerReiter, "voriger_reiter", "Ansicht", "Vorheriger Reiter", "Cmd+Alt+Links", Nichts),
-    i(Cmd::ReiterAndereHaelfte, "reiter_andere_haelfte", "Ansicht", "Reiter in die andere Hälfte schicken", "", Editor),
-    i(Cmd::Teilen, "teilen", "Ansicht", "Editor teilen / Teilung aufheben", "Cmd+Alt+T", Editor),
-    i(Cmd::ReiterLinks, "reiter_links", "Ansicht", "Reiter nach links verschieben", "", Editor),
-    i(Cmd::ReiterRechts, "reiter_rechts", "Ansicht", "Reiter nach rechts verschieben", "", Editor),
-    i(Cmd::MaximiereFokus, "maximiere_fokus", "Ansicht", "Bereich mit Fokus maximieren / wiederherstellen", "Cmd+Umschalt+Enter", Nichts),
-    i(Cmd::SpalteMax, "spalte_max", "Ansicht", "Linke Spalte maximieren / wiederherstellen", "", Nichts),
-    i(Cmd::DokumentMax, "dokument_max", "Ansicht", "Dokumentenfeld maximieren / wiederherstellen", "", Nichts),
-    i(Cmd::SchubladeMax, "schublade_max", "Ansicht", "Schublade maximieren / wiederherstellen", "", Nichts),
-    i(Cmd::PanelMax, "panel_max", "Ansicht", "Panel maximieren / wiederherstellen", "", Nichts),
-    i(Cmd::EditorSchriftGroesser, "editor_schrift_groesser", "Ansicht", "Editor-Schrift größer", "", Nichts),
-    i(Cmd::EditorSchriftKleiner, "editor_schrift_kleiner", "Ansicht", "Editor-Schrift kleiner", "", Nichts),
-    i(Cmd::DarstellungZuruecksetzen, "darstellung_zuruecksetzen", "Ansicht", "Darstellung zurücksetzen (Größe, Schrift, Layout)", "", Nichts),
-    i(Cmd::LayoutZuruecksetzen, "layout_zuruecksetzen", "Ansicht", "Layout zurücksetzen", "", Nichts),
-    i(Cmd::Einstellungen, "einstellungen", "Ansicht", "Einstellungen", "Cmd+Komma", Nichts),
-    i(Cmd::Bauen, "bauen", "Projekt", "Projekt bauen", "F7", Projekt),
-    i(Cmd::Starten, "starten", "Projekt", "Startprogramm starten", "F5", Projekt),
-    i(Cmd::Debuggen, "debuggen", "Projekt", "Startprogramm debuggen", "F6", Projekt),
-    i(Cmd::BauenAktiv, "bauen_aktiv", "Projekt", "Aktive Datei bauen", "Alt+Umschalt+F7", Editor),
-    i(Cmd::StartenAktiv, "starten_aktiv", "Projekt", "Aktive Datei starten", "Alt+Umschalt+F5", Editor),
-    i(Cmd::DebuggenAktiv, "debuggen_aktiv", "Projekt", "Aktive Datei debuggen", "Alt+Umschalt+F6", Editor),
-    i(Cmd::DebugWeiter, "debug_weiter", "Projekt", "Debuggen: Weiter", "Alt+F5", Projekt),
-    i(Cmd::DebugPause, "debug_pause", "Projekt", "Debuggen: Anhalten", "Alt+F6", Projekt),
-    i(Cmd::DebugUeber, "debug_ueber", "Projekt", "Debuggen: Schritt über", "F10", Projekt),
-    i(Cmd::DebugHinein, "debug_hinein", "Projekt", "Debuggen: Schritt hinein", "F11", Projekt),
-    i(Cmd::DebugRaus, "debug_raus", "Projekt", "Debuggen: Schritt hinaus", "Umschalt+F11", Projekt),
-    i(Cmd::DebugEnde, "debug_ende", "Projekt", "Debuggen beenden", "Umschalt+F5", Projekt),
-    i(Cmd::DebugHierher, "debug_hierher", "Projekt", "Debuggen: Bis hierher ausführen", "", Editor),
-    i(Cmd::TestsAusfuehren, "tests_ausfuehren", "Projekt", "Tests ausführen", "Alt+F8", Projekt),
-    i(Cmd::Exportieren, "exportieren", "Datei", "Exportieren …", "Cmd+Umschalt+E", Projekt),
-    i(Cmd::NaechstesProblem, "naechstes_problem", "Projekt", "Nächstes Problem", "F8", Projekt),
-    i(Cmd::VorigesProblem, "voriges_problem", "Projekt", "Voriges Problem", "Umschalt+F8", Projekt),
-    i(Cmd::Hilfe, "hilfe", "Hilfe", "Hilfe", "F1", Nichts),
+    i(Cmd::Ueber, "ueber", "Hilfe", "", Nichts),
+    i(Cmd::Feedback, "feedback", "Hilfe", "", Nichts),
+    i(Cmd::UpdatePruefen, "update_pruefen", "Hilfe", "", Nichts),
+    i(Cmd::Assistent, "assistent", "Hilfe", "", Nichts),
+    i(Cmd::MdFett, "md_fett", "Bearbeiten", "", Editor),
+    i(Cmd::MdKursiv, "md_kursiv", "Bearbeiten", "Cmd+I", Editor),
+    i(Cmd::MdCode, "md_code", "Bearbeiten", "Cmd+E", Editor),
+    i(Cmd::MdDurchgestrichen, "md_durchgestrichen", "Bearbeiten", "Cmd+Umschalt+X", Editor),
+    i(Cmd::MdLink, "md_link", "Bearbeiten", "Cmd+Umschalt+K", Editor),
+    i(Cmd::MdBild, "md_bild", "Bearbeiten", "", Editor),
+    i(Cmd::MdUeberschriftTiefer, "md_tiefer", "Bearbeiten", "", Editor),
+    i(Cmd::MdUeberschriftHoeher, "md_hoeher", "Bearbeiten", "", Editor),
+    i(Cmd::MdAufzaehlung, "md_aufzaehlung", "Bearbeiten", "", Editor),
+    i(Cmd::MdNummerierung, "md_nummerierung", "Bearbeiten", "", Editor),
+    i(Cmd::MdAufgaben, "md_aufgaben", "Bearbeiten", "", Editor),
+    i(Cmd::MdZitat, "md_zitat", "Bearbeiten", "", Editor),
+    i(Cmd::MdAufgabeUmschalten, "md_aufgabe", "Bearbeiten", "", Editor),
+    i(Cmd::MdTabelleNeu, "md_tabelle", "Bearbeiten", "", Editor),
+    i(Cmd::MdTabelleAusrichten, "md_ausrichten", "Bearbeiten", "", Editor),
+    i(Cmd::MdAlsMarkdown, "md_als", "Bearbeiten", "", Editor),
+    i(Cmd::HilfeImReiter, "hilfe_reiter", "Hilfe", "", Nichts),
+    i(Cmd::ArtText, "art_text", "Bearbeiten", "", Editor),
+    i(Cmd::ArtAsm, "art_asm", "Bearbeiten", "", Editor),
+    i(Cmd::ArtBasic, "art_basic", "Bearbeiten", "", Editor),
+    i(Cmd::HexVorschlaege, "hex_vorschlaege", "Bearbeiten", "", Editor),
+    i(Cmd::StdZeichensatz, "std_zeichensatz", "Datei", "", Projekt),
+    i(Cmd::ZeichensatzAusRom, "zeichensatz_rom", "Datei", "", Projekt),
+    i(Cmd::ZeichensatzAusPng, "zeichensatz_png", "Datei", "", Projekt),
+    i(Cmd::AssistentNeues, "assistent_neues", "Hilfe", "", Nichts),
+    i(Cmd::AssistentRoms, "assistent_roms", "Hilfe", "", Nichts),
+    i(Cmd::AssistentEmulatoren, "assistent_emulatoren", "Hilfe", "", Nichts),
+    i(Cmd::AssistentHardware, "assistent_hardware", "Hilfe", "", Nichts),
+    i(Cmd::AssistentDesign, "assistent_design", "Hilfe", "", Nichts),
+    i(Cmd::ProjektNeu, "projekt_neu", "Datei", "Cmd+Alt+N", Nichts),
+    i(Cmd::ProjektEinstellungen, "projekt_einstellungen", "Projekt", "", Projekt),
+    i(Cmd::ProjektKopieren, "projekt_kopieren", "Datei", "", Projekt),
+    i(Cmd::ProjektOrdnerOeffnen, "projekt_ordner_oeffnen", "Datei", "", Nichts),
+    i(Cmd::ProjektOeffnen, "projekt_oeffnen", "Datei", "Cmd+Umschalt+O", Nichts),
+    i(Cmd::NeuerReiter, "neuer_reiter", "Datei", "Cmd+N", Nichts),
+    i(Cmd::NeueNotiz, "neue_notiz", "Datei", "Cmd+Umschalt+T", Projekt),
+    i(Cmd::DateiOeffnen, "datei_oeffnen", "Datei", "Cmd+O", Nichts),
+    i(Cmd::Speichern, "speichern", "Datei", "Cmd+S", Editor),
+    i(Cmd::AlleSpeichern, "alle_speichern", "Datei", "Cmd+Alt+S", Projekt),
+    i(Cmd::DateiSchliessen, "datei_schliessen", "Datei", "Cmd+W", Editor),
+    i(Cmd::NeueDatei, "neue_datei", "Datei", "", Projekt),
+    i(Cmd::NeuerOrdner, "neuer_ordner", "Baum", "", Projekt),
+    i(Cmd::NeueNotizDialog, "neue_notiz_dialog", "Baum", "", Projekt),
+    i(Cmd::ZielOeffnen, "ziel_oeffnen", "Baum", "", Projekt),
+    i(Cmd::DateiUmbenennen, "datei_umbenennen", "Baum", "", Projekt),
+    i(Cmd::DateiLoeschen, "datei_loeschen", "Baum", "", Projekt),
+    i(Cmd::AlsInclude, "als_include", "Baum", "", Projekt),
+    i(Cmd::PfadKopieren, "pfad_kopieren", "Baum", "", Projekt),
+    i(Cmd::ImOrdnerZeigen, "im_ordner_zeigen", "Baum", "", Projekt),
+    i(Cmd::BaumRueckgaengig, "baum_rueckgaengig", "Baum", "", Projekt),
+    i(Cmd::HexAnsicht, "hex_ansicht", "Baum", "", Projekt),
+    i(Cmd::Ausschneiden, "ausschneiden", "Bearbeiten", "", Editor),
+    i(Cmd::Kopieren, "kopieren", "Bearbeiten", "", Editor),
+    i(Cmd::Einfuegen, "einfuegen", "Bearbeiten", "", Editor),
+    i(Cmd::GeheZuDefinition, "gehe_zu_definition", "Bearbeiten", "F12", Editor),
+    i(Cmd::HaltepunktUmschalten, "haltepunkt_umschalten", "Bearbeiten", "F9", Editor),
+    i(Cmd::Rueckgaengig, "rueckgaengig", "Bearbeiten", "Cmd+Z", Editor),
+    i(Cmd::Wiederholen, "wiederholen", "Bearbeiten", "Cmd+Umschalt+Z", Editor),
+    i(Cmd::Suchen, "suchen", "Bearbeiten", "Cmd+F", Editor),
+    i(Cmd::Ersetzen, "ersetzen", "Bearbeiten", "Cmd+Alt+F", Editor),
+    i(Cmd::GeheZuZeile, "gehe_zu_zeile", "Bearbeiten", "Cmd+L", Editor),
+    i(Cmd::InProjektSuchen, "in_projekt_suchen", "Bearbeiten", "Cmd+Umschalt+F", Projekt),
+    i(Cmd::Palette, "palette", "Ansicht", "Cmd+K", Nichts),
+    i(Cmd::StudioVergroessern, "studio_vergroessern", "Ansicht", "", Projekt),
+    i(Cmd::StudioVerkleinern, "studio_verkleinern", "Ansicht", "", Projekt),
+    i(Cmd::StudioEinpassen, "studio_einpassen", "Ansicht", "", Projekt),
+    i(Cmd::StudioRaster, "studio_raster", "Ansicht", "", Projekt),
+    i(Cmd::StudioZwiebel, "studio_zwiebel", "Ansicht", "", Projekt),
+    i(Cmd::TrackerNoten, "tracker_noten", "Ansicht", "Cmd+1", Projekt),
+    i(Cmd::TrackerInstrumente, "tracker_instrumente", "Ansicht", "Cmd+2", Projekt),
+    i(Cmd::TrackerAblauf, "tracker_ablauf", "Ansicht", "Cmd+3", Projekt),
+    i(Cmd::Zen, "zen", "Ansicht", "Cmd+Umschalt+B", Nichts),
+    i(Cmd::Zahlenwerkzeuge, "zahlenwerkzeuge", "Bearbeiten", "", Nichts),
+    i(Cmd::AlleAuswaehlen, "alle_auswaehlen", "Bearbeiten", "", Editor),
+    i(Cmd::AllesFalten, "alles_falten", "Bearbeiten", "", Editor),
+    i(Cmd::AllesEntfalten, "alles_entfalten", "Bearbeiten", "", Editor),
+    i(Cmd::Vervollstaendigen, "vervollstaendigen", "Bearbeiten", "", Editor),
+    i(Cmd::ProblemSpringen, "problem_springen", "Projekt", "", Nichts),
+    i(Cmd::ProblemKopieren, "problem_kopieren", "Projekt", "", Nichts),
+    i(Cmd::ProblemeAlleKopieren, "probleme_alle_kopieren", "Projekt", "", Nichts),
+    i(Cmd::ProtokollKopieren, "protokoll_kopieren", "Projekt", "", Nichts),
+    i(Cmd::ProtokollLeeren, "protokoll_leeren", "Projekt", "", Nichts),
+    i(Cmd::ZeileFormatieren, "zeile_formatieren", "Bearbeiten", "", Editor),
+    i(Cmd::DateiFormatieren, "datei_formatieren", "Bearbeiten", "", Editor),
+    i(Cmd::BasicNachAsm, "basic_nach_asm", "Datei", "", Projekt),
+    i(Cmd::MdUmschalten, "md_umschalten", "Ansicht", "", Projekt),
+    i(Cmd::Seitenleiste, "seitenleiste", "Ansicht", "Cmd+B", Nichts),
+    i(Cmd::Schublade, "schublade", "Ansicht", "Cmd+J", Nichts),
+    i(Cmd::Panel, "panel", "Ansicht", "Cmd+Alt+B", Nichts),
+    i(Cmd::ZoomPlus, "zoom_plus", "Ansicht", "Cmd+Plus", Nichts),
+    i(Cmd::ZoomMinus, "zoom_minus", "Ansicht", "Cmd+Minus", Nichts),
+    i(Cmd::ZoomNull, "zoom_null", "Ansicht", "Cmd+0", Nichts),
+    i(Cmd::HellDunkel, "hell_dunkel", "Ansicht", "", Nichts),
+    i(Cmd::Beenden, "beenden", "Datei", "Cmd+Q", Nichts),
+    i(Cmd::Startseite, "startseite", "Datei", "", Nichts),
+    i(Cmd::Zeilenende, "zeilenende", "Bearbeiten", "", Editor),
+    i(Cmd::Kodierung, "kodierung", "Bearbeiten", "", Editor),
+    i(Cmd::HoherKontrast, "hoher_kontrast", "Ansicht", "", Nichts),
+    i(Cmd::Umbruch, "umbruch", "Ansicht", "", Editor),
+    i(Cmd::NaechsterReiter, "naechster_reiter", "Ansicht", "Cmd+Alt+Rechts", Nichts),
+    i(Cmd::VorigerReiter, "voriger_reiter", "Ansicht", "Cmd+Alt+Links", Nichts),
+    i(Cmd::ReiterAndereHaelfte, "reiter_andere_haelfte", "Ansicht", "", Editor),
+    i(Cmd::Teilen, "teilen", "Ansicht", "Cmd+Alt+T", Editor),
+    i(Cmd::ReiterLinks, "reiter_links", "Ansicht", "", Editor),
+    i(Cmd::ReiterRechts, "reiter_rechts", "Ansicht", "", Editor),
+    i(Cmd::MaximiereFokus, "maximiere_fokus", "Ansicht", "Cmd+Umschalt+Enter", Nichts),
+    i(Cmd::SpalteMax, "spalte_max", "Ansicht", "", Nichts),
+    i(Cmd::DokumentMax, "dokument_max", "Ansicht", "", Nichts),
+    i(Cmd::SchubladeMax, "schublade_max", "Ansicht", "", Nichts),
+    i(Cmd::PanelMax, "panel_max", "Ansicht", "", Nichts),
+    i(Cmd::EditorSchriftGroesser, "editor_schrift_groesser", "Ansicht", "", Nichts),
+    i(Cmd::EditorSchriftKleiner, "editor_schrift_kleiner", "Ansicht", "", Nichts),
+    i(Cmd::DarstellungZuruecksetzen, "darstellung_zuruecksetzen", "Ansicht", "", Nichts),
+    i(Cmd::LayoutZuruecksetzen, "layout_zuruecksetzen", "Ansicht", "", Nichts),
+    i(Cmd::Einstellungen, "einstellungen", "Ansicht", "Cmd+Komma", Nichts),
+    i(Cmd::Bauen, "bauen", "Projekt", "F7", Projekt),
+    i(Cmd::Starten, "starten", "Projekt", "F5", Projekt),
+    i(Cmd::Debuggen, "debuggen", "Projekt", "F6", Projekt),
+    i(Cmd::BauenAktiv, "bauen_aktiv", "Projekt", "Alt+Umschalt+F7", Editor),
+    i(Cmd::StartenAktiv, "starten_aktiv", "Projekt", "Alt+Umschalt+F5", Editor),
+    i(Cmd::DebuggenAktiv, "debuggen_aktiv", "Projekt", "Alt+Umschalt+F6", Editor),
+    i(Cmd::DebugWeiter, "debug_weiter", "Projekt", "Alt+F5", Projekt),
+    i(Cmd::DebugPause, "debug_pause", "Projekt", "Alt+F6", Projekt),
+    i(Cmd::DebugUeber, "debug_ueber", "Projekt", "F10", Projekt),
+    i(Cmd::DebugHinein, "debug_hinein", "Projekt", "F11", Projekt),
+    i(Cmd::DebugRaus, "debug_raus", "Projekt", "Umschalt+F11", Projekt),
+    i(Cmd::DebugEnde, "debug_ende", "Projekt", "Umschalt+F5", Projekt),
+    i(Cmd::DebugHierher, "debug_hierher", "Projekt", "", Editor),
+    i(Cmd::TestsAusfuehren, "tests_ausfuehren", "Projekt", "Alt+F8", Projekt),
+    i(Cmd::Exportieren, "exportieren", "Datei", "Cmd+Umschalt+E", Projekt),
+    i(Cmd::NaechstesProblem, "naechstes_problem", "Projekt", "F8", Projekt),
+    i(Cmd::VorigesProblem, "voriges_problem", "Projekt", "Umschalt+F8", Projekt),
+    i(Cmd::Hilfe, "hilfe", "Hilfe", "F1", Nichts),
 ];
 
 /// Untermenüs der langen Menüs in der Reihenfolge der Anzeige (Menüleiste im Fenster und Menü des Macs); Datei und Hilfe bleiben flach
@@ -189,7 +193,13 @@ pub fn untermenue(c: Cmd) -> &'static str {
     }
 }
 /// Name im Menü: in einem Untermenü ohne dessen Namen als Vorspann („Markdown: Fett“ → „Fett“ im Untermenü Markdown); Befehlspalette und Tabelle behalten den vollen Namen
-pub fn menuename(i: &Info) -> &str { let u = untermenue(i.cmd); if u.is_empty() { i.name } else { i.name.strip_prefix(u).and_then(|r| r.strip_prefix(": ")).unwrap_or(i.name) } }
+pub fn menuename(i: &Info) -> String { let u = untermenue(i.cmd); let n = i.name(); if u.is_empty() { n } else { n.strip_prefix(&format!("{}: ", untermenue_titel(u))).map(str::to_string).unwrap_or(n) } }
+/// Titel eines Untermenüs in der aktuellen Sprache (`u` ist die deutsche Kennung aus [`UNTERMENUES`])
+pub fn untermenue_titel(u: &str) -> String { vc_i18n::translate(&format!("submenu-{}", schluessel_teil(u)), &[]) }
+fn schluessel_teil(u: &str) -> String {
+    let t = u.to_lowercase().replace('ä', "ae").replace('ö', "oe").replace('ü', "ue").replace('ß', "ss");
+    t.split(|c: char| !c.is_ascii_alphanumeric()).filter(|w| !w.is_empty()).collect::<Vec<_>>().join("-")
+}
 /// Befehle eines Menüs (`unter` leer: die obersten Einträge) in Tabellenreihenfolge
 pub fn menue_eintraege<'a>(menue: &'a str, unter: &'a str) -> impl Iterator<Item = &'static Info> + 'a { BEFEHLE.iter().filter(move |i| i.menue == menue && untermenue(i.cmd) == unter) }
 /// Untermenüs eines Menüs (leer bei Datei und Hilfe)
@@ -197,6 +207,23 @@ pub fn untermenues(menue: &str) -> &'static [&'static str] { UNTERMENUES.iter().
 
 /// Menü „Baum“ steht bewusst nicht hier: Befehle, die nur im Kontextmenü des Dateibaums sinnvoll sind, bleiben dort und in der Befehlspalette, stehen aber in keiner Menüleiste.
 pub const MENUES: &[&str] = &["Datei", "Bearbeiten", "Ansicht", "Projekt", "Hilfe"];
+/// Angezeigter Titel eines Menüs in der aktuellen Sprache (die Kennung `m` aus [`MENUES`] bleibt deutsch und stabil)
+pub fn menue_titel(m: &str) -> String {
+    match m { "Datei" => vc_i18n::t!("menu-file"), "Bearbeiten" => vc_i18n::t!("menu-edit"), "Ansicht" => vc_i18n::t!("menu-view"), "Projekt" => vc_i18n::t!("menu-project"), "Hilfe" => vc_i18n::t!("menu-help"), "Baum" => vc_i18n::t!("menu-tree"), _ => m.to_string() }
+}
+
+/// Buchstaben für Alt+Buchstabe (Windows und Linux), aus den **übersetzten** Menütiteln abgeleitet: je Menü der erste Buchstabe des Titels,
+/// der in der Menüleiste noch nicht vergeben ist. So bleibt jedes Kürzel eindeutig und steht im sichtbaren Titel (wird dort unterstrichen).
+pub fn menue_buchstaben() -> Vec<(&'static str, char)> {
+    let mut vergeben: Vec<char> = vec![]; let mut out = vec![];
+    for m in MENUES {
+        let titel = menue_titel(m);
+        if let Some(c) = titel.chars().filter(|c| c.is_alphabetic()).flat_map(|c| c.to_lowercase()).find(|c| !vergeben.contains(c)) { vergeben.push(c); out.push((*m, c)); }
+    }
+    out
+}
+/// Alt-Buchstabe eines Menüs (Kennung aus [`MENUES`]) in der aktuellen Sprache
+pub fn menue_buchstabe(m: &str) -> Option<char> { menue_buchstaben().into_iter().find(|(k, _)| *k == m).map(|(_, c)| c) }
 
 pub fn info(c: Cmd) -> &'static Info { BEFEHLE.iter().find(|i| i.cmd == c).expect("Befehl fehlt in BEFEHLE") }
 pub fn nach_id(id: &str) -> Option<Cmd> { BEFEHLE.iter().find(|i| i.id == id).map(|i| i.cmd) }
@@ -211,17 +238,17 @@ pub fn zerlege(tasten: &str) -> Option<(bool, bool, bool, &str)> {
 /// Anzeige je Plattform: macOS ⌘⇧⌥, sonst Strg+Umschalt+Alt
 pub fn fuer_anzeige(tasten: &str, mac: bool) -> String {
     if mac { tasten.replace("Cmd+", "⌘").replace("Umschalt+", "⇧").replace("Alt+", "⌥").replace("Plus", "+").replace("Minus", "−").replace("Komma", ",").replace("Rechts", "→").replace("Links", "←") }
-    else { tasten.replace("Cmd", "Strg").replace("Komma", ",") }
+    else { tasten.replace("Cmd", &vc_i18n::t!("key-ctrl")).replace("Umschalt", &vc_i18n::t!("key-shift")).replace("Komma", ",").replace("Rechts", &vc_i18n::t!("key-right")).replace("Links", &vc_i18n::t!("key-left")) }
 }
 
 /// Freier Text mit Tastenangaben („Rückgängig (Cmd+Z)“, „Cmd/Strg+Z“): auf Windows und Linux wird „Cmd“ zu „Strg“, auf macOS bleibt der Text.
 pub fn plattform_text(text: &str) -> String { plattform_text_fuer(text, cfg!(target_os = "macos")) }
-pub fn plattform_text_fuer(text: &str, mac: bool) -> String { if mac || !text.contains("Cmd") { text.to_string() } else { text.replace("Cmd/Strg", "Strg").replace("Strg/Cmd", "Strg").replace("Cmd", "Strg") } }
+pub fn plattform_text_fuer(text: &str, mac: bool) -> String { if mac || !text.contains("Cmd") { text.to_string() } else { let c = vc_i18n::t!("key-ctrl"); text.replace("Cmd/Strg", &c).replace("Strg/Cmd", &c).replace("Cmd/Ctrl", &c).replace("Ctrl/Cmd", &c).replace("Cmd", &c) } }
 
 /// Unscharfe Suche für die Palette: alle Wörter müssen vorkommen (Groß/Klein egal), Treffer am Wortanfang zuerst
 pub fn filtere(frage: &str) -> Vec<&'static Info> {
     let q = frage.to_lowercase(); let w: Vec<&str> = q.split_whitespace().collect();
-    let mut v: Vec<(u8, &Info)> = BEFEHLE.iter().filter_map(|i| { let n = i.name.to_lowercase(); if w.iter().all(|x| n.contains(x)) { Some((if w.first().map_or(true, |x| n.starts_with(x)) { 0 } else { 1 }, i)) } else { None } }).collect();
+    let mut v: Vec<(u8, &Info)> = BEFEHLE.iter().filter_map(|i| { let n = i.name().to_lowercase(); if w.iter().all(|x| n.contains(x)) { Some((if w.first().map_or(true, |x| n.starts_with(x)) { 0 } else { 1 }, i)) } else { None } }).collect();
     v.sort_by_key(|x| x.0); v.into_iter().map(|x| x.1).collect()
 }
 
@@ -230,9 +257,9 @@ mod tests {
     use super::*;
     use std::collections::HashMap;
     #[test] fn menues_stimmen_und_jeder_befehl_hat_ein_menue() {
-        for i in BEFEHLE { assert!(MENUES.contains(&i.menue) || i.menue == "Baum", "{} hat unbekanntes Menü {}", i.name, i.menue) }
+        for i in BEFEHLE { assert!(MENUES.contains(&i.menue) || i.menue == "Baum", "{} hat unbekanntes Menü {}", i.name(), i.menue) }
         // Untermenüs: jeder Befehl eines Menüs steht genau einmal (oben oder in genau einem erklärten Untermenü), kein leeres Untermenü
-        for i in BEFEHLE.iter().filter(|i| MENUES.contains(&i.menue)) { let u = untermenue(i.cmd); assert!(u.is_empty() || untermenues(i.menue).contains(&u), "{}: Untermenü „{}“ gehört nicht zu {}", i.name, u, i.menue) }
+        for i in BEFEHLE.iter().filter(|i| MENUES.contains(&i.menue)) { let u = untermenue(i.cmd); assert!(u.is_empty() || untermenues(i.menue).contains(&u), "{}: Untermenü „{}“ gehört nicht zu {}", i.name(), u, i.menue) }
         for (m, subs) in UNTERMENUES { for u in *subs { assert!(menue_eintraege(m, u).count() > 0, "leeres Untermenü {m} ▸ {u}") } }
         for m in MENUES { let n = menue_eintraege(m, "").count() + untermenues(m).iter().map(|u| menue_eintraege(m, u).count()).sum::<usize>(); assert_eq!(n, BEFEHLE.iter().filter(|i| i.menue == *m).count(), "{m}: jeder Befehl genau einmal") }
         for m in ["Bearbeiten", "Ansicht", "Projekt"] { assert!(menue_eintraege(m, "").count() + untermenues(m).len() <= 18, "{m}: oberste Ebene zu lang") }
@@ -241,9 +268,26 @@ mod tests {
         for c in [Cmd::DateiUmbenennen, Cmd::DateiLoeschen, Cmd::PfadKopieren, Cmd::ImOrdnerZeigen, Cmd::HexAnsicht, Cmd::AlsInclude, Cmd::ZielOeffnen, Cmd::NeuerOrdner, Cmd::NeueNotizDialog] { assert_eq!(info(c).menue, "Baum", "{:?}", c); assert!(crate::kontext::eintraege(crate::kontext::Art::Baum).contains(&Some(c)) || crate::kontext::eintraege(crate::kontext::Art::BaumFlaeche).contains(&Some(c)), "{:?} bleibt im Kontextmenü des Baums", c) }
         for m in MENUES { assert!(BEFEHLE.iter().any(|i| i.menue == *m), "leeres Menü {m}") }
     }
+    #[test] fn jeder_befehl_und_jedes_untermenue_hat_deutsche_und_englische_texte() {
+        use vc_i18n::{has_key_in, Lang};
+        for l in [Lang::De, Lang::En] {
+            for i in BEFEHLE { assert!(has_key_in(l, &format!("cmd-{}", i.id)), "{}: Name von {} fehlt", l.code(), i.id) }
+            for (_, subs) in UNTERMENUES { for u in *subs { assert!(has_key_in(l, &format!("submenu-{}", schluessel_teil(u))), "{}: Untermenü {u} fehlt", l.code()) } }
+        }
+    }
+    #[test] fn alt_buchstaben_der_menues_sind_in_jeder_sprache_eindeutig_und_stehen_im_titel() {
+        for l in [vc_i18n::Lang::De, vc_i18n::Lang::En] {
+            vc_i18n::set_thread_language(Some(l));
+            let b = menue_buchstaben(); assert_eq!(b.len(), MENUES.len(), "{}: jedes Menü hat einen Buchstaben", l.code());
+            let mut s: Vec<char> = b.iter().map(|x| x.1).collect(); s.sort(); s.dedup(); assert_eq!(s.len(), b.len(), "{}: Buchstaben doppelt: {b:?}", l.code());
+            for (m, c) in &b { assert!(menue_titel(m).to_lowercase().contains(*c), "{}: {c} steht nicht in {}", l.code(), menue_titel(m)) }
+            if l == vc_i18n::Lang::De { assert_eq!(b.iter().map(|x| x.1).collect::<String>(), "dbaph", "deutsche Belegung wie bisher") }
+        }
+        vc_i18n::set_thread_language(None);
+    }
     #[test] fn kuerzel_sind_eindeutig() {
-        let mut seen: HashMap<&str, &str> = HashMap::new();
-        for i in BEFEHLE.iter().filter(|i| !i.tasten.is_empty()) { if let Some(o) = seen.insert(i.tasten, i.name) { panic!("{} und {} teilen {}", o, i.name, i.tasten) } }
+        let mut seen: HashMap<&str, String> = HashMap::new();
+        for i in BEFEHLE.iter().filter(|i| !i.tasten.is_empty()) { if let Some(o) = seen.insert(i.tasten, i.name()) { panic!("{} und {} teilen {}", o, i.name(), i.tasten) } }
     }
     #[test] fn kuerzel_gehoeren_nicht_der_textbearbeitung() {
         // Ausschneiden, Kopieren, Einfügen, Alles auswählen bleiben dem Editor; Cmd+B ist die Seitenleiste, daher kein Fett

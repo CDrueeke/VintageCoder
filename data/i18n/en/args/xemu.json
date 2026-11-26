@@ -1,0 +1,425 @@
+{
+ "source": "args/xemu.json",
+ "entries": {
+  "/label": {
+   "de": "Xemu (MEGA65)",
+   "en": "Xemu (MEGA65)",
+   "status": "unverändert"
+  },
+  "/groups/0/label": {
+   "de": "Ablauf",
+   "en": "Run",
+   "status": "maschinell"
+  },
+  "/groups/1/label": {
+   "de": "Bild",
+   "en": "Video",
+   "status": "maschinell"
+  },
+  "/groups/2/label": {
+   "de": "Ton",
+   "en": "Sound",
+   "status": "maschinell"
+  },
+  "/groups/3/label": {
+   "de": "Maschine",
+   "en": "Machine",
+   "status": "maschinell"
+  },
+  "/groups/4/label": {
+   "de": "Eingabe",
+   "en": "Input",
+   "status": "maschinell"
+  },
+  "/groups/5/label": {
+   "de": "Laufwerke und Karte",
+   "en": "Drives and card",
+   "status": "maschinell"
+  },
+  "/groups/6/label": {
+   "de": "Fehlersuche",
+   "en": "Debugging",
+   "status": "maschinell"
+  },
+  "/params/0/label": {
+   "de": "Vollbild",
+   "en": "Full screen",
+   "status": "maschinell"
+  },
+  "/params/0/hint": {
+   "de": "Startet im Vollbild.",
+   "en": "Starts in full screen.",
+   "status": "maschinell"
+  },
+  "/params/1/label": {
+   "de": "Voller Bildrand",
+   "en": "Full border",
+   "status": "maschinell"
+  },
+  "/params/1/hint": {
+   "de": "Zeigt den Bildrand ungeschnitten.",
+   "en": "Shows the border uncropped.",
+   "status": "maschinell"
+  },
+  "/params/2/label": {
+   "de": "Laufwerk-LED",
+   "en": "Drive LED",
+   "status": "maschinell"
+  },
+  "/params/2/hint": {
+   "de": "Zeichnet die Laufwerk-LED oben rechts ins Bild.",
+   "en": "Draws the drive LED in the top right of the picture.",
+   "status": "maschinell"
+  },
+  "/params/3/label": {
+   "de": "Scanlines in V200-Modi",
+   "en": "Scanlines in V200 modes",
+   "status": "maschinell"
+  },
+  "/params/3/hint": {
+   "de": "Zeigt Scanlines in den V200-Modi.",
+   "en": "Shows scanlines in the V200 modes.",
+   "status": "maschinell"
+  },
+  "/params/4/label": {
+   "de": "Videonorm",
+   "en": "Video standard",
+   "status": "maschinell"
+  },
+  "/params/4/hint": {
+   "de": "Videonorm beim Start und Reset.",
+   "en": "Video standard at start and reset.",
+   "status": "maschinell"
+  },
+  "/params/4/choices/0/label": {
+   "de": "PAL",
+   "en": "PAL",
+   "status": "unverändert"
+  },
+  "/params/4/choices/1/label": {
+   "de": "NTSC",
+   "en": "NTSC",
+   "status": "unverändert"
+  },
+  "/params/4/choices/2/label": {
+   "de": "Vorgabe des Hyppo",
+   "en": "Hyppo default",
+   "status": "maschinell"
+  },
+  "/params/5/label": {
+   "de": "Farbeffekt",
+   "en": "Color effect",
+   "status": "maschinell"
+  },
+  "/params/5/hint": {
+   "de": "Farbeffekt der Ausgabe.",
+   "en": "Color effect of the output.",
+   "status": "maschinell"
+  },
+  "/params/5/choices/0/label": {
+   "de": "keiner",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/5/choices/1/label": {
+   "de": "Graustufen",
+   "en": "Grayscale",
+   "status": "maschinell"
+  },
+  "/params/5/choices/2/label": {
+   "de": "grüner Monitor",
+   "en": "green monitor",
+   "status": "maschinell"
+  },
+  "/params/6/label": {
+   "de": "Skalierungsqualität (SDL)",
+   "en": "Scaling quality (SDL)",
+   "status": "maschinell"
+  },
+  "/params/6/hint": {
+   "de": "Qualität der Skalierung: 0, 1 oder 2.",
+   "en": "Quality of the scaling: 0, 1 or 2.",
+   "status": "maschinell"
+  },
+  "/params/7/label": {
+   "de": "Fensterposition",
+   "en": "Window position",
+   "status": "maschinell"
+  },
+  "/params/7/hint": {
+   "de": "Position des Fensters als x,y.",
+   "en": "Position of the window as x,y.",
+   "status": "maschinell"
+  },
+  "/params/8/label": {
+   "de": "Ton aus",
+   "en": "Sound off",
+   "status": "maschinell"
+  },
+  "/params/8/hint": {
+   "de": "Schaltet die Tonausgabe ab.",
+   "en": "Turns sound output off.",
+   "status": "maschinell"
+  },
+  "/params/9/label": {
+   "de": "Gesamtlautstärke",
+   "en": "Master volume",
+   "status": "maschinell"
+  },
+  "/params/9/hint": {
+   "de": "Endlautstärke (100 = voll, 0 = stumm).",
+   "en": "Final volume (100 = full, 0 = mute).",
+   "status": "maschinell"
+  },
+  "/params/10/label": {
+   "de": "OPL3 aus",
+   "en": "OPL3 off",
+   "status": "maschinell"
+  },
+  "/params/10/hint": {
+   "de": "Schaltet die OPL3-Nachbildung ab.",
+   "en": "Turns off the OPL3 emulation.",
+   "status": "maschinell"
+  },
+  "/params/11/label": {
+   "de": "MEGA65-Modell",
+   "en": "MEGA65 model",
+   "status": "maschinell"
+  },
+  "/params/11/hint": {
+   "de": "Kennung des nachgebildeten MEGA65-Modells.",
+   "en": "ID of the emulated MEGA65 model.",
+   "status": "maschinell"
+  },
+  "/params/12/label": {
+   "de": "Takt im Schnellmodus (MHz)",
+   "en": "Fast mode clock (MHz)",
+   "status": "maschinell"
+  },
+  "/params/12/hint": {
+   "de": "Takt des MEGA65 im schnellen Modus.",
+   "en": "Clock of the MEGA65 in fast mode.",
+   "status": "maschinell"
+  },
+  "/params/13/label": {
+   "de": "Schneller Start",
+   "en": "Fast boot",
+   "status": "maschinell"
+  },
+  "/params/13/hint": {
+   "de": "Versucht beim Hochfahren den schlaflosen (schnellsten) Emulationsmodus.",
+   "en": "Tries the sleepless (fastest) emulation mode at boot.",
+   "status": "maschinell"
+  },
+  "/params/14/label": {
+   "de": "Höchste Geschwindigkeit",
+   "en": "Top speed",
+   "status": "maschinell"
+  },
+  "/params/14/hint": {
+   "de": "Maximale Emulationsgeschwindigkeit (zum Testen).",
+   "en": "Maximum emulation speed (for testing).",
+   "status": "maschinell"
+  },
+  "/params/15/label": {
+   "de": "In den C64-Modus",
+   "en": "To C64 mode",
+   "status": "maschinell"
+  },
+  "/params/15/hint": {
+   "de": "Wechselt nach dem Start in den C64-Modus (mit Eintippen, kombinierbar mit „Autoload“).",
+   "en": "Switches to C64 mode after start (with typing, can be combined with \"Autoload\").",
+   "status": "maschinell"
+  },
+  "/params/16/label": {
+   "de": "Erstes Programm der Diskette starten",
+   "en": "Start first program on disk",
+   "status": "maschinell"
+  },
+  "/params/16/hint": {
+   "de": "Lädt und startet das erste Programm von der Diskette (mit Eintippen).",
+   "en": "Loads and starts the first program from the disk (with typing).",
+   "status": "maschinell"
+  },
+  "/params/17/label": {
+   "de": "Joystickport",
+   "en": "Joystick port",
+   "status": "maschinell"
+  },
+  "/params/17/hint": {
+   "de": "Welcher Joystickport standardmäßig nachgebildet wird.",
+   "en": "Which joystick port is emulated by default.",
+   "status": "maschinell"
+  },
+  "/params/17/choices/0/label": {
+   "de": "Port 1",
+   "en": "Port 1",
+   "status": "unverändert"
+  },
+  "/params/17/choices/1/label": {
+   "de": "Port 2",
+   "en": "Port 2",
+   "status": "unverändert"
+  },
+  "/params/18/label": {
+   "de": "Cursortasten als Joystick",
+   "en": "Cursor keys as joystick",
+   "status": "maschinell"
+  },
+  "/params/18/hint": {
+   "de": "Die Cursortasten ersetzen den Joystick; im BASIC lässt sich dann der Cursor nicht mehr bewegen.",
+   "en": "The cursor keys replace the joystick; in BASIC the cursor can then no longer be moved.",
+   "status": "maschinell"
+  },
+  "/params/19/label": {
+   "de": "Keine Mausnachbildung",
+   "en": "No mouse emulation",
+   "status": "maschinell"
+  },
+  "/params/19/hint": {
+   "de": "Schaltet die Mausnachbildung ab.",
+   "en": "Turns off the mouse emulation.",
+   "status": "maschinell"
+  },
+  "/params/20/label": {
+   "de": "Maus mit Linksklick einfangen",
+   "en": "Grab mouse with left click",
+   "status": "maschinell"
+  },
+  "/params/20/hint": {
+   "de": "Erlaubt das Einfangen der Maus per Linksklick.",
+   "en": "Allows grabbing the mouse with a left click.",
+   "status": "maschinell"
+  },
+  "/params/21/label": {
+   "de": "D81-Image in Laufwerk 8",
+   "en": "D81 image in drive 8",
+   "status": "maschinell"
+  },
+  "/params/21/hint": {
+   "de": "Externes D81-Image (nicht auf der SD-Karte) in Laufwerk 8.",
+   "en": "External D81 image (not on the SD card) in drive 8.",
+   "status": "maschinell"
+  },
+  "/params/22/label": {
+   "de": "D81-Image in Laufwerk 9",
+   "en": "D81 image in drive 9",
+   "status": "maschinell"
+  },
+  "/params/22/hint": {
+   "de": "Externes D81-Image in Laufwerk 9.",
+   "en": "External D81 image in drive 9.",
+   "status": "maschinell"
+  },
+  "/params/23/label": {
+   "de": "SD-Karten-Image",
+   "en": "SD card image",
+   "status": "maschinell"
+  },
+  "/params/23/hint": {
+   "de": "Pfad des SD-Karten-Images, das statt des Standards verwendet wird.",
+   "en": "Path of the SD card image that is used instead of the default.",
+   "status": "maschinell"
+  },
+  "/params/24/label": {
+   "de": "Modul",
+   "en": "Cartridge",
+   "status": "maschinell"
+  },
+  "/params/24/hint": {
+   "de": "Lädt eine Moduldatei.",
+   "en": "Loads a cartridge file.",
+   "status": "maschinell"
+  },
+  "/params/25/label": {
+   "de": "Attic-RAM vorbelegen",
+   "en": "Preload attic RAM",
+   "status": "maschinell"
+  },
+  "/params/25/hint": {
+   "de": "Füllt das Attic-RAM mit dem Inhalt einer Datei.",
+   "en": "Fills the attic RAM with the contents of a file.",
+   "status": "maschinell"
+  },
+  "/params/26/label": {
+   "de": "Ohne Fenster",
+   "en": "No window",
+   "status": "maschinell"
+  },
+  "/params/26/hint": {
+   "de": "Läuft ohne Fenster (für Tests).",
+   "en": "Runs without a window (for tests).",
+   "status": "maschinell"
+  },
+  "/params/27/label": {
+   "de": "Rückfragen unterdrücken",
+   "en": "Suppress confirmation",
+   "status": "maschinell"
+  },
+  "/params/27/hint": {
+   "de": "Überspringt die Rückfrage „Sicher?“ bei Reset und Beenden.",
+   "en": "Skips the \"Are you sure?\" prompt on reset and quit.",
+   "status": "maschinell"
+  },
+  "/params/28/label": {
+   "de": "Bildschirmfoto beim Beenden",
+   "en": "Screenshot on exit",
+   "status": "maschinell"
+  },
+  "/params/28/hint": {
+   "de": "Speichert beim Beenden ein Bild als PNG.",
+   "en": "Saves a picture as PNG on exit.",
+   "status": "maschinell"
+  },
+  "/params/29/label": {
+   "de": "Speicher beim Beenden sichern",
+   "en": "Save memory on exit",
+   "status": "maschinell"
+  },
+  "/params/29/hint": {
+   "de": "Schreibt beim Beenden den Speicherinhalt in diese Datei.",
+   "en": "Writes the memory contents to this file on exit.",
+   "status": "maschinell"
+  },
+  "/params/30/label": {
+   "de": "Bildschirmtext beim Beenden sichern",
+   "en": "Save screen text on exit",
+   "status": "maschinell"
+  },
+  "/params/30/hint": {
+   "de": "Schreibt beim Beenden den Bildschirminhalt als Text in diese Datei.",
+   "en": "Writes the screen contents as text to this file on exit.",
+   "status": "maschinell"
+  },
+  "/params/31/label": {
+   "de": "Serielle Hypervisor-Ausgabe in Datei",
+   "en": "Serial hypervisor output to file",
+   "status": "maschinell"
+  },
+  "/params/31/hint": {
+   "de": "Schreibt die serielle Ausgabe des Hypervisors in diese Datei.",
+   "en": "Writes the serial output of the hypervisor to this file.",
+   "status": "maschinell"
+  },
+  "/params/32/label": {
+   "de": "Hypervisor-Debug",
+   "en": "Hypervisor debug",
+   "status": "maschinell"
+  },
+  "/params/32/hint": {
+   "de": "Sehr langsamer, gesprächiger Debugmodus des Hypervisors.",
+   "en": "Very slow, chatty debug mode of the hypervisor.",
+   "status": "maschinell"
+  },
+  "/params/33/label": {
+   "de": "Matrix-Modus beim Start",
+   "en": "Matrix mode at start",
+   "status": "maschinell"
+  },
+  "/params/33/hint": {
+   "de": "Startet mit aktiviertem Matrix-Modus (Monitor).",
+   "en": "Starts with matrix mode (monitor) turned on.",
+   "status": "maschinell"
+  }
+ }
+}

@@ -23,7 +23,7 @@
 ;   Die Testdatei verbietet $02-$1F; $FB ist erlaubt. Bildschirmspeicher $0400-$04FF wird von clear_text beschrieben, Rahmenfarbe $D020
 ;   von irq_handler.
 ; Grenzen: irq_handler endet mit RTI und darf daher nicht per JSR aufgerufen werden; `start` legt deshalb Rücksprungadresse und Status
-;   selbst auf den Stapel und springt mit JMP hin. Der Emulator-Test ruft irq_handler über die Testfalle mit `"return": "rti"` auf.
+;   selbst auf den Stapel und springt mit JMP hin. Der Emulator-Test ruft irq_handler über die Testfälle mit `"return": "rti"` auf.
 ;   next_color wird vom Programm selbst nie aufgerufen, nur von den Tests.
 .target c64
 .cpu 6510 { illegals = deny }

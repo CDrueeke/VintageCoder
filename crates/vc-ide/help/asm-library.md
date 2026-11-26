@@ -67,7 +67,7 @@ Geprüft (`vcc test`, Emulator): C64, Plus/4, VC-20 und C128 mit VICE (Trap-Modu
 ;=* a9 02 8d 20 d0 a9 00 85 fb a9 04 85 fc
 ```
 
-Die Chip-Register stehen außerdem ohne `#include` als `chip.register` zur Verfügung (zum Beispiel `vic2.border`), solange das Zielsystem sie kennt; **F1** auf einem Wort zeigt die Beschreibung.
+Die Chip-Register stehen außerdem ohne `#include` als `chip.register` zur Verfügung (zum Beispiel `vic2.border`), solange das Zielsystem sie kennt; beim Daraufzeigen mit der Maus erscheint die Beschreibung.
 
 Zurück zu: [Assembler-Handbuch](help:assembler), [Makros](help:asm-macros), [Spickzettel](help:asm-index).
 

@@ -38,7 +38,7 @@ pub enum AnimMode { Loop, PingPong, Once }
 impl AnimMode {
     pub fn parse(s: &str) -> AnimMode { match s { "pingpong" => AnimMode::PingPong, "once" => AnimMode::Once, _ => AnimMode::Loop } }
     pub fn key(self) -> &'static str { match self { AnimMode::Loop => "loop", AnimMode::PingPong => "pingpong", AnimMode::Once => "once" } }
-    pub fn label(self) -> &'static str { match self { AnimMode::Loop => "Schleife", AnimMode::PingPong => "Hin und zurück", AnimMode::Once => "Einmal" } }
+    pub fn label(self) -> String { match self { AnimMode::Loop => vc_i18n::t!("media-schleife"), AnimMode::PingPong => vc_i18n::t!("media-hin-und-zurueck"), AnimMode::Once => vc_i18n::t!("media-einmal") } }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -71,14 +71,14 @@ pub fn parse_animations(root: &Value) -> Result<Vec<Anim>, String> {
     let mut out: Vec<Anim> = vec![];
     for (i, a) in root["animations"].as_array().into_iter().flatten().enumerate() {
         let name = a["name"].as_str().unwrap_or("").to_string();
-        if !valid_name(&name) { return Err(format!("Animation {}: Name '{name}' ungültig (Buchstaben, Ziffern, _; nicht mit Ziffer beginnen)", i + 1)); }
+        if !valid_name(&name) { return Err(vc_i18n::t!("media-animation-p1-name-name-ungueltig-buchstaben", p1 = i + 1, name = &name)); }
         if out.iter().any(|o| o.name == name) { return Err(format!("Animation '{name}' kommt doppelt vor")); }
         let mut steps = vec![];
         for (k, s) in a["steps"].as_array().into_iter().flatten().enumerate() {
-            let f = s["frame"].as_u64().ok_or(format!("Animation '{name}', Schritt {}: frame fehlt", k + 1))? as usize;
-            if f >= n { return Err(format!("Animation '{name}', Schritt {}: Frame {f} gibt es nicht ({n} Frames)", k + 1)); }
+            let f = s["frame"].as_u64().ok_or(vc_i18n::t!("media-animation-name-schritt-p2-frame-fehlt", name = &name, p2 = k + 1))? as usize;
+            if f >= n { return Err(vc_i18n::t!("media-animation-name-schritt-p2-frame-f", name = &name, p2 = k + 1, f = &f, n = &n)); }
             let d = s["delay"].as_u64().unwrap_or(4);
-            if !(1..=255).contains(&d) { return Err(format!("Animation '{name}', Schritt {}: Dauer {d} außerhalb 1..255 Bilder", k + 1)); }
+            if !(1..=255).contains(&d) { return Err(vc_i18n::t!("media-animation-name-schritt-p2-dauer-d", name = &name, p2 = k + 1, d = &d)); }
             steps.push((f, d as u32));
         }
         out.push(Anim { name, mode: AnimMode::parse(a["mode"].as_str().unwrap_or("loop")), steps });
@@ -107,12 +107,22 @@ pub fn animations_after_remove(root: &mut Value, at: usize) {
 
 /// Konstanten (ohne Daten): Frame-Zahl und Multicolor-Maske. Sie belegen keinen Speicher und stehen in der Haupt-Exportdatei.
 pub fn export_consts(label: &str, p: &Profile, root: &Value, sbas: bool) -> Result<String, String> {
-    if p.kind != "sprite" { return Ok(String::new()); }
     let c = if sbas { "const" } else { ".const" };
-    let frames = root["frames"].as_array().ok_or("frames fehlt")?;
+    if p.kind == "pmg" {
+        // Player/Missile (Atari): Breite je Spieler (SIZEP0–3 $D008–$D00B: 0 normal, 1 doppelt, 3 vierfach) und Priorität (PRIOR $D01B).
+        // Alle fünf Konstanten stehen immer im Export, auch bei Vorgabewerten und alten Dateien ohne `hw` (Breite 0, Priorität 1 = Spieler vor Spielfeld): das Programm kann sich darauf verlassen
+        let mut out = String::new();
+        let hw = &root["hw"];
+        for i in 0..4 { let n = hw["sizep"][i].as_u64().filter(|v| [0, 1, 3].contains(v)).unwrap_or(0); out.push_str(&format!("{c} {label}_sizep{i} = {n}\n")); }
+        let n = hw["prior"].as_u64().filter(|v| [1, 2, 4, 8].contains(v)).unwrap_or(1);
+        out.push_str(&format!("{c} {label}_prior = {n}\n"));
+        return Ok(out);
+    }
+    if p.kind != "sprite" { return Ok(String::new()); }
+    let frames = root["frames"].as_array().ok_or(vc_i18n::t!("media-frames-fehlt"))?;
     let mc: Vec<bool> = frames.iter().map(|f| frame_is_mc(p, f)).collect();
     let mask = mc.iter().take(8).enumerate().fold(0u32, |m, (i, &b)| m | ((b as u32) << i));
-    let note = if sbas { "' Bit i = Frame i ist Multicolor (für $D01C, erste 8 Frames)" } else { "; Bit i = Frame i ist Multicolor (für $D01C, erste 8 Frames)" };
+    let note = if sbas { vc_i18n::t!("media-bit-i-frame-i-ist-multicolor") } else { vc_i18n::t!("media-bit-i-frame-i-ist-multicolor-2") };
     let mut out = format!("{c} {label}_count = {}\n{c} {label}_multicolor_mask = ${mask:02x}   {note}\n", frames.len());
     // Optionale Hardware-Flags aus den Metadaten `hw` ($D01D Breit, $D017 Hoch, $D01B hinter dem Hintergrund); ohne `hw` bleibt die Ausgabe wie bisher
     if let Some(hw) = root["hw"].as_object() {
@@ -126,16 +136,16 @@ pub fn export_consts(label: &str, p: &Profile, root: &Value, sbas: bool) -> Resu
 /// `label` ist die Marke des ersten Sprite-Blocks (64 Byte je Frame).
 pub fn export_anim_asm(label: &str, p: &Profile, root: &Value) -> Result<Option<String>, String> {
     if p.kind != "sprite" { return Ok(None); }
-    let frames = root["frames"].as_array().ok_or("frames fehlt")?;
+    let frames = root["frames"].as_array().ok_or(vc_i18n::t!("media-frames-fehlt"))?;
     let anims = parse_animations(root)?;
     let mc: Vec<bool> = frames.iter().map(|f| frame_is_mc(p, f)).collect();
     let mixed = mc.iter().any(|&m| m != (p.bpp == 2));
     if anims.is_empty() && !mixed { return Ok(None); }
-    let mut s = String::from("; erzeugt von VintageCoder – nicht von Hand ändern\n; Tabellen zu den Sprite-Daten; diese Datei gehört hinter die Sprite-Daten (sie belegt eigenen Speicher)\n");
+    let mut s = vc_i18n::t!("media-kopf-sprite-tabellen") + "\n";
     if mixed { s.push_str(&format!("{label}_modes:\n        .byte {}\n", mc.iter().map(|&b| (b as u8).to_string()).collect::<Vec<_>>().join(","))); }
     for a in &anims {
         let ex = a.expanded();
-        if ex.is_empty() { return Err(format!("Animation '{}' hat keine Schritte", a.name)); }
+        if ex.is_empty() { return Err(vc_i18n::t!("media-animation-p1-hat-keine-schritte", p1 = &a.name)); }
         s.push_str(&format!("; Animation \"{}\" ({}): Sprite-Zeiger = Blocknummer im VIC-Bank, Dauer in Bildern (1/50 s)\n", a.name, a.mode.label()));
         s.push_str(&format!("{label}_anim_{}_ptr:\n        .byte {}\n", a.name, ex.iter().map(|(f, _)| format!("(({label} & $3fff) / 64) + {f}")).collect::<Vec<_>>().join(",")));
         s.push_str(&format!("{label}_anim_{}_delay:\n        .byte {}\n", a.name, ex.iter().map(|(_, d)| d.to_string()).collect::<Vec<_>>().join(",")));

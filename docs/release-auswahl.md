@@ -2,7 +2,7 @@
 
 Diese Seite beschreibt den Weg von der Auswahl in `FEATURES.md` bis zu den fertigen Installern. Die Bedienung des Skripts und was abgewählte Teile bewirken, steht auch in der IDE-Hilfe (Seite „Release-Auswahl“, `crates/vc-ide/help/release-auswahl.md`). Entwicklungsstände und Release-Kriterien stehen in `STATUS.md`.
 
-Wer die Versionsnummer, den Tag und die Veröffentlichung festlegt, ist allein der Projektinhaber. Beispiel: Version `0.1.0`, Tag `v0.1.0` (auch für ein Alpha-Release); `Cargo.toml` ändert nur der Projektinhaber. Alles hier endet vor diesem Schritt.
+Wer die Versionsnummer, den Tag und die Veröffentlichung festlegt, ist allein der Projektinhaber. Beispiel: Version `0.3.0`, Tag `v0.3.0`; `Cargo.toml` ändert nur der Projektinhaber. Alles hier endet vor diesem Schritt.
 
 ## Überblick
 
@@ -31,6 +31,8 @@ release/registry.json ─┘                                    (data/release.js
    python3 tools/release.py stage --os windows --out build/stage-windows --build
    python3 tools/release.py stage --os linux   --out build/stage-linux   --build --archive
    ```
+
+   Ausgeliefert wird standardmäßig die Tauri-Oberfläche (`--oberflaeche tauri`: `--build` baut zuerst `ui/`, dann `vc-shell` mit eingebettetem Frontend, `stage` prüft das); die alte egui-Oberfläche gibt es nur noch mit `--oberflaeche egui`. Bei `package` muss die Angabe zum Staging passen (bestimmt die Abhängigkeiten).
 
    Für gleiche Prüfsummen bei zwei Läufen `--reproducible`. Mit `--verify-build` baut `stage` jedes ausgelieferte Beispiel mit dem Staging-`vcc` (nur auf dem eigenen Betriebssystem).
 6. **Bericht lesen:** `release-report.md` im Staging. Warnungen und „Hinweise für die Release-Notizen“ gehören in die Release-Notiz; `release/notes-template.md` ist die Vorlage dafür.

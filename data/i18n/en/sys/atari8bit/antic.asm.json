@@ -1,0 +1,85 @@
+{
+ "source": "sys/atari8bit/antic.asm",
+ "entries": {
+  "/L4": {
+   "de": "ANTIC",
+   "en": "ANTIC",
+   "status": "unverändert"
+  },
+  "/L5": {
+   "de": "DMA-Steuerung (Spielfeldbreite, Player/Missile, Display-List)",
+   "en": "DMA control (playfield width, player/missile, display list)",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Zeichensatz-Steuerung",
+   "en": "Character set control",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Display-List-Adresse niedrig",
+   "en": "Display list address low",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Display-List-Adresse hoch",
+   "en": "Display list address high",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Horizontales Feinscrollen",
+   "en": "Horizontal fine scrolling",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Vertikales Feinscrollen",
+   "en": "Vertical fine scrolling",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Player/Missile-Basisseite",
+   "en": "Player/missile base page",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Zeichensatz-Basisseite",
+   "en": "Character set base page",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Auf Zeilenende warten (Schreiben)",
+   "en": "Wait for end of line (write)",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Rasterzeile / 2 (lesen)",
+   "en": "Raster line / 2 (read)",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Lichtgriffel horizontal",
+   "en": "Light pen horizontal",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Lichtgriffel vertikal",
+   "en": "Light pen vertical",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "NMI freigeben (DLI, VBI)",
+   "en": "Enable NMI (DLI, VBI)",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "NMI-Status löschen (Schreiben)",
+   "en": "Clear NMI status (write)",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "NMI-Status (Lesen)",
+   "en": "NMI status (read)",
+   "status": "maschinell"
+  }
+ }
+}

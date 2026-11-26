@@ -1,0 +1,25 @@
+{
+ "source": "chips/petpia2.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Port A: IEEE-488-Daten (Eingang)",
+   "en": "Port A: IEEE-488 data (input)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Steuerregister A (CA1: NDAC-Eingang, CA2: NDAC-Ausgang)",
+   "en": "Control register A (CA1: NDAC input, CA2: NDAC output)",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Port B: IEEE-488-Daten (Ausgang)",
+   "en": "Port B: IEEE-488 data (output)",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Steuerregister B (CB1: SRQ-Eingang, CB2: DAV-Ausgang)",
+   "en": "Control register B (CB1: SRQ input, CB2: DAV output)",
+   "status": "maschinell"
+  }
+ }
+}

@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# English catalog; comments for translators are in the German file of the same name.
+
+turbo-erkannt-label = { $label } recognized.
+turbo-unbekanntes-abbild-version = Unknown image, but it carries the Turbo BASIC XL signature (version according to the text: { $version }).
+turbo-nicht-erkannt = This does not look like Turbo BASIC XL (no AUTORUN.SYS with the signature).
+turbo-sektoren-frei = { $count } sectors free (about { $kb } KB).
+turbo-pruefsumme = SHA-256: { $sha }
+turbo-dateien = { $count } files: { $names } (* = write-protected)
+turbo-programm-vorhanden-gesperrt = { $name } is already present and write-protected (building is not possible then).
+turbo-programm-vorhanden = { $name } is already present (it is replaced when building).
+turbo-kein-dos2 = No DOS 2 file system on the disk.
+turbo-problem = Problem: { $m }
+turbo-reduzieren-systemdatei-fehlt = Cannot reduce: { $name } is missing on the disk.
+turbo-reduzieren-abbild-fehlerhaft = Reducing cancelled, the result would be faulty: { $m }
+turbo-gitignore-kommentar = The user's own Turbo BASIC XL disk: do not commit
+turbo-keine-projektdatei = No project file in { $path }.
+turbo-nicht-erkannt-trotzdem = This does not look like Turbo BASIC XL (no AUTORUN.SYS with the signature). The option to use it anyway does so at your own risk.
+turbo-bereitstellen-fehler-in-der-diskette = The disk has file system errors and is not provided: { $m }
+turbo-ungueltiger-pfad = Invalid path: { $path }
+turbo-quelle-ist-die-kopie = The source is already the copy in the project ({ $disk }).
+turbo-kopie-existiert-bereits = The copy { $disk } already exists (use the replace option to overwrite it).
+turbo-diskette-fehlt = This project needs a Turbo BASIC XL disk. It is not part of VintageCoder; provide it with "vcc turbo provide".
+turbo-diskette-datei-fehlt = The Turbo BASIC XL disk { $disk } is missing in the project. It is not part of VintageCoder; provide it again with "vcc turbo provide".
+turbo-ungueltiger-name = turbo: invalid file name "{ $name }" (1-8 characters A-Z/0-9/_, first one a letter, extension up to 3 characters).
+turbo-name-doppelt = turbo: The name { $name } appears twice on the disk.
+turbo-zusatzdatei-fehlt = turbo: file { $file } is missing (section files).
+turbo-bau-diskette = Disk: { $file } (Turbo BASIC XL { $version }), program { $program } ({ $size } bytes), { $free } sectors free
+turbo-kopie-veraendert = The copy { $disk } has changed since it was provided (checksum differs).
+turbo-hinweis-nicht-erkannt = { $disk } does not look like Turbo BASIC XL (used at your own risk).
+turbo-bauen-fehler-in-der-diskette = The disk { $disk } has file system errors: { $m }
+turbo-datei-name-ist-schreibgeschuetzt = The file { $name } is write-protected.
+turbo-platz = The program and files need { $need } sectors, but only { $free } are free on the disk.
+turbo-platz-hinweis-reduzieren = After reducing to DOS.SYS, DUP.SYS and AUTORUN.SYS, { $free } sectors would be free: "vcc turbo reduce" reduces the copy in the project (your original stays unchanged).
+turbo-platz-hinweis-groesseres-abbild = It would still be too big after reducing: a larger image (130 KB) is not supported yet.
+turbo-kein-turbo-projekt = The project's main program is not a Turbo BASIC XL program for the Atari.
+turbo-bauen-fehlgeschlagen = The project could not be built.
+turbo-programmende-hinweis = After the program ends (READY), Turbo BASIC XL waits for input; to run it again, start the program once more.
+turbo-cli-bestaetigen-reduzieren = The copy in the project ({ $disk }) will be reduced to DOS.SYS, DUP.SYS and AUTORUN.SYS; { $count } other files will be removed there. Your original stays unchanged. Continue? [y/N]
+turbo-cli-abgebrochen = Cancelled, nothing changed (use --yes to skip the question).
+turbo-cli-bereitgestellt = Turbo disk provided: { $disk } ({ $free } sectors free). Your original stays unchanged.
+turbo-cli-verkleinert = Copy reduced: { $count } files removed ({ $names }), { $free } sectors free.
+turbo-cli-gitignore = turbo/*.atr is now in the .gitignore (the disk does not belong in the repository).
+turbo-cli-gestartet = Started: { $command }
+turbo-cli-nichts-zu-entfernen = The copy already consists of the system files only, nothing to remove.
+turbo-cli-base-boot-konflikt = --base cannot be combined with --boot.
+turbo-cli-bearbeiten-braucht-base = --put, --delete and --force need --base (the existing image).
+turbo-cli-disk-bearbeitet = { $out }: { $bytes } bytes, { $free } sectors free
+turbo-cli-base-quelle-ist-ziel = The output file must not be the base image (--base); the original stays unchanged.
+turbo-warnung-eintrag-nicht-abgeschlossen = { $name }: entry was never closed (leftover in the directory, { $count } sectors in the chain).
+turbo-hinweis = Note: { $m }

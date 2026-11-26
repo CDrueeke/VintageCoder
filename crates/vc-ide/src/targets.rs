@@ -15,12 +15,38 @@ pub struct EmuKind { pub id: &'static str, pub label: &'static str }
 #[derive(Clone, Copy, Debug)]
 pub struct SystemInfo {
     pub id: &'static str,
-    pub name: &'static str,
+    /// Deutscher Quelltext (Schlüssel für `name()`); angezeigt wird immer `name()`
+    pub name0: &'static str,
     /// Gruppe in der Navigation (Hersteller bzw. Kategorie)
-    pub group: &'static str,
+    pub group0: &'static str,
     /// Kürzel für das Symbol
     pub badge: &'static str,
-    pub cpu: &'static str,
+    pub cpu0: &'static str,
+}
+
+impl SystemInfo {
+    /// Anzeigename in der gewählten Sprache
+    pub fn name(&self) -> String {
+        match self.id {
+            "c64" => vc_i18n::t!("targets-commodore-64"), "c128" => vc_i18n::t!("targets-commodore-128"), "plus4" => vc_i18n::t!("targets-commodore-plus-4"),
+            "c16" => vc_i18n::t!("targets-commodore-16-116"), "atari8" => vc_i18n::t!("targets-atari-800-xl-xe"), _ => self.name0.to_string(),
+        }
+    }
+    /// Gruppe in der Navigation in der gewählten Sprache
+    pub fn group(&self) -> String {
+        match self.group0 {
+            "Commodore 8 Bit" => vc_i18n::t!("targets-commodore-8-bit"), "Atari 8 Bit" => vc_i18n::t!("targets-atari-8-bit"),
+            "Next-Gen 8 Bit" => vc_i18n::t!("targets-next-gen-8-bit"), g => g.to_string(),
+        }
+    }
+    /// Prozessor und Chips in der gewählten Sprache
+    pub fn cpu(&self) -> String {
+        match self.id {
+            "c64" => vc_i18n::t!("targets-mos-6510-vic-ii-sid"), "c128" => vc_i18n::t!("targets-mos-8502-z80-vdc"), "plus4" => vc_i18n::t!("targets-mos-7501-8501-ted"),
+            "c16" => vc_i18n::t!("targets-mos-7501-ted-16-kb"), "vic20" => vc_i18n::t!("targets-mos-6502-vic"), "atari8" => vc_i18n::t!("targets-mos-6502c-antic-gtia-pokey"),
+            "mega65" => vc_i18n::t!("targets-45gs02-vic-iv-40-mhz"), _ => self.cpu0.to_string(),
+        }
+    }
 }
 
 impl SystemInfo {
@@ -41,13 +67,13 @@ impl SystemInfo {
 
 /// Alle bekannten Systeme in der Reihenfolge der Navigation
 pub const SYSTEMS: &[SystemInfo] = &[
-    SystemInfo { id: "c64", name: "Commodore 64", group: "Commodore 8 Bit", badge: "C64", cpu: "MOS 6510 · VIC-II · SID" },
-    SystemInfo { id: "c128", name: "Commodore 128", group: "Commodore 8 Bit", badge: "128", cpu: "MOS 8502 / Z80 · VDC" },
-    SystemInfo { id: "plus4", name: "Commodore Plus/4", group: "Commodore 8 Bit", badge: "+4", cpu: "MOS 7501/8501 · TED" },
-    SystemInfo { id: "c16", name: "Commodore 16 / 116", group: "Commodore 8 Bit", badge: "C16", cpu: "MOS 7501 · TED · 16 KB" },
-    SystemInfo { id: "vic20", name: "VC-20", group: "Commodore 8 Bit", badge: "V20", cpu: "MOS 6502 · VIC" },
-    SystemInfo { id: "atari8", name: "Atari 800 XL / XE", group: "Atari 8 Bit", badge: "800", cpu: "MOS 6502C · ANTIC · GTIA · POKEY" },
-    SystemInfo { id: "mega65", name: "MEGA65", group: "Next-Gen 8 Bit", badge: "M65", cpu: "45GS02 · VIC-IV · 40 MHz" },
+    SystemInfo { id: "c64", name0: "Commodore 64", group0: "Commodore 8 Bit", badge: "C64", cpu0: "MOS 6510 · VIC-II · SID" },
+    SystemInfo { id: "c128", name0: "Commodore 128", group0: "Commodore 8 Bit", badge: "128", cpu0: "MOS 8502 / Z80 · VDC" },
+    SystemInfo { id: "plus4", name0: "Commodore Plus/4", group0: "Commodore 8 Bit", badge: "+4", cpu0: "MOS 7501/8501 · TED" },
+    SystemInfo { id: "c16", name0: "Commodore 16 / 116", group0: "Commodore 8 Bit", badge: "C16", cpu0: "MOS 7501 · TED · 16 KB" },
+    SystemInfo { id: "vic20", name0: "VC-20", group0: "Commodore 8 Bit", badge: "V20", cpu0: "MOS 6502 · VIC" },
+    SystemInfo { id: "atari8", name0: "Atari 800 XL / XE", group0: "Atari 8 Bit", badge: "800", cpu0: "MOS 6502C · ANTIC · GTIA · POKEY" },
+    SystemInfo { id: "mega65", name0: "MEGA65", group0: "Next-Gen 8 Bit", badge: "M65", cpu0: "45GS02 · VIC-IV · 40 MHz" },
 ];
 
 pub fn system(id: &str) -> Option<&'static SystemInfo> { SYSTEMS.iter().find(|s| s.id == id) }
@@ -64,8 +90,8 @@ pub fn installed_systems_in(data: Option<&std::path::Path>, f: &crate::features:
 pub fn kind_label(kind: &str) -> &'static str { crate::emulators::kind_label(kind).unwrap_or("Emulator") }
 
 /// Welche Art Hardware ist es? (Anzeige im Dialog)
-pub fn hardware_label(kind: &str) -> &'static str {
-    match kind { "ultimate64" => "Ultimate 64 / II+ (Netzwerk)", "mega65" => "MEGA65 (USB oder Ethernet)", _ => "Unbekannt" }
+pub fn hardware_label(kind: &str) -> String {
+    match kind { "ultimate64" => vc_i18n::t!("targets-ultimate-64-ii-netzwerk"), "mega65" => vc_i18n::t!("targets-mega65-usb-oder-ethernet"), _ => vc_i18n::t!("targets-unbekannt") }
 }
 
 /// Ein Emulator für ein System
@@ -116,7 +142,7 @@ impl ResolvedEmu {
     /// Fertige Zusatzargumente für den Start: Katalogauswahl, dann das freie Feld, Platzhalter aus `ctx` ersetzt (Fehler als ein Text)
     pub fn launch_args(&self, ctx: &crate::args::ArgCtx) -> Result<Vec<String>, String> {
         let cat = crate::args::catalog_of_kind(&self.kind);
-        crate::args::build(cat.as_deref(), &self.opts, &self.free, ctx).map_err(|e| format!("Emulatorparameter: {}", e.join("; ")))
+        crate::args::build(cat.as_deref(), &self.opts, &self.free, ctx).map_err(|e| vc_i18n::t!("targets-emulatorparameter-p1", p1 = e.join("; ")))
     }
 }
 
@@ -437,8 +463,8 @@ mod tests_auswahl {
         // ohne IDE: keine Studios, auch wenn Studios „gewählt“ stehen; die Studio-Hilfe fehlt
         assert!(!ohne_ide.studio("sprite") && !crate::help::visible_with("sprite", &ohne_ide));
 
-        // PET/CBM-II: nie ein Ziel der Oberfläche, bei keiner Auswahl
-        assert!(!SYSTEMS.iter().any(|s| s.id == "pet" || s.id == "cbm2"));
-        assert!(!installed_systems_in(None, &Features::all()).iter().any(|s| s.id == "pet" || s.id == "cbm2"));
+        // PET: nie ein Ziel der Oberfläche, bei keiner Auswahl
+        assert!(!SYSTEMS.iter().any(|s| s.id == "pet"));
+        assert!(!installed_systems_in(None, &Features::all()).iter().any(|s| s.id == "pet"));
     }
 }

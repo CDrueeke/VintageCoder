@@ -68,9 +68,14 @@ done
 step "2. Installation"
 install_cmd() {
   case "$distro" in
-    debian|ubuntu) apt-get update -qq && apt-get install -y ${NO_RECOMMENDS:+--no-install-recommends} "${pkgs[@]}" ;;
-    fedora)        dnf install -y ${NO_RECOMMENDS:+--setopt=install_weak_deps=False} "${pkgs[@]}" ;;
-    opensuse)      zypper --non-interactive --no-gpg-checks install -y ${NO_RECOMMENDS:+--no-recommends} "${pkgs[@]}" ;;
+    # Die Docker-Basis-Images lassen Dokumentation weg (dpkg: path-exclude=/usr/share/doc/*, dnf: tsflags=nodocs). Das waere ein Fehlalarm bei den Lizenzdateien
+    # (Schritt 3): im Wegwerf-Container wird der Ausschluss aufgehoben, damit der Test die Dateien des Pakets prueft und nicht die Einstellung des Images.
+    debian|ubuntu) sed -i '\#path-exclude=/usr/share/doc/#d' /etc/dpkg/dpkg.cfg.d/* 2>/dev/null
+                   apt-get update -qq && apt-get install -y ${NO_RECOMMENDS:+--no-install-recommends} "${pkgs[@]}" ;;
+    fedora)        dnf install -y --setopt=tsflags= ${NO_RECOMMENDS:+--setopt=install_weak_deps=False} "${pkgs[@]}" ;;
+    # openSUSE: das Basis-Image setzt rpm.install.excludedocs = yes (/usr/etc/zypp/zypp.conf.d/excludedocs.conf): ebenfalls aufheben (sonst fehlen die Lizenzdateien)
+    opensuse)      rm -f /usr/etc/zypp/zypp.conf.d/excludedocs.conf
+                   zypper --non-interactive --no-gpg-checks install -y ${NO_RECOMMENDS:+--no-recommends} "${pkgs[@]}" ;;
   esac
 }
 if install_cmd > /tmp/install.log 2>&1; then ok "Pakete installiert"; else bad "Installation fehlgeschlagen"; tail -30 /tmp/install.log; echo "Ergebnis: $fails Fehler"; exit 1; fi
@@ -110,7 +115,7 @@ if [ ${#ide[@]} -eq 1 ]; then
   # Xvfb und Software-Rendering (Mesa-DRI) nachinstallieren: nur fuer den Test im Container, gehoert nicht zu den Paketabhaengigkeiten
   case "$distro" in
     debian|ubuntu) apt-get install -y --no-install-recommends xvfb xauth x11-utils libgl1-mesa-dri mesa-vulkan-drivers > /tmp/xvfb.log 2>&1 ;;
-    fedora)        dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth xorg-x11-utils mesa-dri-drivers mesa-vulkan-drivers > /tmp/xvfb.log 2>&1 ;;
+    fedora)        dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth xwininfo mesa-dri-drivers mesa-vulkan-drivers > /tmp/xvfb.log 2>&1 ;;
     opensuse)      zypper --non-interactive install -y xvfb-run xauth xwininfo Mesa-dri > /tmp/xvfb.log 2>&1 ;;
   esac || { bad "xvfb nicht installierbar"; tail -5 /tmp/xvfb.log; }
   if command -v xvfb-run > /dev/null; then

@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: Troxx",
+    "description": "Troxx for the C64: travel along grid lines, close rectangles. Hardware sprites, multicolor character set, SID, high score list on disk, two players taking turns"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "cpu": "6510",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

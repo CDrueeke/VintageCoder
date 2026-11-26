@@ -13,7 +13,7 @@ pub fn fuer_export(s: &Settings) -> Settings { let mut c = s.clone(); for m in &
 
 /// Zusammenfassung für die Rückfrage vor dem Übernehmen
 pub fn zusammenfassung(s: &Settings) -> String {
-    format!("{} Zielsysteme, {} Maschine(n){}", s.targets.len(), s.machines.len(), if s.projects_dir.trim().is_empty() { String::new() } else { format!(", Projektordner {}", s.projects_dir) })
+    vc_i18n::t!("konfig-p1-zielsysteme-p2-maschine-n-p3", p1 = s.targets.len(), p2 = s.machines.len(), p3 = if s.projects_dir.trim().is_empty() { String::new() } else { vc_i18n::t!("konfig-projektordner-p1", p1 = &s.projects_dir) })
 }
 
 /// Übernommene Einstellungen: Passwörter gleicher Maschinen bleiben, wenn die Datei keine enthält
@@ -27,20 +27,20 @@ impl App {
         let start = self.root.clone();
         Task::perform(async move {
             let d = rfd::AsyncFileDialog::new().set_directory(start).add_filter("Einstellungen (JSON)", &["json"]);
-            match art { KArt::Export => d.set_title("Konfiguration exportieren").set_file_name("vintagecoder-einstellungen.json").save_file().await, KArt::Import => d.set_title("Konfiguration importieren").pick_file().await }.map(|f| f.path().to_path_buf())
+            match art { KArt::Export => d.set_title(vc_i18n::t!("konfig-konfiguration-exportieren")).set_file_name("vintagecoder-einstellungen.json").save_file().await, KArt::Import => d.set_title(vc_i18n::t!("konfig-konfiguration-importieren")).pick_file().await }.map(|f| f.path().to_path_buf())
         }, move |p| Msg::KonfigPfad(art, p))
     }
     pub(crate) fn konfig_pfad(&mut self, art: KArt, p: Option<PathBuf>) {
         let Some(p) = p else { return };
         match art {
-            KArt::Export => { let p = PathBuf::from(crate::pfadfeld::mit_endung(&p.to_string_lossy(), "json")); self.satz.meldung = Some(match fuer_export(&self.satz.entwurf).save_to(&p) { Ok(()) => (true, format!("Konfiguration exportiert nach {} (ohne Passwörter).", p.display())), Err(e) => (false, format!("Export fehlgeschlagen: {e}")) }) }
-            KArt::Import => match Settings::load_from(&p) { Ok(mut s) => { s.migrate_legacy(); self.rueckfrage = Some(Rueckfrage::KonfigImport(p.clone(), zusammenfassung(&s))) } Err(e) => self.satz.meldung = Some((false, format!("Import: {e}"))) },
+            KArt::Export => { let p = PathBuf::from(crate::pfadfeld::mit_endung(&p.to_string_lossy(), "json")); self.satz.meldung = Some(match fuer_export(&self.satz.entwurf).save_to(&p) { Ok(()) => (true, vc_i18n::t!("konfig-konfiguration-exportiert-nach-p1-ohne-passwoerter", p1 = p.display())), Err(e) => (false, vc_i18n::t!("konfig-export-fehlgeschlagen-e", e = &e)) }) }
+            KArt::Import => match Settings::load_from(&p) { Ok(mut s) => { s.migrate_legacy(); self.rueckfrage = Some(Rueckfrage::KonfigImport(p.clone(), zusammenfassung(&s))) } Err(e) => self.satz.meldung = Some((false, vc_i18n::t!("konfig-import-e", e = &e))) },
         }
     }
     pub(crate) fn konfig_import_ja(&mut self, p: &std::path::Path) {
-        match Settings::load_from(p) { Ok(mut s) => { s.migrate_legacy(); let neu = uebernehmen(&self.satz.entwurf, s); self.satz.entwurf = neu; self.satz.speichern(); self.log.push(format!("Konfiguration übernommen aus {}", p.display())) } Err(e) => self.satz.meldung = Some((false, format!("Import: {e}"))) }
+        match Settings::load_from(p) { Ok(mut s) => { s.migrate_legacy(); let neu = uebernehmen(&self.satz.entwurf, s); self.satz.entwurf = neu; self.satz.speichern(); self.log.push(vc_i18n::t!("konfig-konfiguration-uebernommen-aus-p1", p1 = p.display())) } Err(e) => self.satz.meldung = Some((false, vc_i18n::t!("konfig-import-e", e = &e))) }
     }
-    pub(crate) fn konfig_reset_ja(&mut self) { self.satz.entwurf = Settings::default(); self.satz.speichern(); self.log.push("Einstellungen auf die Vorgabe zurückgesetzt (Passwörter und Zielsysteme eingeschlossen).".into()) }
+    pub(crate) fn konfig_reset_ja(&mut self) { self.satz.entwurf = Settings::default(); self.satz.speichern(); self.log.push(vc_i18n::t!("konfig-einstellungen-auf-die-vorgabe-zurueckgesetzt-passwoerter").into()) }
 }
 
 #[cfg(test)]

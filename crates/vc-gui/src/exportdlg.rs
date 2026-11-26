@@ -26,7 +26,7 @@ impl App {
     fn export_medientext(&self, rel: &str) -> Option<String> { self.studios.get(rel).map(|s| s.doc.media_text()).or_else(|| self.paletten.get(rel).map(|p| p.media_text())).or_else(|| self.screens.get(rel).map(|s| s.doc.media_text())).or_else(|| self.tilesets.get(rel).map(|s| s.doc.media_text())).or_else(|| self.banken.get(rel).map(|s| s.doc.media_text())).or_else(|| self.songs.get(rel).map(|s| s.doc.media_text())) }
     /// Dialog für das Studio der aktiven Datei öffnen
     pub(crate) fn export_oeffnen(&mut self) {
-        let Some(rel) = self.name().filter(|n| self.studios.contains_key(n) || self.paletten.contains_key(n) || self.screens.contains_key(n) || self.tilesets.contains_key(n) || self.banken.contains_key(n) || self.songs.contains_key(n)) else { self.log.push(t::EXPORT_KEIN_STUDIO.into()); return };
+        let Some(rel) = self.name().filter(|n| self.studios.contains_key(n) || self.paletten.contains_key(n) || self.screens.contains_key(n) || self.tilesets.contains_key(n) || self.banken.contains_key(n) || self.songs.contains_key(n)) else { self.log.push(t::export_kein_studio().into()); return };
         let (name, kind) = match self.studios.get(&rel) { Some(s) => (s.doc.media["name"].as_str().unwrap_or("export").to_string(), s.doc.kind.clone()), None => match (self.screens.get(&rel), self.tilesets.get(&rel)) { (Some(s), _) => (s.doc.media["name"].as_str().unwrap_or("export").to_string(), "screen".to_string()), (_, Some(s)) => (s.doc.media["name"].as_str().unwrap_or("export").to_string(), "tileset".to_string()), _ if self.songs.contains_key(&rel) => (self.songs[&rel].doc.media["name"].as_str().unwrap_or("export").to_string(), self.songs[&rel].doc.media["kind"].as_str().unwrap_or("song").to_string()), _ if self.banken.contains_key(&rel) => (self.banken[&rel].doc.media["name"].as_str().unwrap_or("export").to_string(), "screen".to_string()), _ => { let p = &self.paletten[&rel]; (p.media["name"].as_str().unwrap_or("export").to_string(), "palette".to_string()) } } };
         let mut dlg = ExportDialog::neu(&rel, &kind, &name);
         if let Some(v) = self.export_medientext(&rel).and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) { if v["kind"] == "tileset" || vc_media::tiles::is_bank(&v) { dlg.kachel = Some(vc_media::tiles::TilesLayout::aus_medium(&v)) } }
@@ -38,7 +38,7 @@ impl App {
         let Some(text0) = self.export_medientext(&rel) else { return };
         let kachel = self.export.as_ref().and_then(|d| d.kachel);
         let text = match kachel { Some(l) => vc_ide_model::exportfacts::mit_layout(&text0, l), None => text0.clone() };
-        let cache = if fmt == "prg" && adr.is_none() { Preview { error: Some("PRG braucht eine gültige Ladeadresse (z. B. $2000)".into()), ..Default::default() } } else { vc_ide_model::exportfacts::preview_im_projekt(Some(&self.root), &self.data, &rel, &text, &fmt, &name, if matches!(fmt.as_str(), "inc" | "prg") { adr } else { None }) };
+        let cache = if fmt == "prg" && adr.is_none() { Preview { error: Some(vc_i18n::t!("exportdlg-prg-braucht-eine-gueltige-ladeadresse-z").into()), ..Default::default() } } else { vc_ide_model::exportfacts::preview_im_projekt(Some(&self.root), &self.data, &rel, &text, &fmt, &name, if matches!(fmt.as_str(), "inc" | "prg") { adr } else { None }) };
         let speicher = kachel.and_then(|l| { let (a, b) = (vc_ide_model::exportfacts::kachel_speicher(Some(&self.root), &self.data, &rel, &text0, vc_media::tiles::TilesLayout { index16: false, ..l }).ok()?, vc_ide_model::exportfacts::kachel_speicher(Some(&self.root), &self.data, &rel, &text0, vc_media::tiles::TilesLayout { index16: true, ..l }).ok()?); Some((a, b)) });
         if let Some(d) = &mut self.export { d.cache = cache; d.data_tab = None; d.speicher = speicher; }
     }
@@ -65,15 +65,17 @@ impl App {
         let kachel = self.export.as_ref().and_then(|d| d.kachel);
         let r = vc_media::project::export_mit(&self.root, &self.data, &rel, &fmt, Some(name.as_str()).filter(|l| !l.is_empty()), if matches!(fmt.as_str(), "inc" | "prg") { adr } else { None }, 10, 10, kachel);
         match r {
-            Err(e) => { self.log.push(format!("Export {rel}: {e}")); if let Some(d) = &mut self.export { d.meldung = e } Task::none() }
+            Err(e) => { self.log.push(vc_i18n::t!("exportdlg-export-rel-e", rel = &rel, e = &e)); if let Some(d) = &mut self.export { d.meldung = e } Task::none() }
             Ok(v) => {
                 let dateien: Vec<String> = v["files"].as_array().map(|a| a.iter().filter_map(|f| f["path"].as_str().map(String::from)).collect()).unwrap_or_default();
-                self.log.push(format!("Exportiert: {}", dateien.join(", "))); self.projekt_neu_laden();
-                if let Some(d) = &mut self.export { d.meldung = format!("Gespeichert im Projekt: {} – im Baum unter „{}“", dateien.join(", "), t::GRUPPE_EXPORT) }
+                self.log.push(vc_i18n::t!("exportdlg-exportiert-p1", p1 = dateien.join(", "))); self.projekt_neu_laden();
+                if let Some(d) = &mut self.export { d.meldung = vc_i18n::t!("exportdlg-gespeichert-im-projekt-p1-im-baum", p1 = dateien.join(", "), p2 = t::gruppe_export()) }
                 match aus {
                     ExportAus::Speichern | ExportAus::Schliessen => Task::none(),
                     ExportAus::Einfuegen => {
-                        let erg = match dateien.first().cloned() { Some(f) => self.include_einfuegen(&f), None => Err("Der Export hat keine Datei erzeugt – nichts eingefügt".to_string()) };
+                        // Assembler-Export unter dem Standardnamen: die Mediendatei selbst einbinden (der Assembler wandelt sie beim Bauen um), sonst die erzeugte Datei
+                        let media_direkt = fmt == "asm" && (name.is_empty() || name == vc_media::naming::stem(&rel).replace('-', "_"));
+                        let erg = match dateien.first().cloned() { Some(f) => self.include_einfuegen(if media_direkt { &rel } else { &f }), None => Err(vc_i18n::t!("exportdlg-der-export-hat-keine-datei-erzeugt").to_string()) };
                         match erg {
                             Ok(m) => { self.log.push(m); self.export = None; self.editor_fokus() }
                             // Ablehnung: Grund im Dialog und im Protokoll, der Dialog bleibt offen (Format wählen, anderen Quelltext öffnen oder abbrechen)
@@ -89,49 +91,49 @@ impl App {
     /// `.include` der Datei `src` in den zuletzt benutzten Quelltext an der Cursorstelle einfügen; Ablehnungen melden, nichts erfinden
     pub(crate) fn include_einfuegen(&mut self, src: &str) -> Result<String, String> {
         let doc = self.name().filter(|n| self.editoren.contains_key(n) && (n.ends_with(".asm") || n.ends_with(".inc"))).or_else(|| self.letzte_asm.clone().filter(|n| self.editoren.contains_key(n)));
-        let Some(doc) = doc else { return Err("Kein Quelltext zum Einfügen offen – öffne zuerst eine .asm-Datei und setze den Cursor an die Einfügestelle".into()) };
+        let Some(doc) = doc else { return Err(vc_i18n::t!("exportdlg-kein-quelltext-zum-einfuegen-offen-oeffne").into()) };
         let text = self.editoren[&doc].text();
-        let plan = vc_ide_model::dropinc::plan(&doc, &text, src, Some(&self.root)).map_err(|e| format!("{doc}: {e}"))?;
+        let plan = vc_ide_model::dropinc::plan(&doc, &text, src, Some(&self.root)).map_err(|e| vc_i18n::t!("exportdlg-doc-e", doc = &doc, e = e.to_string()))?;
         self.oeffne(&doc);
         if let Some(e) = self.editoren.get_mut(&doc) {
             let l = if e.cursor.col == 0 { e.cursor.line } else { e.cursor.line + 1 };
             if l >= e.lines.len() { let ende = Pos { line: e.lines.len() - 1, col: e.line_len(e.lines.len() - 1) }; e.set_cursor(ende, false); e.insert(&format!("\n{}", plan.line)) } else { e.set_cursor(Pos { line: l, col: 0 }, false); e.insert(&format!("{}\n", plan.line)); }
         }
-        Ok(format!("In {doc} eingefügt: {}", plan.line))
+        Ok(vc_i18n::t!("exportdlg-in-doc-eingefuegt-p2", doc = &doc, p2 = &plan.line))
     }
 
     /// Der Dialog als Überlagerung
     pub(crate) fn export_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let d = self.export.as_ref()?; let mono = vc_gui_ui::fonts::MONO;
         let seg = |name: &str, aktiv: bool, m: Msg| -> Element<Msg> { button(text(name.to_string()).size(12).color(pal.text)).padding([4, 10]).on_press(m).style(move |_, _| button::Style { background: Some(if aktiv { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if aktiv { pal.accent } else { pal.line }, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }).into() };
-        let titel = text(t::EXPORT_TITEL).size(16).color(pal.text);
+        let titel = text(t::export_titel()).size(16).color(pal.text);
         let kopf = iced::widget::row![text(d.rel.clone()).size(11.5).font(mono).color(pal.mute), chip(pal, &d.kind)].spacing(8).align_y(Alignment::Center);
-        let formate_liste: &[(&str, &str)] = if d.kind == "play" { &[("bas", "BASIC-Programm (PLAY)"), ("data", "BASIC DATA")] } else { FORMATS };
-        let formate = iced::widget::row(formate_liste.iter().map(|(k, n)| seg(n, d.format == *k, Msg::ExportFormat((*k).to_string()))).collect::<Vec<_>>()).spacing(4);
-        let mut felder = iced::widget::row![text(t::EXPORT_NAME).size(11).color(pal.mute), text_input("name", &d.name).on_input(Msg::ExportName).size(12).padding(4).width(150).font(mono)].spacing(8).align_y(Alignment::Center);
-        if d.braucht_adresse() { felder = felder.push(text(if d.format == "prg" { t::EXPORT_LADEADRESSE } else { t::EXPORT_ADRESSE }).size(11).color(pal.mute)).push(text_input("$2000", &d.adresse).on_input(Msg::ExportAdresse).size(12).padding(4).width(90).font(mono)) }
+        let formate_liste: Vec<(String, String)> = if d.kind == "play" { vec![("bas".into(), vc_i18n::t!("exportdlg-basic-programm-play")), ("data".into(), "BASIC DATA".into())] } else { FORMATS.iter().map(|(k, _)| (k.to_string(), vc_ide_model::exportfacts::format_label(k))).collect() };
+        let formate = iced::widget::row(formate_liste.iter().map(|(k, n)| seg(n, d.format == *k, Msg::ExportFormat(k.clone()))).collect::<Vec<_>>()).spacing(4);
+        let mut felder = iced::widget::row![text(t::export_name()).size(11).color(pal.mute), text_input("name", &d.name).on_input(Msg::ExportName).size(12).padding(4).width(150).font(mono)].spacing(8).align_y(Alignment::Center);
+        if d.braucht_adresse() { felder = felder.push(text(if d.format == "prg" { t::export_ladeadresse() } else { t::export_adresse() }).size(11).color(pal.mute)).push(text_input("$2000", &d.adresse).on_input(Msg::ExportAdresse).size(12).padding(4).width(90).font(mono)) }
         let mut umfang = iced::widget::column![].spacing(2);
         if d.cache.files.is_empty() { umfang = umfang.push(text("–").size(12).color(pal.mute)) }
-        for (n, g) in &d.cache.files { umfang = umfang.push(iced::widget::row![text(n.clone()).size(12).font(mono).color(pal.text), space::horizontal(), text(format!("{g} Byte")).size(11.5).font(mono).color(pal.mute)]) }
-        let tabs = iced::widget::row![seg(t::EXPORT_TAB_TEXT, d.tab == "text", Msg::ExportTab("text".into())), seg("Hex", d.tab == "hex", Msg::ExportTab("hex".into())), seg("BASIC-DATA", d.tab == "data", Msg::ExportTab("data".into()))].spacing(4);
-        let koerper: String = match d.tab.as_str() { "hex" => if d.cache.hex.is_empty() { "(keine Binärdaten)".into() } else { d.cache.hex.clone() }, "data" => match &d.data_tab { Some(Ok(s)) => s.clone(), Some(Err(e)) => e.clone(), None => "…".into() }, _ => d.cache.error.clone().unwrap_or_else(|| d.cache.text.clone()) };
+        for (n, g) in &d.cache.files { umfang = umfang.push(iced::widget::row![text(n.clone()).size(12).font(mono).color(pal.text), space::horizontal(), text(vc_i18n::t!("exportdlg-g-byte", g = &g)).size(11.5).font(mono).color(pal.mute)]) }
+        let tabs = iced::widget::row![seg(&t::export_tab_text(), d.tab == "text", Msg::ExportTab("text".into())), seg(&vc_i18n::t!("exportdlg-hex"), d.tab == "hex", Msg::ExportTab("hex".into())), seg("BASIC-DATA", d.tab == "data", Msg::ExportTab("data".into()))].spacing(4);
+        let koerper: String = match d.tab.as_str() { "hex" => if d.cache.hex.is_empty() { vc_i18n::t!("exportdlg-keine-binaerdaten").into() } else { d.cache.hex.clone() }, "data" => match &d.data_tab { Some(Ok(s)) => s.clone(), Some(Err(e)) => e.clone(), None => "…".into() }, _ => d.cache.error.clone().unwrap_or_else(|| d.cache.text.clone()) };
         let vorschau = container(scrollable(text(koerper).size(11.5).font(mono).color(pal.text).wrapping(iced::widget::text::Wrapping::None)).direction(iced::widget::scrollable::Direction::Both { vertical: Default::default(), horizontal: Default::default() }).width(Length::Fill).height(Length::Fixed(200.0))).padding(8).width(Length::Fill).style(move |_| container::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 5.0.into() }, ..Default::default() });
         let gesamt: usize = d.cache.files.iter().map(|f| f.1).sum();
-        let (zustand, zfarbe) = match &d.cache.error { Some(e) => (format!("● {e}"), pal.err), None if !d.adresse_ok() => ("● Adresse ungültig".to_string(), pal.err), None => (format!("● bereit · {gesamt} Byte"), pal.ok) };
+        let (zustand, zfarbe) = match &d.cache.error { Some(e) => (format!("● {e}"), pal.err), None if !d.adresse_ok() => (vc_i18n::t!("exportdlg-adresse-ungueltig").to_string(), pal.err), None => (vc_i18n::t!("exportdlg-bereit-gesamt-byte", gesamt = &gesamt), pal.ok) };
         let ok = d.cache.error.is_none() && d.adresse_ok();
         let akt = |name: &str, a: ExportAus, haupt: bool| knopf(pal, name, ok.then(|| Msg::ExportAus(a)), pal.text, haupt);
         let kachel_block: Element<Msg> = match d.kachel { None => space::vertical().height(0).into(), Some(l) => {
             let zeile = |titel: &str, opt: Vec<(&str, bool, Msg)>| -> Element<Msg> { iced::widget::row![text(titel.to_string()).size(11).color(pal.mute).width(120), iced::widget::row(opt.into_iter().map(|(n, a, m)| seg(n, a, m)).collect::<Vec<_>>()).spacing(4)].spacing(8).align_y(Alignment::Center).into() };
-            let mut b = iced::widget::column![text("Kachel-Layout").size(10.5).color(pal.mute),
-                zeile("Kachel-Tabellen", vec![("planar", !l.interleaved, Msg::ExportKachel(KachelAkt::Tiles(false))), ("interleaved", l.interleaved, Msg::ExportKachel(KachelAkt::Tiles(true)))]),
-                zeile("Karte", vec![("zeilenweise", !l.map_columns, Msg::ExportKachel(KachelAkt::Karte(false))), ("spaltenweise", l.map_columns, Msg::ExportKachel(KachelAkt::Karte(true)))]),
-                zeile("Kachelindex", vec![("8 Bit", !l.index16, Msg::ExportKachel(KachelAkt::Index(false))), ("16 Bit", l.index16, Msg::ExportKachel(KachelAkt::Index(true)))])].spacing(4);
-            if let Some((a, z)) = &d.speicher { let jetzt = if l.index16 { z } else { a }; b = b.push(text(format!("Speicher {} Byte (Kacheln {}, Farben {}, Eigenschaften {}, Zeichensatz {}, Karten {}, Zellen {}) · mit {}-Bit-Index {} Byte", jetzt.summe(), jetzt.kacheln, jetzt.farben, jetzt.eigenschaften, jetzt.zeichensatz, jetzt.karten, jetzt.zellen, if l.index16 { 8 } else { 16 }, if l.index16 { a.summe() } else { z.summe() })).size(11).color(pal.mute)) }
-            if !d.cache.tiles_use.is_empty() { b = b.push(text(d.cache.tiles_use.clone()).size(11).font(mono).color(pal.text)); if !l.ist_vorgabe() { b = b.push(text("Hinweis: die Kachel-Bibliothek (tiles_use) kennt nur planar, zeilenweise, 8 Bit; andere Layouts brauchen eigene Routinen.").size(11).color(pal.warn)) } }
+            let mut b = iced::widget::column![text(vc_i18n::t!("exportdlg-kachel-layout")).size(10.5).color(pal.mute),
+                zeile(&vc_i18n::t!("exportdlg-kachel-tabellen"), vec![("planar", !l.interleaved, Msg::ExportKachel(KachelAkt::Tiles(false))), ("interleaved", l.interleaved, Msg::ExportKachel(KachelAkt::Tiles(true)))]),
+                zeile(&vc_i18n::t!("exportdlg-karte"), vec![("zeilenweise", !l.map_columns, Msg::ExportKachel(KachelAkt::Karte(false))), ("spaltenweise", l.map_columns, Msg::ExportKachel(KachelAkt::Karte(true)))]),
+                zeile(&vc_i18n::t!("exportdlg-kachelindex"), vec![(&vc_i18n::t!("exportdlg-8-bit"), !l.index16, Msg::ExportKachel(KachelAkt::Index(false))), (&vc_i18n::t!("exportdlg-16-bit"), l.index16, Msg::ExportKachel(KachelAkt::Index(true)))])].spacing(4);
+            if let Some((a, z)) = &d.speicher { let jetzt = if l.index16 { z } else { a }; b = b.push(text(vc_i18n::t!("exportdlg-speicher-p1-byte-kacheln-p2-farben", p1 = jetzt.summe(), p2 = &jetzt.kacheln, p3 = &jetzt.farben, p4 = &jetzt.eigenschaften, p5 = &jetzt.zeichensatz, p6 = &jetzt.karten, p7 = &jetzt.zellen, p8 = if l.index16 { 8 } else { 16 }, p9 = if l.index16 { a.summe() } else { z.summe() })).size(11).color(pal.mute)) }
+            if !d.cache.tiles_use.is_empty() { b = b.push(text(d.cache.tiles_use.clone()).size(11).font(mono).color(pal.text)); if !l.ist_vorgabe() { b = b.push(text(vc_i18n::t!("exportdlg-hinweis-die-kachel-bibliothek-tiles-use")).size(11).color(pal.warn)) } }
             b.into() } };
-        let mut c = iced::widget::column![titel, kopf, text(t::EXPORT_FORMAT).size(10.5).color(pal.mute), formate, felder, kachel_block, text(t::EXPORT_UMFANG).size(10.5).color(pal.mute), umfang, tabs, vorschau, text(zustand).size(11.5).color(zfarbe)].spacing(8);
+        let mut c = iced::widget::column![titel, kopf, text(t::export_format()).size(10.5).color(pal.mute), formate, felder, kachel_block, text(t::export_umfang()).size(10.5).color(pal.mute), umfang, tabs, vorschau, text(zustand).size(11.5).color(zfarbe)].spacing(8);
         if !d.meldung.is_empty() { c = c.push(text(d.meldung.clone()).size(11.5).color(pal.mute)) }
-        c = c.push(iced::widget::row![akt(t::EXPORT_TESTEN, ExportAus::Test, false), akt(t::EXPORT_SPEICHERN, ExportAus::Speichern, false), akt(t::EXPORT_EINFUEGEN, ExportAus::Einfuegen, true), space::horizontal(), knopf(pal, t::BAUM_ABBRUCH, Some(Msg::ExportAus(ExportAus::Schliessen)), pal.text, false)].spacing(8));
+        c = c.push(iced::widget::row![akt(&t::export_testen(), ExportAus::Test, false), akt(&t::export_speichern(), ExportAus::Speichern, false), akt(&t::export_einfuegen(), ExportAus::Einfuegen, true), space::horizontal(), knopf(pal, &t::baum_abbruch(), Some(Msg::ExportAus(ExportAus::Schliessen)), pal.text, false)].spacing(8));
         let karte = container(c).width(680).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hintergrund = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() }));
         Some(stack![hintergrund, container(karte).center(Length::Fill)].into())

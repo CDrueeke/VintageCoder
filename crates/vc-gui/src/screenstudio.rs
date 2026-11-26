@@ -132,7 +132,7 @@ impl App {
         match a {
             SAkt::Werkzeug(w) => s.doc.werkzeug_waehlen(w), SAkt::Zeichen(c) => s.doc.zeichen_waehlen(c), SAkt::Farbe(i) => s.doc.farbe_waehlen(i), SAkt::Rolle(r, i) => s.doc.rollenfarbe(r, i),
             SAkt::Zeichensatz(z) => s.doc.zeichensatz_waehlen(z), SAkt::Undo => s.doc.undo(), SAkt::Redo => s.doc.redo(),
-            SAkt::Speichern => match s.doc.save() { Ok(()) => self.log.push(format!("Gespeichert: {rel}")), Err(e) => self.log.push(e) },
+            SAkt::Speichern => match s.doc.save() { Ok(()) => self.log.push(vc_i18n::t!("screenstudio-gespeichert-rel", rel = &rel)), Err(e) => self.log.push(e) },
             SAkt::Zoom(d) => { let (w, h) = einheiten(&s.doc); s.zoomansicht.stufe(d > 0, w, h); }
             SAkt::Einpassen => s.zoomansicht.einpassen(), SAkt::Schieben(dx, dy) => { let (w, h) = einheiten(&s.doc); s.zoomansicht.schieben(dx, dy, w, h) }
             SAkt::Mehr => s.mehr = !s.mehr, SAkt::Karte(k) => { if !s.karten_zu.remove(k) { s.karten_zu.insert(k); } } SAkt::ZerlegenDialog(z) => s.zerlegen = z,
@@ -147,13 +147,13 @@ impl App {
         let Some(s) = self.screens.get(rel) else { return };
         let r = (|| -> Result<(String, String, String), String> {
             let profiles = vc_media::load_profiles(&self.data)?; let p = vc_media::profile(&profiles, s.doc.media["profile"].as_str().unwrap_or(""))?.clone();
-            let satzprofil = profiles.iter().find(|x| x.kind == "tileset" && x.target == p.target).map(|x| x.id.clone()).ok_or_else(|| format!("Für {} gibt es kein Kachelsatz-Profil", p.target))?;
+            let satzprofil = profiles.iter().find(|x| x.kind == "tileset" && x.target == p.target).map(|x| x.id.clone()).ok_or_else(|| vc_i18n::t!("screenstudio-fuer-p1-gibt-es-kein-kachelsatz", p1 = &p.target))?;
             let name = vc_media::naming::stem(rel).to_string();
             let mut d = vc_ide_model::bankdoc::decompose(&s.doc.media, &p, &satzprofil, tw, th, (0, 0), &name)?;
             let (satz, bank) = vc_ide_model::bankdoc::write_decomp(&self.root, rel, &mut d)?;
-            Ok((satz, bank, format!("{} Kacheln, {} Zellen-Patches, {} → {} Byte", d.tiles, d.patches, d.bytes_before, d.bytes_after)))
+            Ok((satz, bank, vc_i18n::t!("screenstudio-p1-kacheln-p2-zellen-patches-p3", p1 = &d.tiles, p2 = &d.patches, p3 = &d.bytes_before, p4 = &d.bytes_after)))
         })();
-        match r { Ok((satz, bank, info)) => { self.log.push(format!("In Kacheln zerlegt ({tw}×{th}): {info}; neu: {satz}, {bank}")); self.projekt_neu_laden(); self.oeffne(&bank) } Err(e) => { self.log.push(format!("Zerlegen nicht möglich: {e}")); self.schublade_zeigen() } }
+        match r { Ok((satz, bank, info)) => { self.log.push(vc_i18n::t!("screenstudio-in-kacheln-zerlegt-tw-th-info", tw = &tw, th = &th, info = &info, satz = &satz, bank = &bank)); self.projekt_neu_laden(); self.oeffne(&bank) } Err(e) => { self.log.push(vc_i18n::t!("screenstudio-zerlegen-nicht-moeglich-e", e = &e)); self.schublade_zeigen() } }
     }
 
     /// Tasten im Bildschirm-Studio: Text tippen (Werkzeug Text), sonst Einzeltasten für die Werkzeuge; `true` = verarbeitet
@@ -177,7 +177,7 @@ impl App {
 
     pub(crate) fn screen_a11y(&self) -> Option<(String, String)> {
         let n = self.name()?; let s = self.screens.get(&n)?; let d = &s.doc;
-        Some((format!("Bildschirm {n}"), format!("{}×{} Zeichen, Werkzeug {:?}, Zeichen {} (Code {}), Cursor Spalte {} Zeile {}, Zeichensatz {}", d.w, d.h, d.werkzeug, vc_ide_model::glyphs::code_zeichen(&d.target, d.zeichen), d.zeichen, d.cursor.0, d.cursor.1, d.zeichensatz().unwrap_or("keiner"))))
+        Some((vc_i18n::t!("screenstudio-bildschirm-n", n = &n), vc_i18n::t!("screenstudio-beschreibung", w = d.w, h = d.h, werkzeug = d.werkzeug.label(), zeichen = vc_ide_model::glyphs::code_zeichen(&d.target, d.zeichen), code = d.zeichen, spalte = d.cursor.0, zeile = d.cursor.1, satz = d.zeichensatz().map(|s| s.to_string()).unwrap_or_else(|| vc_i18n::t!("screenstudio-keiner")))))
     }
 
     pub(crate) fn screen_ansicht(&self, pal: Pal, rel: &str) -> Element<'_, Msg> {
@@ -190,14 +190,14 @@ impl App {
         let sehr_schmal = klasse == muster::Klasse::Schmal && breite < 480.0;
         let norm = self.norm_fuer(&d.target, s.ansicht); let farben: &Farben = &self.farben;
         let rgb = |i: usize| farben.rgb(&d.target, norm, i);
-        let tb = |name: &str, tipp: &str, an: bool, a: SAkt, aktiv: bool| -> Element<Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::ScreenAkt(r.clone(), a)), aktiv, false) };
+        let tb = |name: &str, tipp: &str, an: bool, a: SAkt, aktiv: bool| -> Element<'static, Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::ScreenAkt(r.clone(), a)), aktiv, false) };
         let w = |n: &str, t: &str, k: Werkzeug| tb(n, t, true, SAkt::Werkzeug(k), d.werkzeug == k);
         // Zone 2: genau eine Leistenreihe. Werkzeuge · Bearbeiten · Ansicht; bei sehr wenig Breite stehen die letzten Werkzeuge im ⋯-Menü
-        let werkzeuge_a = || iced::widget::row![w("Zeichen", "Zeichen setzen (D); rechte Taste löscht", Werkzeug::Zeichen), w("Text", "Text tippen (T), Pfeile bewegen den Cursor, Esc beendet", Werkzeug::Text), w("Füllen", "Gleiche Zeichen füllen (F)", Werkzeug::Fuellen)].spacing(4).align_y(Alignment::Center);
-        let werkzeuge_b = || iced::widget::row![w("Rahmen", "Rahmen aufziehen (R): Klick, ziehen, loslassen; Esc bricht ab", Werkzeug::Rahmen), w("Pipette", "Zeichen und Farbe aufnehmen (I)", Werkzeug::Pipette), w("Löschen", "Zeichen löschen (E)", Werkzeug::Loeschen)].spacing(4).align_y(Alignment::Center);
-        let bearbeiten = iced::widget::row![tb("↶", "Rückgängig (Cmd+Z)", d.kann_undo(), SAkt::Undo, false), tb("↷", "Wiederholen (Cmd+Umschalt+Z)", d.kann_redo(), SAkt::Redo, false)].spacing(4);
-        let zoomgruppe = iced::widget::row![tb("−", "Verkleinern (−, Cmd+Mausrad)", true, SAkt::Zoom(-1), false), tb("+", "Vergrößern (+, Cmd+Mausrad)", true, SAkt::Zoom(1), false), tb("Einpassen", "Fläche einpassen (0)", true, SAkt::Einpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
-        let mehr_knopf = tb("⋯", "Weitere Werkzeuge und Ansicht · alle Aktionen: Menü-Taste oder Umschalt+F10", true, SAkt::Mehr, s.mehr);
+        let werkzeuge_a = || iced::widget::row![w(&vc_i18n::t!("screenstudio-zeichen"), &vc_i18n::t!("screenstudio-zeichen-setzen-d-rechte-taste-loescht"), Werkzeug::Zeichen), w(&vc_i18n::t!("screenstudio-text"), &vc_i18n::t!("screenstudio-text-tippen-t-pfeile-bewegen-den"), Werkzeug::Text), w(&vc_i18n::t!("screenstudio-fuellen"), &vc_i18n::t!("screenstudio-gleiche-zeichen-fuellen-f"), Werkzeug::Fuellen)].spacing(4).align_y(Alignment::Center);
+        let werkzeuge_b = || iced::widget::row![w(&vc_i18n::t!("screenstudio-rahmen"), &vc_i18n::t!("screenstudio-rahmen-aufziehen-r-klick-ziehen-loslassen"), Werkzeug::Rahmen), w(&vc_i18n::t!("screenstudio-pipette"), &vc_i18n::t!("screenstudio-zeichen-und-farbe-aufnehmen-i"), Werkzeug::Pipette), w(&vc_i18n::t!("screenstudio-loeschen"), &vc_i18n::t!("screenstudio-zeichen-loeschen-e"), Werkzeug::Loeschen)].spacing(4).align_y(Alignment::Center);
+        let bearbeiten = iced::widget::row![tb("↶", &vc_i18n::t!("screenstudio-rueckgaengig-cmd-z"), d.kann_undo(), SAkt::Undo, false), tb("↷", &vc_i18n::t!("screenstudio-wiederholen-cmd-umschalt-z"), d.kann_redo(), SAkt::Redo, false)].spacing(4);
+        let zoomgruppe = iced::widget::row![tb("−", &vc_i18n::t!("screenstudio-verkleinern-cmd-mausrad"), true, SAkt::Zoom(-1), false), tb("+", &vc_i18n::t!("screenstudio-vergroessern-cmd-mausrad"), true, SAkt::Zoom(1), false), tb(&vc_i18n::t!("screenstudio-einpassen"), &vc_i18n::t!("screenstudio-flaeche-einpassen-0"), true, SAkt::Einpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
+        let mehr_knopf = tb("⋯", &vc_i18n::t!("screenstudio-weitere-werkzeuge-und-ansicht-alle-aktionen"), true, SAkt::Mehr, s.mehr);
         let tools: Element<Msg> = if sehr_schmal { werkzeuge_a().into() } else { iced::widget::row![werkzeuge_a(), werkzeuge_b()].spacing(4).into() };
         let leiste_inhalt: Element<Msg> = if klasse == muster::Klasse::Schmal { iced::widget::row![tools, muster::trenner(pal), bearbeiten, space::horizontal(), mehr_knopf].spacing(8).align_y(Alignment::Center).into() }
             else { iced::widget::row![tools, muster::trenner(pal), bearbeiten, space::horizontal(), zoomgruppe].spacing(8).align_y(Alignment::Center).into() };
@@ -213,7 +213,7 @@ impl App {
         let fg_zelle = if d.farb_ram { d.farbe } else { d.farbe_von("fg", 14) }; let bg = d.farbe_von("bg", 6);
         let tafel_bild = { let mut b = Bild::neu(16 * 16, 16 * 16, rgb(bg)); if let Some(g) = &d.glyphs { for c in 0..=255u8 { g.zeichne(&mut b, (c as usize % 16) * 16, (c as usize / 16) * 16, 2, &d.target, c, fg_zelle, d.mc(), false, &rgb); } } b };
         let tafel = canvas::Canvas::new(Tafel { bild: bild_handle(&tafel_bild), kante: 16.0, gewaehlt: d.zeichen, pal, rel: rel.to_string() }).width(256).height(256);
-        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> SAkt>| -> Element<Msg> {
+        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> SAkt>| -> Element<'static, Msg> {
             let eintr = farben.eintraege(&d.target, norm); let mut raster = iced::widget::column![].spacing(2); let mut zeile = iced::widget::row![].spacing(2);
             for (k, (idx, c)) in eintr.iter().enumerate() {
                 let (idx, c, gew) = (*idx as usize, *c, *idx as usize == wahl); let r2 = r.clone(); let a = mach(idx);
@@ -224,50 +224,50 @@ impl App {
         };
         let kopf = |t: &str| text(t.to_string()).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute);
         // Karte Werkzeug: Zeichen und Zeichenfarbe für das, was als Nächstes gesetzt wird (nicht in der Datei)
-        let mut werkzeug = iced::widget::column![kopf(&format!("Zeichen {} (${:02X})", d.zeichen, d.zeichen)), tafel].spacing(muster::abstand::GRUPPE);
-        if d.farb_ram { werkzeug = werkzeug.push(kopf("Farbe für neue Zeichen")).push(farbfeld(d.farbe, Box::new(SAkt::Farbe))).push(text("gilt für Zeichen, die du ab jetzt setzt; bestehende Zellen ändern sich nicht").size(muster::schrift::HINWEIS).color(pal.mute)) }
+        let mut werkzeug = iced::widget::column![kopf(&vc_i18n::t!("screenstudio-zeichen-p1-p2", p1 = &d.zeichen, p2 = format!("{:02X}", d.zeichen))), tafel].spacing(muster::abstand::GRUPPE);
+        if d.farb_ram { werkzeug = werkzeug.push(kopf(&vc_i18n::t!("screenstudio-farbe-fuer-neue-zeichen"))).push(farbfeld(d.farbe, Box::new(SAkt::Farbe))).push(text(vc_i18n::t!("screenstudio-gilt-fuer-zeichen-die-du-ab")).size(muster::schrift::HINWEIS).color(pal.mute)) }
         // Karte Dokument: Zeichensatz und Farben, die zum Bildschirm gehören (werden gespeichert)
-        let mut dokument = iced::widget::column![kopf("Zeichensatz")].spacing(muster::abstand::GRUPPE);
+        let mut dokument = iced::widget::column![kopf(&vc_i18n::t!("screenstudio-zeichensatz"))].spacing(muster::abstand::GRUPPE);
         for z in std::iter::once(None).chain(d.zeichensaetze.iter().cloned().map(Some)) {
-            let on = d.zeichensatz() == z.as_deref(); let name = z.clone().unwrap_or_else(|| "(keiner)".into());
+            let on = d.zeichensatz() == z.as_deref(); let name = z.clone().unwrap_or_else(|| format!("({})", vc_i18n::t!("screenstudio-keiner")));
             dokument = dokument.push(button(text(format!("{} {}", if on { "●" } else { "○" }, name.rsplit('/').next().unwrap_or(&name))).size(12).color(pal.text)).padding([2, 6]).on_press(Msg::ScreenAkt(r.clone(), SAkt::Zeichensatz(z))).style(move |_, _| button::Style { background: if on { Some(pal.sel.into()) } else { None }, text_color: pal.text, ..Default::default() }));
         }
-        dokument = dokument.push(kopf("Hintergrund")).push(farbfeld(bg, Box::new(|i| SAkt::Rolle("bg", i))));
-        if matches!(d.target.as_str(), "c64" | "vic20") { dokument = dokument.push(kopf("Rahmen")).push(farbfeld(d.farbe_von("border", 14), Box::new(|i| SAkt::Rolle("border", i)))) }
-        else if !d.farb_ram { dokument = dokument.push(kopf("Vordergrund (Helligkeit)")).push(farbfeld(d.farbe_von("fg", 14), Box::new(|i| SAkt::Rolle("fg", i)))) }
+        dokument = dokument.push(kopf(&vc_i18n::t!("screenstudio-hintergrund"))).push(farbfeld(bg, Box::new(|i| SAkt::Rolle("bg", i))));
+        if matches!(d.target.as_str(), "c64" | "vic20") { dokument = dokument.push(kopf(&vc_i18n::t!("screenstudio-rahmen"))).push(farbfeld(d.farbe_von("border", 14), Box::new(|i| SAkt::Rolle("border", i)))) }
+        else if !d.farb_ram { dokument = dokument.push(kopf(&vc_i18n::t!("screenstudio-vordergrund-helligkeit"))).push(farbfeld(d.farbe_von("fg", 14), Box::new(|i| SAkt::Rolle("fg", i)))) }
         dokument = dokument.push(text(self.palettenzeile(&d.target, s.ansicht)).size(10.5).color(pal.mute));
         if self.farben.hat_varianten(&d.target) { let r3 = r.clone(); dokument = dokument.push(self.ansicht_wahl_mit(pal, s.ansicht, move |a| Msg::ScreenAkt(r3.clone(), SAkt::Ansicht(a)))) }
         let (cx, cy) = d.cursor;
-        let info = iced::widget::column![text(format!("{}×{} Zeichen", d.w, d.h)).size(muster::schrift::TEXT).color(pal.text), text(format!("Cursor: Spalte {cx}, Zeile {cy} · Code {}", d.code(cx, cy))).size(muster::schrift::HINWEIS).color(pal.mute)].spacing(muster::abstand::ENG);
+        let info = iced::widget::column![text(vc_i18n::t!("screenstudio-p1-p2-zeichen", p1 = &d.w, p2 = &d.h)).size(muster::schrift::TEXT).color(pal.text), text(vc_i18n::t!("screenstudio-cursor-spalte-cx-zeile-cy-code", cx = &cx, cy = &cy, p3 = d.code(cx, cy))).size(muster::schrift::HINWEIS).color(pal.mute)].spacing(muster::abstand::ENG);
         let karte_zu = |k: &'static str| -> Option<(bool, Msg)> { Some((!s.karten_zu.contains(k), Msg::ScreenAkt(r.clone(), SAkt::Karte(k)))) };
         let karten: Vec<Element<Msg>> = vec![
-            muster::karte(pal, "Werkzeug", "✎", "fürs Zeichnen · nicht in der Datei", karte_zu("werkzeug"), werkzeug.into()),
-            muster::karte(pal, "Dokument", "▤", "gilt für den ganzen Bildschirm · wird gespeichert", karte_zu("dokument"), dokument.into()),
-            muster::karte(pal, "Info", "ⓘ", "", karte_zu("info"), info.into())];
+            muster::karte(pal, &vc_i18n::t!("screenstudio-werkzeug"), "✎", &vc_i18n::t!("screenstudio-fuers-zeichnen-nicht-in-der-datei"), karte_zu("werkzeug"), werkzeug.into()),
+            muster::karte(pal, &vc_i18n::t!("screenstudio-dokument"), "▤", &vc_i18n::t!("screenstudio-gilt-fuer-den-ganzen-bildschirm-wird"), karte_zu("dokument"), dokument.into()),
+            muster::karte(pal, &vc_i18n::t!("screenstudio-info"), "ⓘ", "", karte_zu("info"), info.into())];
         let seite = muster::seitenspalte(klasse, karten);
         // Zone 1: Kopfzeile (alle Datei-Aktionen nur hier; Zerlegen öffnet einen Dialog mit Vorschau)
         let name = rel.rsplit('/').next().unwrap_or(rel).to_string();
-        let kopf_z = muster::kopfzeile(pal, klasse, "SCR", &name, d.dirty(), &format!("{}×{} Zeichen", d.w, d.h), vec![
-            tb("Zerlegen …", "In Kacheln zerlegen (Vorschau, Kachelsatz und Bank entstehen neben dem Bildschirm)", true, SAkt::ZerlegenDialog(Some((2, 2))), s.zerlegen.is_some()),
-            tb("Exportieren …", "Export-Dialog (Cmd+Umschalt+E)", true, SAkt::Exportieren, false), tb("Speichern", "Speichern (Cmd+S)", d.dirty(), SAkt::Speichern, false)]);
+        let kopf_z = muster::kopfzeile(pal, klasse, "SCR", &name, d.dirty(), &vc_i18n::t!("screenstudio-p1-p2-zeichen", p1 = &d.w, p2 = &d.h), vec![
+            tb(&vc_i18n::t!("screenstudio-zerlegen"), &vc_i18n::t!("screenstudio-in-kacheln-zerlegen-vorschau-kachelsatz-und"), true, SAkt::ZerlegenDialog(Some((2, 2))), s.zerlegen.is_some()),
+            tb(&vc_i18n::t!("screenstudio-exportieren"), &vc_i18n::t!("screenstudio-export-dialog-cmd-umschalt-e"), true, SAkt::Exportieren, false), tb(&vc_i18n::t!("screenstudio-speichern"), &vc_i18n::t!("screenstudio-speichern-cmd-s"), d.dirty(), SAkt::Speichern, false)]);
         let status = if d.status.is_empty() { String::new() } else { format!(" · {}", d.status) };
         let (zw, zh) = (w1, h1);
-        let fuss = muster::fusszeile(pal, &format!("Spalte {cx}, Zeile {cy} · Code {} · Zoom {}{status}", d.code(cx, cy), if s.zoomansicht.platz.get().0 < 1.0 { "Einpassen".to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { "Einpassen · " } else { "" }, s.skala.get()) }),
-            iced::widget::tooltip(text("? Tasten").size(muster::schrift::HINWEIS).color(pal.mute), container(text("linke Taste setzt, rechte löscht · D T F R I E Werkzeuge · Text: tippen, Pfeile, Esc · + − Zoom · 0 Einpassen · Leertaste+Ziehen verschiebt · Cmd+Mausrad zoomt · Esc bricht den Rahmen ab").size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into());
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("screenstudio-spalte-cx-zeile-cy-code-p3", cx = &cx, cy = &cy, p3 = d.code(cx, cy), p4 = if s.zoomansicht.platz.get().0 < 1.0 { vc_i18n::t!("screenstudio-einpassen").to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { format!("{} ", vc_i18n::t!("screenstudio-einpassen-2")) } else { String::new() }, s.skala.get()) }, status = &status),
+            iced::widget::tooltip(text(vc_i18n::t!("screenstudio-tasten")).size(muster::schrift::HINWEIS).color(pal.mute), container(text(vc_i18n::t!("screenstudio-linke-taste-setzt-rechte-loescht-d")).size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into());
         let _ = (zw, zh);
         // Überlagerungen über der Fläche: ⋯-Karte (schmal) und Zerlegen-Dialog
         let mut flaeche_el = flaeche_roh;
         if s.mehr {
-            let karte_mehr = container(iced::widget::column![if sehr_schmal { Element::from(iced::widget::column![text("Werkzeuge").size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge_b()].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text("Ansicht").size(muster::schrift::HINWEIS).color(pal.mute), zoomgruppe_klein(&tb)].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(340).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
+            let karte_mehr = container(iced::widget::column![if sehr_schmal { Element::from(iced::widget::column![text(vc_i18n::t!("screenstudio-werkzeuge")).size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge_b()].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text(vc_i18n::t!("screenstudio-ansicht")).size(muster::schrift::HINWEIS).color(pal.mute), zoomgruppe_klein(&tb)].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(340).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
             flaeche_el = iced::widget::stack![flaeche_el, container(karte_mehr).padding(muster::abstand::GRUPPE).align_right(Length::Fill)].into();
         }
         if let Some((tw, th)) = s.zerlegen {
             let vorschau = self.zerlegen_vorschau(rel, tw, th);
-            let groesse = |a: usize, b: usize| -> Element<Msg> { let an = (a, b) == (tw, th); button(text(format!("{a}×{b}")).size(12.5).color(if an { pal.accent_text() } else { pal.text })).padding([4, 12]).on_press(Msg::ScreenAkt(r.clone(), SAkt::ZerlegenDialog(Some((a, b))))).style(move |_, _| button::Style { background: Some(if an { pal.accent.into() } else { pal.panel2.into() }), border: Border { color: if an { pal.accent } else { pal.line }, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }).into() };
-            let dlg = container(iced::widget::column![text("In Kacheln zerlegen").size(muster::schrift::ABSCHNITT).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), text("Gleiche Blöcke werden zu Kacheln. Kachelsatz und Bank entstehen neben dem Bildschirm, der Bildschirm bleibt unverändert.").size(muster::schrift::HINWEIS).color(pal.mute),
-                text("Kachelgröße").size(muster::schrift::HINWEIS).color(pal.mute), iced::widget::row![groesse(2, 2), groesse(3, 3), groesse(4, 4)].spacing(4),
+            let groesse = |a: usize, b: usize| -> Element<'static, Msg> { let an = (a, b) == (tw, th); button(text(vc_i18n::t!("screenstudio-a-b", a = &a, b = &b)).size(12.5).color(if an { pal.accent_text() } else { pal.text })).padding([4, 12]).on_press(Msg::ScreenAkt(r.clone(), SAkt::ZerlegenDialog(Some((a, b))))).style(move |_, _| button::Style { background: Some(if an { pal.accent.into() } else { pal.panel2.into() }), border: Border { color: if an { pal.accent } else { pal.line }, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }).into() };
+            let dlg = container(iced::widget::column![text(vc_i18n::t!("screenstudio-in-kacheln-zerlegen")).size(muster::schrift::ABSCHNITT).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), text(vc_i18n::t!("screenstudio-gleiche-bloecke-werden-zu-kacheln-kachelsatz")).size(muster::schrift::HINWEIS).color(pal.mute),
+                text(vc_i18n::t!("screenstudio-kachelgroesse")).size(muster::schrift::HINWEIS).color(pal.mute), iced::widget::row![groesse(2, 2), groesse(3, 3), groesse(4, 4)].spacing(4),
                 text(vorschau.clone().unwrap_or_else(|e| e)).size(muster::schrift::TEXT).color(if vorschau.is_ok() { pal.ok } else { pal.err }),
-                iced::widget::row![tb("Abbrechen", "Dialog schließen", true, SAkt::ZerlegenDialog(None), false), tb("Zerlegen", "Kachelsatz und Bank anlegen", vorschau.is_ok(), SAkt::Zerlegen(tw, th), false)].spacing(8)].spacing(muster::abstand::GRUPPE))
+                iced::widget::row![tb(&vc_i18n::t!("screenstudio-abbrechen"), &vc_i18n::t!("screenstudio-dialog-schliessen"), true, SAkt::ZerlegenDialog(None), false), tb(&vc_i18n::t!("screenstudio-zerlegen-2"), &vc_i18n::t!("screenstudio-kachelsatz-und-bank-anlegen"), vorschau.is_ok(), SAkt::Zerlegen(tw, th), false)].spacing(8)].spacing(muster::abstand::GRUPPE))
                 .padding(muster::abstand::KARTE).max_width(380).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.accent, width: 2.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
             flaeche_el = iced::widget::stack![flaeche_el, container(dlg).padding(muster::abstand::BEREICH).center(Length::Fill)].into();
         }
@@ -276,15 +276,15 @@ impl App {
     }
     /// Vorschau des Zerlegens ohne zu schreiben: „n Kacheln, m Zellen-Patches, x → y Byte“
     fn zerlegen_vorschau(&self, rel: &str, tw: usize, th: usize) -> Result<String, String> {
-        let s = self.screens.get(rel).ok_or("kein Bildschirm")?;
+        let s = self.screens.get(rel).ok_or(vc_i18n::t!("screenstudio-kein-bildschirm"))?;
         let profiles = vc_media::load_profiles(&self.data)?; let p = vc_media::profile(&profiles, s.doc.media["profile"].as_str().unwrap_or(""))?.clone();
-        let satzprofil = profiles.iter().find(|x| x.kind == "tileset" && x.target == p.target).map(|x| x.id.clone()).ok_or_else(|| format!("Für {} gibt es kein Kachelsatz-Profil", p.target))?;
+        let satzprofil = profiles.iter().find(|x| x.kind == "tileset" && x.target == p.target).map(|x| x.id.clone()).ok_or_else(|| vc_i18n::t!("screenstudio-fuer-p1-gibt-es-kein-kachelsatz", p1 = &p.target))?;
         let d = vc_ide_model::bankdoc::decompose(&s.doc.media, &p, &satzprofil, tw, th, (0, 0), vc_media::naming::stem(rel))?;
-        Ok(format!("{} Kacheln, {} Zellen-Patches, {} → {} Byte", d.tiles, d.patches, d.bytes_before, d.bytes_after))
+        Ok(vc_i18n::t!("screenstudio-p1-kacheln-p2-zellen-patches-p3", p1 = &d.tiles, p2 = &d.patches, p3 = &d.bytes_before, p4 = &d.bytes_after))
     }
 }
 
 /// Ansichtsgruppe der ⋯-Karte (Zoom, Einpassen)
 fn zoomgruppe_klein<'a>(tb: &dyn Fn(&str, &str, bool, SAkt, bool) -> Element<'a, Msg>) -> Element<'a, Msg> {
-    iced::widget::row![tb("−", "Verkleinern", true, SAkt::Zoom(-1), false), tb("+", "Vergrößern", true, SAkt::Zoom(1), false), tb("Einpassen", "Fläche einpassen (0)", true, SAkt::Einpassen, false)].spacing(4).into()
+    iced::widget::row![tb("−", &vc_i18n::t!("screenstudio-verkleinern"), true, SAkt::Zoom(-1), false), tb("+", &vc_i18n::t!("screenstudio-vergroessern"), true, SAkt::Zoom(1), false), tb(&vc_i18n::t!("screenstudio-einpassen"), &vc_i18n::t!("screenstudio-flaeche-einpassen-0"), true, SAkt::Einpassen, false)].spacing(4).into()
 }

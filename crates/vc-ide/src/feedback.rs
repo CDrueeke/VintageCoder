@@ -20,8 +20,8 @@ pub enum Package { WindowsInstaller, MacApp, LinuxPackage, Source, Unknown }
 
 impl Package {
     /// Anzeigetext
-    pub fn label(self) -> &'static str {
-        match self { Package::WindowsInstaller => "Windows-Installer", Package::MacApp => "macOS-Programmpaket", Package::LinuxPackage => "Linux-Paket", Package::Source => "Quellbau (cargo)", Package::Unknown => "unbekannt" }
+    pub fn label(self) -> String {
+        match self { Package::WindowsInstaller => vc_i18n::t!("feedback-windows-installer"), Package::MacApp => vc_i18n::t!("feedback-macos-programmpaket"), Package::LinuxPackage => vc_i18n::t!("feedback-linux-paket"), Package::Source => vc_i18n::t!("feedback-quellbau-cargo"), Package::Unknown => vc_i18n::t!("feedback-unbekannt") }
     }
     /// Maschinenlesbare Kennung (`--json`)
     pub fn key(self) -> &'static str {

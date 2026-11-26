@@ -12,7 +12,27 @@ Nur Standardbibliothek."""
 import os, re, subprocess, sys
 
 VERBOTEN = re.compile("|".join(["".join(["null", "seit"]), "".join(["kil", "ler"]), "".join(["zwiebel", "haut"])]), re.I)
-SELF = {"tools/check_schreibweise.py", "tools/test_check_schreibweise.py"}
+SELF = {"tools/check_schreibweise.py", "tools/test_check_schreibweise.py", "docs/glossar-i18n.md"}  # das Glossar nennt die verbotenen Woerter, um sie zu verbieten
+# Verbotene Schreibweisen je Sprache (i18n, Konzept Abschnitt 7): (Pfadanfang der Texte dieser Sprache, Muster, Begruendung).
+# Englisch: "zero page" bzw. "zero-page addressing" ist richtig, nie zusammengeschrieben; "Onion Skin" bleibt genau so (nie klein oder mit Bindestrich).
+# Deutsch: "Zeropage" und "Onion Skin" bleiben unuebersetzt, also keine englischen Ersatzschreibweisen "zero page"/"zero-page".
+# Pfade der englischen und der deutschen Texte: (Anfaenge, ausgenommene Anfaenge)
+EN = (("crates/vc-i18n/catalog/en/", "data/i18n/en/", "data/cli/en/", "crates/vc-ide/help/en/", "data/templates/en/", "docs/handbuch/en/", "README.en.md", "docs/cli.en.md"), ())
+DE = (("crates/vc-i18n/catalog/de/", "crates/vc-ide/help/", "data/cli/", "docs/handbuch/kapitel/", "docs/handbuch/GLOSSAR.md", "README.md", "docs/cli.md"), ("crates/vc-ide/help/en/", "data/cli/en/"))
+# VC-20 (deutsch) und VIC-20 (englisch): Entscheidung des Inhabers 2026-11-21; "VIC-II" (Chip) bleibt unberuehrt
+SPRACHREGELN = [
+    (EN, re.compile("zero" + "page", re.I), "englisch: zero page (zwei Woerter), nie Zeropage"),
+    (EN, re.compile("onion" + "-" + "skin", re.I), "Onion Skin ohne Bindestrich"),
+    (EN, re.compile("onion" + " " + "skin"), "Onion Skin gross geschrieben"),
+    (EN, re.compile(r"\bVC-20\b"), "englisch: VIC-20 (nicht VC-20)"),
+    (DE, re.compile("zero" + "[ -]" + "page", re.I), "deutsch: Zeropage, nicht zero page"),
+    (DE, re.compile("onion" + "[- ]" + "skin"), "deutsch und englisch: Onion Skin"),
+    (DE, re.compile(r"\bVIC-20\b"), "deutsch: VC-20 (nicht VIC-20)"),
+    # „Studio“ entfällt: überall „Editor“ (nur im Wert eines Katalogeintrags; Schlüssel wie `diskstudio-…` bleiben)
+    ((("crates/vc-i18n/catalog/",), ()), re.compile(r"^(?!\s*#).*stud" + "io", re.I), "nie „Studio“, immer „Editor“ (Glossar)"),
+]
+# Erklaerungen, die die Schreibweise der anderen Sprache ausdruecklich nennen (Glossar, Tabelle der Systeme): "(Zeropage)", "VC-20 (VIC-20)", "In Germany ... "VC-20""
+ERKLAERT = re.compile(r"\(Zero" + r"page\)|VC-20 \(VIC-20\)|[\"\u201e]VC-20[\"\u201c]|hie\u00df der VIC-20|called \"VC-20\"")
 BINAER_ENDUNGEN = {".png", ".icns", ".ico", ".otf", ".ttf", ".prg", ".d64", ".atr", ".bin", ".rom", ".zip", ".gz"}
 
 
@@ -45,9 +65,17 @@ def scan(root, git=False):
             continue
         if b"\0" in roh[:4096]:
             continue
+        regeln = [(m, w) for (pre, aus), m, w in SPRACHREGELN if rel.startswith(pre) and not rel.startswith(aus)]
         for i, z in enumerate(roh.decode("utf-8", "replace").split("\n"), 1):
             if VERBOTEN.search(z):
                 funde.append((rel, i, z.strip()[:120]))
+            # in den Katalogen zaehlt nur der Text rechts vom Gleichheitszeichen (Schluessel wie studio-onion-skin sind ASCII-Namen)
+            zt = z.split(" = ", 1)[1] if rel.endswith(".ftl") and " = " in z else z
+            if rel.endswith(".md"): zt = re.sub(r"`[^`]*`", "", zt)  # Code (Schluessel, Befehle) bleibt unberuehrt
+            if rel.startswith("data/i18n/en/") and '"en":' not in z: zt = ""  # in den Ueberlagerungen zaehlt nur das englische Feld, "de" ist das Original
+            for m, w in regeln:
+                if m.search(zt) and not (rel.startswith("docs/") and ERKLAERT.search(z)):
+                    funde.append((rel, i, "%s: %s" % (w, z.strip()[:100])))
     return funde
 
 

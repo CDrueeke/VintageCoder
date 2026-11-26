@@ -16,8 +16,8 @@ pub enum Group { Color, Cursor, Edit, Charset, FKey, Other }
 
 impl Group {
     pub const ALL: [Group; 6] = [Group::Color, Group::Cursor, Group::Edit, Group::Charset, Group::FKey, Group::Other];
-    pub fn title(self) -> &'static str {
-        match self { Group::Color => "Farben", Group::Cursor => "Cursor", Group::Edit => "Bildschirm und Bearbeiten", Group::Charset => "Zeichensatz", Group::FKey => "Funktionstasten", Group::Other => "Weitere" }
+    pub fn title(self) -> String {
+        vc_i18n::t!(match self { Group::Color => "core-chars-group-color", Group::Cursor => "core-chars-group-cursor", Group::Edit => "core-chars-group-edit", Group::Charset => "core-chars-group-charset", Group::FKey => "core-chars-group-fkey", Group::Other => "core-chars-group-other" })
     }
     fn parse(s: &str) -> Group {
         match s { "color" => Group::Color, "cursor" => Group::Cursor, "edit" => Group::Edit, "charset" => Group::Charset, "fkey" => Group::FKey, _ => Group::Other }
@@ -52,7 +52,8 @@ impl Char {
 }
 
 fn parse(text: &str, what: &str) -> Vec<Char> {
-    let v: Value = serde_json::from_str(text).unwrap_or_else(|e| panic!("data/chars/{what}.json: {e}"));
+    let mut v: Value = serde_json::from_str(text).unwrap_or_else(|e| panic!("data/chars/{what}.json: {e}"));
+    vc_i18n::localize_json(&mut v, &format!("chars/{what}.json"));
     v["entries"].as_array().unwrap_or_else(|| panic!("data/chars/{what}.json: entries fehlt")).iter().map(|e| {
         let s = |k: &str| e[k].as_str().map(|s| s.to_string());
         let code = e["code"].as_str().and_then(|c| c.strip_prefix('$')).and_then(|h| u8::from_str_radix(h, 16).ok()).unwrap_or_else(|| panic!("data/chars/{what}.json: code ungültig in {e}"));
@@ -70,11 +71,13 @@ fn parse(text: &str, what: &str) -> Vec<Char> {
 
 /// Tabelle der Steuerzeichen, nach Code sortiert
 pub fn table(f: Family) -> &'static [Char] {
-    static PETSCII: OnceLock<Vec<Char>> = OnceLock::new();
-    static ATASCII: OnceLock<Vec<Char>> = OnceLock::new();
+    // je Sprache ein Zwischenspeicher (Englisch / alle anderen), weil die Beschreibungen übersetzt sind und die Sprache wechseln kann
+    static PETSCII: [OnceLock<Vec<Char>>; 2] = [OnceLock::new(), OnceLock::new()];
+    static ATASCII: [OnceLock<Vec<Char>>; 2] = [OnceLock::new(), OnceLock::new()];
+    let i = usize::from(vc_i18n::language() == vc_i18n::Lang::En);
     match f {
-        Family::Petscii => PETSCII.get_or_init(|| parse(include_str!("../../../data/chars/petscii.json"), "petscii")),
-        Family::Atascii => ATASCII.get_or_init(|| parse(include_str!("../../../data/chars/atascii.json"), "atascii")),
+        Family::Petscii => PETSCII[i].get_or_init(|| parse(include_str!("../../../data/chars/petscii.json"), "petscii")),
+        Family::Atascii => ATASCII[i].get_or_init(|| parse(include_str!("../../../data/chars/atascii.json"), "atascii")),
     }
 }
 
@@ -98,17 +101,17 @@ pub fn by_code(f: Family, code: u8) -> Option<&'static Char> { table(f).iter().f
 /// Ergebnis: (Code, Wiederholungen).
 pub fn parse_ref(f: Family, inner: &str, extra: &dyn Fn(&str) -> Option<u8>) -> Result<(u8, usize), String> {
     let (base, count) = match inner.rsplit_once('*') {
-        Some((a, n)) => (a, n.trim().parse::<usize>().ok().filter(|n| (1..=255).contains(n)).ok_or(format!("ungültige Anzahl in {{{inner}}}"))?),
+        Some((a, n)) => (a, n.trim().parse::<usize>().ok().filter(|n| (1..=255).contains(n)).ok_or(vc_i18n::t!("core-chars-bad-count", inner = inner))?),
         None => (inner, 1),
     };
     let base = base.trim();
     let code = if let Some(h) = base.strip_prefix('$') {
-        u8::from_str_radix(h, 16).map_err(|_| format!("ungültiger Code {{{inner}}}"))?
+        u8::from_str_radix(h, 16).map_err(|_| vc_i18n::t!("core-chars-bad-code", inner = inner))?
     } else if !base.is_empty() && base.bytes().all(|c| c.is_ascii_digit()) {
-        base.parse::<u8>().map_err(|_| format!("ungültiger Code {{{inner}}}"))?
+        base.parse::<u8>().map_err(|_| vc_i18n::t!("core-chars-bad-code", inner = inner))?
     } else {
         let n = normalize(base);
-        extra(&n).or_else(|| lookup(f, &n)).ok_or_else(|| format!("unbekannter Steuercode {{{base}}}"))?
+        extra(&n).or_else(|| lookup(f, &n)).ok_or_else(|| vc_i18n::t!("core-chars-unknown-control", base = base))?
     };
     Ok((code, count))
 }

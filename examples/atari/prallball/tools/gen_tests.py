@@ -27,15 +27,24 @@ for lvl, zone in ((0, 3), (5, 0), (15, 7)):
     test('set_vel: Stufe %d Zone %d' % (lvl, zone), {'mem': {'speed': lvl, 'spdmod': 0}, 'a': str(zone)}, 'set_vel',
          ['[vxl] == %s' % h(dx & 255), '[vxh] == %s' % h(dx >> 8), '[vyl] == %s' % h(dy & 255), '[vyh] == %s' % h(dy >> 8)], cycles=70)
 base = {'padl': 100, 'padh': 0, 'padw': 32, 'zstep': 4, 'speed': 0, 'spdmod': 0, 'hits': 0, 'sticky': 0, 'cb': 0, 'byl': 0x80, 'byh': 0x2c, 'vyh': 0, 'vyl': 0x40, 'mask': 0, 'oyl': 0, 'oyh': 0}
+# ---- Winkelzufall (WINKEL_ZUFALL = 64 von 256): der Atari nutzt das POKEY-Zufallsregister, es laesst sich im Test nicht festlegen.
+#      Deshalb pruefen die Schlaegertests hier die Zone mit Spielraum +/- 1 und zone_jitter prueft den erlaubten Bereich.
+def zone_in(var, zone, lo=None):
+    """Bedingung: der Wert in var gehoert zu Zone zone-1, zone oder zone+1 (begrenzt auf 0..7)."""
+    zs = [z for z in (zone - 1, zone, zone + 1) if 0 <= z <= 7]
+    return ' || '.join('[%s] == %s' % (var, h(vel(0, z)[0] & 255)) for z in zs)
+for x in (0, 4, 7):
+    zs = [z for z in (x - 1, x, x + 1) if 0 <= z <= 7]
+    test('zone_jitter: Zone %d bleibt in %s' % (x, zs), {'mem': {}, 'x': x}, 'zone_jitter', ['x >= %d' % zs[0], 'x <= %d' % zs[-1]])
 dx, dy = vel(0, 4)
 s = dict(base); s.update({'bxl': 0x00, 'bxh': 0x1d})
-test('paddle_hit: Treffer in der Mitte -> Zone 4 und Abprall nach oben', {'mem': s}, 'paddle_hit', ['fc', '[vxl] == %s' % h(dx & 255), '[vyl] == %s' % h(dy & 255), '[vyh] == %s' % h(dy >> 8), '[hits] == 1'])
+test('paddle_hit: Treffer in der Mitte -> Zone 4 und Abprall nach oben', {'mem': s}, 'paddle_hit', ['fc', '(' + zone_in('vxl', 4) + ')', '[hits] == 1'])
 s = dict(base); s.update({'bxl': 0x00, 'bxh': 0x32})
 test('paddle_hit: Ball neben dem Schlaeger -> kein Abprall', {'mem': s}, 'paddle_hit', ['!fc', '[hits] == 0'])
 for mk, zone, nm in ((0x04, 3, 'nach links'), (0x08, 5, 'nach rechts'), (0x00, 4, 'stillstehend')):
     dx, dy = vel(0, zone)
     s = dict(base); s.update({'bxl': 0x00, 'bxh': 0x1d, 'mask': mk})
-    test('paddle_hit: Schlaeger %s bewegt -> Zone %d' % (nm, zone), {'mem': s}, 'paddle_hit', ['fc', '[vxl] == %s' % h(dx & 255), '[vxh] == %s' % h(dx >> 8)])
+    test('paddle_hit: Schlaeger %s bewegt -> Zone %d' % (nm, zone), {'mem': s}, 'paddle_hit', ['fc', '(' + zone_in('vxl', zone) + ')'])
 s = dict(base); s.update({'bxl': 0x40, 'bxh': 0x18, 'oyl': 0x90, 'oyh': 0x2c, 'vxl': 0x40, 'vxh': 0})
 test('paddle_hit: Seitenaufprall links -> weg nach links', {'mem': s}, 'paddle_hit', ['!fc', '[vxl] == $c0', '[vxh] == $ff', '[bxl] == $80', '[bxh] == $17', '[hits] == 0'])
 s = dict(base); s.update({'bxl': 0x80, 'bxh': 0x20, 'oyl': 0x90, 'oyh': 0x2c, 'vxl': 0xc0, 'vxh': 0xff})

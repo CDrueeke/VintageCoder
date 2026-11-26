@@ -5,7 +5,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use vc_ide::launch;
-use vc_ide::mega65net::{self as net, Action, Link, Tools, UNCHECKED};
+use vc_ide::mega65net::{self as net, Action, Link, Tools};
 use vc_ide::settings::{Machine, Settings};
 
 fn dir(name: &str) -> PathBuf {
@@ -75,7 +75,7 @@ fn start_ruft_etherload_mit_schnittstelle_und_datei() {
     let mut m = machine(&el, "");
     let r = net::start(&m, &prg).unwrap();
     assert_eq!(lines(&log), vec![format!("etherload [-i] [en0] [-r] [{}]", prg.display())]);
-    assert!(r.contains("gestartet") && r.contains(UNCHECKED) && r.contains("geladen"), "{r}");
+    assert!(r.contains("gestartet") && r.contains(&net::unchecked()) && r.contains("geladen"), "{r}");
     // nur laden, ohne Schnittstelle
     fs::remove_file(&log).unwrap();
     m.run_after = false; m.eth_iface.clear();
@@ -147,7 +147,7 @@ fn kopieren_einbinden_und_von_der_diskette_starten() {
     let prg = d.join("demo.prg"); fs::write(&prg, [1, 0x20]).unwrap();
     let m = machine(&el, &ftp);
     let r = net::copy_and_mount(&m, &img).unwrap();
-    assert!(r.contains("/demo.d81") && r.contains(UNCHECKED), "{r}");
+    assert!(r.contains("/demo.d81") && r.contains(&net::unchecked()), "{r}");
     let l = lines(&log);
     assert_eq!(l.len(), 2);
     assert!(l[0].starts_with("mega65_ftp") && l[1] == "etherload [-i] [en0] [-m] [/demo.d81]", "{l:?}");
@@ -170,7 +170,7 @@ fn fehler_der_werkzeuge_kommen_mit_hinweis_und_kennzeichnung() {
     let prg = d.join("a.prg"); fs::write(&prg, [1, 0x20]).unwrap();
     let el = fake(&d, "etherload", &log, "Error: no response from device", 1, 0);
     let e = net::start(&machine(&el, ""), &prg).unwrap_err();
-    assert!(e.contains("Code 1") && e.contains("no response") && e.contains("Shift+£") && e.contains(UNCHECKED), "{e}");
+    assert!(e.contains("Code 1") && e.contains("no response") && e.contains("Shift+£") && e.contains(&net::unchecked()), "{e}");
     let el = fake(&d, "etherload", &log, "Network is unreachable", 2, 0);
     let e = net::start(&machine(&el, ""), &prg).unwrap_err();
     assert!(e.contains("Netzwerkschnittstelle"), "{e}");
@@ -202,7 +202,7 @@ fn verbindungstest_ethernet() {
     let ftp = fake(&d, "mega65_ftp", &log, "Verzeichnis", 0, 0);
     let m = machine(&el, &ftp);
     let r = net::test(&m).unwrap();
-    assert!(r.contains("antwortet") && r.contains(UNCHECKED), "{r}");
+    assert!(r.contains("antwortet") && r.contains(&net::unchecked()), "{r}");
     assert_eq!(lines(&log), vec!["mega65_ftp [-e] [-i] [en0] [-c] [dir] [-c] [quit]".to_string()]);
     // über die Einstellungen: die Standardverbindung entscheidet
     assert!(vc_ide::settings::test_machine(&m).unwrap().contains("Ethernet"));

@@ -6,6 +6,7 @@ license.workspace = true
 
 [dependencies]
 vc-core = { path = "../vc-core" }
+vc-i18n = { path = "../vc-i18n" }
 vc-target = { path = "../vc-target" }
 serde_json.workspace = true
 

@@ -28,17 +28,18 @@ fn explicit_numbers_mix_with_automatic_ones() {
     let n = number_lines("100 a=1\nb=2\n200 c=3\nd=4\n", &opts()).unwrap();
     assert_eq!(n.text, "100 a=1\n110 b=2\n200 c=3\n210 d=4\n");
     let e = number_lines("100 a=1\n50 b=2\n", &opts()).unwrap_err();
-    assert!(e[0].message.contains("nicht größer"), "{:?}", e[0].message);
+    assert_eq!((e[0].code, e[0].key), ("B100", "diag-basic-b100-line-number-order"));
+    assert_eq!((e[0].arg_text("num").as_str(), e[0].arg_text("last").as_str()), ("50", "100"));
 }
 
 #[test]
 fn label_errors_are_reported_with_source_line() {
     let e = number_lines("goto @weg\n@a:\n@a: end\n", &opts()).unwrap_err();
-    let msgs: Vec<(usize, String)> = e.iter().map(|d| (d.line, d.message.clone())).collect();
-    assert!(msgs.iter().any(|(l, m)| *l == 1 && m.contains("@weg")), "{msgs:?}");
-    assert!(msgs.iter().any(|(l, m)| *l == 3 && m.contains("doppelt")), "{msgs:?}");
+    let msgs: Vec<(usize, &str, String)> = e.iter().map(|d| (d.line, d.key, d.arg_text("name"))).collect();
+    assert!(msgs.contains(&(1, "diag-basic-b110-label-undefined", "weg".into())), "{msgs:?}");
+    assert!(msgs.contains(&(3, "diag-basic-b111-label-duplicate", "a".into())), "{msgs:?}");
     let e = number_lines("print 1\n@ende:\n", &opts()).unwrap_err();
-    assert!(e[0].message.contains("ohne Anweisung"));
+    assert_eq!((e[0].code, e[0].key, e[0].arg_text("name").as_str()), ("B112", "diag-basic-b112-label-at-end", "ende"));
 }
 
 #[test]

@@ -96,20 +96,20 @@ impl std::fmt::Debug for StreamReceiver { fn fmt(&self, f: &mut std::fmt::Format
 /// `host` ist `adresse` oder `adresse:port` (Port irrelevant).
 pub fn local_ip_towards(host: &str) -> Result<Ipv4Addr, String> {
     let target = if host.contains(':') { host.to_string() } else { format!("{host}:80") };
-    let sa = target.to_socket_addrs().map_err(|e| format!("{host}: {e}"))?.find(|a| a.is_ipv4()).ok_or_else(|| format!("{host}: keine IPv4-Adresse"))?;
+    let sa = target.to_socket_addrs().map_err(|e| vc_i18n::t!("emu-host-e", host = &host, e = &e))?.find(|a| a.is_ipv4()).ok_or_else(|| vc_i18n::t!("emu-host-keine-ipv4-adresse", host = &host))?;
     let s = UdpSocket::bind("0.0.0.0:0").map_err(|e| format!("UDP-Socket: {e}"))?;
-    s.connect(sa).map_err(|_| "Der Rechner erreicht die Ultimate nicht (keine Route).".to_string())?;
+    s.connect(sa).map_err(|_| vc_i18n::t!("emu-der-rechner-erreicht-die-ultimate-nicht").to_string())?;
     match s.local_addr().map_err(|e| e.to_string())? {
         SocketAddr::V4(a) if !a.ip().is_unspecified() => Ok(*a.ip()),
-        _ => Err("Der Rechner erreicht die Ultimate nicht (keine Route).".into()),
+        _ => Err(vc_i18n::t!("emu-der-rechner-erreicht-die-ultimate-nicht").into()),
     }
 }
 
 fn bind_err(e: std::io::Error, addr: SocketAddrV4) -> String {
     match e.kind() {
-        std::io::ErrorKind::AddrInUse => format!("Port {} ist belegt.", addr.port()),
-        std::io::ErrorKind::PermissionDenied => format!("Keine Berechtigung, UDP-Port {} zu öffnen (Rechte oder Firewall).", addr.port()),
-        _ => format!("UDP-Empfänger {addr}: {e}"),
+        std::io::ErrorKind::AddrInUse => vc_i18n::t!("emu-port-p1-ist-belegt", p1 = addr.port()),
+        std::io::ErrorKind::PermissionDenied => vc_i18n::t!("emu-keine-berechtigung-udp-port-p1-zu", p1 = addr.port()),
+        _ => vc_i18n::t!("emu-udp-empfaenger-addr-e", addr = addr.to_string(), e = &e),
     }
 }
 
@@ -130,9 +130,9 @@ impl StreamReceiver {
         let rcvbuf = sock.recv_buffer_size().unwrap_or(0);
         sock.bind(&SocketAddr::V4(bind).into()).map_err(|e| bind_err(e, bind))?;
         let sock: UdpSocket = sock.into();
-        if let Some((g, iface)) = group { sock.join_multicast_v4(&g, &iface).map_err(|e| format!("Multicast-Gruppe {g} auf {iface}: {e}"))?; }
+        if let Some((g, iface)) = group { sock.join_multicast_v4(&g, &iface).map_err(|e| vc_i18n::t!("emu-multicast-gruppe-g-auf-iface-e", g = g.to_string(), iface = iface.to_string(), e = &e))?; }
         sock.set_read_timeout(Some(Duration::from_millis(100))).map_err(|e| e.to_string())?;
-        let local = match sock.local_addr().map_err(|e| e.to_string())? { SocketAddr::V4(a) => a, _ => return Err("keine IPv4-Adresse".into()) };
+        let local = match sock.local_addr().map_err(|e| e.to_string())? { SocketAddr::V4(a) => a, _ => return Err(vc_i18n::t!("emu-keine-ipv4-adresse").into()) };
         let counters = Arc::new(Counters::default()); let stop = Arc::new(AtomicBool::new(false));
         let started = Instant::now();
         let (c, s, kind, source) = (counters.clone(), stop.clone(), cfg.kind, cfg.source);

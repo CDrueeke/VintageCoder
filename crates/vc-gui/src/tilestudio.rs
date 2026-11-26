@@ -127,7 +127,7 @@ impl App {
         let Some(s) = self.tilesets.get_mut(rel) else { return }; let d = &mut s.doc;
         match a {
             TAkt::Undo => d.rueckgaengig(), TAkt::Redo => d.wiederholen(),
-            TAkt::Speichern => match d.speichern() { Ok(()) => self.log.push(format!("Gespeichert: {rel}")), Err(e) => self.log.push(e) },
+            TAkt::Speichern => match d.speichern() { Ok(()) => self.log.push(vc_i18n::t!("tilestudio-gespeichert-rel", rel = &rel)), Err(e) => self.log.push(e) },
             TAkt::Kachel(i) => d.kachel_waehlen(i), TAkt::Neu => d.kachel_neu(), TAkt::Dupl => d.kachel_duplizieren(), TAkt::Loeschen => d.kachel_loeschen(),
             TAkt::Zusammen => { if let Err(e) = d.zusammenfuehren() { self.log.push(e) } else if !d.status.is_empty() { self.log.push(d.status.clone()) } if !self.tilesets.is_empty() { self.projekt_neu_laden() } }
             TAkt::Name(n) => d.kachel_umbenennen(&n, false), TAkt::NameFertig => {}
@@ -156,7 +156,7 @@ impl App {
 
     pub(crate) fn tile_a11y(&self) -> Option<(String, String)> {
         let n = self.name()?; let s = self.tilesets.get(&n)?; let d = &s.doc;
-        Some((format!("Kachelsatz {n}"), format!("{} Kacheln, {}×{} Zellen, gewählt Kachel {} {}, Zelle {}", d.ts.tiles.len(), d.ts.tw, d.ts.th, d.sel, d.ts.tiles.get(d.sel).map(|t| t.name.clone()).unwrap_or_default(), d.cur)))
+        Some((vc_i18n::t!("tilestudio-kachelsatz-n", n = &n), vc_i18n::t!("tilestudio-p1-kacheln-p2-p3-zellen-gewaehlt", p1 = d.ts.tiles.len(), p2 = &d.ts.tw, p3 = &d.ts.th, p4 = &d.sel, p5 = d.ts.tiles.get(d.sel).map(|t| t.name.clone()).unwrap_or_default(), p6 = &d.cur)))
     }
 
     pub(crate) fn tile_ansicht(&self, pal: Pal, rel: &str) -> Element<'_, Msg> {
@@ -168,17 +168,17 @@ impl App {
         let Some(s) = self.tilesets.get(rel) else { return text("").into() }; let d = &s.doc; let r = rel.to_string(); let ts = &d.ts;
         let sehr_schmal = klasse == muster::Klasse::Schmal && breite < 480.0;
         let norm = self.norm_fuer(&d.target, s.ansicht); let farben: &Farben = &self.farben; let rgb = |i: usize| farben.rgb(&d.target, norm, i);
-        let tb = |name: &str, tipp: &str, an: bool, a: TAkt, aktiv: bool| -> Element<Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::TileAkt(r.clone(), a)), aktiv, false) };
+        let tb = |name: &str, tipp: &str, an: bool, a: TAkt, aktiv: bool| -> Element<'static, Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::TileAkt(r.clone(), a)), aktiv, false) };
         let (w, h, hat) = (ts.tw, ts.th, !ts.tiles.is_empty());
         // Zone 2: genau eine Leistenreihe: Bearbeiten · Transformieren (Spiegeln, Drehen, Rollen, Leeren, Kopieren, Einfügen) · Ansicht; bei wenig Breite im ⋯-Menü
-        let bearbeiten = iced::widget::row![tb("↶", "Rückgängig (Cmd+Z)", d.kann_undo(), TAkt::Undo, false), tb("↷", "Wiederholen (Cmd+Umschalt+Z)", d.kann_redo(), TAkt::Redo, false)].spacing(4);
-        let transformieren = || iced::widget::row![tb("⇋", "Zellreihenfolge waagerecht spiegeln", hat && w > 1, TAkt::SpiegelH, false), tb("⇅", "Zellreihenfolge senkrecht spiegeln", hat && h > 1, TAkt::SpiegelV, false), tb("Drehen", "Um 90° drehen (nur quadratische Kacheln)", hat && w == h && w > 1, TAkt::Drehen, false),
-            tb("←", "Zellen nach links rollen", hat && w > 1, TAkt::Rollen(-1, 0), false), tb("→", "Zellen nach rechts rollen", hat && w > 1, TAkt::Rollen(1, 0), false), tb("↑", "Zellen nach oben rollen", hat && h > 1, TAkt::Rollen(0, -1), false), tb("↓", "Zellen nach unten rollen", hat && h > 1, TAkt::Rollen(0, 1), false),
-            tb("Leeren", "Alle Zellen auf Zeichen 0 setzen", hat, TAkt::Leeren, false), tb("Kopieren", "Zellen der Kachel merken", hat, TAkt::Kopieren, false), tb("Einfügen", "Gemerkte Zellen in diese Kachel einfügen", d.zwischen.as_ref().is_some_and(|c| c.len() == w * h), TAkt::Einfuegen, false)].spacing(4).align_y(Alignment::Center);
-        let zoomgruppe = || iced::widget::row![tb("−", "Verkleinern (−, Cmd+Mausrad)", true, TAkt::Zoom(-1), false), tb("+", "Vergrößern (+, Cmd+Mausrad)", true, TAkt::Zoom(1), false), tb("Einpassen", "Fläche einpassen (0)", true, TAkt::Einpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
-        let mehr_knopf = tb("⋯", "Transformieren und Ansicht · alle Aktionen: Menü-Taste oder Umschalt+F10", true, TAkt::Mehr, s.mehr);
+        let bearbeiten = iced::widget::row![tb("↶", &vc_i18n::t!("tilestudio-rueckgaengig-cmd-z"), d.kann_undo(), TAkt::Undo, false), tb("↷", &vc_i18n::t!("tilestudio-wiederholen-cmd-umschalt-z"), d.kann_redo(), TAkt::Redo, false)].spacing(4);
+        let transformieren = || iced::widget::row![tb("⇋", &vc_i18n::t!("tilestudio-zellreihenfolge-waagerecht-spiegeln"), hat && w > 1, TAkt::SpiegelH, false), tb("⇅", &vc_i18n::t!("tilestudio-zellreihenfolge-senkrecht-spiegeln"), hat && h > 1, TAkt::SpiegelV, false), tb(&vc_i18n::t!("tilestudio-drehen"), &vc_i18n::t!("tilestudio-um-90-drehen-nur-quadratische-kacheln"), hat && w == h && w > 1, TAkt::Drehen, false),
+            tb("←", &vc_i18n::t!("tilestudio-zellen-nach-links-rollen"), hat && w > 1, TAkt::Rollen(-1, 0), false), tb("→", &vc_i18n::t!("tilestudio-zellen-nach-rechts-rollen"), hat && w > 1, TAkt::Rollen(1, 0), false), tb("↑", &vc_i18n::t!("tilestudio-zellen-nach-oben-rollen"), hat && h > 1, TAkt::Rollen(0, -1), false), tb("↓", &vc_i18n::t!("tilestudio-zellen-nach-unten-rollen"), hat && h > 1, TAkt::Rollen(0, 1), false),
+            tb(&vc_i18n::t!("tilestudio-leeren"), &vc_i18n::t!("tilestudio-alle-zellen-auf-zeichen-0-setzen"), hat, TAkt::Leeren, false), tb(&vc_i18n::t!("tilestudio-kopieren"), &vc_i18n::t!("tilestudio-zellen-der-kachel-merken"), hat, TAkt::Kopieren, false), tb(&vc_i18n::t!("tilestudio-einfuegen"), &vc_i18n::t!("tilestudio-gemerkte-zellen-in-diese-kachel-einfuegen"), d.zwischen.as_ref().is_some_and(|c| c.len() == w * h), TAkt::Einfuegen, false)].spacing(4).align_y(Alignment::Center);
+        let zoomgruppe = || iced::widget::row![tb("−", &vc_i18n::t!("tilestudio-verkleinern-cmd-mausrad"), true, TAkt::Zoom(-1), false), tb("+", &vc_i18n::t!("tilestudio-vergroessern-cmd-mausrad"), true, TAkt::Zoom(1), false), tb(&vc_i18n::t!("tilestudio-einpassen"), &vc_i18n::t!("tilestudio-flaeche-einpassen-0"), true, TAkt::Einpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
+        let mehr_knopf = tb("⋯", &vc_i18n::t!("tilestudio-transformieren-und-ansicht-alle-aktionen-menue"), true, TAkt::Mehr, s.mehr);
         let leiste_inhalt: Element<Msg> = match klasse {
-            muster::Klasse::Breit => iced::widget::row![bearbeiten, muster::trenner(pal), tb("Transformieren ▾", "Spiegeln, Drehen, Rollen, Leeren, Kopieren, Einfügen · alle Aktionen: Menü-Taste oder Umschalt+F10", true, TAkt::Mehr, s.mehr), space::horizontal(), zoomgruppe()].spacing(8).align_y(Alignment::Center).into(),
+            muster::Klasse::Breit => iced::widget::row![bearbeiten, muster::trenner(pal), tb(&vc_i18n::t!("tilestudio-transformieren"), &vc_i18n::t!("tilestudio-spiegeln-drehen-rollen-leeren-kopieren-einfuegen"), true, TAkt::Mehr, s.mehr), space::horizontal(), zoomgruppe()].spacing(8).align_y(Alignment::Center).into(),
             muster::Klasse::Mittel => iced::widget::row![bearbeiten, space::horizontal(), zoomgruppe(), mehr_knopf].spacing(8).align_y(Alignment::Center).into(),
             muster::Klasse::Schmal => iced::widget::row![bearbeiten, space::horizontal(), mehr_knopf].spacing(8).align_y(Alignment::Center).into(),
         };
@@ -188,13 +188,13 @@ impl App {
         let hat_banken = !d.banken.is_empty();
         for (i, t) in ts.tiles.iter().enumerate() {
             let b = d.kachel_bild(i, 2, &rgb); let n = d.verwendung(i); let gew = i == d.sel;
-            let unter = match (hat_banken, d.doppelt[i]) { (_, Some(j)) => format!("gleich wie {j}"), (true, _) => if n == 0 { "unbenutzt".into() } else { format!("{n}× benutzt") }, _ => String::new() };
+            let unter = match (hat_banken, d.doppelt[i]) { (_, Some(j)) => vc_i18n::t!("tilestudio-gleich-wie-j", j = &j), (true, _) => if n == 0 { "unbenutzt".into() } else { vc_i18n::t!("tilestudio-n-benutzt", n = &n) }, _ => String::new() };
             let zeile = iced::widget::row![iced::widget::image(handle(&b)).filter_method(iced::widget::image::FilterMethod::Nearest).width(Length::Fixed((w * 16) as f32)).height(Length::Fixed((h * 16) as f32)),
                 iced::widget::column![text(if t.name.is_empty() { format!("{i}") } else { format!("{i} {}", t.name) }).size(12.5).color(if hat_banken && n == 0 { pal.mute } else { pal.text }), text(unter).size(10.5).color(if d.doppelt[i].is_some() { pal.warn } else { pal.mute })].spacing(1)].spacing(8).align_y(Alignment::Center);
             liste = liste.push(button(zeile).width(Length::Fill).padding(3).on_press(Msg::TileAkt(r.clone(), TAkt::Kachel(i))).style(move |_, st| button::Style { background: (gew || matches!(st, button::Status::Hovered)).then(|| pal.sel.into()), border: Border { color: if gew { pal.accent } else { Color::TRANSPARENT }, width: 1.0, radius: 5.0.into() }, text_color: pal.text, ..Default::default() }));
         }
-        let kopf_liste = iced::widget::row![text(format!("Kacheln · {}", ts.tiles.len())).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute), space::horizontal(), tb("+", "Neue leere Kachel am Ende", ts.tiles.len() < vc_media::tiles::MAX_TILES, TAkt::Neu, false)].align_y(Alignment::Center);
-        let verw = iced::widget::row![tb("Dupl.", "Gewählte Kachel kopieren", hat && ts.tiles.len() < vc_media::tiles::MAX_TILES, TAkt::Dupl, false), tb("Löschen", "Gewählte Kachel entfernen (benutzte Kacheln fragen nach)", hat, TAkt::Loeschen, false)].spacing(4).wrap().vertical_spacing(4);
+        let kopf_liste = iced::widget::row![text(vc_i18n::t!("tilestudio-kacheln-p1", p1 = ts.tiles.len())).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute), space::horizontal(), tb("+", &vc_i18n::t!("tilestudio-neue-leere-kachel-am-ende"), ts.tiles.len() < vc_media::tiles::MAX_TILES, TAkt::Neu, false)].align_y(Alignment::Center);
+        let verw = iced::widget::row![tb(&vc_i18n::t!("tilestudio-dupl"), &vc_i18n::t!("tilestudio-gewaehlte-kachel-kopieren"), hat && ts.tiles.len() < vc_media::tiles::MAX_TILES, TAkt::Dupl, false), tb(&vc_i18n::t!("tilestudio-loeschen"), &vc_i18n::t!("tilestudio-gewaehlte-kachel-entfernen-benutzte-kacheln-fragen"), hat, TAkt::Loeschen, false)].spacing(4).wrap().vertical_spacing(4);
         let liste_el: Element<Msg> = iced::widget::column![kopf_liste, verw, if klasse == muster::Klasse::Breit { scrollable(liste).height(Length::Fill).into() } else { Element::from(liste) }].spacing(8).into();
         // Zone 4: die gewählte Kachel groß, eingepasst in ganzen Stufen; Bild und Zeichenebene getrennt
         let (w1, h1) = einheiten(ts); let skala_zuletzt = &s.skala; let rel_c = rel.to_string(); let cur = d.cur; let sel = d.sel;
@@ -203,9 +203,9 @@ impl App {
             skala_zuletzt.set(z); s.zoomansicht.platz.set((size.width, size.height));
             let bild = d.kachel_bild(sel, z, &rgb); let (bw, bh) = (bild.w as f32, bild.h as f32);
             iced::widget::stack![canvas::Canvas::new(BildEbene { s, bild: handle(&bild), bw, bh }).width(Length::Fill).height(Length::Fill), canvas::Canvas::new(Flaeche { s, tw: w, th: h, kante: (z * 8) as f32, bw, bh, cur, pal, rel: rel_c.clone() }).width(Length::Fill).height(Length::Fill)].into()
-        }).into() } else { container(text("Der Satz hat keine Kachel: „Neu“ legt eine an.").size(13).color(pal.mute)).center(Length::Fill).into() };
+        }).into() } else { container(text(vc_i18n::t!("tilestudio-der-satz-hat-keine-kachel-neu")).size(13).color(pal.mute)).center(Length::Fill).into() };
         let kopf = |t: &str| text(t.to_string()).size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute);
-        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> TAkt>| -> Element<Msg> {
+        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> TAkt>| -> Element<'static, Msg> {
             let eintr = farben.eintraege(&d.target, norm); let mut raster = iced::widget::column![].spacing(2); let mut zeile = iced::widget::row![].spacing(2);
             for (k, (idx, c)) in eintr.iter().enumerate() { let (idx, c, gew) = (*idx as usize, *c, *idx as usize == wahl); let a = mach(idx);
                 zeile = zeile.push(button(space::vertical()).width(16).height(16).padding(0).on_press(Msg::TileAkt(r.clone(), a)).style(move |_, _| button::Style { background: Some(c.into()), border: Border { color: if gew { pal.accent } else { pal.line }, width: if gew { 2.0 } else { 1.0 }, radius: 3.0.into() }, ..Default::default() }));
@@ -214,41 +214,41 @@ impl App {
         };
         let mut dokument = iced::widget::column![].spacing(6); let mut werkzeug = iced::widget::column![].spacing(6); let mut fuell = iced::widget::column![].spacing(6); let mut eigen = iced::widget::column![].spacing(6);
         // Füllstand des Zielzeichensatzes: ganz oben in der Seitenspalte, damit man ihn sieht
-        { let mut f_el = iced::widget::column![kopf("Füllstand des Zeichensatzes")].spacing(4);
-          match &d.fill { None => f_el = f_el.push(text("Ohne Zeichensatz gibt es keinen Füllstand.").size(11).color(pal.mute)),
+        { let mut f_el = iced::widget::column![kopf(&vc_i18n::t!("tilestudio-fuellstand-des-zeichensatzes"))].spacing(4);
+          match &d.fill { None => f_el = f_el.push(text(vc_i18n::t!("tilestudio-ohne-zeichensatz-gibt-es-keinen-fuellstand")).size(11).color(pal.mute)),
             Some(f) if f.err.is_some() => f_el = f_el.push(text(f.err.clone().unwrap_or_default()).size(11).color(pal.err)),
-            Some(f) => { let frac = f.used as f32 / f.max.max(1) as f32; f_el = f_el.push(iced::widget::progress_bar(0.0..=1.0, frac).girth(10)).push(text(format!("{} von {} Zeichen belegt{}", f.used, f.max, if f.doubles > 0 { format!(" · {} gleiche werden beim Export zusammengelegt", f.doubles) } else { String::new() })).size(11.5).color(if frac > 0.9 { pal.warn } else { pal.text })) } }
-          fuell = fuell.push(tooltip(f_el, container(text("So viele der 256 Zeichen des Zielzeichensatzes sind belegt").size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Bottom)); }
+            Some(f) => { let frac = f.used as f32 / f.max.max(1) as f32; f_el = f_el.push(iced::widget::progress_bar(0.0..=1.0, frac).girth(10)).push(text(vc_i18n::t!("tilestudio-p1-von-p2-zeichen-belegt-p3", p1 = &f.used, p2 = &f.max, p3 = if f.doubles > 0 { format!(" {}", vc_i18n::t!("tilestudio-p1-gleiche-werden-beim-export-zusammengelegt", p1 = &f.doubles)) } else { String::new() })).size(11.5).color(if frac > 0.9 { pal.warn } else { pal.text })) } }
+          fuell = fuell.push(tooltip(f_el, container(text(vc_i18n::t!("tilestudio-so-viele-der-256-zeichen-des")).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Bottom)); }
         if let Some(t) = ts.tiles.get(d.sel) {
-            dokument = dokument.push(text(format!("Kachel {}", d.sel)).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text));
-            { let r2 = r.clone(); dokument = dokument.push(text_input("Name", &t.name).on_input(move |n| Msg::TileAkt(r2.clone(), TAkt::Name(n))).size(12).padding(4).font(vc_gui_ui::fonts::MONO)) }
-            if let Some(j) = d.doppelt.get(d.sel).copied().flatten() { dokument = dokument.push(text(format!("Gleich wie Kachel {j}.")).size(11.5).color(pal.warn)).push(tb(&format!("Mit {j} zusammenführen"), "Diese Kachel entfernen; Verweise in den Screen-Bänken zeigen danach auf die gleiche Kachel", true, TAkt::Zusammen, false)) }
-            dokument = dokument.push(kopf("Farbe")).push(iced::widget::row![tb("je Kachel", "Eine Farbe für die ganze Kachel", true, TAkt::Farbmodus(ColorMode::Tile), ts.color_mode == ColorMode::Tile), tb("je Zelle", "Farbe je Zelle", true, TAkt::Farbmodus(ColorMode::Cell), ts.color_mode == ColorMode::Cell), tb("keine", "Keine Farbe im Satz", true, TAkt::Farbmodus(ColorMode::None), ts.color_mode == ColorMode::None)].spacing(4));
+            dokument = dokument.push(text(vc_i18n::t!("tilestudio-kachel-p1", p1 = &d.sel)).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text));
+            { let r2 = r.clone(); dokument = dokument.push(text_input(&vc_i18n::t!("tilestudio-name"), &t.name).on_input(move |n| Msg::TileAkt(r2.clone(), TAkt::Name(n))).size(12).padding(4).font(vc_gui_ui::fonts::MONO)) }
+            if let Some(j) = d.doppelt.get(d.sel).copied().flatten() { dokument = dokument.push(text(vc_i18n::t!("tilestudio-gleich-wie-kachel-j", j = &j)).size(11.5).color(pal.warn)).push(tb(&vc_i18n::t!("tilestudio-mit-j-zusammenfuehren", j = &j), &vc_i18n::t!("tilestudio-diese-kachel-entfernen-verweise-in-den"), true, TAkt::Zusammen, false)) }
+            dokument = dokument.push(kopf(&vc_i18n::t!("tilestudio-farbe"))).push(iced::widget::row![tb(&vc_i18n::t!("tilestudio-je-kachel"), &vc_i18n::t!("tilestudio-eine-farbe-fuer-die-ganze-kachel"), true, TAkt::Farbmodus(ColorMode::Tile), ts.color_mode == ColorMode::Tile), tb(&vc_i18n::t!("tilestudio-je-zelle"), &vc_i18n::t!("tilestudio-farbe-je-zelle"), true, TAkt::Farbmodus(ColorMode::Cell), ts.color_mode == ColorMode::Cell), tb(&vc_i18n::t!("neuprojekt-keine"), &vc_i18n::t!("tilestudio-keine-farbe-im-satz"), true, TAkt::Farbmodus(ColorMode::None), ts.color_mode == ColorMode::None)].spacing(4));
             match ts.color_mode {
-                ColorMode::Tile => { dokument = dokument.push(text("Kachelfarbe").size(11.5).color(pal.mute)).push(farbfeld(t.col as usize, Box::new(TAkt::Kachelfarbe))) }
-                ColorMode::Cell => { use vc_ide_model::tilesetdoc::PinselModus as PM; werkzeug = werkzeug.push(text("Ein Klick in die Kachel setzt:").size(11.5).color(pal.mute)).push(iced::widget::row![tb("Zeichen", "Nur das Zeichen der Zelle; ihre Farbe bleibt", true, TAkt::Modus(PM::Zeichen), d.pinsel_modus == PM::Zeichen), tb("Farbe", "Nur die Farbe der Zelle (Pinselfarbe); das Zeichen bleibt", true, TAkt::Modus(PM::Farbe), d.pinsel_modus == PM::Farbe), tb("beides", "Zeichen und Pinselfarbe", true, TAkt::Modus(PM::Beides), d.pinsel_modus == PM::Beides)].spacing(4).wrap()).push(text("Pinselfarbe (für Zellen)").size(11.5).color(pal.mute)).push(farbfeld(d.farbe, Box::new(TAkt::Pinselfarbe))).push(text("Kachelfarbe (für Zellen ohne eigene Farbe)").size(11.5).color(pal.mute)).push(farbfeld(t.col as usize, Box::new(TAkt::Kachelfarbe))) }
-                ColorMode::None => { dokument = dokument.push(text("Keine Farbe im Satz: es gilt die Vordergrundfarbe des Systems.").size(11).color(pal.mute)) }
+                ColorMode::Tile => { dokument = dokument.push(text(vc_i18n::t!("tilestudio-kachelfarbe")).size(11.5).color(pal.mute)).push(farbfeld(t.col as usize, Box::new(TAkt::Kachelfarbe))) }
+                ColorMode::Cell => { use vc_ide_model::tilesetdoc::PinselModus as PM; werkzeug = werkzeug.push(text(vc_i18n::t!("tilestudio-ein-klick-in-die-kachel-setzt")).size(11.5).color(pal.mute)).push(iced::widget::row![tb(&vc_i18n::t!("tilestudio-zeichen"), &vc_i18n::t!("tilestudio-nur-das-zeichen-der-zelle-ihre"), true, TAkt::Modus(PM::Zeichen), d.pinsel_modus == PM::Zeichen), tb(&vc_i18n::t!("tilestudio-farbe"), &vc_i18n::t!("tilestudio-nur-die-farbe-der-zelle-pinselfarbe"), true, TAkt::Modus(PM::Farbe), d.pinsel_modus == PM::Farbe), tb("beides", &vc_i18n::t!("tilestudio-zeichen-und-pinselfarbe"), true, TAkt::Modus(PM::Beides), d.pinsel_modus == PM::Beides)].spacing(4).wrap()).push(text(vc_i18n::t!("tilestudio-pinselfarbe-fuer-zellen")).size(11.5).color(pal.mute)).push(farbfeld(d.farbe, Box::new(TAkt::Pinselfarbe))).push(text(vc_i18n::t!("tilestudio-kachelfarbe-fuer-zellen-ohne-eigene-farbe")).size(11.5).color(pal.mute)).push(farbfeld(t.col as usize, Box::new(TAkt::Kachelfarbe))) }
+                ColorMode::None => { dokument = dokument.push(text(vc_i18n::t!("tilestudio-keine-farbe-im-satz-es-gilt")).size(11).color(pal.mute)) }
             }
-            if d.atari() { let r2 = r.clone(); dokument = dokument.push(iced::widget::checkbox(d.pinsel.sel).label("Farbwahl (Zeichenbit 7)").on_toggle(move |b| Msg::TileAkt(r2.clone(), TAkt::Bit7(b))).size(14).text_size(12)) }
-            eigen = eigen.push(tooltip(kopf("Eigenschaften"), container(text("Eigenschaften: Merkmale wie „solid“, die dein Programm abfragt; Export als _props-Tabelle").size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Bottom)).push(text("Merkmale wie „solid“, die dein Programm abfragt (Export: _props-Tabelle). Haken = gilt für diese Kachel; neuer Name + „+“ legt sie für den ganzen Satz an.").size(10.5).color(pal.mute));
+            if d.atari() { let r2 = r.clone(); dokument = dokument.push(iced::widget::checkbox(d.pinsel.sel).label(vc_i18n::t!("tilestudio-farbwahl-zeichenbit-7")).on_toggle(move |b| Msg::TileAkt(r2.clone(), TAkt::Bit7(b))).size(14).text_size(12)) }
+            eigen = eigen.push(tooltip(kopf(&vc_i18n::t!("tilestudio-eigenschaften")), container(text(vc_i18n::t!("tilestudio-eigenschaften-merkmale-wie-solid-die-dein")).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Bottom)).push(text(vc_i18n::t!("tilestudio-merkmale-wie-solid-die-dein-programm")).size(10.5).color(pal.mute));
             for (n, bit) in &ts.prop_defs { let (r2, bit) = (r.clone(), *bit); eigen = eigen.push(iced::widget::checkbox(t.props >> bit & 1 == 1).label(n.clone()).on_toggle(move |b| Msg::TileAkt(r2.clone(), TAkt::Prop(bit, b))).size(14).text_size(12)) }
-            { let (r2, r3) = (r.clone(), r.clone()); eigen = eigen.push(iced::widget::row![text_input("neue Eigenschaft", &s.neue_prop).on_input(move |t| Msg::TileAkt(r2.clone(), TAkt::PropText(t))).on_submit(Msg::TileAkt(r3.clone(), TAkt::PropNeu)).size(12).padding(3).width(120), tb("+", "Eigenschaft für den ganzen Satz anlegen (höchstens 8)", !s.neue_prop.trim().is_empty() && ts.prop_defs.len() < 8, TAkt::PropNeu, false)].spacing(4).wrap().vertical_spacing(4)) }
+            { let (r2, r3) = (r.clone(), r.clone()); eigen = eigen.push(iced::widget::row![text_input(&vc_i18n::t!("tilestudio-neue-eigenschaft"), &s.neue_prop).on_input(move |t| Msg::TileAkt(r2.clone(), TAkt::PropText(t))).on_submit(Msg::TileAkt(r3.clone(), TAkt::PropNeu)).size(12).padding(3).width(120), tb("+", &vc_i18n::t!("tilestudio-eigenschaft-fuer-den-ganzen-satz-anlegen"), !s.neue_prop.trim().is_empty() && ts.prop_defs.len() < 8, TAkt::PropNeu, false)].spacing(4).wrap().vertical_spacing(4)) }
         }
         let kachel_teil = std::mem::replace(&mut dokument, iced::widget::column![].spacing(6));
-        dokument = dokument.push(kopf("Zeichensatz"));
+        dokument = dokument.push(kopf(&vc_i18n::t!("tilestudio-zeichensatz")));
         let mut reiter = iced::widget::row![].spacing(4);
         for (i, p) in ts.charsets.iter().enumerate() { reiter = reiter.push(tb(&format!("{} {}", (b'A' + (i % 26) as u8) as char, vc_media::naming::stem(p)), p, true, TAkt::Reiter(i), d.reiter == i)) }
         dokument = dokument.push(reiter.wrap());
-        for c in d.zeichensatz_angebot() { dokument = dokument.push(tb(&format!("+ {}", c.rsplit('/').next().unwrap_or(&c)), "Zeichensatz zum Satz hinzufügen", true, TAkt::ZeichensatzPlus(c), false)) }
-        dokument = dokument.push(tb("Zeichensatz entfernen", if d.zeichensatz_benutzt(d.reiter) { "Der Zeichensatz wird noch von Zellen benutzt" } else { "Reiter entfernen" }, d.reiter < ts.charsets.len() && !d.zeichensatz_benutzt(d.reiter), TAkt::ZeichensatzMinus, false));
-        if ts.charsets.is_empty() { dokument = dokument.push(text("Dieser Satz hat noch keinen Zeichensatz: oben hinzufügen.").size(11).color(pal.mute)) }
+        for c in d.zeichensatz_angebot() { dokument = dokument.push(tb(&format!("+ {}", c.rsplit('/').next().unwrap_or(&c)), &vc_i18n::t!("tilestudio-zeichensatz-zum-satz-hinzufuegen"), true, TAkt::ZeichensatzPlus(c), false)) }
+        dokument = dokument.push(tb(&vc_i18n::t!("tilestudio-zeichensatz-entfernen"), &if d.zeichensatz_benutzt(d.reiter) { vc_i18n::t!("tilestudio-der-zeichensatz-wird-noch-von-zellen") } else { vc_i18n::t!("tilestudio-reiter-entfernen") }, d.reiter < ts.charsets.len() && !d.zeichensatz_benutzt(d.reiter), TAkt::ZeichensatzMinus, false));
+        if ts.charsets.is_empty() { dokument = dokument.push(text(vc_i18n::t!("tilestudio-dieser-satz-hat-noch-keinen-zeichensatz")).size(11).color(pal.mute)) }
         else {
             let n = if d.atari() { 128 } else { 256 }; let kante = 16.0;
             let benutzt: Vec<bool> = (0..n).map(|c| d.benutzt.contains(&(d.reiter, c as u8))).collect();
             let tafel = canvas::Canvas::new(Tafel { bild: handle(&d.tafel_bild(2, &rgb)), kante, zeilen: n / 16, gewaehlt: (d.pinsel.cs == d.reiter).then_some(d.pinsel.code), benutzt, pal, rel: rel.to_string() }).width(16.0 * kante).height((n / 16) as f32 * kante);
-            werkzeug = werkzeug.push(text(format!("Zeichen {} (${:02X})", d.pinsel.code, d.pinsel.code)).size(11.5).color(pal.mute)).push(tafel);
+            werkzeug = werkzeug.push(text(vc_i18n::t!("tilestudio-zeichen-p1-p2", p1 = &d.pinsel.code, p2 = format!("{:02X}", d.pinsel.code))).size(11.5).color(pal.mute)).push(tafel);
         }
-        dokument = dokument.push(kopf("Hintergrund")).push(farbfeld(d.hintergrundfarbe(), Box::new(TAkt::Bg)));
+        dokument = dokument.push(kopf(&vc_i18n::t!("tilestudio-hintergrund"))).push(farbfeld(d.hintergrundfarbe(), Box::new(TAkt::Bg)));
         dokument = dokument.push(text(self.palettenzeile(&d.target, s.ansicht)).size(10.5).color(pal.mute));
         if self.farben.hat_varianten(&d.target) { let r3 = r.clone(); dokument = dokument.push(self.ansicht_wahl_mit(pal, s.ansicht, move |a| Msg::TileAkt(r3.clone(), TAkt::Ansicht(a)))) }
         // Karten: Füllstand (immer sichtbar) · Werkzeug · Dokument · Info (Verwendung)
@@ -256,38 +256,38 @@ impl App {
         let mut verw_info = iced::widget::column![].spacing(2);
         if let Some(t) = ts.tiles.get(d.sel) {
             let c = &t.cells[d.cur.min(t.cells.len().saturating_sub(1))];
-            verw_info = verw_info.push(text(format!("Zelle {},{} · Zeichen {} (${:02X}) · Zeichensatz {}{}", d.cur % w, d.cur / w, c.code, c.code, (b'A' + (c.cs % 26) as u8) as char, if c.sel { " (Farbwahl)" } else { "" })).size(muster::schrift::HINWEIS).color(pal.mute));
+            verw_info = verw_info.push(text(vc_i18n::t!("tilestudio-zelle-p1-p2-zeichen-p3-p4", p1 = d.cur % w, p2 = d.cur / w, p3 = &c.code, p4 = format!("{:02X}", c.code), p5 = (b'A' + (c.cs % 26) as u8) as char, p6 = if c.sel { format!(" {}", vc_i18n::t!("tilestudio-farbwahl")) } else { String::new() })).size(muster::schrift::HINWEIS).color(pal.mute));
         }
-        if !d.banken.is_empty() { for b in &d.banken { verw_info = verw_info.push(text(format!("{}: {} Zelle(n) in {} Screen(s) der Bank", b.rel, b.counts.get(d.sel).copied().unwrap_or(0), b.screens)).size(muster::schrift::HINWEIS).color(pal.mute)) } }
-        let kachel_name = ts.tiles.get(d.sel).map(|t| if t.name.is_empty() { format!("Kachel {}", d.sel) } else { format!("Kachel {} · {}", d.sel, t.name) });
+        if !d.banken.is_empty() { for b in &d.banken { verw_info = verw_info.push(text(vc_i18n::t!("tilestudio-p1-p2-zelle-n-in-p3", p1 = &b.rel, p2 = b.counts.get(d.sel).copied().unwrap_or(0), p3 = &b.screens)).size(muster::schrift::HINWEIS).color(pal.mute)) } }
+        let kachel_name = ts.tiles.get(d.sel).map(|t| if t.name.is_empty() { vc_i18n::t!("tilestudio-kachel-p1", p1 = &d.sel) } else { vc_i18n::t!("tilestudio-kachel-p1-p2", p1 = &d.sel, p2 = &t.name) });
         let karten: Vec<Element<Msg>> = vec![
-            muster::karte(pal, "Kachel", "▣", "diese Kachel · wird gespeichert", karte_zu("kachel"), kachel_teil.into()),
-            muster::karte(pal, "Werkzeug", "✎", "fürs Zeichnen · nicht in der Datei", karte_zu("werkzeug"), werkzeug.into()),
-            muster::karte(pal, "Eigenschaften", "⚑", "eigene Marken, die dein Programm abfragen kann", karte_zu("eigenschaften"), eigen.into()),
-            muster::karte(pal, "Füllstand", "▮", "Zeichen des Zielzeichensatzes und Kacheln", karte_zu("fuellstand"), fuell.push(text(format!("{} von {} Kacheln", ts.tiles.len(), vc_media::tiles::MAX_TILES)).size(muster::schrift::HINWEIS).color(pal.mute)).into()),
-            muster::karte(pal, "Zeichensatz und Hintergrund", "▤", "Satz · wird gespeichert", karte_zu("dokument"), dokument.into()),
-            muster::karte(pal, "Info", "ⓘ", "", karte_zu("info"), verw_info.into())];
+            muster::karte(pal, &vc_i18n::t!("tilestudio-kachel"), "▣", &vc_i18n::t!("tilestudio-diese-kachel-wird-gespeichert"), karte_zu("kachel"), kachel_teil.into()),
+            muster::karte(pal, &vc_i18n::t!("tilestudio-werkzeug"), "✎", &vc_i18n::t!("tilestudio-fuers-zeichnen-nicht-in-der-datei"), karte_zu("werkzeug"), werkzeug.into()),
+            muster::karte(pal, &vc_i18n::t!("tilestudio-eigenschaften"), "⚑", &vc_i18n::t!("tilestudio-eigene-marken-die-dein-programm-abfragen"), karte_zu("eigenschaften"), eigen.into()),
+            muster::karte(pal, &vc_i18n::t!("tilestudio-fuellstand"), "▮", &vc_i18n::t!("tilestudio-zeichen-des-zielzeichensatzes-und-kacheln"), karte_zu("fuellstand"), fuell.push(text(vc_i18n::t!("tilestudio-p1-von-p2-kacheln", p1 = ts.tiles.len(), p2 = vc_media::tiles::MAX_TILES)).size(muster::schrift::HINWEIS).color(pal.mute)).into()),
+            muster::karte(pal, &vc_i18n::t!("tilestudio-zeichensatz-und-hintergrund"), "▤", &vc_i18n::t!("tilestudio-satz-wird-gespeichert"), karte_zu("dokument"), dokument.into()),
+            muster::karte(pal, &vc_i18n::t!("tilestudio-info"), "ⓘ", "", karte_zu("info"), verw_info.into())];
         let seite = muster::seitenspalte(klasse, karten);
         // Zone 1: Kopfzeile
         let name = rel.rsplit('/').next().unwrap_or(rel).to_string();
-        let kopf_z = muster::kopfzeile(pal, klasse, "MAP", &name, d.dirty(), &format!("{} Kacheln · {}×{} Zellen", ts.tiles.len(), w, h), vec![
-            tb("Exportieren …", "Export-Dialog (Cmd+Umschalt+E)", true, TAkt::Exportieren, false), tb("Speichern", "Speichern (Cmd+S)", d.dirty(), TAkt::Speichern, false)]);
+        let kopf_z = muster::kopfzeile(pal, klasse, "MAP", &name, d.dirty(), &vc_i18n::t!("tilestudio-p1-kacheln-w-h-zellen", p1 = ts.tiles.len(), w = &w, h = &h), vec![
+            tb(&vc_i18n::t!("tilestudio-exportieren"), &vc_i18n::t!("tilestudio-export-dialog-cmd-umschalt-e"), true, TAkt::Exportieren, false), tb(&vc_i18n::t!("tilestudio-speichern"), &vc_i18n::t!("tilestudio-speichern-cmd-s"), d.dirty(), TAkt::Speichern, false)]);
         let status = if d.status.is_empty() { String::new() } else { format!(" · {}", d.status) };
-        let fuss = muster::fusszeile(pal, &format!("Kachel {} · Zelle {},{} · Zoom {}{status}", d.sel, d.cur % w, d.cur / w, if s.zoomansicht.platz.get().0 < 1.0 { "Einpassen".to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { "Einpassen · " } else { "" }, s.skala.get()) }),
-            tooltip(text("? Tasten").size(muster::schrift::HINWEIS).color(pal.mute), container(text("linke Taste setzt den Pinsel, rechte Taste nimmt die Zelle auf · Pfeile wandern in der Kachel · + − Zoom · 0 Einpassen · Leertaste+Ziehen verschiebt · Cmd+Mausrad zoomt").size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Top).into());
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("tilestudio-kachel-p1-zelle-p2-p3-zoom", p1 = &d.sel, p2 = d.cur % w, p3 = d.cur / w, p4 = if s.zoomansicht.platz.get().0 < 1.0 { vc_i18n::t!("tilestudio-einpassen").to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { format!("{} ", vc_i18n::t!("tilestudio-einpassen-2")) } else { String::new() }, s.skala.get()) }, status = &status),
+            tooltip(text(vc_i18n::t!("tilestudio-tasten")).size(muster::schrift::HINWEIS).color(pal.mute), container(text(vc_i18n::t!("tilestudio-linke-taste-setzt-den-pinsel-rechte")).size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Top).into());
         // Überlagerungen: Rückfrage (Löschen/Größe) und ⋯-Karte
         let mut flaeche_el: Element<Msg> = container(flaeche_roh).padding(iced::Padding { top: 28.0, ..Default::default() }).into();
         if let Some(fr) = &d.frage {
             let msg = match fr {
-                Frage::Loeschen(i) => { let n: usize = d.banken.iter().filter(|b| b.counts.get(*i).copied().unwrap_or(0) > 0).map(|b| b.screens).sum(); format!("Kachel {i} wird {}× in {n} Screen(s) benutzt. Beim Löschen werden die Screen-Bänke angepasst (Verweise werden zu Kachel 0, höhere Nummern rücken nach) und der Satz wird gespeichert.", d.verwendung(*i)) }
-                Frage::Groesse(w2, h2) => format!("Größe {w2}×{h2}: belegte Zellen außerhalb gehen verloren."),
+                Frage::Loeschen(i) => { let n: usize = d.banken.iter().filter(|b| b.counts.get(*i).copied().unwrap_or(0) > 0).map(|b| b.screens).sum(); vc_i18n::t!("tilestudio-kachel-i-wird-p2-in-n", i = &i, p2 = d.verwendung(*i), n = &n) }
+                Frage::Groesse(w2, h2) => vc_i18n::t!("tilestudio-groesse-w2-h2-belegte-zellen-ausserhalb", w2 = &w2, h2 = &h2),
             };
-            let dlg = container(iced::widget::column![text(msg).size(12).color(pal.warn), iced::widget::row![knopf(pal, if matches!(fr, Frage::Loeschen(_)) { "Löschen" } else { "Beschneiden" }, Some(Msg::TileAkt(r.clone(), TAkt::FrageJa)), pal.text, true), knopf(pal, "Abbrechen", Some(Msg::TileAkt(r.clone(), TAkt::FrageNein)), pal.text, false)].spacing(8)].spacing(8)).padding(10).width(Length::Fill).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.warn, width: 1.0, radius: 8.0.into() }, ..Default::default() });
+            let dlg = container(iced::widget::column![text(msg).size(12).color(pal.warn), iced::widget::row![knopf(pal, if matches!(fr, Frage::Loeschen(_)) { vc_i18n::t!("tilestudio-loeschen") } else { vc_i18n::t!("tilestudio-beschneiden") }, Some(Msg::TileAkt(r.clone(), TAkt::FrageJa)), pal.text, true), knopf(pal, vc_i18n::t!("tilestudio-abbrechen"), Some(Msg::TileAkt(r.clone(), TAkt::FrageNein)), pal.text, false)].spacing(8)].spacing(8)).padding(10).width(Length::Fill).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.warn, width: 1.0, radius: 8.0.into() }, ..Default::default() });
             flaeche_el = iced::widget::stack![flaeche_el, container(container(dlg).max_width(420)).padding(muster::abstand::BEREICH).center(Length::Fill)].into();
         }
         if let Some(n) = kachel_name { flaeche_el = iced::widget::stack![flaeche_el, container(text(n).size(muster::schrift::TEXT).font(vc_gui_ui::fonts::UI_FETT).color(pal.text)).padding(muster::abstand::GRUPPE)].into(); }
         if s.mehr {
-            let karte_mehr = container(iced::widget::column![text("Transformieren").size(muster::schrift::HINWEIS).color(pal.mute), transformieren().wrap().vertical_spacing(4), text("Ansicht").size(muster::schrift::HINWEIS).color(pal.mute), zoomgruppe()].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(360).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
+            let karte_mehr = container(iced::widget::column![text(vc_i18n::t!("tilestudio-transformieren-2")).size(muster::schrift::HINWEIS).color(pal.mute), transformieren().wrap().vertical_spacing(4), text(vc_i18n::t!("tilestudio-ansicht")).size(muster::schrift::HINWEIS).color(pal.mute), zoomgruppe()].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(360).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
             flaeche_el = iced::widget::stack![flaeche_el, container(karte_mehr).padding(muster::abstand::GRUPPE).align_right(Length::Fill)].into();
         }
         let flaeche_el: Element<Msg> = container(flaeche_el).width(Length::Fill).height(Length::Fill).style(move |_| container::Style { background: Some(pal.editor.into()), ..Default::default() }).into();

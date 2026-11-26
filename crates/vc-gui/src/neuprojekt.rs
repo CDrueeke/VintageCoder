@@ -86,7 +86,7 @@ impl NeuProj {
     }
     /// Projekt anlegen und die Projektdatei ergänzen; liefert den Projektordner und Hinweise (z. B. Git fehlt)
     pub fn anlegen(&self, einst: &vc_ide::settings::Settings) -> Result<(PathBuf, Vec<String>), String> {
-        let c = &self.karten[self.karte.ok_or("keine Vorlage gewählt")?];
+        let c = &self.karten[self.karte.ok_or(vc_i18n::t!("neuprojekt-keine-vorlage-gewaehlt"))?];
         let dir = self.ort.join(&self.name); let systeme = self.systeme();
         vc_media::wizard::create_with(&self.data, &dir, &self.name, &systeme, &c.vorlage, c.variante.as_deref())?;
         let mut notizen = vec![]; let datei = dir.join(format!("{}.vcprj", self.name));
@@ -101,14 +101,14 @@ impl NeuProj {
         if !self.disk.is_empty() { pf.disk = Some(vc_ide::projfile::DiskSpec { format: self.disk.clone(), ..Default::default() }) }
         if let Some(st) = self.strukturen.get(self.struktur) { st.apply(&dir, &mut pf, &systeme, self.git)?; }
         pf.save(&datei)?;
-        if let Err(e) = vc_media::wizard::zeichensatz_anlegen(&self.data, &dir, &systeme, self.zeichensatz) { notizen.push(format!("Zeichensatz nicht angelegt: {e}")) }
+        if let Err(e) = vc_media::wizard::zeichensatz_anlegen(&self.data, &dir, &systeme, self.zeichensatz) { notizen.push(vc_i18n::t!("neuprojekt-zeichensatz-nicht-angelegt-e", e = &e)) }
         if self.readme {
-            let sys = targets::system(&self.system).map_or(self.system.as_str(), |s| s.name);
+            let sys = targets::system(&self.system).map_or(self.system.clone(), |s| s.name());
             std::fs::write(dir.join("README.md"), format!("# {}\n\nProjekt für {} ({}), angelegt mit VintageCoder.\n\n- Bauen: F7 (oder `vcc build .`)\n- Starten: F5\n- Debuggen: F6\n", self.name, sys, c.name)).map_err(|e| e.to_string())?;
         }
         if self.git {
             std::fs::write(dir.join(".gitignore"), "build/\n.vcbackup/\n").map_err(|e| e.to_string())?;
-            if !aussen::git_init(&dir) { notizen.push("git init ist fehlgeschlagen (ist Git installiert?). .gitignore wurde trotzdem angelegt.".to_string()) }
+            if !aussen::git_init(&dir) { notizen.push(vc_i18n::t!("neuprojekt-git-init-ist-fehlgeschlagen-ist-git").to_string()) }
         }
         Ok((dir, notizen))
     }
@@ -124,7 +124,7 @@ fn marke<'a>(pal: Pal, t: &str) -> Element<'a, Msg> { text(t.to_string()).size(1
 impl App {
     pub(crate) fn neuprojekt_oeffnen(&mut self) {
         let ort = if cfg!(test) { std::env::temp_dir().join("vcgui-neuprojekt") } else { let p = self.satz.gespeichert.projects_dir.trim(); if p.is_empty() { vc_core::userdirs::home_dir().map(|h| h.join("VintageCoder")).unwrap_or_else(|| PathBuf::from(".")) } else { PathBuf::from(vc_ide::settings::expand_home(p)) } };
-        match NeuProj::neu(&self.data, ort, &self.satz.gespeichert) { Some(w) => self.neu_projekt = Some(w), None => self.log.push("Neues Projekt: data/templates/index.json fehlt.".into()) }
+        match NeuProj::neu(&self.data, ort, &self.satz.gespeichert) { Some(w) => self.neu_projekt = Some(w), None => self.log.push(vc_i18n::t!("neuprojekt-neues-projekt-data-templates-index-json").into()) }
     }
     pub(crate) fn np_akt(&mut self, a: NpAkt) -> Task<Msg> {
         let einst = self.satz.gespeichert.clone();
@@ -143,7 +143,7 @@ impl App {
             NpAkt::Ok => {
                 if !w.name_ok() || w.karte.is_none() { return Task::none() }
                 match w.anlegen(&einst) {
-                    Ok((dir, notizen)) => { self.neu_projekt = None; for n in notizen { self.log.push(n) } self.log.push(format!("Projekt angelegt: {}", dir.display())); return self.update_innen(Msg::Geoeffnet(Some(dir))) }
+                    Ok((dir, notizen)) => { self.neu_projekt = None; for n in notizen { self.log.push(n) } self.log.push(vc_i18n::t!("neuprojekt-projekt-angelegt-p1", p1 = dir.display())); return self.update_innen(Msg::Geoeffnet(Some(dir))) }
                     Err(e) => w.fehler = e,
                 }
             }
@@ -157,64 +157,64 @@ impl App {
         let mut sys = column![marke(pal, "ZIELSYSTEM")].spacing(5);
         for i in targets::installed_systems(Some(&w.data)) {
             let on = w.system == i.id;
-            sys = sys.push(button(column![text(i.name).size(13).color(pal.text), text(i.cpu).size(10.5).color(pal.mute)].spacing(1)).width(Length::Fill).padding([6, 10]).on_press(s(NpAkt::System(i.id.to_string()))).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if on { pal.accent } else { pal.line }, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }));
+            sys = sys.push(button(column![text(i.name()).size(13).color(pal.text), text(i.cpu()).size(10.5).color(pal.mute)].spacing(1)).width(Length::Fill).padding([6, 10]).on_press(s(NpAkt::System(i.id.to_string()))).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if on { pal.accent } else { pal.line }, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }));
         }
         let gueltig = vc_target::load_target(&w.data, &w.system).is_ok();
-        sys = sys.push(row![marke(pal, "Hardware-Profil"), iced::widget::space::horizontal(), if gueltig { chip(pal.ok, "gültig") } else { chip(pal.err, "fehlt") }].align_y(Alignment::Center));
-        if let Ok(t) = vc_target::load_target(&w.data, &w.system) { sys = sys.push(text(format!("CPU {} · {}", t.cpu, t.chips.join(", "))).size(11).font(vc_gui_ui::fonts::MONO).color(pal.mute)) }
+        sys = sys.push(row![marke(pal, &vc_i18n::t!("neuprojekt-hardware-profil")), iced::widget::space::horizontal(), if gueltig { chip(pal.ok, vc_i18n::t!("neuprojekt-gueltig")) } else { chip(pal.err, vc_i18n::t!("neuprojekt-fehlt")) }].align_y(Alignment::Center));
+        if let Ok(t) = vc_target::load_target(&w.data, &w.system) { sys = sys.push(text(vc_i18n::t!("neuprojekt-cpu-p1-p2", p1 = &t.cpu, p2 = t.chips.join(", "))).size(11).font(vc_gui_ui::fonts::MONO).color(pal.mute)) }
         // Spalte 2: Vorlage
-        let mut vor = column![row![marke(pal, "VORLAGE"), wahl(pal, vec![("asm".into(), "Assembler".into()), ("basic".into(), "BASIC".into())], if w.sprache == Sprache::Asm { "asm" } else { "basic" }, |x| NpAkt::Sprache(if x == "asm" { Sprache::Asm } else { Sprache::Basic }))].spacing(10).align_y(Alignment::Center).wrap()].spacing(8);
+        let mut vor = column![row![marke(pal, "VORLAGE"), wahl(pal, vec![("asm".into(), vc_i18n::t!("neuprojekt-assembler").into()), ("basic".into(), "BASIC".into())], if w.sprache == Sprache::Asm { "asm" } else { "basic" }, |x| NpAkt::Sprache(if x == "asm" { Sprache::Asm } else { Sprache::Basic }))].spacing(10).align_y(Alignment::Center).wrap()].spacing(8);
         let f = w.gefiltert();
-        if f.is_empty() { vor = vor.push(klein(pal, "Für diese Kombination aus Zielsystem und Sprache gibt es keine Vorlage.")) }
+        if f.is_empty() { vor = vor.push(klein(pal, vc_i18n::t!("neuprojekt-fuer-diese-kombination-aus-zielsystem-und"))) }
         for i in f {
             let c = &w.karten[i]; let on = w.karte == Some(i);
             let dateien = c.dateien.iter().map(|d| d.replace("{system}", &w.system)).collect::<Vec<_>>().join("  ");
             vor = vor.push(button(column![row![text(c.name.clone()).size(13.5).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), chip(pal.warn, if c.sprache == Sprache::Asm { "vcasm" } else { "BASIC" })].spacing(8).align_y(Alignment::Center).wrap(), text(c.beschreibung.clone()).size(11.5).color(pal.mute), text(dateien).size(11).font(vc_gui_ui::fonts::MONO).color(pal.mute)].spacing(3)).width(Length::Fill).padding(10).on_press(s(NpAkt::Karte(i))).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if on { pal.accent } else { pal.line }, width: 1.0, radius: 8.0.into() }, text_color: pal.text, ..Default::default() }));
         }
-        if w.sprache == Sprache::Basic { vor = vor.push(klein(pal, "BASIC wird im Dialekt des Zielsystems geschrieben, ohne Zeilennummern und mit Sprungmarken (@name). Beim Bauen entsteht daraus das native Programm.")) }
+        if w.sprache == Sprache::Basic { vor = vor.push(klein(pal, vc_i18n::t!("neuprojekt-basic-wird-im-dialekt-des-zielsystems"))) }
         // Spalte 3: Details
-        let mut d = column![marke(pal, "PROJEKT-DETAILS"), marke(pal, "Projektname"), text_input("meinprojekt", &w.name).on_input(|n| s(NpAkt::Name(n))).font(vc_gui_ui::fonts::MONO).size(13).padding(6)].spacing(6);
-        if !w.name_ok() { d = d.push(text("Nur Buchstaben, Ziffern, _ und -").size(11.5).color(pal.err)) }
-        d = d.push(marke(pal, "Speicherort")).push(row![text(vc_ide_model::recent::pretty(&w.ort)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text).width(Length::Fill), knopf(pal, "Wählen …", Some(s(NpAkt::Ort)), pal.text, false)].spacing(8).align_y(Alignment::Center));
-        if w.sprache == Sprache::Basic { let o = w.dialekte(); d = d.push(marke(pal, "BASIC-Dialekt")).push(wahl(pal, o.iter().map(|x| (x.clone(), dialect_label(x).to_string())).collect(), &w.dialekt, NpAkt::Dialekt)) }
-        if w.system != "mega65" { d = d.push(marke(pal, "Videonorm")).push(wahl(pal, vec![("pal".into(), "PAL".into()), ("ntsc".into(), "NTSC".into())], &w.norm, NpAkt::Norm)) }
-        if w.system == "vic20" { d = d.push(marke(pal, "Speicherausbau")).push(wahl(pal, w.vic20_speicher(), &w.speicher, NpAkt::Speicher)) }
+        let mut d = column![marke(pal, &vc_i18n::t!("neuprojekt-projekt-details")), marke(pal, &vc_i18n::t!("neuprojekt-projektname")), text_input("meinprojekt", &w.name).on_input(|n| s(NpAkt::Name(n))).font(vc_gui_ui::fonts::MONO).size(13).padding(6)].spacing(6);
+        if !w.name_ok() { d = d.push(text(vc_i18n::t!("neuprojekt-nur-buchstaben-ziffern-und")).size(11.5).color(pal.err)) }
+        d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-speicherort"))).push(row![text(vc_ide_model::recent::pretty(&w.ort)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text).width(Length::Fill), knopf(pal, vc_i18n::t!("neuprojekt-waehlen"), Some(s(NpAkt::Ort)), pal.text, false)].spacing(8).align_y(Alignment::Center));
+        if w.sprache == Sprache::Basic { let o = w.dialekte(); d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-basic-dialekt"))).push(wahl(pal, o.iter().map(|x| (x.clone(), dialect_label(x).to_string())).collect(), &w.dialekt, NpAkt::Dialekt)) }
+        if w.system != "mega65" { d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-videonorm"))).push(wahl(pal, vec![("pal".into(), "PAL".into()), ("ntsc".into(), "NTSC".into())], &w.norm, NpAkt::Norm)) }
+        if w.system == "vic20" { d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-speicherausbau"))).push(wahl(pal, w.vic20_speicher(), &w.speicher, NpAkt::Speicher)) }
         let cfg = einst.target(&w.system);
         let global_emu = cfg.and_then(|t| t.standard_emulator()).map(|e| e.id.clone()).unwrap_or_default();
         let global_start = cfg.map(|t| t.start_on.clone()).filter(|id| einst.machine(id).is_some()).unwrap_or_default();
-        d = d.push(marke(pal, "Standard-Emulator"));
+        d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-standard-emulator")));
         match cfg.filter(|t| !t.emulators.is_empty()) {
-            Some(t) => { d = d.push(wahl(pal, t.emulators.iter().map(|e| (e.id.clone(), if e.id == global_emu { format!("{} (Einstellungen)", e.display_name()) } else { e.display_name().to_string() })).collect(), &w.emulator, NpAkt::Emu)); if w.emulator != global_emu { d = d.push(text("weicht von den Einstellungen ab: wird in der Projektdatei gespeichert").size(11.5).color(pal.warn)) } }
-            None => d = d.push(row![chip(pal.accent, targets::kind_label(&einst.emulator_for(&w.system).kind)), klein(pal, "aus den Einstellungen")].spacing(8).align_y(Alignment::Center)),
+            Some(t) => { d = d.push(wahl(pal, t.emulators.iter().map(|e| (e.id.clone(), if e.id == global_emu { vc_i18n::t!("neuprojekt-p1-einstellungen", p1 = e.display_name()) } else { e.display_name().to_string() })).collect(), &w.emulator, NpAkt::Emu)); if w.emulator != global_emu { d = d.push(text(vc_i18n::t!("neuprojekt-weicht-von-den-einstellungen-ab-wird")).size(11.5).color(pal.warn)) } }
+            None => d = d.push(row![chip(pal.accent, targets::kind_label(&einst.emulator_for(&w.system).kind)), klein(pal, vc_i18n::t!("neuprojekt-aus-den-einstellungen"))].spacing(8).align_y(Alignment::Center)),
         }
-        let mut st: Vec<(String, String)> = vec![(String::new(), "Emulator".into())]; for m in einst.machines_for(&w.system) { st.push((m.id.clone(), format!("{} (Hardware)", m.display_name()))) }
-        d = d.push(marke(pal, "Startziel (F5)")).push(wahl(pal, st, &w.start_on, NpAkt::Start));
-        if w.start_on != global_start { d = d.push(text("weicht von den Einstellungen ab: wird in der Projektdatei gespeichert").size(11.5).color(pal.warn)) }
-        let mut df: Vec<(String, String)> = vec![(String::new(), "keine".into())]; for x in disk_formate(&w.system) { df.push((x.to_string(), x.to_uppercase())) }
-        d = d.push(marke(pal, "Diskette")).push(wahl(pal, df, &w.disk, NpAkt::Disk));
-        let zs_hinweis = match w.zeichensatz { vc_media::wizard::Zeichensatz::Auto => "Dein ROM hat Vorrang (nur ein Verweis in der Datei, nichts Fremdes im Projekt); sonst der eigene Satz VC-Standard als Kopie.", vc_media::wizard::Zeichensatz::Eigen => "Immer der eigene Satz VC-Standard (CC0) als Kopie mit HERKUNFT.txt: das Projekt lässt sich weitergeben.", vc_media::wizard::Zeichensatz::Keine => "Kein Zeichensatz; du legst später im Zeichensatz-Studio einen an." };
-        d = d.push(marke(pal, "Zeichensatz des Projekts")).push(wahl(pal, vec![("auto".into(), "Automatisch".into()), ("own".into(), "Nur Standard (eigen)".into()), ("none".into(), "Keinen".into())], match w.zeichensatz { vc_media::wizard::Zeichensatz::Auto => "auto", vc_media::wizard::Zeichensatz::Eigen => "own", vc_media::wizard::Zeichensatz::Keine => "none" }, NpAkt::Zeichensatz)).push(klein(pal, zs_hinweis));
-        d = d.push(checkbox(w.readme).label("README.md mit Bauhinweisen anlegen").on_toggle(|b| s(NpAkt::Readme(b))).size(16).text_size(13)).push(checkbox(w.git).label("Git-Repository anlegen (.gitignore für build/ und .vcbackup/)").on_toggle(|b| s(NpAkt::Git(b))).size(16).text_size(13));
+        let mut st: Vec<(String, String)> = vec![(String::new(), vc_i18n::t!("neuprojekt-emulator").into())]; for m in einst.machines_for(&w.system) { st.push((m.id.clone(), vc_i18n::t!("neuprojekt-p1-hardware", p1 = m.display_name()))) }
+        d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-startziel-f5"))).push(wahl(pal, st, &w.start_on, NpAkt::Start));
+        if w.start_on != global_start { d = d.push(text(vc_i18n::t!("neuprojekt-weicht-von-den-einstellungen-ab-wird")).size(11.5).color(pal.warn)) }
+        let mut df: Vec<(String, String)> = vec![(String::new(), vc_i18n::t!("neuprojekt-keine"))]; for x in disk_formate(&w.system) { df.push((x.to_string(), x.to_uppercase())) }
+        d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-diskette"))).push(wahl(pal, df, &w.disk, NpAkt::Disk));
+        let zs_hinweis = match w.zeichensatz { vc_media::wizard::Zeichensatz::Auto => vc_i18n::t!("neuprojekt-dein-rom-hat-vorrang-nur-ein"), vc_media::wizard::Zeichensatz::Eigen => vc_i18n::t!("neuprojekt-immer-der-eigene-satz-vc-standard"), vc_media::wizard::Zeichensatz::Keine => vc_i18n::t!("neuprojekt-kein-zeichensatz-du-legst-spaeter-im") };
+        d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-zeichensatz-des-projekts"))).push(wahl(pal, vec![("auto".into(), vc_i18n::t!("neuprojekt-automatisch").into()), ("own".into(), vc_i18n::t!("neuprojekt-nur-standard-eigen").into()), ("none".into(), vc_i18n::t!("neuprojekt-keinen").into())], match w.zeichensatz { vc_media::wizard::Zeichensatz::Auto => "auto", vc_media::wizard::Zeichensatz::Eigen => "own", vc_media::wizard::Zeichensatz::Keine => "none" }, NpAkt::Zeichensatz)).push(klein(pal, zs_hinweis));
+        d = d.push(checkbox(w.readme).label(vc_i18n::t!("neuprojekt-readme-md-mit-bauhinweisen-anlegen")).on_toggle(|b| s(NpAkt::Readme(b))).size(16).text_size(13)).push(checkbox(w.git).label(vc_i18n::t!("neuprojekt-git-repository-anlegen-gitignore-fuer-build")).on_toggle(|b| s(NpAkt::Git(b))).size(16).text_size(13));
         if let Some(c) = w.karte {
             let andere: Vec<&targets::SystemInfo> = targets::installed_systems(Some(&w.data)).into_iter().filter(|x| x.id != w.system && w.karten[c].systeme.iter().any(|y| y == x.id)).collect();
-            if !andere.is_empty() { d = d.push(marke(pal, "Weitere Zielsysteme")); for x in andere { let id = x.id.to_string(); d = d.push(checkbox(w.extra.iter().any(|y| *y == id)).label(x.name).on_toggle(move |b| s(NpAkt::Extra(id.clone(), b))).size(16).text_size(13)) } }
+            if !andere.is_empty() { d = d.push(marke(pal, &vc_i18n::t!("neuprojekt-weitere-zielsysteme"))); for x in andere { let id = x.id.to_string(); d = d.push(checkbox(w.extra.iter().any(|y| *y == id)).label(x.name()).on_toggle(move |b| s(NpAkt::Extra(id.clone(), b))).size(16).text_size(13)) } }
         }
         // Vorschau
         let files = w.vorschau(); let n = files.iter().filter(|f| !f.ends_with('/')).count();
-        let mut baum = column![row![marke(pal, "Dateistruktur"), chip(pal.mute, format!("{n} Dateien"))].spacing(8).align_y(Alignment::Center), text(format!("{}/", w.name)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.accent)].spacing(2);
-        let notizen: std::collections::BTreeMap<String, String> = [("build".to_string(), "entsteht beim Bauen".to_string())].into_iter().collect();
+        let mut baum = column![row![marke(pal, &vc_i18n::t!("neuprojekt-dateistruktur")), chip(pal.mute, vc_i18n::t!("neuprojekt-n-dateien", n = &n))].spacing(8).align_y(Alignment::Center), text(format!("{}/", w.name)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.accent)].spacing(2);
+        let notizen: std::collections::BTreeMap<String, String> = [("build".to_string(), vc_i18n::t!("neuprojekt-entsteht-beim-bauen").to_string())].into_iter().collect();
         for l in vc_ide::structure::preview_tree(&files, &notizen, &|_| true) { baum = baum.push(row![iced::widget::space::horizontal().width(l.depth as f32 * 14.0), text(if l.dir { format!("{}/", l.name) } else { l.name.clone() }).size(11.5).font(vc_gui_ui::fonts::MONO).color(if l.dir { pal.text } else { pal.mute }), klein(pal, l.note.clone())].spacing(6)) }
         d = d.push(container(baum).padding(8).width(Length::Fill).style(move |_| flaeche(pal.bg, pal.line)));
         // Fuß
         let ok = w.name_ok() && w.karte.is_some();
         let norm = if w.system == "mega65" { String::new() } else { format!(" {}", w.norm.to_uppercase()) };
-        let fuss = row![text(format!("Ziel: {}{norm} · {}{}", short_name(&w.system), if w.sprache == Sprache::Asm { "Assembler (vcasm)".to_string() } else { dialect_label(&w.dialekt).to_string() }, w.karte.map(|c| format!(" · {}", w.karten[c].name)).unwrap_or_default())).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.mute), iced::widget::space::horizontal(),
+        let fuss = row![text(vc_i18n::t!("neuprojekt-ziel-p1-norm-p3-p4", p1 = short_name(&w.system), norm = &norm, p3 = if w.sprache == Sprache::Asm { "Assembler (vcasm)".to_string() } else { dialect_label(&w.dialekt).to_string() }, p4 = w.karte.map(|c| format!(" · {}", w.karten[c].name)).unwrap_or_default())).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.mute), iced::widget::space::horizontal(),
             if w.fehler.is_empty() { text("").into() } else { text(w.fehler.clone()).size(12).color(pal.err) },
-            knopf(pal, "Abbrechen", Some(s(NpAkt::Abbruch)), pal.text, false), knopf(pal, "Projekt erstellen und öffnen", ok.then(|| s(NpAkt::Ok)), pal.text, true)].spacing(10).align_y(Alignment::Center).wrap().vertical_spacing(6);
+            knopf(pal, vc_i18n::t!("neuprojekt-abbrechen"), Some(s(NpAkt::Abbruch)), pal.text, false), knopf(pal, vc_i18n::t!("neuprojekt-projekt-erstellen-und-oeffnen"), ok.then(|| s(NpAkt::Ok)), pal.text, true)].spacing(10).align_y(Alignment::Center).wrap().vertical_spacing(6);
         let breit = self.fenster.width / self.einst.zoom >= 1000.0;
         let inhalt: Element<Msg> = if breit { row![container(scrollable(sys.padding(iced::Padding { right: 12.0, ..Default::default() }))).width(Length::FillPortion(2)), container(scrollable(vor.padding(iced::Padding { right: 12.0, ..Default::default() }))).width(Length::FillPortion(3)), container(scrollable(d.padding(iced::Padding { right: 12.0, ..Default::default() }))).width(Length::FillPortion(3))].spacing(14).height(Length::Fill).into() }
             else { scrollable(column![sys, vor, d].spacing(16).padding(iced::Padding { right: 12.0, ..Default::default() })).height(Length::Fill).into() };
-        let karte = container(column![abschnitt(pal, "Neues Projekt erstellen", "Zielsystem, Vorlage und Details wählen"), inhalt, fuss].spacing(12)).padding(18).width(Length::Fill).height(Length::Fill).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
+        let karte = container(column![abschnitt(pal, vc_i18n::t!("neuprojekt-neues-projekt-erstellen"), vc_i18n::t!("neuprojekt-zielsystem-vorlage-und-details-waehlen")), inhalt, fuss].spacing(12)).padding(18).width(Length::Fill).height(Length::Fill).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hg = iced::widget::mouse_area(container(iced::widget::space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.55, ..Color::BLACK }.into()), ..Default::default() }));
         Some(iced::widget::stack![hg, container(karte).padding(30).width(Length::Fill).height(Length::Fill)].into())
     }

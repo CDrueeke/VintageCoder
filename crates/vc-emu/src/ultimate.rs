@@ -55,7 +55,7 @@ fn json_str(body: &str, key: &str) -> String {
 /// Das genaue Format der echten Firmware ist nicht geprüft; was nicht passt, ergibt einen Fehler und der Läufer nimmt das RAM-Postfach.
 pub(crate) fn parse_debugreg(body: &[u8]) -> Result<u8, String> {
     let t = String::from_utf8_lossy(body); let t = t.trim();
-    let bad = || format!("Debug-Register: Antwort nicht lesbar: {}", t.chars().take(60).collect::<String>());
+    let bad = || vc_i18n::t!("emu-debug-register-antwort-nicht-lesbar-p1", p1 = t.chars().take(60).collect::<String>());
     if let Some(p) = t.find("\"value\"") {
         let rest = t[p + 7..].trim_start().strip_prefix(':').ok_or_else(bad)?.trim_start();
         if let Some(s) = rest.strip_prefix('"') { let h = s.split('"').next().unwrap_or(""); return u8::from_str_radix(h.trim_start_matches('$').trim_start_matches("0x"), 16).map_err(|_| bad()); }
@@ -69,7 +69,7 @@ impl Ultimate64 {
     /// Verbindet sich (`host` oder `host:port`) und prüft die Erreichbarkeit über `/v1/version`.
     pub fn connect(host: &str, password: Option<&str>) -> Result<Ultimate64, String> {
         let u = Ultimate64 { host: host.to_string(), password: password.filter(|p| !p.is_empty()).map(String::from), paused: false, info: None };
-        u.request("GET", "/v1/version", "", None).map_err(|e| format!("Ultimate 64 unter {host}: {e}"))?;
+        u.request("GET", "/v1/version", "", None).map_err(|e| vc_i18n::t!("emu-ultimate-64-unter-host-e", host = &host, e = &e))?;
         Ok(u)
     }
     /// Adresse der Ultimate (`host` oder `host:port`)
@@ -83,7 +83,7 @@ impl Ultimate64 {
     pub fn info(&self) -> Result<Info, String> {
         let raw = self.request("GET", "/v1/info", "", None)?; let body = String::from_utf8_lossy(&raw);
         let i = Info { product: json_str(&body, "product"), firmware_version: json_str(&body, "firmware_version"), hostname: json_str(&body, "hostname"), core_version: json_str(&body, "core_version") };
-        if i.product.is_empty() && i.firmware_version.is_empty() { return Err("keine Geräteinformation in der Antwort".into()); }
+        if i.product.is_empty() && i.firmware_version.is_empty() { return Err(vc_i18n::t!("emu-keine-geraeteinformation-in-der-antwort").into()); }
         Ok(i)
     }
     /// Fähigkeiten laut Produkt; fragt `/v1/info` einmal ab und merkt sich das Ergebnis. Ohne Antwort: alles `false`.
@@ -103,18 +103,18 @@ impl Ultimate64 {
     /// keine Konfigurationsaufrufe und kein Speichern im Flash. Fehlertexte der Ultimate sind übersetzt („Kein LAN-Link“).
     pub fn stream_start(&self, kind: StreamKind, ip: Ipv4Addr, port: u16) -> Result<(), String> {
         let raw = self.exchange("PUT", &format!("/v1/streams/{}:start", kind.rest_name()), &format!("ip={ip}:{port}"), None)?;
-        stream_result(&raw, kind, "starten")
+        stream_result(&raw, kind, &vc_i18n::t!("emu-stream-starten"))
     }
     /// Datenstrom beenden: `PUT /v1/streams/<art>:stop`
     pub fn stream_stop(&self, kind: StreamKind) -> Result<(), String> {
         let raw = self.exchange("PUT", &format!("/v1/streams/{}:stop", kind.rest_name()), "", None)?;
-        stream_result(&raw, kind, "stoppen")
+        stream_result(&raw, kind, &vc_i18n::t!("emu-stream-stoppen"))
     }
 
     fn exchange(&self, method: &str, path: &str, query: &str, body: Option<&[u8]>) -> Result<Vec<u8>, String> {
         let addr = if self.host.contains(':') { self.host.clone() } else { format!("{}:80", self.host) };
-        let sa = addr.to_socket_addrs().map_err(|e| format!("{addr}: {e}"))?.next().ok_or("Adresse nicht auflösbar")?;
-        let mut s = TcpStream::connect_timeout(&sa, Duration::from_secs(5)).map_err(|e| format!("keine Verbindung: {e}"))?;
+        let sa = addr.to_socket_addrs().map_err(|e| vc_i18n::t!("emu-addr-e", addr = &addr, e = &e))?.next().ok_or(vc_i18n::t!("emu-adresse-nicht-aufloesbar"))?;
+        let mut s = TcpStream::connect_timeout(&sa, Duration::from_secs(5)).map_err(|e| vc_i18n::t!("emu-keine-verbindung-e", e = &e))?;
         s.set_read_timeout(Some(Duration::from_secs(10))).ok(); s.set_write_timeout(Some(Duration::from_secs(10))).ok();
         let target = if query.is_empty() { path.to_string() } else { format!("{path}?{query}") };
         let mut req = format!("{method} {target} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n", self.host);
@@ -134,7 +134,7 @@ pub(crate) fn stream_result(raw: &[u8], kind: StreamKind, what: &str) -> Result<
     let text = String::from_utf8_lossy(&body);
     let errs = json_errors(&text);
     if status == 200 && errs.is_empty() { return Ok(()); }
-    let detail = if !errs.is_empty() { errs.join("; ") } else if status == 403 { return Err("Netzwerkpasswort der Ultimate fehlt oder ist falsch (403)".into()) } else if status == 501 { return Err("Datenströme gibt es nur am Ultimate 64 (501)".into()) } else if text.trim().is_empty() { format!("HTTP {status}") } else { text.trim().chars().take(200).collect() };
+    let detail = if !errs.is_empty() { errs.join("; ") } else if status == 403 { return Err(vc_i18n::t!("emu-netzwerkpasswort-der-ultimate-fehlt-oder-ist").into()) } else if status == 501 { return Err(vc_i18n::t!("emu-datenstroeme-gibt-es-nur-am-ultimate").into()) } else if text.trim().is_empty() { vc_i18n::t!("emu-http-status", status = &status) } else { text.trim().chars().take(200).collect() };
     Err(translate_stream_error(&detail, kind, what))
 }
 
@@ -156,29 +156,29 @@ fn json_errors(body: &str) -> Vec<String> {
 pub(crate) fn translate_stream_error(raw: &str, kind: StreamKind, what: &str) -> String {
     let l = raw.to_ascii_lowercase();
     if l.contains("no operational network interface") || l.contains("no (valid) link") {
-        return "Kein LAN-Link: Die Ultimate hat kein LAN-Kabel. Die Ströme laufen nur über den LAN-Anschluss, nicht über WLAN (Meldung der Ultimate: „No Operational Network Interface“).".into();
+        return vc_i18n::t!("emu-kein-lan-link-die-ultimate-hat").into();
     }
-    format!("Strom „{}“ lässt sich nicht {what}: {raw}", kind.rest_name())
+    vc_i18n::t!("emu-strom-p1-laesst-sich-nicht-what", p1 = kind.rest_name(), what = &what, raw = &raw)
 }
 
 /// HTTP-Antwort zerlegen: Statuscode prüfen, Rumpf (Content-Length, chunked oder bis Verbindungsende) liefern.
 pub(crate) fn parse_response(raw: &[u8]) -> Result<Vec<u8>, String> {
     let (status, body) = parse_http(raw)?;
-    if status != 200 { return Err(match status { 403 => "403: Netzwerkpasswort fehlt oder falsch".into(), 501 => "501: Funktion nur am Ultimate 64".into(), c => format!("HTTP {c}") }); }
+    if status != 200 { return Err(match status { 403 => vc_i18n::t!("emu-403-netzwerkpasswort-fehlt-oder-falsch").into(), 501 => vc_i18n::t!("emu-501-funktion-nur-am-ultimate-64").into(), c => vc_i18n::t!("emu-http-c", c = &c) }); }
     Ok(body)
 }
 
 /// Statuscode und Rumpf (Content-Length, chunked oder bis Verbindungsende)
 pub(crate) fn parse_http(raw: &[u8]) -> Result<(u16, Vec<u8>), String> {
-    let split = raw.windows(4).position(|w| w == b"\r\n\r\n").ok_or("ungültige HTTP-Antwort")?;
+    let split = raw.windows(4).position(|w| w == b"\r\n\r\n").ok_or(vc_i18n::t!("emu-ungueltige-http-antwort"))?;
     let head = String::from_utf8_lossy(&raw[..split]).into_owned(); let body = &raw[split + 4..];
-    let status: u16 = head.lines().next().and_then(|l| l.split_whitespace().nth(1)).and_then(|c| c.parse().ok()).ok_or("ungültige Statuszeile")?;
+    let status: u16 = head.lines().next().and_then(|l| l.split_whitespace().nth(1)).and_then(|c| c.parse().ok()).ok_or(vc_i18n::t!("emu-ungueltige-statuszeile"))?;
     let lower = head.to_ascii_lowercase();
     if lower.contains("transfer-encoding: chunked") {
         let (mut out, mut p) = (vec![], 0usize);
         loop {
-            let eol = body.get(p..).ok_or("chunked: abgeschnitten")?.windows(2).position(|w| w == b"\r\n").ok_or("chunked: Länge fehlt")?;
-            let n = usize::from_str_radix(String::from_utf8_lossy(&body[p..p + eol]).split(';').next().unwrap_or("").trim(), 16).map_err(|_| "chunked: ungültige Länge")?;
+            let eol = body.get(p..).ok_or(vc_i18n::t!("emu-chunked-abgeschnitten"))?.windows(2).position(|w| w == b"\r\n").ok_or(vc_i18n::t!("emu-chunked-laenge-fehlt"))?;
+            let n = usize::from_str_radix(String::from_utf8_lossy(&body[p..p + eol]).split(';').next().unwrap_or("").trim(), 16).map_err(|_| vc_i18n::t!("emu-chunked-ungueltige-laenge"))?;
             p += eol + 2; if n == 0 { break; }
             if p + n > body.len() { return Err("chunked: abgeschnitten".into()); }
             out.extend_from_slice(&body[p..p + n]); p += n + 2;
@@ -194,13 +194,13 @@ impl Backend for Ultimate64 {
     fn name(&self) -> &str { "Ultimate 64" }
     fn caps(&self) -> Caps { Caps { registers: false, step: false, breakpoints: false, watch: false } }
     fn state(&mut self) -> RunState { if self.paused { RunState::Stopped } else { RunState::Running } }
-    fn registers(&mut self) -> Result<Regs, String> { Err("Die Ultimate-Hardware liefert keine CPU-Register".into()) }
+    fn registers(&mut self) -> Result<Regs, String> { Err(vc_i18n::t!("emu-die-ultimate-hardware-liefert-keine-cpu").into()) }
     fn read_mem(&mut self, addr: u16, len: usize) -> Result<Vec<u8>, String> {
         let (mut out, mut a) = (Vec::with_capacity(len), addr as usize);
         while out.len() < len && a <= 0xFFFF {
             let n = (len - out.len()).min(0x10000 - a).min(4096);
             let b = self.request("GET", "/v1/machine:readmem", &format!("address={a:04X}&length={n}"), None)?;
-            if b.len() != n { return Err(format!("readmem lieferte {} statt {n} Bytes", b.len())); }
+            if b.len() != n { return Err(vc_i18n::t!("emu-ultimate-short-read", got = b.len(), n = n)); }
             out.extend_from_slice(&b); a += n;
         }
         Ok(out)
@@ -208,18 +208,18 @@ impl Backend for Ultimate64 {
     fn write_mem(&mut self, addr: u16, data: &[u8]) -> Result<(), String> {
         let mut a = addr as usize;
         for chunk in data.chunks(4096) {
-            if a + chunk.len() > 0x10000 { return Err("Schreibzugriff über $FFFF hinaus".into()); }
+            if a + chunk.len() > 0x10000 { return Err(vc_i18n::t!("emu-schreibzugriff-ueber-ffff-hinaus").into()); }
             if chunk.len() <= 128 { let hex: String = chunk.iter().map(|b| format!("{b:02X}")).collect(); self.request("PUT", "/v1/machine:writemem", &format!("address={a:04X}&data={hex}"), None)?; }
             else { self.request("POST", "/v1/machine:writemem", &format!("address={a:04X}"), Some(chunk))?; }
             a += chunk.len();
         }
         Ok(())
     }
-    fn step(&mut self) -> Result<(), String> { Err("Einzelschritt gibt es auf der Ultimate-Hardware nicht".into()) }
+    fn step(&mut self) -> Result<(), String> { Err(vc_i18n::t!("emu-einzelschritt-gibt-es-auf-der-ultimate").into()) }
     fn cont(&mut self) -> Result<(), String> { self.request("PUT", "/v1/machine:resume", "", None)?; self.paused = false; Ok(()) }
     fn can_pause(&self) -> bool { true }
     fn pause(&mut self) -> Result<(), String> { self.request("PUT", "/v1/machine:pause", "", None)?; self.paused = true; Ok(()) }
-    fn set_breakpoint(&mut self, _addr: u16) -> Result<(), String> { Err("Haltepunkte gibt es auf der Ultimate-Hardware nicht".into()) }
+    fn set_breakpoint(&mut self, _addr: u16) -> Result<(), String> { Err(vc_i18n::t!("emu-haltepunkte-gibt-es-auf-der-ultimate").into()) }
     fn clear_breakpoint(&mut self, _addr: u16) -> Result<(), String> { Ok(()) }
     fn breakpoints(&self) -> Vec<u16> { vec![] }
     fn stop(&mut self) { let _ = self.request("PUT", "/v1/machine:resume", "", None); }       // Rechner nicht angehalten zurücklassen
@@ -250,4 +250,15 @@ mod stream_tests {
     }
     #[test]
     fn chunked_truncated_does_not_panic() { assert!(parse_http(b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nab").is_err()); assert!(parse_http(b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n1\r\na").is_err()); }
+
+    #[test]
+    fn short_read_message_english() {
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        let m = vc_i18n::t!("emu-ultimate-short-read", got = 1usize, n = 4usize);
+        let f = vc_i18n::t!("emu-fujisan-short-read", got = 1usize, n = 4usize, addr = "0400".to_string());
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert_eq!(m, "readmem returned 1 instead of 4 bytes");
+        assert_eq!(f, "Fujisan returned 1 instead of 4 bytes at $0400");
+        assert_eq!(vc_i18n::t!("emu-ultimate-short-read", got = 1usize, n = 4usize), "readmem lieferte 1 statt 4 Bytes");
+    }
 }

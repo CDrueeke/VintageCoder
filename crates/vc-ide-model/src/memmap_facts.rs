@@ -100,17 +100,17 @@ pub fn range_text(a: u32, b: u32) -> String { format!("${a:04X}–${b:04X}") }
 pub fn checks(facts: &Facts, plan: Option<&[Page; 256]>) -> Vec<Check> {
     let mut v = vec![];
     let ov = overlaps(&facts.segs);
-    if ov.is_empty() { v.push(Check { level: Level::Ok, text: "0 Überlappungen".into() }); }
-    else { v.push(Check { level: Level::Err, text: format!("{} Überlappung(en): {}", ov.len(), ov.iter().take(3).map(|(a, b)| range_text(*a, *b)).collect::<Vec<_>>().join(", ")) }); }
+    if ov.is_empty() { v.push(Check { level: Level::Ok, text: vc_i18n::t!("memmap-facts-0-ueberlappungen").into() }); }
+    else { v.push(Check { level: Level::Err, text: vc_i18n::t!("memmap-facts-p1-ueberlappung-en-p2", p1 = ov.len(), p2 = ov.iter().take(3).map(|(a, b)| range_text(*a, *b)).collect::<Vec<_>>().join(", ")) }); }
     let usage = page_usage(&facts.segs);
-    if usage[1] > 0 { v.push(Check { level: Level::Warn, text: format!("Programm belegt {} Byte im Stack (Seite $01)", usage[1]) }); }
-    else { v.push(Check { level: Level::Ok, text: "Stack frei (Seite $01)".into() }); }
-    if usage[0] > 0 { v.push(Check { level: Level::Info, text: format!("Zeropage: {} Byte belegt", usage[0]) }); }
+    if usage[1] > 0 { v.push(Check { level: Level::Warn, text: vc_i18n::t!("memmap-facts-programm-belegt-p1-byte-im-stack", p1 = usage[1]) }); }
+    else { v.push(Check { level: Level::Ok, text: vc_i18n::t!("memmap-facts-stack-frei-seite-01").into() }); }
+    if usage[0] > 0 { v.push(Check { level: Level::Info, text: vc_i18n::t!("memmap-facts-zeropage-p1-byte-belegt", p1 = usage[0]) }); }
     let shared: Vec<u8> = (0..=255u8).filter(|&p| facts.segs.iter().filter(|s| s.bank == 0 && (s.start >> 8) <= p as u32 && (s.end().min(0xFFFF) >> 8) >= p as u32).count() > 1).collect();
-    if !shared.is_empty() { v.push(Check { level: Level::Info, text: format!("{} Seite(n) von mehreren Segmenten genutzt, z. B. ${:02X}", shared.len(), shared[0]) }); }
+    if !shared.is_empty() { v.push(Check { level: Level::Info, text: vc_i18n::t!("memmap-facts-p1-seite-n-von-mehreren-segmenten", p1 = shared.len(), p2 = format!("{:02X}", shared[0])) }); }
     if let Some(plan) = plan {
         let hidden: Vec<u8> = (0..=255u8).filter(|&p| usage[p as usize] > 0 && plan[p as usize].kind != PageKind::Ram).collect();
-        if !hidden.is_empty() { v.push(Check { level: Level::Info, text: format!("{} Seite(n) des Programms liegen in dieser Belegung unter ROM oder E/A, z. B. ${:02X}", hidden.len(), hidden[0]) }); }
+        if !hidden.is_empty() { v.push(Check { level: Level::Info, text: vc_i18n::t!("memmap-facts-p1-seite-n-des-programms-liegen", p1 = hidden.len(), p2 = format!("{:02X}", hidden[0])) }); }
     }
     v
 }
@@ -148,14 +148,14 @@ pub fn plain_plan() -> [Page; 256] {
     p
 }
 
-pub fn kind_label(k: PageKind) -> &'static str {
-    match k { PageKind::Ram => "RAM", PageKind::Rom => "ROM", PageKind::BasicRom => "BASIC-ROM", PageKind::KernalRom => "System-ROM (KERNAL/OS)", PageKind::CharRom => "Zeichen-ROM", PageKind::Io => "E/A", PageKind::Module => "Modul" }
+pub fn kind_label(k: PageKind) -> String {
+    match k { PageKind::Ram => "RAM".into(), PageKind::Rom => "ROM".into(), PageKind::BasicRom => "BASIC-ROM".into(), PageKind::KernalRom => vc_i18n::t!("memmap-facts-system-rom-kernal-os"), PageKind::CharRom => vc_i18n::t!("memmap-facts-zeichen-rom"), PageKind::Io => "E/A".into(), PageKind::Module => vc_i18n::t!("memmap-facts-modul") }
 }
 
-pub fn category_label(c: PageCategory) -> &'static str {
+pub fn category_label(c: PageCategory) -> String {
     match c {
-        PageCategory::Zeropage => "Zeropage", PageCategory::Stack => "Stack", PageCategory::Screen => "Bildschirm", PageCategory::Sprites => "Sprites", PageCategory::Charset => "Zeichensatz",
-        PageCategory::Music => "Musik", PageCategory::Io => "E/A", PageCategory::Rom => "ROM", PageCategory::Basic => "BASIC", PageCategory::Free => "frei (RAM)",
+        PageCategory::Zeropage => vc_i18n::t!("memmap-facts-zeropage"), PageCategory::Stack => vc_i18n::t!("memmap-facts-stack"), PageCategory::Screen => vc_i18n::t!("memmap-facts-bildschirm"), PageCategory::Sprites => vc_i18n::t!("memmap-facts-sprites"), PageCategory::Charset => vc_i18n::t!("memmap-facts-zeichensatz"),
+        PageCategory::Music => vc_i18n::t!("memmap-facts-musik"), PageCategory::Io => "E/A".into(), PageCategory::Rom => "ROM".into(), PageCategory::Basic => "BASIC".into(), PageCategory::Free => vc_i18n::t!("memmap-facts-frei-ram"),
     }
 }
 
@@ -167,7 +167,7 @@ pub fn legend(plan: &[Page; 256]) -> Vec<PageCategory> {
 
 /// Presets der Liste als (Kennung, Beschriftung); Presets nur für ein Modell tragen „nur 130XE“ o. ä. im Namen
 pub fn preset_label(p: &BankPreset) -> String {
-    let m = if p.models.len() == 1 { format!(" – nur {}", p.models[0].to_uppercase()) } else { String::new() };
+    let m = if p.models.len() == 1 { format!(" {}", vc_i18n::t!("memmap-facts-nur-p1", p1 = p.models[0].to_uppercase())) } else { String::new() };
     format!("${:02X}  {}{}", p.value, p.name, m)
 }
 

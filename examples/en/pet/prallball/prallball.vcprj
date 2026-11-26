@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "PET: PRALLBALL (40 columns)",
+    "description": "Ball and paddle game for the Commodore PET (BASIC 4, 32 KB, 40 columns): quarter-block graphics, 22 levels, keyboard, beep, high-score table"
+  },
+  "targets": [
+    {
+      "id": "pet",
+      "system": "pet",
+      "variant": "pal",
+      "cpu": "nmos6502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "pet"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

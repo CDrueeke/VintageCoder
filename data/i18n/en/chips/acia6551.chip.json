@@ -1,0 +1,25 @@
+{
+ "source": "chips/acia6551.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Datenregister",
+   "en": "Data register",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Status (Schreiben = Reset)",
+   "en": "Status (write = reset)",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Befehlsregister",
+   "en": "Command register",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Steuerregister",
+   "en": "Control register",
+   "status": "maschinell"
+  }
+ }
+}

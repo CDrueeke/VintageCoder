@@ -7,7 +7,7 @@ Spitze Klammern <…> ersetzen, nicht Zutreffendes löschen. Die Versionsnummer 
 
 # VintageCoder <VERSION, z. B. 0.1.0>
 
-Veröffentlicht am <DATUM>. Entwicklungsstand: <z. B. Alpha, siehe unten>.
+Veröffentlicht am <DATUM>. Entwicklungsstand: <kurzer Hinweis zum Stand, siehe unten>.
 
 ## Was ist dabei
 
@@ -65,6 +65,6 @@ Lade nur aus diesem Release oder von der Website des Projekts und prüfe die Sum
 
 VintageCoder steht unter der GNU General Public License, Version 3 oder später. Der vollständige Quelltext des hier veröffentlichten Standes steht im Tag `<TAG, z. B. v0.1.0>` dieses Repositorys. Die Pakete dieses Releases wurden **vor** der Veröffentlichung dieses Repositorys aus privaten Entwicklungsständen gebaut (<Linux `f44038a`, macOS `a10337b`, Windows `3dae7a4`>); diese Stände sind in diesem Repository nicht als Commits enthalten. Damit du den Quelltext der Binärdateien hast, hängen wir ihn als Archive an: `<vintagecoder-0.1.0-quelle-linux-f44038a.tar.gz>` (Linux-Pakete), `<…-macos-a10337b.tar.gz>` (macOS), `<…-windows-3dae7a4.tar.gz>` (Windows). Der Programmcode ist bis auf folgende Unterschiede derselbe wie im veröffentlichten Stand: <**Linux** zeigt in der Hilfe zusätzlich die Entwicklerseite „Release-Auswahl“; **macOS** sucht die Programmdaten noch nicht unter `<Präfix>/share/vintagecoder/data` (Daten-Suchpfad für Linux) und hat dieselbe Hilfeseite wie Linux; Windows entspricht dem Tag>. Die Archive und die Datei `SHA256SUMS` (Prüfsummen aller Anhänge) liegen neben den Paketen. Der Quelltext ist für alle Empfänger kostenlos und ohne weitere Bedingungen verfügbar, solange diese Release-Seite besteht.
 
-Logo und Name „VintageCoder“ sind von der GPL ausgenommen (siehe `THIRD-PARTY-NOTICES.md`).
+Logo und Name „VintageCoder“ sind von der GPL ausgenommen (siehe `THIRD-PARTY-NOTICES.md`): Der Name darf nur als wahrheitsgemäße Herkunftsangabe genannt werden, das Logo als Referenz (Verweis auf VintageCoder), sonst unverändert.
 
 Fehler melden: in der IDE unter Hilfe ▸ „Feedback senden …“ oder mit `vcc feedback`.

@@ -18,10 +18,10 @@ pub struct D64Entry { pub name: String, pub blocks: u16, pub track: u8, pub sect
 pub struct D64 { data: Vec<u8> }
 
 pub(crate) fn petscii_name(s: &str) -> Result<[u8; 16], String> {
-    if s.is_empty() || s.chars().count() > 16 { return Err(format!("Name '{s}': 1–16 Zeichen erforderlich")); }
+    if s.is_empty() || s.chars().count() > 16 { return Err(vc_i18n::t!("disk-name-s-1-16-zeichen-erforderlich", s = &s)); }
     let mut b = [0xA0u8; 16];
     for (i, c) in s.chars().enumerate() {
-        if !(' '..='~').contains(&c) || c == '"' || c == '*' || c == '?' || c == ',' || c == ':' { return Err(format!("Name '{s}': Zeichen '{c}' nicht erlaubt")); }
+        if !(' '..='~').contains(&c) || c == '"' || c == '*' || c == '?' || c == ',' || c == ':' { return Err(vc_i18n::t!("disk-name-s-zeichen-c-nicht-erlaubt", s = &s, c = &c)); }
         b[i] = c.to_ascii_uppercase() as u8;
     }
     Ok(b)
@@ -31,7 +31,7 @@ pub(crate) fn name_text(b: &[u8]) -> String { b.iter().take_while(|c| **c != 0xA
 impl D64 {
     /// Neu formatierte Diskette mit Namen und 2-Zeichen-ID.
     pub fn blank(name: &str, id: &str) -> Result<D64, String> {
-        if id.chars().count() != 2 || !id.is_ascii() { return Err("ID muss aus genau 2 ASCII-Zeichen bestehen".into()); }
+        if id.chars().count() != 2 || !id.is_ascii() { return Err(vc_i18n::t!("disk-id-muss-aus-genau-2-ascii").into()); }
         let mut d = D64 { data: vec![0; SIZE] };
         for t in 1..=TRACKS { for s in 0..sectors_in_track(t) { d.set_free(t, s, true); } }
         d.set_free(DIR_TRACK, 0, false);
@@ -53,7 +53,7 @@ impl D64 {
     fn set_free(&mut self, t: usize, s: usize, free: bool) {
         let (b, was) = (self.bam(t), self.is_free(t, s));
         if free { self.data[b + 1 + s / 8] |= 1 << (s % 8); } else { self.data[b + 1 + s / 8] &= !(1 << (s % 8)); }
-        match (was, free) { (false, true) => self.data[b] += 1, (true, false) => self.data[b] -= 1, _ => {} }
+        match (was, free) { (false, true) => self.data[b] = self.data[b].saturating_add(1), (true, false) => self.data[b] = self.data[b].saturating_sub(1), _ => {} }
     }
     /// Roher Sektor (256 Bytes); `None` außerhalb der Diskette
     pub fn raw_sector(&self, t: usize, s: usize) -> Option<&[u8]> { if t == 0 || t > TRACKS || s >= sectors_in_track(t) { None } else { Some(self.sec(t, s)) } }
@@ -79,17 +79,22 @@ impl D64 {
         None
     }
 
-    fn entry_slots(&self) -> Vec<(usize, usize)> {
-        let mut v = vec![];
-        let (mut t, mut s) = (DIR_TRACK, 1);
+    /// Sektoren der Verzeichniskette (Spur 18 ab Sektor 1) und, falls sie kaputt ist, der Grund. Ein Zeiger außerhalb der Diskette oder auf einen
+    /// schon besuchten Sektor (Selbstverweis, Kreis) beendet die Kette; sie ist dadurch immer endlich und nie außerhalb der Daten.
+    fn dir_chain(&self) -> (Vec<(usize, usize)>, Option<String>) {
+        let mut v: Vec<(usize, usize)> = vec![(DIR_TRACK, 1)];
         loop {
-            for i in 0..8 { v.push((offset(t, s) + i * 32, 0)); }
+            let (t, s) = *v.last().unwrap();
             let (nt, ns) = (self.sec(t, s)[0] as usize, self.sec(t, s)[1] as usize);
-            if nt == 0 { break; }
-            t = nt; s = ns;
-            if v.len() > 8 * 40 { break; }
+            if nt == 0 { return (v, None); }
+            if nt > TRACKS || ns >= sectors_in_track(nt) { return (v, Some(vc_i18n::t!("disk-verzeichnis-zeiger-ungueltig", t = &nt, s = &ns).to_string())); }
+            if v.contains(&(nt, ns)) { return (v, Some(vc_i18n::t!("disk-verzeichniskette-ist-ein-kreis").to_string())); }
+            v.push((nt, ns));
         }
-        v
+    }
+
+    fn entry_slots(&self) -> Vec<(usize, usize)> {
+        self.dir_chain().0.into_iter().flat_map(|(t, s)| (0..8).map(move |i| (offset(t, s) + i * 32, 0))).collect()
     }
 
     pub fn entries(&self) -> Vec<D64Entry> {
@@ -102,19 +107,29 @@ impl D64 {
     }
 
     /// Legt eine PRG-Datei an (Datei mit Ladeadresse als erste zwei Bytes).
+    /// Verzeichniseintrag `von` an die Stelle `nach` setzen (Reihenfolge der benutzten Einträge). Nur die Einträge wandern, Dateien und Ketten bleiben unberührt
+    pub fn move_entry(&mut self, from: usize, to: usize) -> Result<(), String> {
+        let used: Vec<usize> = self.entry_slots().into_iter().map(|(o, _)| o).filter(|&o| self.data[o + 2] != 0).collect();
+        if from >= used.len() || to >= used.len() { return Err(vc_i18n::t!("disk-eintrag-nummer-ungueltig").into()); }
+        let mut inh: Vec<Vec<u8>> = used.iter().map(|&o| self.data[o + 2..o + 32].to_vec()).collect();
+        let e = inh.remove(from); inh.insert(to, e);
+        for (o, c) in used.iter().zip(inh) { self.data[o + 2..o + 32].copy_from_slice(&c); }
+        Ok(())
+    }
     pub fn add_prg(&mut self, name: &str, data: &[u8]) -> Result<(), String> {
         let n = petscii_name(name)?;
-        if data.is_empty() { return Err(format!("'{name}': leere Dateien werden nicht unterstützt")); }
-        if self.entries().iter().any(|e| e.name == name_text(&n)) { return Err(format!("'{name}' existiert bereits")); }
+        if data.is_empty() { return Err(vc_i18n::t!("disk-name-leere-dateien-werden-nicht-unterstuetzt", name = &name)); }
+        if self.entries().iter().any(|e| e.name == name_text(&n)) { return Err(vc_i18n::t!("disk-name-existiert-bereits", name = &name)); }
         let need = data.len().div_ceil(254);
-        if need > self.free_blocks() { return Err(format!("Diskette voll: '{name}' braucht {need} Blöcke, frei sind {}", self.free_blocks())); }
+        if need > self.free_blocks() { return Err(vc_i18n::t!("disk-diskette-voll-name-braucht-need-bloecke", name = &name, need = &need, p3 = self.free_blocks())); }
         // Verzeichnisplatz suchen (bei Bedarf neuen Verzeichnissektor mit Interleave 3 anlegen)
         let mut slot = self.entry_slots().into_iter().map(|(o, _)| o).find(|o| self.data[o + 2] == 0);
         if slot.is_none() {
-            let mut last = (DIR_TRACK, 1);
-            while self.sec(last.0, last.1)[0] != 0 { last = (self.sec(last.0, last.1)[0] as usize, self.sec(last.0, last.1)[1] as usize); }
+            let (chain, bad) = self.dir_chain();
+            if let Some(m) = bad { return Err(m); }
+            let last = *chain.last().unwrap();
             let n_s = sectors_in_track(DIR_TRACK);
-            let s = (0..n_s).map(|k| (last.1 + 3 + k) % n_s).find(|s| self.is_free(DIR_TRACK, *s)).ok_or("Verzeichnis voll")?;
+            let s = (0..n_s).map(|k| (last.1 + 3 + k) % n_s).find(|s| self.is_free(DIR_TRACK, *s)).ok_or(vc_i18n::t!("disk-verzeichnis-voll"))?;
             self.set_free(DIR_TRACK, s, false);
             let sec = self.sec_mut(last.0, last.1); sec[0] = DIR_TRACK as u8; sec[1] = s as u8;
             let sec = self.sec_mut(DIR_TRACK, s); sec.fill(0); sec[1] = 0xFF;
@@ -123,7 +138,7 @@ impl D64 {
         let slot = slot.unwrap();
         let mut chain = vec![];
         let mut prev = None;
-        for _ in 0..need { let s = self.alloc_data(prev).ok_or("keine freien Sektoren")?; chain.push(s); prev = Some(s); }
+        for _ in 0..need { let s = self.alloc_data(prev).ok_or(vc_i18n::t!("disk-keine-freien-sektoren"))?; chain.push(s); prev = Some(s); }
         for (k, &(t, s)) in chain.iter().enumerate() {
             let chunk = &data[k * 254..((k + 1) * 254).min(data.len())];
             let sec = self.sec_mut(t, s);
@@ -143,24 +158,24 @@ impl D64 {
     }
 
     pub fn read(&self, name: &str) -> Result<Vec<u8>, String> {
-        let e = self.entries().into_iter().find(|e| e.name == name.to_ascii_uppercase()).ok_or(format!("'{name}' nicht gefunden"))?;
+        let e = self.entries().into_iter().find(|e| e.name == name.to_ascii_uppercase()).ok_or(vc_i18n::t!("disk-name-nicht-gefunden", name = &name))?;
         let (mut t, mut s, mut out, mut n) = (e.track as usize, e.sector as usize, vec![], 0);
         loop {
-            if t == 0 || t > TRACKS || s >= sectors_in_track(t) { return Err(format!("ungültiger Sektor {t}/{s}")); }
+            if t == 0 || t > TRACKS || s >= sectors_in_track(t) { return Err(vc_i18n::t!("disk-ungueltiger-sektor-t-s", t = &t, s = &s)); }
             let sec = self.sec(t, s);
             n += 1;
-            if n > 700 { return Err("Sektorkette zu lang (Schleife?)".into()); }
-            if sec[0] == 0 { let last = sec[1] as usize; if !(1..=255).contains(&last) { return Err(format!("ungültiges Ende in {t}/{s}")); } out.extend_from_slice(&sec[2..=last]); break; }
+            if n > 700 { return Err(vc_i18n::t!("disk-sektorkette-zu-lang-schleife").into()); }
+            if sec[0] == 0 { let last = sec[1] as usize; if !(1..=255).contains(&last) { return Err(vc_i18n::t!("disk-ungueltiges-ende-in-t-s", t = &t, s = &s)); } out.extend_from_slice(&sec[2..=last]); break; }
             out.extend_from_slice(&sec[2..]);
             t = sec[0] as usize; s = sec[1] as usize;
         }
-        if n != e.blocks as usize { return Err(format!("Kette hat {n} Blöcke, Verzeichnis meldet {}", e.blocks)); }
+        if n != e.blocks as usize { return Err(vc_i18n::t!("disk-kette-hat-n-bloecke-verzeichnis-meldet", n = &n, p2 = &e.blocks)); }
         Ok(out)
     }
 
     pub fn to_bytes(&self) -> Vec<u8> { self.data.clone() }
     pub fn from_bytes(b: &[u8]) -> Result<D64, String> {
-        if b.len() != SIZE { return Err(format!("nur D64 mit 35 Spuren ohne Fehlerinfo ({SIZE} Bytes) unterstützt, Datei hat {}", b.len())); }
+        if b.len() != SIZE { return Err(vc_i18n::t!("disk-nur-d64-mit-35-spuren-ohne", size = SIZE, p2 = b.len())); }
         Ok(D64 { data: b.to_vec() })
     }
 
@@ -169,13 +184,14 @@ impl D64 {
         let mut problems = vec![];
         let mut used = vec![vec![false; 22]; TRACKS + 1];
         used[DIR_TRACK][0] = true;
-        let (mut t, mut s) = (DIR_TRACK, 1);
-        loop { used[t][s] = true; let (nt, ns) = (self.sec(t, s)[0] as usize, self.sec(t, s)[1] as usize); if nt == 0 { break; } t = nt; s = ns; }
+        let (dir, bad) = self.dir_chain();
+        for (t, s) in dir { used[t][s] = true; }
+        if let Some(m) = bad { problems.push(m); }
         for e in self.entries() {
             let (mut t, mut s) = (e.track as usize, e.sector as usize);
             loop {
-                if t == 0 || t > TRACKS || s >= sectors_in_track(t) { problems.push(format!("{}: ungültiger Sektor {t}/{s}", e.name)); break; }
-                if used[t][s] { problems.push(format!("{}: Sektor {t}/{s} doppelt belegt", e.name)); break; }
+                if t == 0 || t > TRACKS || s >= sectors_in_track(t) { problems.push(vc_i18n::t!("disk-p1-ungueltiger-sektor-t-s", p1 = &e.name, t = &t, s = &s)); break; }
+                if used[t][s] { problems.push(vc_i18n::t!("disk-p1-sektor-t-s-doppelt-belegt", p1 = &e.name, t = &t, s = &s)); break; }
                 used[t][s] = true;
                 let (nt, ns) = (self.sec(t, s)[0] as usize, self.sec(t, s)[1] as usize);
                 if nt == 0 { break; }
@@ -186,10 +202,10 @@ impl D64 {
         for t in 1..=TRACKS {
             let mut free = 0;
             for s in 0..sectors_in_track(t) {
-                if self.is_free(t, s) { free += 1; if used[t][s] { problems.push(format!("{t}/{s}: belegt, aber in der BAM frei")); } }
-                else if !used[t][s] { problems.push(format!("{t}/{s}: in der BAM belegt, gehört aber zu keiner Datei")); }
+                if self.is_free(t, s) { free += 1; if used[t][s] { problems.push(vc_i18n::t!("disk-t-s-belegt-aber-in-der", t = &t, s = &s)); } }
+                else if !used[t][s] { problems.push(vc_i18n::t!("disk-t-s-in-der-bam-belegt", t = &t, s = &s)); }
             }
-            if free != self.data[self.bam(t)] as usize { problems.push(format!("Spur {t}: BAM-Zähler {} ≠ Bitmap {free}", self.data[self.bam(t)])); }
+            if free != self.data[self.bam(t)] as usize { problems.push(vc_i18n::t!("disk-spur-t-bam-zaehler-p2-bitmap", t = &t, p2 = self.data[self.bam(t)], free = &free)); }
         }
         problems
     }

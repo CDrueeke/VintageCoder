@@ -88,17 +88,6 @@
         "illegals": "warn",
         "emulator": "vice"
       }
-    },
-    "cbm2": {
-      "label": "Commodore CBM-II (nur BASIC)",
-      "target": {
-        "id": "cbm2",
-        "system": "cbm2",
-        "variant": "pal",
-        "cpu": "nmos6502",
-        "illegals": "warn",
-        "emulator": "vice"
-      }
     }
   }
 }

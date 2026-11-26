@@ -1,0 +1,153 @@
+[
+  {
+    "id": "rmt",
+    "name": "Raster Music Tracker (RMT-Player)",
+    "urheber": "Radek Štěrba / Raster / C.P.U. 2002–2009, weitergeführt von Vin Samuel und Peter Dell",
+    "lizenz": "GPL v3",
+    "hinweis": "Player-Code in den Atari-Beispielen music_demo und jumprun (rmtplayr.asm, rmt.inc)",
+    "links": [
+      "https://github.com/raster-atari-org/RASTER-Music-Tracker"
+    ]
+  },
+  {
+    "id": "jetbrains-mono",
+    "name": "JetBrains Mono (Schrift)",
+    "urheber": "The JetBrains Mono Project Authors",
+    "lizenz": "SIL Open Font License 1.1",
+    "hinweis": "Schrift der Oberfläche und des Editors",
+    "links": [
+      "https://github.com/JetBrains/JetBrainsMono"
+    ]
+  },
+  {
+    "id": "codemirror",
+    "name": "CodeMirror",
+    "urheber": "Marijn Haverbeke und Mitwirkende",
+    "lizenz": "MIT",
+    "hinweis": "Editor-Komponente",
+    "links": [
+      "https://codemirror.net"
+    ]
+  },
+  {
+    "id": "fluent",
+    "name": "Project Fluent (@fluent/bundle)",
+    "urheber": "Mozilla und Mitwirkende",
+    "lizenz": "Apache-2.0",
+    "hinweis": "Texte und Übersetzungen der Oberfläche",
+    "links": [
+      "https://projectfluent.org"
+    ]
+  },
+  {
+    "id": "tauri",
+    "name": "Tauri",
+    "urheber": "Tauri Programme within The Commons Conservancy und Mitwirkende",
+    "lizenz": "MIT oder Apache-2.0",
+    "hinweis": "Rahmen der Anwendung",
+    "links": [
+      "https://tauri.app"
+    ]
+  },
+  {
+    "id": "rust-bibliotheken",
+    "name": "Rust-Bibliotheken",
+    "urheber": "ihre jeweiligen Autoren",
+    "lizenz": "überwiegend MIT oder Apache-2.0",
+    "hinweis": "Die vollständige Liste mit Lizenzen steht in der Datei THIRD-PARTY-NOTICES.md",
+    "links": [
+      "https://github.com/CDrueeke/VintageCoder/blob/main/THIRD-PARTY-NOTICES.md"
+    ]
+  },
+  {
+    "id": "xemu",
+    "name": "Xemu",
+    "urheber": "Gábor Lénárt (LGB) und Mitwirkende",
+    "lizenz": "GPL-2.0-or-later",
+    "hinweis": "MEGA65-Emulator, den VintageCoder startet (vom Anwender installiert); Quelle der Opcode-Tabellen für den 45GS02",
+    "links": [
+      "https://github.com/lgblgblgb/xemu"
+    ]
+  },
+  {
+    "id": "mega65-core",
+    "name": "MEGA65 core",
+    "urheber": "MEGA65-Projekt und Mitwirkende",
+    "lizenz": "GPL-3.0",
+    "hinweis": "Quelle der E/A-Karten für VIC-IV, DMAgic und MEGA65",
+    "links": [
+      "https://github.com/MEGA65/mega65-core"
+    ]
+  },
+  {
+    "id": "vice",
+    "name": "VICE",
+    "urheber": "das VICE-Team",
+    "lizenz": "GPL-2.0-or-later",
+    "hinweis": "Emulator für C64, C128, Plus/4, VC-20 und PET, den VintageCoder startet (vom Anwender installiert); Quelle von BASIC-Schlüsselwörtern und Paletten",
+    "links": [
+      "https://vice-emu.sourceforge.io"
+    ]
+  },
+  {
+    "id": "atari800",
+    "name": "atari800",
+    "urheber": "das atari800-Team",
+    "lizenz": "GPL-2.0-or-later",
+    "hinweis": "Atari-Emulator, den VintageCoder startet (vom Anwender installiert); Quelle der Atari-Palette",
+    "links": [
+      "https://atari800.github.io"
+    ]
+  },
+  {
+    "id": "altirra",
+    "name": "Altirra",
+    "urheber": "Avery Lee",
+    "lizenz": "GPL-2.0-or-later",
+    "hinweis": "Atari-Emulator (Windows), den VintageCoder startet (vom Anwender installiert)",
+    "links": [
+      "https://www.virtualdub.org/altirra.html"
+    ]
+  },
+  {
+    "id": "fujisan",
+    "name": "Fujisan",
+    "urheber": "Paulo Garcia und Mitwirkende",
+    "lizenz": "MIT",
+    "hinweis": "Atari-Emulator mit Fernsteuerung, den VintageCoder startet (vom Anwender installiert); enthält libatari800 (GPL-2.0-or-later)",
+    "links": [
+      "https://github.com/pedgarcia/fujisan"
+    ]
+  },
+  {
+    "id": "goattracker",
+    "name": "GoatTracker 2",
+    "urheber": "Lasse Öörni (Cadaver)",
+    "lizenz": "GPL",
+    "hinweis": "VintageCoder liest Songs im Format .sng, das Programm wird nicht mitgeliefert",
+    "links": [
+      "https://sourceforge.net/projects/goattracker2/"
+    ]
+  },
+  {
+    "id": "sid-format",
+    "name": "SID-Dateiformat (PSID/RSID) und High Voltage SID Collection",
+    "urheber": "Michael Schwendt (PSID v1/v2), Simon White und Dag Lem (PSID v2NG, RSID), Wilfred Bos (v3/v4); HVSC-Team",
+    "lizenz": "",
+    "hinweis": "VintageCoder liest .sid-Dateien durch Aufnahme der Spielroutine",
+    "links": [
+      "https://www.exotica.org.uk/wiki/High_Voltage_SID_Collection",
+      "https://hvsc.de"
+    ]
+  },
+  {
+    "id": "spritepad",
+    "name": "SpritePad",
+    "urheber": "Subchrist Software",
+    "lizenz": "",
+    "hinweis": "VintageCoder liest Sprites im Format .spd, das Programm wird nicht mitgeliefert",
+    "links": [
+      "https://subchristsoftware.itch.io/spritepad-c64-pro"
+    ]
+  }
+]

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Hinweis (i18n I6): Von den erzeugten Dateien gibt es eine englische Kopie unter examples/en/<system>/<projekt>/ (Kommentare übersetzt).
+# Nach dem Neuerzeugen die englische Kopie anpassen; `python3 tools/examples_en.py pruefen` meldet jede Abweichung im Code.
 """Erzeugt die Daten und Testdateien der Beispiele examples/<system>/tiles_demo (C64, Atari 8 Bit, Plus/4, VC-20, C128, MEGA65).
 
 Die Kacheldaten (data_3x2.inc, data_2x2.inc) haben das Exportformat des Kachel-Editors (Konzept, Anhang A). Der Python-Teil

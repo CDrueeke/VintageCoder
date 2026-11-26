@@ -1,0 +1,315 @@
+{
+ "source": "chips/vic2.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Sprite 0 X (Bit 0-7)",
+   "en": "Sprite 0 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Sprite 0 Y",
+   "en": "Sprite 0 Y",
+   "status": "unverändert"
+  },
+  "/regs/2/doc": {
+   "de": "Sprite 1 X (Bit 0-7)",
+   "en": "Sprite 1 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Sprite 1 Y",
+   "en": "Sprite 1 Y",
+   "status": "unverändert"
+  },
+  "/regs/4/doc": {
+   "de": "Sprite 2 X (Bit 0-7)",
+   "en": "Sprite 2 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Sprite 2 Y",
+   "en": "Sprite 2 Y",
+   "status": "unverändert"
+  },
+  "/regs/6/doc": {
+   "de": "Sprite 3 X (Bit 0-7)",
+   "en": "Sprite 3 X (bits 0-7)",
+   "status": "geprüft"
+  },
+  "/regs/7/doc": {
+   "de": "Sprite 3 Y",
+   "en": "Sprite 3 Y",
+   "status": "unverändert"
+  },
+  "/regs/8/doc": {
+   "de": "Sprite 4 X (Bit 0-7)",
+   "en": "Sprite 4 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Sprite 4 Y",
+   "en": "Sprite 4 Y",
+   "status": "unverändert"
+  },
+  "/regs/10/doc": {
+   "de": "Sprite 5 X (Bit 0-7)",
+   "en": "Sprite 5 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Sprite 5 Y",
+   "en": "Sprite 5 Y",
+   "status": "unverändert"
+  },
+  "/regs/12/doc": {
+   "de": "Sprite 6 X (Bit 0-7)",
+   "en": "Sprite 6 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Sprite 6 Y",
+   "en": "Sprite 6 Y",
+   "status": "unverändert"
+  },
+  "/regs/14/doc": {
+   "de": "Sprite 7 X (Bit 0-7)",
+   "en": "Sprite 7 X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Sprite 7 Y",
+   "en": "Sprite 7 Y",
+   "status": "unverändert"
+  },
+  "/regs/16/doc": {
+   "de": "Sprite X-Bit 8",
+   "en": "Sprite X bit 8",
+   "status": "maschinell"
+  },
+  "/regs/17/doc": {
+   "de": "Steuerregister 1",
+   "en": "Control register 1",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/0/doc": {
+   "de": "Rasterzeile Bit 8",
+   "en": "Raster line bit 8",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/1/doc": {
+   "de": "Extended Color Mode",
+   "en": "Extended color mode",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/2/doc": {
+   "de": "Bitmap-Modus",
+   "en": "Bitmap mode",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/3/doc": {
+   "de": "Bildschirm an",
+   "en": "Screen on",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/4/doc": {
+   "de": "25/24 Zeilen",
+   "en": "25/24 rows",
+   "status": "maschinell"
+  },
+  "/regs/17/bits/5/doc": {
+   "de": "Vertikales Scrollen",
+   "en": "Vertical scrolling",
+   "status": "maschinell"
+  },
+  "/regs/18/doc": {
+   "de": "Rasterzeile (Bit 0-7) / Vergleichswert",
+   "en": "Raster line (bits 0-7) / compare value",
+   "status": "maschinell"
+  },
+  "/regs/19/doc": {
+   "de": "Lichtgriffel X",
+   "en": "Light pen X",
+   "status": "maschinell"
+  },
+  "/regs/20/doc": {
+   "de": "Lichtgriffel Y",
+   "en": "Light pen Y",
+   "status": "maschinell"
+  },
+  "/regs/21/doc": {
+   "de": "Sprites aktivieren",
+   "en": "Enable sprites",
+   "status": "maschinell"
+  },
+  "/regs/22/doc": {
+   "de": "Steuerregister 2",
+   "en": "Control register 2",
+   "status": "maschinell"
+  },
+  "/regs/22/bits/0/doc": {
+   "de": "Reset (ungenutzt)",
+   "en": "Reset (unused)",
+   "status": "maschinell"
+  },
+  "/regs/22/bits/1/doc": {
+   "de": "Multicolor-Modus",
+   "en": "Multicolor mode",
+   "status": "maschinell"
+  },
+  "/regs/22/bits/2/doc": {
+   "de": "40/38 Spalten",
+   "en": "40/38 columns",
+   "status": "maschinell"
+  },
+  "/regs/22/bits/3/doc": {
+   "de": "Horizontales Scrollen",
+   "en": "Horizontal scrolling",
+   "status": "maschinell"
+  },
+  "/regs/23/doc": {
+   "de": "Sprites Y-Expansion",
+   "en": "Sprites Y expansion",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Speicherzeiger (Screen/Zeichensatz)",
+   "en": "Memory pointer (screen/character set)",
+   "status": "geprüft"
+  },
+  "/regs/25/doc": {
+   "de": "Interrupt-Status",
+   "en": "Interrupt status",
+   "status": "maschinell"
+  },
+  "/regs/25/bits/0/doc": {
+   "de": "Interrupt aufgetreten",
+   "en": "Interrupt occurred",
+   "status": "geprüft"
+  },
+  "/regs/25/bits/1/doc": {
+   "de": "Lichtgriffel",
+   "en": "Light pen",
+   "status": "maschinell"
+  },
+  "/regs/25/bits/2/doc": {
+   "de": "Sprite-Sprite-Kollision",
+   "en": "Sprite-sprite collision",
+   "status": "maschinell"
+  },
+  "/regs/25/bits/3/doc": {
+   "de": "Sprite-Hintergrund-Kollision",
+   "en": "Sprite-background collision",
+   "status": "maschinell"
+  },
+  "/regs/25/bits/4/doc": {
+   "de": "Rasterinterrupt",
+   "en": "Raster interrupt",
+   "status": "maschinell"
+  },
+  "/regs/26/doc": {
+   "de": "Interrupt-Freigabe",
+   "en": "Interrupt enable",
+   "status": "geprüft"
+  },
+  "/regs/27/doc": {
+   "de": "Sprite-Priorität",
+   "en": "Sprite priority",
+   "status": "maschinell"
+  },
+  "/regs/28/doc": {
+   "de": "Sprites Multicolor",
+   "en": "Sprites multicolor",
+   "status": "maschinell"
+  },
+  "/regs/29/doc": {
+   "de": "Sprites X-Expansion",
+   "en": "Sprites X expansion",
+   "status": "maschinell"
+  },
+  "/regs/30/doc": {
+   "de": "Sprite-Sprite-Kollision",
+   "en": "Sprite-sprite collision",
+   "status": "geprüft"
+  },
+  "/regs/31/doc": {
+   "de": "Sprite-Hintergrund-Kollision",
+   "en": "Sprite-background collision",
+   "status": "maschinell"
+  },
+  "/regs/32/doc": {
+   "de": "Rahmenfarbe",
+   "en": "Border color",
+   "status": "maschinell"
+  },
+  "/regs/33/doc": {
+   "de": "Hintergrundfarbe 0",
+   "en": "Background color 0",
+   "status": "maschinell"
+  },
+  "/regs/34/doc": {
+   "de": "Hintergrundfarbe 1",
+   "en": "Background color 1",
+   "status": "maschinell"
+  },
+  "/regs/35/doc": {
+   "de": "Hintergrundfarbe 2",
+   "en": "Background color 2",
+   "status": "maschinell"
+  },
+  "/regs/36/doc": {
+   "de": "Hintergrundfarbe 3",
+   "en": "Background color 3",
+   "status": "maschinell"
+  },
+  "/regs/37/doc": {
+   "de": "Sprite-Multicolor 0",
+   "en": "Sprite multicolor 0",
+   "status": "maschinell"
+  },
+  "/regs/38/doc": {
+   "de": "Sprite-Multicolor 1",
+   "en": "Sprite multicolor 1",
+   "status": "maschinell"
+  },
+  "/regs/39/doc": {
+   "de": "Sprite 0 Farbe",
+   "en": "Sprite 0 color",
+   "status": "maschinell"
+  },
+  "/regs/40/doc": {
+   "de": "Sprite 1 Farbe",
+   "en": "Sprite 1 color",
+   "status": "maschinell"
+  },
+  "/regs/41/doc": {
+   "de": "Sprite 2 Farbe",
+   "en": "Sprite 2 color",
+   "status": "maschinell"
+  },
+  "/regs/42/doc": {
+   "de": "Sprite 3 Farbe",
+   "en": "Sprite 3 color",
+   "status": "geprüft"
+  },
+  "/regs/43/doc": {
+   "de": "Sprite 4 Farbe",
+   "en": "Sprite 4 color",
+   "status": "geprüft"
+  },
+  "/regs/44/doc": {
+   "de": "Sprite 5 Farbe",
+   "en": "Sprite 5 color",
+   "status": "maschinell"
+  },
+  "/regs/45/doc": {
+   "de": "Sprite 6 Farbe",
+   "en": "Sprite 6 color",
+   "status": "maschinell"
+  },
+  "/regs/46/doc": {
+   "de": "Sprite 7 Farbe",
+   "en": "Sprite 7 color",
+   "status": "geprüft"
+  }
+ }
+}

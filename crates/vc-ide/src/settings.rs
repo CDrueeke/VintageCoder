@@ -126,6 +126,8 @@ pub struct UpdatePrefs {
 pub struct Settings {
     /// Version des Dateiformats (fehlt = 0 = vor dem Konfigurationsassistenten); siehe [`crate::setup::SCHEMA_VERSION`]. Neuere Versionen bleiben beim Speichern erhalten.
     #[serde(default, skip_serializing_if = "is_zero")] pub schema_version: u32,
+    /// Sprache der Oberfläche: `de` oder `en`; leer = automatisch (Systemsprache). Ältere Versionen ignorieren den Schlüssel.
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub language: String,
     /// Basisverzeichnis der Projekte (leer = Voreinstellung `~/VintageCoder`); Voreinstellung für „Ort“ im Projekt-Assistenten
     #[serde(default, skip_serializing_if = "String::is_empty")] pub projects_dir: String,
     /// Im Konfigurationsassistenten abgewählte Zielsysteme: ausgeblendet, ihre Einträge bleiben erhalten (Wiedereinblenden stellt sie her)
@@ -238,7 +240,7 @@ pub fn effective() -> Settings {
 /// Übernimmt die Einstellungen im Prozess und speichert sie in die Datei
 pub fn set(s: Settings) -> Result<(), String> {
     if let Ok(mut g) = cell().write() { *g = s.clone(); }
-    match file() { Some(f) => s.save_to(&f), None => Err("Kein Ordner für die Einstellungen (HOME bzw. unter Windows APPDATA fehlt)".into()) }
+    match file() { Some(f) => s.save_to(&f), None => Err(vc_i18n::t!("settings-kein-ordner-fuer-die-einstellungen-home").into()) }
 }
 
 /// Zerlegt eine Argumentzeile wie die Shell (Leerzeichen trennen; `"…"` und `'…'` fassen zusammen; `\` maskiert)
@@ -293,48 +295,48 @@ pub fn program_exe(path: &str) -> PathBuf {
 
 pub fn check_program(path: &str) -> Result<String, String> {
     let p = program_exe(path);
-    let md = std::fs::metadata(&p).map_err(|_| format!("{}: nicht gefunden", p.display()))?;
-    if !md.is_file() { return Err(format!("{}: keine Datei", p.display())); }
-    #[cfg(unix)] { use std::os::unix::fs::PermissionsExt; if md.permissions().mode() & 0o111 == 0 { return Err(format!("{}: nicht ausführbar", p.display())); } }
-    Ok(format!("gefunden: {}", p.display()))
+    let md = std::fs::metadata(&p).map_err(|_| vc_i18n::t!("settings-p1-nicht-gefunden", p1 = p.display()))?;
+    if !md.is_file() { return Err(vc_i18n::t!("settings-p1-keine-datei", p1 = p.display())); }
+    #[cfg(unix)] { use std::os::unix::fs::PermissionsExt; if md.permissions().mode() & 0o111 == 0 { return Err(vc_i18n::t!("settings-p1-nicht-ausfuehrbar", p1 = p.display())); } }
+    Ok(vc_i18n::t!("settings-gefunden-p1", p1 = p.display()))
 }
 
 /// Verbindungstest einer echten Maschine: Ultimate (REST-Version) bzw. MEGA65 (Monitor antwortet auf der seriellen Schnittstelle)
 pub fn test_machine(m: &Machine) -> Result<String, String> {
     match m.kind.as_str() {
         "ultimate64" => {
-            if m.host.trim().is_empty() { return Err("Adresse fehlt".into()); }
+            if m.host.trim().is_empty() { return Err(vc_i18n::t!("settings-adresse-fehlt").into()); }
             let u = vc_emu::Ultimate64::connect(m.host.trim(), Some(m.password.as_str()))?;
             // Produkt, Firmware und Hostname aus /v1/info; fehlt die Angabe (ältere Firmware), bleibt die Versionsantwort
             match u.info() {
                 Ok(i) if !i.product.is_empty() => Ok(describe_info(&i)),
-                _ => { let v = u.version().unwrap_or_default(); Ok(format!("verbunden, Firmware-Antwort: {}", v.trim().chars().take(80).collect::<String>())) }
+                _ => { let v = u.version().unwrap_or_default(); Ok(vc_i18n::t!("settings-verbunden-firmware-antwort-p1", p1 = v.trim().chars().take(80).collect::<String>())) }
             }
         }
         "mega65" => test_machine_link(m, m.link_for(crate::mega65net::Action::Start)),
-        k => Err(format!("unbekannter Typ '{k}'")),
+        k => Err(vc_i18n::t!("settings-unbekannter-typ-k", k = &k)),
     }
 }
 
 /// Verbindungstest einer MEGA65 über eine bestimmte Verbindung: USB (Monitor antwortet) oder Ethernet (Werkzeuge gefunden, `mega65_ftp dir`; UNGEPRÜFT)
 pub fn test_machine_link(m: &Machine, link: crate::mega65net::Link) -> Result<String, String> {
     match link {
-        crate::mega65net::Link::Usb => { let spec = mega65_spec(m)?; vc_emu::Mega65::connect(&spec).map(|_| "USB: Monitor antwortet".to_string()) }
+        crate::mega65net::Link::Usb => { let spec = mega65_spec(m)?; vc_emu::Mega65::connect(&spec).map(|_| vc_i18n::t!("settings-usb-monitor-antwortet").to_string()) }
         crate::mega65net::Link::Eth => crate::mega65net::test(m),
     }
 }
 
 /// Text des Verbindungstests: „verbunden: Ultimate 64-II, Firmware 3.14d, Host …“ (nur Angaben, die das Gerät gemeldet hat)
 pub fn describe_info(i: &vc_emu::UltimateInfo) -> String {
-    let mut parts = vec![format!("verbunden: {}", i.product)];
-    if !i.firmware_version.is_empty() { parts.push(format!("Firmware {}", i.firmware_version)); }
-    if !i.hostname.is_empty() { parts.push(format!("Host {}", i.hostname)); }
+    let mut parts = vec![vc_i18n::t!("settings-verbunden-p1", p1 = &i.product)];
+    if !i.firmware_version.is_empty() { parts.push(vc_i18n::t!("settings-firmware-p1", p1 = &i.firmware_version)); }
+    if !i.hostname.is_empty() { parts.push(vc_i18n::t!("settings-host-p1", p1 = &i.hostname)); }
     parts.join(", ")
 }
 
 /// Verbindungsangabe für `vc_emu::Mega65::connect`
 pub fn mega65_spec(m: &Machine) -> Result<String, String> {
-    if m.device.trim().is_empty() { return Err("Serielle Schnittstelle fehlt (z. B. /dev/cu.usbserial-…)".into()); }
+    if m.device.trim().is_empty() { return Err(vc_i18n::t!("settings-serielle-schnittstelle-fehlt-z-b-dev").into()); }
     let baud = m.baud.trim();
     Ok(if baud.is_empty() { format!("serial:{}", m.device.trim()) } else { format!("serial:{}@{baud}", m.device.trim()) })
 }
@@ -348,7 +350,7 @@ pub fn serial_ports() -> Vec<String> {
     #[cfg(windows)]
     for n in 1..=32 {
         let open = std::fs::OpenOptions::new().read(true).write(true).open(format!(r"\\.\COM{n}"));
-        if open.is_ok() || open.err().map_or(false, |e| e.kind() == std::io::ErrorKind::PermissionDenied) { v.push(format!("COM{n}")); }
+        if open.is_ok() || open.err().map_or(false, |e| e.kind() == std::io::ErrorKind::PermissionDenied) { v.push(vc_i18n::t!("settings-com-n", n = &n)); }
     }
     v.sort(); v
 }

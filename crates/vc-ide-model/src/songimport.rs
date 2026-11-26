@@ -20,8 +20,8 @@ pub fn quelle_pruefen(f: &Path) -> Result<Quelle, String> {
     let fname = f.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default(); let low = fname.to_lowercase();
     let name = vc_media::naming::stem(&fname).trim_end_matches(".sng").trim_end_matches(".sid").replace(' ', "_");
     if low.ends_with(".sid") {
-        let i = std::fs::read(f).map_err(|e| format!("{fname}: {e}")).and_then(|b| vc_media::sid::info(&b).map(|x| x.0).map_err(|e| format!("{fname}: {e}")))?;
-        return Ok(Quelle { art: "SID-Datei (Aufnahme der Spielroutine)".into(), name, sid: Some((format!("{} – {} ({} Subtunes)", i.title, i.author, i.songs), i.songs, i.start_song)) });
+        let i = std::fs::read(f).map_err(|e| vc_i18n::t!("songimport-fname-e", fname = &fname, e = &e)).and_then(|b| vc_media::sid::info(&b).map(|x| x.0).map_err(|e| vc_i18n::t!("songimport-fname-e", fname = &fname, e = &e)))?;
+        return Ok(Quelle { art: vc_i18n::t!("songimport-sid-datei-aufnahme-der-spielroutine").into(), name, sid: Some((vc_i18n::t!("songimport-p1-p2-p3-subtunes", p1 = &i.title, p2 = &i.author, p3 = &i.songs), i.songs, i.start_song)) });
     }
     let art = if low.ends_with(".sng") { "GoatTracker (SID)".to_string() } else {
         match std::fs::read_to_string(f).ok().and_then(|t| vc_media::parse_media(&t).ok()).map(|a| a.profile) { Some(p) if p.contains("pokey") => "POKEY (Atari)".into(), Some(p) if p.contains("sid") => "SID (C64)".into(), Some(p) => p, None => "unbekannt".into() }
@@ -48,8 +48,8 @@ pub fn rmt_importieren(root: &Path, data: &Path, datei: &Path, name: &str, ordne
     let profiles = vc_media::load_profiles(data)?; let p = vc_media::profile(&profiles, "atari.pokey.song")?;
     let (v, w) = vc_media::song::rmt_import(&bytes, p, name)?;
     let rel = format!("{ordner}/{name}.vcsong"); let out = root.join(&rel);
-    if out.exists() { return Err(format!("{rel} existiert bereits")) }
-    std::fs::create_dir_all(out.parent().ok_or("Pfad")?).map_err(|e| e.to_string())?; std::fs::write(&out, vc_media::project::format_media(&v)).map_err(|e| e.to_string())?; Ok((rel, w))
+    if out.exists() { return Err(vc_i18n::t!("songimport-rel-existiert-bereits", rel = &rel)) }
+    std::fs::create_dir_all(out.parent().ok_or(vc_i18n::t!("songimport-pfad"))?).map_err(|e| e.to_string())?; vc_core::atomar::schreiben(&out, vc_media::project::format_media(&v)).map_err(|e| e.to_string())?; Ok((rel, w))
 }
 
 #[cfg(test)]

@@ -1,0 +1,190 @@
+{
+ "source": "targets/c128.target.json",
+ "entries": {
+  "/target/testMailboxNote": {
+   "de": "Postfach der Tests (Postfach-Modus, 8 Byte): Kassettenpuffer $0B00-$0BFF, frei solange kein Band benutzt wird",
+   "en": "Mailbox of the tests (mailbox mode, 8 bytes): cassette buffer $0B00-$0BFF, free as long as no tape is used",
+   "status": "maschinell"
+  },
+  "/regions/0/note": {
+   "de": "Bank 0 (64 KB); ROM/E/A je nach MMU-Konfiguration überlagert",
+   "en": "Bank 0 (64 KB); ROM/I/O overlaid depending on the MMU configuration",
+   "status": "maschinell"
+  },
+  "/regions/1/note": {
+   "de": "$00/$01: Prozessorport",
+   "en": "$00/$01: processor port",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "40-Spalten-Bildschirm",
+   "en": "40-column screen",
+   "status": "maschinell"
+  },
+  "/regions/3/note": {
+   "de": "BASIC-7.0-Programme beginnen bei $1C01",
+   "en": "BASIC 7.0 programs start at $1C01",
+   "status": "maschinell"
+  },
+  "/regions/4/note": {
+   "de": "VIC-IIe, SID, MMU, VDC, CIA (bei E/A-Sicht)",
+   "en": "VIC-IIe, SID, MMU, VDC, CIA (with I/O visible)",
+   "status": "maschinell"
+  },
+  "/regions/5/note": {
+   "de": "Kernal/BASIC-Hälfte je nach MMU",
+   "en": "Kernal/BASIC half depending on the MMU",
+   "status": "maschinell"
+  },
+  "/banking/source": {
+   "de": "Commodore 128 Programmer's Reference Guide (MMU-Konfigurationsregister $D500/$FF00, Speicherplan C128-Modus). Die Wertebezeichnungen $00, $3E, $3F, $7E, $7F stehen in data/sys/c128/hardware.asm (MMUCFG_*), $01 und $0E ergeben sich aus den Bitbedeutungen. Seite $FF enthält zusätzlich die MMU-Register $FF00-$FF04 (immer sichtbar) und gilt hier als ROM bzw. RAM der Konfiguration. Vorkonfigurationen (PCRA-PCRD) und RCR bleiben unberücksichtigt.",
+   "en": "Commodore 128 Programmer's Reference Guide (MMU configuration register $D500/$FF00, memory map in C128 mode). The value names $00, $3E, $3F, $7E, $7F are in data/sys/c128/hardware.asm (MMUCFG_*); $01 and $0E follow from the bit meanings. Page $FF also contains the MMU registers $FF00-$FF04 (always visible) and counts here as ROM or RAM of the configuration. Preconfigurations (PCRA-PCRD) and RCR are not taken into account.",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/0/hint": {
+   "de": "0: E/A-Block bei $D000-$DFFF; 1: dort Zeichen-ROM (bei System-ROM) bzw. ROM/RAM",
+   "en": "0: I/O block at $D000-$DFFF; 1: character ROM there (with system ROM) or ROM/RAM",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/1/hint": {
+   "de": "$4000-$7FFF: 0 = BASIC-7.0-ROM (unten), 1 = RAM",
+   "en": "$4000-$7FFF: 0 = BASIC 7.0 ROM (low), 1 = RAM",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/2/hint": {
+   "de": "$8000-$BFFF, Bit 0 der Auswahl: 00 = System-ROM (BASIC oben, Monitor), 01 = internes Funktions-ROM, 10 = externes Funktions-ROM, 11 = RAM",
+   "en": "$8000-$BFFF, bit 0 of the selection: 00 = system ROM (BASIC high, monitor), 01 = internal function ROM, 10 = external function ROM, 11 = RAM",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/3/hint": {
+   "de": "$8000-$BFFF, Bit 1 der Auswahl",
+   "en": "$8000-$BFFF, bit 1 of the selection",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/4/hint": {
+   "de": "$C000-$FFFF, Bit 0 der Auswahl: 00 = System-ROM (Editor, Zeichen-ROM/E/A, KERNAL), 01 = internes Funktions-ROM, 10 = externes Funktions-ROM, 11 = RAM",
+   "en": "$C000-$FFFF, bit 0 of the selection: 00 = system ROM (editor, character ROM/I/O, KERNAL), 01 = internal function ROM, 10 = external function ROM, 11 = RAM",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/5/hint": {
+   "de": "$C000-$FFFF, Bit 1 der Auswahl",
+   "en": "$C000-$FFFF, bit 1 of the selection",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/6/hint": {
+   "de": "RAM-Bank 0 oder 1 für den gesamten sichtbaren RAM",
+   "en": "RAM bank 0 or 1 for all visible RAM",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/name": {
+   "de": "Standard (System-ROM und E/A)",
+   "en": "Default (system ROM and I/O)",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/note": {
+   "de": "Bank 0 mit allen System-ROMs",
+   "en": "Bank 0 with all system ROMs",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/regions/0/note": {
+   "de": "BASIC 7.0 unten",
+   "en": "BASIC 7.0 low",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/regions/1/note": {
+   "de": "BASIC 7.0 oben",
+   "en": "BASIC 7.0 high",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/regions/2/note": {
+   "de": "Maschinensprachemonitor",
+   "en": "Machine language monitor",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/regions/3/note": {
+   "de": "Bildschirmeditor",
+   "en": "Screen editor",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/name": {
+   "de": "System-ROM mit Zeichen-ROM",
+   "en": "System ROM with character ROM",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/note": {
+   "de": "Wie $00, aber Zeichen-ROM statt E/A bei $D000",
+   "en": "As $00, but character ROM instead of I/O at $D000",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/0/note": {
+   "de": "BASIC 7.0 unten",
+   "en": "BASIC 7.0 low",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/1/note": {
+   "de": "BASIC 7.0 oben",
+   "en": "BASIC 7.0 high",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/2/note": {
+   "de": "Maschinensprachemonitor",
+   "en": "Machine language monitor",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/3/note": {
+   "de": "Bildschirmeditor",
+   "en": "Screen editor",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/name": {
+   "de": "RAM mit Kernal und E/A (BASIC aus)",
+   "en": "RAM with Kernal and I/O (BASIC off)",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/note": {
+   "de": "Bank 0; RAM bei $4000-$BFFF, Kernal-ROM bleibt",
+   "en": "Bank 0; RAM at $4000-$BFFF, Kernal ROM stays",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/regions/0/note": {
+   "de": "Bildschirmeditor",
+   "en": "Screen editor",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/name": {
+   "de": "Bank 0: RAM mit E/A",
+   "en": "Bank 0: RAM with I/O",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/note": {
+   "de": "Bank 0; nur E/A über dem RAM",
+   "en": "Bank 0; only I/O over the RAM",
+   "status": "maschinell"
+  },
+  "/banking/presets/4/name": {
+   "de": "Bank 0: alles RAM",
+   "en": "Bank 0: all RAM",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/name": {
+   "de": "Bank 1: RAM mit E/A",
+   "en": "Bank 1: RAM with I/O",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/note": {
+   "de": "Bank 1; der untere gemeinsame RAM-Bereich bleibt Bank 0 (Größe: RCR $D506)",
+   "en": "Bank 1; the lower common RAM area stays bank 0 (size: RCR $D506)",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/name": {
+   "de": "Bank 1: alles RAM",
+   "en": "Bank 1: all RAM",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/note": {
+   "de": "Bank 1; der untere gemeinsame RAM-Bereich bleibt Bank 0 (Größe: RCR $D506)",
+   "en": "Bank 1; the lower common RAM area stays bank 0 (size: RCR $D506)",
+   "status": "maschinell"
+  }
+ }
+}

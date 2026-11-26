@@ -1,0 +1,280 @@
+{
+ "source": "sys/atari8bit/gtia.asm",
+ "entries": {
+  "/L4": {
+   "de": "Schreibregister",
+   "en": "Write registers",
+   "status": "maschinell"
+  },
+  "/L5": {
+   "de": "Player 0: Position",
+   "en": "Player 0: position",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Player 1: Position",
+   "en": "Player 1: position",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Player 2: Position",
+   "en": "Player 2: position",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Player 3: Position",
+   "en": "Player 3: position",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Missile 0: Position",
+   "en": "Missile 0: position",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Missile 1: Position",
+   "en": "Missile 1: position",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Missile 2: Position",
+   "en": "Missile 2: position",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Missile 3: Position",
+   "en": "Missile 3: position",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Player 0: Breite",
+   "en": "Player 0: width",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Player 1: Breite",
+   "en": "Player 1: width",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Player 2: Breite",
+   "en": "Player 2: width",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Player 3: Breite",
+   "en": "Player 3: width",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Missile-Breiten",
+   "en": "Missile widths",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "Player 0: Grafikdaten",
+   "en": "Player 0: graphics data",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Player 1: Grafikdaten",
+   "en": "Player 1: graphics data",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Player 2: Grafikdaten",
+   "en": "Player 2: graphics data",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Player 3: Grafikdaten",
+   "en": "Player 3: graphics data",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Missile-Grafikdaten",
+   "en": "Missile graphics data",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Farbe Player/Missile 0",
+   "en": "Color of player/missile 0",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Farbe Player/Missile 1",
+   "en": "Color of player/missile 1",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Farbe Player/Missile 2",
+   "en": "Color of player/missile 2",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Farbe Player/Missile 3",
+   "en": "Color of player/missile 3",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Farbe Spielfeld 0",
+   "en": "Color of playfield 0",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Farbe Spielfeld 1",
+   "en": "Color of playfield 1",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Farbe Spielfeld 2",
+   "en": "Color of playfield 2",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "Farbe Spielfeld 3",
+   "en": "Color of playfield 3",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Hintergrundfarbe",
+   "en": "Background color",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Priorität und GTIA-Modi",
+   "en": "Priority and GTIA modes",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Vertikale Verzögerung",
+   "en": "Vertical delay",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Grafiksteuerung (Player/Missile an, Trigger-Latch)",
+   "en": "Graphics control (player/missile on, trigger latch)",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Kollisionen löschen",
+   "en": "Clear collisions",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Konsolentasten (lesen) / Lautsprecher (schreiben)",
+   "en": "Console keys (read) / speaker (write)",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Leseregister",
+   "en": "Read registers",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "Kollision Missile 0 - Spielfeld",
+   "en": "Collision missile 0 - playfield",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Kollision Missile 1 - Spielfeld",
+   "en": "Collision missile 1 - playfield",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Kollision Missile 2 - Spielfeld",
+   "en": "Collision missile 2 - playfield",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "Kollision Missile 3 - Spielfeld",
+   "en": "Collision missile 3 - playfield",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "Kollision Player 0 - Spielfeld",
+   "en": "Collision player 0 - playfield",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Kollision Player 1 - Spielfeld",
+   "en": "Collision player 1 - playfield",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Kollision Player 2 - Spielfeld",
+   "en": "Collision player 2 - playfield",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "Kollision Player 3 - Spielfeld",
+   "en": "Collision player 3 - playfield",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "Kollision Missile 0 - Player",
+   "en": "Collision missile 0 - player",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "Kollision Missile 1 - Player",
+   "en": "Collision missile 1 - player",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "Kollision Missile 2 - Player",
+   "en": "Collision missile 2 - player",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "Kollision Missile 3 - Player",
+   "en": "Collision missile 3 - player",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "Kollision Player 0 - Player",
+   "en": "Collision player 0 - player",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "Kollision Player 1 - Player",
+   "en": "Collision player 1 - player",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Kollision Player 2 - Player",
+   "en": "Collision player 2 - player",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Kollision Player 3 - Player",
+   "en": "Collision player 3 - player",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "Feuerknopf 0",
+   "en": "Fire button 0",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Feuerknopf 1",
+   "en": "Fire button 1",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Feuerknopf 2",
+   "en": "Fire button 2",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Feuerknopf 3",
+   "en": "Fire button 3",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "PAL/NTSC-Kennung",
+   "en": "PAL/NTSC identifier",
+   "status": "maschinell"
+  }
+ }
+}

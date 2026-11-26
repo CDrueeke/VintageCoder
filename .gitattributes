@@ -3,6 +3,8 @@
 *.asm text eol=lf
 *.sbas text eol=lf
 *.json text eol=lf
+*.ftl text eol=lf
+*.mjs text eol=lf
 *.vcprj text eol=lf
 *.vcchar text eol=lf
 *.vcsprite text eol=lf

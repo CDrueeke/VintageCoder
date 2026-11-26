@@ -2,7 +2,7 @@
 
 Kurzfassung zum Nachschlagen. Die ausführliche Erklärung steht auf den Seiten [Assembler](help:assembler), [Ausdrücke und Funktionen](help:asm-expr), [Direktiven](help:asm-directives), [Texte und Zeichensätze](help:asm-text), [Labels, Makros, Scopes](help:asm-macros) und [Systembibliothek](help:asm-library).
 
-Die Sprache VCASM ist frei nutzbar: jeder darf sie in eigenen Werkzeugen umsetzen, siehe [Lizenz und freie Nutzung](help:license). Welche Lizenzen in den eingebundenen Dateien stehen, meldet der Bau, siehe [Lizenzhinweis beim Übersetzen](help:license-build) (Meldungen `L001` und `L002`).
+Die Sprache VCASM ist frei nutzbar: jeder darf sie in eigenen Werkzeugen umsetzen, siehe [Lizenz und Danksagungen](help:license). Welche Lizenzen in den eingebundenen Dateien stehen, meldet der Bau, siehe [Lizenzhinweis beim Übersetzen](help:license-build) (Meldungen `L001` und `L002`).
 
 ## Aufbau einer Zeile
 
@@ -40,12 +40,13 @@ NAME =  ausdruck            ; Konstante (oder Variable, wenn mit .var angelegt)
 
 | Direktive | Kurzbeschreibung | Seite |
 |---|---|---|
-| `.align n` | mit Nullbytes auf ein Vielfaches von n auffüllen | [Direktiven](help:asm-directives) |
+| `.align n[, skip \| füllbyte]` | auf ein Vielfaches von n: auffüllen (Nullbytes oder Füllbyte) oder mit `skip` springen, neues Segment | [Direktiven](help:asm-directives) |
 | `.assert bed[, "text"]` | Bedingung prüfen, sonst E207 | [Direktiven](help:asm-directives) |
 | `.atascii "…"` | Text als ATASCII | [Texte](help:asm-text) |
 | `.bank n` | ROM-Bank wählen (0–1023) | [Module](help:cartridges) |
 | `.basicstub ziel[, zeile][, "text"]` | BASIC-Zeile `SYS` voranstellen | [Direktiven](help:asm-directives) |
 | `.be16` `.dbyt` | 16 Bit, High-Byte zuerst | [Direktiven](help:asm-directives) |
+| `.be32` | 32 Bit, High-Byte zuerst | [Direktiven](help:asm-directives) |
 | `.branchlong auto/off` | zu weite Sprünge automatisch verlängern | [Direktiven](help:asm-directives) |
 | `.break` | Schleife verlassen | [Direktiven](help:asm-directives) |
 | `.byte` `.db` | Bytes und Zeichenketten | [Direktiven](help:asm-directives) |
@@ -54,38 +55,38 @@ NAME =  ausdruck            ; Konstante (oder Variable, wenn mit .var angelegt)
 | `.continue` | nächster Schleifendurchlauf | [Direktiven](help:asm-directives) |
 | `.cpu 6510 { illegals = … }` | Umgang mit undokumentierten Befehlen | [Direktiven](help:asm-directives) |
 | `.cycles [name] [max=n]` … `.endcycles` | Zyklen eines Blocks zählen | [Direktiven](help:asm-directives) |
-| `.dword` `.long` | 32 Bit, Low-Byte zuerst | [Direktiven](help:asm-directives) |
+| `.dword` `.long` | 32 Bit, Low-Byte zuerst (`.long` legt **vier** Byte ab) | [Direktiven](help:asm-directives) |
 | `.encoding "name"` | Textkodierung wählen (auch als Block `{ … }`) | [Texte](help:asm-text) |
 | `.enum` … `.endenum` | Aufzählung | [Makros](help:asm-macros) |
 | `.error "text"` | Fehler E207 erzeugen | [Direktiven](help:asm-directives) |
 | `.exitmacro` | laufendes Makro vorzeitig beenden | [Makros](help:asm-macros) |
 | `.fill n[, ausdr[, var]]` | n Bytes füllen / Tabelle | [Direktiven](help:asm-directives) |
-| `.for` … `.next` | Schleife | [Direktiven](help:asm-directives) |
+| `.for` … `.endfor` (alt: `.next`) | Schleife | [Direktiven](help:asm-directives) |
 | `.function name(p) = ausdr` | eigene Funktion für Ausdrücke | [Ausdrücke](help:asm-expr) |
 | `.hex "aa bb"` | Bytes aus Hexziffern | [Direktiven](help:asm-directives) |
 | `.if` `.elseif` `.else` `.endif` | bedingte Übersetzung | [Direktiven](help:asm-directives) |
 | `.ifdef` `.ifndef name` | Name definiert / nicht definiert | [Direktiven](help:asm-directives) |
-| `.include "datei"` `#include <pfad>` | Datei einbinden (`as name`: eigener Namensraum) | [Direktiven](help:asm-directives) |
 | `.incbin "datei"[, off[, len]]` | Binärdatei einbinden | [Direktiven](help:asm-directives) |
-| `.lohifill n, ausdr[, var]` | Wortetabelle: erst Low-, dann High-Bytes | [Direktiven](help:asm-directives) |
+| `.include "datei"` `#include <pfad>` | Datei oder Mediendatei (`.vcsprite` …) einbinden (`as name`: eigener Namensraum) | [Direktiven](help:asm-directives) |
+| `.lohitable n, ausdr[, var]` (alt: `.lohifill`) | Wortetabelle: erst Low-, dann High-Bytes | [Direktiven](help:asm-directives) |
 | `.macro` … `.endmacro` | Makro definieren | [Makros](help:asm-macros) |
 | `.namespace name {` … `}` | benannter Namensraum | [Makros](help:asm-macros) |
-| `.null "…"` | Text mit Nullbyte am Ende | [Texte](help:asm-text) |
 | `.org adr` / `*= adr` | Adresse setzen, neues Segment | [Direktiven](help:asm-directives) |
-| `.page [n]` | an die nächste Seitengrenze, ohne Füllbytes | [Direktiven](help:asm-directives) |
+| `.page [n]` | alter Name von `.align n, skip` (an die nächste Seitengrenze, ohne Füllbytes) | [Direktiven](help:asm-directives) |
 | `.petscii "…"` | Text als PETSCII | [Texte](help:asm-text) |
-| `.ptext "…"` | Text mit Längenbyte davor | [Texte](help:asm-text) |
-| `.pseudopc adr` … `.endpseudopc` (`.realpc`) | Code für eine andere Laufzeitadresse | [Direktiven](help:asm-directives) |
+| `.relocate adr` … `.endrelocate` (alt: `.pseudopc`, `.endpseudopc`, `.realpc`) | Code für eine andere Laufzeitadresse | [Direktiven](help:asm-directives) |
 | `.repeat n[, var]` … `.endrepeat` | Block n-mal | [Direktiven](help:asm-directives) |
-| `.rta ziel` | Adresse minus 1 (für `rts`-Sprungtabellen) | [Direktiven](help:asm-directives) |
+| `.retaddr ziel` (alt: `.rta`) | Adresse minus 1 (für `rts`-Sprungtabellen) | [Direktiven](help:asm-directives) |
 | `.run adr` | Startadresse (Atari) | [Direktiven](help:asm-directives) |
-| `.screen "…"` | Text als Bildschirmcode | [Texte](help:asm-text) |
+| `.screencode "…"` (alt: `.screen`) | Text als Bildschirmcode | [Texte](help:asm-text) |
 | `.segment "NAME"[, von, bis]` | Segment benennen und Bereich prüfen | [Module](help:cartridges) |
 | `.set name = ausdr` | Variable ändern | [Direktiven](help:asm-directives) |
-| `.shift "…"` | Text, letztes Zeichen mit Bit 7 | [Texte](help:asm-text) |
 | `.struct` … `.endstruct` | Struktur mit Feldnamen | [Makros](help:asm-macros) |
 | `.target name` | Zielsystem im Quelltext vermerken | [Direktiven](help:asm-directives) |
 | `.text "…"` | Text in der Kodierung von `.encoding` | [Texte](help:asm-text) |
+| `.textlen "…"` (alt: `.ptext`) | Text mit Längenbyte davor | [Texte](help:asm-text) |
+| `.textnull "…"` (alt: `.null`) | Text mit Nullbyte am Ende | [Texte](help:asm-text) |
+| `.textshift "…"` (alt: `.shift`) | Text, letztes Zeichen mit Bit 7 | [Texte](help:asm-text) |
 | `.var name = ausdr` | Variable anlegen | [Direktiven](help:asm-directives) |
 | `.warning "text"` | Warnung W200 erzeugen | [Direktiven](help:asm-directives) |
 | `.word` `.dw` | 16-Bit-Werte, Low-Byte zuerst | [Direktiven](help:asm-directives) |
@@ -117,6 +118,7 @@ Fehler brechen den Bau ab, Warnungen nicht. Die Meldung nennt Datei, Zeile und C
 | **E210** | Blockstruktur fehlerhaft | `.if` ohne `.endif`, `.macro` ohne `.endmacro`, `.endcycles` ohne `.cycles`, `.break` außerhalb einer Schleife |
 | **E211** | zu tief verschachtelt | Makro ruft sich selbst auf, Include-Zyklus |
 | **E212** | Datei nicht gefunden | falscher Pfad bei `.include`, `.incbin`, `.encoding` |
+| **E219** | Medium lässt sich nicht einbinden | Mediendatei gehört zu einem anderen Zielsystem oder ist nicht lesbar (`.include "graphics/hero.vcsprite"`) |
 | **E213** | Scope-Fehler | `}` ohne `{`, Scope nicht geschlossen, Punkt im Scope-Namen |
 | **E214** | anonymes Label fehlt | `bne -` ohne `-` davor, `beq +` ohne `+` dahinter |
 | **E215** | Adressmodus-Suffix passt nicht | `jmp.z`, `lda.z #1` |
@@ -132,5 +134,6 @@ Fehler brechen den Bau ab, Warnungen nicht. Die Meldung nennt Datei, Zeile und C
 | **W202** | Kommazahl wurde abgeschnitten | `.byte 7 / 2.0` |
 | **W203** | zu weiter Sprung automatisch verlängert | `.branchlong auto` |
 | **W204** | `.basicstub` nicht an der BASIC-Startadresse des Zielsystems | `.org $0801` auf dem C128 |
+| **W208** | alter Include-Pfad `build/export/…` | stattdessen `.include "graphics/hero.vcsprite"` |
 
 Die BASIC-Übersetzung ([BASIC](help:basic)) vergibt für ihre eigenen Fehler ebenfalls Nummern ab E301 (zum Beispiel `E320 TYPE MISMATCH`); dort gelten die Texte der BASIC-Seite. Fehler beim Erzeugen eines Moduls (`crt`, `car`, `rom`, `a0`) erscheinen ohne Code als Klartext, zum Beispiel „Standardmodul: Code muss in $8000-$BFFF liegen“; siehe [Module](help:cartridges).

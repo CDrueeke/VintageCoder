@@ -5,6 +5,9 @@ use std::path::{Path, PathBuf};
 
 pub mod args;
 pub mod b2a;
+pub mod basicconv;
+pub mod basicinfo;
+pub mod basicmedia;
 pub mod blob;
 pub mod build;
 pub mod buildlog;
@@ -29,8 +32,10 @@ pub mod mega65net;
 pub mod platform;
 pub mod projfile;
 pub mod regcode;
+pub mod registry;
 pub mod reorganize;
 pub mod roms;
+pub mod safepath;
 pub mod settings;
 pub mod setup;
 pub mod streams;
@@ -40,6 +45,7 @@ pub mod sysmap;
 pub mod targets;
 pub mod tests;
 pub mod trace;
+pub mod turbo;
 pub mod update;
 
 pub fn find_data_dir(start: &Path) -> Option<PathBuf> {

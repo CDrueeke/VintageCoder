@@ -1,0 +1,25 @@
+{
+ "source": "chips/pia.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Port A (Joysticks 1+2)",
+   "en": "Port A (joysticks 1+2)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Port B (XL/XE: Speicher-Banking)",
+   "en": "Port B (XL/XE: memory banking)",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Port-A-Steuerung",
+   "en": "Port A control",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Port-B-Steuerung",
+   "en": "Port B control",
+   "status": "maschinell"
+  }
+ }
+}

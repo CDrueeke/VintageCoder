@@ -7,7 +7,7 @@ mod cbm;
 mod d64;
 
 pub use any::{Addr, AnyDisk, Analysis, Cell, FileInfo, Format};
-pub use atr::{Atr, Dos2Entry};
+pub use atr::{Atr, DosKind, Dos2Entry};
 pub use boot::{boot_disk, xex_blocks, xex_segments};
 pub use cbm::{Disk, Kind};
 pub use d64::{sectors_in_track, D64, D64Entry};
@@ -16,6 +16,6 @@ pub use d64::{sectors_in_track, D64, D64Entry};
 pub fn summarize_problems(problems: &[String], max: usize) -> Vec<String> {
     if problems.len() <= max { return problems.to_vec(); }
     let mut v: Vec<String> = problems[..max].to_vec();
-    v.push(format!("… und {} weitere Probleme", problems.len() - max));
+    v.push(vc_i18n::t!("disk-und-p1-weitere-probleme", p1 = problems.len() - max));
     v
 }

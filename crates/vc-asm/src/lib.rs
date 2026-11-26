@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! VintageCoder-Assembler (Phase 1): Mehrpass-Assembler für die 6502-Familie.
 mod cart;
+pub mod directives;
 mod disasm;
 mod expr;
 pub mod license;
@@ -10,14 +11,14 @@ mod tree;
 
 pub use cart::{to_car, to_crt, to_rom, to_vic20_cart};
 pub use disasm::{disassemble, DisLine};
-pub use tree::{include_names, norm_path, resolve as resolve_include};
+pub use tree::{include_names, norm_path, resolve as resolve_include, IncludeProvider, LegacyHint};
 use expr::{eval, lookup_scoped, qualified, Ctx, Func, Val};
 use parse::{parse_operand, split_top, Body, Operand, Stmt};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 use std::rc::Rc;
-use tree::{build, load, quoted, resolve, substitute, Cond, ForSpec, Macros, Node, StructNode};
-use vc_core::Diagnostic;
+use tree::{build, load, quoted, LoadCtx, resolve, substitute, Cond, ForSpec, Macros, Node, StructNode};
+use vc_core::{msg, Diagnostic, Msg};
 use vc_target::{Cpu, Mode};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -45,11 +46,15 @@ pub struct Options {
     pub basic_start: Option<u16>,
     /// Ungespeicherter Text einzelner Dateien (Schlüssel: [`norm_path`] des Pfads): wird beim Einbinden statt des Dateiinhalts verwendet (Editor)
     pub overrides: HashMap<String, String>,
+    /// Medien als Include: wandelt `.include "graphics/hero.vcsprite"` beim Einbinden um (Bau und Sprachdienste setzen ihn mit `vc_media::include::resolve_include`); `None`: nur gewöhnliche Dateien
+    pub include_provider: Option<IncludeProvider>,
+    /// Hinweis W208 für alte Pfade `build/export/…`: das Medium, aus dem die Datei stammt
+    pub legacy_hint: Option<LegacyHint>,
 }
 
 impl Options {
     pub fn new(file: impl Into<String>, illegals: Policy) -> Self {
-        Options { illegals, file: file.into(), include_dirs: vec![], defines: vec![], predefined: vec![], atari_text: false, branch_long: false, basic_start: None, overrides: HashMap::new() }
+        Options { illegals, file: file.into(), include_dirs: vec![], defines: vec![], predefined: vec![], atari_text: false, branch_long: false, basic_start: None, overrides: HashMap::new(), include_provider: None, legacy_hint: None }
     }
 }
 
@@ -170,25 +175,28 @@ struct Pass<'a> {
     /// bisher in diesem Durchlauf definierte anonyme Labels `-` bzw. `+` (Schlüssel `-#n` / `+#n` in den Symbolen)
     anon_minus: usize,
     anon_plus: usize,
+    /// erste `.run`-Direktive und erster übersetzter Befehl (Ort), für die Hinweise W206 und W207 am Ende des Durchlaufs
+    first_run: Option<(Rc<str>, usize)>,
+    first_ins: Option<(Rc<str>, usize)>,
 }
 
 impl<'a> Pass<'a> {
-    fn err(&mut self, code: &'static str, msg: impl Into<String>) {
+    fn err(&mut self, code: &'static str, msg: Msg) {
         if self.strict { self.diags.push(Diagnostic::error(code, &self.file, self.line, msg)); }
     }
-    fn warn(&mut self, code: &'static str, msg: impl Into<String>) {
+    fn warn(&mut self, code: &'static str, msg: Msg) {
         if self.strict { self.diags.push(Diagnostic::warning(code, &self.file, self.line, msg)); }
     }
     /// Anonymes Label als Operand: `-` / `--` … = das (n-te) vorige `-`-Label, `+` / `++` … = das (n-te) nächste `+`-Label.
     fn anon_ref(&mut self, t: &str) -> Val {
         let level = t.chars().count();
         if t.starts_with('-') {
-            if level > self.anon_minus { self.err("E214", format!("kein passendes '{t}'-Label davor")); return Val::int(0, false); }
+            if level > self.anon_minus { self.err("E214", msg!("diag-asm-e214-before", label = t)); return Val::int(0, false); }
             let v = self.new_syms.get(&format!("-#{}", self.anon_minus - level)).copied();
             Val::int(v.unwrap_or(0), v.is_some())
         } else {
             let v = self.syms.get(&format!("+#{}", self.anon_plus + level - 1)).copied();
-            if v.is_none() && self.strict { self.err("E214", format!("kein passendes '{t}'-Label dahinter")); }
+            if v.is_none() && self.strict { self.err("E214", msg!("diag-asm-e214-after", label = t)); }
             Val::int(v.unwrap_or(0), v.is_some())
         }
     }
@@ -199,18 +207,18 @@ impl<'a> Pass<'a> {
         let ctx = Ctx { syms: self.syms, locals: &self.locals, vars: &self.vars, funcs: &self.funcs, stack: &[], pc: self.pc.unwrap_or(0), scope: &self.scope, path: &self.path_str, strict: self.strict };
         match eval(s, &ctx) {
             Ok(v) => v,
-            Err(e) => { self.err("E202", format!("{e} in '{s}'")); Val::int(0, false) }
+            Err(e) => { self.err("E202", msg!("diag-asm-e202-expression", inner = e, expr = s)); Val::int(0, false) }
         }
     }
     /// Wert als ganze Zahl; Nachkommastellen werden abgeschnitten und gemeldet (W202)
     fn ev(&mut self, s: &str) -> Val {
         let v = self.ev_raw(s);
         if v.list.is_some() {
-            self.err("E202", format!("Liste statt Zahl in '{}' (Elemente mit [i] wählen oder .byte/.word für die ganze Liste)", s.trim()));
+            self.err("E202", msg!("diag-asm-e202-list-for-number", expr = s.trim()));
             return Val::int(0, false);
         }
         if v.known && v.has_fraction() {
-            self.warn("W202", format!("Kommazahl {} auf {} abgeschnitten (int(), round() oder floor() verwenden) in '{}'", v.f.unwrap(), v.v, s.trim()));
+            self.warn("W202", msg!("diag-asm-w202", value = format!("{}", v.f.unwrap()), to = v.v, expr = s.trim()));
         }
         Val::int(v.v, v.known)
     }
@@ -219,7 +227,7 @@ impl<'a> Pass<'a> {
         let v = self.ev_raw(s);
         v.flatten().into_iter().map(|x| {
             if x.known && x.has_fraction() {
-                self.warn("W202", format!("Kommazahl {} auf {} abgeschnitten (int(), round() oder floor() verwenden) in '{}'", x.f.unwrap(), x.v, s.trim()));
+                self.warn("W202", msg!("diag-asm-w202", value = format!("{}", x.f.unwrap()), to = x.v, expr = s.trim()));
             }
             Val::int(x.v, x.known)
         }).collect()
@@ -241,14 +249,14 @@ impl<'a> Pass<'a> {
         lookup_scoped(name, &self.scope, &self.path_str, &mut f)
     }
     fn declare_var(&mut self, dir: &str, args: &str) {
-        let Some((n, e)) = args.split_once('=').filter(|(_, e)| !e.starts_with('=')) else { self.err("E208", format!("{dir} erwartet NAME = Ausdruck")); return };
+        let Some((n, e)) = args.split_once('=').filter(|(_, e)| !e.starts_with('=')) else { self.err("E208", msg!("diag-asm-e208-var-syntax", dir = dir)); return };
         let name = n.trim();
         if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_') || name.starts_with(|c: char| c.is_ascii_digit()) {
-            self.err("E208", format!("{dir}: ungültiger Variablenname '{name}'")); return;
+            self.err("E208", msg!("diag-asm-e208-var-name", dir = dir, name = name)); return;
         }
         let v = self.ev_raw(e.trim());
         match (dir, self.var_key(name)) {
-            (".set", None) => self.err("E216", format!("Variable '{name}' ist nicht mit .var angelegt")),
+            (".set", None) => self.err("E216", msg!("diag-asm-e216", name = name)),
             (".set", Some(k)) => { self.vars.insert(k, v); }
             _ => { let k = qualified(name, &self.scope, &self.path_str); self.vars.insert(k, v); }
         }
@@ -260,13 +268,13 @@ impl<'a> Pass<'a> {
     }
     fn define(&mut self, name: &str, v: i64) {
         let key = qualified(name, &self.scope, &self.path_str);
-        if self.strict && self.new_syms.get(&key).map_or(false, |old| *old != v) { self.err("E204", format!("Symbol '{name}' doppelt definiert")); }
+        if self.strict && self.new_syms.get(&key).map_or(false, |old| *old != v) { self.err("E204", msg!("diag-asm-e204-symbol", name = name)); }
         self.defs.insert(key.clone(), (self.file.to_string(), self.line));
         self.new_syms.insert(key, v);
     }
     /// Öffnet einen Scope (`{`); `name` = Label davor, sonst anonym. Innerhalb gilt `name.symbol`-Zugriff von außen.
     fn open_scope(&mut self, name: Option<&str>) {
-        let n = match name { Some(n) if !n.starts_with('.') && !n.contains('.') => n.to_string(), Some(n) => { self.err("E213", format!("Scope-Name '{n}' darf keinen Punkt enthalten")); self.anon += 1; format!("_s{}", self.anon) }
+        let n = match name { Some(n) if !n.starts_with('.') && !n.contains('.') => n.to_string(), Some(n) => { self.err("E213", msg!("diag-asm-e213-scope-name-dot", name = n)); self.anon += 1; format!("_s{}", self.anon) }
                              None => { self.anon += 1; format!("_s{}", self.anon) } };
         self.blocks.push(None);
         self.scope_stack.push(std::mem::take(&mut self.scope));
@@ -277,15 +285,15 @@ impl<'a> Pass<'a> {
     fn close_scope(&mut self) {
         if let Some(Some(prev)) = self.blocks.last().cloned() { self.blocks.pop(); self.enc = prev; return; }
         self.blocks.pop();
-        if self.path.pop().is_none() { self.err("E213", "'}' ohne öffnendes '{'"); return; }
+        if self.path.pop().is_none() { self.err("E213", msg!("diag-asm-e213-unmatched-close")); return; }
         self.path_str = self.path.join(".");
         self.scope = self.scope_stack.pop().unwrap_or_default();
     }
     fn emit(&mut self, bytes: &[u8]) {
-        let Some(pc) = self.pc else { self.err("E300", "Code vor .org"); return };
+        let Some(pc) = self.pc else { self.err("E300", msg!("diag-asm-e300-code-before-org")); return };
         let real = self.real.unwrap_or(pc);
         if let Some((lo, hi, name)) = self.seg_range.clone() {
-            if !bytes.is_empty() && (real < lo || real + bytes.len() as i64 - 1 > hi) { self.err("E301", format!("Segment '{name}' verlässt seinen Bereich ${lo:04X}-${hi:04X} (${real:04X}..${:04X})", real + bytes.len() as i64 - 1)); }
+            if !bytes.is_empty() && (real < lo || real + bytes.len() as i64 - 1 > hi) { self.err("E301", msg!("diag-asm-e301-segment-range", name = name, lo = format!("{lo:04X}"), hi = format!("{hi:04X}"), from = format!("{real:04X}"), to = format!("{:04X}", real + bytes.len() as i64 - 1))); }
         }
         if self.segments.is_empty() { self.segments.push(Segment { start: real as u16, bytes: vec![], bank: self.bank, name: self.seg_name.clone() }); }
         self.segments.last_mut().unwrap().bytes.extend_from_slice(bytes);
@@ -302,7 +310,7 @@ impl<'a> Pass<'a> {
         }
     }
     fn byte(&mut self, v: Val, lo: i64, hi: i64) -> u8 {
-        if self.strict && v.known && (v.v < lo || v.v > hi) { self.err("E203", format!("Wert {} außerhalb {}..{}", v.v, lo, hi)); }
+        if self.strict && v.known && (v.v < lo || v.v > hi) { self.err("E203", msg!("diag-asm-e203-value-range", value = v.v, lo = lo, hi = hi)); }
         (v.v & 0xFF) as u8
     }
 
@@ -316,35 +324,35 @@ impl<'a> Pass<'a> {
     fn string_bytes(&mut self, args: &str, conv: fn(u8) -> u8, names: tokens::Names) {
         match quoted(args) {
             Some(s) => { if let Some(b) = self.text_bytes(s, names, &conv) { self.emit(&b); } }
-            None => self.err("E208", "Zeichenkette in Anführungszeichen erwartet"),
+            None => self.err("E208", msg!("diag-asm-e208-string-expected")),
         }
     }
     /// Zeichenketten (kommagetrennt) in der aktuellen Kodierung; `f` formt die Bytes einer Kette um
-    fn enc_strings(&mut self, dir: &str, args: &str, f: fn(Vec<u8>) -> Result<Vec<u8>, &'static str>) {
+    fn enc_strings(&mut self, dir: &str, args: &str, f: fn(Vec<u8>) -> Result<Vec<u8>, Msg>) {
         for part in split_top(args, ',') {
-            let Some(s) = quoted(&part) else { self.err("E208", format!("{dir} erwartet Zeichenketten in Anführungszeichen")); return };
+            let Some(s) = quoted(&part) else { self.err("E208", msg!("diag-asm-e208-strings-expected", dir = dir)); return };
             let names = match self.enc { Enc::Ascii => tokens::Names::Off, Enc::Petscii => tokens::Names::Petscii, Enc::Atascii => tokens::Names::Atascii, _ => tokens::Names::Numeric };
             let enc = self.enc.clone();
             let Some(b) = self.text_bytes(s, names, &|c| enc.map(c)) else { return };
-            match f(b) { Ok(b) => self.emit(&b), Err(m) => { self.err("E203", format!("{dir}: {m}")); } }
+            match f(b) { Ok(b) => self.emit(&b), Err(m) => { self.err("E203", msg!("diag-asm-e203-text", dir = dir, reason = m)); } }
         }
     }
     fn set_encoding(&mut self, args: &str) {
         let a = args.trim();
         let block = a.ends_with('{');
         let a = a.trim_end_matches('{').trim();
-        let Some(name) = quoted(a) else { self.err("E208", ".encoding erwartet einen Namen in Anführungszeichen"); return };
+        let Some(name) = quoted(a) else { self.err("E208", msg!("diag-asm-e208-encoding-name")); return };
         let enc = match name.to_ascii_lowercase().as_str() {
             "ascii" | "text" => Enc::Ascii,
             "petscii" => Enc::Petscii,
             "screen" | "screencode" => if self.opts.atari_text { Enc::Internal } else { Enc::Screen },
             "atascii" => Enc::Atascii,
             _ => {
-                let Some(path) = resolve(&self.file, name, &self.opts.include_dirs) else { self.err("E208", format!(".encoding: unbekannte Kodierung oder Datei '{name}'")); return };
+                let Some(path) = resolve(&self.file, name, &self.opts.include_dirs) else { self.err("E208", msg!("diag-asm-e208-encoding-unknown", name = name)); return };
                 match std::fs::read(&path) {
                     Ok(d) if d.len() == 256 => Enc::Table(Rc::new(d)),
-                    Ok(_) => { self.err("E208", format!(".encoding: '{name}' muss genau 256 Byte enthalten")); return }
-                    Err(e) => { self.err("E212", format!("{}: {e}", path.display())); return }
+                    Ok(_) => { self.err("E208", msg!("diag-asm-e208-encoding-size", name = name)); return }
+                    Err(e) => { self.err("E212", msg!("diag-asm-e212-file-error", path = path.display().to_string(), error = e.to_string())); return }
                 }
             }
         };
@@ -355,14 +363,14 @@ impl<'a> Pass<'a> {
         match name {
             ".org" => {
                 let v = self.ev(args);
-                if self.strict && !(0..=0xFFFF).contains(&v.v) { self.err("E203", ".org außerhalb 0..65535"); }
+                if self.strict && !(0..=0xFFFF).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-org-range")); }
                 self.pc = Some(v.v);
                 self.real = Some(v.v);
                 self.begin_segment(v.v as u16);
             }
             ".bank" => {
                 let n = self.ev(args);
-                if self.strict && !(0..=1023).contains(&n.v) { self.err("E203", ".bank außerhalb 0..1023"); }
+                if self.strict && !(0..=1023).contains(&n.v) { self.err("E203", msg!("diag-asm-e203-bank-range")); }
                 self.bank_pos.insert(self.bank, (self.pc, self.real));
                 self.bank = n.v.clamp(0, 1023) as u32;
                 let (pc, real) = self.bank_pos.get(&self.bank).copied().unwrap_or((None, None));
@@ -374,133 +382,147 @@ impl<'a> Pass<'a> {
                 match p.first().and_then(|s| quoted(s)) {
                     Some(name) => { self.seg_name = name.to_string(); }
                     None if args.trim().is_empty() => { self.seg_name.clear(); }
-                    None => { self.err("E208", ".segment erwartet einen Namen in Anführungszeichen"); return; }
+                    None => { self.err("E208", msg!("diag-asm-e208-segment-name")); return; }
                 }
-                self.seg_range = if p.len() >= 3 { let (lo, hi) = (self.ev(&p[1]).v, self.ev(&p[2]).v); if self.strict && lo > hi { self.err("E203", ".segment: Anfang liegt hinter dem Ende"); } Some((lo, hi, self.seg_name.clone())) } else { None };
+                self.seg_range = if p.len() >= 3 { let (lo, hi) = (self.ev(&p[1]).v, self.ev(&p[2]).v); if self.strict && lo > hi { self.err("E203", msg!("diag-asm-e203-segment-order")); } Some((lo, hi, self.seg_name.clone())) } else { None };
                 self.begin_segment(self.real.unwrap_or(0) as u16);
             }
             ".cartridge" => {
                 let p = split_top(args, ',');
                 let kind = p.first().and_then(|s| quoted(s)).map(str::to_string);
-                let Some(kind) = kind else { self.err("E208", ".cartridge erwartet den Typ in Anführungszeichen (z. B. \"ocean\")"); return };
+                let Some(kind) = kind else { self.err("E208", msg!("diag-asm-e208-cartridge-type")); return };
                 self.cart = Some((kind, p.get(1).and_then(|s| quoted(s)).unwrap_or("").to_string()));
             }
-            ".byte" | ".db" => {
+            ".byte" => {
                 for part in split_top(args, ',') {
                     if let Some(s) = quoted(&part) { let b: Vec<u8> = s.bytes().collect(); self.emit(&b); }
                     else { for v in self.ev_items(&part) { let b = self.byte(v, -128, 255); self.emit(&[b]); } }
                 }
             }
-            ".word" | ".dw" => {
+            ".word" => {
                 for part in split_top(args, ',') { for v in self.ev_items(&part) {
-                    if self.strict && v.known && !(-32768..=65535).contains(&v.v) { self.err("E203", format!("Wert {} außerhalb 16 Bit", v.v)); }
+                    if self.strict && v.known && !(-32768..=65535).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-value-16bit", value = v.v)); }
                     self.emit(&[(v.v & 0xFF) as u8, ((v.v >> 8) & 0xFF) as u8]);
                 } }
             }
             ".var" | ".set" => self.declare_var(name, args),
             ".function" => self.declare_function(args),
             ".break" | ".continue" => {
-                if self.loop_depth == 0 { self.err("E210", format!("{name} außerhalb einer Schleife")); }
+                if self.loop_depth == 0 { self.err("E210", msg!("diag-asm-e210-outside-loop", directive = name)); }
                 else { self.loop_ctl = Some(if name == ".break" { LoopCtl::Break } else { LoopCtl::Continue }); }
             }
             ".encoding" => self.set_encoding(args),
             ".text" => self.enc_strings(".text", args, Ok),
-            ".null" => self.enc_strings(".null", args, |mut b| { b.push(0); Ok(b) }),
-            ".ptext" => self.enc_strings(".ptext", args, |b| {
-                if b.len() > 255 { return Err("Text länger als 255 Zeichen"); }
+            ".textnull" => self.enc_strings(".textnull", args, |mut b| { b.push(0); Ok(b) }),
+            ".textlen" => self.enc_strings(".textlen", args, |b| {
+                if b.len() > 255 { return Err(msg!("diag-asm-e203-text-too-long")); }
                 let mut o = vec![b.len() as u8]; o.extend(b); Ok(o)
             }),
-            ".shift" => self.enc_strings(".shift", args, |mut b| {
-                match b.last_mut() { Some(l) => { *l |= 0x80; Ok(b) } None => Err("leerer Text") }
+            ".textshift" => self.enc_strings(".textshift", args, |mut b| {
+                match b.last_mut() { Some(l) => { *l |= 0x80; Ok(b) } None => Err(msg!("diag-asm-e203-text-empty")) }
             }),
-            ".rta" => {
+            ".retaddr" => {
                 for part in split_top(args, ',') { for v in self.ev_items(&part) {
                     let w = v.v - 1;
-                    if self.strict && v.known && !(0..=65536).contains(&v.v) { self.err("E203", format!("Wert {} außerhalb 16 Bit", v.v)); }
+                    if self.strict && v.known && !(0..=65536).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-value-16bit", value = v.v)); }
                     self.emit(&[(w & 0xFF) as u8, ((w >> 8) & 0xFF) as u8]);
                 } }
             }
-            ".be16" | ".dbyt" => {
+            ".be16" => {
                 for part in split_top(args, ',') { for v in self.ev_items(&part) {
-                    if self.strict && v.known && !(-32768..=65535).contains(&v.v) { self.err("E203", format!("Wert {} außerhalb 16 Bit", v.v)); }
+                    if self.strict && v.known && !(-32768..=65535).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-value-16bit", value = v.v)); }
                     self.emit(&[((v.v >> 8) & 0xFF) as u8, (v.v & 0xFF) as u8]);
                 } }
             }
-            ".dword" | ".long" => {
+            ".be32" => {
                 for part in split_top(args, ',') { for v in self.ev_items(&part) {
-                    if self.strict && v.known && !(-2147483648..=4294967295).contains(&v.v) { self.err("E203", format!("Wert {} außerhalb 32 Bit", v.v)); }
+                    if self.strict && v.known && !(-2147483648..=4294967295).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-value-32bit", value = v.v)); }
+                    self.emit(&(v.v as u32).to_be_bytes());
+                } }
+            }
+            ".dword" => {
+                for part in split_top(args, ',') { for v in self.ev_items(&part) {
+                    if self.strict && v.known && !(-2147483648..=4294967295).contains(&v.v) { self.err("E203", msg!("diag-asm-e203-value-32bit", value = v.v)); }
                     self.emit(&(v.v as u32).to_le_bytes());
                 } }
             }
             ".hex" => {
                 for part in split_top(args, ',') {
-                    let Some(s) = quoted(&part) else { self.err("E208", ".hex erwartet Hexziffern in Anführungszeichen"); return };
+                    let Some(s) = quoted(&part) else { self.err("E208", msg!("diag-asm-e208-hex-quoted")); return };
                     let d: Vec<u8> = s.bytes().filter(|c| !c.is_ascii_whitespace()).collect();
-                    if d.len() % 2 != 0 || !d.iter().all(u8::is_ascii_hexdigit) { self.err("E208", ".hex: gerade Anzahl Hexziffern erwartet"); return; }
+                    if d.len() % 2 != 0 || !d.iter().all(u8::is_ascii_hexdigit) { self.err("E208", msg!("diag-asm-e208-hex-even")); return; }
                     let b: Vec<u8> = d.chunks(2).map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap()).collect();
                     self.emit(&b);
                 }
             }
             ".petscii" => self.string_bytes(args, petscii, tokens::Names::Petscii),
-            ".screen" => self.string_bytes(args, if self.opts.atari_text { atari_screen } else { screencode }, tokens::Names::Numeric),
+            ".screencode" => self.string_bytes(args, if self.opts.atari_text { atari_screen } else { screencode }, tokens::Names::Numeric),
             ".atascii" => self.string_bytes(args, atascii, tokens::Names::Atascii),
             ".fill" => {
                 // .fill anzahl [, ausdruck [, laufvariable]]: der Ausdruck darf die Laufvariable (Standard `i`, 0-basiert) benutzen
                 let p = split_top(args, ',');
                 let n = self.ev(p.first().map(String::as_str).unwrap_or("0"));
-                if n.v < 0 || n.v > 65536 { self.err("E203", ".fill: ungültige Länge"); return; }
+                if n.v < 0 || n.v > 65536 { self.err("E203", msg!("diag-asm-e203-fill-length")); return; }
                 let var = p.get(2).map(String::as_str).unwrap_or("i");
                 let vals = self.indexed_values(n.v, p.get(1).map(String::as_str).unwrap_or("0"), var);
                 let bytes: Vec<u8> = vals.into_iter().map(|v| self.byte(v, -128, 255)).collect();
                 self.emit(&bytes);
             }
-            ".lohifill" => {
-                // .lohifill anzahl, ausdruck [, laufvariable]: erst alle Low-Bytes, dann alle High-Bytes (Adresstabellen)
+            ".lohitable" => {
+                // .lohitable anzahl, ausdruck [, laufvariable]: erst alle Low-Bytes, dann alle High-Bytes (Adresstabellen)
                 let p = split_top(args, ',');
-                if p.len() < 2 { self.err("E208", ".lohifill erwartet: .lohifill anzahl, ausdruck(i)"); return; }
+                if p.len() < 2 { self.err("E208", msg!("diag-asm-e208-lohifill-syntax")); return; }
                 let n = self.ev(&p[0]);
-                if n.v < 0 || n.v > 32768 { self.err("E203", ".lohifill: ungültige Länge"); return; }
+                if n.v < 0 || n.v > 32768 { self.err("E203", msg!("diag-asm-e203-lohifill-length")); return; }
                 let var = p.get(2).map(String::as_str).unwrap_or("i");
                 let vals = self.indexed_values(n.v, &p[1], var);
-                if self.strict { if let Some(v) = vals.iter().find(|v| v.known && !(-32768..=65535).contains(&v.v)) { self.err("E203", format!("Wert {} außerhalb 16 Bit", v.v)); } }
+                if self.strict { if let Some(v) = vals.iter().find(|v| v.known && !(-32768..=65535).contains(&v.v)) { self.err("E203", msg!("diag-asm-e203-value-16bit", value = v.v)); } }
                 let mut bytes: Vec<u8> = vals.iter().map(|v| (v.v & 0xFF) as u8).collect();
                 bytes.extend(vals.iter().map(|v| ((v.v >> 8) & 0xFF) as u8));
                 self.emit(&bytes);
             }
-            ".page" => {
-                // nächste Seite (256 Byte) bzw. mit Argument die nächste durch n teilbare Adresse; ohne Füllbytes, neues Segment
-                let n = if args.trim().is_empty() { 256 } else { self.ev(args).v };
-                if n < 1 { self.err("E203", ".page: Größe muss größer als 0 sein"); return; }
-                let pc = self.pc.unwrap_or(0); let v = (pc + n - 1) / n * n;
-                if self.strict && !(0..=0xFFFF).contains(&v) { self.err("E203", ".page: Adresse außerhalb 0..65535"); }
-                self.pc = Some(v); self.real = Some(v); self.begin_segment(v as u16);
-            }
             ".align" => {
-                let n = self.ev(args).v.max(1);
-                if let Some(pc) = self.pc { let pad = (n - pc % n) % n; self.emit(&vec![0; pad as usize]); }
+                // .align n: mit Nullbytes auf ein Vielfaches von n auffüllen; .align n, füllbyte: mit dem Füllbyte;
+                // .align n, skip: ohne Füllbytes springen und ein neues Segment beginnen (früher `.page`)
+                let p = split_top(args, ',');
+                let skip = p.get(1).map_or(false, |x| x.eq_ignore_ascii_case("skip"));
+                if skip {
+                    let n = self.ev(&p[0]).v;
+                    if n < 1 { self.err("E203", msg!("diag-asm-e203-page-size")); return; }
+                    let pc = self.pc.unwrap_or(0); let v = (pc + n - 1) / n * n;
+                    if self.strict && !(0..=0xFFFF).contains(&v) { self.err("E203", msg!("diag-asm-e203-page-address")); }
+                    self.pc = Some(v); self.real = Some(v); self.begin_segment(v as u16);
+                } else {
+                    let n = self.ev(p.first().map(String::as_str).unwrap_or("")).v.max(1);
+                    let fill = match p.get(1) { Some(e) => { let v = self.ev(e); self.byte(v, -128, 255) } None => 0 };
+                    if let Some(pc) = self.pc { let pad = (n - pc % n) % n; self.emit(&vec![fill; pad as usize]); }
+                }
             }
             ".incbin" => {
                 let p = split_top(args, ',');
-                let Some(name) = p.first().and_then(|s| quoted(s)).map(str::to_string) else { self.err("E208", ".incbin erwartet einen Dateinamen"); return };
-                let Some(path) = resolve(&self.file, &name, &self.opts.include_dirs) else { self.err("E212", format!("Datei '{name}' nicht gefunden")); return };
+                let Some(name) = p.first().and_then(|s| quoted(s)).map(str::to_string) else { self.err("E208", msg!("diag-asm-e208-incbin-name")); return };
+                let Some(path) = resolve(&self.file, &name, &self.opts.include_dirs) else { self.err("E212", msg!("diag-asm-e212-incbin-missing", name = name.as_str())); return };
                 match std::fs::read(&path) {
                     Ok(data) => {
                         let off = if p.len() > 1 { self.ev(&p[1]).v.max(0) as usize } else { 0 };
                         let len = if p.len() > 2 { self.ev(&p[2]).v.max(0) as usize } else { data.len().saturating_sub(off) };
-                        if off + len > data.len() { self.err("E203", ".incbin: Bereich außerhalb der Datei"); } else { self.emit(&data[off..off + len]); }
+                        if off + len > data.len() { self.err("E203", msg!("diag-asm-e203-incbin-range")); } else { self.emit(&data[off..off + len]); }
                     }
-                    Err(e) => self.err("E212", format!("{}: {e}", path.display())),
+                    Err(e) => self.err("E212", msg!("diag-asm-e212-file-error", path = path.display().to_string(), error = e.to_string())),
                 }
             }
-            ".pseudopc" => {
+            ".relocate" => {
                 let v = self.ev(args);
                 match self.pc {
                     Some(pc) => { self.real = Some(self.real.unwrap_or(pc)); self.pc = Some(v.v); }
-                    None => self.err("E300", ".pseudopc vor .org"),
+                    None => self.err("E300", msg!("diag-asm-e300-pseudopc-before-org")),
                 }
             }
-            ".realpc" | ".endpseudopc" => { if self.real.is_some() { self.pc = self.real; } }
-            ".run" => { let v = self.ev(args); self.run = Some(v.v); }
+            ".endrelocate" => { if self.real.is_some() { self.pc = self.real; } }
+            ".run" => {
+                let v = self.ev(args); self.run = Some(v.v);
+                if self.first_run.is_none() { self.first_run = Some((self.file.clone(), self.line)); }
+            }
             ".cycles" => {
                 let mut name = String::new();
                 let mut budget = None;
@@ -513,46 +535,48 @@ impl<'a> Pass<'a> {
                 Some(b) => {
                     if let Some(limit) = b.budget {
                         if b.max > limit {
-                            self.warn("W201", format!("Zyklenbudget '{}' überschritten: worst-case {} > {} Zyklen", b.name, b.max, limit));
+                            self.warn("W201", msg!("diag-asm-w201", name = b.name.as_str(), max = b.max, limit = limit));
                         }
                     }
                     self.cycle_reports.push(CycleReport { name: b.name, file: b.file, line: b.line, end_line: self.line, min: b.min, max: b.max, budget: b.budget });
                 }
-                None => self.err("E210", ".endcycles ohne .cycles"),
+                None => self.err("E210", msg!("diag-asm-e210-endcycles")),
             },
-            ".const" | ".equ" => {
+            ".const" => {
                 if let Some((n, e)) = args.split_once('=') { let v = self.ev(e.trim()); self.define(n.trim(), v.v); }
-                else { self.err("E208", ".const erwartet NAME = Ausdruck"); }
+                else { self.err("E208", msg!("diag-asm-e208-const-syntax")); }
             }
             ".branchlong" => match args.trim().to_ascii_lowercase().as_str() {
                 "auto" | "on" => { self.branch_auto = true; self.branch_jmp = false; }
                 "jmp" => { self.branch_auto = true; self.branch_jmp = true; }
                 "off" => self.branch_auto = false,
-                _ => self.err("E208", ".branchlong erwartet auto, jmp oder off"),
+                _ => self.err("E208", msg!("diag-asm-e208-branchlong")),
             },
-            ".exitmacro" => { if self.depth == 0 { self.err("E210", ".exitmacro außerhalb eines Makros"); } else { self.exit_macro = true; } }
+            ".exitmacro" => { if self.depth == 0 { self.err("E210", msg!("diag-asm-e210-exitmacro")); } else { self.exit_macro = true; } }
             ".target" => {}
             ".cpu" => {
                 if let Some(i) = args.find("illegals") {
                     let word = args[i + 8..].trim_start().trim_start_matches('=').trim_start()
                         .split(|c: char| !c.is_alphabetic()).next().unwrap_or("");
-                    match Policy::parse(word) { Some(p) => self.policy = p, None => self.err("E208", format!("illegals: unbekannter Wert '{word}'")) }
+                    match Policy::parse(word) { Some(p) => self.policy = p, None => self.err("E208", msg!("diag-asm-e208-illegals-value", value = word)) }
                 }
             }
             ".basicstub" => {
                 // .basicstub ziel [, zeilennummer] [, "kommentar"]  →  <zeile> SYS <ziel> : REM <KOMMENTAR>
                 // Ohne .org und ohne bisherige Ausgabe beginnt der Stub an der BASIC-Startadresse des Zielsystems
+                // Atari: keine BASIC-Zeile mit SYS (die Ausgabe bleibt wie bisher, nur der Hinweis kommt dazu)
+                if self.opts.atari_text { self.warn("W205", msg!("diag-asm-w205")); }
                 let start = self.opts.basic_start.map(i64::from);
                 if self.pc.is_none() {
                     let a = start.unwrap_or(0x0801);
                     self.pc = Some(a); self.real = Some(a); self.begin_segment(a as u16);
                 } else if self.segments.iter().any(|s| !s.bytes.is_empty()) {
-                    self.err("E218", ".basicstub muss am Anfang des Programms stehen (davor wurden schon Bytes ausgegeben)");
+                    self.err("E218", msg!("diag-asm-e218"));
                     return;
                 } else if let (Some(b), Some(pc)) = (start, self.pc) {
                     // Ausnahmen bleiben möglich: Module (.cartridge) und .pseudopc-Abschnitte
                     if pc != b && self.cart.is_none() && self.real.map_or(true, |r| r == pc) {
-                        self.warn("W204", format!(".basicstub steht bei ${pc:04X}, die BASIC-Startadresse des Zielsystems ist ${b:04X} (BASIC findet die Zeile dort nicht)"));
+                        self.warn("W204", msg!("diag-asm-w204", pc = format!("{pc:04X}"), start = format!("{b:04X}")));
                     }
                 }
                 let parts = split_top(args, ',');
@@ -568,7 +592,7 @@ impl<'a> Pass<'a> {
                         if n.known { line = n.v; }
                     }
                 }
-                if !(0..=63999).contains(&line) { self.err("E203", format!(".basicstub: Zeilennummer {line} außerhalb 0–63999")); return; }
+                if !(0..=63999).contains(&line) { self.err("E203", msg!("diag-asm-e203-basicstub-line", line = line)); return; }
                 let mut body = vec![0x9E];
                 body.extend(target.to_string().bytes());
                 if let Some(t) = rem {
@@ -576,7 +600,7 @@ impl<'a> Pass<'a> {
                     body.extend([b':', 0x8F, b' ']);
                     body.extend(txt);
                 }
-                if body.len() > 200 { self.err("E203", format!(".basicstub: BASIC-Zeile zu lang ({} Bytes, höchstens 200)", body.len())); return; }
+                if body.len() > 200 { self.err("E203", msg!("diag-asm-e203-basicstub-too-long", len = body.len())); return; }
                 let pc = self.pc.unwrap_or(0x0801);
                 let next = pc + 2 + 2 + body.len() as i64 + 1;
                 let mut b = vec![(next & 0xFF) as u8, (next >> 8) as u8, (line & 0xFF) as u8, (line >> 8) as u8];
@@ -587,11 +611,11 @@ impl<'a> Pass<'a> {
             ".assert" => {
                 let p = split_top(args, ',');
                 let v = self.ev(&p[0]);
-                if self.strict && v.v == 0 { self.err("E207", format!("Assertion fehlgeschlagen{}", p.get(1).map(|m| format!(": {m}")).unwrap_or_default())); }
+                if self.strict && v.v == 0 { self.err("E207", match p.get(1) { Some(m) => msg!("diag-asm-e207-assert-message", message = m.as_str()), None => msg!("diag-asm-e207-assert") }); }
             }
-            ".error" => self.err("E207", args.trim_matches('"').to_string()),
-            ".warning" => self.warn("W200", args.trim_matches('"').to_string()),
-            _ => self.err("E208", format!("unbekannte Direktive '{name}'")),
+            ".error" => self.err("E207", msg!("diag-asm-e207-user", text = args.trim_matches('"'))),
+            ".warning" => self.warn("W200", msg!("diag-asm-w200", text = args.trim_matches('"'))),
+            _ => self.err("E208", msg!("diag-asm-e208-unknown-directive", name = name)),
         }
     }
 
@@ -611,17 +635,17 @@ impl<'a> Pass<'a> {
             },
             _ => (mn, None),
         };
-        if !self.cpu.has_mnemonic(mn) { self.err("E205", format!("unbekannter Befehl '{mn}'")); return; }
+        if !self.cpu.has_mnemonic(mn) { self.err("E205", msg!("diag-asm-e205", mn = mn)); return; }
         let operand = match parse_operand(args) { Ok(o) => o, Err(e) => { self.err("E206", e); return } };
         if force.is_some() && !matches!(operand, Operand::Direct(..)) {
-            self.err("E215", format!("Suffix .{} gilt nur für Zeropage- und absolute Adressierung", if force == Some('z') { "z" } else { "a" })); return;
+            self.err("E215", msg!("diag-asm-e215-suffix", suffix = if force == Some('z') { "z" } else { "a" })); return;
         }
         let pc = self.pc.unwrap_or(0);
         let has = |m: Mode| self.cpu.lookup(mn, m).is_some();
         let (mut prefix32, mut second): (bool, Option<Val>) = (false, None);
         let (mode, val): (Mode, Val) = match &operand {
             Operand::None => if has(Mode::Imp) { (Mode::Imp, Val::int(0, true)) } else if has(Mode::Acc) { (Mode::Acc, Val::int(0, true)) }
-                             else { self.err("E206", format!("{mn} braucht einen Operanden")); return },
+                             else { self.err("E206", msg!("diag-asm-e206-operand-needed", mn = mn)); return },
             Operand::Acc => (Mode::Acc, Val::int(0, true)),
             Operand::Imm(e) => (if !has(Mode::Imm) && has(Mode::Imw) { Mode::Imw } else { Mode::Imm }, self.ev(e)),
             Operand::IndX(e) => (if !has(Mode::Izx) && has(Mode::Iax) { Mode::Iax } else { Mode::Izx }, self.ev(e)),
@@ -639,8 +663,8 @@ impl<'a> Pass<'a> {
                     (false, None) => Mode::Abs, (false, Some('x')) => Mode::Abx, (false, _) => Mode::Aby,
                 };
                 if !has(m) {
-                    let what = if has(Mode::Rel) || has(Mode::Rl) { "Sprungbefehle haben nur eine Form" } else if z { "keine Zeropage-Form" } else { "keine absolute Form" };
-                    self.err("E215", format!("{mn}.{}: {what}", if z { "z" } else { "a" })); return;
+                    let key = if has(Mode::Rel) || has(Mode::Rl) { "diag-asm-e215-form-branch" } else if z { "diag-asm-e215-form-zeropage" } else { "diag-asm-e215-form-absolute" };
+                    self.err("E215", msg!(key, mn = mn, suffix = if z { "z" } else { "a" })); return;
                 }
                 (m, v)
             }
@@ -656,7 +680,7 @@ impl<'a> Pass<'a> {
             }
         };
         let Some(op) = self.cpu.lookup(mn, mode).cloned() else {
-            self.err("E206", format!("{mn} unterstützt die Adressierungsart {mode:?} nicht")); return
+            self.err("E206", msg!("diag-asm-e206-mode-unsupported", mn = mn, mode = format!("{mode:?}"))); return
         };
         if mode == Mode::Rel && self.branch_auto && !quad && !prefix32 {
             let idx = self.branch_idx;
@@ -667,14 +691,14 @@ impl<'a> Pass<'a> {
         }
         if op.group != "official" {
             let unstable = op.group == "illegal.unstable";
-            if !self.cpu.has_group(&op.group) { self.err("E201", format!("{mn} existiert auf CPU {} nicht", self.cpu.id)); }
-            else if self.policy == Policy::Deny { self.err("E201", format!("undokumentierter Opcode {mn} (illegals=deny)")); }
-            else if unstable { self.warn("W105", format!("{mn} ist ein instabiler undokumentierter Opcode")); }
-            else if self.policy == Policy::Warn { self.warn("W104", format!("{mn} ist ein undokumentierter Opcode (illegals=warn)")); }
+            if !self.cpu.has_group(&op.group) { self.err("E201", msg!("diag-asm-e201-cpu", mn = mn, cpu = self.cpu.id.as_str())); }
+            else if self.policy == Policy::Deny { self.err("E201", msg!("diag-asm-e201-illegal-denied", mn = mn)); }
+            else if unstable { self.warn("W105", msg!("diag-asm-w105", mn = mn)); }
+            else if self.policy == Policy::Warn { self.warn("W104", msg!("diag-asm-w104", mn = mn)); }
         }
-        if quad && !matches!(mode, Mode::Imp | Mode::Acc | Mode::Zp | Mode::Zpx | Mode::Abs | Mode::Abx | Mode::Izz) { self.err("E206", format!("{mn}Q unterstützt die Adressierungsart {mode:?} nicht")); return; }
-        if quad && !self.cpu.has_group("mega65.ce02") { self.err("E201", format!("{mn}Q existiert auf CPU {} nicht", self.cpu.id)); return; }
-        if prefix32 && self.cpu.nop32.is_none() { self.err("E206", "32-Bit-Zeiger [..] gibt es auf dieser CPU nicht"); return; }
+        if quad && !matches!(mode, Mode::Imp | Mode::Acc | Mode::Zp | Mode::Zpx | Mode::Abs | Mode::Abx | Mode::Izz) { self.err("E206", msg!("diag-asm-e206-quad-mode", mn = format!("{mn}Q"), mode = format!("{mode:?}"))); return; }
+        if quad && !self.cpu.has_group("mega65.ce02") { self.err("E201", msg!("diag-asm-e201-cpu", mn = format!("{mn}Q"), cpu = self.cpu.id.as_str())); return; }
+        if prefix32 && self.cpu.nop32.is_none() { self.err("E206", msg!("diag-asm-e206-ptr32-cpu")); return; }
         let mut bytes: Vec<u8> = vec![];
         if quad { bytes.extend(&self.cpu.quad_prefix); }
         if prefix32 { bytes.push(self.cpu.nop32.unwrap()); }
@@ -684,31 +708,32 @@ impl<'a> Pass<'a> {
             Mode::Imp | Mode::Acc => {}
             Mode::Imm => bytes.push(self.byte(val, -128, 255)),
             Mode::Zp | Mode::Zpx | Mode::Zpy | Mode::Izx | Mode::Izy | Mode::Izz | Mode::Isy => bytes.push(self.byte(val, 0, 255)),
-            Mode::Imw => { if self.strict && val.known && !(-32768..=65535).contains(&val.v) { self.err("E203", format!("Wert {} außerhalb 16 Bit", val.v)); } bytes.extend([(val.v & 0xFF) as u8, ((val.v >> 8) & 0xFF) as u8]); }
+            Mode::Imw => { if self.strict && val.known && !(-32768..=65535).contains(&val.v) { self.err("E203", msg!("diag-asm-e203-value-16bit", value = val.v)); } bytes.extend([(val.v & 0xFF) as u8, ((val.v >> 8) & 0xFF) as u8]); }
             Mode::Zpr => {
                 bytes.push(self.byte(val, 0, 255));
                 let off = second.as_ref().map_or(0, |t| t.v) - (pc + plen + 3);
-                if self.strict && second.as_ref().map_or(false, |t| t.known) && !(-128..=127).contains(&off) { self.err("E203", format!("Sprung zu weit ({off} Bytes)")); }
+                if self.strict && second.as_ref().map_or(false, |t| t.known) && !(-128..=127).contains(&off) { self.err("E203", msg!("diag-asm-e203-branch-range", off = off)); }
                 bytes.push((off & 0xFF) as u8);
             }
             Mode::Rl => {
                 let off = val.v - (pc + plen + 2);
-                if self.strict && val.known && !(-32768..=32767).contains(&off) { self.err("E203", format!("Sprung zu weit ({off} Bytes)")); }
+                if self.strict && val.known && !(-32768..=32767).contains(&off) { self.err("E203", msg!("diag-asm-e203-branch-range", off = off)); }
                 bytes.extend([(off & 0xFF) as u8, ((off >> 8) & 0xFF) as u8]);
             }
             Mode::Abs | Mode::Abx | Mode::Aby | Mode::Ind | Mode::Iax => {
-                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", format!("Adresse {} außerhalb 0..65535", val.v)); }
+                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", msg!("diag-asm-e203-address-range", value = val.v)); }
                 bytes.extend([(val.v & 0xFF) as u8, ((val.v >> 8) & 0xFF) as u8]);
             }
             Mode::Rel => {
                 let off = val.v - (pc + plen + 2);
-                if self.strict && val.known && !(-128..=127).contains(&off) { self.err("E203", format!("Sprung zu weit ({off} Bytes)")); }
+                if self.strict && val.known && !(-128..=127).contains(&off) { self.err("E203", msg!("diag-asm-e203-branch-range", off = off)); }
                 bytes.push((off & 0xFF) as u8);
             }
         }
         let worst = op.cycles + op.page_cross as u8 + 2 * op.branch as u8;
         self.last_cycles = Some((op.cycles, worst));
         for b in &mut self.open_cycles { b.min += op.cycles as u32; b.max += worst as u32; }
+        if self.first_ins.is_none() { self.first_ins = Some((self.file.clone(), self.line)); }
         self.emit(&bytes);
     }
 
@@ -716,21 +741,21 @@ impl<'a> Pass<'a> {
     fn long_branch(&mut self, mn: &str, val: &Val, pc: i64) -> bool {
         let (bytes, cycles): (Vec<u8>, (u8, u8)) = if let Some(rl) = self.cpu.lookup(&format!("L{mn}"), Mode::Rl).cloned().filter(|_| !self.branch_jmp) {   // 45GS02: LBEQ, LBRA …
             let off = val.v - (pc + 2);
-            if self.strict && val.known && !(-32768..=32767).contains(&off) { self.err("E203", format!("Sprung zu weit ({off} Bytes)")); }
+            if self.strict && val.known && !(-32768..=32767).contains(&off) { self.err("E203", msg!("diag-asm-e203-branch-range", off = off)); }
             (vec![rl.opcode, (off & 0xFF) as u8, ((off >> 8) & 0xFF) as u8], (rl.cycles, rl.cycles + rl.page_cross as u8 + 2 * rl.branch as u8))
         } else {
             let inverse = match mn { "BEQ" => "BNE", "BNE" => "BEQ", "BCC" => "BCS", "BCS" => "BCC", "BMI" => "BPL", "BPL" => "BMI", "BVC" => "BVS", "BVS" => "BVC", _ => "" };
             let Some(jmp) = self.cpu.lookup("JMP", Mode::Abs).cloned() else { return false };
             if mn == "BRA" {
-                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", format!("Adresse {} außerhalb 0..65535", val.v)); }
+                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", msg!("diag-asm-e203-address-range", value = val.v)); }
                 (vec![jmp.opcode, (val.v & 0xFF) as u8, ((val.v >> 8) & 0xFF) as u8], (jmp.cycles, jmp.cycles))
             } else {
                 let Some(inv) = self.cpu.lookup(inverse, Mode::Rel).cloned() else { return false };
-                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", format!("Adresse {} außerhalb 0..65535", val.v)); }
+                if self.strict && val.known && !(0..=0xFFFF).contains(&val.v) { self.err("E203", msg!("diag-asm-e203-address-range", value = val.v)); }
                 (vec![inv.opcode, 3, jmp.opcode, (val.v & 0xFF) as u8, ((val.v >> 8) & 0xFF) as u8], (inv.cycles + 1, inv.cycles + jmp.cycles))
             }
         };
-        self.warn("W203", format!("Sprung zu weit für {mn}: lange Form ({} Bytes) verwendet", bytes.len()));
+        self.warn("W203", msg!("diag-asm-w203", mn = mn, len = bytes.len()));
         self.last_cycles = Some(cycles);
         for b in &mut self.open_cycles { b.min += cycles.0 as u32; b.max += cycles.1 as u32; }
         self.emit(&bytes);
@@ -739,13 +764,13 @@ impl<'a> Pass<'a> {
 
     fn macro_call(&mut self, name: &str, args: &str) -> bool {
         let Some(m) = self.macros.get(name) else { return false };
-        if self.depth >= 32 { self.err("E211", format!("Makro '{name}' zu tief verschachtelt")); return true; }
+        if self.depth >= 32 { self.err("E211", msg!("diag-asm-e211-macro-depth", name = name)); return true; }
         let call_args: Vec<String> = split_top(args.trim().trim_start_matches('(').trim_end_matches(')'), ',')
             .into_iter().filter(|a| !a.is_empty()).collect();
         let required = m.defaults.iter().filter(|d| d.is_none()).count();
         if call_args.len() < required || call_args.len() > m.params.len() {
-            let soll = if required == m.params.len() { required.to_string() } else { format!("{required} bis {}", m.params.len()) };
-            self.err("E209", format!("Makro '{name}' erwartet {soll} Argument(e), erhalten {}", call_args.len()));
+            self.err("E209", if required == m.params.len() { msg!("diag-asm-e209-macro-args", name = name, expected = required, got = call_args.len()) }
+                             else { msg!("diag-asm-e209-macro-args-range", name = name, min = required, max = m.params.len(), got = call_args.len()) });
             return true;
         }
         let mut call_args = call_args;
@@ -784,7 +809,7 @@ impl<'a> Pass<'a> {
                     *n += 1;
                     self.new_syms.insert(key, pc);
                 }
-                None => self.err("E300", "Label vor .org"),
+                None => self.err("E300", msg!("diag-asm-e300-label-before-org")),
             }
         } else if let Some(l) = &s.label {
             match self.pc {
@@ -792,7 +817,7 @@ impl<'a> Pass<'a> {
                     if !l.starts_with('.') { self.scope = qualified(l, "", &self.path_str); }
                     self.define(l, pc);
                 }
-                None => self.err("E300", "Label vor .org"),
+                None => self.err("E300", msg!("diag-asm-e300-label-before-org")),
             }
         }
         match &s.body {
@@ -801,11 +826,11 @@ impl<'a> Pass<'a> {
                 if let Some(k) = self.var_key(n) { let v = self.ev_raw(e); self.vars.insert(k, v); }
                 else { let v = self.ev(e); self.define(n, v.v); }
             }
-            Body::Dir(n, a) if n == ".scope" => { let name = s.label.as_deref().filter(|l| !l.starts_with('.')); self.open_scope(name); if !a.is_empty() { self.err("E213", "nach '{' darf nichts in derselben Zeile stehen"); } }
+            Body::Dir(n, a) if n == ".scope" => { let name = s.label.as_deref().filter(|l| !l.starts_with('.')); self.open_scope(name); if !a.is_empty() { self.err("E213", msg!("diag-asm-e213-after-open")); } }
             Body::Dir(n, _) if n == ".endscope" => self.close_scope(),
             Body::Dir(n, a) if n == ".namespace" => {
                 let nm = a.trim().trim_end_matches('{').trim();
-                if nm.is_empty() || !a.trim_end().ends_with('{') { self.err("E213", ".namespace erwartet: .namespace NAME {"); } else { self.open_scope(Some(nm)); }
+                if nm.is_empty() || !a.trim_end().ends_with('{') { self.err("E213", msg!("diag-asm-e213-namespace-syntax")); } else { self.open_scope(Some(nm)); }
             }
             Body::Dir(n, a) => self.directive(n, a),
             Body::Ins(m, a) => {
@@ -829,7 +854,7 @@ impl<'a> Pass<'a> {
     fn parse_assign(&mut self, text: &str) -> Option<(String, String)> {
         match parse::parse_line(self.line, text) {
             Ok(Stmt { body: Body::Assign(n, e), .. }) => Some((n, e)),
-            _ => { self.err("E208", format!("Zuweisung erwartet statt '{text}'")); None }
+            _ => { self.err("E208", msg!("diag-asm-e208-assignment-expected", text = text)); None }
         }
     }
     fn run_for(&mut self, spec: &ForSpec, body: &[Node]) {
@@ -844,24 +869,24 @@ impl<'a> Pass<'a> {
                 let mut n = 0;
                 while self.ev(cond).v != 0 {
                     n += 1;
-                    if n > LIMIT { self.err("E217", format!(".for: mehr als {LIMIT} Durchläufe")); break; }
+                    if n > LIMIT { self.err("E217", msg!("diag-asm-e217", limit = LIMIT)); break; }
                     self.run_nodes(body);
                     if self.loop_ctl.take() == Some(LoopCtl::Break) || self.exit_macro { break; }
                     let Some((sv, se)) = self.parse_assign(step) else { break };
                     match self.var_key(&sv) {
                         Some(k) => { let v = self.ev_raw(&se); self.vars.insert(k, v); }
-                        None => { self.err("E216", format!("Variable '{sv}' ist nicht mit .var angelegt")); break; }
+                        None => { self.err("E216", msg!("diag-asm-e216", name = sv.as_str())); break; }
                     }
                 }
                 match saved { Some(v) => { self.vars.insert(key, v); } None => { self.vars.remove(&key); } }
             }
             ForSpec::In { var, expr } => {
                 let list = self.ev_raw(expr);
-                let Some(items) = list.list.clone() else { self.err("E202", format!(".for … in erwartet eine Liste oder range(…), nicht '{}'", expr.trim())); return };
+                let Some(items) = list.list.clone() else { self.err("E202", msg!("diag-asm-e202-for-in-not-list", expr = expr.trim())); return };
                 let key = qualified(var, &self.scope, &self.path_str);
                 let saved = self.vars.get(&key).cloned();
                 for (n, item) in items.iter().enumerate() {
-                    if n >= LIMIT { self.err("E217", format!(".for: mehr als {LIMIT} Durchläufe")); break; }
+                    if n >= LIMIT { self.err("E217", msg!("diag-asm-e217", limit = LIMIT)); break; }
                     self.vars.insert(key.clone(), item.clone());
                     self.run_nodes(body);
                     if self.loop_ctl.take() == Some(LoopCtl::Break) || self.exit_macro { break; }
@@ -876,9 +901,9 @@ impl<'a> Pass<'a> {
         self.file = s.file.clone();
         let name = s.name.trim();
         if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_') || name.starts_with(|c: char| c.is_ascii_digit()) {
-            self.err("E208", format!("{}: ungültiger Name '{name}'", if s.is_enum { ".enum" } else { ".struct" })); return;
+            self.err("E208", msg!("diag-asm-e208-struct-name", dir = if s.is_enum { ".enum" } else { ".struct" }, name = name)); return;
         }
-        if self.structs.contains_key(name) { self.err("E204", format!("'{name}' doppelt definiert")); return; }
+        if self.structs.contains_key(name) { self.err("E204", msg!("diag-asm-e204-struct", name = name)); return; }
         let mut members: Vec<(String, i64)> = vec![];
         let (mut offset, mut next) = (0i64, 0i64);
         for rl in &s.body {
@@ -893,7 +918,7 @@ impl<'a> Pass<'a> {
                         Some((n, e)) if !e.starts_with('=') => (n.trim().to_string(), Some(e.trim().to_string())),
                         _ => (item.trim().to_string(), None),
                     };
-                    if !valid_name(&n) { self.err("E208", format!(".enum: ungültiger Name '{n}'")); continue; }
+                    if !valid_name(&n) { self.err("E208", msg!("diag-asm-e208-enum-item-name", name = n.as_str())); continue; }
                     if let Some(e) = v { next = self.ev(&e).v; }
                     members.push((n.clone(), next));
                     self.define(&format!("{name}.{n}"), next);
@@ -904,18 +929,18 @@ impl<'a> Pass<'a> {
             // Feld: name typ [anzahl]
             let (field, after) = text.split_once(char::is_whitespace).map_or((text.as_str(), ""), |(f, r)| (f, r.trim_start()));
             let (ty, count_text) = after.split_once(char::is_whitespace).map_or((after, ""), |(t, r)| (t, r.trim()));
-            if ty.is_empty() { self.err("E208", format!(".struct: Feld erwartet 'name typ [anzahl]', gefunden '{text}'")); continue; }
+            if ty.is_empty() { self.err("E208", msg!("diag-asm-e208-struct-field-syntax", text = text.as_str())); continue; }
             let count = if count_text.is_empty() { 1 } else { self.ev(count_text).v };
-            if !valid_name(field) { self.err("E208", format!(".struct: ungültiger Feldname '{field}'")); continue; }
-            if count < 0 || count > 65536 { self.err("E203", format!(".struct: ungültige Anzahl bei '{field}'")); continue; }
+            if !valid_name(field) { self.err("E208", msg!("diag-asm-e208-struct-field-name", field = field)); continue; }
+            if count < 0 || count > 65536 { self.err("E203", msg!("diag-asm-e203-struct-count", field = field)); continue; }
             let (size, sub): (i64, Option<StructDef>) = match ty.to_ascii_lowercase().as_str() {
                 ".byte" | ".db" => (1, None),
                 ".word" | ".dw" | ".addr" => (2, None),
                 ".dword" | ".long" => (4, None),
                 _ => match self.structs.get(ty) {
-                    Some(d) if d.is_enum => { self.err("E208", format!(".struct: '{ty}' ist eine Aufzählung; für das Feld .byte (oder .word) verwenden")); continue }
+                    Some(d) if d.is_enum => { self.err("E208", msg!("diag-asm-e208-struct-enum-field", ty = ty)); continue }
                     Some(d) => (d.size, Some(d.clone())),
-                    _ => { self.err("E208", format!(".struct: unbekannter Feldtyp '{ty}' (.byte, .word, .dword oder eine früher definierte Struktur)")); continue }
+                    _ => { self.err("E208", msg!("diag-asm-e208-struct-field-type", ty = ty)); continue }
                 },
             };
             members.push((field.to_string(), offset));
@@ -932,15 +957,15 @@ impl<'a> Pass<'a> {
         self.structs.insert(name.to_string(), StructDef { size: if s.is_enum { 0 } else { offset }, members, is_enum: s.is_enum });
     }
     fn declare_function(&mut self, args: &str) {
-        let (Some(open), Some(close)) = (args.find('('), args.find(')')) else { self.err("E208", ".function erwartet: .function name(param, …) = ausdruck"); return };
+        let (Some(open), Some(close)) = (args.find('('), args.find(')')) else { self.err("E208", msg!("diag-asm-e208-function-syntax")); return };
         let name = args[..open].trim();
-        let Some(body) = args[close + 1..].trim().strip_prefix('=').filter(|b| !b.starts_with('=')) else { self.err("E208", ".function erwartet: .function name(param, …) = ausdruck"); return };
+        let Some(body) = args[close + 1..].trim().strip_prefix('=').filter(|b| !b.starts_with('=')) else { self.err("E208", msg!("diag-asm-e208-function-syntax")); return };
         if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_') || name.starts_with(|c: char| c.is_ascii_digit()) {
-            self.err("E208", format!(".function: ungültiger Name '{name}'")); return;
+            self.err("E208", msg!("diag-asm-e208-function-name", name = name)); return;
         }
         let params: Vec<String> = split_top(&args[open + 1..close], ',').into_iter().filter(|p| !p.is_empty()).collect();
-        if expr::is_builtin(&name.to_ascii_lowercase()) { self.err("E204", format!("'{name}' ist eine eingebaute Funktion")); return; }
-        if self.funcs.contains_key(name) { self.err("E204", format!("Funktion '{name}' doppelt definiert")); return; }
+        if expr::is_builtin(&name.to_ascii_lowercase()) { self.err("E204", msg!("diag-asm-e204-builtin-function", name = name)); return; }
+        if self.funcs.contains_key(name) { self.err("E204", msg!("diag-asm-e204-function", name = name)); return; }
         self.funcs.insert(name.to_string(), Func { params, body: body.trim().to_string() });
     }
     fn run_nodes(&mut self, nodes: &[Node]) {
@@ -965,7 +990,7 @@ impl<'a> Pass<'a> {
                     self.line = r.line;
                     self.file = r.file.clone();
                     let n = self.ev(&r.count);
-                    if n.v < 0 || n.v > 65536 { self.err("E203", ".repeat: ungültige Anzahl"); continue; }
+                    if n.v < 0 || n.v > 65536 { self.err("E203", msg!("diag-asm-e203-repeat-count")); continue; }
                     self.loop_depth += 1;
                     for i in 0..n.v {
                         if self.exit_macro { break; }
@@ -992,12 +1017,14 @@ impl<'a> Pass<'a> {
 pub fn assemble(src: &str, cpu: &Cpu, opts: &Options) -> Result<Output, Vec<Diagnostic>> {
     let mut raw = vec![];
     let mut files = vec![];
-    load(src, &opts.file, &opts.include_dirs, 0, &mut raw, &mut files, &opts.overrides).map_err(|d| vec![d])?;
+    let mut ctx = LoadCtx { overrides: &opts.overrides, provider: opts.include_provider.as_ref(), legacy: opts.legacy_hint.as_ref(), warnings: vec![] };
+    load(src, &opts.file, &opts.include_dirs, 0, &mut raw, &mut files, &mut ctx).map_err(|d| vec![d])?;
+    let load_warnings = std::mem::take(&mut ctx.warnings);
     let mut macros = Macros::new();
     let mut errs = vec![];
     let nodes = build(&raw, &mut macros, &mut errs);
     for name in macros.keys() {
-        if cpu.has_mnemonic(name) { errs.push(Diagnostic::error("E209", &opts.file, 0, format!("Makroname '{name}' kollidiert mit einem Befehl"))); }
+        if cpu.has_mnemonic(name) { errs.push(Diagnostic::error("E209", &opts.file, 0, msg!("diag-asm-e209-macro-name", name = name.as_str()))); }
     }
     if !errs.is_empty() { return Err(errs); }
     let base: HashMap<String, i64> = opts.defines.iter().chain(opts.predefined.iter()).cloned().collect();
@@ -1014,16 +1041,26 @@ pub fn assemble(src: &str, cpu: &Cpu, opts: &Options) -> Result<Output, Vec<Diag
         syms = ns;
         long = nl;
     }
-    if !converged { return Err(vec![Diagnostic::error("E300", &opts.file, 0, "Symbole konvergieren nicht (zu viele Durchläufe)")]); }
+    if !converged { return Err(vec![Diagnostic::error("E300", &opts.file, 0, msg!("diag-asm-e300-no-convergence"))]); }
     let mut p = new_pass(cpu, opts, &macros, &syms, &base, true);
     p.long = long;
     p.run_nodes(&nodes);
-    if !p.path.is_empty() { p.diags.push(Diagnostic::error("E213", &opts.file, p.line, format!("Scope '{}' wird nicht mit '}}' geschlossen", p.path_str))); }
+    if !p.path.is_empty() { p.diags.push(Diagnostic::error("E213", &opts.file, p.line, msg!("diag-asm-e213-scope-unclosed", name = p.path_str.as_str()))); }
     for b in std::mem::take(&mut p.open_cycles) {
-        p.diags.push(Diagnostic::error("E210", &b.file, b.line, format!(".cycles '{}' ohne .endcycles", b.name)));
+        p.diags.push(Diagnostic::error("E210", &b.file, b.line, msg!("diag-asm-e210-cycles-unclosed", name = b.name.as_str())));
+    }
+    // Hinweise bei unpassendem Ziel: nur Warnungen, die Ausgabe bleibt unverändert; Module (`.cartridge`) haben einen eigenen Start
+    if p.cart.is_none() {
+        if let (true, false, Some((f, l))) = (p.opts.basic_start.is_some(), p.opts.atari_text, p.first_run.clone()) {
+            p.diags.push(Diagnostic::warning("W206", &f, l, msg!("diag-asm-w206")));
+        }
+        if let (true, None, Some((f, l))) = (p.opts.atari_text, p.run, p.first_ins.clone()) {
+            p.diags.push(Diagnostic::warning("W207", &f, l, msg!("diag-asm-w207")));
+        }
     }
     let mut macro_list: Vec<(String, Vec<String>)> = macros.iter().map(|(n, m)| (n.clone(), m.params.clone())).collect(); macro_list.sort();
-    let (diags, segments, lines, mut new_syms, cycles, run, defs, cart) = (p.diags, p.segments, p.lines, p.new_syms, p.cycle_reports, p.run, p.defs, p.cart);
+    let (mut diags, segments, lines, mut new_syms, cycles, run, defs, cart) = (p.diags, p.segments, p.lines, p.new_syms, p.cycle_reports, p.run, p.defs, p.cart);
+    diags.splice(0..0, load_warnings);
     for (n, _) in &opts.predefined { new_syms.remove(n); }
     new_syms.retain(|k, _| !k.starts_with("+#") && !k.starts_with("-#"));
     if diags.iter().any(|d| d.is_error()) { return Err(diags); }
@@ -1031,10 +1068,10 @@ pub fn assemble(src: &str, cpu: &Cpu, opts: &Options) -> Result<Output, Vec<Diag
     segs.sort_by_key(|s| (s.bank, s.start));
     for w in segs.windows(2) {
         if w[0].bank == w[1].bank && w[0].start as usize + w[0].bytes.len() > w[1].start as usize {
-            return Err(vec![Diagnostic::error("E301", &opts.file, 0, format!("Segmente überlappen{}: ${:04X} und ${:04X}", if w[0].bank != 0 { format!(" (Bank {})", w[0].bank) } else { String::new() }, w[0].start, w[1].start))]);
+            return Err(vec![Diagnostic::error("E301", &opts.file, 0, if w[0].bank != 0 { msg!("diag-asm-e301-overlap-bank", bank = w[0].bank, a = format!("{:04X}", w[0].start), b = format!("{:04X}", w[1].start)) } else { msg!("diag-asm-e301-overlap", a = format!("{:04X}", w[0].start), b = format!("{:04X}", w[1].start)) })]);
         }
     }
-    if let Some(s) = segs.iter().find(|s| s.start as usize + s.bytes.len() > 0x10000) { return Err(vec![Diagnostic::error("E301", &opts.file, 0, format!("Segment bei ${:04X} überschreitet $FFFF", s.start))]); }
+    if let Some(s) = segs.iter().find(|s| s.start as usize + s.bytes.len() > 0x10000) { return Err(vec![Diagnostic::error("E301", &opts.file, 0, msg!("diag-asm-e301-beyond-ffff", start = format!("{:04X}", s.start)))]); }
     let sources = files.into_iter().map(|(f, t)| (f, t.lines().map(str::to_string).collect())).collect();
     let expanded = raw.iter().map(|r| (r.file.to_string(), r.line, r.text.clone())).collect();
     Ok(Output { defs: defs.into_iter().collect(), run: run.map(|r| r as u16), cycles, segments: segs, cart, symbols: new_syms.into_iter().collect(), macros: macro_list, lines, warnings: diags, sources, passes: passes + 1, expanded })
@@ -1044,25 +1081,25 @@ fn new_pass<'a>(cpu: &'a Cpu, opts: &'a Options, macros: &'a Macros, syms: &'a H
                 base: &HashMap<String, i64>, strict: bool) -> Pass<'a> {
     Pass { real: None, run: None, open_cycles: vec![], cycle_reports: vec![], cpu, opts, macros, strict, syms, new_syms: base.clone(), defs: HashMap::new(), locals: HashMap::new(), segments: vec![], bank: 0, bank_pos: HashMap::new(), seg_name: String::new(), seg_range: None, cart: None, lines: vec![], diags: vec![],
            pc: None, scope: String::new(), path: vec![], path_str: String::new(), scope_stack: vec![], anon: 0, enc: Enc::Ascii, blocks: vec![], policy: opts.illegals, line: 0, file: Rc::from(opts.file.as_str()), trace: vec![],
-           last_cycles: None, macro_counter: 0, structs: HashMap::new(), branch_auto: opts.branch_long, branch_jmp: false, branch_idx: 0, long: Default::default(), vars: HashMap::new(), funcs: HashMap::new(), loop_ctl: None, loop_depth: 0, exit_macro: false, depth: 0, anon_minus: 0, anon_plus: 0 }
+           last_cycles: None, macro_counter: 0, structs: HashMap::new(), branch_auto: opts.branch_long, branch_jmp: false, branch_idx: 0, long: Default::default(), vars: HashMap::new(), funcs: HashMap::new(), loop_ctl: None, loop_depth: 0, exit_macro: false, depth: 0, anon_minus: 0, anon_plus: 0, first_run: None, first_ins: None }
 }
 
 /// PRG: 2 Byte Ladeadresse + zusammenhängende Daten (Lücken mit 0 gefüllt).
-fn single_bank(out: &Output) -> Result<(), String> {
-    if out.segments.iter().any(|s| s.bank != 0) { Err("mehrere Bänke (.bank) gibt es nur in den Modulformaten crt/car/rom".into()) } else { Ok(()) }
+fn single_bank(out: &Output) -> Result<(), Msg> {
+    if out.segments.iter().any(|s| s.bank != 0) { Err(msg!("asm-out-banks")) } else { Ok(()) }
 }
 
-pub fn to_prg(out: &Output) -> Result<Vec<u8>, String> {
+pub fn to_prg(out: &Output) -> Result<Vec<u8>, Msg> {
     single_bank(out)?;
-    let first = out.segments.first().ok_or("keine Ausgabe")?;
+    let first = out.segments.first().ok_or_else(|| msg!("asm-out-empty"))?;
     let mut v = vec![(first.start & 0xFF) as u8, (first.start >> 8) as u8];
     v.extend(to_bin(out)?);
     Ok(v)
 }
 
-pub fn to_bin(out: &Output) -> Result<Vec<u8>, String> {
+pub fn to_bin(out: &Output) -> Result<Vec<u8>, Msg> {
     single_bank(out)?;
-    let first = out.segments.first().ok_or("keine Ausgabe")?;
+    let first = out.segments.first().ok_or_else(|| msg!("asm-out-empty"))?;
     let mut data: Vec<u8> = vec![];
     for s in &out.segments {
         let off = s.start as usize - first.start as usize;
@@ -1073,9 +1110,9 @@ pub fn to_bin(out: &Output) -> Result<Vec<u8>, String> {
 }
 
 /// Atari-XEX: Segmente mit `$FFFF`-Kopf; `.run` erzeugt ein RUNAD-Segment (`$02E0`).
-pub fn to_xex(out: &Output) -> Result<Vec<u8>, String> {
+pub fn to_xex(out: &Output) -> Result<Vec<u8>, Msg> {
     single_bank(out)?;
-    if out.segments.is_empty() { return Err("keine Ausgabe".into()); }
+    if out.segments.is_empty() { return Err(msg!("asm-out-empty")); }
     let mut v = vec![0xFF, 0xFF];
     let seg = |start: u16, data: &[u8], v: &mut Vec<u8>| {
         let end = start as usize + data.len() - 1;
@@ -1142,7 +1179,7 @@ pub fn outline(src: &str) -> Vec<OutlineItem> {
         if let Some(n) = &st.label { v.push(OutlineItem { name: n.clone(), line: i + 1, kind: OutlineKind::Label }); }
         match &st.body {
             Body::Assign(n, _) => v.push(OutlineItem { name: n.clone(), line: i + 1, kind: OutlineKind::Const }),
-            Body::Dir(d, a) if d == ".const" || d == ".equ" => {
+            Body::Dir(d, a) if d == ".const" => {
                 if let Some((n, _)) = a.split_once('=') { v.push(OutlineItem { name: n.trim().to_string(), line: i + 1, kind: OutlineKind::Const }); }
             }
             Body::Dir(d, a) if d == ".macro" => {

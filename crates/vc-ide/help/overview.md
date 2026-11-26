@@ -1,32 +1,32 @@
 # Projekt-Übersicht
 
-Einen eigenen Reiter „Übersicht“ mit Kacheln gibt es in der Oberfläche nicht. Den Zustand deines Projekts siehst du an mehreren Stellen: in den Projekt-Einstellungen, im Projektbaum, im rechten Panel und in der Schublade.
+Den Zustand deines Projekts siehst du an mehreren Stellen: im Bereich **Projekt**, im Projektbaum, im Panel **Maschine**, in der Speicherkarte (**Daten ▸ Speicher**) und in der Ablage unter dem Editor.
 
-## Karte „Übersicht“ in den Projekt-Einstellungen
-**Projekt ▸ Projekt-Einstellungen …** öffnet einen Reiter mit den Unterreitern **Allgemein**, **Targets**, **Quellen** und **Diskette**. Rechts daneben steht die Karte **Übersicht** mit einer Zeile je Unterreiter. Der Punkt davor zeigt den Zustand: grün (in Ordnung), gelb (Hinweis, zum Beispiel keine Programme), rot (Angabe fehlt, zum Beispiel der Name) oder grau (nicht eingeschaltet).
+## Seite „Übersicht“ im Bereich Projekt
+Der Hauptbereich **Projekt** (Cmd/Strg+Alt+0) hat in der zweiten Reihe die Seiten **Übersicht**, **Allgemein**, **Ziele**, **Quellen**, **Bauen und Starten**, **Diskette** und **Weitergeben**. Die Seite **Übersicht** zeigt vier Karten mit je einem Punkt für den Zustand: grün „in Ordnung“, gelb „Hinweis“ (zum Beispiel keine Programme), rot „Angabe fehlt“ (zum Beispiel der Name) oder grau „nicht eingeschaltet“.
 
-- **Allgemein:** der Projektname.
-- **Targets:** die Zielsysteme des Projekts.
-- **Quellen:** Zahl der Programme und Quellgruppen und das Startprogramm (`main`, sonst das erste Programm).
+- **Allgemein:** der Projektname und das Start-Programm (ohne Auswahl das erste Programm).
+- **Ziele:** die Zielsysteme des Projekts.
+- **Quellen:** Zahl der Programme und Quellgruppen; fehlende Dateien werden gezählt.
 - **Diskette:** aus, oder Format und Zahl der Programme (ohne Auswahl: alle Programme).
 
-**Ändern ›** springt zum passenden Unterreiter. Die Quellen stehen dort in Baureihenfolge; Dateien, die auf der Platte fehlen, erscheinen in Rot.
+**Ändern ›** springt zur passenden Seite. Gibt es Fehler oder Warnungen in der Projektdatei, stehen sie darunter im Kasten **Probleme der Projektdatei**.
 
 ## Projektbaum
-Die linke Spalte zeigt alle Dateien mit Art-Marke (siehe [Dateibaum](help:filetree)), das Startprogramm mit ★ und Ungespeichertes mit ●. Unter dem Baum steht die Zahl der Dateien und Ordner.
+Die Seitenleiste **Projekt** (Bereich Code) zeigt alle Dateien mit Art-Marke (siehe [Dateibaum](help:filetree)). Ein Knopf mit Lupe filtert die Dateien nach Namen.
 
 ## Speicher
-Das rechte Panel hat den Reiter **Karte**: Nach dem Bauen zeigt er, wo dein Programm im Speicher liegt (zur genauen Belegung siehe [Memory Map](help:memmap)). Vorher steht dort „Noch nichts gebaut“.
+Das rechte Panel **Maschine** (Cmd/Strg+Alt+B) zeigt unter **Letzter Bau** nach dem Bauen, wo dein Programm im Speicher liegt: Quelle, Programm, Größe, Start (SYS) und eine Tabelle der Segmente (zur genauen Belegung siehe [Memory Map](help:memmap)). Vorher steht dort „Noch nicht gebaut. Bauen mit F7.“ Während einer Debug-Sitzung zeigt das Panel außerdem Register, Flags und, wo der Emulator es liefert, das Bild der Maschine. Die **grafische Speicherkarte** findest du im Hauptbereich **Daten** unter **Speicher**; sie zeigt den Adressraum als Raster aus 256 Seiten und das Programm aus dem letzten Bau darin (siehe [Memory Map](help:memmap)).
 
 ## Letzter Build
-Die Schublade zeigt im Reiter **Protokoll**, was beim Bauen und Starten geschehen ist, und im Reiter **Probleme** die Fehler und Warnungen mit Datei und Zeile; die Zahl steht am Reiter. Siehe [Bauen und Starten](help:build).
+Die Ablage unter dem Editor (Cmd/Strg+J) zeigt im Reiter **Ausgabe**, was beim Bauen und Starten geschehen ist, und im Reiter **Probleme** die Fehler und Warnungen mit Datei und Zeile. Die Statusleiste nennt das Ergebnis („gebaut: … Bytes“ oder „Bau: … Fehler“). Siehe [Bauen und Starten](help:build).
 
 ## Ziel und Verbindung
-- Der Knopf **Ziel** in der Kopfzeile („C64 · VICE x64sc ▾“) zeigt, wohin F5 startet: Emulator oder eingetragene Maschine. Ein Klick öffnet die Auswahl für diese Sitzung.
-- Auf der Startseite zeigt der Kasten **Toolchain und Hardware**, welche Emulatoren gefunden wurden und welche Maschinen eingetragen sind. Maschinen gelten als **ungeprüft**, bis du **Testen** klickst; der Test läuft im Hintergrund und endet mit „online“ oder „nicht erreichbar“.
-- In den Einstellungen (**Zielsysteme und Hardware**) stellst du Emulator, Startziel und Hardware ein; siehe [Einstellungen](help:settings).
+- Der Knopf **Startziel** in der Kopfzeile (zum Beispiel „C64 · VICE x64sc“) zeigt, wohin F5 startet. Ein Klick öffnet die Auswahl.
+- Auf der Startseite zeigt der Kasten **Toolchain und Hardware**, welche Emulatoren gefunden wurden („bereit“ oder „nicht gefunden“).
+- Die allgemeine Wahl von Emulator und Startziel steht in den Einstellungen, siehe [Einstellungen](help:settings). Die Seite **Ziele** im Bereich Projekt zeigt die Zielsysteme des Projekts mit ihrer Variante (zum Beispiel PAL oder NTSC).
 
-## Studios
-Neue Dateien für die Studios (Sprites, Zeichensatz, Bildschirm, Kacheln, Tracker, Palette) legst du mit dem Knopf **＋** über dem Projektbaum oder mit den Studio-Knöpfen auf der Startseite an; ein Diskettenimage gibt es dort als Art **Diskette**. Siehe [Sprites, Zeichensätze, Songs](help:graphics) und [Disk-Studio](help:disks).
+## Editoren
+Neue Dateien legst du mit dem Knopf **Neue Datei** über dem Projektbaum an (Art Assembler, BASIC, Text oder Notiz). Sprites, Zeichensätze, Kacheln, Bildschirme und Paletten bearbeitest du im Bereich **Grafik**, Songs im Bereich **Musik** (Tracker), Disketten im Bereich **Daten** (Neue Diskette im Disk-Editor). Das Debuggen hat den Bereich **Debug**. Siehe [Sprites, Zeichensätze, Songs](help:graphics) und [Disk-Editor](help:disks).
 
-**Starten** (F5), **Debuggen** (F6) und **Bauen** (F7) stehen oben in der Kopfzeile, siehe [Bauen und Starten](help:build).
+**Starten** (F5) und **Bauen** (F7) stehen oben in der Kopfzeile, siehe [Bauen und Starten](help:build).

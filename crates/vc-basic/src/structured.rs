@@ -7,7 +7,7 @@ use crate::dialect::Dialect;
 use crate::petscii;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 
 #[derive(Clone)]
 pub struct Options {
@@ -76,19 +76,19 @@ pub(crate) fn split_args(s: &str) -> Vec<String> {
 }
 
 /// `name` oder `name(a, b$)` → Name und Parameter (kleingeschrieben)
-pub(crate) fn proc_head(rest: &str) -> Result<(String, Vec<String>), String> {
+pub(crate) fn proc_head(rest: &str) -> Result<(String, Vec<String>), Msg> {
     let rest = rest.trim();
     let name: String = rest.chars().take_while(|c| is_word(*c)).collect();
-    if name.is_empty() || !name.chars().next().map_or(false, char::is_alphabetic) { return Err("Prozedurname fehlt".into()); }
+    if name.is_empty() || !name.chars().next().map_or(false, char::is_alphabetic) { return Err(msg!("diag-basic-b109-proc-name-missing")); }
     let tail = rest[name.len()..].trim();
     let params = if tail.is_empty() { vec![] } else {
-        let inner = tail.strip_prefix('(').and_then(|t| t.strip_suffix(')')).ok_or("erwartet name(parameter, …)")?;
+        let inner = tail.strip_prefix('(').and_then(|t| t.strip_suffix(')')).ok_or_else(|| msg!("diag-basic-b109-proc-head-syntax"))?;
         split_args(inner).into_iter().map(|p| p.to_ascii_lowercase()).collect()
     };
     for p in &params {
         let base = p.trim_end_matches(|c| c == '$' || c == '%');
         if base.is_empty() || !base.chars().next().map_or(false, char::is_alphabetic) || !base.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            return Err(format!("ungültiger Parametername '{p}'"));
+            return Err(msg!("diag-basic-b109-proc-param-name", p = p.as_str()));
         }
     }
     Ok((name.to_ascii_lowercase(), params))
@@ -111,7 +111,7 @@ impl Env {
 }
 
 /// Ausdruck hinter `#if`: Namen, Zahlen, `and` `or` `not`, `=` `<>`, Klammern.
-fn eval_cond(text: &str, env: &Env) -> Result<bool, String> {
+fn eval_cond(text: &str, env: &Env) -> Result<bool, Msg> {
     let ch: Vec<char> = text.chars().collect();
     let (mut toks, mut i) = (vec![], 0);
     while i < ch.len() {
@@ -120,30 +120,30 @@ fn eval_cond(text: &str, env: &Env) -> Result<bool, String> {
         else if c.is_alphanumeric() || c == '_' { let st = i; while i < ch.len() && (ch[i].is_alphanumeric() || ch[i] == '_') { i += 1; } toks.push(ch[st..i].iter().collect::<String>().to_ascii_lowercase()); }
         else if c == '<' && ch.get(i + 1) == Some(&'>') { toks.push("<>".into()); i += 2; }
         else if "()=".contains(c) { toks.push(c.to_string()); i += 1; }
-        else { return Err(format!("Zeichen '{c}' in der Bedingung nicht erlaubt")); }
+        else { return Err(msg!("diag-basic-b111-cond-char", c = c)); }
     }
     struct P<'a> { t: Vec<String>, i: usize, env: &'a Env }
     impl P<'_> {
         fn peek(&self) -> Option<&str> { self.t.get(self.i).map(String::as_str) }
-        fn or(&mut self) -> Result<i64, String> { let mut v = self.and()?; while self.peek() == Some("or") { self.i += 1; let r = self.and()?; v = (v != 0 || r != 0) as i64; } Ok(v) }
-        fn and(&mut self) -> Result<i64, String> { let mut v = self.not()?; while self.peek() == Some("and") { self.i += 1; let r = self.not()?; v = (v != 0 && r != 0) as i64; } Ok(v) }
-        fn not(&mut self) -> Result<i64, String> { if self.peek() == Some("not") { self.i += 1; Ok((self.not()? == 0) as i64) } else { self.cmp() } }
-        fn cmp(&mut self) -> Result<i64, String> {
+        fn or(&mut self) -> Result<i64, Msg> { let mut v = self.and()?; while self.peek() == Some("or") { self.i += 1; let r = self.and()?; v = (v != 0 || r != 0) as i64; } Ok(v) }
+        fn and(&mut self) -> Result<i64, Msg> { let mut v = self.not()?; while self.peek() == Some("and") { self.i += 1; let r = self.not()?; v = (v != 0 && r != 0) as i64; } Ok(v) }
+        fn not(&mut self) -> Result<i64, Msg> { if self.peek() == Some("not") { self.i += 1; Ok((self.not()? == 0) as i64) } else { self.cmp() } }
+        fn cmp(&mut self) -> Result<i64, Msg> {
             let a = self.atom()?;
             match self.peek() { Some("=") => { self.i += 1; Ok((a == self.atom()?) as i64) } Some("<>") => { self.i += 1; Ok((a != self.atom()?) as i64) } _ => Ok(a) }
         }
-        fn atom(&mut self) -> Result<i64, String> {
-            let Some(t) = self.t.get(self.i).cloned() else { return Err("Ausdruck unvollständig".into()) };
+        fn atom(&mut self) -> Result<i64, Msg> {
+            let Some(t) = self.t.get(self.i).cloned() else { return Err(msg!("diag-basic-b111-cond-incomplete")) };
             self.i += 1;
-            if t == "(" { let v = self.or()?; if self.peek() != Some(")") { return Err("')' fehlt".into()); } self.i += 1; return Ok(v); }
+            if t == "(" { let v = self.or()?; if self.peek() != Some(")") { return Err(msg!("diag-basic-b111-cond-rparen")); } self.i += 1; return Ok(v); }
             if let Ok(n) = t.parse::<i64>() { return Ok(n); }
-            if matches!(t.as_str(), ")" | "=" | "<>" | "and" | "or") { return Err(format!("unerwartet '{t}'")); }
-            self.env.defs.get(&t).copied().ok_or(format!("unbekannter Name '{t}' (bekannt: SYSTEM_C64, SYSTEM_C128, SYSTEM_PLUS4, SYSTEM_VIC20, SYSTEM_MEGA65, SYSTEM_ATARI und -D-Konstanten)"))
+            if matches!(t.as_str(), ")" | "=" | "<>" | "and" | "or") { return Err(msg!("diag-basic-b111-cond-unexpected", t = t.as_str())); }
+            self.env.defs.get(&t).copied().ok_or_else(|| msg!("diag-basic-b111-cond-unknown-name", t = t.as_str()))
         }
     }
     let mut p = P { t: toks, i: 0, env };
     let v = p.or()?;
-    if p.i < p.t.len() { return Err(format!("unerwartet '{}'", p.t[p.i])); }
+    if p.i < p.t.len() { return Err(msg!("diag-basic-b111-cond-unexpected", t = p.t[p.i].as_str())); }
     Ok(v != 0)
 }
 
@@ -162,9 +162,9 @@ pub(crate) fn expand(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out
             continue;
         }
         if is_dir("elseif") || is_dir("else") || is_dir("endif") {
-            let Some(top) = stack.last_mut() else { errs.push(Diagnostic::error("B111", file, i + 1, format!("{} ohne #if", &t[..t.find(char::is_whitespace).unwrap_or(t.len())]))); continue };
+            let Some(top) = stack.last_mut() else { errs.push(Diagnostic::error("B111", file, i + 1, msg!("diag-basic-b111-directive-without-if", word = &t[..t.find(char::is_whitespace).unwrap_or(t.len())]))); continue };
             if is_dir("endif") { stack.pop(); }
-            else if top.seen_else { errs.push(Diagnostic::error("B111", file, i + 1, "#elseif/#else nach #else")); }
+            else if top.seen_else { errs.push(Diagnostic::error("B111", file, i + 1, msg!("diag-basic-b111-else-after-else"))); }
             else if is_dir("elseif") {
                 let v = top.parent && !top.taken && eval_cond(&t[7..], env).map_err(|e| errs.push(Diagnostic::error("B111", file, i + 1, e))).unwrap_or(false);
                 top.active = v;
@@ -176,7 +176,7 @@ pub(crate) fn expand(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out
         if low.starts_with("include ") || low.starts_with("include\t") {
             let raw = t[7..].trim().trim_matches('"');
             let name = if raw.contains("{system}") {
-                match &env.system { Some(sys) => raw.replace("{system}", sys), None => { errs.push(Diagnostic::error("B111", file, i + 1, "{system} im include-Pfad, aber das Zielsystem ist unbekannt")); continue } }
+                match &env.system { Some(sys) => raw.replace("{system}", sys), None => { errs.push(Diagnostic::error("B111", file, i + 1, msg!("diag-basic-b111-include-system"))); continue } }
             } else { raw.to_string() };
             let name = name.as_str();
             let base = Path::new(file).parent().map(Path::to_path_buf).unwrap_or_default();
@@ -184,14 +184,14 @@ pub(crate) fn expand(text: &str, file: &str, dirs: &[PathBuf], depth: usize, out
             match (found, depth < 16) {
                 (Some(p), true) => match vc_core::textfile::read_source(&p) {
                     Ok(sub) => expand(&sub, &p.to_string_lossy(), dirs, depth + 1, out, errs, env),
-                    Err(e) => errs.push(Diagnostic::error("B110", file, i + 1, format!("{}: {e}", p.display()))),
+                    Err(e) => errs.push(Diagnostic::error("B110", file, i + 1, msg!("diag-basic-b110-include-read", path = p.display().to_string(), error = e.to_string()))),
                 },
-                (_, false) => errs.push(Diagnostic::error("B110", file, i + 1, "include zu tief verschachtelt")),
-                _ => errs.push(Diagnostic::error("B110", file, i + 1, format!("Include-Datei '{name}' nicht gefunden"))),
+                (_, false) => errs.push(Diagnostic::error("B110", file, i + 1, msg!("diag-basic-b110-include-depth"))),
+                _ => errs.push(Diagnostic::error("B110", file, i + 1, msg!("diag-basic-b110-include-not-found", name = name))),
             }
         } else { out.push(Src { file: file.to_string(), line: i + 1, text: l.to_string() }); }
     }
-    for c in stack { errs.push(Diagnostic::error("B111", file, c.line, "#if ohne #endif")); }
+    for c in stack { errs.push(Diagnostic::error("B111", file, c.line, msg!("diag-basic-b111-if-without-endif"))); }
 }
 
 /// `blob "datei" [with "…"]` → Anforderung (`None`, wenn die Zeile nicht passt)
@@ -208,7 +208,7 @@ pub fn find_blobs(src: &str, file: &str, dirs: &[PathBuf], system: Option<&str>,
     let mut out = vec![];
     for l in &lines {
         let t = l.text.trim();
-        if first_word(t) == "blob" { match parse_blob(t, (l.file.clone(), l.line)) { Some(b) => out.push(b), None => errs.push(Diagnostic::error("B113", &l.file, l.line, "blob erwartet: blob \"datei.asm\" [with \"song.asm\"]")) } }
+        if first_word(t) == "blob" { match parse_blob(t, (l.file.clone(), l.line)) { Some(b) => out.push(b), None => errs.push(Diagnostic::error("B113", &l.file, l.line, msg!("diag-basic-b113-blob-syntax"))) } }
     }
     if errs.is_empty() { Ok(out) } else { Err(errs) }
 }
@@ -243,7 +243,7 @@ impl Lexer<'_> {
     }
 
     /// Zerlegt eine Anweisungszeile in Teile; `Err` enthält eine Meldung.
-    fn lex(&self, s: &str) -> Result<Vec<Piece>, String> {
+    fn lex(&self, s: &str) -> Result<Vec<Piece>, Msg> {
         let d = self.d;
         let ch: Vec<char> = s.chars().collect();
         let (mut i, mut out) = (0usize, vec![]);
@@ -267,7 +267,7 @@ impl Lexer<'_> {
                 let st = i + 1;
                 i = st;
                 while i < ch.len() && is_word(ch[i]) { i += 1; }
-                if st == i { return Err("Label-Name nach '@' fehlt".into()); }
+                if st == i { return Err(msg!("diag-basic-b100-label-name-missing")); }
                 out.push(Piece::Label(ch[st..i].iter().collect::<String>().to_ascii_lowercase()));
                 continue;
             }
@@ -279,7 +279,7 @@ impl Lexer<'_> {
                 let st = i + 1;
                 i = st;
                 while i < ch.len() && ch[i].is_ascii_hexdigit() { i += 1; }
-                let v = i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 16).map_err(|e| e.to_string())?;
+                let v = i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 16).map_err(|_| msg!("diag-basic-b100-hex-too-big"))?;
                 out.push(Piece::B(v.to_string().into_bytes()));
                 continue;
             }
@@ -287,7 +287,7 @@ impl Lexer<'_> {
                 let st = i + 1;
                 i = st;
                 while i < ch.len() && (ch[i] == '0' || ch[i] == '1') { i += 1; }
-                let v = i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 2).map_err(|e| e.to_string())?;
+                let v = i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 2).map_err(|_| msg!("diag-basic-b100-bin-too-big"))?;
                 out.push(Piece::B(v.to_string().into_bytes()));
                 continue;
             }
@@ -329,7 +329,7 @@ impl Lexer<'_> {
                 if next == Some('$') && d.token_bytes(&format!("{upper}$")).is_some() { i += 1; out.push(kw(&format!("{upper}$"))); continue; }
                 if let Some(v) = self.consts.get(&low) { out.push(Piece::B(v.clone())); continue; }
                 if let Some(t) = d.token_bytes(&upper) { out.push(Piece::B(t)); continue; }
-                if low.contains('.') { return Err(format!("ungültiger Name '{word}' (Punkt nur in Konstanten wie asm.label)")); }
+                if low.contains('.') { return Err(msg!("diag-basic-b100-bad-name", word = word.as_str())); }
                 let suffix = match next { Some(x @ ('$' | '%')) => { i += 1; x.to_string() } _ => String::new() };
                 out.push(Piece::Var(format!("{low}{suffix}")));
                 continue;
@@ -337,7 +337,7 @@ impl Lexer<'_> {
             // Operatoren und Satzzeichen
             let op = match c { '+' => Some("+"), '-' => Some("-"), '*' => Some("*"), '/' => Some("/"), '^' => Some("^"), '>' => Some(">"), '=' => Some("="), '<' => Some("<"), '?' => Some("PRINT"), _ => None };
             if let Some(o) = op { out.push(kw(o)); i += 1; continue; }
-            out.push(Piece::B(vec![petscii::from_ascii(c).ok_or(format!("unerwartetes Zeichen '{c}'"))?]));
+            out.push(Piece::B(vec![petscii::from_ascii(c).ok_or_else(|| msg!("diag-basic-b100-unexpected-char", c = c))?]));
             i += 1;
         }
         Ok(out)
@@ -454,11 +454,11 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
         match word.as_str() {
             "const" => {
                 let rest = t[5..].trim();
-                let Some((n, v)) = rest.split_once('=') else { err!(s, "B108", "const erwartet NAME = Wert"); continue };
+                let Some((n, v)) = rest.split_once('=') else { err!(s, "B108", msg!("diag-basic-b108-const-syntax")); continue };
                 let name = n.trim().to_ascii_lowercase();
                 match lexer.lex(v.trim()) {
                     Ok(p) if p.len() == 1 && matches!(p[0], Piece::B(_)) => { if let Piece::B(b) = &p[0] { consts.insert(name, b.clone()); } }
-                    Ok(_) => err!(s, "B108", "const erwartet eine einzelne Zahl oder Zeichenkette"),
+                    Ok(_) => err!(s, "B108", msg!("diag-basic-b108-const-value")),
                     Err(e) => err!(s, "B108", e),
                 }
             }
@@ -468,11 +468,11 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                     emit(vec![Piece::B(vec![t_goto]), Piece::Label(end.clone())], &mut pending);
                     pending.push(els.clone());
                 }
-                _ => err!(s, "B106", "else ohne passendes mehrzeiliges if"),
+                _ => err!(s, "B106", msg!("diag-basic-b106-else-without-if")),
             },
             "endif" if t.eq_ignore_ascii_case("endif") => match blocks.pop() {
                 Some(Block::If { els, end, has_else, .. }) => { if !has_else { pending.push(els); } pending.push(end); }
-                _ => err!(s, "B106", "endif ohne if"),
+                _ => err!(s, "B106", msg!("diag-basic-b106-endif-without-if")),
             },
             "while" => match lexer.lex(t[5..].trim()) {
                 Ok(c) => { counter += 1; let (top, end) = (format!("__w{counter}_top"), format!("__w{counter}_end")); pending.push(top.clone()); emit(cond_if(&c, end.clone()), &mut pending); blocks.push(Block::While { top, end, at: at.clone() }); }
@@ -480,19 +480,19 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
             },
             "wend" if t.eq_ignore_ascii_case("wend") => match blocks.pop() {
                 Some(Block::While { top, end, .. }) => { emit(vec![Piece::B(vec![t_goto]), Piece::Label(top)], &mut pending); pending.push(end); }
-                _ => err!(s, "B106", "wend ohne while"),
+                _ => err!(s, "B106", msg!("diag-basic-b106-wend-without-while")),
             },
             "repeat" if t.eq_ignore_ascii_case("repeat") => { counter += 1; let (top, end) = (format!("__r{counter}_top"), format!("__r{counter}_end")); pending.push(top.clone()); blocks.push(Block::Repeat { top, end, at: at.clone() }); }
             "until" => match (blocks.pop(), lexer.lex(t[5..].trim())) {
                 (Some(Block::Repeat { top, end, .. }), Ok(c)) => { emit(cond_if(&c, top), &mut pending); if used_ends.contains(&end) { pending.push(end); } }
-                (Some(_), _) | (None, _) => err!(s, "B106", "until ohne repeat"),
+                (Some(_), _) | (None, _) => err!(s, "B106", msg!("diag-basic-b106-until-without-repeat")),
             },
             "blob" => {
                 // blob "datei.asm" [with "a.asm", "b.asm"]
                 let strs: Vec<&str> = t[4..].split('"').enumerate().filter(|(i, _)| i % 2 == 1).map(|(_, x)| x).collect();
                 let ok = t[4..].trim_start().starts_with('"') && !strs.is_empty() && (strs.len() == 1 || t[4..].to_ascii_lowercase().contains(" with "));
                 if ok { blobs.push(BlobReq { file: strs[0].to_string(), with: strs[1..].iter().map(|x| x.to_string()).collect(), src: at.clone() }); }
-                else { err!(s, "B113", "blob erwartet: blob \"datei.asm\" [with \"song.asm\"]"); }
+                else { err!(s, "B113", msg!("diag-basic-b113-blob-syntax")); }
             }
             "elseif" => match blocks.last_mut() {
                 Some(Block::If { els, end, has_else, .. }) if !*has_else => match lexer.lex(t[6..].trim()) {
@@ -506,7 +506,7 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                     }
                     Err(e) => err!(s, "B100", e),
                 },
-                _ => err!(s, "B106", "elseif ohne passendes mehrzeiliges if (oder nach else)"),
+                _ => err!(s, "B106", msg!("diag-basic-b106-elseif-without-if")),
             },
             "do" if native_do => match lexer.lex(t) {
                 Ok(p) => { counter += 1; blocks.push(Block::Do { top: String::new(), end: String::new(), native: true, at: at.clone() }); emit(p, &mut pending); }
@@ -523,7 +523,7 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                     ("while", Ok(c)) => { used_ends.insert(end.clone()); emit(cond_if(&c, end.clone()), &mut pending) }
                     ("until", Ok(c)) => { used_ends.insert(end.clone()); emit(cond_goto(&c, end.clone()), &mut pending) }
                     (_, Err(e)) => err!(s, "B100", e),
-                    _ => err!(s, "B106", "do erwartet nichts, 'while Bedingung' oder 'until Bedingung'"),
+                    _ => err!(s, "B106", msg!("diag-basic-b106-do-syntax")),
                 }
                 blocks.push(Block::Do { top, end, native: false, at: at.clone() });
             }
@@ -537,11 +537,11 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                         ("while", Ok(c)) => emit(cond_goto(&c, top), &mut pending),
                         ("until", Ok(c)) => emit(cond_if(&c, top), &mut pending),
                         (_, Err(e)) => err!(s, "B100", e),
-                        _ => err!(s, "B106", "loop erwartet nichts, 'while Bedingung' oder 'until Bedingung'"),
+                        _ => err!(s, "B106", msg!("diag-basic-b106-loop-syntax")),
                     }
                     if used_ends.contains(&end) { pending.push(end); }
                 }
-                other => { if let Some(b) = other { blocks.push(b); } err!(s, "B106", "loop ohne do"); }
+                other => { if let Some(b) = other { blocks.push(b); } err!(s, "B106", msg!("diag-basic-b106-loop-without-do")); }
             },
             "exit" if t.eq_ignore_ascii_case("exit") => {
                 let target = blocks.iter().rev().take_while(|b| !matches!(b, Block::Proc { .. }))
@@ -549,12 +549,12 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                 match (target, t_exit) {
                     (Some(Ok(end)), _) => { used_ends.insert(end.clone()); emit(vec![Piece::B(vec![t_goto]), Piece::Label(end)], &mut pending) }
                     (Some(Err(())), Some(x)) => emit(vec![Piece::B(vec![x])], &mut pending),
-                    _ => err!(s, "B106", "exit außerhalb von while, repeat oder do"),
+                    _ => err!(s, "B106", msg!("diag-basic-b106-exit-outside")),
                 }
             }
             "proc" => match proc_head(&t[4..]) {
                 Ok((name, _)) => {
-                    if blocks.iter().any(|b| matches!(b, Block::Proc { .. })) { err!(s, "B109", "proc darf nicht in einer anderen proc stehen"); continue; }
+                    if blocks.iter().any(|b| matches!(b, Block::Proc { .. })) { err!(s, "B109", msg!("diag-basic-b109-proc-nested")); continue; }
                     counter += 1;
                     let skip = format!("__p{counter}_skip");
                     emit(vec![Piece::B(vec![t_goto]), Piece::Label(skip.clone())], &mut pending);
@@ -565,16 +565,16 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
             },
             "endproc" if t.eq_ignore_ascii_case("endproc") => match blocks.pop() {
                 Some(Block::Proc { skip, .. }) => { emit(vec![Piece::B(vec![t_return])], &mut pending); pending.push(skip); }
-                other => { if let Some(b) = other { blocks.push(b); } err!(s, "B106", "endproc ohne proc"); }
+                other => { if let Some(b) = other { blocks.push(b); } err!(s, "B106", msg!("diag-basic-b106-endproc-without-proc")); }
             },
             "call" => match t[4..].trim().chars().take_while(|c| is_word(*c)).collect::<String>().to_ascii_lowercase() {
-                name if name.is_empty() => err!(s, "B109", "Prozedurname fehlt"),
-                name if !procs.contains_key(&name) => err!(s, "B109", format!("Prozedur '{name}' ist nicht definiert")),
+                name if name.is_empty() => err!(s, "B109", msg!("diag-basic-b109-proc-name-missing")),
+                name if !procs.contains_key(&name) => err!(s, "B109", msg!("diag-basic-b109-proc-undefined", name = name)),
                 name => {
                     let rest = t[4..].trim();
                     let args = match rest[name.len()..].trim() { "" => vec![], a => split_args(a.strip_prefix('(').and_then(|x| x.strip_suffix(')')).unwrap_or(a)) };
                     let params = &procs[&name];
-                    if args.len() != params.len() { err!(s, "B109", format!("Prozedur '{name}' erwartet {} Argument(e), übergeben: {}", params.len(), args.len())); continue; }
+                    if args.len() != params.len() { err!(s, "B109", msg!("diag-basic-b109-proc-arg-count", name = name, expected = params.len(), given = args.len())); continue; }
                     let mut pieces = vec![];
                     let mut bad = false;
                     for (p, a) in params.iter().zip(&args) {
@@ -602,10 +602,10 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                     if !d.restore_line {
                         let rs = d.token_bytes("RESTORE").unwrap_or_default();
                         if pieces.windows(2).any(|w| matches!(&w[0], Piece::B(b) if *b == rs) && matches!(w[1], Piece::Label(_))) {
-                            err!(s, "B112", "restore mit Marke gibt es im BASIC V2 nicht (erst ab BASIC 3.5): ohne Marke zurücksetzen und der Reihe nach lesen");
+                            err!(s, "B112", msg!("diag-basic-b112-restore-label"));
                         }
                     }
-                    for p in &pieces { if let Piece::Var(n) = p { if RESERVED.contains(&n.as_str()) { err!(s, "B103", format!("'{n}' ist ein reserviertes Wort der Struktursprache")); } } }
+                    for p in &pieces { if let Piece::Var(n) = p { if RESERVED.contains(&n.as_str()) { err!(s, "B103", msg!("diag-basic-b103-reserved-word", name = n.as_str())); } } }
                     emit(pieces, &mut pending);
                 }
             },
@@ -613,7 +613,7 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
     }
     for b in &blocks {
         let at = match b { Block::If { at, .. } | Block::While { at, .. } | Block::Repeat { at, .. } | Block::Do { at, .. } | Block::Proc { at, .. } => at };
-        errs.push(Diagnostic::error("B106", &at.0, at.1, "Block nicht geschlossen"));
+        errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-block-not-closed")));
     }
     if !opts.blob_chunks.is_empty() {
         let at = plines.last().map(|l| l.src.clone()).unwrap_or((opts.file.clone(), 1));
@@ -647,9 +647,9 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
     let mut labels: BTreeMap<String, u16> = BTreeMap::new();
     for (i, l) in plines.iter().enumerate() {
         let num = opts.start + i as u32 * opts.step;
-        if num > 63999 { errs.push(Diagnostic::error("B105", &l.src.0, l.src.1, "Zeilennummern über 63999 – step verkleinern oder pack nutzen")); break; }
+        if num > 63999 { errs.push(Diagnostic::error("B105", &l.src.0, l.src.1, msg!("diag-basic-b105-line-numbers-cbm"))); break; }
         for name in &l.labels {
-            if labels.insert(name.clone(), num as u16).is_some() { errs.push(Diagnostic::error("B104", &l.src.0, l.src.1, format!("Label '{name}' doppelt definiert"))); }
+            if labels.insert(name.clone(), num as u16).is_some() { errs.push(Diagnostic::error("B104", &l.src.0, l.src.1, msg!("diag-basic-b104-label-duplicate", name = name.as_str()))); }
         }
     }
     let mut keys: Vec<String> = vec![];
@@ -666,13 +666,13 @@ pub fn compile(src: &str, d: &Dialect, opts: &Options) -> Result<Compiled, Vec<D
                 Piece::Label(n) => match labels.get(n) {
                     Some(v) => bytes.extend_from_slice(v.to_string().as_bytes()),
                     None if n.starts_with("__") => {}
-                    None => errs.push(Diagnostic::error("B107", &l.src.0, l.src.1, format!("Label '@{n}' nicht definiert"))),
+                    None => errs.push(Diagnostic::error("B107", &l.src.0, l.src.1, msg!("diag-basic-b107-label-undefined", name = n.as_str()))),
                 },
             }
         }
-        if bytes.len() > 250 { errs.push(Diagnostic::error("B102", &l.src.0, l.src.1, "Zeile zu lang (mehr als 250 Bytes) – Zeile teilen")); }
+        if bytes.len() > 250 { errs.push(Diagnostic::error("B102", &l.src.0, l.src.1, msg!("diag-basic-b102-line-too-long-split"))); }
         else if crate::detok::line_text(&bytes, d).chars().count() > d.max_line_len {
-            warnings.push(Diagnostic::warning("B101", &l.src.0, l.src.1, format!("Zeile länger als {} Zeichen: im Editor nicht mehr bearbeitbar", d.max_line_len)));
+            warnings.push(Diagnostic::warning("B101", &l.src.0, l.src.1, msg!("diag-basic-b101-line-long", max = d.max_line_len)));
         }
         out_lines.push(((opts.start + i as u32 * opts.step) as u16, bytes));
     }

@@ -12,8 +12,8 @@
 //   <bank>_tiles_w, _tiles_h               Kartengröße in Kacheln (für alle Screens der Bank gleich)
 //
 //   #include <c64/tiles.asm>
-//   .include "build/export/hg.asm"
-//   .include "build/export/levels.asm"
+//   .include "graphics/hg.vctiles"
+//   .include "graphics/levels.vcscreen"
 //           tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_tiles_w, levels_tiles_h
 //           ...
 //           screen_draw 1               ; Screen 1 wählen und komplett zeichnen

@@ -20,9 +20,9 @@ pub fn entry(path: &Path, system: &str, role: &str, rev: &str, free: bool, defau
 #[allow(clippy::too_many_arguments)]
 pub fn entry_with_sets(path: &Path, system: &str, role: &str, rev: &str, free: bool, default: bool, note: &str, sets: &[String]) -> Result<KnownRom, String> {
     let data = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let sd = systems::system(system).ok_or_else(|| format!("unbekanntes System {system}"))?;
-    let rd = systems::role(system, role).ok_or_else(|| format!("unbekannte Rolle {system}/{role}"))?;
-    if !rd.sizes.contains(&data.len()) { return Err(format!("{}: {} Byte, erwartet {:?} für {system}/{role}", path.display(), data.len(), rd.sizes)); }
+    let sd = systems::system(system).ok_or_else(|| vc_i18n::t!("romsio-emit-unknown-system", system = system))?;
+    let rd = systems::role(system, role).ok_or_else(|| vc_i18n::t!("romsio-emit-unknown-role", system = system, role = role))?;
+    if !rd.sizes.contains(&data.len()) { return Err(vc_i18n::t!("romsio-emit-bad-size", path = path.display().to_string(), size = data.len(), expected = format!("{:?}", rd.sizes), system = system, role = role)); }
     let default = default || DEFAULTS.contains(&(system, role, rev));
     Ok(KnownRom {
         id: format!("{system}.{role}.{}", rev.to_lowercase().replace(' ', "-")),
@@ -33,13 +33,13 @@ pub fn entry_with_sets(path: &Path, system: &str, role: &str, rev: &str, free: b
 }
 
 fn parse_sets(specs: &[String], len: usize) -> Result<serde_json::Map<String, serde_json::Value>, String> {
-    let num = |t: &str| -> Result<usize, String> { match t.strip_prefix("0x") { Some(h) => usize::from_str_radix(h, 16), None => t.parse() }.map_err(|_| format!("Zahl '{t}' ungültig")) };
+    let num = |t: &str| -> Result<usize, String> { match t.strip_prefix("0x") { Some(h) => usize::from_str_radix(h, 16), None => t.parse() }.map_err(|_| vc_i18n::t!("romsio-emit-bad-number", t = t)) };
     let mut m = serde_json::Map::new();
     for spec in specs {
         let p: Vec<&str> = spec.splitn(5, ':').collect();
-        if p.len() < 4 { return Err(format!("--set {spec}: name:offset:size:profile[:Text] erwartet")); }
+        if p.len() < 4 { return Err(vc_i18n::t!("romsio-emit-set-format", spec = spec.as_str())); }
         let (off, size) = (num(p[1])?, num(p[2])?);
-        if off + size > len { return Err(format!("--set {spec}: liegt hinter dem Dateiende ({len} Byte)")); }
+        if off + size > len { return Err(vc_i18n::t!("romsio-emit-set-beyond-end", spec = spec.as_str(), len = len)); }
         m.insert(p[0].into(), serde_json::json!({ "offset": off, "size": size, "profile": p[3], "label": p.get(4).copied().unwrap_or(p[0]) }));
     }
     Ok(m)

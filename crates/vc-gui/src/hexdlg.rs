@@ -14,13 +14,13 @@ pub struct HexDlg { pub rel: String, pub vorschlaege: Vec<Suggestion>, pub gewae
 
 impl App {
     pub(crate) fn hexv_oeffnen(&mut self) {
-        let Some(rel) = self.name().filter(|n| self.editoren.contains_key(n) && (n.to_lowercase().ends_with(".bas") || n.to_lowercase().ends_with(".sbas"))) else { self.log.push("Hex-Vorschläge: öffne zuerst eine BASIC-Datei.".into()); return };
+        let Some(rel) = self.name().filter(|n| self.editoren.contains_key(n) && (n.to_lowercase().ends_with(".bas") || n.to_lowercase().ends_with(".sbas"))) else { self.log.push(vc_i18n::t!("hexdlg-hex-vorschlaege-oeffne-zuerst-eine-basic").into()); return };
         let sys = self.system_id(); let dialekt = vc_target::load_target(&self.data, &sys).ok().and_then(|t| t.basic_dialect).unwrap_or_else(|| "cbm_v2".into());
         let text = self.editoren[&rel].text();
         match vc_ide::hexhint::suggestions(&self.data, &dialekt, &sys, &text) {
-            Ok(v) if v.is_empty() => self.log.push("Hex-Vorschläge: keine Dezimaladresse eines bekannten Registers gefunden.".into()),
+            Ok(v) if v.is_empty() => self.log.push(vc_i18n::t!("hexdlg-hex-vorschlaege-keine-dezimaladresse-eines-bekannten").into()),
             Ok(v) => { let zeilen: Vec<String> = text.lines().map(String::from).collect(); self.hex = Some(HexDlg { rel, gewaehlt: vec![false; v.len()], vorschlaege: v, zeilen }) }
-            Err(e) => self.log.push(format!("Hex-Vorschläge: {e}")),
+            Err(e) => self.log.push(vc_i18n::t!("hexdlg-hex-vorschlaege-e", e = &e)),
         }
     }
     pub(crate) fn hexv_akt(&mut self, a: HAkt) -> Task<Msg> {
@@ -34,7 +34,7 @@ impl App {
                 if !sel.iter().any(|b| *b) { return Task::none() }
                 if let Some(e) = self.editoren.get_mut(&rel) {
                     let alt = e.text(); let neu = vc_ide::hexhint::apply_suggestions(&alt, &vs, &sel);
-                    if neu != alt { let ende = vc_gui_editor::core::Pos { line: e.lines.len() - 1, col: e.line_len(e.lines.len() - 1) }; e.replace(vc_gui_editor::core::Pos { line: 0, col: 0 }, ende, &neu); self.log.push(format!("{} Adresse(n) als Hex geschrieben ({rel}); Rückgängig macht es in einem Schritt rückgängig.", sel.iter().filter(|b| **b).count())) }
+                    if neu != alt { let ende = vc_gui_editor::core::Pos { line: e.lines.len() - 1, col: e.line_len(e.lines.len() - 1) }; e.replace(vc_gui_editor::core::Pos { line: 0, col: 0 }, ende, &neu); self.log.push(vc_i18n::t!("hexdlg-p1-adresse-n-als-hex-geschrieben", p1 = sel.iter().filter(|b| **b).count(), rel = &rel)) }
                 }
             }
         }
@@ -45,12 +45,12 @@ impl App {
         let mut l = column![].spacing(4);
         for (i, v) in d.vorschlaege.iter().enumerate() {
             let zeile = d.zeilen.get(v.line).cloned().unwrap_or_default();
-            l = l.push(row![checkbox(d.gewaehlt[i]).on_toggle(move |b| Msg::HexVorschlag(HAkt::Zeile(i, b))).size(16), text(format!("Zeile {}", v.line + 1)).size(11.5).color(pal.mute).width(70), text(format!("{} → {}", v.from, v.to)).size(12.5).font(mono).color(pal.accent).width(150), text(zeile).size(11.5).font(mono).color(pal.text)].spacing(8).align_y(iced::Alignment::Center));
+            l = l.push(row![checkbox(d.gewaehlt[i]).on_toggle(move |b| Msg::HexVorschlag(HAkt::Zeile(i, b))).size(16), text(vc_i18n::t!("hexdlg-zeile-p1", p1 = v.line + 1)).size(11.5).color(pal.mute).width(70), text(format!("{} → {}", v.from, v.to)).size(12.5).font(mono).color(pal.accent).width(150), text(zeile).size(11.5).font(mono).color(pal.text)].spacing(8).align_y(iced::Alignment::Center));
         }
         let n = d.gewaehlt.iter().filter(|b| **b).count();
-        let c = column![abschnitt(pal, "BASIC: Hex-Vorschläge für Adressen", "Dezimaladressen bekannter Register als Hex schreiben. Es wird nur geändert, was du ankreuzt."), container(scrollable(l).height(Length::Fixed(260.0))).padding(6),
-            row![knopf(pal, "Alle", Some(h(HAkt::Alle)), pal.text, false), knopf(pal, "Keine", Some(h(HAkt::Keine)), pal.text, false), iced::widget::space::horizontal(), knopf(pal, "Abbrechen", Some(h(HAkt::Abbruch)), pal.text, false), knopf(pal, &format!("{n} übernehmen"), (n > 0).then(|| h(HAkt::Ok)), pal.text, true)].spacing(8),
-            klein(pal, "Rechenausdrücke, DATA-Zeilen und Zeichenketten kommen nie vor.")].spacing(10);
+        let c = column![abschnitt(pal, vc_i18n::t!("hexdlg-basic-hex-vorschlaege-fuer-adressen"), vc_i18n::t!("hexdlg-dezimaladressen-bekannter-register-als-hex-schreiben")), container(scrollable(l).height(Length::Fixed(260.0))).padding(6),
+            row![knopf(pal, vc_i18n::t!("hexdlg-alle"), Some(h(HAkt::Alle)), pal.text, false), knopf(pal, vc_i18n::t!("hexdlg-keine"), Some(h(HAkt::Keine)), pal.text, false), iced::widget::space::horizontal(), knopf(pal, vc_i18n::t!("hexdlg-abbrechen"), Some(h(HAkt::Abbruch)), pal.text, false), knopf(pal, &vc_i18n::t!("hexdlg-n-uebernehmen", n = &n), (n > 0).then(|| h(HAkt::Ok)), pal.text, true)].spacing(8),
+            klein(pal, vc_i18n::t!("hexdlg-rechenausdruecke-data-zeilen-und-zeichenketten-kommen"))].spacing(10);
         let karte = container(c).width(760).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hg = iced::widget::mouse_area(container(iced::widget::space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.55, ..Color::BLACK }.into()), ..Default::default() }));
         Some(iced::widget::stack![hg, container(karte).center(Length::Fill)].into())

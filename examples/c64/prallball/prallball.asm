@@ -18,7 +18,7 @@
 ;   Steintypen (Zahl in der Steinkarte): 0 leer; 1..8 farbige Steine (1 Treffer, 10 * Typ Punkte); 9 Silber (2 Treffer, 50 P.);
 ;   10 Gold (3 Treffer, 90 P.); 11 unzerstoerbar; 12 "explosiv" (zaehlt wie ein normaler Stein, 10 P.; keine Sonderwirkung);
 ;   13 Ueberraschung (laesst immer eine Kapsel fallen, 10 P.); 16..23 Boss-Kern (Typ - 15 = noch noetige Treffer, 20 P. je Treffer).
-;   Aus zerstoerten Steinen faellt in etwa jedem zwoelften eine Kapsel (Muenze, die sich dreht); faengt der Schlaeger sie, wirkt:
+;   Aus zerstoerten Steinen faellt in etwa jedem sechsten eine Kapsel (EXTRA_RATE, vorher jedem zwoelften) (Muenze, die sich dreht); faengt der Schlaeger sie, wirkt:
 ;   B breit (hellblau, 15 s), S schmal (hellrot, 15 s), R Steuerung umgekehrt (rot, 10 s), L Ball langsamer (gruen, 15 s),
 ;   F Ball schneller (gelb, 15 s), K klebrig (orange: der naechste Schlaegertreffer faengt den Ball), + Extraball (weiss, hoechstens 9),
 ;   P 500 Punkte (tuerkis), M Mehrball (violett, bis zu 3 Baelle), G Laser (hellgruen, 20 s), D Durchschlag (grau, 5 s).
@@ -29,6 +29,10 @@
 ;   Joystick in Port 2 (links, rechts, Feuer) ODER Tastatur: Z = links, X = rechts, Leertaste = Feuer, RUN/STOP = Abbruch zum Titel.
 ;   (P = Pause und Q/A = hoch/runter liefert input.asm ebenfalls; das Spiel wertet Pause nicht aus, hoch/runter nur die Namenseingabe.)
 ;   Titel: Feuer startet das Spiel; nach 30 s ohne Eingabe beginnt die Demo (Rechner spielt Level 1-5, jede Eingabe beendet sie).
+;   NEU in dieser Fassung: Extras fallen etwa doppelt so oft (EXTRA_RATE).  Der Demo-Spieler wirkt menschlicher: er braucht eine
+;   Reaktionszeit nach jedem Richtungswechsel des Balls, macht gelegentlich kurze Fehler (falsch herum oder zu spaet loslaufen), trifft
+;   den Schlaeger ungenau, verfehlt selten absichtlich einen Ball und laeuft gute fallende Extras an, solange der Ball weit weg ist.
+;   Alle Werte stehen als Einstellungen (EXTRA_RATE, DEMO_*) am Anfang des Programmtextes (siehe auto_input).
 ;   Feuer startet den Ball vom Schlaeger.  Der Abprallwinkel haengt davon ab, wo der Ball den Schlaeger trifft: 8 Zonen ueber die
 ;   Schlaegerbreite = -60, -43, -26, -9, +9, +26, +43, +60 Grad zur Senkrechten; bewegt sich der Schlaeger dabei, verschiebt das den
 ;   Winkel um eine Zone.  Trifft der Ball den Schlaeger von der Seite, wird er seitlich weggestossen.
@@ -67,7 +71,8 @@
 ;                (Titelmusik, bis ca. $6DAC)
 ;   RAM $C000:  $C000-$C0D7 Steinkarte MAP (aktuelles Level, 0 = leer)    $C100-$C11A Ballspeicher (3 Schlitze, siehe bact/b_*)
 ;               $C120-$C125 Laserschuesse   $C130-$C13B Titel-Baelle   $C140-$C17F Ticker-Texte (tk_cur, tk_new)
-;               $C200/$C201 Bildzaehler (nur Testfassung TESTFPS);  $CF00 ist in prallball.vctest als Trap-Adresse des Testlaufs vorgesehen
+;               $C0E0-$C0E8 Zustand des Demo-Spielers (dtxl..dtmp)   $C200/$C201 Bildzaehler (nur Testfassung TESTFPS)
+;               $C210-$C217 Demo-Zaehler (nur TESTDEMO);  $CF00 ist in prallball.vctest als Trap-Adresse des Testlaufs vorgesehen
 ;   Farb-RAM $D800-$DBE7.
 ;
 ; ZEROPAGE
@@ -95,15 +100,182 @@
 ;   STARTLEVEL=n mit Level n + 1 beginnen (n zaehlt ab 0)
 ;   TESTFPS=1    zaehlt die Bilder in $C200/$C201 und zeigt den Zaehler alle 16 Bilder in Zeile 24 (Ruckeln erkennen)
 ;   NOTICKER=1   Demo ohne Ticker in der Kopfzeile
+;   TESTDEMO=1   zaehlt Ereignisse des Demo-Spielers in $C210..$C217 und zeigt sie als Hex in Zeile 24 (Kapseln gefallen, gefangen,
+;                Fehler falsche Richtung, Fehler zu spaet, Verfehlen, Baelle verloren, Extras angelaufen) und die Bilder in $C218/$C219 (16 Bit); mit AUTOPLAY=1 benutzen
 ;   Automatische Tests: prallball.vctest (erzeugt von tools/gen_tests.py), siehe README.md.
 ;
 ; BEKANNTE GRENZEN
 ;   Nur PAL (die Bildzeit steckt in Rasterzeilen und Zaehlern).  Paddle-Steuerung ist in input.asm vorbereitet, aber nicht im Spiel
 ;   verdrahtet.  Hoechstens 3 Baelle, 1 fallende Kapsel und 2 Laserschuesse gleichzeitig.  Pause (P) wird nicht ausgewertet.
 ; =====================================================================================================================
+; ---------------------------------------- English ----------------------------------------
+; =====================================================================================================================
+; prallball.asm - PRALLBALL for the C64: ball-and-paddle game with 24 levels, capsules, high-score list and title music
+; =====================================================================================================================
+;
+; PURPOSE
+;   A ball-and-paddle game (Breakout type): the ball bounces off walls, paddle and bricks; when all destructible bricks are gone,
+;   the next level begins.  If the ball falls out at the bottom, one ball (= life) is lost; after the last one the game is over, and
+;   a result among the best 10 goes into the high-score list with name entry (saved to disk).
+;   This is the reference game of the example collection: the versions for the other systems were derived from it.  It shares no code
+;   with them, though; each version is an independent program.
+;   Build:  vcc asm prallball.asm --target c64 --cpu 6510   (or  vcc build .  according to prallball.vcprj; start in VICE x64sc).
+;   The game is designed for PAL (50 Hz, 312 raster lines); all times in "frames" are PAL frames (1 frame = 20 ms).
+;
+; GAME CONTENT
+;   Brick field 18 columns x 12 rows.  24 levels (lib/levels.inc, generated from levels/levels.txt): 20 normal, 2 bonus levels (no. 11 and 22:
+;   45 s time, +100 points per brick, a lost ball costs no life) and 2 boss levels (no. 23 and 24: only the boss cores have to be
+;   destroyed; every 4 s the boss throws an evil capsule).  After level 24 it continues with level 1 again.
+;   Brick types (number in the brick map): 0 empty; 1..8 coloured bricks (1 hit, 10 * type points); 9 silver (2 hits, 50 pts);
+;   10 gold (3 hits, 90 pts); 11 indestructible; 12 "explosive" (counts as a normal brick, 10 pts; no special effect);
+;   13 surprise (always drops a capsule, 10 pts); 16..23 boss core (type - 15 = hits still needed, 20 pts per hit).
+;   From destroyed bricks, roughly every sixth drops a capsule (EXTRA_RATE, before: every twelfth) (a coin that rotates); when the paddle catches it, it takes effect:
+;   B wide (light blue, 15 s), S narrow (light red, 15 s), R reversed controls (red, 10 s), L slower ball (green, 15 s),
+;   F faster ball (yellow, 15 s), K sticky (orange: the next paddle hit catches the ball), + extra ball (white, at most 9),
+;   P 500 points (turquoise), M multiball (violet, up to 3 balls), G laser (light green, 20 s), D pierce (grey, 5 s).
+;   The ball speed has 16 levels (level 0 = 1.6 pixels per frame, +0.1 per level); every 8 paddle hits the level rises,
+;   it is kept across level changes.  Points: 6 decimal digits (BCD); the game starts with 3 balls (LIVES0).
+;
+; CONTROLS
+;   Joystick in port 2 (left, right, fire) OR keyboard: Z = left, X = right, space = fire, RUN/STOP = abort to the title.
+;   (P = pause and Q/A = up/down are also supplied by input.asm; the game does not use pause, up/down only for name entry.)
+;   Title: fire starts the game; after 30 s without input the demo begins (the computer plays levels 1-5, any input ends it).
+;   NEW in this version: extras fall about twice as often (EXTRA_RATE).  The demo player acts more human: it needs a
+;   reaction time after each change of direction of the ball, makes occasional short mistakes (starting to run the wrong way or too late), hits
+;   the paddle inaccurately, rarely misses a ball on purpose and runs towards good falling extras as long as the ball is far away.
+;   All values are settings (EXTRA_RATE, DEMO_*) at the start of the program text (see auto_input).
+;   Fire launches the ball from the paddle.  The bounce angle depends on where the ball hits the paddle: 8 zones across the
+;   paddle width = -60, -43, -26, -9, +9, +26, +43, +60 degrees from the vertical; if the paddle moves at that moment, this shifts the
+;   angle by one zone.  If the ball hits the paddle from the side, it is pushed away sideways.
+;
+; FLOW (main loop main, state machine; see also the header comments of the routines)
+;   title      title screen with logo, high-score list, scroll text, ticker and bouncing balls; waits for fire (or starts the demo after 30 s)
+;   new_game   points 0, 3 balls, level 1, reset speed
+;   load_level load and draw the brick map, put the ball on the paddle
+;   play       one pass per frame (50 Hz), see below.  Result: level done / ball lost / abort
+;              level done -> next level;  ball lost -> one ball less (bonus level: none);  0 balls -> game_over
+;   game_over  "GAME OVER", check the high-score list, enter name (name_entry), save to disk  ->  title
+;   One pass of play: wait for the frame change (wait_frame), set sprites, read input (get_input), edge flash/highlight,
+;   extra timers, paddle, capsule, laser shots, then move all balls (walls, bricks, paddle) and check for the end of the level.
+;
+; HARDWARE AND LIBRARIES
+;   VIC-II:  VIC bank 1 ($DD00), screen $4400, character set $4800 (RAM copy of the ROM character set plus own characters) in multicolor
+;            text mode ($D016 bit 4: colour RAM value >= 8 = multicolor character) for bricks and walls; 8 sprites (ball up to 3 x,
+;            paddle of 1-2 parts, capsule, 2 laser shots); raster interrupt ($D012/$D019/$D01A) sets the background colour $D021
+;            in 22 bands and supplies the frame clock (vblank); $D016 supplies the smooth offset of the scroll text.
+;   SID:     effects (sfx_*) on voice 3, music (mus_*) on all three voices (only title and demo), volume 15.
+;   CIA 1/2: interrupt sources off ($DC0D/$DD0D); CIA 1 ($DC00/$DC01) for joystick port 2 and keyboard; CIA 2 ($DD00) for the VIC bank.
+;   KERNAL:  only for the high-score list (disk, hs_load/hs_save) and as the entry point of the interrupt (vector $0314).
+;   Libraries from data/sys/c64/: hardware.asm, kernal.asm (constants), input.asm (input_*, IN_*), rand.asm (rand_*),
+;   sound.asm (sfx_*, mus_*, SFX_*), hiscore.asm (hs_*, file "PRALL.HS").  Own data in lib/ (generated by tools/*.py).
+;
+; MEMORY MAP
+;   CPU:        $0801-$080C  BASIC starter "10 SYS 2061" (.basicstub);  $080D start;  then program code, libraries and tables
+;               (in this version up to about $3260; the upper limit is the screen memory at $4400; the direction table dirtable.inc
+;               and the characters gfx_chars are at the end of this area)
+;   VIC bank 1 ($4000-$7FFF; the VIC sees only these 16 KB.  It sees the character ROM only in banks 0 and 2: hence the RAM copy):
+;   $4400-$47E7  screen (text 40 x 25)         $47F8-$47FF  sprite pointers (pointer * 64 + $4000 = address)
+;   $4800-$4FFF  character set: ROM copy; own characters 64-67 ($4A00, brick left/right, wall, block); ticker characters 224-255 ($4F00)
+;   $5000-$52BF  sprite blocks (pointers $40..$4A): ball, paddle 16 px left/right, 24 px left/right, 16 px, capsule, laser shot,
+;                capsule tilted (3 phases);  $52C0-$53FF free
+;   $5400-$683F  24 level maps of 216 bytes each (12 rows x 18 columns);  then level_kind and level_tab_lo/hi, from $6888 the song
+;                (title music, up to about $6DAC)
+;   RAM $C000:  $C000-$C0D7 brick map MAP (current level, 0 = empty)    $C100-$C11A ball memory (3 slots, see bact/b_*)
+;               $C120-$C125 laser shots   $C130-$C13B title balls   $C140-$C17F ticker texts (tk_cur, tk_new)
+;               $C0E0-$C0E8 state of the demo player (dtxl..dtmp)   $C200/$C201 frame counter (test version TESTFPS only)
+;               $C210-$C217 demo counters (TESTDEMO only);  $CF00 is intended in prallball.vctest as the trap address of the test run
+;   Colour RAM $D800-$DBE7.
+;
+; ZERO PAGE
+;   $10-$8B  game state and helper values (each .const below says what for; $3C-$3F stay free; ptA ($35) and stp ($66) are unused)
+;   $E8-$EB music (sound.asm)    $F0-$F5 high-score list (hiscore.asm)    $F6-$F7 random (rand.asm)    $F8-$FB input (input.asm)
+;
+; COORDINATES AND UNITS (important for understanding the physics!)
+;   Pixels (px) count from the top left corner of the TEXT SCREEN (character 0/0 = px 0/0).  A character is 8 x 8 px.
+;   Playfield: x = 16..303 (columns 2..37), y = 16.. (row 2 downwards); walls in column 1 and 38 and in row 1; columns 0 and 39 are
+;   filled black (so that the background bands are visible only between the walls).
+;   Brick field: 18 bricks of 16 px width each (2 characters) from x = 16, 12 rows of 8 px height each from y = 32 (screen row 4).
+;   Ball (6 x 6 px) and speed in "fixed point 1/64": value = pixels * 64 (16 bit).  So 16 bits are enough for x up to 1023 px
+;   and the speed can be finer than 1 px in steps of 1/64 px per frame.  The high byte of the position = pixels / 4.
+;   Paddle: left edge padl/padh in whole px (16 .. 304 - width), top edge fixed PADY = 184 px (row 23), width 16, 32 or 48 px.
+;   If the bottom edge of the ball reaches 192 px or lower, the ball is lost.
+;   VIC-II sprite coordinates start at x = 24, y = 50 (left/top edge of the text window): sprite_x = px + 24, sprite_y = py + 50.
+;   Times: one "frame" = 1/50 s; the extra timers (tpad, trev, ...) count in half seconds (25 frames, see tick_timers).
+;
+; TEST VERSIONS (assembler switches, e.g.  vcc asm prallball.asm --target c64 --cpu 6510 -D AUTOPLAY=1 -o autoplay.prg)
+;   AUTOPLAY=1   the computer plays from the start and without end (demo state, sound effects silent, title is left at once)
+;   TESTLOSE=1   fire is always pressed, the paddle never moves: the ball is lost (tests game over/high-score list)
+;   TESTCAP=1    every destroyed brick drops a capsule
+;   TESTMULTI=1  every capsule triggers multiball at once (and is of type M)
+;   TESTLASER=1  the laser is on for 120 s after every reset of the extras
+;   STARTLEVEL=n start with level n + 1 (n counts from 0)
+;   TESTFPS=1    counts the frames in $C200/$C201 and shows the counter every 16 frames in row 24 (to spot stuttering)
+;   NOTICKER=1   demo without ticker in the header line
+;   TESTDEMO=1   counts events of the demo player in $C210..$C217 and shows them as hex in row 24 (capsules fallen, caught,
+;                errors wrong direction, errors too late, misses, balls lost, extras approached) and the frames in $C218/$C219 (16 bit); use with AUTOPLAY=1
+;   Automatic tests: prallball.vctest (generated by tools/gen_tests.py), see README.md.
+;
+; KNOWN LIMITS
+;   PAL only (the frame time is in raster lines and counters).  Paddle control is prepared in input.asm, but not wired into the game.
+;   At most 3 balls, 1 falling capsule and 2 laser shots at the same time.  Pause (P) is not used.
+; =====================================================================================================================
 .target c64
 .cpu 6510 { illegals = deny }        ; reiner 6510-Befehlssatz, keine illegalen Opcodes
 .branchlong auto                        ; zu weite bedingte Spruenge verlaengert der Assembler selbst (Warnung W203)
+
+; ---------------------------------------------------------------------------------------------------------------------
+; EINSTELLUNGEN (hier nachstellen oder beim Uebersetzen mit -D NAME=wert setzen; Raten sind "x von 256")
+; ---------------------------------------------------------------------------------------------------------------------
+; Extras: Chance je zerstoertem Stein (x von 256), dass eine Kapsel faellt; vorher 21 (etwa 1 von 12), jetzt 40 (etwa 1 von 6): gemessen knapp doppelt so viele Extras.
+; Es faellt hoechstens eine Kapsel zugleich (ein Sprite): bei hoeherer Rate wirkt das wie eine Obergrenze.
+.ifndef EXTRA_RATE
+.const EXTRA_RATE = 40
+.endif
+; Demo: Reaktionszeit in Bildern nach einem Richtungswechsel des Balls: zufaellig MIN bis MAX; so lange
+; folgt der Schlaeger noch dem alten Zielpunkt.
+.ifndef DEMO_REAKTION_MIN
+.const DEMO_REAKTION_MIN = 4
+.endif
+.ifndef DEMO_REAKTION_MAX
+.const DEMO_REAKTION_MAX = 12
+.endif
+; Demo: Chance (x von 256) je Entscheidung auf einen kurzen Fehler: falsche Richtung oder zu spaetes Loslaufen.
+.ifndef DEMO_FEHLER_RATE
+.const DEMO_FEHLER_RATE = 16
+.endif
+; Demo: Fehler nur, solange der Ball weit weg ist: Ball-Oberkante (Y High-Byte = px / 4) unter diesem Wert (18 = 72 px).
+.ifndef DEMO_FEHLER_FERN
+.const DEMO_FEHLER_FERN = 18
+.endif
+; Demo: Streuung des Treffpunkts auf dem Schlaeger in px (+/-), zusaetzlich zur Zonenwahl (ungenaues Treffen der Mitte).
+.ifndef DEMO_UNGENAU
+.const DEMO_UNGENAU = 4
+.endif
+; Demo (nicht fuer den Menschen): Zeitlimit ohne Steintreffer in Sekunden (50 Bilder je Sekunde); danach gilt das Level als geschafft, damit
+; ein unerreichbarer oder zaeher letzter Stein die Demo nicht endlos aufhaelt.  0 = aus.
+.ifndef DEMO_STEIN_LIMIT
+.const DEMO_STEIN_LIMIT = 40
+.endif
+; Winkelzufall am Schlaeger: Chance (x von 256) je Schlaegertreffer, den Abprallwinkel um EINE Zone (ein Achtel der Schlaegerbreite, 17 Grad) nach links
+; oder rechts zu verschieben (Mensch und Demo-Spieler); 0 = aus.  Der Ball bleibt immer in den Zonen 0..7.  Verhindert endlose Bahnen.
+; Testfassung TESTDEMO zaehlt dazu (16-Bit-Zaehler stehen mit dem niederwertigen Byte zuerst): $C21A/+1 Winkelzufall angewendet, $C21C/+1 Schlaegertreffer,
+; $C21E Level geschafft, $C21F/+1 Steine zerstoert, $C221 Level durch Zeitlimit beendet (mit AUTOPLAY spielt der Rechner alle Levels ohne Ende).
+; English: WINKEL_ZUFALL = chance (x of 256) per paddle hit to shift the bounce angle by one zone (human and demo); DEMO_STEIN_LIMIT = seconds without a brick hit after which the demo ends the level (0 = off); with AUTOPLAY the computer plays all levels without end; TESTDEMO also counts angle shifts, paddle hits, levels, destroyed bricks and time-limit endings.
+.ifndef WINKEL_ZUFALL
+.const WINKEL_ZUFALL = 64
+.endif
+; Demo: Chance (x von 256) je Schlaegertreffer, den naechsten Ball absichtlich zu verfehlen (nur bei 3 oder mehr Baellen).
+.ifndef DEMO_VERFEHLEN_RATE
+.const DEMO_VERFEHLEN_RATE = 1
+.endif
+; Demo: Chance (x von 256), ein fallendes gutes Extra anzulaufen (schlechte Extras S, R, F nie).
+.ifndef DEMO_EXTRA_LUST
+.const DEMO_EXTRA_LUST = 160
+.endif
+; Demo: Extra nur anlaufen, wenn der Ball nach oben fliegt oder seine Y-Lage unter diesem Wert liegt (16 = 64 px).
+.ifndef DEMO_EXTRA_FERN
+.const DEMO_EXTRA_FERN = 16
+.endif
 
 ; ---------------------------------------------------------------------------------------------------------------------
 ; Zeropage-Variablen des Spiels ($10-$8B, Reihenfolge nicht streng; Werte ohne Hinweis sind 8 Bit)
@@ -227,6 +399,19 @@
 .const dxo     = $3b                    ; Abtastversatz der Ballkante (0 = links/oben, 1 = rechts/unten; move_ball nimmt es fuer X und Y)
 
 .const MAP     = $c000                  ; Steinkarte im RAM
+; Zustand des Demo-Spielers (auto_input), RAM $C0E0..$C0E9 (frei: Steinkarte endet bei $C0D7)
+.const dtxl    = $c0e0                  ; Zielpunkt, den der Schlaeger gerade anlaeuft: X in px (16 Bit; veraltet waehrend der Reaktionszeit)
+.const dtxh    = $c0e1
+.const dreact  = $c0e2                  ; Rest-Bilder der Reaktionszeit (0 = der Zielpunkt folgt dem Ball sofort)
+.const dlast   = $c0e3                  ; letzte Flugrichtung des Balls (Bit 7 = nach oben, Bit 6 = nach links): Richtungswechsel erkennen
+.const dslip   = $c0e4                  ; Rest-Bilder "falsche Richtung" (Fehler)
+.const dlate   = $c0e5                  ; Rest-Bilder "steht still" (zu spaet losgelaufen)
+.const dseen   = $c0e6                  ; 1 = die fallende Kapsel wurde schon bewertet
+.const dchase  = $c0e7                  ; 1 = die Demo will diese Kapsel fangen
+.const dtmp    = $c0e8                  ; Hilfswert von rand_mod
+.const dstl    = $c0e9                  ; Demo: Bilder seit dem letzten Steintreffer (16 Bit)
+.const dsth    = $c0ea
+.const dstop   = $c0eb                  ; 1 = Zeitlimit erreicht: das Level gilt als geschafft
 ; Ballspeicher: bis zu 3 Baelle (Mehrball).  Je Eigenschaft 3 Byte (Schlitz 0..2), die Eigenschaften liegen hintereinander ab $C100
 ; (bact, b_xl, b_xh, ... b_vyh).  load_ball/save_ball kopieren einen Ball in die Zeropage (bxl..vyh), mit der die Bewegungs- und
 ; Kollisionsroutinen arbeiten.  Werte wie die entsprechenden Zeropage-Werte (1/64 px, Geschwindigkeit vorzeichenbehaftet).
@@ -291,29 +476,46 @@ start:  sei                             ; Interrupts aus: Wir brauchen weder die
 ; ---------------------------------------------------------------------------------------------------------------------
 ; Hauptschleife: Titel -> Spiel -> Spielende -> Titel
 ; ---------------------------------------------------------------------------------------------------------------------
+.ifdef TESTDEMO
+        ldx #17                         ; Testfassung: Demo-Zaehler loeschen
+        lda #0
+.tz:    sta $c210,x
+        dex
+        bpl .tz
+.endif
 main_jump:
         jmp main                        ; (Sprungziel fuer das weite bedingte Verzweigen aus der Schleife unten)
 main:   jsr title                       ; Titelbild; kehrt zurueck, sobald Feuer gedrueckt wurde
         jsr new_game                    ; Punkte, Leben, Level, Geschwindigkeit zuruecksetzen
 .level: jsr load_level                  ; Steine/Waende/Anzeige aufbauen, Ball auf den Schlaeger legen
+        jsr auto_reset                  ; Demo-Spieler: Reaktions- und Fehlerzustand loeschen
 .ball:  jsr play                        ; Rueckgabe in A: 0 = Level geschafft, 1 = Ball verloren, 2 = Abbruch (RUN/STOP oder Eingabe in der Demo)
         cmp #2
         beq main                        ; Abbruch: zurueck zum Titel
         cmp #1
         beq .lost
+.ifndef AUTOPLAY
         lda demo
         beq +
         lda level
         cmp #4
         bcs main_jump                   ; Demo zeigt nur die Levels 1-5
+.endif                           ; (mit AUTOPLAY spielt der Rechner alle Levels ohne Ende)
 +       inc level                       ; Level geschafft: naechstes Level, nach dem letzten wieder das erste
+.ifdef TESTDEMO
+        inc $c21e                        ; Zaehler: Level geschafft
+.endif
         lda level                       ; (die Geschwindigkeitsstufe bleibt erhalten: das Spiel wird immer schneller)
         cmp #level_count
         bcc .level
         lda #0
         sta level
         beq .level                      ; (immer: A = 0)
-.lost:  lda lkind
+.lost:
+.ifdef TESTDEMO
+        inc $c215                       ; Zaehler: Ball verloren
+.endif
+        lda lkind
         cmp #1
         bne .loselife
         jsr place_ball                  ; Bonuslevel: ein verlorener Ball kostet kein Leben, ein neuer haftet am Schlaeger
@@ -859,7 +1061,7 @@ title_scroll_tick:
 
 ; Lauftext (Bildschirmcodes, mit 0 abgeschlossen): beginnt mit 40 Leerzeichen (der Text laeuft von rechts herein), endet mit 16.
 scroll_text:
-        .screen "                                        prallball - zerstoere alle steine mit ball und schlaeger!   fange die muenzen, die aus zerstoerten steinen fallen:  hellblau = breiter schlaeger,  hellrot = schmaler schlaeger,  rot = umgekehrte steuerung,  gruen = ball langsamer,  gelb = ball schneller,  orange = ball klebt,  weiss = extraball,  tuerkis = bonuspunkte,  violett = mehrball,  hellgruen = laser,  grau = durchschlag.   viel spass!                "
+        .screencode "                                        prallball - zerstoere alle steine mit ball und schlaeger!   fange die muenzen, die aus zerstoerten steinen fallen:  hellblau = breiter schlaeger,  hellrot = schmaler schlaeger,  rot = umgekehrte steuerung,  gruen = ball langsamer,  gelb = ball schneller,  orange = ball klebt,  weiss = extraball,  tuerkis = bonuspunkte,  violett = mehrball,  hellgruen = laser,  grau = durchschlag.   viel spass!                "
         .byte 0
 
 ; title_balls_init / title_balls_tick: drei Mehrfarb-Baelle (Sprites 0, 4, 5) prallen auf dem Titel von den Raendern ab (reine Zierde).
@@ -950,15 +1152,15 @@ tb_dy: .byte 1, 2, $ff
 
 ; Titeltexte (Bildschirmcodes, mit 0 abgeschlossen; Kleinbuchstaben erscheinen gross).
 ; t_sub ist unbenutzt: der Untertitel steht im Ticker (tk_msgs).
-t_sub:  .screen "pralle action fuer den c64"
+t_sub:  .screencode "pralle action fuer den c64"
         .byte 0
-t_best: .screen "bestenliste"
+t_best: .screencode "bestenliste"
         .byte 0
-t_ctrl: .screen "joystick port 2: links / rechts"
+t_ctrl: .screencode "joystick port 2: links / rechts"
         .byte 0
-t_keys: .screen "tasten z x q a, leertaste"
+t_keys: .screencode "tasten z x q a, leertaste"
         .byte 0
-t_start: .screen "feuer = start"
+t_start: .screencode "feuer = start"
         .byte 0
 
 ; draw_logo: "PRALLBALL" in einer 3 x 5 Pixel grossen Blockschrift; jeder Pixel ist ein Bildschirmzeichen (CH_BLOCK).
@@ -1442,11 +1644,11 @@ draw_hud:
         ldy #0
         jmp put_cell
 
-h_score: .screen "punkte"
+h_score: .screencode "punkte"
          .byte 0
-h_level: .screen "level"
+h_level: .screencode "level"
          .byte 0
-h_balls: .screen "baelle"
+h_balls: .screencode "baelle"
          .byte 0
 
 ; Farb-RAM-Wert je Steintyp (Index = Typ) = 8 + Farbe (Bit 3 = Mehrfarbzeichen; nur die Farben 0..7 sind moeglich):
@@ -1506,6 +1708,9 @@ play:   jsr wait_frame                  ; ab hier steht bis zum naechsten Bildwe
         jsr tick_timers                 ; Extra-Zeiten herunterzaehlen
         jsr move_paddle
         jsr update_cap                  ; Kapsel fallen lassen / auffangen
+.ifdef TESTDEMO
+        jsr dbg_show
+.endif
         jsr update_shots                ; Laserschuesse bewegen
         lda stuck
         beq .live
@@ -1525,6 +1730,8 @@ play:   jsr wait_frame                  ; ab hier steht bis zum naechsten Bildwe
         jsr move_all                    ; alle aktiven Baelle bewegen; A = 1 wenn keiner mehr im Spiel ist
         cmp #1
         beq .gone
+        lda dstop
+        bne .cleared                    ; Demo-Zeitlimit ohne Steintreffer: Level beenden
         lda lkind
         beq .nk                         ; normales Level: nur die Steine zaehlen
         cmp #1
@@ -1564,6 +1771,7 @@ play:   jsr wait_frame                  ; ab hier steht bis zum naechsten Bildwe
 get_input:
 .ifdef AUTOPLAY
         jsr auto_input
+        jmp .gi
 .else
 .ifdef TESTLOSE
         lda #IN_FIRE                    ; Testfassung: nur schiessen, den Schlaeger nie bewegen -> der Ball geht verloren
@@ -1573,7 +1781,7 @@ get_input:
         beq .real
         jsr auto_input                  ; Demo: der Rechner spielt ...
         jsr input_poll                  ; ... bis der Spieler irgendetwas drueckt
-        beq .rev
+        beq .gi                         ; (der Rechner kennt seine Steuerung: "umgekehrt" gilt in der Demo nicht)
         lda #IN_ABORT
         sta mask
         rts
@@ -1591,11 +1799,43 @@ get_input:
         sta mask
 .gi:    rts
 
-; auto_input: Der Rechner spielt (Demo, AUTOPLAY).  Der Schlaeger soll den tiefsten Ball mit dem Zielpunkt atgt (8..23 px von der linken
-;   Kante, bei jedem Schlaegertreffer neu gewuerfelt) treffen, damit unterschiedliche Winkel vorkommen.
-;   Differenz = (Schlaegerkante + atgt) - (Ballmitte); >= 6 -> links, <= -7 -> rechts, dazwischen Totzone; Feuer ist immer gedrueckt.
-;   Ergebnis in mask.   Veraendert A, X, t0..t3, pxl, pxh, cb und die Ballwerte (pick_ball laedt den tiefsten Ball).
+; auto_input: Der Rechner spielt (Demo, AUTOPLAY) und soll dabei "menschlich" wirken.  Ergebnis in mask.
+;   Der Schlaeger soll den tiefsten Ball mit dem Zielpunkt atgt (siehe auto_aim) treffen.  Neu gegenueber der einfachen Fassung:
+;   1. Reaktionszeit: aendert der Ball seine Flugrichtung (Wand, Stein, Schlaeger), laeuft der Schlaeger noch DEMO_REAKTION_MIN..MAX
+;      Bilder dem alten Zielpunkt (dtx) hinterher; erst dann folgt er dem Ball wieder.
+;   2. Fehler: am Ende der Reaktionszeit kann der Spieler (Chance DEMO_FEHLER_RATE / 256, nur bei weit entferntem Ball) kurz in die
+;      falsche Richtung laufen (dslip) oder zu spaet losgehen (dlate).
+;   3. Extras: ein fallendes gutes Extra wird mit der Chance DEMO_EXTRA_LUST / 256 angelaufen, solange der Ball weit weg ist (er fliegt
+;      nach oben oder steht hoeher als DEMO_EXTRA_FERN).  Fehlt die Sicherheit, hat der Ball wieder Vorrang.
+;   Differenz = (Schlaegerkante + Zielpunkt) - Ziel-X; >= 6 -> links, <= -7 -> rechts, dazwischen Totzone; Feuer ist immer gedrueckt.
+;   Veraendert A, X, t0..t3, pxl, pxh, cb und die Ballwerte (pick_ball laedt den tiefsten Ball).
 auto_input:
+.ifdef TESTDEMO
+        inc $c218                       ; Zaehler: Bilder (16 Bit)
+        bne +
+        inc $c219
++
+.endif
+        lda #DEMO_STEIN_LIMIT           ; Zeitlimit ohne Steintreffer (Hit setzt den Zaehler zurueck, siehe hit_brick)
+        beq .dst9
+        inc dstl
+        bne +
+        inc dsth
++       lda dsth
+        cmp #>(DEMO_STEIN_LIMIT * 50)
+        bcc .dst9
+        bne .dst8
+        lda dstl
+        cmp #<(DEMO_STEIN_LIMIT * 50)
+        bcc .dst9
+.dst8:  lda dstop
+        bne .dst9
+        lda #1
+        sta dstop
+.ifdef TESTDEMO
+        inc $c221                        ; Zaehler: Level durch Zeitlimit beendet
+.endif
+.dst9:
         jsr pick_ball                   ; dem tiefsten Ball folgen
         jsr get_px                      ; pxl/pxh = linke Ballkante in px
         lda pxl
@@ -1605,16 +1845,99 @@ auto_input:
         lda pxh
         adc #0
         sta t1
+        ; ---- Richtungswechsel des Balls erkennen und Reaktionszeit wuerfeln
+        lda vxh
+        and #$80
+        lsr                             ; Bit 6 = nach links
+        sta t2
+        lda vyh
+        and #$80                        ; Bit 7 = nach oben
+        ora t2
+        cmp dlast
+        beq .same
+        sta dlast
+        ldx #DEMO_REAKTION_MAX - DEMO_REAKTION_MIN + 1
+        jsr rand_mod
+        clc
+        adc #DEMO_REAKTION_MIN
+        sta dreact
+        bne .hold                       ; (MIN >= 1: Zielpunkt bleibt, wie er war)
+.same:  lda dreact
+        beq .live
+        dec dreact
+        bne .hold                       ; noch Reaktionszeit: der alte Zielpunkt gilt weiter
+        jsr auto_mistake                ; Reaktionszeit zu Ende: vielleicht ein Fehler (veraendert t0/t1 nicht)
+.live:  lda t0
+        sta dtxl                        ; der Zielpunkt folgt dem Ball
+        lda t1
+        sta dtxh
+.hold:  lda dtxl
+        sta t0
+        lda dtxh
+        sta t1
+        ldx atgt                        ; Zielpunkt auf dem Schlaeger (vorzeichenbehaftet; negativ = links vom Schlaeger, fuer absichtliches Verfehlen)
+        ; ---- Extra anlaufen?
+        lda capact
+        bne .cap
+        sta dseen                       ; keine Kapsel (A = 0): naechste wird neu bewertet
+        sta dchase
+        beq .aim
+.cap:   lda dseen
+        bne .rated
+        inc dseen                       ; neue Kapsel: wollen wir sie fangen?  Nur gute Extras (nicht S = 1, R = 2, F = 4)
+        lda #0
+        sta dchase
+        lda captype
+        cmp #1
+        beq .rated
+        cmp #2
+        beq .rated
+        cmp #4
+        beq .rated
+        jsr rand_byte
+        cmp #DEMO_EXTRA_LUST
+        bcs .rated
+        inc dchase
+.ifdef TESTDEMO
+        inc $c216                       ; Zaehler: Kapsel wird angelaufen
+.endif
+.rated: lda dchase
+        beq .aim
+        lda capy
+        cmp #PADY - 12
+        bcs .aim                        ; Kapsel ist schon auf Schlaegerhoehe: nicht mehr anlaufen
+        lda vyh
+        bmi .go                         ; Ball fliegt nach oben: genug Zeit
+        lda byh
+        cmp #DEMO_EXTRA_FERN
+        bcs .aim                        ; Ball kommt herunter: der Ball hat Vorrang
+.go:    clc
+        lda capxl
+        adc #8                          ; Kapselmitte = Kante + 2 + 6
+        sta t0
+        lda capxh
+        adc #0
+        sta t1
+        lda padw
+        lsr
+        tax                             ; mit der Schlaegermitte auffangen
+        ; ---- Differenz Zielpunkt - Ziel-X (16 Bit, vorzeichenbehaftet)
+.aim:   stx t2                          ; Zielpunkt auf 16 Bit erweitern: t3 = $00 oder $FF
+        lda #0
+        cpx #$80
+        bcc +
+        lda #$ff
++       sta t3
         lda padl
         clc
-        adc atgt
-        sta t2
+        adc t2
+        sta t2                          ; Schlaegerkante + Zielpunkt
         lda padh
-        adc #0
+        adc t3
         sta t3
         sec
         lda t2
-        sbc t0                          ; Differenz Ziel - Ball (16 Bit, vorzeichenbehaftet)
+        sbc t0
         tax
         lda t3
         sbc t1
@@ -1633,6 +1956,210 @@ auto_input:
         bne .set
 .none:  lda #IN_FIRE
 .set:   sta mask
+        ; ---- Fehler wirken lassen
+        lda dlate
+        beq .nolate
+        dec dlate
+        lda #IN_FIRE                    ; zu spaet losgelaufen: der Schlaeger steht still
+        sta mask
+        rts
+.nolate:
+        lda dslip
+        beq .done
+        dec dslip
+        lda mask
+        and #IN_LEFT | IN_RIGHT
+        beq .done
+        lda mask
+        eor #IN_LEFT | IN_RIGHT         ; falsche Richtung
+        sta mask
+.done:  rts
+
+; auto_mistake: Ende der Reaktionszeit: mit der Chance DEMO_FEHLER_RATE / 256 und nur bei weit entferntem Ball (Y High-Byte < DEMO_FEHLER_FERN)
+;   ein kurzer Fehler: halbe Faelle 6..13 Bilder in die falsche Richtung (dslip), halbe Faelle 8..23 Bilder stehen bleiben (dlate).
+;   Veraendert A, X (nicht t0..t3).
+auto_mistake:
+        lda byh
+        cmp #DEMO_FEHLER_FERN
+        bcs .amx                        ; Ball schon nah: keine Fehler
+        lda dchase
+        bne .amx                        ; wer eine Muenze/ein Extra anlaeuft, macht gerade keine Fehler
+        lda dslip
+        ora dlate
+        bne .amx                        ; es laeuft schon einer
+        jsr rand_byte
+        cmp #DEMO_FEHLER_RATE
+        bcs .amx
+        jsr rand_byte
+        lsr
+        bcs .late                       ; Bit 0 waehlt die Fehlerart
+        and #7
+        clc
+        adc #6
+        sta dslip
+.ifdef TESTDEMO
+        inc $c212                       ; Zaehler: Fehler falsche Richtung
+.endif
+        rts
+.late:  and #15
+        clc
+        adc #8
+        sta dlate
+.ifdef TESTDEMO
+        inc $c213                       ; Zaehler: Fehler zu spaet
+.endif
+.amx:   rts
+
+; auto_aim: bei jedem Schlaegertreffer den Zielpunkt atgt fuer den naechsten Anflug neu wuerfeln: Zone 1/4..3/4 der Schlaegerbreite
+;   (bei 32 px wie bisher 8..23 px; verschiedene Abprallwinkel), dazu die Streuung +/- DEMO_UNGENAU (ungenaues Treffen).  Mit der Chance
+;   DEMO_VERFEHLEN_RATE / 256 (nur bei 3 oder mehr Baellen) zielt er statt dessen 14 px neben den Schlaeger, wo der Ball vorbeifaellt:
+;   links der Mitte -> der Schlaeger will rechts vom Ball stehen, sonst links.   Veraendert A, X, dtmp.
+auto_aim:
+        lda padw
+        lsr
+        tax                             ; Breite / 2
+        jsr rand_mod                    ; 0 .. Breite/2 - 1
+        sta atgt
+        lda padw
+        lsr
+        lsr                             ; Breite / 4
+        clc
+        adc atgt
+        sta atgt
+        ldx #2 * DEMO_UNGENAU + 1
+        jsr rand_mod
+        sec
+        sbc #DEMO_UNGENAU
+        clc
+        adc atgt
+        sta atgt
+        lda lives
+        cmp #3
+        bcc .aa9                        ; weniger als 3 Baelle: nie absichtlich verfehlen
+        jsr rand_byte
+        cmp #DEMO_VERFEHLEN_RATE
+        bcs .aa9
+.ifdef TESTDEMO
+        inc $c214                       ; Zaehler: absichtlich verfehlen
+.endif
+        lda padh
+        bne .aar                        ; Schlaeger rechts: links vom Ball stehen
+        lda padl
+        cmp #144
+        bcs .aar
+        lda #-14                        ; Schlaeger links: rechts vom Ball stehen (Zielpunkt links vom Schlaeger)
+        sta atgt
+        rts
+.aar:   lda padw
+        clc
+        adc #14                         ; Zielpunkt rechts vom Schlaeger
+        sta atgt
+.aa9:   rts
+
+; ---- Testfassung TESTDEMO: Zaehler $C210..$C217 (Kapseln gefallen/gefangen, Fehler falsche Richtung/zu spaet, Verfehl-Absicht, Baelle verloren,
+;      Kapseln angelaufen) als Hex in Zeile 24 anzeigen
+.ifdef TESTDEMO
+dbg_show:
+        ldx #7
+.ds1:   txa
+        asl
+        stx dtmp
+        clc
+        adc dtmp                        ; 3 * X: je Zaehler 2 Ziffern und eine Luecke
+        tay
+        lda $c210,x
+        lsr
+        lsr
+        lsr
+        lsr
+        jsr dbg_hex
+        sta $47c3,y
+        lda $c210,x
+        and #15
+        jsr dbg_hex
+        sta $47c4,y
+        dex
+        bpl .ds1
+        rts
+dbg_hex: cmp #10
+        bcc .dg
+        sbc #9                          ; A..F = Bildschirmcode 1..6
+        rts
+.dg:    ora #$30
+        rts
+.endif
+
+; rand_mod: X = n (1..255) -> A = Zufallszahl 0 .. n-1 (Rest einer Zufallszahl; reicht fuer die Demo).   Veraendert A, dtmp.
+rand_mod:
+        stx dtmp
+        jsr rand_byte
+.rmm:   cmp dtmp
+        bcc .rmx
+        sbc dtmp                        ; (Carry ist nach cmp gesetzt)
+        bcs .rmm                        ; immer
+.rmx:   rts
+
+; zone_jitter: Winkelzufall (WINKEL_ZUFALL, siehe oben): mit der Chance WINKEL_ZUFALL / 256 wird die Abprallzone um 1 nach links oder rechts verschoben
+;   (nicht ueber 0 und 7 hinaus).  Zone in X, Rueckgabe in X.  Veraendert A.
+zone_jitter:
+.ifdef TESTDEMO
+        inc $c21c
+        bne +
+        inc $c21d
++                               ; Zaehler: Schlaegertreffer (16 Bit)
+.endif
+        txa
+        pha
+        jsr rand_byte
+        cmp #WINKEL_ZUFALL
+        bcs .zj0                        ; kein Zufall
+        jsr rand_byte
+        lsr                             ; Bit 0: Richtung
+        pla
+        tax
+        bcs .zjr
+        cpx #0
+        beq .zj9                        ; schon ganz links
+        dex
+        jmp .zjc
+.zjr:   cpx #7
+        bcs .zj9                        ; schon ganz rechts
+        inx
+.zjc:
+.ifdef TESTDEMO
+        inc $c21a
+        bne +
+        inc $c21b
++                               ; Zaehler: Winkelzufall angewendet (16 Bit)
+.endif
+.zj9:   rts
+.zj0:   pla
+        tax
+        rts
+
+; auto_reset: Demo-Spieler zuruecksetzen (nach load_level): keine laufende Reaktionszeit, keine Fehler, Kapsel noch nicht bewertet,
+;   Zielpunkt Schlaegermitte.   Veraendert A.
+auto_reset:
+        lda #0                          ; Zeitlimit-Zaehler neu
+        sta dstl
+        sta dsth
+        sta dstop
+        lda #0
+        sta dreact
+        sta dslip
+        sta dlate
+        sta dseen
+        sta dchase
+        sta dlast
+        lda padw
+        lsr
+        sta atgt
+        clc
+        adc padl
+        sta dtxl                        ; Zielpunkt zunaechst die Schlaegermitte
+        lda padh
+        adc #0
+        sta dtxh
         rts
 
 ; move_paddle: Schlaeger gemaess mask (IN_LEFT/IN_RIGHT) um 4 px je Bild bewegen und auf 16 .. 304 - Breite begrenzen (16 Bit: padh:padl).
@@ -2104,9 +2631,12 @@ rowmul: .byte 0, 18, 36, 54, 72, 90, 108, 126, 144, 162, 180, 198       ; Zeile 
 ;   Typ 11 (unzerstoerbar): nur Klang.  Boss-Kern (16..23): 20 Punkte, Typ - 1; bei Typ 15 ist der Kern zerstoert (bricks und cores
 ;   herunter, gelber Randblitz).  Gold (10) wird zu Silber (9), Silber zu Typ 1; alle anderen verschwinden; bei Durchschlag (tpierce)
 ;   verschwindet jeder zerstoerbare Stein sofort.  Fuer jeden Treffer gibt es Punkte nach brick_pts; im Bonuslevel zusaetzlich +100 je
-;   zerstoertem Stein.  Ein zerstoerter Stein laesst eine Kapsel fallen: Typ 13 immer, sonst bei Zufallszahl < 21 (etwa 1 von 12).
+;   zerstoertem Stein.  Ein zerstoerter Stein laesst eine Kapsel fallen: Typ 13 immer, sonst bei Zufallszahl < EXTRA_RATE (Vorgabe 40 = etwa 1 von 6).
 ;   Danach wird der Stein neu gezeichnet und die Punktzahl aktualisiert.   Veraendert A, X, Y, t3 und die Werte der gerufenen Routinen.
 hit_brick:
+        ldx #0                          ; Demo-Zeitlimit: Steintreffer -> Zaehler zuruecksetzen
+        stx dstl
+        stx dsth
         pha
         lda #1
         ldx #2
@@ -2162,6 +2692,12 @@ hit_brick:
         ldx bidx
         sta MAP,x
         dec bricks
+.ifdef TESTDEMO
+        inc $c21f                        ; Zaehler: Steine zerstoert (16 Bit)
+        bne +
+        inc $c220
++
+.endif
         lda #SFX_BRICK
         jsr sfx_play
         lda lkind
@@ -2176,14 +2712,14 @@ hit_brick:
         adc #0
         sta sc2
         cld
-+       lda t3                          ; ein Ueberraschungsstein (Typ 13) laesst immer eine Kapsel fallen, andere in etwa 1 von 12
++       lda t3                          ; ein Ueberraschungsstein (Typ 13) laesst immer eine Kapsel fallen, andere mit der Chance EXTRA_RATE / 256
         cmp #13
         beq .drop
 .ifdef TESTCAP
         bne .drop                       ; Testfassung: jeder Stein laesst eine Kapsel fallen
 .endif
         jsr rand_byte
-        cmp #21
+        cmp #EXTRA_RATE                 ; Chance EXTRA_RATE von 256 (siehe Einstellungen)
         bcs .nodrop
 .drop:  jsr spawn_cap
 .nodrop:
@@ -2304,7 +2840,8 @@ paddle_hit:
         cpx #7
         bcs .nr
         inx
-.nr:    txa
+.nr:    jsr zone_jitter                 ; Winkelzufall (WINKEL_ZUFALL)
+        txa
         pha
         lda #$80                        ; Ball genau auf den Schlaeger setzen
         sta byl
@@ -2333,11 +2870,7 @@ paddle_hit:
         inc speed
 +       lda #SFX_PADDLE
         jsr sfx_play
-        jsr rand_byte                   ; neuer Zielpunkt fuer den Autoplay (8..23)
-        and #15
-        clc
-        adc #8
-        sta atgt
+        jsr auto_aim                    ; neuer Zielpunkt fuer die Demo (bei jedem Schlaegertreffer)
         sec
         rts
         ; ---- Seitenaufprall: der Ball war schon auf Schlaegerhoehe und wurde von der Seite getroffen (oder lief hinein)
@@ -2461,9 +2994,9 @@ draw_status:
         sta (sp),y
         rts
 .ds0:   rts
-s_bonus: .screen "bonus   "
+s_bonus: .screencode "bonus   "
         .byte 0
-s_boss: .screen "boss: kerne "
+s_boss: .screencode "boss: kerne "
         .byte 0
 
 ; fx_frame: Randblitz herunterzaehlen (bflash, Rand danach schwarz) und das Glanzlicht ueber die Steine laufen lassen (je zweites Bild ein Schritt:
@@ -2777,6 +3310,9 @@ spawn_cap:
 .endif
         lda capact
         bne .sc9
+.ifdef TESTDEMO
+        inc $c210                       ; Zaehler: Kapseln gefallen (wirklich neu)
+.endif
         lda bcol
         asl
         asl
@@ -3033,6 +3569,9 @@ update_cap:
 ; activate: Kapsel wirkt.  Art in captype (siehe cap_letter); Zeiten in Halbsekunden (25 Bilder): B/S 30 = 15 s, R 20 = 10 s, L/F 30 = 15 s,
 ;   G 40 = 20 s, D 10 = 5 s; K setzt sticky, + einen Ball mehr (hoechstens 9), P 500 Punkte, M ruft multiball.   Klang SFX_EXTRA.
 activate:
+.ifdef TESTDEMO
+        inc $c211                       ; Zaehler: Kapseln gefangen
+.endif
         lda #0
         sta capact
         lda #SFX_EXTRA
@@ -3175,17 +3714,17 @@ game_over:
         jmp wait_frames
 
 ; Texte des Spielendes (Bildschirmcodes, mit 0 abgeschlossen)
-g_over:  .screen "spiel zu ende"
+g_over:  .screencode "spiel zu ende"
          .byte 0
-g_new:   .screen "neuer rekord!"
+g_new:   .screencode "neuer rekord!"
          .byte 0
-g_saved: .screen "gespeichert"
+g_saved: .screencode "gespeichert"
          .byte 0
-g_nosave: .screen "nicht gespeichert!"
+g_nosave: .screencode "nicht gespeichert!"
          .byte 0
-g_name:  .screen "name:"
+g_name:  .screencode "name:"
          .byte 0
-g_help:  .screen "tippen + return  oder  joystick"
+g_help:  .screencode "tippen + return  oder  joystick"
          .byte 0
 
 ; ---------------------------------------------------------------------------------------------------------------------
@@ -3959,9 +4498,9 @@ tk_seq:  .byte 0, 2                                       ; erster Text je Folge
 tk_seqlen: .byte 2, 3                                     ; Laenge je Folge
 ; Texte, je 32 Zeichen, mittig aufgefuellt (Kleinbuchstaben = Bildschirmcodes 1..26, siehe Hinweis zu .screen)
 tk_msgs:
-        .screen "   pralle action fuer den c64   "
-        .screen " ein demospiel von vintagecoder "
-        .screen "       *** prallball ***        "
+        .screencode "   pralle action fuer den c64   "
+        .screencode " ein demospiel von vintagecoder "
+        .screencode "       *** prallball ***        "
 
 ; ---------------------------------------------------------------------------------------------------------------------
 ; Bibliotheken und Daten

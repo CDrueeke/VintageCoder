@@ -54,7 +54,7 @@ pub fn projektnorm(pf: Option<&vc_ide::projfile::ProjectFile>, ziel: &str) -> &'
     let v = pf.and_then(|pf| pf.targets.iter().find(|t| t.system == ziel || (t.system.is_empty() && t.id == ziel))).map(|t| t.variant.to_ascii_lowercase());
     if v.as_deref() == Some("ntsc") { "ntsc" } else { "pal" }
 }
-pub fn palettenname(ziel: &str) -> &'static str { match ziel { "atari8" => "Atari GTIA (PAL)", "vic20" => "VIC-20", "mega65" => "MEGA65", "plus4" => "C64-Farben (TED-Palette fehlt)", _ => "C64" } }
+pub fn palettenname(ziel: &str) -> String { match ziel { "atari8" => vc_i18n::t!("studio-atari-gtia-pal"), "vic20" => "VIC-20".to_string(), "mega65" => "MEGA65".to_string(), "plus4" => vc_i18n::t!("studio-c64-farben-ted-palette-fehlt"), _ => "C64".to_string() } }
 
 /// Gezeichnete Symbole der Werkzeugleiste (keine Schriftzeichen: keine Rückfallschrift)
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -177,22 +177,22 @@ impl App {
     pub(crate) fn norm_fuer(&self, ziel: &str, a: Ansicht) -> &'static str { match a { Ansicht::Pal => "pal", Ansicht::Ntsc => "ntsc", Ansicht::Projekt => projektnorm(self.proj.pf.as_ref(), ziel) } }
     /// Beschriftung der Palette über dem Farbwähler: Name, Videonorm und woher sie kommt
     pub(crate) fn palettenzeile(&self, ziel: &str, a: Ansicht) -> String {
-        if !self.farben.hat_varianten(ziel) { return format!("Palette: {}", palettenname(ziel)) }
-        let name = match ziel { "atari8" => "Atari GTIA", _ => palettenname(ziel) }; let (norm, proj) = (self.norm_fuer(ziel, a), projektnorm(self.proj.pf.as_ref(), ziel));
-        if norm == proj { format!("Palette: {name} ({}, aus dem Projekt)", norm.to_uppercase()) } else { format!("Palette: {name} ({}) – Ansicht weicht vom Projekt ab ({})", norm.to_uppercase(), proj.to_uppercase()) }
+        if !self.farben.hat_varianten(ziel) { return vc_i18n::t!("studio-palette-p1", p1 = palettenname(ziel)) }
+        let name = match ziel { "atari8" => vc_i18n::t!("studio-atari-gtia"), _ => palettenname(ziel) }; let (norm, proj) = (self.norm_fuer(ziel, a), projektnorm(self.proj.pf.as_ref(), ziel));
+        if norm == proj { vc_i18n::t!("studio-palette-name-p2-aus-dem-projekt", name = &name, p2 = norm.to_uppercase()) } else { vc_i18n::t!("studio-palette-name-p2-ansicht-weicht-vom", name = &name, p2 = norm.to_uppercase(), p3 = proj.to_uppercase()) }
     }
     fn ansicht_wahl(&self, pal: Pal, rel: &str, aktuell: Ansicht) -> Element<'_, Msg> { let r = rel.to_string(); self.ansicht_wahl_mit(pal, aktuell, move |a| Msg::StudioAkt(r.clone(), Aktion::Ansicht(a))) }
     pub(crate) fn ansicht_wahl_mit(&self, pal: Pal, aktuell: Ansicht, mach: impl Fn(Ansicht) -> Msg + 'static + Clone) -> Element<'_, Msg> {
-        let seg = |name: &str, a: Ansicht, tipp: &str| -> Element<Msg> {
+        let seg = |name: &str, a: Ansicht, tipp: &str| -> Element<'static, Msg> {
             let on = aktuell == a; let b = button(text(name.to_string()).size(11).color(pal.text)).padding([2, 8]).on_press(mach(a)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if on { pal.accent } else { pal.line }, width: 1.0, radius: 5.0.into() }, text_color: pal.text, ..Default::default() });
             iced::widget::tooltip(b, container(text(tipp.to_string()).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).gap(4).into()
         };
-        iced::widget::row![seg("PAL", Ansicht::Pal, "Palette für PAL zeigen (nur Ansicht, ändert die Datei nicht)"), seg("NTSC", Ansicht::Ntsc, "Palette für NTSC zeigen (nur Ansicht, ändert die Datei nicht)"), seg("Projekt", Ansicht::Projekt, "Videonorm des Projekts verwenden")].spacing(4).into()
+        iced::widget::row![seg("PAL", Ansicht::Pal, &vc_i18n::t!("studio-palette-fuer-pal-zeigen-nur-ansicht")), seg("NTSC", Ansicht::Ntsc, &vc_i18n::t!("studio-palette-fuer-ntsc-zeigen-nur-ansicht")), seg(&vc_i18n::t!("studio-projekt"), Ansicht::Projekt, &vc_i18n::t!("studio-videonorm-des-projekts-verwenden"))].spacing(4).into()
     }
     /// Öffnet (oder wählt) das Pixel-Studio zu einer Mediendatei
     pub(crate) fn studio_oeffnen(&mut self, rel: &str) {
         if !self.studios.contains_key(rel) {
-            match PixelStudio::oeffnen(&self.root, rel, &self.data) { Ok(s) => { self.studios.insert(rel.to_string(), s); } Err(e) => { self.log.push(format!("{rel}: {e}")); return } }
+            match PixelStudio::oeffnen(&self.root, rel, &self.data) { Ok(s) => { self.studios.insert(rel.to_string(), s); } Err(e) => { self.log.push(vc_i18n::t!("studio-rel-e", rel = &rel, e = &e)); return } }
         }
         self.marken_sichern(); self.tab_oeffnen(Tab::Datei(rel.into())); self.ed_aktiv = false;
     }
@@ -239,12 +239,12 @@ impl App {
             Aktion::ZoomAnpassen => s.zoomansicht.einpassen(),
             Aktion::Ansicht(a) => s.ansicht = a, Aktion::Raster => s.raster = !s.raster, Aktion::Zwiebel => s.zwiebel = !s.zwiebel,
             Aktion::Exportieren => { self.export_oeffnen() }
-            Aktion::Kopieren | Aktion::Ausschneiden => { let schnitt = matches!(a, Aktion::Ausschneiden); if let Some((x0, y0, x1, y1)) = d.sel { d.auswahl_kopieren(schnitt); d.status = format!("{} ({}×{} Pixel)", if schnitt { "Ausgeschnitten" } else { "Kopiert" }, x1 - x0 + 1, y1 - y0 + 1) } else { d.status = "Nichts ausgewählt: erst mit dem Auswahlwerkzeug (S) einen Bereich aufziehen".into() } }
-            Aktion::Einfuegen => { if let Some(c) = d.clip.as_ref().map(|c| (c.first().map_or(0, |r| r.len()), c.len())) { let (x, y) = d.sel.map(|s| (s.0, s.1)).or(s.ueber).unwrap_or((0, 0)); if d.sel.is_none() { d.sel = Some((x, y, x, y)) } d.auswahl_einfuegen(); d.status = format!("Eingefügt ({}×{} Pixel) bei {x},{y}", c.0, c.1) } else { d.status = vc_gui_ui::befehle::plattform_text("Zwischenablage leer: erst kopieren (Cmd+C)") } } Aktion::AuswahlLoeschen => d.auswahl_loeschen(),
+            Aktion::Kopieren | Aktion::Ausschneiden => { let schnitt = matches!(a, Aktion::Ausschneiden); if let Some((x0, y0, x1, y1)) = d.sel { d.auswahl_kopieren(schnitt); d.status = vc_i18n::t!("studio-p1-p2-p3-pixel", p1 = if schnitt { vc_i18n::t!("studio-ausgeschnitten") } else { vc_i18n::t!("studio-kopiert") }, p2 = x1 - x0 + 1, p3 = y1 - y0 + 1) } else { d.status = vc_i18n::t!("studio-nichts-ausgewaehlt-erst-mit-dem-auswahlwerkzeug").into() } }
+            Aktion::Einfuegen => { if let Some(c) = d.clip.as_ref().map(|c| (c.first().map_or(0, |r| r.len()), c.len())) { let (x, y) = d.sel.map(|s| (s.0, s.1)).or(s.ueber).unwrap_or((0, 0)); if d.sel.is_none() { d.sel = Some((x, y, x, y)) } d.auswahl_einfuegen(); d.status = vc_i18n::t!("studio-eingefuegt-p1-p2-pixel-bei-x", p1 = c.0, p2 = c.1, x = &x, y = &y) } else { d.status = vc_gui_ui::befehle::plattform_text(&vc_i18n::t!("studio-zwischenablage-leer-erst-kopieren-cmd-c")) } } Aktion::AuswahlLoeschen => d.auswahl_loeschen(),
             Aktion::AuswahlAlles => d.sel = Some((0, 0, d.width.saturating_sub(1), d.height.saturating_sub(1))), Aktion::AuswahlAus => d.sel = None,
             Aktion::PngLaden => {}
             Aktion::Vorlage(r) => { if let Err(e) = d.vorlage_anwenden_mit(&data, &r) { d.status = e.clone(); self.log.push(e) } }
-            Aktion::Speichern => match d.save() { Ok(()) => self.log.push(format!("Gespeichert: {rel}")), Err(e) => self.log.push(e) },
+            Aktion::Speichern => match d.save() { Ok(()) => self.log.push(vc_i18n::t!("studio-gespeichert-rel", rel = &rel)), Err(e) => self.log.push(e) },
             Aktion::FrameNeu => d.frame_anhaengen(), Aktion::FrameDup => d.frame_duplizieren(), Aktion::FrameLoeschen => d.frame_loeschen(),
             Aktion::Frame(i) => d.frame_waehlen(i),
             Aktion::Wert(v) => d.pv = v,
@@ -266,8 +266,8 @@ impl App {
     pub(crate) fn studio_a11y(&self) -> Option<(String, String)> {
         if let Some(x) = self.disk_a11y() { return Some(x) } if let Some(x) = self.screen_a11y() { return Some(x) } if let Some(x) = self.tile_a11y() { return Some(x) } if let Some(x) = self.bank_a11y() { return Some(x) } if let Some(x) = self.song_a11y() { return Some(x) }
         let n = self.name()?; let s = self.studios.get(&n)?; let d = &s.doc;
-        let wert = d.values.get(d.pv as usize).cloned().unwrap_or_else(|| format!("Wert {}", d.pv + 1));
-        Some((format!("Zeichenfläche {} ({})", n, d.titel()), format!("Frame {} von {}{}, {}×{} Pixel, Werkzeug {:?}, gewählter Pixelwert {}, {}", d.fi, d.frames.len(), if d.kind == "sprite" { if d.ist_multicolor(d.fi) { ", Multicolor" } else { ", Hires" } } else { "" }, d.width, d.height, d.tool, wert, if d.dirty() { "ungespeichert" } else { "gespeichert" })))
+        let wert = d.values.get(d.pv as usize).cloned().unwrap_or_else(|| vc_i18n::t!("studio-wert-p1", p1 = d.pv + 1));
+        Some((vc_i18n::t!("studio-zeichenflaeche-n-p2", n = &n, p2 = d.titel()), vc_i18n::t!("studio-beschreibung", fi = d.fi, n = d.frames.len(), art = if d.kind == "sprite" { if d.ist_multicolor(d.fi) { format!(", {}", vc_i18n::t!("studio-multicolor")) } else { format!(", {}", vc_i18n::t!("studio-hires")) } } else { String::new() }, w = d.width, h = d.height, werkzeug = d.tool.label(), wert = &wert, stand = if d.dirty() { vc_i18n::t!("studio-ungespeichert") } else { vc_i18n::t!("studio-gespeichert") })))
     }
     /// Einzeltasten im Studio (nur ohne Cmd/Strg/Alt, wenn kein Textfeld den Fokus hat): D Stift, E Radierer, F Füllen, L Linie, R Rahmen, S Auswahl, I Pipette, X/Y Spiegeln, 1–4 Wert, ←/→ Frame
     pub(crate) fn studio_taste(&mut self, rel: &str, k: &keyboard::Key, m: keyboard::Modifiers) -> bool {
@@ -303,23 +303,23 @@ impl App {
         let sehr_schmal = klasse == muster::Klasse::Schmal && breite < 460.0;
         let Some(s) = self.studios.get(rel) else { return text("").into() };
         let d = &s.doc; let r = rel.to_string(); let norm = self.norm_fuer(&d.target, s.ansicht);
-        let knopf = |name: String, tipp: String, an: bool, a: Aktion, aktiv: bool| -> Element<Msg> { muster::knopf(pal, &name, &tipp, an.then(|| Msg::StudioAkt(r.clone(), a)), aktiv, false) };
-        let knopf_s = |sy: Sym, tipp: String, an: bool, a: Aktion, aktiv: bool| -> Element<Msg> { muster::knopf_el(pal, sym(sy, if an { pal.text } else { pal.mute }), &tipp, an.then(|| Msg::StudioAkt(r.clone(), a)), aktiv, false, true) };
+        let knopf = |name: String, tipp: String, an: bool, a: Aktion, aktiv: bool| -> Element<'static, Msg> { muster::knopf(pal, &name, &tipp, an.then(|| Msg::StudioAkt(r.clone(), a)), aktiv, false) };
+        let knopf_s = |sy: Sym, tipp: String, an: bool, a: Aktion, aktiv: bool| -> Element<'static, Msg> { muster::knopf_el(pal, sym(sy, if an { pal.text } else { pal.mute }), &tipp, an.then(|| Msg::StudioAkt(r.clone(), a)), aktiv, false, true) };
         let wk = |t: Tool, sy: Sym, tipp: &str| knopf_s(sy, tipp.to_string(), true, Aktion::Werkzeug(t), d.tool == t);
         // Zone 2: genau eine Leistenreihe. Werkzeuge · Bearbeiten · (Transformieren) · Ansicht; was nicht passt, steht im ⋯-Menü (Karte über der Fläche)
-        let werkzeuge_a = || iced::widget::row![wk(Tool::Pen, Sym::Stift, "Stift (D) · rechte Taste löscht"), wk(Tool::Erase, Sym::Radierer, "Radierer (E)"), wk(Tool::Fill, Sym::Fuellen, "Füllen (F)")].spacing(4).align_y(Alignment::Center);
-        let werkzeuge_b = || iced::widget::row![wk(Tool::Line, Sym::Linie, "Linie (L)"), wk(Tool::Rect, Sym::Rahmen, "Rahmen (R)"), wk(Tool::Select, Sym::Auswahl, "Auswahl (S) · Rechtsklick: Menü"), wk(Tool::Pick, Sym::Pipette, "Pipette (I)")].spacing(4).align_y(Alignment::Center);
+        let werkzeuge_a = || iced::widget::row![wk(Tool::Pen, Sym::Stift, &vc_i18n::t!("studio-stift-d-rechte-taste-loescht")), wk(Tool::Erase, Sym::Radierer, &vc_i18n::t!("studio-radierer-e")), wk(Tool::Fill, Sym::Fuellen, &vc_i18n::t!("studio-fuellen-f"))].spacing(4).align_y(Alignment::Center);
+        let werkzeuge_b = || iced::widget::row![wk(Tool::Line, Sym::Linie, &vc_i18n::t!("studio-linie-l")), wk(Tool::Rect, Sym::Rahmen, &vc_i18n::t!("studio-rahmen-r")), wk(Tool::Select, Sym::Auswahl, &vc_i18n::t!("studio-auswahl-s-rechtsklick-menue")), wk(Tool::Pick, Sym::Pipette, &vc_i18n::t!("studio-pipette-i"))].spacing(4).align_y(Alignment::Center);
         let tools: Element<Msg> = if sehr_schmal { werkzeuge_a().into() } else { iced::widget::row![werkzeuge_a(), werkzeuge_b()].spacing(4).into() };
-        let bearbeiten = iced::widget::row![knopf_s(Sym::Undo, "Rückgängig (Cmd+Z)".into(), d.kann_undo(), Aktion::Undo, false), knopf_s(Sym::Redo, "Wiederholen (Cmd+Umschalt+Z)".into(), d.kann_redo(), Aktion::Redo, false)].spacing(4);
+        let bearbeiten = iced::widget::row![knopf_s(Sym::Undo, vc_i18n::t!("studio-rueckgaengig-cmd-z").into(), d.kann_undo(), Aktion::Undo, false), knopf_s(Sym::Redo, vc_i18n::t!("studio-wiederholen-cmd-umschalt-z").into(), d.kann_redo(), Aktion::Redo, false)].spacing(4);
         let transformieren = iced::widget::row![
-            knopf("⇋".into(), "Horizontal spiegeln (X)".into(), true, Aktion::Spiegeln("mh"), false), knopf("⇅".into(), "Vertikal spiegeln (Y)".into(), true, Aktion::Spiegeln("mv"), false),
-            knopf("←".into(), "Nach links verschieben".into(), true, Aktion::Verschieben("sl"), false), knopf("→".into(), "Nach rechts verschieben".into(), true, Aktion::Verschieben("sr"), false), knopf("↑".into(), "Nach oben verschieben".into(), true, Aktion::Verschieben("su"), false), knopf("↓".into(), "Nach unten verschieben".into(), true, Aktion::Verschieben("sd"), false),
-            knopf("Leeren".into(), "Frame leeren".into(), true, Aktion::Leeren, false)].spacing(4).align_y(Alignment::Center);
+            knopf("⇋".into(), vc_i18n::t!("studio-horizontal-spiegeln-x").into(), true, Aktion::Spiegeln("mh"), false), knopf("⇅".into(), vc_i18n::t!("studio-vertikal-spiegeln-y").into(), true, Aktion::Spiegeln("mv"), false),
+            knopf("←".into(), vc_i18n::t!("studio-nach-links-verschieben").into(), true, Aktion::Verschieben("sl"), false), knopf("→".into(), vc_i18n::t!("studio-nach-rechts-verschieben").into(), true, Aktion::Verschieben("sr"), false), knopf("↑".into(), vc_i18n::t!("studio-nach-oben-verschieben").into(), true, Aktion::Verschieben("su"), false), knopf("↓".into(), vc_i18n::t!("studio-nach-unten-verschieben").into(), true, Aktion::Verschieben("sd"), false),
+            knopf(vc_i18n::t!("studio-leeren").into(), vc_i18n::t!("studio-frame-leeren").into(), true, Aktion::Leeren, false)].spacing(4).align_y(Alignment::Center);
         let (zew, zeh) = einheiten(d); let zoom_wert = format!("{}×", s.zoomansicht.zoom_wert(zew, zeh));
-        let zoomgruppe = iced::widget::row![knopf("−".into(), "Verkleinern (−, Cmd+Mausrad)".into(), true, Aktion::ZoomMinus, false), text(zoom_wert).size(muster::schrift::TEXT).font(vc_gui_ui::fonts::MONO).color(pal.text).width(40).align_x(iced::alignment::Horizontal::Center), knopf("+".into(), "Vergrößern (+, Cmd+Mausrad)".into(), true, Aktion::ZoomPlus, false), knopf("Einpassen".into(), "Fläche einpassen (0)".into(), true, Aktion::ZoomAnpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
-        let ansicht = iced::widget::row![knopf(if s.raster { "Raster ✓".into() } else { "Raster".into() }, "Raster ein/aus".into(), true, Aktion::Raster, s.raster), knopf(if s.zwiebel { "Onion Skin ✓".into() } else { "Onion Skin".into() }, "Vorheriges Frame durchscheinen lassen".into(), d.fi > 0, Aktion::Zwiebel, s.zwiebel)].spacing(4);
-        let transf_knopf = knopf("Transformieren ▾".into(), "Spiegeln, Verschieben, Leeren · alle Aktionen: Menü-Taste oder Umschalt+F10".into(), true, Aktion::Mehr, s.mehr);
-        let mehr_knopf = knopf("⋯".into(), "Weitere Werkzeuge und Ansicht · alle Aktionen: Menü-Taste oder Umschalt+F10".into(), true, Aktion::Mehr, s.mehr);
+        let zoomgruppe = iced::widget::row![knopf("−".into(), vc_i18n::t!("studio-verkleinern-cmd-mausrad").into(), true, Aktion::ZoomMinus, false), text(zoom_wert).size(muster::schrift::TEXT).font(vc_gui_ui::fonts::MONO).color(pal.text).width(40).align_x(iced::alignment::Horizontal::Center), knopf("+".into(), vc_i18n::t!("studio-vergroessern-cmd-mausrad").into(), true, Aktion::ZoomPlus, false), knopf(vc_i18n::t!("studio-einpassen").into(), vc_i18n::t!("studio-flaeche-einpassen-0").into(), true, Aktion::ZoomAnpassen, s.zoomansicht.zoom.is_none())].spacing(4).align_y(Alignment::Center);
+        let ansicht = iced::widget::row![knopf(if s.raster { vc_i18n::t!("studio-raster").into() } else { vc_i18n::t!("studio-raster-2").into() }, vc_i18n::t!("studio-raster-ein-aus").into(), true, Aktion::Raster, s.raster), knopf(if s.zwiebel { vc_i18n::t!("studio-onion-skin").into() } else { vc_i18n::t!("studio-onion-skin-2").into() }, vc_i18n::t!("studio-vorheriges-frame-durchscheinen-lassen").into(), d.fi > 0, Aktion::Zwiebel, s.zwiebel)].spacing(4);
+        let transf_knopf = knopf(vc_i18n::t!("studio-transformieren").into(), vc_i18n::t!("studio-spiegeln-verschieben-leeren-alle-aktionen-menue").into(), true, Aktion::Mehr, s.mehr);
+        let mehr_knopf = knopf("⋯".into(), vc_i18n::t!("studio-weitere-werkzeuge-und-ansicht-alle-aktionen").into(), true, Aktion::Mehr, s.mehr);
         let leiste_inhalt: Element<Msg> = match klasse {
             muster::Klasse::Breit => iced::widget::row![tools, muster::trenner(pal), bearbeiten, muster::trenner(pal), transf_knopf, space::horizontal(), zoomgruppe, ansicht].spacing(8).align_y(Alignment::Center).into(),
             muster::Klasse::Mittel => iced::widget::row![tools, muster::trenner(pal), bearbeiten, space::horizontal(), zoomgruppe, mehr_knopf].spacing(8).align_y(Alignment::Center).into(),
@@ -329,7 +329,7 @@ impl App {
         // Frames
         let mut frames = iced::widget::column![].spacing(4);
         if d.kind == "charset" {
-            frames = frames.push(text(format!("Zeichen {} (${:02X})", d.fi, d.fi)).size(12).color(pal.text));
+            frames = frames.push(text(vc_i18n::t!("studio-zeichen-p1-p2", p1 = &d.fi, p2 = format!("{:02X}", d.fi))).size(12).color(pal.text));
             for zeile in 0..(d.frames.len() + 15) / 16 {
                 let mut z = iced::widget::row![].spacing(2);
                 for i in zeile * 16..((zeile + 1) * 16).min(d.frames.len()) {
@@ -338,31 +338,31 @@ impl App {
                 frames = frames.push(z);
             }
         } else {
-            frames = frames.push(iced::widget::row![text(format!("Frames · {}", d.frames.len())).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute), space::horizontal(), if d.fixed_frames { Element::from(space::horizontal().width(0)) } else { knopf("+".into(), "Leeres Frame anhängen".into(), true, Aktion::FrameNeu, false) }].align_y(Alignment::Center));
+            frames = frames.push(iced::widget::row![text(vc_i18n::t!("studio-frames-p1", p1 = d.frames.len())).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute), space::horizontal(), if d.fixed_frames { Element::from(space::horizontal().width(0)) } else { knopf("+".into(), vc_i18n::t!("studio-leeres-frame-anhaengen").into(), true, Aktion::FrameNeu, false) }].align_y(Alignment::Center));
             for i in 0..d.frames.len() {
-                let name = d.frame_names.get(i).cloned().unwrap_or_else(|| format!("Frame {i}"));
+                let name = d.frame_names.get(i).cloned().unwrap_or_else(|| vc_i18n::t!("studio-frame-i", i = &i));
                 let wahl = i == d.fi;
                 frames = frames.push(button(iced::widget::column![canvas::Canvas::new(Vorschau { doc: d, fi: i, farben: &self.farben, norm, pal }).width(Length::Fill).height(46), text(name).size(11).color(pal.mute)].spacing(2)).padding(3).width(Length::Fill).on_press(Msg::StudioAkt(r.clone(), Aktion::Frame(i))).style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: if wahl { pal.accent } else { pal.line }, width: if wahl { 2.0 } else { 1.0 }, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }));
             }
         }
-        if d.kind != "charset" && !d.fixed_frames { frames = frames.push(iced::widget::row![knopf("Dupl.".into(), "Frame duplizieren".into(), true, Aktion::FrameDup, false), knopf("Löschen".into(), "Frame löschen".into(), d.frames.len() > 1, Aktion::FrameLoeschen, false)].spacing(4).wrap().vertical_spacing(4)) }
+        if d.kind != "charset" && !d.fixed_frames { frames = frames.push(iced::widget::row![knopf(vc_i18n::t!("studio-dupl").into(), vc_i18n::t!("studio-frame-duplizieren").into(), true, Aktion::FrameDup, false), knopf(vc_i18n::t!("studio-loeschen").into(), vc_i18n::t!("studio-frame-loeschen").into(), d.frames.len() > 1, Aktion::FrameLoeschen, false)].spacing(4).wrap().vertical_spacing(4)) }
         // Seitenspalte: Werte, Farben, Modus, Flags
         let mut werkzeug = iced::widget::column![].spacing(5); let mut dokument = iced::widget::column![].spacing(5); let mut info = iced::widget::column![].spacing(5);
         let nwerte = 1usize << d.bpp.min(2);
         { let mut zeile = iced::widget::row![].spacing(muster::abstand::ENG);
           let n = nwerte.max(2).min(4);
           for v in 0..n {
-            let name = d.values.get(v).cloned().unwrap_or_else(|| format!("Wert {v}")); let wahl = d.pv as usize == v;
+            let name = d.values.get(v).cloned().unwrap_or_else(|| vc_i18n::t!("studio-wert-v", v = &v)); let wahl = d.pv as usize == v;
             let kurz = name.split(" (").next().unwrap_or(&name).to_string();
             let farbe = d.farb_index(v as u8).map(|i| self.farben.farbe(&d.target, norm, i));
-            let chip = button(iced::widget::row![container(space::vertical()).width(16).height(16).style(move |_| container::Style { background: Some(farbe.unwrap_or(pal.panel2).into()), border: Border { color: pal.line, width: 1.0, radius: 3.0.into() }, ..Default::default() }), text(format!("{} {kurz}", v + 1)).size(muster::schrift::HINWEIS + 1.0).color(pal.text)].spacing(6).align_y(Alignment::Center)).width(Length::FillPortion(1)).padding([4, 6]).on_press(Msg::StudioAkt(r.clone(), Aktion::Wert(v as u8)))
+            let chip = button(iced::widget::row![container(space::vertical()).width(16).height(16).style(move |_| container::Style { background: Some(farbe.unwrap_or(pal.panel2).into()), border: Border { color: pal.line, width: 1.0, radius: 3.0.into() }, ..Default::default() }), text(vc_i18n::t!("studio-p1-kurz", p1 = v + 1, kurz = &kurz)).size(muster::schrift::HINWEIS + 1.0).color(pal.text)].spacing(6).align_y(Alignment::Center)).width(Length::FillPortion(1)).padding([4, 6]).on_press(Msg::StudioAkt(r.clone(), Aktion::Wert(v as u8)))
                 .style(move |_, _| button::Style { background: Some(if wahl { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if wahl { pal.accent } else { pal.line }, width: if wahl { 2.0 } else { 1.0 }, radius: muster::RADIUS_KNOPF.into() }, text_color: pal.text, ..Default::default() });
             zeile = zeile.push(iced::widget::tooltip(chip, container(text(name.clone()).size(muster::schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Bottom).gap(4));
             if (v + 1) % 2 == 0 || v + 1 == n { werkzeug = werkzeug.push(zeile); zeile = iced::widget::row![].spacing(muster::abstand::ENG); }
           } }
         if d.kind == "sprite" && d.frame_modes.len() > 1 {
             let mc = d.ist_multicolor(d.fi);
-            dokument = dokument.push(text("Modus dieses Frames").size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute)).push(iced::widget::row![knopf("Hires".into(), "Eine Farbe, 24 Pixel breit (C)".into(), true, Aktion::Modus(false), !mc), knopf("Multicolor".into(), "Drei Farben, 12 breite Pixel (C)".into(), true, Aktion::Modus(true), mc)].spacing(4));
+            dokument = dokument.push(text(vc_i18n::t!("studio-modus-dieses-frames")).size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute)).push(iced::widget::row![knopf(vc_i18n::t!("studio-hires").into(), vc_i18n::t!("studio-eine-farbe-24-pixel-breit-c").into(), true, Aktion::Modus(false), !mc), knopf(vc_i18n::t!("studio-multicolor").into(), vc_i18n::t!("studio-drei-farben-12-breite-pixel-c").into(), true, Aktion::Modus(true), mc)].spacing(4));
         }
         {
             let slots = d.farben(); let wahl_i = s.farb_slot.min(slots.len().saturating_sub(1));
@@ -371,7 +371,7 @@ impl App {
                 let idx = d.farbe(key, 1); let c = self.farben.farbe(&d.target, norm, idx); let an = i == wahl_i;
                 let feld = button(container(space::vertical()).width(Length::Fill).height(34).style(move |_| container::Style { background: Some(c.into()), border: Border { color: pal.line, width: 1.0, radius: 4.0.into() }, ..Default::default() })).padding(3).width(Length::FillPortion(1)).on_press(Msg::StudioAkt(r.clone(), Aktion::FarbSlot(i)))
                     .style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: if an { pal.accent } else { pal.line }, width: if an { 2.0 } else { 1.0 }, radius: muster::RADIUS_KNOPF.into() }, ..Default::default() });
-                felder.push(iced::widget::column![feld, text(label.clone()).size(muster::schrift::HINWEIS).color(if an { pal.text } else { pal.mute }), text(format!("Index {idx}")).size(muster::schrift::HINWEIS - 1.0).color(pal.mute)].spacing(2).width(Length::FillPortion(1)).into());
+                felder.push(iced::widget::column![feld, text(label.clone()).size(muster::schrift::HINWEIS).color(if an { pal.text } else { pal.mute }), text(vc_i18n::t!("studio-index-idx", idx = &idx)).size(muster::schrift::HINWEIS - 1.0).color(pal.mute)].spacing(2).width(Length::FillPortion(1)).into());
             }
             // bis zu drei Farbfelder nebeneinander, bei vier (Zeichensatz: Zeichenfarbe, Hintergrund, zwei Multicolor) zwei mal zwei, damit die Beschriftungen nicht ineinanderlaufen
             let je = if felder.len() > 3 { 2 } else { felder.len().max(1) }; let mut zeilen = iced::widget::column![].spacing(muster::abstand::GRUPPE); let mut it = felder.into_iter();
@@ -379,7 +379,7 @@ impl App {
             dokument = dokument.push(zeilen);
             if let Some((key, label)) = slots.get(wahl_i) {
                 let aktuell = d.farbe(key, 1);
-                dokument = dokument.push(text(format!("{label} wählen")).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
+                dokument = dokument.push(text(vc_i18n::t!("studio-label-waehlen", label = &label)).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
                 dokument = dokument.push(text(self.palettenzeile(&d.target, s.ansicht)).size(muster::schrift::HINWEIS).color(pal.mute));
                 if self.farben.hat_varianten(&d.target) { dokument = dokument.push(self.ansicht_wahl(pal, &r, s.ansicht)) }
                 let mut raster = iced::widget::column![].spacing(2); let mut zeile = iced::widget::row![].spacing(2);
@@ -395,8 +395,8 @@ impl App {
         if d.kind == "charset" {
             let vorlagen = d.vorlagen(&self.data);
             if !vorlagen.is_empty() {
-                dokument = dokument.push(text("Vorlage").size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
-                for (ref_, label, fehlt) in vorlagen { let aktuell = d.vorlage_aktuell() == ref_; dokument = dokument.push(knopf(format!("{label}{}", if fehlt { "  – ROM fehlt" } else { "" }), "Zeichensatz-Vorlage laden (Rückgängig stellt wieder her)".into(), !fehlt, Aktion::Vorlage(ref_), aktuell)) }
+                dokument = dokument.push(text(vc_i18n::t!("studio-vorlage")).size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
+                for (ref_, label, fehlt) in vorlagen { let aktuell = d.vorlage_aktuell() == ref_; dokument = dokument.push(knopf(vc_i18n::t!("studio-label-p2", label = &label, p2 = if fehlt { format!("  {}", vc_i18n::t!("studio-rom-fehlt")) } else { String::new() }), vc_i18n::t!("studio-zeichensatz-vorlage-laden-rueckgaengig-stellt-wieder").into(), !fehlt, Aktion::Vorlage(ref_), aktuell)) }
             }
         }
         // Herkunftskarte (Zeichensätze): Etikett immer als Wort (EIGEN, EIGEN, GEÄNDERT, AUS DEINEM ROM, ROM FEHLT), nie nur Farbe
@@ -407,30 +407,30 @@ impl App {
         }
         if vc_ide_model::pixel::has_sprite_flags(&d.target, &d.kind) {
             let bits = vc_ide_model::pixel::flags_from_hw(&d.media["hw"]);
-            let flag = |bit: u8, label: &str, tipp: &'static str| -> Element<Msg> { let r2 = r.clone(); iced::widget::tooltip(iced::widget::checkbox(bits & bit != 0).label(label.to_string()).size(16).text_size(muster::schrift::TEXT).on_toggle(move |_| Msg::StudioAkt(r2.clone(), Aktion::Flag(bit))), container(text(tipp).size(muster::schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Right).gap(4).into() };
-            info = info.push(iced::widget::column![flag(2, "Doppelt breit", "X2: doppelte Breite ($D01D)"), flag(4, "Doppelt hoch", "Y2: doppelte Höhe ($D017)"), flag(8, "Hinter dem Hintergrund", "BG: hinter dem Hintergrund ($D01B)")].spacing(muster::abstand::GRUPPE));
+            let flag = |bit: u8, label: &str, tipp: &str| -> Element<'static, Msg> { let r2 = r.clone(); iced::widget::tooltip(iced::widget::checkbox(bits & bit != 0).label(label.to_string()).size(16).text_size(muster::schrift::TEXT).on_toggle(move |_| Msg::StudioAkt(r2.clone(), Aktion::Flag(bit))), container(text(tipp.to_string()).size(muster::schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Right).gap(4).into() };
+            info = info.push(iced::widget::column![flag(2, &vc_i18n::t!("studio-doppelt-breit"), &vc_i18n::t!("studio-x2-doppelte-breite-d01d")), flag(4, &vc_i18n::t!("studio-doppelt-hoch"), &vc_i18n::t!("studio-y2-doppelte-hoehe-d017")), flag(8, &vc_i18n::t!("studio-hinter-dem-hintergrund"), &vc_i18n::t!("studio-bg-hinter-dem-hintergrund-d01b"))].spacing(muster::abstand::GRUPPE));
         }
         // Animationen (Sprites): Folgen aus Frames mit Dauer in Bildern (1/50 s), Vorschau läuft in Echtzeit
         if d.kind == "sprite" {
-            info = info.push(text("Animationen").size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
+            info = info.push(text(vc_i18n::t!("studio-animationen")).size(11).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute));
             match d.animationen() {
-                Err(e) => info = info.push(text(format!("fehlerhaft: {e}")).size(11).color(pal.err).width(Length::Fill)),
+                Err(e) => info = info.push(text(vc_i18n::t!("studio-fehlerhaft-e", e = &e)).size(11).color(pal.err).width(Length::Fill)),
                 Ok(list) => {
-                    info = info.push(iced::widget::row![knopf("+ Neu".into(), "Neue Animation mit dem gewählten Frame".into(), true, Aktion::Anim(AnimOp::New), false)].spacing(4).wrap().vertical_spacing(4));
-                    if list.is_empty() { info = info.push(text("Noch keine Animation. „+ Neu“ legt eine Folge aus Frames an, die im Loop läuft.").size(11).color(pal.mute).width(Length::Fill)) }
+                    info = info.push(iced::widget::row![knopf(vc_i18n::t!("studio-neu").into(), vc_i18n::t!("studio-neue-animation-mit-dem-gewaehlten-frame").into(), true, Aktion::Anim(AnimOp::New), false)].spacing(4).wrap().vertical_spacing(4));
+                    if list.is_empty() { info = info.push(text(vc_i18n::t!("studio-noch-keine-animation-neu-legt-eine")).size(11).color(pal.mute).width(Length::Fill)) }
                     let n = d.sel_anim.min(list.len().saturating_sub(1));
                     let mut reihe = iced::widget::row![].spacing(3);
-                    for (i, a) in list.iter().enumerate() { reihe = reihe.push(knopf(a.name.clone(), "Animation wählen".into(), true, Aktion::AnimWahl(i), i == n)) }
+                    for (i, a) in list.iter().enumerate() { reihe = reihe.push(knopf(a.name.clone(), vc_i18n::t!("studio-animation-waehlen").into(), true, Aktion::AnimWahl(i), i == n)) }
                     info = info.push(reihe.wrap());
                     if let Some(a) = list.get(n) {
                         // Vorschau: das Frame, das jetzt an der Reihe ist
                         let t = s.anim_t0.map_or(0.0, |t| t.elapsed().as_secs_f64()); let ex = a.expanded(); let schritt = a.step_at(t); let fi = ex.get(schritt).map_or(0, |x| x.0);
-                        info = info.push(iced::widget::row![canvas::Canvas::new(Vorschau { doc: d, fi, farben: &self.farben, norm, pal }).width(60).height(52), text(format!("Schritt {}/{} · {} Bilder = {:.2} s", schritt + 1, ex.len().max(1), a.total_ticks(), a.total_ticks() as f32 / 50.0)).size(11).color(pal.mute).width(Length::Fill)].spacing(8).wrap().vertical_spacing(4));
-                        info = info.push(iced::widget::row![knopf(a.mode.label().into(), "Ablauf: Schleife, Hin und zurück, Einmal".into(), true, Aktion::Anim(AnimOp::Mode(match a.mode { sprite_mode::Loop => sprite_mode::PingPong, sprite_mode::PingPong => sprite_mode::Once, sprite_mode::Once => sprite_mode::Loop })), false), knopf("Frame anhängen".into(), "Das gewählte Frame als nächsten Schritt anfügen".into(), true, Aktion::Anim(AnimOp::AddStep(d.fi)), false), knopf("Löschen".into(), "Animation löschen".into(), true, Aktion::Anim(AnimOp::Delete), false)].spacing(4).wrap());
+                        info = info.push(iced::widget::row![canvas::Canvas::new(Vorschau { doc: d, fi, farben: &self.farben, norm, pal }).width(60).height(52), text(vc_i18n::t!("studio-schritt-p1-p2-p3-bilder-p4", p1 = schritt + 1, p2 = ex.len().max(1), p3 = a.total_ticks(), p4 = vc_i18n::num((a.total_ticks() as f32 / 50.0) as f64, 2))).size(11).color(pal.mute).width(Length::Fill)].spacing(8).wrap().vertical_spacing(4));
+                        info = info.push(iced::widget::row![knopf(a.mode.label().into(), vc_i18n::t!("studio-ablauf-schleife-hin-und-zurueck-einmal").into(), true, Aktion::Anim(AnimOp::Mode(match a.mode { sprite_mode::Loop => sprite_mode::PingPong, sprite_mode::PingPong => sprite_mode::Once, sprite_mode::Once => sprite_mode::Loop })), false), knopf(vc_i18n::t!("studio-frame-anhaengen").into(), vc_i18n::t!("studio-das-gewaehlte-frame-als-naechsten-schritt").into(), true, Aktion::Anim(AnimOp::AddStep(d.fi)), false), knopf(vc_i18n::t!("studio-loeschen").into(), vc_i18n::t!("studio-animation-loeschen").into(), true, Aktion::Anim(AnimOp::Delete), false)].spacing(4).wrap());
                         for (i, (f, dauer)) in a.steps.iter().enumerate() {
-                            info = info.push(iced::widget::row![text(format!("{}", i + 1)).size(11).color(pal.mute).width(14), button(text(format!("Frame {f}")).size(11.5).color(pal.text)).padding([2, 6]).on_press(Msg::StudioAkt(r.clone(), Aktion::Frame(*f))).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }),
-                                knopf("−".into(), "Dauer kürzer".into(), *dauer > 1, Aktion::Anim(AnimOp::Delay(i, dauer.saturating_sub(1))), false), text(format!("{dauer} B")).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text), knopf("+".into(), "Dauer länger".into(), *dauer < 255, Aktion::Anim(AnimOp::Delay(i, dauer + 1)), false),
-                                knopf("◀".into(), "Schritt nach vorn".into(), i > 0, Aktion::Anim(AnimOp::Move(i, -1)), false), knopf("▶".into(), "Schritt nach hinten".into(), i + 1 < a.steps.len(), Aktion::Anim(AnimOp::Move(i, 1)), false), knopf("×".into(), "Schritt entfernen".into(), true, Aktion::Anim(AnimOp::DelStep(i)), false)].spacing(3).align_y(Alignment::Center));
+                            info = info.push(iced::widget::row![text(format!("{}", i + 1)).size(11).color(pal.mute).width(14), button(text(vc_i18n::t!("studio-frame-f", f = &f)).size(11.5).color(pal.text)).padding([2, 6]).on_press(Msg::StudioAkt(r.clone(), Aktion::Frame(*f))).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }),
+                                knopf("−".into(), vc_i18n::t!("studio-dauer-kuerzer").into(), *dauer > 1, Aktion::Anim(AnimOp::Delay(i, dauer.saturating_sub(1))), false), text(vc_i18n::t!("studio-dauer-b", dauer = &dauer)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text), knopf("+".into(), vc_i18n::t!("studio-dauer-laenger").into(), *dauer < 255, Aktion::Anim(AnimOp::Delay(i, dauer + 1)), false),
+                                knopf("◀".into(), vc_i18n::t!("studio-schritt-nach-vorn").into(), i > 0, Aktion::Anim(AnimOp::Move(i, -1)), false), knopf("▶".into(), vc_i18n::t!("studio-schritt-nach-hinten").into(), i + 1 < a.steps.len(), Aktion::Anim(AnimOp::Move(i, 1)), false), knopf("×".into(), vc_i18n::t!("studio-schritt-entfernen").into(), true, Aktion::Anim(AnimOp::DelStep(i)), false)].spacing(3).align_y(Alignment::Center));
                         }
                     }
                 }
@@ -439,38 +439,38 @@ impl App {
         // Zone 1: Kopfzeile (alle Datei-Aktionen nur hier), Zone 3: Liste, Zone 4: Fläche, Zone 5: Seitenspalte aus Karten, Zone 6: Fußzeile
         let name = rel.rsplit('/').next().unwrap_or(rel).to_string();
         let art = match d.kind.as_str() { "sprite" => "SPR", "pmg" => "PMG", "charset" => "CHR", _ => "MED" };
-        let masse = format!("Frame {} von {} · {}×{}{}", d.fi, d.frames.len(), d.width, d.height, if d.kind == "sprite" { if d.ist_multicolor(d.fi) { " · Multicolor" } else { " · Hires" } } else { "" });
+        let masse = vc_i18n::t!("studio-frame-p1-von-p2-p3-p4", p1 = &d.fi, p2 = d.frames.len(), p3 = &d.width, p4 = &d.height, p5 = if d.kind == "sprite" { if d.ist_multicolor(d.fi) { " · Multicolor" } else { " · Hires" } } else { "" });
         let kopf = muster::kopfzeile(pal, klasse, art, &name, d.dirty(), &masse, vec![
-            knopf("PNG laden …".into(), "Bild in das gewählte Frame übernehmen".into(), true, Aktion::PngLaden, false),
-            knopf("Exportieren …".into(), "Export-Dialog (Cmd+Umschalt+E)".into(), true, Aktion::Exportieren, false),
-            knopf("Speichern".into(), "Speichern (Cmd+S)".into(), d.dirty(), Aktion::Speichern, false)]);
+            knopf(vc_i18n::t!("studio-png-laden").into(), vc_i18n::t!("studio-bild-in-das-gewaehlte-frame-uebernehmen").into(), true, Aktion::PngLaden, false),
+            knopf(vc_i18n::t!("studio-exportieren").into(), vc_i18n::t!("studio-export-dialog-cmd-umschalt-e").into(), true, Aktion::Exportieren, false),
+            knopf(vc_i18n::t!("studio-speichern").into(), vc_i18n::t!("studio-speichern-cmd-s").into(), d.dirty(), Aktion::Speichern, false)]);
         let karte_zu = |k: &'static str| -> Option<(bool, Msg)> { Some((!s.karten_zu.contains(k), Msg::StudioAkt(r.clone(), Aktion::Karte(k)))) };
         let mut karten: Vec<Element<Msg>> = vec![
-            muster::karte(pal, "Werkzeug", "✎", "fürs Zeichnen · nicht in der Datei", karte_zu("werkzeug"), iced::widget::column![text("Zeichenfarbe").size(muster::schrift::HINWEIS).color(pal.mute), werkzeug].spacing(muster::abstand::ENG).into()),
-            muster::karte(pal, "Dokument", "▤", if d.kind == "sprite" { "fürs ganze Frame bzw. Sprite · wird gespeichert" } else { "gilt fürs ganze Dokument · wird gespeichert" }, karte_zu("dokument"), dokument.into())];
-        if d.kind == "sprite" || vc_ide_model::pixel::has_sprite_flags(&d.target, &d.kind) { karten.push(muster::karte(pal, "Sprite", "ⓘ", "Hardware-Flags und Animationen", karte_zu("info"), info.into())) }
-        else if herkunft.is_some() { karten.push(muster::karte(pal, "Herkunft", "ⓘ", "woher dieser Zeichensatz stammt", karte_zu("herkunft"), info.into())) }
+            muster::karte(pal, &vc_i18n::t!("studio-werkzeug"), "✎", &vc_i18n::t!("studio-fuers-zeichnen-nicht-in-der-datei"), karte_zu("werkzeug"), iced::widget::column![text(vc_i18n::t!("studio-zeichenfarbe")).size(muster::schrift::HINWEIS).color(pal.mute), werkzeug].spacing(muster::abstand::ENG).into()),
+            muster::karte(pal, &vc_i18n::t!("studio-dokument"), "▤", &if d.kind == "sprite" { vc_i18n::t!("studio-fuers-ganze-frame-bzw-sprite-wird-gespeichert") } else { vc_i18n::t!("studio-gilt-fuers-ganze-dokument-wird-gespeichert") }, karte_zu("dokument"), dokument.into())];
+        if d.kind == "sprite" || vc_ide_model::pixel::has_sprite_flags(&d.target, &d.kind) { karten.push(muster::karte(pal, &vc_i18n::t!("studio-sprite"), "ⓘ", &vc_i18n::t!("studio-hardware-flags-und-animationen"), karte_zu("info"), info.into())) }
+        else if herkunft.is_some() { karten.push(muster::karte(pal, &vc_i18n::t!("studio-herkunft"), "ⓘ", &vc_i18n::t!("studio-woher-dieser-zeichensatz-stammt"), karte_zu("herkunft"), info.into())) }
         let liste_el: Element<Msg> = if klasse == muster::Klasse::Schmal { iced::widget::column![frames].into() } else { scrollable(frames).into() };
-        let liste_opt = if klasse == muster::Klasse::Schmal { karten.insert(0, muster::karte(pal, "Frames", "▦", "", karte_zu("frames"), liste_el)); None } else { Some(liste_el) };
+        let liste_opt = if klasse == muster::Klasse::Schmal { karten.insert(0, muster::karte(pal, &vc_i18n::t!("studio-frames"), "▦", "", karte_zu("frames"), liste_el)); None } else { Some(liste_el) };
         let seite = muster::seitenspalte(klasse, karten);
-        let zelle = s.ueber.map_or(String::new(), |(x, y)| format!("Zelle {x},{y} · "));
+        let zelle = s.ueber.map_or(String::new(), |(x, y)| format!("{} ", vc_i18n::t!("studio-zelle-x-y", x = &x, y = &y)));
         let status = if d.status.is_empty() { String::new() } else { format!(" · {}", d.status) };
         let (ew, eh) = einheiten(d);
-        let fuss = muster::fusszeile(pal, &format!("{zelle}Zoom {}{status}", s.zoomansicht.zoom_text(ew, eh)),
-            tooltip(text("? Tasten").size(muster::schrift::HINWEIS).color(pal.mute), container(text("linke Taste zeichnet, rechte löscht · D E F L R S I Werkzeuge · 1–4 Zeichenfarbe · X Y spiegeln · ←/→ Frame · + − Zoom · 0 Einpassen · Leertaste+Ziehen verschiebt · Cmd+Mausrad zoomt").size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Top).into());
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("studio-zelle-zoom-p2-status", zelle = &zelle, p2 = s.zoomansicht.zoom_text(ew, eh), status = &status),
+            tooltip(text(vc_i18n::t!("studio-tasten")).size(muster::schrift::HINWEIS).color(pal.mute), container(text(vc_i18n::t!("studio-linke-taste-zeichnet-rechte-loescht-d")).size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), tooltip::Position::Top).into());
         let flaeche_el: Element<Msg> = canvas::Canvas::new(Flaeche { s, farben: &self.farben, norm, rel: rel.to_string(), pal }).width(Length::Fill).height(Length::Fill).into();
         let flaeche_el: Element<Msg> = if s.mehr {
-            let karte_mehr = container(iced::widget::column![if sehr_schmal { Element::from(iced::widget::column![text("Werkzeuge").size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge_b()].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text("Transformieren").size(muster::schrift::HINWEIS).color(pal.mute), iced::widget::row![
-                knopf("⇋".into(), "Horizontal spiegeln (X)".into(), true, Aktion::Spiegeln("mh"), false), knopf("⇅".into(), "Vertikal spiegeln (Y)".into(), true, Aktion::Spiegeln("mv"), false),
-                knopf("←".into(), "Nach links verschieben".into(), true, Aktion::Verschieben("sl"), false), knopf("→".into(), "Nach rechts verschieben".into(), true, Aktion::Verschieben("sr"), false), knopf("↑".into(), "Nach oben verschieben".into(), true, Aktion::Verschieben("su"), false), knopf("↓".into(), "Nach unten verschieben".into(), true, Aktion::Verschieben("sd"), false),
-                knopf("Leeren".into(), "Frame leeren".into(), true, Aktion::Leeren, false)].spacing(4).wrap().vertical_spacing(4),
-                if klasse == muster::Klasse::Breit { Element::from(space::vertical().height(0)) } else { text("Ansicht").size(muster::schrift::HINWEIS).color(pal.mute).into() }, if klasse == muster::Klasse::Breit { Element::from(space::vertical().height(0)) } else { iced::widget::row![knopf("−".into(), "Verkleinern".into(), true, Aktion::ZoomMinus, false), knopf("+".into(), "Vergrößern".into(), true, Aktion::ZoomPlus, false), knopf("Einpassen".into(), "Fläche einpassen (0)".into(), true, Aktion::ZoomAnpassen, s.zoomansicht.zoom.is_none()), knopf("Raster".into(), "Raster ein/aus".into(), true, Aktion::Raster, s.raster), knopf("Onion Skin".into(), "Vorheriges Frame durchscheinen lassen".into(), d.fi > 0, Aktion::Zwiebel, s.zwiebel)].spacing(4).wrap().vertical_spacing(4).into() }].spacing(muster::abstand::GRUPPE))
+            let karte_mehr = container(iced::widget::column![if sehr_schmal { Element::from(iced::widget::column![text(vc_i18n::t!("studio-werkzeuge")).size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge_b()].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text(vc_i18n::t!("studio-transformieren-2")).size(muster::schrift::HINWEIS).color(pal.mute), iced::widget::row![
+                knopf("⇋".into(), vc_i18n::t!("studio-horizontal-spiegeln-x").into(), true, Aktion::Spiegeln("mh"), false), knopf("⇅".into(), vc_i18n::t!("studio-vertikal-spiegeln-y").into(), true, Aktion::Spiegeln("mv"), false),
+                knopf("←".into(), vc_i18n::t!("studio-nach-links-verschieben").into(), true, Aktion::Verschieben("sl"), false), knopf("→".into(), vc_i18n::t!("studio-nach-rechts-verschieben").into(), true, Aktion::Verschieben("sr"), false), knopf("↑".into(), vc_i18n::t!("studio-nach-oben-verschieben").into(), true, Aktion::Verschieben("su"), false), knopf("↓".into(), vc_i18n::t!("studio-nach-unten-verschieben").into(), true, Aktion::Verschieben("sd"), false),
+                knopf(vc_i18n::t!("studio-leeren").into(), vc_i18n::t!("studio-frame-leeren").into(), true, Aktion::Leeren, false)].spacing(4).wrap().vertical_spacing(4),
+                if klasse == muster::Klasse::Breit { Element::from(space::vertical().height(0)) } else { text(vc_i18n::t!("studio-ansicht")).size(muster::schrift::HINWEIS).color(pal.mute).into() }, if klasse == muster::Klasse::Breit { Element::from(space::vertical().height(0)) } else { iced::widget::row![knopf("−".into(), vc_i18n::t!("studio-verkleinern").into(), true, Aktion::ZoomMinus, false), knopf("+".into(), vc_i18n::t!("studio-vergroessern").into(), true, Aktion::ZoomPlus, false), knopf(vc_i18n::t!("studio-einpassen").into(), vc_i18n::t!("studio-flaeche-einpassen-0").into(), true, Aktion::ZoomAnpassen, s.zoomansicht.zoom.is_none()), knopf(vc_i18n::t!("studio-raster-2").into(), vc_i18n::t!("studio-raster-ein-aus").into(), true, Aktion::Raster, s.raster), knopf(vc_i18n::t!("studio-onion-skin-2").into(), vc_i18n::t!("studio-vorheriges-frame-durchscheinen-lassen").into(), d.fi > 0, Aktion::Zwiebel, s.zwiebel)].spacing(4).wrap().vertical_spacing(4).into() }].spacing(muster::abstand::GRUPPE))
                 .padding(muster::abstand::KARTE).max_width(340).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
             iced::widget::stack![flaeche_el, container(karte_mehr).padding(muster::abstand::GRUPPE).align_right(Length::Fill)].into()
         } else { flaeche_el };
         // Vorschau 1:1 links unten auf der Fläche (Sprite, Player/Missile): so groß, wie es im Spiel erscheint
         let flaeche_el: Element<Msg> = if d.kind == "sprite" || d.kind == "pmg" {
-            let vorschau = container(iced::widget::column![canvas::Canvas::new(Vorschau { doc: d, fi: d.fi, farben: &self.farben, norm, pal }).width(Length::Fixed(if d.kind == "sprite" { 24.0 } else { d.width as f32 })).height(Length::Fixed(d.height as f32)), text("Vorschau ×1").size(muster::schrift::HINWEIS - 1.0).color(pal.mute)].spacing(2).align_x(Alignment::Center))
+            let vorschau = container(iced::widget::column![canvas::Canvas::new(Vorschau { doc: d, fi: d.fi, farben: &self.farben, norm, pal }).width(Length::Fixed(if d.kind == "sprite" { 24.0 } else { d.width as f32 })).height(Length::Fixed(d.height as f32)), text(vc_i18n::t!("studio-vorschau-1")).size(muster::schrift::HINWEIS - 1.0).color(pal.mute)].spacing(2).align_x(Alignment::Center))
                 .padding(6).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KNOPF.into() }, ..Default::default() });
             iced::widget::stack![flaeche_el, container(vorschau).padding(muster::abstand::GRUPPE).align_left(Length::Fill).align_bottom(Length::Fill)].into()
         } else { flaeche_el };

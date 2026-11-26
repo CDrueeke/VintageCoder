@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: colorbars",
+    "description": "Raster bars: COLBK = VCOUNT, line by line via WSYNC (without display list interrupt)"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "colorbars.asm"
+      ]
+    }
+  ],
+  "main": "colorbars.asm"
+}

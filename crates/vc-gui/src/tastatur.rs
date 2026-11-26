@@ -53,7 +53,7 @@ pub fn hinweis_unten(l: Tastaturlayout) -> String { UNTEN.iter().map(|c| beschri
 pub fn hinweis_oben(l: Tastaturlayout) -> String { OBEN.iter().map(|c| beschriftung(l, *c)).collect::<Vec<_>>().join(" ") }
 /// Beschriftung der Computertaste für den Halbton `h` über dem C (0–24)
 pub fn fuer_halbton(l: Tastaturlayout, h: usize) -> Option<String> { if h < 12 { Some(beschriftung(l, UNTEN[h])) } else { OBEN.get(h - 12).map(|c| beschriftung(l, *c)) } }
-pub fn name(l: Tastaturlayout) -> &'static str { match l { Tastaturlayout::Auto => "Automatisch", Tastaturlayout::Qwertz => "QWERTZ", Tastaturlayout::Qwerty => "QWERTY", Tastaturlayout::Azerty => "AZERTY" } }
+pub fn name(l: Tastaturlayout) -> String { match l { Tastaturlayout::Auto => vc_i18n::t!("tastatur-automatisch"), Tastaturlayout::Qwertz => "QWERTZ".to_string(), Tastaturlayout::Qwerty => "QWERTY".to_string(), Tastaturlayout::Azerty => "AZERTY".to_string() } }
 
 /// Layout des Betriebssystems, soweit abfragbar (die Abfrage selbst steht in `aussen`)
 pub fn system_layout() -> Option<Tastaturlayout> { crate::aussen::tastaturlayout_text().and_then(|r| aus_text(&r)) }

@@ -31,7 +31,7 @@ impl App {
             PAkt::HexOk => { if let Some(c) = hex_zu_rgb(&self.pal_hex) { let i = d.sel; d.setze(i, c); d.fertig() } self.pal_hex = d.eintrag(d.sel) }
             PAkt::Undo => { d.undo(); self.pal_hex = d.eintrag(d.sel) } PAkt::Redo => { d.redo(); self.pal_hex = d.eintrag(d.sel) }
             PAkt::Standard => { d.standard(); self.pal_hex = d.eintrag(d.sel) }
-            PAkt::Speichern => match d.save() { Ok(()) => self.log.push(format!("Gespeichert: {rel}")), Err(e) => self.log.push(e) },
+            PAkt::Speichern => match d.save() { Ok(()) => self.log.push(vc_i18n::t!("palettestudio-gespeichert-rel", rel = &rel)), Err(e) => self.log.push(e) },
             PAkt::Exportieren => self.export_oeffnen(),
         }
     }
@@ -42,9 +42,9 @@ impl App {
     }
     fn farbpalette_ansicht_k(&self, pal: Pal, rel: &str, klasse: muster::Klasse) -> Element<'_, Msg> {
         let Some(d) = self.paletten.get(rel) else { return text("").into() }; let r = rel.to_string();
-        let knopf_p = |name: &str, tipp: &str, an: bool, a: PAkt| -> Element<Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::PaletteAkt(r.clone(), a)), false, false) };
+        let knopf_p = |name: &str, tipp: &str, an: bool, a: PAkt| -> Element<'static, Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::PaletteAkt(r.clone(), a)), false, false) };
         // Zone 2: genau eine Leiste (Bearbeiten · Standardpalette); Datei-Aktionen stehen nur in der Kopfzeile
-        let leiste = muster::leiste(pal, iced::widget::row![knopf_p("↶", "Rückgängig (Cmd+Z)", d.kann_undo(), PAkt::Undo), knopf_p("↷", "Wiederholen (Cmd+Umschalt+Z)", d.kann_redo(), PAkt::Redo), muster::trenner(pal), knopf_p("Standardpalette", "Auf die Standardpalette zurücksetzen · alle Aktionen: Rechtsklick oder Menü-Taste", true, PAkt::Standard)].spacing(8).align_y(Alignment::Center).into());
+        let leiste = muster::leiste(pal, iced::widget::row![knopf_p("↶", &vc_i18n::t!("palettestudio-rueckgaengig-cmd-z"), d.kann_undo(), PAkt::Undo), knopf_p("↷", &vc_i18n::t!("palettestudio-wiederholen-cmd-umschalt-z"), d.kann_redo(), PAkt::Redo), muster::trenner(pal), knopf_p(&vc_i18n::t!("palettestudio-standardpalette"), &vc_i18n::t!("palettestudio-auf-die-standardpalette-zuruecksetzen-alle-aktionen"), true, PAkt::Standard)].spacing(8).align_y(Alignment::Center).into());
         // Zone 4: das Farbraster füllt den freien Platz (quadratische Felder, ganzzahlig)
         let n = d.anzahl(); let zeilen_n = n.div_ceil(16).max(1); let sel = d.sel; let rel_c = r.clone();
         let flaeche_el: Element<Msg> = iced::widget::responsive(move |size| {
@@ -62,18 +62,18 @@ impl App {
         }).into();
         let flaeche_el: Element<Msg> = container(flaeche_el).width(Length::Fill).height(Length::Fill).style(move |_| container::Style { background: Some(pal.editor.into()), ..Default::default() }).into();
         let c = d.rgb(d.sel); let farbe = Color::from_rgb8(c[0], c[1], c[2]);
-        let regler = |name: &str, k: usize, v: u8| -> Element<Msg> { let r2 = r.clone(); let r3 = r.clone(); iced::widget::row![text(name.to_string()).size(12).color(pal.mute).width(14), slider(0..=255u8, v, move |x| Msg::PaletteAkt(r2.clone(), PAkt::Kanal(k, x))).on_release(Msg::PaletteAkt(r3, PAkt::Fertig)).width(Length::Fill), text(format!("{v}")).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text).width(30).align_x(iced::alignment::Horizontal::Right)].spacing(8).align_y(Alignment::Center).into() };
+        let regler = |name: &str, k: usize, v: u8| -> Element<'static, Msg> { let r2 = r.clone(); let r3 = r.clone(); iced::widget::row![text(name.to_string()).size(12).color(pal.mute).width(14), slider(0..=255u8, v, move |x| Msg::PaletteAkt(r2.clone(), PAkt::Kanal(k, x))).on_release(Msg::PaletteAkt(r3, PAkt::Fertig)).width(Length::Fill), text(format!("{v}")).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text).width(30).align_x(iced::alignment::Horizontal::Right)].spacing(8).align_y(Alignment::Center).into() };
         // Karte Dokument: der gewählte Eintrag (Farbfeld, Regler, Hexwert); wird mit der Datei gespeichert
         let eintrag = iced::widget::column![
             container(space::vertical()).width(Length::Fill).height(60).style(move |_| container::Style { background: Some(farbe.into()), border: Border { color: pal.line, width: 1.0, radius: 8.0.into() }, ..Default::default() }),
             regler("R", 0, c[0]), regler("G", 1, c[1]), regler("B", 2, c[2]),
-            iced::widget::row![text("Hex").size(12).color(pal.mute), text_input("#rrggbb", &self.pal_hex).on_input({ let r = r.clone(); move |h| Msg::PaletteAkt(r.clone(), PAkt::Hex(h)) }).on_submit(Msg::PaletteAkt(r.clone(), PAkt::HexOk)).size(12).padding(4).width(110).font(vc_gui_ui::fonts::MONO)].spacing(8).align_y(Alignment::Center),
-            text(t::PALETTE_HINWEIS).size(11).color(pal.mute).width(Length::Fill)].spacing(muster::abstand::GRUPPE);
-        let karten: Vec<Element<Msg>> = vec![muster::karte(pal, &format!("Eintrag {} (${:02X})", d.sel, d.sel), "▤", "Farbe dieses Eintrags · wird gespeichert", None, eintrag.into())];
+            iced::widget::row![text(vc_i18n::t!("palettestudio-hex")).size(12).color(pal.mute), text_input("#rrggbb", &self.pal_hex).on_input({ let r = r.clone(); move |h| Msg::PaletteAkt(r.clone(), PAkt::Hex(h)) }).on_submit(Msg::PaletteAkt(r.clone(), PAkt::HexOk)).size(12).padding(4).width(110).font(vc_gui_ui::fonts::MONO)].spacing(8).align_y(Alignment::Center),
+            text(t::palette_hinweis()).size(11).color(pal.mute).width(Length::Fill)].spacing(muster::abstand::GRUPPE);
+        let karten: Vec<Element<Msg>> = vec![muster::karte(pal, &vc_i18n::t!("palettestudio-eintrag-p1-p2", p1 = &d.sel, p2 = format!("{:02X}", d.sel)), "▤", &vc_i18n::t!("palettestudio-farbe-dieses-eintrags-wird-gespeichert"), None, eintrag.into())];
         let seite = muster::seitenspalte(klasse, karten);
         let name = rel.rsplit('/').next().unwrap_or(rel).to_string();
-        let kopf_z = muster::kopfzeile(pal, klasse, "PAL", &name, d.dirty(), &format!("{n} Farben"), vec![knopf_p("Exportieren …", "Export-Dialog (Cmd+Umschalt+E)", true, PAkt::Exportieren), knopf_p("Speichern", "Speichern (Cmd+S)", d.dirty(), PAkt::Speichern)]);
-        let fuss = muster::fusszeile(pal, &format!("Eintrag {} (${:02X}) · {}", d.sel, d.sel, d.eintrag(d.sel)), text("").into());
+        let kopf_z = muster::kopfzeile(pal, klasse, "PAL", &name, d.dirty(), &vc_i18n::t!("palettestudio-n-farben", n = &n), vec![knopf_p(&vc_i18n::t!("palettestudio-exportieren"), &vc_i18n::t!("palettestudio-export-dialog-cmd-umschalt-e"), true, PAkt::Exportieren), knopf_p(&vc_i18n::t!("palettestudio-speichern"), &vc_i18n::t!("palettestudio-speichern-cmd-s"), d.dirty(), PAkt::Speichern)]);
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("palettestudio-eintrag-p1-p2-p3", p1 = &d.sel, p2 = format!("{:02X}", d.sel), p3 = d.eintrag(d.sel)), text("").into());
         muster::studio_rahmen(pal, klasse, muster::Studio { liste_breite: muster::LISTE_BREITE, kopf: kopf_z, leiste, liste: None, flaeche: { let r2 = r.clone(); crate::kontext::rechtsklick(flaeche_el, move |pt| Msg::KontextAuf(crate::kontext::Art::FlaecheStudio, pt, Some(r2.clone()))) }, seite, fuss })
     }
 }

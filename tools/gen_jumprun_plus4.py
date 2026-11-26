@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Hinweis (i18n I6): Von den erzeugten Dateien gibt es eine englische Kopie unter examples/en/<system>/<projekt>/ (Kommentare übersetzt).
+# Nach dem Neuerzeugen die englische Kopie anpassen; `python3 tools/examples_en.py pruefen` meldet jede Abweichung im Code.
 """Erzeugt die Assets des Plus/4-Beispiels examples/plus4/jumprun aus den gemeinsamen Kunstdaten (tools/jumprun_art.py).
 
 Plus/4-Besonderheiten gegenueber C64 und Atari (siehe Konzept "Hugo & Gumbo"):

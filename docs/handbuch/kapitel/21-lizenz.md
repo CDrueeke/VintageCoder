@@ -1,47 +1,34 @@
 ---
 id: lizenz
-titel: Lizenz und freie Nutzung
+titel: Lizenz und Danksagungen
 reihenfolge: 21
 stufe: Einsteiger
-zeit: 10 Minuten
+zeit: 5 Minuten
 siehe_auch: [willkommen, assembler, bauen-starten, kuerzel-faq]
 referenz: [license, license-build, about]
 ---
 
-# Lizenz und freie Nutzung
+# Lizenz und Danksagungen
 
-**Ziel:** Du weißt, was du mit VintageCoder, mit der Sprache VCASM und mit den Dateien tun darfst, die du damit erzeugst, und wann ein Hinweis auf eine fremde Lizenz erscheint.
+**Ziel:** Du weißt in Kürze, was du mit VintageCoder und den Dateien tun darfst, die du damit erzeugst, und wem VintageCoder Teile verdankt.
 
-## Das Wichtigste in drei Sätzen
+## Das Wichtigste
 
-1. **Was du mit VintageCoder baust, gehört dir:** Programme, Quelltexte, Diskettenabbilder, Grafiken, Musik und alle anderen Dateien darfst du beliebig verwenden und weitergeben, auch kommerziell, auch ohne deinen Quelltext offenzulegen und ohne Hinweis auf VintageCoder.
-2. **Die Sprache VCASM und die Dateiformate sind frei.** Jeder darf sie in eigenen Werkzeugen umsetzen, und `vcc` und `vc-lsp` darfst du aus jeder Software aufrufen, auch aus nicht freier.
-3. **Die GPL gilt für den Quelltext von VintageCoder selbst** (Version 3 oder später). Wer das Programm ändert und weitergibt, beachtet sie.
+1. **Was du mit VintageCoder baust, gehört dir.** Programme, Quelltexte, Diskettenabbilder, Grafiken und Musik darfst du frei verwenden und weitergeben, auch ohne Hinweis auf VintageCoder.
+2. **Die Sprache VCASM und die Dateiformate sind frei.** Jeder darf sie in eigenen Werkzeugen umsetzen.
+3. **VintageCoder selbst** steht unter der GNU General Public License, Version 3 oder später, ohne Gewährleistung. Der Text liegt in der Datei **LICENSE**, Einzelheiten stehen in **LICENSING.md** (im Installationsordner unter `share/doc` bzw. `Resources`).
 
-Der Wortlaut steht in der Datei **LICENSING.md** (im Installationsordner unter `share/doc` bzw. `Resources`); verbindlich ist ihr Abschnitt „Erklärung des Rechteinhabers“. Hier folgt dieselbe Aussage in Worten für den Alltag. Eine Rechtsberatung ist das nicht.
+Systemdateien, Vorlagen und Beispielprojekte stehen unter **MIT-0**: Du darfst sie ohne Auflagen in eigene Programme übernehmen. Der Name „VintageCoder“ und das Logo sind von der GPL ausgenommen; Einzelheiten stehen in LICENSING.md.
 
-## Systemdateien, Vorlagen und Beispiele: MIT-0
+## Danksagungen
 
-Die Systemdateien (`data/sys`), die Vorlagen (`data/templates`) und die Beispielprojekte (`examples`) stehen unter **MIT-0** (MIT ohne Namensnennung). Du darfst sie in eigene Programme einsetzen, ändern und weitergeben, ohne einen Urheberhinweis aufzunehmen. Der Text der Lizenz liegt im Ordner `LICENSES` (`MIT-0.txt`).
-
-## Fremdanteile behalten ihre Lizenz
-
-Die Freigabe gilt nicht für Quelltext, den andere geschrieben haben. Das wichtigste Beispiel ist der **RMT-Player** der Atari-Beispiele `music_demo` und `jumprun` (Dateien `rmtplayr.asm` und `rmt.inc`). Er stammt von Radek Štěrba (Raster / C.P.U.) und steht unter der GPL Version 3. Ein Programm, das ihn enthält, darfst du nur nach den Bedingungen dieser Lizenz weitergeben, also mit dem Quelltext des ganzen Programms unter der GPL. Willst du das nicht, verwende einen anderen Spieler.
-
-Ebenso bleiben die Rechte an ROMs, fremden Zeichensätzen, Musik und Bildern bei ihren Inhabern, wenn du sie einbindest. VintageCoder liefert keine ROMs mit.
+VintageCoder enthält Teile anderer Projekte. Die vollständige Liste mit Namen, Urhebern, Lizenzen und Links steht unter **Einstellungen ▸ Info und Update** in der Rubrik **Danksagungen** und in der Datei `THIRD-PARTY-NOTICES.md`. Dazu zählen auch die Emulatoren, die VintageCoder startet und die du selbst installierst (VICE, atari800, Altirra, Fujisan, Xemu) und die Programme und Formate, aus denen VintageCoder Dateien liest (GoatTracker 2, das SID-Dateiformat mit der High Voltage SID Collection, SpritePad); diese Programme werden nicht mitgeliefert. Ein Beispiel ist der **RMT-Player** der Atari-Beispiele `music_demo` und `jumprun`: [Raster Music Tracker](https://github.com/raster-atari-org/RASTER-Music-Tracker) von Radek Štěrba / Raster / C.P.U., weitergeführt von Vin Samuel und Peter Dell, GPL v3.
 
 ## Der Hinweis beim Übersetzen
 
-Beim Übersetzen liest VintageCoder die Zeile `SPDX-License-Identifier:` in den Kopfzeilen deiner Quelldateien. Steht in einer Datei eine Copyleft-Lizenz (GPL, LGPL, AGPL), erscheint im **Protokoll** und unter **Probleme** der Hinweis **L001**. Er ist **kein Fehler**: Er erinnert dich nur daran, dass du beim Weitergeben des Programms die Bedingungen dieser Lizenz einhalten musst. Beim Beispiel `music_demo` (RMT-Player) siehst du ihn, beim Beispiel `prallball` nicht.
-
-Eine Liste aller Dateien mit Lizenz und Urheber gibt `vcc build --license-report`; sie steht auch in `build/LICENSES.txt`. Wer eine Lizenz ausschließen will, trägt sie in der Projektdatei unter `licenses` ▸ `deny` ein, dann scheitert der Bau. Die Einzelheiten und Grenzen stehen in [Lizenzhinweis beim Übersetzen](hilfe:license-build). Das Ergebnis ist nur so gut wie die Kopfzeilen deiner Dateien.
-
-## Namen und Logo
-
-Der Name und das Logo „VintageCoder“ sind nicht frei. Du darfst aber wahrheitsgemäß sagen, dass ein Programm mit VintageCoder gebaut wurde.
+Steht in einer Quelldatei eine Copyleft-Lizenz (GPL, LGPL, AGPL) im Kopf, erscheint beim Bauen der Hinweis **L001**. Er ist kein Fehler. Mehr dazu steht in [Lizenzhinweis beim Übersetzen](hilfe:license-build).
 
 ## Wie geht es weiter?
 
-- Die Seite zum Nachschlagen: [Lizenz und freie Nutzung](hilfe:license).
-- Der Hinweis beim Übersetzen im Detail: [Lizenzhinweis beim Übersetzen](hilfe:license-build).
+- Die Seite zum Nachschlagen: [Lizenz und Danksagungen](hilfe:license).
 - Bauen und Starten: [Bauen und Starten](kapitel:bauen-starten).

@@ -1,0 +1,465 @@
+{
+ "source": "sys/c128/kernal.asm",
+ "entries": {
+  "/L6": {
+   "de": "C128-Erweiterungen der Sprungtabelle",
+   "en": "C128 extensions of the jump table",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Schnelle serielle Ports für Ein-/Ausgabe einrichten",
+   "en": "Set up fast serial ports for input/output",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Alle Dateien eines Geräts schließen",
+   "en": "Close all files of a device",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "In den C64-Modus wechseln",
+   "en": "Switch to C64 mode",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "DMA-Dienst aufrufen",
+   "en": "Call DMA service",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Bootsektor laden und starten",
+   "en": "Load and start boot sector",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Funktionsmodule starten",
+   "en": "Start function modules",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Logische Dateinummer nachschlagen",
+   "en": "Look up logical file number",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Sekundäradresse nachschlagen",
+   "en": "Look up secondary address",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Bildschirm 40/80 umschalten",
+   "en": "Switch screen 40/80",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Zeichensatz in den VDC laden",
+   "en": "Load character set into the VDC",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Funktionstaste belegen",
+   "en": "Define function key",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "Bank für LOAD/SAVE/OPEN setzen",
+   "en": "Set bank for LOAD/SAVE/OPEN",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Konfigurationswert zu einer Bank holen",
+   "en": "Get configuration value for a bank",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Unterprogramm in anderer Bank aufrufen",
+   "en": "Call subroutine in another bank",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "In andere Bank springen",
+   "en": "Jump to another bank",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Byte aus anderer Bank holen (LDA)",
+   "en": "Fetch byte from another bank (LDA)",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Byte in andere Bank schreiben (STA)",
+   "en": "Write byte to another bank (STA)",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Byte aus anderer Bank vergleichen (CMP)",
+   "en": "Compare byte from another bank (CMP)",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Text hinter dem JSR ausgeben",
+   "en": "Print text following the JSR",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "C64-kompatibler Teil der Sprungtabelle",
+   "en": "C64-compatible part of the jump table",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Bildschirm-Editor initialisieren",
+   "en": "Initialize screen editor",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "E/A-Bausteine initialisieren",
+   "en": "Initialize I/O chips",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "RAM-Test und Zeiger setzen",
+   "en": "RAM test and set pointers",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Vektoren auf Standard",
+   "en": "Vectors to default",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Vektoren lesen/setzen",
+   "en": "Read/set vectors",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Systemmeldungen steuern",
+   "en": "Control system messages",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Sekundäradresse nach LISTEN",
+   "en": "Secondary address after LISTEN",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Sekundäradresse nach TALK",
+   "en": "Secondary address after TALK",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Speicherobergrenze lesen/setzen",
+   "en": "Read/set top of memory",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Speicheruntergrenze lesen/setzen",
+   "en": "Read/set bottom of memory",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Tastatur abtasten",
+   "en": "Scan keyboard",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "IEEE-Timeout",
+   "en": "IEEE timeout",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Byte vom IEC-Bus holen",
+   "en": "Get byte from IEC bus",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Byte auf IEC-Bus senden",
+   "en": "Send byte to IEC bus",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "UNTALK senden",
+   "en": "Send UNTALK",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "UNLISTEN senden",
+   "en": "Send UNLISTEN",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Gerät als Hörer aufrufen",
+   "en": "Command device to listen",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Gerät als Sprecher aufrufen",
+   "en": "Command device to talk",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "Statuswort lesen",
+   "en": "Read status word",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "Logische Datei, Gerät, Sekundäradresse setzen",
+   "en": "Set logical file, device, secondary address",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "Dateinamen setzen",
+   "en": "Set file name",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "Datei öffnen",
+   "en": "Open file",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "Datei schließen",
+   "en": "Close file",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "Eingabekanal setzen",
+   "en": "Set input channel",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "Ausgabekanal setzen",
+   "en": "Set output channel",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Kanäle zurücksetzen",
+   "en": "Reset channels",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Zeichen holen",
+   "en": "Get character",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "Zeichen ausgeben",
+   "en": "Output character",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Datei laden",
+   "en": "Load file",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Speicher sichern",
+   "en": "Save memory",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Systemuhr setzen",
+   "en": "Set system clock",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "Systemuhr lesen",
+   "en": "Read system clock",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "STOP-Taste prüfen",
+   "en": "Check STOP key",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "Taste aus Puffer holen",
+   "en": "Get key from buffer",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "Alle Dateien schließen",
+   "en": "Close all files",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "Systemuhr weiterzählen",
+   "en": "Advance system clock",
+   "status": "maschinell"
+  },
+  "/L64": {
+   "de": "Bildschirmgröße holen",
+   "en": "Get screen size",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "Cursorposition lesen/setzen",
+   "en": "Read/set cursor position",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "Adresse der E/A-Bausteine (CIA 1)",
+   "en": "Address of the I/O chips (CIA 1)",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "Hardwarevektoren",
+   "en": "Hardware vectors",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "NMI-Vektor",
+   "en": "NMI vector",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "RESET-Vektor",
+   "en": "RESET vector",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "IRQ/BRK-Vektor",
+   "en": "IRQ/BRK vector",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "Systemvariablen",
+   "en": "System variables",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "Statuswort (ST)",
+   "en": "Status word (ST)",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Aktuelle Gerätenummer",
+   "en": "Current device number",
+   "status": "maschinell"
+  },
+  "/L76": {
+   "de": "Bildschirmmodus (Bit 7: 80 Spalten)",
+   "en": "Screen mode (bit 7: 80 columns)",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "RAM-Vektoren",
+   "en": "RAM vectors",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "IRQ-Vektor",
+   "en": "IRQ vector",
+   "status": "maschinell"
+  },
+  "/L80": {
+   "de": "BRK-Vektor",
+   "en": "BRK vector",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "NMI-Vektor",
+   "en": "NMI vector",
+   "status": "maschinell"
+  },
+  "/L82": {
+   "de": "OPEN",
+   "en": "OPEN",
+   "status": "unverändert"
+  },
+  "/L83": {
+   "de": "CLOSE",
+   "en": "CLOSE",
+   "status": "unverändert"
+  },
+  "/L84": {
+   "de": "CHKIN",
+   "en": "CHKIN",
+   "status": "unverändert"
+  },
+  "/L85": {
+   "de": "CHKOUT",
+   "en": "CHKOUT",
+   "status": "unverändert"
+  },
+  "/L86": {
+   "de": "CLRCHN",
+   "en": "CLRCHN",
+   "status": "unverändert"
+  },
+  "/L87": {
+   "de": "CHRIN",
+   "en": "CHRIN",
+   "status": "unverändert"
+  },
+  "/L88": {
+   "de": "CHROUT",
+   "en": "CHROUT",
+   "status": "unverändert"
+  },
+  "/L89": {
+   "de": "STOP",
+   "en": "STOP",
+   "status": "unverändert"
+  },
+  "/L90": {
+   "de": "GETIN",
+   "en": "GETIN",
+   "status": "unverändert"
+  },
+  "/L91": {
+   "de": "CLALL",
+   "en": "CLALL",
+   "status": "unverändert"
+  },
+  "/L92": {
+   "de": "LOAD",
+   "en": "LOAD",
+   "status": "unverändert"
+  },
+  "/L93": {
+   "de": "SAVE",
+   "en": "SAVE",
+   "status": "unverändert"
+  },
+  "/L95": {
+   "de": "Routinen für Zugriffe auf andere Bänke (im gemeinsamen RAM)",
+   "en": "Routines for access to other banks (in common RAM)",
+   "status": "maschinell"
+  },
+  "/L96": {
+   "de": "Byte holen",
+   "en": "Fetch byte",
+   "status": "maschinell"
+  },
+  "/L97": {
+   "de": "Adresszeiger für FETCH",
+   "en": "Address pointer for FETCH",
+   "status": "maschinell"
+  },
+  "/L98": {
+   "de": "Byte schreiben",
+   "en": "Write byte",
+   "status": "maschinell"
+  },
+  "/L99": {
+   "de": "Adresszeiger für STASH",
+   "en": "Address pointer for STASH",
+   "status": "maschinell"
+  },
+  "/L100": {
+   "de": "Byte vergleichen",
+   "en": "Compare byte",
+   "status": "maschinell"
+  },
+  "/L101": {
+   "de": "Adresszeiger für CMPARE",
+   "en": "Address pointer for CMPARE",
+   "status": "maschinell"
+  },
+  "/L103": {
+   "de": "Makros",
+   "en": "Macros",
+   "status": "maschinell"
+  }
+ }
+}

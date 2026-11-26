@@ -1,0 +1,20 @@
+{
+ "source": "sys/mega65/hardware.asm",
+ "entries": {
+  "/L7": {
+   "de": "Speicherbereiche",
+   "en": "Memory areas",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Bildschirm im C65/MEGA65-Modus",
+   "en": "Screen in C65/MEGA65 mode",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "BASIC-65-Programmanfang",
+   "en": "BASIC 65 program start",
+   "status": "maschinell"
+  }
+ }
+}

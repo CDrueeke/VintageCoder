@@ -1,0 +1,56 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "734e93f62526" },
+  "command": "organize",
+  "group": "projekte",
+  "summary": "Rearrange project files according to the project structure",
+  "description": [
+    "Moves files of the project into the folders given by rules, layout and assets in the project file. Paths in .include/.incbin in the sources and the project file are updated. A backup is made first in .vcbackup/.",
+    "These stay where they are: programs of the source groups, start program, disk files, editor files (without a folder for studio in layout), .vctest files (except in a folder with the role tests), the project file, README, LICENSE, CHANGELOG and files already in the target folder. If the target is taken, the file is skipped.",
+    "After moving, a check build rebuilds the project and compares the result files with those from before. If they differ, the command ends with exit code 1."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc organize [project] [options]",
+      "args": [
+        { "name": "project", "required": false, "repeat": false, "help": "Project folder or .vcprj file. The default is the working folder." }
+      ],
+      "option_groups": [
+        { "id": "umfang", "label": "Scope" },
+        { "id": "ablauf", "label": "Process" }
+      ],
+      "options": [
+        { "flag": "--dry-run", "short": "", "value": "", "group": "ablauf",
+          "help": "Show planned moves and sources to be adjusted. Changes nothing.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--yes", "short": "-y", "value": "", "group": "ablauf",
+          "help": "Run without asking. Without a terminal, --yes is required, otherwise the command changes nothing.",
+          "default": "", "default_text": "asks in the terminal", "repeat": false, "required": false },
+        { "flag": "--subdirs", "short": "", "value": "", "group": "umfang",
+          "help": "Also rearrange files in subfolders, not only those in the project folder.",
+          "default": "", "default_text": "project folder only", "repeat": false, "required": false },
+        { "flag": "--no-rewrite", "short": "", "value": "", "group": "umfang",
+          "help": "Do not adjust paths in .include/.incbin in the sources.",
+          "default": "", "default_text": "paths are adjusted", "repeat": false, "required": false },
+        { "flag": "--no-check", "short": "", "value": "", "group": "ablauf",
+          "help": "Skip the check build before and after moving.",
+          "default": "", "default_text": "check build runs", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ablauf",
+          "help": "Folder of the hardware database (data) for the check build. If it is not found, the check build is skipped with a note.",
+          "default": "", "default_text": "VC_DATA, otherwise next to the program or in the working folder", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "see what would be moved", "cmd": "vcc organize game --dry-run" },
+        { "title": "run with a prompt", "cmd": "vcc organize game" },
+        { "title": "without a prompt, including subfolders", "cmd": "vcc organize game --subdirs --yes" }
+      ],
+      "notes": [
+        "If the check build differs: copy the files back from .vcbackup/<time>/ and move the files named in moves.txt back. The last five backups are kept.",
+        "If there are no files to move, the command reports \"Nothing to organize.\""
+      ],
+      "exit": { "0": "no errors or cancelled", "1": "error, missing confirmation without a terminal, or different check build" },
+      "see_also": ["add", "new", "build"]
+    }
+  ]
+}

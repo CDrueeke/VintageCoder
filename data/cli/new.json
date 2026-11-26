@@ -23,7 +23,7 @@
           "help": "Zielsysteme, durch Komma getrennt. Jedes bekommt eigene Quellen unter src/<system>/. Die Vorlage muss das System kennen.",
           "default": "c64", "default_text": "", "repeat": false, "required": false },
         { "flag": "--template", "short": "", "value": "vorlage", "group": "projekt",
-          "help": "Dateivorlage: Assemblerprogramm, BASIC ohne Zeilennummern oder nur Projektdatei mit src/.",
+          "help": "Dateivorlage: Assemblerprogramm, BASIC oder nur Projektdatei mit src/.",
           "choices": ["asm-hello", "basic-hello", "empty"],
           "default": "asm-hello", "default_text": "", "repeat": false, "required": false },
         { "flag": "--variant", "short": "", "value": "variante", "group": "projekt",
@@ -31,8 +31,8 @@
           "choices": ["cartridge"],
           "default": "", "default_text": "keine", "repeat": false, "required": false },
         { "flag": "--structure", "short": "", "value": "struktur", "group": "projekt",
-          "help": "Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich.",
-          "choices": ["einfach", "standard", "gross", "mehrsystem", "bibliothek", "spiel"],
+          "help": "Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Die früheren deutschen Namen (einfach, gross, mehrsystem, bibliothek, spiel) gelten weiter.",
+          "choices": ["simple", "standard", "large", "multisystem", "library", "game"],
           "default": "", "default_text": "keine", "repeat": false, "required": false },
         { "flag": "--charset", "short": "", "value": "wahl", "group": "projekt",
           "help": "Zeichensatz des Projekts: auto = dein ROM als Verweis, sonst der eigene Standardsatz als Kopie; own = immer der eigene Standardsatz (weitergebbar, mit HERKUNFT.txt); none = keiner.",
@@ -51,13 +51,13 @@
       "examples": [
         { "title": "einfaches C64-Projekt", "cmd": "vcc new spiel --target c64" },
         { "title": "ein Projekt für mehrere Ziele", "cmd": "vcc new multi --target c64,atari8" },
-        { "title": "BASIC-Projekt mit Projektstruktur", "cmd": "vcc new demo --target c64,vic20 --template basic-hello --structure mehrsystem" },
+        { "title": "BASIC-Projekt mit Projektstruktur", "cmd": "vcc new demo --target c64,vic20 --template basic-hello --structure multisystem" },
         { "title": "Steckmodul für den VC-20", "cmd": "vcc new modul --target vic20 --variant cartridge" },
         { "title": "Vorlagen und Strukturen auflisten", "cmd": "vcc new --list" }
       ],
       "notes": [
-        "Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet und cbm2.",
-        "Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET, CBM-II) bekommen nichts.",
+        "Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet.",
+        "Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET) bekommen nichts.",
         "Ausgegeben werden die angelegten Ordner und Dateien."
       ],
       "see_also": ["add", "organize", "build"]

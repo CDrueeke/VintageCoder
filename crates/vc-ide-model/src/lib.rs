@@ -39,3 +39,5 @@ pub mod songimport;
 pub mod syntax;
 pub mod synth;
 pub mod tilesetdoc;
+
+pub mod zahlen;

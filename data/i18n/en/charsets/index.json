@@ -1,0 +1,85 @@
+{
+ "source": "charsets/index.json",
+ "entries": {
+  "/saetze/0/name": {
+   "de": "VC-Standard C64 Groß/Grafik",
+   "en": "VC-Standard C64 Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/1/name": {
+   "de": "VC-Standard C64 Klein/Groß",
+   "en": "VC-Standard C64 Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/2/name": {
+   "de": "VC-Standard Atari",
+   "en": "VC-Standard Atari",
+   "status": "unverändert"
+  },
+  "/saetze/3/name": {
+   "de": "VC-Standard Atari International",
+   "en": "VC-Standard Atari International",
+   "status": "unverändert"
+  },
+  "/saetze/4/name": {
+   "de": "VC-Standard Plus/4 und C16 Groß/Grafik",
+   "en": "VC-Standard Plus/4 and C16 Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/5/name": {
+   "de": "VC-Standard Plus/4 und C16 Klein/Groß",
+   "en": "VC-Standard Plus/4 and C16 Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/6/name": {
+   "de": "VC-Standard PET Groß/Grafik",
+   "en": "VC-Standard PET Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/7/name": {
+   "de": "VC-Standard PET Klein/Groß",
+   "en": "VC-Standard PET Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/8/name": {
+   "de": "VC-Standard VC-20 Groß/Grafik",
+   "en": "VC-Standard VIC-20 Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/9/name": {
+   "de": "VC-Standard VC-20 Klein/Groß",
+   "en": "VC-Standard VIC-20 Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/10/name": {
+   "de": "VC-Standard C128 40 Spalten Groß/Grafik",
+   "en": "VC-Standard C128 40 columns Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/11/name": {
+   "de": "VC-Standard C128 40 Spalten Klein/Groß",
+   "en": "VC-Standard C128 40 columns Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/12/name": {
+   "de": "VC-Standard C128 VDC 80 Spalten Groß/Grafik",
+   "en": "VC-Standard C128 VDC 80 columns Upper/Graphics",
+   "status": "maschinell"
+  },
+  "/saetze/13/name": {
+   "de": "VC-Standard C128 VDC 80 Spalten Klein/Groß",
+   "en": "VC-Standard C128 VDC 80 columns Lower/Upper",
+   "status": "maschinell"
+  },
+  "/saetze/14/name": {
+   "de": "VC-Standard MEGA65 Groß/Grafik (Vollfarbmodus)",
+   "en": "VC-Standard MEGA65 Upper/Graphics (full color mode)",
+   "status": "maschinell"
+  },
+  "/saetze/15/name": {
+   "de": "VC-Standard MEGA65 Klein/Groß (Vollfarbmodus)",
+   "en": "VC-Standard MEGA65 Lower/Upper (full color mode)",
+   "status": "maschinell"
+  }
+ }
+}

@@ -1,7 +1,7 @@
 # Hugo & Gumbo (Atari 8 Bit)
 
 Selbstlaufende Jump-and-Run-Demo in Assembler: Titelbild, vier Bilder mit Autopilot, Finale, von vorn.
-Gleiche Spiellogik wie die C64-Version (`../../common/jumprun/core.asm`), eigene Hardware-Schicht `hal_atari.asm`:
+Gleiche Spiellogik wie die C64-Version (`lib/core.asm`), eigene Hardware-Schicht `hal_atari.asm`:
 
 - ANTIC-Modus 4 (vier Farben) mit eigenem Zeichensatz, Himmelsbalken per Display-List-Interrupt
 - Held aus vier Spielern (Umriss, Haut, Hemd, Hose), Gegner aus den Missiles (Player-Missile-Grafik)

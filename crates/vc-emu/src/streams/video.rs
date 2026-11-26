@@ -35,11 +35,11 @@ pub fn parse(p: &[u8]) -> Result<VideoPacket<'_>, PacketError> {
     let u16at = |i: usize| u16::from_le_bytes([p[i], p[i + 1]]);
     let raw_line = u16at(4);
     let h = VideoHeader { seq: u16at(0), frame: u16at(2), line: raw_line & 0x7FFF, last: raw_line & 0x8000 != 0, pixels_per_line: u16at(6), lines_per_packet: p[8], bits_per_pixel: p[9], encoding: u16at(10) };
-    if h.pixels_per_line != WIDTH { return Err(PacketError::Header("Pixel je Zeile")); }
-    if h.lines_per_packet != LINES_PER_PACKET { return Err(PacketError::Header("Zeilen je Paket")); }
-    if h.bits_per_pixel != 4 { return Err(PacketError::Header("Bits je Pixel")); }
-    if h.encoding != 0 { return Err(PacketError::Header("Kodierung")); }
-    if h.line as u32 + h.lines_per_packet as u32 > MAX_LINES as u32 { return Err(PacketError::Header("Zeile außerhalb des Bilds")); }
+    if h.pixels_per_line != WIDTH { return Err(PacketError::Header("emu-header-pixel-je-zeile")); }
+    if h.lines_per_packet != LINES_PER_PACKET { return Err(PacketError::Header("emu-header-zeilen-je-paket")); }
+    if h.bits_per_pixel != 4 { return Err(PacketError::Header("emu-header-bits-je-pixel")); }
+    if h.encoding != 0 { return Err(PacketError::Header("emu-header-kodierung")); }
+    if h.line as u32 + h.lines_per_packet as u32 > MAX_LINES as u32 { return Err(PacketError::Header("emu-header-zeile-ausserhalb-des-bilds")); }
     Ok(VideoPacket { header: h, pixels: &p[HEADER_LEN..HEADER_LEN + PAYLOAD_LEN] })
 }
 
@@ -124,7 +124,7 @@ mod tests {
         assert!(matches!(parse(&make(0, 0, 0, false)[..779]), Err(PacketError::Length { .. })));
         let mut long = make(0, 0, 0, false); long.push(0); assert!(matches!(parse(&long), Err(PacketError::Length { .. })));
         for (i, v) in [(6usize, 0u8), (8, 2), (9, 8), (10, 1), (7, 2)] { let mut p = make(0, 0, 0, false); p[i] = v; assert!(matches!(parse(&p), Err(PacketError::Header(_))), "Byte {i}"); }
-        assert!(matches!(parse(&make(0, 0, 300, false)), Err(PacketError::Header("Zeile außerhalb des Bilds"))));
+        assert!(matches!(parse(&make(0, 0, 300, false)), Err(PacketError::Header("emu-header-zeile-ausserhalb-des-bilds"))));
         assert!(matches!(parse(&make(0, 0, 297, true)), Err(PacketError::Header(_))), "297+4 > 300");
         assert!(parse(&make(0, 0, 296, true)).is_ok());
     }

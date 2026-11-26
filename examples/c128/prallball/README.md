@@ -23,3 +23,14 @@ Hardware-Sprites, Raster-Farbbaender, SID); eigener Code, weil Speicherverwaltun
   BCD-Punkte, Richtungstabelle, Schlaegerabprall, Steinkollision, Durchschlag, alle 24 Levels, Bestenliste, Zeichensatzkopie, VIC-Einrichtung, Bildschirm-Hilfen).
 - **Testfassungen (`-D`):** `AUTOPLAY`, `STARTLEVEL=n` (0-basiert), `TESTMULTI`, `TESTLASER`, `TESTLOSE`, `TESTFPS`, `TESTCAP`, `NOTICKER` (Einzelheiten im Dateikopf von `prallball.asm`). Bauen: `vcc asm prallball.asm --target c128 --cpu 8502 -D AUTOPLAY=1 -o x.prg`.
 - **Werkzeuge:** `tools/gen.py`, `tools/make_levels.py`, `tools/compose.py` (wie C64).
+
+## Einstellungen und Demo-Spieler (neu)
+
+Am Anfang von `prallball.asm` steht der Block **EINSTELLUNGEN** (auch per `-D NAME=wert` beim Uebersetzen setzbar):
+`EXTRA_RATE` (40: Chance in 256 je zerstoertem Stein auf Kapseln; etwa doppelt so viele wie vorher), `DEMO_REAKTION_MIN`/`DEMO_REAKTION_MAX` (4/12 Bilder Reaktionszeit nach einem Richtungswechsel des Balls), `DEMO_FEHLER_RATE`, `DEMO_FEHLER_FERN`, `DEMO_UNGENAU`, `DEMO_VERFEHLEN_RATE`, `DEMO_EXTRA_LUST`, `DEMO_EXTRA_FERN`.
+Der Demo-Spieler wirkt dadurch menschlicher (Reaktionszeit, kurze Fehler, ungenaues Treffen, seltenes absichtliches Verfehlen) und faengt gute fallende Kapseln, solange der Ball weit weg ist.
+Testfassung `-D AUTOPLAY=1 -D TESTDEMO=1` zaehlt Ereignisse des Demo-Spielers im RAM (siehe Kopfkommentar).
+
+**Winkelzufall (neu):** Beim Abschlag vom Schlaeger wird der Abprallwinkel mit der Chance `WINKEL_ZUFALL` (Standard 64 von 256, also etwa jeder vierte Treffer) um genau eine Zone (17 Grad) nach links oder rechts verschoben. Das gilt fuer den Menschen und den Demo-Spieler; der Ball bleibt immer in den acht Zonen, an den Raendern wird nicht darueber hinaus geschoben. Es verhindert endlose, immer gleiche Bahnen. `0` schaltet den Zufall ab (`-D WINKEL_ZUFALL=0`). Mit `-D AUTOPLAY=1` spielt der Rechner jetzt alle Levels ohne Ende (bisher nur die ersten fuenf); `-D TESTDEMO=1` zaehlt zusaetzlich die Winkelverschiebungen, die Schlaegertreffer, die geschafften Levels, die zerstoerten Steine und die durch das Zeitlimit beendeten Levels (Adressen im Kopf von `prallball.asm`).
+
+**Demo-Zeitlimit (neu):** Trifft der Demo-Spieler `DEMO_STEIN_LIMIT` Sekunden (Standard 40) lang keinen Stein, gilt das Level als geschafft und das naechste beginnt; so haelt ein unerreichbarer oder zaeher letzter Stein die Demo nicht endlos auf. Nur in der Demo (und mit `AUTOPLAY`), nie im Spiel fuer Menschen; `0` schaltet es ab.

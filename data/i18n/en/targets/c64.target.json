@@ -1,0 +1,90 @@
+{
+ "source": "targets/c64.target.json",
+ "entries": {
+  "/target/testMailboxNote": {
+   "de": "Postfach der Tests (Postfach-Modus, 8 Byte): Kassettenpuffer $033C-$03FB, frei solange kein Band benutzt wird",
+   "en": "Mailbox of the tests (mailbox mode, 8 bytes): cassette buffer $033C-$03FB, free as long as no tape is used",
+   "status": "maschinell"
+  },
+  "/target/testDebugRegNote": {
+   "de": "Debug-Register der Ultimate 64 ($D7FF, im C64 unbelegt): test_end meldet dort Status 2 oder 3; auf Emulatoren und anderer Hardware ohne Wirkung",
+   "en": "Debug register of the Ultimate 64 ($D7FF, unused in the C64): test_end reports status 2 or 3 there; no effect on emulators and other hardware",
+   "status": "geprüft"
+  },
+  "/regions/1/note": {
+   "de": "$00/$01: Prozessorport",
+   "en": "$00/$01: processor port",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "Standard-Bildschirm",
+   "en": "Default screen",
+   "status": "maschinell"
+  },
+  "/banking/source": {
+   "de": "Commodore 64 Programmer's Reference Guide (Speicherplan, Prozessorport $01) und Auswertung der PLA-Wahrheitstabelle ohne Steckmodul (GAME und EXROM = 1). Bitnamen wie in data/sys/c64/hardware.asm. Die Kassettenbits 3-5 des Ports bleiben unberücksichtigt; die Presets nennen nur die Bits 0-2 ($30-$37).",
+   "en": "Commodore 64 Programmer's Reference Guide (memory map, processor port $01) and evaluation of the PLA truth table without cartridge (GAME and EXROM = 1). Bit names as in data/sys/c64/hardware.asm. The cassette bits 3-5 of the port are not taken into account; the presets only name bits 0-2 ($30-$37).",
+   "status": "geprüft"
+  },
+  "/banking/register/bits/0/hint": {
+   "de": "BASIC-ROM bei $A000-$BFFF sichtbar (nur zusammen mit HIRAM = 1); sind LORAM und HIRAM beide 0, liegt bei $D000-$DFFF RAM",
+   "en": "BASIC ROM visible at $A000-$BFFF (only together with HIRAM = 1); if LORAM and HIRAM are both 0, there is RAM at $D000-$DFFF",
+   "status": "geprüft"
+  },
+  "/banking/register/bits/1/hint": {
+   "de": "KERNAL-ROM bei $E000-$FFFF sichtbar; ohne HIRAM auch kein BASIC-ROM",
+   "en": "KERNAL ROM visible at $E000-$FFFF; without HIRAM there is no BASIC ROM either",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/2/hint": {
+   "de": "1: E/A bei $D000-$DFFF; 0: Zeichen-ROM dort (nicht bei LORAM = HIRAM = 0)",
+   "en": "1: I/O at $D000-$DFFF; 0: character ROM there (not with LORAM = HIRAM = 0)",
+   "status": "geprüft"
+  },
+  "/banking/presets/0/name": {
+   "de": "Standard (BASIC, E/A, KERNAL)",
+   "en": "Default (BASIC, I/O, KERNAL)",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/name": {
+   "de": "Ohne BASIC (RAM bei $A000, E/A, KERNAL)",
+   "en": "Without BASIC (RAM at $A000, I/O, KERNAL)",
+   "status": "geprüft"
+  },
+  "/banking/presets/2/name": {
+   "de": "Nur E/A (kein BASIC, kein KERNAL)",
+   "en": "I/O only (no BASIC, no KERNAL)",
+   "status": "geprüft"
+  },
+  "/banking/presets/3/name": {
+   "de": "Alles RAM (E/A abgeschaltet)",
+   "en": "All RAM (I/O switched off)",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/note": {
+   "de": "Bei LORAM = HIRAM = 0 ist auch $D000-$DFFF RAM, unabhängig von CHAREN",
+   "en": "With LORAM = HIRAM = 0, $D000-$DFFF is also RAM, regardless of CHAREN",
+   "status": "maschinell"
+  },
+  "/banking/presets/4/name": {
+   "de": "Zeichen-ROM (BASIC, KERNAL)",
+   "en": "Character ROM (BASIC, KERNAL)",
+   "status": "geprüft"
+  },
+  "/banking/presets/5/name": {
+   "de": "Zeichen-ROM, ohne BASIC (KERNAL)",
+   "en": "Character ROM, without BASIC (KERNAL)",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/name": {
+   "de": "Nur Zeichen-ROM",
+   "en": "Character ROM only",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/name": {
+   "de": "Alles RAM",
+   "en": "All RAM",
+   "status": "geprüft"
+  }
+ }
+}

@@ -8,7 +8,7 @@ Stand 2026-11-17, Branch `claude/neue-gui`. **Alle Bilder, auf die Handbuch und 
 2. `python3 tools/handbuchbilder.py` (macOS, nutzt `sips`) legt jedes Bild unter `docs/handbuch/bilder/<kennung>.png` ab und schneidet dabei Ausschnitte zu (Spalten des Assistenten, Debug-Spalten, Zeile mit Haltepunkt, Atari-Palette, ROM-Rollen).
 3. Eine neue oder geänderte Kennung braucht einen Eintrag in `docs/handbuch/bilder/manifest.json` (Alt-Text, Unterschrift, Aufnahmehinweis). Die ältere Aufnahme mit Marken (`werkzeug/shot.sh`, `annotate.swift`) gilt nur noch für Bilder, die nicht mehr verwendet werden.
 
-Die ersten elf Bilder (Sprite, Zeichensatz-Überblick, Bildschirm, Kachel-Editor, -Bank, -Karte, Tracker-Muster und -Instrument, Grafik-Export, Editor-Syntax, Projektbaum) und die Website-Bilder entstehen mit `cargo test -p vc-gui website_bilder -- --ignored` (`build/web/`); die Website-Nachträge (Disk-Studio, Paletten-Studio, Debugger, Menüleiste) mit `website_bilder_nachtrag`.
+Die ersten elf Bilder (Sprite, Zeichensatz-Überblick, Bildschirm, Kachel-Editor, -Bank, -Karte, Tracker-Muster und -Instrument, Grafik-Export, Editor-Syntax, Projektbaum) und die Website-Bilder entstehen mit `cargo test -p vc-gui website_bilder -- --ignored` (`build/web/`); die Website-Nachträge (Disk-Editor, Paletten-Editor, Debugger, Menüleiste) mit `website_bilder_nachtrag`.
 
 ## Kennzeichnung „Beispielansicht“
 
@@ -24,7 +24,7 @@ Debug-Bilder (`debug-*`, `memory-map`, `segmente-baenke`, `emulator-reiter`) zei
 | `emulator-reiter` | der Reiter „Bild“ **ohne** Bild (ein Emulatorbild lässt sich ohne laufenden Emulator nicht ehrlich zeigen) |
 | `disk-neu` | der Dialog „Neue Datei“ mit Art „Diskette D64“ (es gibt keinen eigenen Dialog mit Format, Name und ID) |
 | `einstellungen-roms`, `rom-verzeichnis` | Ausschnitt der Rollenliste (alle „Fehlt“); ROM-Ordner und Suchorte stehen nicht im Bild, weil sie Rechnerpfade zeigen |
-| `palette-atari` | Ausschnitt der Karte „Dokument“ im Atari-PMG-Editor (die Atari-Palette hat kein eigenes Studio) |
+| `palette-atari` | Ausschnitt der Karte „Dokument“ im Atari-PMG-Editor (die Atari-Palette hat kein eigenes Editor) |
 | `wizard-system`, `wizard-sprache`, `wizard-details` | drei Ausschnitte desselben Dialogs „Neues Projekt erstellen“ |
 | `debug-ueberblick` | das rechte Panel ist zugeklappt; der Reiter „Bild“ steht in `emulator-reiter` |
 | `editor-falten` | die gefalteten Zeilen sind einfach versteckt; eine Marke mit der Zeilenzahl gibt es nicht (Text angepasst) |

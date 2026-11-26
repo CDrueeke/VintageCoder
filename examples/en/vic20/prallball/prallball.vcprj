@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VIC-20: PRALLBALL (8 KB)",
+    "description": "Ball-and-paddle game for the VIC-20 with 8 KB expansion: character sprites, 22 levels, joystick/keyboard, high score list"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "8k",
+      "cpu": "nmos6502",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

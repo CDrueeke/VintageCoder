@@ -26,7 +26,7 @@ struct Gt { orders: Vec<Vec<u8>>, ins: Vec<Ins>, tables: [(Vec<u8>, Vec<u8>); 4]
 struct Rd<'a> { d: &'a [u8], p: usize }
 impl<'a> Rd<'a> {
     fn take(&mut self, n: usize) -> Result<&'a [u8], String> {
-        if self.p + n > self.d.len() { return Err("Datei zu kurz".into()); }
+        if self.p + n > self.d.len() { return Err(vc_i18n::t!("media-datei-zu-kurz").into()); }
         let s = &self.d[self.p..self.p + n]; self.p += n; Ok(s)
     }
     fn u8(&mut self) -> Result<u8, String> { Ok(self.take(1)?[0]) }
@@ -37,15 +37,15 @@ fn parse(data: &[u8], chn: usize) -> Result<Gt, String> {
     let mut r = Rd { d: data, p: 0 };
     let id = r.take(4)?;
     if !matches!(id, b"GTS3" | b"GTS4" | b"GTS5") {
-        return Err(if matches!(id, b"GTS2" | b"GTS!") { "alte GoatTracker-Version (GTS2/GTS!): bitte in GoatTracker 2.x laden und neu speichern".into() } else { "keine GoatTracker-Datei (erwartet GTS5)".into() });
+        return Err(if matches!(id, b"GTS2" | b"GTS!") { vc_i18n::t!("media-alte-goattracker-version-gts2-gts-bitte").into() } else { vc_i18n::t!("media-keine-goattracker-datei-erwartet-gts5").into() });
     }
     r.take(96)?;                                     // Titel, Autor, Copyright
     let subtunes = r.u8()? as usize;
-    if subtunes == 0 || subtunes > 32 { return Err(format!("Unplausible Subtune-Zahl {subtunes}")); }
+    if subtunes == 0 || subtunes > 32 { return Err(vc_i18n::t!("media-goat-subtune-zahl-unplausibel", subtunes = &subtunes)); }
     let mut orders = vec![];
     for s in 0..subtunes { for c in 0..chn { let n = r.u8()? as usize + 1; let o = r.take(n)?.to_vec(); if s == 0 { orders.push(o); } let _ = c; } }
     let n_ins = r.u8()? as usize;
-    if n_ins > 63 { return Err(format!("Unplausible Instrumentzahl {n_ins}")); }
+    if n_ins > 63 { return Err(vc_i18n::t!("media-goat-instrumentzahl-unplausibel", n_ins = &n_ins)); }
     let mut ins = vec![];
     for _ in 0..n_ins {
         let b = r.take(25)?;
@@ -60,7 +60,7 @@ fn parse(data: &[u8], chn: usize) -> Result<Gt, String> {
         let m = r.u8()? as usize; let b = r.take(m * 4)?;
         pats.push(b.chunks(4).map(|c| [c[0], c[1], c[2], c[3]]).collect());
     }
-    if r.p != data.len() { return Err("Restdaten nach den Patterns".into()); }
+    if r.p != data.len() { return Err(vc_i18n::t!("media-restdaten-nach-den-patterns").into()); }
     Ok(Gt { orders, ins, tables, pats, subtunes, channels: chn })
 }
 
@@ -68,8 +68,25 @@ struct Row { note: u8, ins: u8, cmd: u8, data: u8 }
 
 fn gcd(a: usize, b: usize) -> usize { if b == 0 { a } else { gcd(b, a % b) } }
 
-const CMD_NAMES: [&str; 15] = ["", "Portamento aufwärts", "Portamento abwärts", "Tonportamento", "Vibrato", "AD setzen", "SR setzen", "Wellenform setzen", "Wellentabellen-Zeiger",
-    "Pulstabellen-Zeiger", "Filtertabellen-Zeiger", "Filtersteuerung", "Filter-Grenzfrequenz", "Hauptlautstärke", "Funktempo"];
+fn cmd_name(c: usize) -> String {
+    match c {
+        1 => vc_i18n::t!("media-goat-befehl-1"),
+        2 => vc_i18n::t!("media-goat-befehl-2"),
+        3 => vc_i18n::t!("media-goat-befehl-3"),
+        4 => vc_i18n::t!("media-goat-befehl-4"),
+        5 => vc_i18n::t!("media-goat-befehl-5"),
+        6 => vc_i18n::t!("media-goat-befehl-6"),
+        7 => vc_i18n::t!("media-goat-befehl-7"),
+        8 => vc_i18n::t!("media-goat-befehl-8"),
+        9 => vc_i18n::t!("media-goat-befehl-9"),
+        10 => vc_i18n::t!("media-goat-befehl-10"),
+        11 => vc_i18n::t!("media-goat-befehl-11"),
+        12 => vc_i18n::t!("media-goat-befehl-12"),
+        13 => vc_i18n::t!("media-goat-befehl-13"),
+        14 => vc_i18n::t!("media-goat-befehl-14"),
+        _ => "?".to_string(),
+    }
+}
 
 pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String>), String> {
     let mut warn = vec![];
@@ -77,14 +94,14 @@ pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String
         Ok(g) => g,
         Err(e3) => match parse(data, 6) { Ok(g) => g, Err(_) => return Err(e3) },
     };
-    if gt.channels == 6 { warn.push("Stereo-Song (2 SIDs): nur die ersten drei Stimmen werden übernommen".into()); }
-    if gt.subtunes > 1 { warn.push(format!("{} Subtunes: nur der erste wird übernommen", gt.subtunes)); }
+    if gt.channels == 6 { warn.push(vc_i18n::t!("media-stereo-song-2-sids-nur-die").into()); }
+    if gt.subtunes > 1 { warn.push(vc_i18n::t!("media-p1-subtunes-nur-der-erste-wird", p1 = &gt.subtunes)); }
     let eff = |pat: &Vec<[u8; 4]>| pat.iter().position(|r| r[0] == PAT_END).unwrap_or(pat.len());
     // --- Zeitachse je Stimme
     let (mut tracks, mut loops, mut clamped, mut missing) = (vec![], vec![], 0usize, false);
     let mut lens: Vec<usize> = vec![];
     for ch in 0..3 {
-        let ol = gt.orders.get(ch).ok_or("Orderliste fehlt")?;
+        let ol = gt.orders.get(ch).ok_or(vc_i18n::t!("media-orderliste-fehlt"))?;
         let (mut tl, mut starts, mut tr, mut rep, mut i) = (Vec::<Row>::new(), vec![0usize; ol.len()], 0i32, 1usize, 0usize);
         let mut restart = 0usize;
         while i < ol.len() {
@@ -103,7 +120,7 @@ pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String
                                 let note = match r[0] { x @ FIRST_NOTE..=LAST_NOTE => { let v = (x - FIRST_NOTE) as i32 + 1 + tr; if !(1..=96).contains(&v) { clamped += 1; } v.clamp(1, 96) as u8 } KEY_OFF => NOTE_OFF, _ => 0 };
                                 tl.push(Row { note, ins: if r[1] == 0 { INS_KEEP } else { r[1] - 1 }, cmd: r[2], data: r[3] });
                             }
-                            if tl.len() > MAX_ROWS { return Err("Song zu lang (über 65536 Zeilen)".into()); }
+                            if tl.len() > MAX_ROWS { return Err(vc_i18n::t!("media-song-zu-lang-ueber-65536-zeilen").into()); }
                         }
                     }
                 }
@@ -114,12 +131,12 @@ pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String
         loops.push(starts.get(restart).copied().unwrap_or(0));
         tracks.push(tl);
     }
-    if missing { warn.push("Orderliste verweist auf ein nicht vorhandenes Pattern (übersprungen)".into()); }
-    if clamped > 0 { warn.push(format!("{clamped} Noten lagen nach der Transponierung außerhalb des Bereichs und wurden begrenzt")); }
+    if missing { warn.push(vc_i18n::t!("media-orderliste-verweist-auf-ein-nicht-vorhandenes").into()); }
+    if clamped > 0 { warn.push(vc_i18n::t!("media-clamped-noten-lagen-nach-der-transponierung", clamped = &clamped)); }
     let total = tracks.iter().map(|t| t.len()).max().unwrap_or(0);
-    if total == 0 { return Err("Song enthält keine Zeilen".into()); }
-    if tracks.iter().any(|t| t.len() != total) { warn.push("Die Stimmen sind unterschiedlich lang: kürzere werden mit Pausen aufgefüllt (GoatTracker lässt sie unabhängig wiederholen)".into()); }
-    if loops.iter().any(|&l| l != loops[0]) { warn.push("Die Stimmen haben verschiedene Wiederholungspunkte: es gilt der der ersten Stimme".into()); }
+    if total == 0 { return Err(vc_i18n::t!("media-song-enthaelt-keine-zeilen").into()); }
+    if tracks.iter().any(|t| t.len() != total) { warn.push(vc_i18n::t!("media-die-stimmen-sind-unterschiedlich-lang-kuerzere").into()); }
+    if loops.iter().any(|&l| l != loops[0]) { warn.push(vc_i18n::t!("media-die-stimmen-haben-verschiedene-wiederholungspunkte-es").into()); }
     let loop_row = loops[0];
     // --- Tempo und Befehle
     let mut speed: Option<(usize, u8)> = None; let mut cmds: HashMap<u8, usize> = HashMap::new(); let mut chan_tempo = false;
@@ -128,10 +145,10 @@ pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String
         else if r.cmd != 0 { *cmds.entry(r.cmd).or_default() += 1; }
     } }
     let mut speed = speed.map_or(6, |(_, d)| d as u64);
-    if speed > 31 { warn.push(format!("Tempo {speed} liegt über dem Tracker-Maximum 31 und wurde auf 31 gesetzt")); speed = 31; }
-    if chan_tempo { warn.push("Kanalspezifische Tempi und Funktempo-Rückruf (FXY mit $00/$01/$80+) werden nicht übernommen".into()); }
+    if speed > 31 { warn.push(vc_i18n::t!("media-tempo-speed-liegt-ueber-dem-tracker", speed = &speed)); speed = 31; }
+    if chan_tempo { warn.push(vc_i18n::t!("media-kanalspezifische-tempi-und-funktempo-rueckruf-fxy").into()); }
     let mut keys: Vec<_> = cmds.into_iter().collect(); keys.sort();
-    for (c, n) in keys { warn.push(format!("Befehl {c:X}XY ({}) in {n} Zeilen nicht übernommen", CMD_NAMES.get(c as usize).copied().unwrap_or("?"))); }
+    for (c, n) in keys { warn.push(vc_i18n::t!("media-befehl-c-xy-p2-in-n", c = format!("{:X}", c), p2 = cmd_name(c as usize), n = &n)); }
     // --- Instrumente
     let (wt, pt) = (&gt.tables[0], &gt.tables[1]);
     let (mut multi, mut pmod, mut filt, mut vib, mut combined) = (vec![], vec![], vec![], vec![], vec![]);
@@ -160,25 +177,25 @@ pub fn import(data: &[u8], p: &Profile, name: &str) -> Result<(Value, Vec<String
         instruments.push(json!({ "name": nm, "wave": wave, "pw": pw.min(4095), "a": x.ad >> 4, "d": x.ad & 15, "s": x.sr >> 4, "r": x.sr & 15 }));
     }
     let list = |v: &Vec<usize>| v.iter().map(|n| format!("{n:02X}")).collect::<Vec<_>>().join(", ");
-    if !multi.is_empty() { warn.push(format!("Wellentabelle (Arpeggio, Wellenformwechsel): nur der erste Eintrag zählt – Instrument {}", list(&multi))); }
-    if !combined.is_empty() { warn.push(format!("Kombinierte Wellenform auf eine einzelne Wellenform abgebildet – Instrument {}", list(&combined))); }
-    if !pmod.is_empty() { warn.push(format!("Pulsbreiten-Modulation wird nicht übernommen – Instrument {}", list(&pmod))); }
-    if !filt.is_empty() { warn.push(format!("Filtertabelle wird nicht übernommen – Instrument {}", list(&filt))); }
-    if !vib.is_empty() { warn.push(format!("Vibrato wird nicht übernommen – Instrument {}", list(&vib))); }
+    if !multi.is_empty() { warn.push(vc_i18n::t!("media-wellentabelle-arpeggio-wellenformwechsel-nur-der-erste", p1 = list(&multi))); }
+    if !combined.is_empty() { warn.push(vc_i18n::t!("media-kombinierte-wellenform-auf-eine-einzelne-wellenform", p1 = list(&combined))); }
+    if !pmod.is_empty() { warn.push(vc_i18n::t!("media-pulsbreiten-modulation-wird-nicht-uebernommen-instrument", p1 = list(&pmod))); }
+    if !filt.is_empty() { warn.push(vc_i18n::t!("media-filtertabelle-wird-nicht-uebernommen-instrument-p1", p1 = list(&filt))); }
+    if !vib.is_empty() { warn.push(vc_i18n::t!("media-vibrato-wird-nicht-uebernommen-instrument-p1", p1 = list(&vib))); }
     if instruments.is_empty() { instruments.push(json!({ "name": "Puls", "wave": "pulse", "pw": 2048, "a": 0, "d": 9, "s": 8, "r": 4 })); }
     let max_ins = instruments.len() as u8;
     let mut bad_ins = false;
     for t in tracks.iter_mut() { for r in t.iter_mut() { if r.ins != INS_KEEP && r.ins >= max_ins { r.ins = INS_KEEP; bad_ins = true; } } }
-    if bad_ins { warn.push("Zeilen mit nicht vorhandenem Instrument behalten das vorherige Instrument".into()); }
+    if bad_ins { warn.push(vc_i18n::t!("media-zeilen-mit-nicht-vorhandenem-instrument-behalten").into()); }
     // --- Blocklänge: größter gemeinsamer Teiler aller Patternlängen (und des Wiederholungspunkts)
     let mut n = lens.iter().copied().fold(0, gcd);
     if loop_row > 0 { n = gcd(n, loop_row); }
     if n == 0 { n = 16; }
     while n > 128 { n = if n % 2 == 0 { n / 2 } else { 128 }; }
-    if n < 4 { warn.push(format!("Patternlängen haben nur den gemeinsamen Teiler {n}: es wird mit 16 Zeilen je Pattern gearbeitet")); n = 16; }
+    if n < 4 { warn.push(vc_i18n::t!("media-patternlaengen-haben-nur-den-gemeinsamen-teiler", n = &n)); n = 16; }
     let blocks = (total + n - 1) / n;
     let loop_block = loop_row / n;
-    if loop_row % n != 0 { warn.push("Der Wiederholungspunkt liegt nicht auf einer Patterngrenze und wurde nach vorn gerückt".into()); }
+    if loop_row % n != 0 { warn.push(vc_i18n::t!("media-der-wiederholungspunkt-liegt-nicht-auf-einer").into()); }
     let mut patterns: Vec<Value> = vec![]; let mut seen: HashMap<Vec<String>, usize> = HashMap::new(); let mut order = vec![];
     for b in 0..blocks {
         let mut rows: Vec<Vec<String>> = vec![];

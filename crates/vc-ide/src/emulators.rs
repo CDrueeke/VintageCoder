@@ -92,9 +92,16 @@ pub struct Entry {
 #[derive(Debug, Deserialize)]
 struct Catalog { emulators: Vec<Entry> }
 
+/// Index des Zwischenspeichers: Englisch getrennt von allen anderen Sprachen (die Sprache kann zur Laufzeit wechseln)
+fn slot() -> usize { usize::from(vc_i18n::language() == vc_i18n::Lang::En) }
+
 fn all_entries() -> &'static [Entry] {
-    static C: OnceLock<Vec<Entry>> = OnceLock::new();
-    C.get_or_init(|| serde_json::from_str::<Catalog>(CATALOG).expect("data/emulators/catalog.json").emulators)
+    static C: [OnceLock<Vec<Entry>>; 2] = [OnceLock::new(), OnceLock::new()];
+    C[slot()].get_or_init(|| {
+        let mut v: serde_json::Value = serde_json::from_str(CATALOG).expect("data/emulators/catalog.json");
+        vc_i18n::localize_json(&mut v, "emulators/catalog.json");
+        serde_json::from_value::<Catalog>(v).expect("data/emulators/catalog.json").emulators
+    })
 }
 
 impl Entry { pub fn is_device(&self) -> bool { self.kind == "device" } }
@@ -102,20 +109,20 @@ impl Entry { pub fn is_device(&self) -> bool { self.kind == "device" } }
 /// Startet den Debugger-/Test-Adapter der Sorte `kind` (die Kennung `backend` steht im Katalog, `vc_emu::backend_for` kennt den Adapter)
 pub fn launch_backend(kind: &str, l: &vc_emu::Launch) -> Result<Box<dyn vc_emu::Backend>, String> {
     require(kind)?;
-    let e = for_kind(kind).ok_or_else(|| format!("Emulator „{kind}“ ist nicht im Katalog"))?;
+    let e = for_kind(kind).ok_or_else(|| vc_i18n::t!("emulators-emulator-kind-ist-nicht-im-katalog", kind = &kind))?;
     vc_emu::backend_for(&e.backend, l).map_err(|m| if e.backend.is_empty() { format!("{}: {m}", e.name) } else { m })
 }
 
 /// Die Emulatoren (Programme) des Katalogs
 pub fn catalog() -> &'static [Entry] {
-    static C: OnceLock<Vec<Entry>> = OnceLock::new();
-    C.get_or_init(|| all_entries().iter().filter(|e| !e.is_device()).cloned().collect())
+    static C: [OnceLock<Vec<Entry>>; 2] = [OnceLock::new(), OnceLock::new()];
+    C[slot()].get_or_init(|| all_entries().iter().filter(|e| !e.is_device()).cloned().collect())
 }
 
 /// Die echten Maschinen des Katalogs (Ultimate, MEGA65): Anbindungen ohne Programm
 pub fn devices() -> &'static [Entry] {
-    static C: OnceLock<Vec<Entry>> = OnceLock::new();
-    C.get_or_init(|| all_entries().iter().filter(|e| e.is_device()).cloned().collect())
+    static C: [OnceLock<Vec<Entry>>; 2] = [OnceLock::new(), OnceLock::new()];
+    C[slot()].get_or_init(|| all_entries().iter().filter(|e| e.is_device()).cloned().collect())
 }
 
 pub fn find(id: &str) -> Option<&'static Entry> { catalog().iter().find(|e| e.id == id) }
@@ -140,7 +147,7 @@ pub fn device_enabled(machine_kind: &str) -> bool { device_enabled_in(&crate::fe
 pub fn device_enabled_in(f: &crate::features::Features, machine_kind: &str) -> bool { f.link(match machine_kind { "ultimate64" => "ultimate", other => other }) }
 
 /// Meldung für eine abgewählte Anbindung (`vcc`, Start, Debugger)
-pub fn not_in_release(name: &str) -> String { format!("{name}: nicht im Paket enthalten (diese Anbindung ist in diesem Release nicht gewählt)") }
+pub fn not_in_release(name: &str) -> String { vc_i18n::t!("emulators-name-nicht-im-paket-enthalten-diese", name = &name) }
 
 /// Prüft [`enabled`] und liefert sonst die Meldung „nicht im Paket enthalten“
 pub fn require(kind: &str) -> Result<(), String> {
@@ -149,7 +156,7 @@ pub fn require(kind: &str) -> Result<(), String> {
 
 /// Wie [`require`] für eine echte Maschine
 pub fn require_device(machine_kind: &str) -> Result<(), String> {
-    if device_enabled(machine_kind) { Ok(()) } else { Err(not_in_release(match machine_kind { "ultimate64" => "Ultimate", "mega65" => "MEGA65 (Gerät)", k => k })) }
+    if device_enabled(machine_kind) { Ok(()) } else { Err(not_in_release(&match machine_kind { "ultimate64" => vc_i18n::t!("emulators-ultimate"), "mega65" => vc_i18n::t!("emulators-mega65-geraet"), k => k.to_string() })) }
 }
 
 /// Die Katalogeinträge, die in diesem Release gewählt sind (ohne `release.json`: alle)
@@ -224,7 +231,7 @@ impl Entry {
     pub fn main_kind(&self) -> &str { self.kinds.first().map(String::as_str).unwrap_or(&self.id) }
 
     fn install_package(&self, p: &Pkg) -> Result<install::Package, String> {
-        Ok(install::Package { id: self.id.clone(), version: p.version.clone(), url: p.url.clone(), sha256: p.sha256.to_ascii_lowercase(), format: Format::parse(&p.format).ok_or_else(|| format!("Paketform „{}“ unbekannt", p.format))?, size: p.size })
+        Ok(install::Package { id: self.id.clone(), version: p.version.clone(), url: p.url.clone(), sha256: p.sha256.to_ascii_lowercase(), format: Format::parse(&p.format).ok_or_else(|| vc_i18n::t!("emulators-paketform-p1-unbekannt", p1 = &p.format))?, size: p.size })
     }
 }
 
@@ -255,9 +262,9 @@ pub fn sources(kind: &str) -> Vec<Source> {
     let key = key_of(e, kind);
     let mut out: Vec<Source> = install::versions(&e.id).into_iter().filter_map(|(ver, dir)| {
         let exe = names_for(e, key, &ver).iter().find_map(|n| install::find_in(&dir, n, 4))?;
-        Some(Source { label: format!("portabel {ver}"), path: exe.to_string_lossy().into_owned(), version: Some(ver) })
+        Some(Source { label: vc_i18n::t!("emulators-portabel-ver", ver = &ver), path: exe.to_string_lossy().into_owned(), version: Some(ver) })
     }).collect();
-    if let Some(p) = crate::launch::detect_system(kind) { out.push(Source { label: "System".into(), path: p, version: None }); }
+    if let Some(p) = crate::launch::detect_system(kind) { out.push(Source { label: vc_i18n::t!("emulators-system").into(), path: p, version: None }); }
     out
 }
 
@@ -272,12 +279,12 @@ pub fn parse_spec(s: &str) -> (String, Option<String>) {
 /// Wählt für diesen Prozess eine bestimmte, schon installierte Version (`vice@3.9`); ohne Version bleibt die automatische Wahl
 pub fn select(spec: &str) -> Result<(), String> {
     let (id, ver) = parse_spec(spec);
-    let e = for_kind(&id).ok_or_else(|| format!("Emulator „{id}“ ist nicht im Katalog"))?;
+    let e = for_kind(&id).ok_or_else(|| vc_i18n::t!("emulators-emulator-id-ist-nicht-im-katalog", id = &id))?;
     require(&e.id)?;
     let Some(v) = ver else { return Ok(()) };
     let key = e.main_kind().to_string();
     let found = install::versions(&e.id).into_iter().any(|(ver, dir)| ver == v && names_for(e, &key, &ver).iter().any(|n| install::find_in(&dir, n, 4).is_some()));
-    if !found { return Err(format!("{} {v} ist nicht installiert (vcc emulator install {}@{v})", e.name, e.id)); }
+    if !found { return Err(vc_i18n::t!("emulators-p1-v-ist-nicht-installiert-vcc", p1 = &e.name, v = &v, p3 = &e.id)); }
     install::prefer(&e.id, &v);
     Ok(())
 }
@@ -289,19 +296,19 @@ pub fn install_dir(id: &str) -> Option<PathBuf> { install::dir_of(id) }
 /// Nur auf ausdrücklichen Aufruf; `say` erhält Fortschrittsmeldungen.
 pub fn install(spec: &str, say: &mut dyn FnMut(&str)) -> Result<String, String> {
     let (id, version) = parse_spec(spec);
-    let e = for_kind(&id).ok_or_else(|| format!("Emulator „{id}“ ist nicht im Katalog"))?;
+    let e = for_kind(&id).ok_or_else(|| vc_i18n::t!("emulators-emulator-id-ist-nicht-im-katalog", id = &id))?;
     require(&e.id)?;
-    let no_pkg = || match e.manual_hint() { Some(h) => format!("Für dieses System gibt es kein automatisches Paket. {h}"), None => "Für dieses System gibt es kein automatisches Paket.".to_string() };
+    let no_pkg = || match e.manual_hint() { Some(h) => vc_i18n::t!("emulators-fuer-dieses-system-gibt-es-kein", h = &h), None => vc_i18n::t!("emulators-fuer-dieses-system-gibt-es-kein-2").to_string() };
     let p = match &version {
-        Some(v) => e.package_version(v).ok_or_else(|| { let have: Vec<&str> = e.packages_here().iter().map(|p| p.version.as_str()).collect(); if have.is_empty() { no_pkg() } else { format!("{} {v} gibt es nicht im Katalog (verfügbar: {})", e.name, have.join(", ")) } })?,
+        Some(v) => e.package_version(v).ok_or_else(|| { let have: Vec<&str> = e.packages_here().iter().map(|p| p.version.as_str()).collect(); if have.is_empty() { no_pkg() } else { vc_i18n::t!("emulators-p1-v-gibt-es-nicht-im", p1 = &e.name, v = &v, p3 = have.join(", ")) } })?,
         None => e.package().ok_or_else(no_pkg)?,
     };
     let key = e.main_kind().to_string();
-    let name = e.exe_name(&key, Some(p)).ok_or("Programmname fehlt im Katalog")?;
+    let name = e.exe_name(&key, Some(p)).ok_or(vc_i18n::t!("emulators-programmname-fehlt-im-katalog"))?;
     let pkg = e.install_package(p)?;
     let have = |dir: &std::path::Path| install::find_in(dir, &name, 4).is_some();
     let dir = install::install(&pkg, &have, say)?;
-    let exe = install::find_in(&dir, &name, 4).ok_or_else(|| format!("Nach dem Auspacken fehlt {name} in {}", dir.display()))?;
+    let exe = install::find_in(&dir, &name, 4).ok_or_else(|| vc_i18n::t!("emulators-nach-dem-auspacken-fehlt-name-in", name = &name, p2 = dir.display()))?;
     Ok(exe.to_string_lossy().into_owned())
 }
 
@@ -371,7 +378,7 @@ mod tests {
         use crate::features::Features;
         let f = Features::from_json(r#"{"format":1,"links":["vice"]}"#);
         assert_eq!(available_in(&f).iter().map(|e| e.id.as_str()).collect::<Vec<_>>(), ["vice"]);
-        for k in ["x64sc", "x64", "x128", "xplus4", "xvic", "xpet", "xcbm2"] { assert!(enabled_in(&f, k), "{k}"); }
+        for k in ["x64sc", "x64", "x128", "xplus4", "xvic", "xpet"] { assert!(enabled_in(&f, k), "{k}"); }
         for k in ["atari800", "altirra", "fujisan", "xemu"] { assert!(!enabled_in(&f, k), "{k}"); }
         assert!(enabled_in(&f, "vcc-asm") && enabled_in(&f, "unbekannt"), "Assembler-Katalog und Unbekanntes bleiben");
         assert!(!device_enabled_in(&f, "ultimate64") && !device_enabled_in(&f, "mega65"));
@@ -407,7 +414,7 @@ mod tests {
         assert_eq!(detect_by("x128", probe).unwrap(), "x128|/Applications/vice-arm64-gtk3-3.10/bin,/Applications/vice-arm64-gtk3-3.9/bin,/opt/homebrew/bin,/usr/local/bin");
         assert!(detect_by("atari800", probe).unwrap().starts_with("atari800|/opt/homebrew/bin"));
         assert_eq!(detect_by("nichtda", probe), None);
-        // neu gegenüber dem festen `match`: die übrigen VICE-Sorten mit Parameterkatalog (xpet, xcbm2) werden ebenfalls gefunden
+        // neu gegenüber dem festen `match`: die übrigen VICE-Sorten mit Parameterkatalog (xpet) werden ebenfalls gefunden
         assert!(detect_by("xpet", probe).unwrap().starts_with("xpet|"));
     }
 

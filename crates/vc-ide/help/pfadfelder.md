@@ -1,6 +1,6 @@
 # Pfadfelder und „Wählen …“
 
-Überall, wo ein Pfad einzutragen ist (Projektordner, ROM-Ordner, Emulator, Bilder, Export), steht neben dem Feld **Wählen …**. Der Knopf öffnet den Datei- oder Ordnerdialog deines Systems; der gewählte Pfad landet im Feld.
+Wo ein Pfad einzutragen ist, steht neben dem Feld ein Knopf, der den Datei- oder Ordnerdialog deines Systems öffnet; der gewählte Pfad landet im Feld. Beim **Projektordner** (Einstellungen ▸ Allgemein) und beim Speicherort eines neuen Projekts heißt er **Wählen …**, bei ROM-Dateien **ROM-Datei oder Zip wählen …**. Beim Emulator (Einstellungen ▸ Ziele und Hardware) gibt es **Suchen**: Der Knopf trägt den automatisch gefundenen Pfad ein.
 
 - Du kannst den Pfad auch **tippen oder einfügen**.
 - Pfade **innerhalb des Projekts** werden relativ gespeichert (`graphics/hero.vcsprite`), damit das Projekt auf jedem Rechner funktioniert.

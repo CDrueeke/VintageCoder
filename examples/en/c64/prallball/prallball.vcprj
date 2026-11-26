@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: PRALLBALL",
+    "description": "Ball-and-paddle game (prototype H1): joystick/keyboard, 24 levels, capsules, high-score list, title music"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "cpu": "6510",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

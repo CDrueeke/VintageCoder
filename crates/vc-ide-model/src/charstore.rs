@@ -28,7 +28,7 @@ impl Store {
 
     pub fn save(&self, path: &Path) -> Result<(), String> {
         if let Some(d) = path.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }
-        std::fs::write(path, serde_json::to_string_pretty(self).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+        vc_core::atomar::schreiben(path, serde_json::to_string_pretty(self).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
     }
 
     /// Als zuletzt benutzt vermerken (vorn, ohne Doppelte, höchstens zwölf)
@@ -45,8 +45,8 @@ impl Store {
     /// Sequenz speichern; gleicher Name (je Familie) ersetzt die alte. Leere Namen oder Folgen werden abgelehnt.
     pub fn add_sequence(&mut self, name: &str, atari: bool, codes: Vec<u8>) -> Result<(), String> {
         let name = name.trim();
-        if name.is_empty() { return Err("Name fehlt".into()); }
-        if codes.is_empty() { return Err("Die Sequenz ist leer".into()); }
+        if name.is_empty() { return Err(vc_i18n::t!("charstore-name-fehlt").into()); }
+        if codes.is_empty() { return Err(vc_i18n::t!("charstore-die-sequenz-ist-leer").into()); }
         self.sequences.retain(|s| !(s.atari == atari && s.name == name));
         self.sequences.push(Seq { name: name.to_string(), atari, codes });
         Ok(())

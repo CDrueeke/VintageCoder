@@ -1,0 +1,266 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "77bdc80d36e7" },
+  "command": "turbo",
+  "group": "projekte",
+  "summary": "Turbo BASIC XL: provide, check and start the disk",
+  "description": [
+    "Turbo BASIC XL runs on the Atari from a disk that you must own yourself; VintageCoder does not ship one. The project gets a copy of it (turbo/), building creates build/<name>.atr with the program as AUTORUN.BAS (vcc build), and vcc turbo run starts it in the emulator."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "check",
+      "usage": "vcc turbo check <image.atr> [--json]",
+      "summary": "Check a disk: is it Turbo BASIC XL?",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "ATR image of the disk (90 KB, Atari DOS 2)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "allgemein",
+          "help": "Output as JSON on standard output.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Check a disk",
+          "cmd": "vcc turbo check Turbo_Basic_XL.atr"
+        }
+      ],
+      "notes": [
+        "The check only reads bytes (no emulator): file system, AUTORUN.SYS with the TURBO-BASIC XL signature, version, free sectors, directory and SHA-256 against the list of known images. Notes about leftovers (e.g. entries that were never closed) are not errors."
+      ],
+      "exit": {
+        "0": "looks like Turbo BASIC XL, no errors",
+        "1": "not recognized, file system errors or file not readable",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "build",
+        "disk"
+      ]
+    },
+    {
+      "id": "provide",
+      "usage": "vcc turbo provide <image.atr> [project] [--reduce] [--yes] [--anyway] [--replace]",
+      "summary": "Copy the user's disk into the project",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "ATR image of your own Turbo BASIC XL disk (only read)."
+        },
+        {
+          "name": "project",
+          "required": false,
+          "repeat": false,
+          "help": "Project folder (with .vcprj). Without it the current folder is used."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "bereit",
+          "label": "Provide"
+        },
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--reduce",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Reduce the copy to DOS.SYS, DUP.SYS and AUTORUN.SYS (more free space). Asks first; the original stays unchanged.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Skip the question of --reduce.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--anyway",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Use an image even if it does not look like Turbo BASIC XL or has errors (at your own risk).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--replace",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Overwrite an existing copy of the same name.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Provide the disk",
+          "cmd": "vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt"
+        },
+        {
+          "title": "Provide and reduce",
+          "cmd": "vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt --reduce"
+        }
+      ],
+      "notes": [
+        "Turbo BASIC XL is not part of VintageCoder: you must own the disk yourself. The copy goes to turbo/ under the name of the original; the project file gets the section turbo and the .gitignore the line turbo/*.atr."
+      ],
+      "exit": {
+        "0": "no errors",
+        "1": "image not usable, copy exists or cancelled",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "build",
+        "turbo"
+      ]
+    },
+    {
+      "id": "reduce",
+      "usage": "vcc turbo reduce [project] [--yes]",
+      "summary": "Reduce the copy in the project to the system files",
+      "args": [
+        {
+          "name": "project",
+          "required": false,
+          "repeat": false,
+          "help": "Project folder (with .vcprj). Without it the current folder is used."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "allgemein",
+          "help": "Skip the question.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Make room",
+          "cmd": "vcc turbo reduce"
+        }
+      ],
+      "notes": [
+        "Removes everything except DOS.SYS, DUP.SYS and AUTORUN.SYS in the project copy (about 480 instead of 103 sectors are then free; COMPILER.COM, RUNTIME.COM and the sample programs are gone). Your original stays unchanged."
+      ],
+      "exit": {
+        "0": "no errors",
+        "1": "no disk in the project, cannot be reduced or cancelled",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "turbo",
+        "build"
+      ]
+    },
+    {
+      "id": "run",
+      "usage": "vcc turbo run [project] [--data-dir <folder>]",
+      "summary": "Build and start in the Atari emulator",
+      "args": [
+        {
+          "name": "project",
+          "required": false,
+          "repeat": false,
+          "help": "Project folder (with .vcprj). Without it the current folder is used."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "allgemein",
+          "help": "Folder of the hardware database (data); replaces VC_DATA and the automatic search.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Start a Turbo BASIC XL project",
+          "cmd": "vcc turbo run examples/atari/turbo_basic"
+        }
+      ],
+      "notes": [
+        "Builds the main program, writes it as AUTORUN.BAS onto a copy of the disk (build/<name>.atr) and boots it in the default Atari emulator (atari800; Altirra on Windows if chosen) in drive 1 without built-in BASIC. After the program ends (READY), Turbo BASIC XL waits for input. Altirra with a Turbo BASIC XL disk has not been checked yet."
+      ],
+      "exit": {
+        "0": "emulator started",
+        "1": "build error, disk missing or emulator not found",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "build",
+        "turbo"
+      ]
+    }
+  ]
+}

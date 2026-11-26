@@ -9,8 +9,8 @@
 ;   indem man die Registerfenster $D100-$D3FF liest (die Bank 1 bleibt dazu am Ende eingeblendet und wird für Text/Bitmap benutzt).
 ;
 ; Bedienung / Ablauf
-;   * Vorher exportieren: `vcc media export graphics/pal65.vcpal` erzeugt build/export/pal65.asm (pal65_red, pal65_green, pal65_blue, je 256
-;     Byte; Rot/Grün/Blau stehen mit vertauschten Halbbytes, wie die Register es verlangen).  `vcc build` im Projektordner exportiert selbst.
+;   * Vorher exportieren: `vcc media export graphics/pal65.vcpal` erzeugt eine Assembler-Datei (pal65_red, pal65_green, pal65_blue, je 256
+;     Byte; Rot/Grün/Blau stehen mit vertauschten Halbbytes, wie die Register es verlangen).  Zum Bauen brauchst du das nicht: `.include "graphics/pal65.vcpal"` wandelt die Palette selbst um.
 ;   * Bauen von Hand: vcc asm pal_demo.asm --target mega65 --cpu 45gs02 -o pal_demo.prg   (Ladeadresse $2000, kein BASIC-Starter:
 ;     im Emulator/Monitor laden und mit `g 2000` bzw. `SYS 8192` starten).  Das Programm bleibt danach in einer Endlosschleife.
 ;
@@ -39,4 +39,4 @@ start:  sei                         ; keine Unterbrechung während $D070 umgesch
 done:   bra done                    ; Endlosschleife
 
 vic4_palette_runtime                ; Kopierunterprogramm einmal hinter dem Hauptprogramm ablegen
-.include "build/export/pal65.asm"   ; die Tabellen pal65_red, pal65_green, pal65_blue
+.include "graphics/pal65.vcpal"   ; die Tabellen pal65_red, pal65_green, pal65_blue

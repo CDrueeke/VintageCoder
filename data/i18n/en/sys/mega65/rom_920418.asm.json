@@ -1,0 +1,995 @@
+{
+ "source": "sys/mega65/rom_920418.asm",
+ "entries": {
+  "/L11": {
+   "de": "Zeropage $00-$0A: Monitor- und JSR_FAR-Register",
+   "en": "Zero page $00-$0A: monitor and JSR_FAR registers",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Zeropage $0B-$8F: BASIC",
+   "en": "Zero page $0B-$8F: BASIC",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L89": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L90": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L93": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L95": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L100": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L101": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L108": {
+   "de": "Zeropage $90-$FA: KERNAL und Editor",
+   "en": "Zero page $90-$FA: KERNAL and editor",
+   "status": "maschinell"
+  },
+  "/L130": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L131": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L132": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L133": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L134": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L141": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L147": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L148": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L149": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L151": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L152": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L169": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L194": {
+   "de": "Seite 1 $0100-$013F: BASIC-Formatpuffer und DOS-Variablen",
+   "en": "Page 1 $0100-$013F: BASIC format buffer and DOS variables",
+   "status": "maschinell"
+  },
+  "/L198": {
+   "de": "Seite 1 $0110-$013F: Speicherkarten und DOS-Variablen",
+   "en": "Page 1 $0110-$013F: memory maps and DOS variables",
+   "status": "maschinell"
+  },
+  "/L199": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L201": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L203": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L204": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L205": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L206": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L207": {
+   "de": "29 Byte",
+   "en": "29 bytes",
+   "status": "maschinell"
+  },
+  "/L209": {
+   "de": "Seite 1 $013A-$01FF: Prozessorstapel",
+   "en": "Page 1 $013A-$01FF: processor stack",
+   "status": "maschinell"
+  },
+  "/L210": {
+   "de": "198 Byte",
+   "en": "198 bytes",
+   "status": "maschinell"
+  },
+  "/L216": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L217": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L219": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L220": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L221": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L234": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L238": {
+   "de": "Seite 2 $0200-$02AF: Zeileneingabepuffer und System",
+   "en": "Page 2 $0200-$02AF: line input buffer and system",
+   "status": "maschinell"
+  },
+  "/L239": {
+   "de": "161 Byte",
+   "en": "161 bytes",
+   "status": "maschinell"
+  },
+  "/L256": {
+   "de": "Seite 2 $02B0-$0313: BASIC-Variablen und Vektoren",
+   "en": "Page 2 $02B0-$0313: BASIC variables and vectors",
+   "status": "maschinell"
+  },
+  "/L258": {
+   "de": "12 Byte",
+   "en": "12 bytes",
+   "status": "maschinell"
+  },
+  "/L266": {
+   "de": "8 Byte",
+   "en": "8 bytes",
+   "status": "maschinell"
+  },
+  "/L269": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L270": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L271": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L272": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L277": {
+   "de": "11 Byte",
+   "en": "11 bytes",
+   "status": "maschinell"
+  },
+  "/L278": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L279": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L280": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L281": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L282": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L283": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L284": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L285": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L286": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L287": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L288": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L289": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L290": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L291": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L293": {
+   "de": "Seite 3: indirekte Vektoren und Dateitabellen",
+   "en": "Page 3: indirect vectors and file tables",
+   "status": "maschinell"
+  },
+  "/L294": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L295": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L296": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L297": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L298": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L299": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L300": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L301": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L302": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L303": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L304": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L305": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L306": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L307": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L308": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L309": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L310": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L311": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L312": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L313": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L314": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L315": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L316": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L317": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L318": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L319": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L320": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L321": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L322": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L324": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L325": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L327": {
+   "de": "Seite 3 $0380: KERNAL-Code im RAM",
+   "en": "Page 3 $0380: KERNAL code in RAM",
+   "status": "maschinell"
+  },
+  "/L330": {
+   "de": "$0400-$05FF: Monitor-Arbeitsbereich",
+   "en": "$0400-$05FF: monitor work area",
+   "status": "maschinell"
+  },
+  "/L334": {
+   "de": "$0600-$0FFF: Stapel, Sprites, Puffer",
+   "en": "$0600-$0FFF: stack, sprites, buffers",
+   "status": "maschinell"
+  },
+  "/L340": {
+   "de": "$1000: Funktionstastenpuffer",
+   "en": "$1000: function key buffer",
+   "status": "maschinell"
+  },
+  "/L343": {
+   "de": "$1100: absolute KERNAL- und Editor-Variablen",
+   "en": "$1100: absolute KERNAL and editor variables",
+   "status": "maschinell"
+  },
+  "/L344": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L351": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L352": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L353": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L370": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L371": {
+   "de": "7 Byte",
+   "en": "7 bytes",
+   "status": "maschinell"
+  },
+  "/L393": {
+   "de": "$1160: BASIC-SOUND-IRQ-Zwischenwerte",
+   "en": "$1160: BASIC SOUND IRQ intermediate values",
+   "status": "maschinell"
+  },
+  "/L408": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L410": {
+   "de": "$1170: absolute BASIC-Variablen",
+   "en": "$1170: absolute BASIC variables",
+   "status": "maschinell"
+  },
+  "/L416": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L417": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L427": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L430": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L433": {
+   "de": "67 Byte",
+   "en": "67 bytes",
+   "status": "maschinell"
+  },
+  "/L435": {
+   "de": "$11D4: BASIC PRINT USING und Sprite-Bewegung",
+   "en": "$11D4: BASIC PRINT USING and sprite movement",
+   "status": "maschinell"
+  },
+  "/L447": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L448": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L449": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L450": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L451": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L452": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L453": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L454": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L457": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L458": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L459": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L460": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L462": {
+   "de": "$1200: BASIC SOUND und PLAY",
+   "en": "$1200: BASIC SOUND and PLAY",
+   "status": "maschinell"
+  },
+  "/L463": {
+   "de": "12 Byte",
+   "en": "12 bytes",
+   "status": "maschinell"
+  },
+  "/L464": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L470": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L471": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L472": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L473": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L474": {
+   "de": "4 Byte",
+   "en": "4 bytes",
+   "status": "maschinell"
+  },
+  "/L477": {
+   "de": "3 Byte",
+   "en": "3 bytes",
+   "status": "maschinell"
+  },
+  "/L478": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L479": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L480": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L481": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L482": {
+   "de": "10 Byte",
+   "en": "10 bytes",
+   "status": "maschinell"
+  },
+  "/L486": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L487": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L488": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L489": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L490": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L491": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L492": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L493": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L494": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L495": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L496": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L500": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L501": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L502": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L503": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L504": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L505": {
+   "de": "12 Byte",
+   "en": "12 bytes",
+   "status": "maschinell"
+  },
+  "/L506": {
+   "de": "12 Byte",
+   "en": "12 bytes",
+   "status": "maschinell"
+  },
+  "/L507": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L508": {
+   "de": "12 Byte",
+   "en": "12 bytes",
+   "status": "maschinell"
+  },
+  "/L509": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L510": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L511": {
+   "de": "6 Byte",
+   "en": "6 bytes",
+   "status": "maschinell"
+  },
+  "/L512": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L515": {
+   "de": "$1600-$1FFF: GKI und Verschiedenes",
+   "en": "$1600-$1FFF: GKI and miscellaneous",
+   "status": "maschinell"
+  },
+  "/L516": {
+   "de": "512 Byte",
+   "en": "512 bytes",
+   "status": "maschinell"
+  },
+  "/L517": {
+   "de": "512 Byte",
+   "en": "512 bytes",
+   "status": "maschinell"
+  },
+  "/L518": {
+   "de": "256 Byte",
+   "en": "256 bytes",
+   "status": "maschinell"
+  },
+  "/L519": {
+   "de": "256 Byte",
+   "en": "256 bytes",
+   "status": "maschinell"
+  },
+  "/L539": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L540": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L541": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L550": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  },
+  "/L551": {
+   "de": "2 Byte",
+   "en": "2 bytes",
+   "status": "maschinell"
+  }
+ }
+}

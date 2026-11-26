@@ -33,6 +33,14 @@ class ScanTests(unittest.TestCase):
         funde = cs.scan(self.root)
         self.assertEqual([(f[0], f[1]) for f in funde], [("a.md", 2), ("c.asm", 1), ("src/b.rs", 1)])
 
+    def test_vc20_deutsch_vic20_englisch(self):
+        self.put("crates/vc-i18n/catalog/en/x.ftl", "a = VC-20 cartridge\nb = VIC-20 cartridge\n")
+        self.put("crates/vc-i18n/catalog/de/x.ftl", "a = VC-20 Modul\nb = VIC-20 Modul\n")
+        self.put("crates/vc-ide/help/en/p.md", "VIC-20 ist richtig, `VC-20` im Code nicht.\n")
+        self.put("crates/vc-ide/help/q.md", "# VIC-20\n")
+        funde = sorted((f[0], f[1]) for f in cs.scan(self.root))
+        self.assertEqual(funde, [("crates/vc-i18n/catalog/de/x.ftl", 2), ("crates/vc-i18n/catalog/en/x.ftl", 1), ("crates/vc-ide/help/q.md", 1)])
+
     def test_zweites_verbotenes_wort_in_text_und_dateinamen_ohne_beachtung_der_gross_klein_schreibung(self):
         self.put("a.md", "Ein %sfeature.\nsauber\n" % WORT2)
         self.put("b.rs", "// %s\n" % WORT2.upper())
@@ -53,6 +61,16 @@ class ScanTests(unittest.TestCase):
     def test_die_datei_des_scans_selbst_ist_ausgenommen(self):
         self.put("tools/check_schreibweise.py", "# %s\n" % WORT)
         self.assertEqual(cs.scan(self.root), [])
+
+    def test_sprachabhaengige_regeln_gelten_nur_fuer_den_katalog_ihrer_sprache(self):
+        zp, onion = "zero" + "page", "onion" + " skin"
+        self.put("crates/vc-i18n/catalog/en/x.ftl", "a = %s und %s\n" % (zp, onion))        # englisch: beides verboten
+        self.put("crates/vc-i18n/catalog/en/y.ftl", "a = zero page, Onion Skin, zero-page addressing\n")    # richtig
+        self.put("crates/vc-i18n/catalog/de/z.ftl", "a = Zeropage und Onion Skin\n")                         # richtig
+        self.put("crates/vc-i18n/catalog/de/w.ftl", "a = zero page\n")                                      # deutsch: englischer Ersatz verboten
+        self.put("docs/frei.md", "%s\n" % zp)                                                            # andere Dateien: keine Sprachregel
+        funde = sorted({(f, z) for f, z, _ in cs.scan(self.root)})
+        self.assertEqual(funde, [("crates/vc-i18n/catalog/de/w.ftl", 1), ("crates/vc-i18n/catalog/en/x.ftl", 1)])
 
     def test_repository_ist_sauber(self):
         wurzel = os.path.dirname(HERE)

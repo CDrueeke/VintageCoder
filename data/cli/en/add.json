@@ -1,0 +1,60 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "9846010b646a" },
+  "command": "add",
+  "group": "projekte",
+  "summary": "Add files and folders to the project",
+  "description": [
+    "Adds files the same way as dropping them in the IDE: detects the kind, picks the category and target folder from rules and layout in the project file, copies the file and enters it in assets. If the source is already in the project folder, it stays there and is only entered.",
+    "Folders are added recursively and keep their subfolders. Hidden files, target and node_modules are left out. At most 5000 files per folder."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc add <file|folder>... [options]",
+      "args": [
+        { "name": "file|folder", "required": true, "repeat": true, "help": "Files or folders to add." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target" },
+        { "id": "eintrag", "label": "Entry" }
+      ],
+      "options": [
+        { "flag": "--into", "short": "", "value": "project", "group": "ziel",
+          "help": "Project folder or .vcprj file.",
+          "default": ".", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dir", "short": "", "value": "folder", "group": "ziel",
+          "help": "Target folder in the project (relative, without ..). Overrides the folder of the category. For folders, the subfolder structure is appended.",
+          "default": "", "default_text": "folder of the category from layout", "repeat": false, "required": false },
+        { "flag": "--flat", "short": "", "value": "", "group": "ziel",
+          "help": "Put files from folders without subfolders, each in the folder of its category (or --dir).",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--category", "short": "", "value": "category", "group": "eintrag",
+          "help": "Category for all files (source, text/docs, binary data, raw graphics data, raw character set).",
+          "choices": ["source", "text", "binary", "graphics", "charset"],
+          "default": "", "default_text": "detected from rules, file name and content", "repeat": false, "required": false },
+        { "flag": "--description", "short": "", "value": "text", "group": "eintrag",
+          "help": "Description that is also entered in assets.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--conflict", "short": "", "value": "rule", "group": "ziel",
+          "help": "What to do if another file with this name is already at the target: save under a new name (name_2), replace or skip.",
+          "choices": ["rename", "replace", "skip"],
+          "default": "rename", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dry-run", "short": "", "value": "", "group": "ziel",
+          "help": "Only show what would happen (target state, target, kind, category). Copies nothing, project file unchanged.",
+          "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Add a file", "cmd": "vcc add sprites.bin --into game" },
+        { "title": "Add a folder with its structure", "cmd": "vcc add images --category graphics --into game" },
+        { "title": "Add a folder flat into one target folder", "cmd": "vcc add music --flat --dir data/music --description \"Title music\"" },
+        { "title": "preview only", "cmd": "vcc add images --into game --dry-run" }
+      ],
+      "notes": [
+        "If the project folder has no .vcprj, the command stops. Errors with single files give exit code 1; the other files are still added.",
+        "Disk images, PRG and XEX files are taken by vcc import."
+      ],
+      "see_also": ["organize", "import", "new"]
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+ "source": "chips/ted.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Timer 1 Low",
+   "en": "Timer 1 low",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Timer 1 High",
+   "en": "Timer 1 high",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Timer 2 Low",
+   "en": "Timer 2 low",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Timer 2 High",
+   "en": "Timer 2 high",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Timer 3 Low",
+   "en": "Timer 3 low",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Timer 3 High",
+   "en": "Timer 3 high",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Steuerung 1: Bit 7 Rasterzeile 8, Bit 6 ECM, Bit 5 BMM, Bit 4 Anzeige an, Bit 3 24/25 Zeilen, Bit 0-2 Y-Scroll",
+   "en": "Control 1: bit 7 raster line 8, bit 6 ECM, bit 5 BMM, bit 4 display on, bit 3 24/25 rows, bits 0-2 Y scroll",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Steuerung 2: Bit 7 Reverse aus, Bit 6 PAL/NTSC, Bit 5 Freeze, Bit 4 Multicolor, Bit 3 38/40 Spalten, Bit 0-2 X-Scroll",
+   "en": "Control 2: bit 7 reverse off, bit 6 PAL/NTSC, bit 5 freeze, bit 4 multicolor, bit 3 38/40 columns, bits 0-2 X scroll",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Tastatur-Latch (Joystick/Tastatur lesen)",
+   "en": "Keyboard latch (read joystick/keyboard)",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "IRQ-Status (Schreiben 1 löscht)",
+   "en": "IRQ status (write 1 clears)",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "IRQ-Maske; Bit 0 = Rasterzeile Bit 8",
+   "en": "IRQ mask; bit 0 = raster line bit 8",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Rasterzeile für IRQ, Bit 0-7",
+   "en": "Raster line for IRQ, bits 0-7",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Cursorposition High (Bit 0-1)",
+   "en": "Cursor position high (bits 0-1)",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Cursorposition Low",
+   "en": "Cursor position low",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Ton 1 Frequenz Low",
+   "en": "Tone 1 frequency low",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Ton 2 Frequenz Low",
+   "en": "Tone 2 frequency low",
+   "status": "maschinell"
+  },
+  "/regs/16/doc": {
+   "de": "Ton 2 Frequenz High (Bit 0-1)",
+   "en": "Tone 2 frequency high (bits 0-1)",
+   "status": "maschinell"
+  },
+  "/regs/17/doc": {
+   "de": "Ton: Bit 7 D/A-Modus, Bit 6 Ton 2 Rauschen, Bit 5 Ton 2 an, Bit 4 Ton 1 an, Bit 0-3 Lautstärke",
+   "en": "Sound: bit 7 D/A mode, bit 6 tone 2 noise, bit 5 tone 2 on, bit 4 tone 1 on, bits 0-3 volume",
+   "status": "maschinell"
+  },
+  "/regs/18/doc": {
+   "de": "Bit 0-1 Ton 1 Frequenz High, Bit 2 Zeichensatz ROM/RAM, Bit 3-5 Bitmap-Adresse",
+   "en": "Bits 0-1 tone 1 frequency high, bit 2 character set ROM/RAM, bits 3-5 bitmap address",
+   "status": "maschinell"
+  },
+  "/regs/19/doc": {
+   "de": "Bit 2-7 Zeichensatzadresse; Bit 1 ROM-Status, Bit 0 Taktstatus",
+   "en": "Bits 2-7 character set address; bit 1 ROM status, bit 0 clock status",
+   "status": "maschinell"
+  },
+  "/regs/20/doc": {
+   "de": "Bit 3-7 Videomatrix-Adresse",
+   "en": "Bits 3-7 video matrix address",
+   "status": "maschinell"
+  },
+  "/regs/21/doc": {
+   "de": "Hintergrundfarbe 0",
+   "en": "Background color 0",
+   "status": "maschinell"
+  },
+  "/regs/22/doc": {
+   "de": "Hintergrundfarbe 1",
+   "en": "Background color 1",
+   "status": "maschinell"
+  },
+  "/regs/23/doc": {
+   "de": "Hintergrundfarbe 2",
+   "en": "Background color 2",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Hintergrundfarbe 3",
+   "en": "Background color 3",
+   "status": "maschinell"
+  },
+  "/regs/25/doc": {
+   "de": "Rahmenfarbe",
+   "en": "Border color",
+   "status": "maschinell"
+  },
+  "/regs/26/doc": {
+   "de": "Zeichenposition Reload High (Bit 0-1)",
+   "en": "Character position reload high (bits 0-1)",
+   "status": "maschinell"
+  },
+  "/regs/27/doc": {
+   "de": "Zeichenposition Reload Low",
+   "en": "Character position reload low",
+   "status": "maschinell"
+  },
+  "/regs/28/doc": {
+   "de": "Rasterzeile Bit 8",
+   "en": "Raster line bit 8",
+   "status": "maschinell"
+  },
+  "/regs/29/doc": {
+   "de": "Rasterzeile Bit 0-7",
+   "en": "Raster line bits 0-7",
+   "status": "maschinell"
+  },
+  "/regs/30/doc": {
+   "de": "Horizontaler Zähler (Bit 1-8)",
+   "en": "Horizontal counter (bits 1-8)",
+   "status": "maschinell"
+  },
+  "/regs/31/doc": {
+   "de": "Bit 3-6 Blinkzähler, Bit 0-2 vertikale Unterzeile",
+   "en": "Bits 3-6 blink counter, bits 0-2 vertical sub-line",
+   "status": "maschinell"
+  },
+  "/regs/32/doc": {
+   "de": "Schreibzugriff schaltet ROM ein",
+   "en": "Write access switches ROM on",
+   "status": "maschinell"
+  },
+  "/regs/33/doc": {
+   "de": "Schreibzugriff schaltet RAM ein",
+   "en": "Write access switches RAM on",
+   "status": "maschinell"
+  }
+ }
+}

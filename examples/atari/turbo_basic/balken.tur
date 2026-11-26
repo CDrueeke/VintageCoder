@@ -5,17 +5,21 @@
 ; (Datei BALKEN.BAS laden, dann RUN).  Strichpunkt-Zeilen sind Kommentare des Quelltextes und kommen nicht ins Programm.
 ;
 ; WAS ZU SEHEN IST
-;   Ein Titel in Zeile 2/3, danach baut sich zeilenweise eine Reihe aus 16 "#"-Zeichen (Zeile 8, Spalten 4-19) von links nach rechts
-;   auf; der Hintergrund wechselt dabei mit jedem Zeichen Farbton (0-15) und abwechselnd die Helligkeit (4/8).  Dann erscheint
-;   "TASTE DRUECKEN"; nach einem Tastendruck wird der Bildschirm gelöscht (GRAPHICS 0) und das Programm endet.
+;   Im Textfenster unten stehen zwei Titelzeilen.  Darüber (Grafikstufe 7, 160 x 96 Punkte) bauen sich nacheinander 16 senkrechte
+;   farbige Balken von links nach rechts auf, jeder 10 Punkte breit, in der Reihenfolge Rot, Grün, Blau, Rot, Grün, Blau ...
+;   Zwischen zwei Balken vergeht eine halbe Sekunde.  Danach erscheint "TASTE DRUECKEN"; die Balken bleiben stehen, bis eine Taste
+;   gedrückt wird.  Dann wird der Bildschirm gelöscht (GRAPHICS 0) und das Programm endet.
 ;   Zeigt: PROC/ENDPROC mit EXEC (Unterprogramme mit Namen statt GOSUB-Nummern), WHILE/WEND, REPEAT/UNTIL, mehrzeiliges
 ;   IF/ELSE/ENDIF, MOD, PAUSE (Turbo-BASIC-Erweiterungen; Standard-Atari-BASIC kennt diese Befehle nicht).
 ;
-; VARIABLEN: spalte = laufende Balkennummer 0..15 (global, wird in den PROCs gelesen; es gibt keine lokalen Variablen).
+; VARIABLEN: spalte = laufende Balkennummer 0..15 (global, wird in den PROCs gelesen; es gibt keine lokalen Variablen);
+;            farbe = Farbnummer 1..3 des aktuellen Balkens; x = linke Kante des Balkens in Punkten.
 ;
-GRAPHICS 0
-; 710 = COLOR2 (Hintergrund), 712 = COLOR4 (Rand): beides schwarz
-POKE 710,0 : POKE 712,0
+; Das Textfenster unten benutzt die Farbregister 1 (Schrift, nur die Helligkeit) und 2 (Hintergrund): deshalb Register 1 hell (14) und Register 2 dunkel (4),
+; sonst wäre der Text unsichtbar.
+; Grafikstufe 7 hat vier Farben: COLOR 0 ist der Hintergrund, COLOR 1..3 gehören zu den Farbregistern 0..2 (SETCOLOR Register, Farbton, Helligkeit).
+GRAPHICS 7
+SETCOLOR 0,4,6 : SETCOLOR 1,12,14 : SETCOLOR 2,8,4
 EXEC titel
 spalte=0
 ; je Durchlauf einen Balken zeichnen, 16 Durchläufe
@@ -24,26 +28,35 @@ WHILE spalte<16
   spalte=spalte+1
 WEND
 ; warten auf eine Taste: Adresse 764 (CH) enthält 255, solange keine Taste gedrückt wurde
+? "TASTE DRUECKEN";
 REPEAT
-  POSITION 4,20 : ? "TASTE DRUECKEN";
+  PAUSE 1
 UNTIL PEEK(764)<>255
 GRAPHICS 0
 END
 
-; Unterprogramm: zwei Titelzeilen ausgeben
+; Unterprogramm: zwei Titelzeilen im Textfenster ausgeben
 PROC titel
-  POSITION 8,2 : ? "TURBO BASIC XL"
-  POSITION 8,3 : ? "PROC, EXEC, WHILE, REPEAT"
+  ? "TURBO BASIC XL"
+  ? "PROC, EXEC, WHILE, REPEAT"
 ENDPROC
 
-; Unterprogramm: einen Balken zeichnen; Farbton = spalte, Helligkeit 4 bei ungeradem, 8 bei geradem spalte (MOD 2 = 1 ist wahr)
+; Unterprogramm: einen Balken zeichnen; Farbe 1 = Rot, 2 = Grün, 3 = Blau im Wechsel (spalte MOD 3)
 PROC balken
-  IF spalte MOD 2
-    SETCOLOR 2,spalte,4
+  IF spalte MOD 3=0
+    farbe=1
   ELSE
-    SETCOLOR 2,spalte,8
+    IF spalte MOD 3=1
+      farbe=2
+    ELSE
+      farbe=3
+    ENDIF
   ENDIF
-  ; PAUSE n wartet n Bilder (1/50 s bei PAL), hier also kurz
-  PAUSE 3
-  POSITION spalte+4,8 : ? "#"
+  x=spalte*10
+  COLOR farbe
+  FOR k=0 TO 9
+    PLOT x+k,0 : DRAWTO x+k,79
+  NEXT k
+  ; PAUSE n wartet n Bilder (1/50 s bei PAL): 25 Bilder = eine halbe Sekunde
+  PAUSE 25
 ENDPROC

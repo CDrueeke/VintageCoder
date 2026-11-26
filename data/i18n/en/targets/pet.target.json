@@ -1,0 +1,60 @@
+{
+ "source": "targets/pet.target.json",
+ "entries": {
+  "/variants/pal/note": {
+   "de": "50-Hz-Geräte (Europa); Zeilen und Zyklen je Zeile hängen vom Modell ab (Textbildschirm ohne Rasterzeilen-Programmierung), nicht angegeben",
+   "en": "50 Hz devices (Europe); lines and cycles per line depend on the model (text screen without raster line programming), not given",
+   "status": "maschinell"
+  },
+  "/variants/ntsc/note": {
+   "de": "60-Hz-Geräte; Zeilen und Zyklen je Zeile nicht angegeben",
+   "en": "60 Hz devices; lines and cycles per line not given",
+   "status": "maschinell"
+  },
+  "/regions/0/note": {
+   "de": "kein Prozessorport (kein 6510); BASIC- und KERNAL-Zeiger",
+   "en": "no processor port (no 6510); BASIC and KERNAL pointers",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "Systemvariablen, Kassettenpuffer #1 ($027A) und #2 ($033A)",
+   "en": "System variables, cassette buffer #1 ($027A) and #2 ($033A)",
+   "status": "maschinell"
+  },
+  "/regions/3/note": {
+   "de": "BASIC-Programme ab $0401; je nach Modell 4 bis 32 KB RAM",
+   "en": "BASIC programs from $0401; 4 to 32 KB RAM depending on the model",
+   "status": "maschinell"
+  },
+  "/regions/4/note": {
+   "de": "Bildschirmspeicher: 1000 Byte bei 40 Spalten, 2000 Byte bei 80 Spalten; keine Farbe",
+   "en": "Screen memory: 1000 bytes with 40 columns, 2000 bytes with 80 columns; no color",
+   "status": "maschinell"
+  },
+  "/regions/5/note": {
+   "de": "Erweiterungs-ROM-Sockel (Programmiermodule)",
+   "en": "Expansion ROM sockets (programming modules)",
+   "status": "maschinell"
+  },
+  "/regions/6/note": {
+   "de": "Erweiterungs-ROM-Sockel",
+   "en": "Expansion ROM sockets",
+   "status": "maschinell"
+  },
+  "/regions/7/note": {
+   "de": "BASIC 2/4 (BASIC 1: ab $C000)",
+   "en": "BASIC 2/4 (BASIC 1: from $C000)",
+   "status": "maschinell"
+  },
+  "/regions/8/note": {
+   "de": "Bildschirm-Editor",
+   "en": "Screen editor",
+   "status": "maschinell"
+  },
+  "/regions/9/note": {
+   "de": "PIA 1 $E810, PIA 2 $E820, VIA $E840, CRTC $E880 (ab 8032)",
+   "en": "PIA 1 $E810, PIA 2 $E820, VIA $E840, CRTC $E880 (from 8032)",
+   "status": "maschinell"
+  }
+ }
+}

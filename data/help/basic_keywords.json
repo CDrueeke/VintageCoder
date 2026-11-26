@@ -358,8 +358,8 @@
    "example": "exec zeichne"
   },
   "INCLUDE": {
-   "text": "Direktive des Übersetzers (kein BASIC-Befehl): `#include \"datei.bas\"` in einer eigenen Zeile fügt die Datei beim Bauen ein. Pfad relativ zur einbindenden Datei. Für Assets (Sprites, Zeichensätze, Songs) steht `build/export/<name>.data.bas` zur Verfügung.",
-   "example": "#include \"teile/ausgabe.bas\"\n#include \"build/export/hero.data.bas\""
+   "text": "Direktive des Übersetzers (kein BASIC-Befehl): `#include \"datei.bas\"` in einer eigenen Zeile fügt die Datei beim Bauen ein. Pfad relativ zur einbindenden Datei. Für Assets (Sprites, Zeichensätze, Songs) bindest du die Mediendatei ein, z. B. `graphics/hero.vcsprite`; sie wird beim Bauen zu DATA-Zeilen.",
+   "example": "#include \"teile/ausgabe.bas\"\n#include \"graphics/hero.vcsprite\""
   },
   "LONGNAMES": {
    "text": "Direktive des Übersetzers: `#longnames` in einer eigenen Zeile erlaubt lange Variablennamen. Auf C64, VC-20, C128, Plus/4 und MEGA65 unterscheidet BASIC nur 2 Zeichen; der Bau bildet lange Namen auf freie Kurznamen ab und warnt bei Kollisionen (W313).",

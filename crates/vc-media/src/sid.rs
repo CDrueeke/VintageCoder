@@ -29,9 +29,9 @@ fn be16(b: &[u8], o: usize) -> u16 { (b[o] as u16) << 8 | b[o + 1] as u16 }
 
 /// Kopf einer PSID/RSID-Datei lesen
 pub fn info(data: &[u8]) -> Result<(SidInfo, usize), String> {
-    if data.len() < 0x76 || !(data.starts_with(b"PSID") || data.starts_with(b"RSID")) { return Err("keine SID-Datei (PSID/RSID erwartet)".into()); }
+    if data.len() < 0x76 || !(data.starts_with(b"PSID") || data.starts_with(b"RSID")) { return Err(vc_i18n::t!("media-keine-sid-datei-psid-rsid-erwartet").into()); }
     let version = be16(data, 4); let off = be16(data, 6) as usize;
-    if !(1..=4).contains(&version) || off < 0x76 || off > data.len() { return Err(format!("SID-Kopf ungültig (Version {version}, Datenbeginn ${off:X})")); }
+    if !(1..=4).contains(&version) || off < 0x76 || off > data.len() { return Err(vc_i18n::t!("media-sid-kopf-ungueltig-version-version-datenbeginn", version = &version, off = format!("{:X}", off))); }
     let (flags, sid2, sid3) = if version >= 2 && data.len() >= 0x7C { (be16(data, 0x76), data[0x7A], if version >= 3 && data.len() > 0x7B { data[0x7B] } else { 0 }) } else { (0, 0, 0) };
     let info = SidInfo {
         title: text(&data[0x16..0x36]), author: text(&data[0x36..0x56]), released: text(&data[0x56..0x76]),
@@ -74,7 +74,7 @@ fn call(cpu: &mut Cpu, m: &mut Machine, addr: u16, a: u8, as_irq: bool, cap: u64
     while cpu.pc != SENTINEL {
         if matches!(cpu.pc, 0xEA31 | 0xEA7E | 0xEA81 | 0xFF48 | 0xFFD2) { break; }
         let c = cpu.step(m)?; m.cycles += c as u64;
-        if m.cycles - start > cap { return Err(format!("Zeitüberschreitung bei ${:04X} (Routine kehrt nicht zurück)", addr)); }
+        if m.cycles - start > cap { return Err(vc_i18n::t!("media-zeitueberschreitung-bei-addr-routine-kehrt-nicht", addr = format!("{:04X}", addr))); }
     }
     Ok(())
 }
@@ -83,8 +83,8 @@ fn call(cpu: &mut Cpu, m: &mut Machine, addr: u16, a: u8, as_irq: bool, cap: u64
 fn record(data: &[u8], i: &SidInfo, off: usize, song: u16, seconds: u32, warn: &mut Vec<String>) -> Result<(Vec<[u8; 25]>, f64, f64), String> {
     let mut m = Machine { ram: vec![0; 65536], cycles: 0, sid: [0; 32], timer_latch: 0 };
     let mut payload = &data[off..];
-    let load = if i.load == 0 { if payload.len() < 2 { return Err("SID-Datei ohne Daten".into()); } let l = payload[0] as u16 | (payload[1] as u16) << 8; payload = &payload[2..]; l } else { i.load };
-    if load as usize + payload.len() > 0x10000 { return Err(format!("Daten ab ${load:04X} passen nicht in den Speicher")); }
+    let load = if i.load == 0 { if payload.len() < 2 { return Err(vc_i18n::t!("media-sid-datei-ohne-daten").into()); } let l = payload[0] as u16 | (payload[1] as u16) << 8; payload = &payload[2..]; l } else { i.load };
+    if load as usize + payload.len() > 0x10000 { return Err(vc_i18n::t!("media-daten-ab-load-passen-nicht-in", load = format!("{:04X}", load))); }
     m.ram[load as usize..load as usize + payload.len()].copy_from_slice(payload);
     m.ram[0] = 0x2F; m.ram[1] = 0x37; m.ram[0x314] = 0x31; m.ram[0x315] = 0xEA; m.ram[0x316] = 0x66; m.ram[0x317] = 0xFE; m.ram[0xFFFE] = 0x48; m.ram[0xFFFF] = 0xFF;
     let (clock, hz) = if i.ntsc { (NTSC_CLOCK, 60.0) } else { (PAL_CLOCK, 50.0) };
@@ -94,12 +94,12 @@ fn record(data: &[u8], i: &SidInfo, off: usize, song: u16, seconds: u32, warn: &
     // Aufrufe der Spielroutine pro Bild: Takt aus CIA 1 (Speed-Bit des Subtunes), sonst einmal pro Bild
     let cia = (i.speed >> ((song - 1).min(31))) & 1 == 1;
     let calls = if cia && m.timer_latch > 0 { ((clock / (m.timer_latch as f64 + 1.0)) / hz).round().clamp(1.0, 8.0) as usize } else { 1 };
-    if calls > 1 { warn.push(format!("Mehrfachtempo: die Spielroutine läuft {calls}× pro Bild; aufgenommen wird der Stand am Bildende")); }
+    if calls > 1 { warn.push(vc_i18n::t!("media-mehrfachtempo-die-spielroutine-laeuft-calls-pro", calls = &calls)); }
     let (play, as_irq) = if i.play != 0 { (i.play, false) } else {
         let v = m.ram[0x314] as u16 | (m.ram[0x315] as u16) << 8;
         if v != 0xEA31 && v != 0 { (v, true) } else { (m.ram[0xFFFE] as u16 | (m.ram[0xFFFF] as u16) << 8, true) }
     };
-    if i.sids > 1 { warn.push(format!("{} SID-Chips: nur der erste wird aufgenommen", i.sids)); }
+    if i.sids > 1 { warn.push(vc_i18n::t!("media-p1-sid-chips-nur-der-erste", p1 = &i.sids)); }
     let frames = (seconds as f64 * hz) as usize;
     let per_frame = (clock / hz) as u64; let mut out = Vec::with_capacity(frames);
     for _ in 0..frames {
@@ -120,23 +120,23 @@ fn note_of(freq: u16, clock: f64) -> Option<u8> {
 pub fn import(data: &[u8], p: &Profile, name: &str, o: &SidOpts) -> Result<(Value, Vec<String>), String> {
     let (i, off) = info(data)?;
     let mut warn = vec![];
-    if i.rsid { warn.push("RSID-Datei: sie erwartet einen echten C64 (Zeitgeber, KERNAL); die Aufnahme kann unvollständig sein".into()); }
+    if i.rsid { warn.push(vc_i18n::t!("media-rsid-datei-sie-erwartet-einen-echten").into()); }
     let song = if o.song == 0 { i.start_song } else { o.song };
-    if song == 0 || song > i.songs { return Err(format!("Subtune {song} gibt es nicht (1..{})", i.songs)); }
+    if song == 0 || song > i.songs { return Err(vc_i18n::t!("media-subtune-song-gibt-es-nicht-1", song = &song, p2 = &i.songs)); }
     let seconds = o.seconds.clamp(1, 600);
     let (regs, clock, hz) = record(data, &i, off, song, seconds, &mut warn)?;
     let nf = regs.len();
-    if i.ntsc { warn.push("NTSC-Stück (60 Bilder/s): im Tracker die Bildrate auf 60 Hz stellen".into()); }
+    if i.ntsc { warn.push(vc_i18n::t!("media-ntsc-stueck-60-bilder-s-im").into()); }
     // --- je Stimme: hörbares Gate, Tonhöhe
     let audible = |f: usize, v: usize| { let c = regs[f][v * 7 + 4]; c & 1 != 0 && c & 0xF0 != 0 && c & 8 == 0 };
     let freq = |f: usize, v: usize| regs[f][v * 7] as u16 | (regs[f][v * 7 + 1] as u16) << 8;
     let mut used_fx = false;
     for f in 0..nf { for v in 0..3 { let c = regs[f][v * 7 + 4]; if audible(f, v) && c & 6 != 0 { used_fx = true; } } if regs[f][0x17] & 0x0F != 0 && regs[f][0x18] & 0x70 != 0 { used_fx = true; } }
-    if used_fx { warn.push("Filter, Ringmodulation und Synchronisation werden nicht übernommen".into()); }
+    if used_fx { warn.push(vc_i18n::t!("media-filter-ringmodulation-und-synchronisation-werden-nicht").into()); }
     // --- Zeilenraster: größter Takt (Bilder je Zeile), auf dem fast alle Noteneinsätze liegen
     let mut onsets: Vec<usize> = vec![];
     for v in 0..3 { for f in 0..nf { if audible(f, v) && (f == 0 || !audible(f - 1, v)) { onsets.push(f); } } }
-    if onsets.is_empty() { return Err("In der Aufnahme sind keine Töne zu hören (Gate nie gesetzt). Bei RSID-Dateien oder besonderen Abspielroutinen kann die Aufnahme scheitern.".into()); }
+    if onsets.is_empty() { return Err(vc_i18n::t!("media-in-der-aufnahme-sind-keine-toene").into()); }
     let (mut speed, mut shift) = (6usize, 0usize);
     if onsets.len() >= 4 {
         for s in (1..=12usize).rev() {
@@ -177,11 +177,11 @@ pub fn import(data: &[u8], p: &Profile, name: &str, o: &SidOpts) -> Result<(Valu
             }
         }
     }
-    if combined { warn.push("Kombinierte Wellenformen wurden auf eine einzelne Wellenform abgebildet".into()); }
-    if too_many { warn.push("Mehr als 255 verschiedene Instrumente: weitere Klänge nutzen das letzte Instrument".into()); }
+    if combined { warn.push(vc_i18n::t!("media-kombinierte-wellenformen-wurden-auf-eine-einzelne").into()); }
+    if too_many { warn.push(vc_i18n::t!("media-mehr-als-255-verschiedene-instrumente-weitere").into()); }
     // Läuft die Musik am Ende der Aufnahme noch?
     let tail = nf.saturating_sub((hz as usize) * 2);
-    if (tail..nf).any(|f| (0..3).any(|v| audible(f, v))) { warn.push(format!("Das Stück läuft über die aufgenommenen {seconds} s hinaus (Länge im Dialog erhöhen, falls mehr gewünscht)")); }
+    if (tail..nf).any(|f| (0..3).any(|v| audible(f, v))) { warn.push(vc_i18n::t!("media-das-stueck-laeuft-ueber-die-aufgenommenen", seconds = &seconds)); }
     // --- Patterns
     let used = (0..rows).rev().find(|&r| (0..3).any(|v| cells[v][r].0 != 0)).map_or(1, |r| r + 1);
     let n = (p.raw["rows"].as_u64().unwrap_or(32) as usize).clamp(1, 128);
@@ -194,6 +194,6 @@ pub fn import(data: &[u8], p: &Profile, name: &str, o: &SidOpts) -> Result<(Valu
         order.push(id);
     }
     if instruments.is_empty() { instruments.push(json!({ "name": "Puls", "wave": "pulse", "pw": 2048, "a": 0, "d": 9, "s": 8, "r": 4 })); }
-    warn.insert(0, format!("Aus „{}“ ({}) aufgenommen: Subtune {song}, {seconds} s, {} Noteneinsätze, Takt {speed} Bilder/Zeile. Das ist eine Annäherung an den Klang, nicht der Originalsong.", i.title, i.author, onsets.len()));
+    warn.insert(0, vc_i18n::t!("media-aus-aufgenommen-subtune-song-seconds", title = &i.title, author = &i.author, song = &song, seconds = &seconds, onsets = onsets.len(), speed = &speed));
     Ok((json!({ "format": 1, "kind": "song", "profile": p.id, "name": name, "speed": speed.min(31), "rows": n, "instruments": instruments, "patterns": patterns, "order": order, "loop": 0 }), warn))
 }

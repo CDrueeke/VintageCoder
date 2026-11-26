@@ -14,7 +14,7 @@
 | `STU-DISK` | Disk-Studio (D64, D71, D81, ATR) | Stabil | [x] |
 | `STU-MEMMAP` | Memory Map | Stabil | [x] |
 | `STU-EXTRACT` | Extraktor (PRG/XEX/Speicherabbild → Zeichensätze, Bildschirme) | Konzept | [ ] |
-| `EMU-VICE` | VICE (`x64sc`, `x128`, `xplus4`, `xvic`, `xpet`, `xcbm2`) | Stabil | [x] |
+| `EMU-VICE` | VICE (`x64sc`, `x128`, `xplus4`, `xvic`, `xpet`) | Stabil | [x] |
 | `EMU-ATARI800` | atari800 | Stabil | [x] |
 | `EMU-ALTIRRA` | Altirra | Beta | [x] |
 | `EMU-FUJISAN` | Fujisan | Beta | [x] |
@@ -29,8 +29,8 @@
 | `SYS-C128` | Commodore 128 | Beta | [x] |
 | `SYS-VC20` | VC-20 | Beta | [x] |
 | `SYS-PET` | PET/CBM (BASIC) | Spike | [ ] |
-| `SYS-CBM2` | CBM-II (nur BASIC) | Spike | [ ] |
 | `EX-HELLO` | Kleinstbeispiele je System (`hello`, `basic_hello`, `basic_native`, `border` …) | Stabil | [x] |
 | `EX-JUMPRUN` | Hugo & Gumbo | Stabil | [x] |
 | `EX-PRALLBALL` | Prallball für alle sechs Systeme | Stabil | [x] |
+| `EX-TROXX` | Troxx für VC-20, C64, Plus/4 und Atari | Stabil | [x] |
 | `EX-DEMOS` | Rasterbalken, Sprites, Musik, Kacheln, Module, Tests | Stabil | [x] |

@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-MEDIA 1 "" "VintageCoder 0.2.1" "VintageCoder Handbuch"
+.TH VCC\-MEDIA 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-media \- Sprites, Zeichensätze, Songs und andere Mediendateien bearbeiten
 .SH ÜBERSICHT
@@ -560,7 +560,7 @@ Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ 
 .PP
 Die Dateien entstehen in build/export/; der Befehl gibt Pfad und Größe je Datei aus. Bei der Ausgabe in mehreren Teilen (Screens: chars/attrs, Kacheln: tiles/map/colors) gibt es je Teil eine Datei bzw. einen Abschnitt.
 .PP
-Beim Bauen werden veraltete Mediendateien ohnehin als asm und data nach build/export/ geschrieben.
+Mediendateien lassen sich auch direkt mit #include einbinden; dafür ist dieser Export nicht nötig.
 .PP
 Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
 .PP

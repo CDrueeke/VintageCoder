@@ -1,0 +1,291 @@
+{
+  "i18n": { "status": "geprüft", "source_hash": "7499b28e701e" },
+  "command": "asm",
+  "group": "bauen",
+  "summary": "Assemble assembler source",
+  "description": [
+    "Assembles a single assembler file and writes the result in the chosen output format. The target system comes from --target (default c64). Without --cpu, the CPU of the target is used.",
+    "If the source contains .cartridge and --format is missing, the output is a cartridge (crt for the C64, car for the Atari, vic20cart for the VIC-20). Otherwise it is the default format of the target. Without -o, the output has the name of the source with the extension of the format. To build a whole project, use vcc build."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc asm <file.asm> [options]",
+      "summary": "",
+      "args": [
+        {
+          "name": "file.asm",
+          "required": true,
+          "repeat": false,
+          "help": "Assembler source."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Target and output"
+        },
+        {
+          "id": "modul",
+          "label": "Cartridges"
+        },
+        {
+          "id": "quelle",
+          "label": "Source"
+        },
+        {
+          "id": "zusatz",
+          "label": "Extra files"
+        },
+        {
+          "id": "sonst",
+          "label": "Other"
+        }
+      ],
+      "options": [
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "file",
+          "group": "ziel",
+          "help": "Output file.",
+          "choices": [],
+          "default": "",
+          "default_text": "source name with the extension of the format",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ziel",
+          "help": "Target system: sets the CPU, chip symbols, text code and default format.",
+          "choices": [
+            "atari8",
+            "c128",
+            "c64",
+            "mega65",
+            "pet",
+            "plus4",
+            "vic20"
+          ],
+          "default": "c64",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "cpu",
+          "group": "ziel",
+          "help": "CPU instruction set, if it differs from the target.",
+          "choices": [
+            "45gs02",
+            "6510",
+            "7501",
+            "8502",
+            "nmos6502",
+            "sally"
+          ],
+          "default": "",
+          "default_text": "CPU of the target system",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--format",
+          "short": "",
+          "value": "format",
+          "group": "ziel",
+          "help": "Output format. d64, d71 and d81 put the program as the only file in a new disk image. a0, 20, 40 and 60 create a VIC-20 cartridge for the given memory block.",
+          "choices": [
+            "prg",
+            "bin",
+            "xex",
+            "crt",
+            "car",
+            "rom",
+            "d64",
+            "d71",
+            "d81",
+            "vic20cart",
+            "a0",
+            "20",
+            "40",
+            "60"
+          ],
+          "default": "",
+          "default_text": "default format of the target system; a cartridge if the source has .cartridge",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--memory",
+          "short": "",
+          "value": "expansion",
+          "group": "ziel",
+          "help": "Memory expansion of the VIC-20. Sets the BASIC start, screen memory and color memory. No effect on other targets.",
+          "choices": [
+            "unexpanded",
+            "3k",
+            "8k",
+            "16k",
+            "24k",
+            "35k"
+          ],
+          "default": "",
+          "default_text": "unexpanded (VIC-20 only)",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cart",
+          "short": "",
+          "value": "type",
+          "group": "modul",
+          "help": "Cartridge type for crt, car and rom. Replaces the .cartridge setting in the source.",
+          "choices": [
+            "normal",
+            "8k",
+            "16k",
+            "ocean",
+            "magicdesk",
+            "easyflash",
+            "actionreplay",
+            "ar",
+            "ultimax",
+            "xegs"
+          ],
+          "default": "",
+          "default_text": "C64: normal; Atari: derived from the code",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--illegals",
+          "short": "",
+          "value": "regel",
+          "group": "quelle",
+          "help": "How to handle undocumented instructions: deny reports an error, warn a warning, allow nothing.",
+          "choices": [
+            "deny",
+            "warn",
+            "allow"
+          ],
+          "default": "warn",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "-I",
+          "short": "",
+          "value": "ordner",
+          "group": "quelle",
+          "help": "Extra search folder for include files. data/sys is always searched last.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "-D",
+          "short": "",
+          "value": "name[=number]",
+          "group": "quelle",
+          "help": "Defines a constant for .if and .ifdef. Without =number the value is 1. Write numbers as 42, $2a, 0x2a or %101010.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--labels",
+          "short": "",
+          "value": "datei.vs",
+          "group": "zusatz",
+          "help": "Writes the labels as a VICE label file.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "datei.vcdbg",
+          "group": "zusatz",
+          "help": "Writes the debug information (for the debugger and tests).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--listing",
+          "short": "",
+          "value": "datei.lst",
+          "group": "zusatz",
+          "help": "Writes the listing with addresses and bytes.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "sonst",
+          "help": "Folder of the hardware database (data). Replaces VC_DATA and the automatic search.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "assemble (target C64)",
+          "cmd": "vcc asm examples/c64/border/border.asm -o border.prg"
+        },
+        {
+          "title": "MEGA65 program with a test constant",
+          "cmd": "vcc asm examples/mega65/prallball/prallball.asm -o prallball.prg --target mega65 --cpu 45gs02 --illegals deny -D START_HIRES=1"
+        },
+        {
+          "title": "Atari program as XEX",
+          "cmd": "vcc asm examples/atari/colorbars/colorbars.asm -o colorbars.xex --target atari8 --format xex"
+        },
+        {
+          "title": "C64 cartridge with several banks",
+          "cmd": "vcc asm examples/c64/cart_demo/cart_demo.asm -o cart_oc.crt --format crt --cart ocean -D OCEAN=1 --labels cart_oc.vs"
+        }
+      ],
+      "notes": [
+        "Any other value for --format creates a PRG file with that extension. --cart and --cpu are only checked during assembly and then report an error.",
+        "For cartridges, the assembler fills unused areas with $FF. The banks come from .bank and .org in the source.",
+        "A VIC-20 cartridge at $A000 needs the signature A0CBM at $A004 in the source."
+      ],
+      "exit": {
+        "0": "assembled (warnings possible)",
+        "1": "error in the source, while writing or in an option value",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "build",
+        "dis",
+        "inc"
+      ]
+    }
+  ]
+}

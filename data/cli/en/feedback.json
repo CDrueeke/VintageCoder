@@ -1,0 +1,80 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "8b8a0332eea1" },
+  "command": "feedback",
+  "group": "hilfe",
+  "summary": "Prepare feedback by email with details about the installation",
+  "description": [
+    "Puts together the subject and text of a mail to vintagecoder@drueeke.de: version, commit, operating system, architecture, kind and folder of the installation, data folder, configuration folder, release choice and, with --target, the target system. Paths in your home folder appear as ~. Project names are not included.",
+    "Without --open, the command only prints what the mail would contain. With --open, the operating system opens the default mail program with the subject and text filled in. Nothing is sent until you click Send there. You add the error description, screenshots and attachments there yourself. There is no network access and no telemetry."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc feedback [optionen]",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--open",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Open the mail in the default mail program (macOS open, Windows rundll32, Linux xdg-open).",
+          "default": "",
+          "default_text": "print only",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Print everything as machine-readable JSON (subject, text, link, single details).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ausgabe",
+          "help": "Include the target system of the project in the details, e.g. c64.",
+          "default": "",
+          "default_text": "no target system",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "see what the mail would contain",
+          "cmd": "vcc feedback"
+        },
+        {
+          "title": "open the mail in the mail program",
+          "cmd": "vcc feedback --open"
+        },
+        {
+          "title": "as JSON, with target system",
+          "cmd": "vcc feedback --json --target c64"
+        }
+      ],
+      "notes": [
+        "The mailto link is limited to about 1900 characters (Windows handles about 2000). If the mail does not fit, the optional details are left out and the text says which. The --json output contains the full text as body_full.",
+        "With --open and no mail program, the command ends with error code 1. The subject and text are still in the output."
+      ],
+      "see_also": [
+        "emulator"
+      ]
+    }
+  ]
+}

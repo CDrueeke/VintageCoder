@@ -14,10 +14,20 @@ pub struct ModeInfo { pub label: String, pub hint: String, pub width: usize, pub
 /// Zeichenwerkzeuge der Zeichenfläche
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Tool { Pen, Erase, Fill, Line, Rect, Select, Pick }
+impl Tool {
+    /// Bezeichnung in der gewählten Sprache
+    pub fn label(self) -> String {
+        match self {
+            Tool::Pen => vc_i18n::t!("pixel-werkzeug-stift"), Tool::Erase => vc_i18n::t!("pixel-werkzeug-radierer"), Tool::Fill => vc_i18n::t!("pixel-werkzeug-fuellen"),
+            Tool::Line => vc_i18n::t!("pixel-werkzeug-linie"), Tool::Rect => vc_i18n::t!("pixel-werkzeug-rechteck"), Tool::Select => vc_i18n::t!("pixel-werkzeug-auswahl"),
+            Tool::Pick => vc_i18n::t!("pixel-werkzeug-pipette"),
+        }
+    }
+}
 
 /// Änderungen an den Animationen eines Sprites
 #[derive(Clone, Debug, PartialEq)]
-pub enum AnimOp { New, Delete, Rename(String), Mode(AnimMode), AddStep(usize), DelStep(usize), Move(usize, isize), Delay(usize, u32) }
+pub enum AnimOp { New, Delete, Rename(String), Mode(AnimMode), AddStep(usize), DelStep(usize), Move(usize, isize), Delay(usize, u32), /** Schritt `von` an die Stelle `nach` ziehen */ MoveTo(usize, usize), /** Dauer aller Schritte der Animation setzen */ DelayAll(u32), /** Neue Animation aus Bildern (Reihenfolge der Bilderliste), Name (leer: automatisch), Ablauf, Dauer je Bild */ Aus(Vec<usize>, String, AnimMode, u32) }
 
 #[derive(Debug)]
 pub struct PixelDoc {
@@ -40,17 +50,17 @@ pub struct PixelDoc {
 impl PixelDoc {
     pub fn open(root: &Path, rel: &str, data: &Path) -> Result<PixelDoc, String> {
         let abs = root.join(rel);
-        let mut media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
+        let mut media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("pixel-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("pixel-rel-e", rel = &rel, e = e.to_string()))?;
         // Format 2: Verweis auf ein ROM des Anwenders (`base`) auflösen, die eigenen Änderungen (`overrides`) darüberlegen
-        if media["format"] == 2 && media["base"].is_string() { media = vc_media::romref::resolve_media(&media).map_err(|e| format!("{rel}: {e}"))?; }
-        let pid = media["profile"].as_str().ok_or("Profil fehlt")?;
+        if media["format"] == 2 && media["base"].is_string() { media = vc_media::romref::resolve_media(&media).map_err(|e| vc_i18n::t!("pixel-rel-e", rel = &rel, e = &e))?; }
+        let pid = media["profile"].as_str().ok_or(vc_i18n::t!("pixel-profil-fehlt"))?;
         let profiles = vc_media::load_profiles(data)?;
         let p = vc_media::profile(&profiles, pid)?;
-        if p.bpp > 8 { return Err(format!("{rel}: {} Bit je Pixel werden nicht unterstützt", p.bpp)); }
+        if p.bpp > 8 { return Err(vc_i18n::t!("pixel-rel-p2-bit-je-pixel-werden", rel = &rel, p2 = &p.bpp)); }
         let kind = media["kind"].as_str().unwrap_or("").to_string();
         let height = if kind == "pmg" { media["height"].as_u64().map(|h| h as usize).unwrap_or(p.height) } else { p.height };
         let digits = p.raw["digits"].as_u64().unwrap_or(1) as usize;
-        let frames: Vec<Vec<Vec<u8>>> = media["frames"].as_array().ok_or("frames fehlt")?.iter().map(|f| {
+        let frames: Vec<Vec<Vec<u8>>> = media["frames"].as_array().ok_or(vc_i18n::t!("pixel-frames-fehlt"))?.iter().map(|f| {
             f["rows"].as_array().map(|rows| rows.iter().map(|r| r.as_str().unwrap_or("").chars().collect::<Vec<_>>().chunks(digits).map(|c| c.iter().collect::<String>()).map(|t| u8::from_str_radix(&t, 16).unwrap_or(0)).collect()).collect()).unwrap_or_default()
         }).collect();
         let strs = |k: &str| p.raw[k].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
@@ -59,7 +69,7 @@ impl PixelDoc {
             undo: vec![], redo: vec![], saved: String::new(), sel: None, clip: None, frame_mc: vec![], profile_mc: p.bpp == 2, frame_modes: if vc_media::sprite::has_frame_modes(p) { p.raw["modes"].as_array().map(|a| a.iter().map(|m| ModeInfo { label: m["label"].as_str().unwrap_or("").into(), hint: m["hint"].as_str().unwrap_or("").into(), width: m["width"].as_u64().unwrap_or(0) as usize, bpp: m["bpp"].as_u64().unwrap_or(1) as usize, aspect: m["aspect"].as_f64().unwrap_or(1.0) as f32, values: m["values"].as_array().map(|v| v.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default() }).collect()).unwrap_or_default() } else { vec![] }, sel_anim: 0, coalesce: None, status: String::new(), media };
         b.read_modes(); b.sync_mode();
         b.saved = b.snapshot_json();
-        if let Some(m) = b.media["rom_missing"].as_str() { b.status = format!("Zeichensatz-ROM fehlt – leeres Raster. {m}"); }
+        if let Some(m) = b.media["rom_missing"].as_str() { b.status = vc_i18n::t!("pixel-zeichensatz-rom-fehlt-leeres-raster-m", m = &m); }
         else if let Some(n) = b.media["rom_note"].as_str() { b.status = n.to_string(); }
         Ok(b)
     }
@@ -117,8 +127,8 @@ impl PixelDoc {
     pub fn save(&mut self) -> Result<(), String> {
         let v = self.to_value();
         // mit `base` auf ein ROM werden nur die eigenen Änderungen geschrieben (Format 2), nie die Original-Zeichen
-        std::fs::write(&self.abs, vc_media::project::format_media(&vc_media::romref::for_saving(&v))).map_err(|e| format!("{}: {e}", self.rel))?;
-        self.saved = v.to_string(); self.status = "gespeichert".into(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, vc_media::project::format_media(&vc_media::romref::for_saving(&v))).map_err(|e| format!("{}: {e}", self.rel))?;
+        self.saved = v.to_string(); self.status = vc_i18n::t!("pixel-gespeichert"); Ok(())
     }
 
     fn colors(&self) -> &Value { &self.media["colors"] }
@@ -126,12 +136,12 @@ impl PixelDoc {
     fn color_keys(&self) -> Vec<(String, String)> {
         if self.bpp == 8 { return vec![]; }
         match self.kind.as_str() {
-            "sprite" => if self.bpp == 1 && !self.frame_mc.iter().any(|&m| m) { vec![("sprite".into(), "Sprite-Farbe".into())] } else { vec![("sprite".into(), "Sprite-Farbe".into()), ("mc1".into(), "Multicolor 1".into()), ("mc2".into(), "Multicolor 2".into())] },
-            "pmg" => vec![(format!("P{}", self.fi), format!("Farbe {}", self.frame_names.get(self.fi).cloned().unwrap_or_default()))],
-            _ => if self.bpp == 1 { vec![("fg".into(), "Vordergrund".into()), ("bg".into(), "Hintergrund".into())] } else {
+            "sprite" => if self.bpp == 1 && !self.frame_mc.iter().any(|&m| m) { vec![("sprite".into(), vc_i18n::t!("pixel-sprite-farbe").into())] } else { vec![("sprite".into(), vc_i18n::t!("pixel-sprite-farbe").into()), ("mc1".into(), vc_i18n::t!("pixel-multicolor-1").into()), ("mc2".into(), vc_i18n::t!("pixel-multicolor-2").into())] },
+            "pmg" => vec![(format!("P{}", self.fi), vc_i18n::t!("pixel-farbe-p1", p1 = self.frame_names.get(self.fi).cloned().unwrap_or_default()))],
+            _ => if self.bpp == 1 { vec![("fg".into(), vc_i18n::t!("pixel-vordergrund").into()), ("bg".into(), vc_i18n::t!("pixel-hintergrund").into())] } else {
                 // Pixelwerte 0..3 gehören zu bg, mc1, mc2, fg; die Beschriftung kommt aus den Werten des Profils (VC-20: Hintergrund, Rahmen, Zeichenfarbe, Hilfsfarbe)
-                let l = |i: usize, d: &str| self.values.get(i).cloned().unwrap_or_else(|| d.to_string());
-                vec![("fg".into(), l(3, "Zeichenfarbe")), ("bg".into(), l(0, "Hintergrund")), ("mc1".into(), l(1, "Multicolor 1")), ("mc2".into(), l(2, "Multicolor 2"))]
+                let l = |i: usize, d: String| self.values.get(i).cloned().unwrap_or_else(|| d.to_string());
+                vec![("fg".into(), l(3, vc_i18n::t!("pixel-zeichenfarbe"))), ("bg".into(), l(0, vc_i18n::t!("pixel-hintergrund"))), ("mc1".into(), l(1, vc_i18n::t!("pixel-multicolor-1"))), ("mc2".into(), l(2, vc_i18n::t!("pixel-multicolor-2")))]
             },
         }
     }
@@ -242,6 +252,15 @@ impl PixelDoc {
         self.frames.insert(self.fi + 1, f); self.frame_mc.resize(self.frames.len() - 1, self.profile_mc); self.frame_mc.insert(self.fi + 1, mc);
         sprite::animations_after_insert(&mut self.media, self.fi + 1); self.fi += 1;
     }
+    /// Frame `von` an die Stelle `nach` setzen (Bilderliste umordnen); die Schritte der Animationen folgen den Bildern; das bewegte Bild bleibt gewählt
+    pub fn frame_verschieben(&mut self, von: usize, nach: usize) {
+        let n = self.frames.len(); if self.fixed_frames || von >= n || nach >= n || von == nach { return }
+        self.push_undo(); self.frame_mc.resize(n, self.profile_mc);
+        let f = self.frames.remove(von); self.frames.insert(nach, f); let m = self.frame_mc.remove(von); self.frame_mc.insert(nach, m);
+        let neu = |x: usize| if x == von { nach } else if von < nach && x > von && x <= nach { x - 1 } else if von > nach && x >= nach && x < von { x + 1 } else { x };
+        for a in self.media["animations"].as_array_mut().into_iter().flatten() { for st in a["steps"].as_array_mut().into_iter().flatten() { if let Some(x) = st["frame"].as_u64() { st["frame"] = json!(neu(x as usize)); } } }
+        self.fi = nach;
+    }
     /// Gewähltes Frame löschen (Schritte der Animationen mit diesem Frame entfallen); das letzte Frame bleibt
     pub fn frame_loeschen(&mut self) {
         if self.fixed_frames || self.frames.len() < 2 { return }
@@ -255,17 +274,30 @@ impl PixelDoc {
     /// Eine Änderung an den Animationen anwenden (Dauer-Änderungen am selben Schritt zählen als ein Undo-Schritt)
     pub fn anim_aendern(&mut self, op: AnimOp) -> Result<(), String> {
         let anims = self.animationen()?; let n = self.sel_anim.min(anims.len().saturating_sub(1));
+        if let AnimOp::Aus(fr, name, ..) = &op {   // vor dem Verlaufspunkt prüfen: ein Fehler hinterlässt keinen leeren Rückgängig-Schritt
+            if fr.is_empty() || fr.iter().any(|&f| f >= self.frames.len()) { return Err(vc_i18n::t!("pixel-keine-bilder-gewaehlt").into()); }
+            if !name.trim().is_empty() && (!sprite::valid_name(name) || anims.iter().any(|x| &x.name == name)) { return Err(vc_i18n::t!("pixel-nm-ist-kein-gueltiger-oder-freier", nm = name)); }
+        }
         let key = if let AnimOp::Delay(i, _) = &op { Some(format!("delay:{n}:{i}")) } else { None };
         if key.is_none() || self.coalesce != key { self.push_undo(); } self.coalesce = key;
         let mut list = anims;
         match op {
             AnimOp::New => { let mut nm = "anim".to_string(); let mut k = 1; while list.iter().any(|x| x.name == nm) { k += 1; nm = format!("anim{k}"); } list.push(Anim { name: nm, mode: AnimMode::Loop, steps: vec![(self.fi, 4)] }); self.sel_anim = list.len() - 1; }
+            AnimOp::Aus(frames, name, mode, delay) => {
+                let mut fr = frames; fr.sort_unstable(); fr.dedup();
+                if fr.is_empty() || fr.iter().any(|&f| f >= self.frames.len()) { return Err(vc_i18n::t!("pixel-keine-bilder-gewaehlt").into()); }
+                let nm = if name.trim().is_empty() { let mut nm = "anim".to_string(); let mut k = 1; while list.iter().any(|x| x.name == nm) { k += 1; nm = format!("anim{k}"); } nm }
+                    else if !sprite::valid_name(&name) || list.iter().any(|x| x.name == name) { return Err(vc_i18n::t!("pixel-nm-ist-kein-gueltiger-oder-freier", nm = &name)) } else { name };
+                list.push(Anim { name: nm, mode, steps: fr.into_iter().map(|f| (f, delay.clamp(1, 255))).collect() }); self.sel_anim = list.len() - 1;
+            }
             AnimOp::Delete => { if n < list.len() { list.remove(n); self.sel_anim = n.saturating_sub(1); } }
-            AnimOp::Rename(nm) => { if !sprite::valid_name(&nm) || list.iter().enumerate().any(|(i, x)| i != n && x.name == nm) { return Err(format!("„{nm}“ ist kein gültiger oder freier Name")) } if let Some(a) = list.get_mut(n) { a.name = nm; } }
+            AnimOp::Rename(nm) => { if !sprite::valid_name(&nm) || list.iter().enumerate().any(|(i, x)| i != n && x.name == nm) { return Err(vc_i18n::t!("pixel-nm-ist-kein-gueltiger-oder-freier", nm = &nm)) } if let Some(a) = list.get_mut(n) { a.name = nm; } }
             AnimOp::Mode(m) => { if let Some(a) = list.get_mut(n) { a.mode = m; } }
             AnimOp::AddStep(f) => { if let Some(a) = list.get_mut(n) { let d = a.steps.last().map_or(4, |s| s.1); a.steps.push((f, d)); } }
             AnimOp::DelStep(i) => { if let Some(a) = list.get_mut(n) { if i < a.steps.len() { a.steps.remove(i); } } }
             AnimOp::Move(i, dir) => { if let Some(a) = list.get_mut(n) { let j = i as isize + dir; if j >= 0 && (j as usize) < a.steps.len() { a.steps.swap(i, j as usize); } } }
+            AnimOp::MoveTo(von, nach) => { if let Some(a) = list.get_mut(n) { if von < a.steps.len() && nach < a.steps.len() && von != nach { let st = a.steps.remove(von); a.steps.insert(nach, st); } } }
+            AnimOp::DelayAll(d) => { if let Some(a) = list.get_mut(n) { for st in a.steps.iter_mut() { st.1 = d.clamp(1, 255); } } }
             AnimOp::Delay(i, d) => { if let Some(a) = list.get_mut(n) { if let Some(s) = a.steps.get_mut(i) { s.1 = d.clamp(1, 255); } } }
         }
         self.media["animations"] = sprite::animations_to_json(&list); Ok(())
@@ -273,8 +305,8 @@ impl PixelDoc {
     /// Zeichensatz-Vorlagen zum Profil: (Verweis, Beschriftung, nicht verfügbar). Reihenfolge: ROM des Anwenders (wenn vorhanden), **Standard (eigen)** (`std:<id>`), ROM fehlt (ausgegraut).
     /// Eigene Sätze werden beim Laden als Kopie eingefügt (kein Verweis in der Datei), ROM-Sätze als Verweis.
     pub fn vorlagen(&self, data: &Path) -> Vec<(String, String, bool)> {
-        let rom: Vec<(String, String, bool)> = vc_media::project::std_charsets_for_profile(data, &self.profile, false).into_iter().enumerate().map(|(i, c)| (c.reference.clone(), format!("{}{}", c.label, if i == 0 { "  (Standard)" } else { "" }), c.status == vc_media::Status::Missing)).collect();
-        let eigen: Vec<(String, String, bool)> = vc_media::project::eigene_saetze(data, &self.profile).into_iter().map(|e| (format!("std:{}", e.id), format!("Standard (eigen): {}", e.name), false)).collect();
+        let rom: Vec<(String, String, bool)> = vc_media::project::std_charsets_for_profile(data, &self.profile, false).into_iter().enumerate().map(|(i, c)| (c.reference.clone(), format!("{}{}", c.label, if i == 0 { format!("  {}", vc_i18n::t!("pixel-standard")) } else { String::new() }), c.status == vc_media::Status::Missing)).collect();
+        let eigen: Vec<(String, String, bool)> = vc_media::project::eigene_saetze(data, &self.profile).into_iter().map(|e| (format!("std:{}", e.id), vc_i18n::t!("pixel-standard-eigen-p1", p1 = &e.name), false)).collect();
         let (mut da, mut fehlt): (Vec<_>, Vec<_>) = rom.into_iter().partition(|r| !r.2);
         da.extend(eigen); da.append(&mut fehlt); da
     }
@@ -287,61 +319,76 @@ impl PixelDoc {
     pub fn vorlage_anwenden_mit(&mut self, data: &Path, reference: &str) -> Result<(), String> {
         if let Some(id) = reference.strip_prefix("std:") {
             let std = vc_media::project::eigener_satz_media(data, id)?;
-            if std["frames"].as_array().map_or(0, |f| f.len()) != self.frames.len() { return Err("Der eigene Satz passt nicht zur Zeichenzahl dieses Profils".into()) }
+            if std["frames"].as_array().map_or(0, |f| f.len()) != self.frames.len() { return Err(vc_i18n::t!("pixel-der-eigene-satz-passt-nicht-zur").into()) }
             self.push_undo();
             let mut v = self.to_value(); v["frames"] = std["frames"].clone(); v["origin"] = std["origin"].clone();
             if let Some(o) = v.as_object_mut() { for k in ["base", "rom_missing", "rom_note", "rom_status"] { o.remove(k); } }
-            self.restore(&v.to_string()); self.status = "Eigenen Standardsatz geladen – mit Rückgängig zurück".into(); return Ok(())
+            self.restore(&v.to_string()); self.status = vc_i18n::t!("pixel-eigenen-standardsatz-geladen-mit-rueckgaengig-zurueck").into(); return Ok(())
         }
         self.vorlage_anwenden(reference)
     }
     pub fn vorlage_anwenden(&mut self, reference: &str) -> Result<(), String> {
         let std = vc_media::project::std_charset_media(&self.profile, reference)?;
-        if std["frames"].as_array().map_or(0, |f| f.len()) != self.frames.len() { return Err("Vorlage passt nicht zur Zeichenzahl dieses Profils".into()) }
+        if std["frames"].as_array().map_or(0, |f| f.len()) != self.frames.len() { return Err(vc_i18n::t!("pixel-vorlage-passt-nicht-zur-zeichenzahl-dieses").into()) }
         self.push_undo();
         let mut v = self.to_value(); v["frames"] = std["frames"].clone(); v["base"] = json!(reference);
         if let Some(o) = v.as_object_mut() { o.remove("origin"); }
         for k in ["rom_missing", "rom_note", "rom_status"] { if let Some(x) = std.get(k) { v[k] = x.clone(); } else if let Some(o) = v.as_object_mut() { o.remove(k); } }
-        self.restore(&v.to_string()); self.status = "Vorlage geladen – mit Rückgängig zurück".into(); Ok(())
+        self.restore(&v.to_string()); self.status = vc_i18n::t!("pixel-vorlage-geladen-mit-rueckgaengig-zurueck").into(); Ok(())
+    }
+    /// Zeichen der aktuellen Vorlage (`frames` der Vorlagendatei bzw. des eigenen Satzes); `None`, wenn der Satz selbst gestaltet ist oder die Vorlage fehlt
+    pub fn vorlage_frames(&self, data: &Path) -> Option<Value> {
+        let r = self.vorlage_aktuell(); if r.is_empty() { return None }
+        let m = match r.strip_prefix("std:") { Some(id) => vc_media::project::eigener_satz_media(data, id).ok()?, None => vc_media::project::std_charset_media(&self.profile, &r).ok()? };
+        Some(m["frames"].clone())
+    }
+    /// Zeichen `i` im Dateiformat (zum Vergleich mit der Vorlage)
+    pub fn frame_json(&self, i: usize) -> Value { self.to_value()["frames"][i].clone() }
+    /// Alle Zeichen im Dateiformat (einmal berechnet, für Vergleiche über den ganzen Satz)
+    pub fn frames_json(&self) -> Value { self.to_value()["frames"].clone() }
+    /// Ein Zeichen auf den Stand der Vorlage zurücksetzen (rückgängig mit Undo)
+    pub fn zeichen_auf(&mut self, i: usize, frame: &Value) -> Result<(), String> {
+        if i >= self.frames.len() { return Err(vc_i18n::t!("pixel-zeichen-gibt-es-nicht").into()) }
+        self.push_undo(); let fi = self.fi; let mut v = self.to_value(); v["frames"][i] = frame.clone(); self.restore(&v.to_string()); self.fi = fi.min(self.frames.len().saturating_sub(1)); Ok(())
     }
     /// Herkunft des Zeichensatzes für die Herkunftskarte: (Etikett, Zeilen). Etiketten immer als Wort: EIGEN, EIGEN, GEÄNDERT, AUS DEINEM ROM, ROM FEHLT; `None`, wenn der Satz selbst gestaltet ist
-    pub fn herkunft(&self, data: &Path) -> Option<(&'static str, Vec<String>)> {
+    pub fn herkunft(&self, data: &Path) -> Option<(String, Vec<String>)> {
         if let Some(b) = self.media["base"].as_str().filter(|b| b.starts_with("rom:")) {
-            return Some(if self.media["rom_missing"].is_string() { ("ROM FEHLT", vec![format!("Verweis {b}: das ROM liegt auf diesem Rechner nicht vor; der Bau nimmt ersatzweise den eigenen Standardsatz.")]) } else { ("AUS DEINEM ROM", vec![format!("Verweis {b}: die Zeichen gehören dem Hersteller, in der Datei steht nur der Verweis.")]) })
+            return Some(if self.media["rom_missing"].is_string() { (vc_i18n::t!("pixel-rom-fehlt"), vec![vc_i18n::t!("pixel-verweis-b-das-rom-liegt-auf", b = &b)]) } else { (vc_i18n::t!("pixel-aus-deinem-rom"), vec![vc_i18n::t!("pixel-verweis-b-die-zeichen-gehoeren-dem", b = &b)]) })
         }
         let o = &self.media["origin"]; if o["source"].as_str() != Some("vintagecoder-standard") { return None }
         let id = o["id"].as_str().unwrap_or("");
         let jetzt = self.to_value(); let unveraendert = vc_media::project::eigener_satz_media(data, id).ok().is_some_and(|m| m["frames"] == jetzt["frames"]);
-        let mut z = vec![format!("Satz {id}, Revision {}", o["rev"].as_u64().unwrap_or(0)), format!("Urheber: {}", o["author"].as_str().unwrap_or("")), format!("Entstanden: {} · Werkzeug: {}", o["created"].as_str().unwrap_or(""), o["tool"].as_str().unwrap_or("")), format!("Lizenz: {}", o["license"].as_str().unwrap_or(""))];
-        let pr = o["check"]["result"].as_str().unwrap_or("offen"); let fr = o["freigabe"].as_str().unwrap_or("offen"); z.push(format!("Prüfung der Abstände: {pr} · Freigabe: {fr}{}", if pr != "bestanden" && fr != "offen" { " (Abstandsprüfung nicht bestanden, vom Inhaber akzeptiert)" } else { "" }));
-        Some((if unveraendert { "EIGEN" } else { "EIGEN, GEÄNDERT" }, z))
+        let mut z = vec![vc_i18n::t!("pixel-satz-id-revision-p2", id = &id, p2 = o["rev"].as_u64().unwrap_or(0)), vc_i18n::t!("pixel-urheber-p1", p1 = o["author"].as_str().unwrap_or("")), vc_i18n::t!("pixel-entstanden-p1-werkzeug-p2", p1 = o["created"].as_str().unwrap_or(""), p2 = o["tool"].as_str().unwrap_or("")), vc_i18n::t!("pixel-lizenz-p1", p1 = o["license"].as_str().unwrap_or(""))];
+        let pr = o["check"]["result"].as_str().unwrap_or("offen"); let fr = o["freigabe"].as_str().unwrap_or("offen"); z.push(vc_i18n::t!("pixel-pruefung-der-abstaende-pr-freigabe-fr", pr = &pr, fr = &fr, p3 = if pr != "bestanden" && fr != "offen" { format!(" {}", vc_i18n::t!("infodlg-abstandspruefung-nicht-bestanden-vom-inhaber-akzeptiert")) } else { String::new() }));
+        Some((if unveraendert { vc_i18n::t!("pixel-eigen") } else { vc_i18n::t!("pixel-eigen-geaendert") }, z))
     }
     /// PNG-Bild in das gewählte Frame übernehmen (Farben werden zugeordnet); speichert vorher. Meldung zum Ergebnis.
     pub fn png_importieren(&mut self, root: &Path, data: &Path, png: &[u8]) -> Result<String, String> {
-        if self.kind == "sprite" && self.is_mc(self.fi) != self.profile_mc { return Err("PNG laden gilt für Frames im Modus des Profils; dieses Frame hat einen anderen Modus".into()) }
+        if self.kind == "sprite" && self.is_mc(self.fi) != self.profile_mc { return Err(vc_i18n::t!("pixel-png-laden-gilt-fuer-frames-im").into()) }
         self.save()?;
         let v = vc_media::project::import_png(root, data, &self.rel, png, self.fi, true, "pal")?;
         self.undo.push(self.snapshot_json()); self.redo.clear(); self.coalesce = None;
         let (media, rep) = (v["media"].to_string(), &v["report"]);
         self.restore(&media); self.saved = self.snapshot_json();
-        let msg = format!("PNG importiert in Frame {} ({} Bildfarben, {} erlaubt{})", self.fi, rep["imageColors"], rep["allowed"], if rep["conflict"] == true { " – Farben reduziert" } else { "" });
+        let msg = vc_i18n::t!("pixel-png-importiert-in-frame-p1-p2", p1 = &self.fi, p2 = rep["imageColors"].to_string(), p3 = rep["allowed"].to_string(), p4 = if rep["conflict"] == true { format!(" – {}", vc_i18n::t!("pixel-farben-reduziert")) } else { String::new() });
         self.status = msg.clone(); Ok(msg)
     }
-    pub fn titel(&self) -> &str { match self.kind.as_str() { "sprite" => "Sprite", "pmg" => "Player/Missile", _ => "Zeichensatz" } }
+    pub fn titel(&self) -> String { match self.kind.as_str() { "sprite" => vc_i18n::t!("pixel-sprite"), "pmg" => vc_i18n::t!("pixel-player-missile"), _ => vc_i18n::t!("pixel-zeichensatz") } }
 }
 
 /// Registeradresse (oder Registername) zu einem Pixelwert; `None`, wenn der Name sie schon nennt oder nichts zu zeigen ist
 fn value_reg(target: &str, kind: &str, bpp: usize, i: usize, fi: usize, name: &str) -> Option<String> {
     if name.contains('$') { return None; }
-    let r = |s: &str| Some(s.to_string());
+    fn r(s: impl AsRef<str>) -> Option<String> { Some(s.as_ref().to_string()) }
     match (target, kind, bpp, i) {
         ("c64" | "c128" | "mega65", "sprite", 1, 1) | ("c64" | "c128" | "mega65", "sprite", 2, 2) => r("$D027+n"),
         ("atari8", "pmg", _, 1) => Some(format!("COLPM{fi} ${:04X}", 0xD012 + fi)),
         ("c64" | "c128", "charset", _, 0) => r("$D021"),
-        ("c64" | "c128", "charset", 1, 1) => r("Farb-RAM $D800"),
+        ("c64" | "c128", "charset", 1, 1) => r(vc_i18n::t!("pixel-farb-ram-d800")),
         ("c64" | "c128", "charset", 2, 1) => r("$D022"),
         ("c64" | "c128", "charset", 2, 2) => r("$D023"),
-        ("c64" | "c128", "charset", 2, 3) => r("Farb-RAM $D800"),
+        ("c64" | "c128", "charset", 2, 3) => r(vc_i18n::t!("pixel-farb-ram-d800")),
         ("atari8", "charset", 1, 0) => r("COLPF2 $D018"),
         ("atari8", "charset", 1, 1) => r("COLPF1 $D017"),
         _ => None,
@@ -351,8 +398,30 @@ fn value_reg(target: &str, kind: &str, bpp: usize, i: usize, fi: usize, name: &s
 /// Hardware-Flags eines Sprites: Bit, Name, Hinweis mit Register (nur Systeme mit VIC-II-Sprites)
 const SPRITE_FLAGS: &[(u8, &str, &str)] = &[(0, "MC", "Multicolor ($D01C)"), (1, "X2", "Breit: doppelte Breite ($D01D)"), (2, "Y2", "Hoch: doppelte Höhe ($D017)"), (3, "BG", "Hinter dem Hintergrund ($D01B)")];
 
-/// Hat das Profil Hardware-Flags? (Sprites der VIC-II-Systeme und Atari-Player/Missile)
-pub fn has_sprite_flags(target: &str, kind: &str) -> bool { kind == "sprite" && matches!(target, "c64" | "c128") }
+/// Hat das Profil Hardware-Flags? (Sprites der VIC-II-Systeme C64, C128 und MEGA65 im VIC-II-Modus)
+pub fn has_sprite_flags(target: &str, kind: &str) -> bool { kind == "sprite" && matches!(target, "c64" | "c128" | "mega65") }
+
+/// Hat die Datei Player/Missile-Eigenschaften? (Atari 8-Bit: Breite je Spieler `SIZEP0–3`, Priorität `PRIOR`)
+pub fn has_pmg_props(target: &str, kind: &str) -> bool { kind == "pmg" && target == "atari8" }
+
+/// Erlaubte Werte für `PRIOR` (Bit 0 bis 3: Reihenfolge von Spielern und Spielfeld); 0 = nicht gesetzt
+pub const PMG_PRIOR: [u8; 4] = [1, 2, 4, 8];
+/// Erlaubte Breiten (Registerwerte `SIZEP`): 0 normal, 1 doppelt, 3 vierfach
+pub const PMG_SIZES: [u8; 3] = [0, 1, 3];
+
+/// Breite je Spieler (`SIZEP0–3`) und Priorität (`PRIOR`) aus den Metadaten `hw` der Mediendatei (nicht Vorhandenes: 0)
+pub fn pmg_from_hw(hw: &Value) -> ([u8; 4], u8) {
+    let mut sizes = [0u8; 4];
+    for (i, s) in sizes.iter_mut().enumerate() { if let Some(v) = hw["sizep"][i].as_u64().map(|v| v as u8).filter(|v| PMG_SIZES.contains(v)) { *s = v; } }
+    (sizes, hw["prior"].as_u64().map(|v| v as u8).filter(|v| PMG_PRIOR.contains(v)).unwrap_or(0))
+}
+/// Schreibt Breite und Priorität in `hw`; ist alles Vorgabe, entfällt `hw` (alte Dateien bleiben unverändert)
+pub fn pmg_to_hw(media: &mut Value, sizes: [u8; 4], prior: u8) {
+    if sizes == [0; 4] && prior == 0 { if let Some(o) = media.as_object_mut() { o.remove("hw"); } return; }
+    let mut hw = json!({ "sizep": sizes });
+    if prior != 0 { hw["prior"] = json!(prior); }
+    media["hw"] = hw;
+}
 
 /// Flags aus den Metadaten `hw` der Mediendatei als Bitwert (Bit 0 = Multicolor kommt aus dem Frame-Modus, nicht aus `hw`)
 pub fn flags_from_hw(hw: &Value) -> u8 { (hw["expandX"].as_bool().unwrap_or(false) as u8) << 1 | (hw["expandY"].as_bool().unwrap_or(false) as u8) << 2 | (hw["behind"].as_bool().unwrap_or(false) as u8) << 3 }

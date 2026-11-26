@@ -10,12 +10,12 @@ pub enum PfadArt { Ordner, Datei, /** Speichern unter, mit Endung der Art (leer 
 /// Setzt den Wert des Feldes (dieselbe Nachricht wie beim Tippen); `Arc`, weil das Ergebnis des Dialogs später ankommt
 #[derive(Clone)]
 pub struct Setzer(pub Arc<dyn Fn(String) -> Msg + Send + Sync>);
-impl std::fmt::Debug for Setzer { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str("Setzer") } }
+impl std::fmt::Debug for Setzer { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str(&vc_i18n::t!("pfadfeld-setzer")) } }
 
 /// Das Feld: `wert` als Text, rechts „Wählen …“
 pub fn pfadfeld<'a>(pal: Pal, hinweis: &str, wert: &str, art: PfadArt, breite: Length, setzer: impl Fn(String) -> Msg + Send + Sync + 'static) -> Element<'a, Msg> {
     let s = Setzer(Arc::new(setzer)); let s2 = s.clone();
-    row![text_input(hinweis, wert).on_input(move |v| (s2.0)(v)).size(13).padding(5).width(breite).font(vc_gui_ui::fonts::MONO), vc_gui_ui::muster::knopf(pal, "Wählen …", match art { PfadArt::Ordner | PfadArt::ProjektOrdner => "Ordner im Dialog des Systems wählen", PfadArt::Datei => "Datei im Dialog des Systems wählen", _ => "Dateinamen im Dialog des Systems wählen (die Endung wird ergänzt)" }, Some(Msg::PfadWaehlen(art, wert.to_string(), s)), false, false)].spacing(6).align_y(Alignment::Center).wrap().vertical_spacing(4).into()
+    row![text_input(hinweis, wert).on_input(move |v| (s2.0)(v)).size(13).padding(5).width(breite).font(vc_gui_ui::fonts::MONO), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("pfadfeld-waehlen"), &match art { PfadArt::Ordner | PfadArt::ProjektOrdner => vc_i18n::t!("pfadfeld-ordner-im-dialog-des-systems-waehlen"), PfadArt::Datei => vc_i18n::t!("pfadfeld-datei-im-dialog-des-systems-waehlen"), _ => vc_i18n::t!("pfadfeld-dateinamen-im-dialog-des-systems-waehlen") }, Some(Msg::PfadWaehlen(art, wert.to_string(), s)), false, false)].spacing(6).align_y(Alignment::Center).wrap().vertical_spacing(4).into()
 }
 
 /// Dateiname mit Endung: fehlt dem Namen jede Endung, wird `endung` (mit Punkt) ergänzt; eine vorhandene, auch eine andere, bleibt (die Person hat sie gewählt). Leere Endung: nichts ergänzen
@@ -37,7 +37,7 @@ impl App {
         let name = std::path::Path::new(wert.trim()).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         Task::perform(async move {
             let d = rfd::AsyncFileDialog::new().set_directory(start);
-            match art { PfadArt::Ordner | PfadArt::ProjektOrdner => d.set_title("Ordner wählen").pick_folder().await, PfadArt::Datei => d.set_title("Datei wählen").pick_file().await, PfadArt::Speichern(_) | PfadArt::ProjektSpeichern(_) => d.set_title("Speichern unter").set_file_name(name).save_file().await }.map(|f| f.path().to_path_buf())
+            match art { PfadArt::Ordner | PfadArt::ProjektOrdner => d.set_title(vc_i18n::t!("pfadfeld-ordner-waehlen")).pick_folder().await, PfadArt::Datei => d.set_title(vc_i18n::t!("pfadfeld-datei-waehlen")).pick_file().await, PfadArt::Speichern(_) | PfadArt::ProjektSpeichern(_) => d.set_title(vc_i18n::t!("pfadfeld-speichern-unter")).set_file_name(name).save_file().await }.map(|f| f.path().to_path_buf())
         }, move |p| Msg::PfadGewaehlt(art, s.clone(), p))
     }
     pub(crate) fn pfad_gewaehlt(&mut self, art: PfadArt, s: Setzer, p: Option<std::path::PathBuf>) -> Task<Msg> {

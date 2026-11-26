@@ -1,0 +1,15 @@
+# Pruefsummen (SHA-256) von Troxx, gebaut mit vcc build (Projekt troxx.vcprj, VC-20 unerweitert, PAL)
+
+build/main.prg  18519b8f9ffbe131ea504ff939f7383100f409f36116269266768c4ffde3eb51  (3585 Byte; Segmente [('PROGRAM', 3068), ('CHARSET', 512)])
+build0/main.prg (ENEMY_DESTROYS_LINES=0)  618cc1e2c0d96161481267ccbc3381b9f1b373fb052d5b7d776a22ba8e36fedc
+
+c5aed7d84a10e9be7cae9b96c9315dbd9bf3925d0cb78faee524df678788718c  charset.asm
+a882ed4bef73c4c1e1e9e719938930623361f2c7dad67a1fb87b8929473de67a  data.inc
+6484e6ef2b1cf661303d07b7ab82fb456dc49767ffd81b68bdcae30bab920508  enemies.asm
+30ddc0d94a85db94f69bf558ab5b69a2e010cc862cf468fb9ef37a5365991cd2  grid.asm
+2951f7a0075bb17adea162886c5429a5dd26d9a289c257429a668f9652cc5c79  hud.asm
+3c6fad25483d57ed208279d67ded2b716a32602ff90f15af0cddf966eb073c9b  main.asm
+8512d2f19d0dcc27c4c5df0f082bd16d4a06c9193debf14a63dac9efbb290176  player.asm
+99e8380c0b4ec86d86e13350117785210c4d3bb137a4aa09ff60f17da2c689e2  sound.asm
+a5810c88ac384ff1374e66c35738fa755dbf04bb3b1850ac65a148f5b9198e7a  troxx.vcprj
+0eb5f6a7648994112724b81752924efb7b3e28803e73bef9f96fdaf20c314186  vic.asm

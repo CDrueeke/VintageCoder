@@ -9,7 +9,7 @@ use crate::petscii;
 use crate::Dialect;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write;
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 
 /// DATA-Eintrag im Zeichenketten-Modus: Text und (falls es eine Zahl ist) der Zahlenwert
 struct SItem { text: Vec<u8>, label: Option<String>, num: Option<f64> }
@@ -84,12 +84,12 @@ fn display_of(v: &Var) -> String { format!("{}{}", v.name, match v.ty { Ty::Int 
 fn hex16(v: i64) -> String { format!("${:04X}", v & 0xFFFF) }
 
 impl<'a> G<'a> {
-    fn err(&mut self, code: &'static str, msg: impl Into<String>) { let l = self.src_line; self.errs.push(Diagnostic::error(code, &self.o.file, l, msg)); }
-    fn warn(&mut self, code: &'static str, msg: impl Into<String>) { let l = self.src_line; self.warns.push(Diagnostic::warning(code, &self.o.file, l, msg)); }
-    fn stage(&mut self, n: u8, what: &str) {
+    fn err(&mut self, code: &'static str, msg: Msg) { let l = self.src_line; self.errs.push(Diagnostic::error(code, &self.o.file, l, msg)); }
+    fn warn(&mut self, code: &'static str, msg: Msg) { let l = self.src_line; self.warns.push(Diagnostic::warning(code, &self.o.file, l, msg)); }
+    fn stage(&mut self, n: u8, what: Msg) {
         self.need_stage = self.need_stage.max(n);
-        let (code, name) = if n == 2 { ("E301", "Fließkomma") } else { ("E302", "Zeichenketten") };
-        self.err(code, format!("{what} braucht Stufe {n} ({name}); erlaubt ist höchstens Stufe {}", self.o.stage));
+        let max = self.o.stage;
+        if n == 2 { self.err("E301", msg!("diag-basic-e301-needs-stage", what = what, max = max)); } else { self.err("E302", msg!("diag-basic-e302-needs-stage", what = what, max = max)); }
     }
     fn ins(&mut self, s: impl AsRef<str>) { let _ = writeln!(self.body, "        {}", s.as_ref()); }
     fn label(&mut self, l: &str) { let _ = writeln!(self.body, "{l}:"); }
@@ -99,16 +99,16 @@ impl<'a> G<'a> {
     fn scalar(&mut self, v: &Var) -> String {
         let k = key_of(v);
         if let Some((l, shown, _)) = self.scalars.get(&k).cloned() {
-            if shown != display_of(v) { self.warn("W312", format!("{} und {} sind im BASIC dieselbe Variable (nur die ersten 2 Zeichen zählen)", shown, display_of(v))); }
+            if shown != display_of(v) { self.warn("W312", msg!("diag-basic-w312-same-variable", a = shown, b = display_of(v))); }
             return l;
         }
         if v.ty == Ty::Float && !self.hint_float && !self.float {
             self.hint_float = true;
-            self.warn("I110", format!("Variable {} ist im Original eine Fließkommazahl; Stufe 1 rechnet mit 16-Bit-Ganzzahlen", display_of(v)));
+            self.warn("I110", msg!("diag-basic-i110-float-var", name = display_of(v)));
         }
         let l = label_of("v", v);
         let size = if v.ty == Ty::Str { if self.atari { 4 } else { 3 } } else if self.float && v.ty == Ty::Float { self.fsz } else { 2 };
-        if self.atari && v.ty == Ty::Str && !self.scap.contains_key(&l) { self.err("E321", format!("Zeichenkettenvariable {} braucht ein DIM mit fester Größe (Atari-BASIC: DIM {}(n), sonst Fehler 9)", display_of(v), display_of(v))); }
+        if self.atari && v.ty == Ty::Str && !self.scap.contains_key(&l) { self.err("E321", msg!("diag-basic-e321-string-dim", name = display_of(v))); }
         self.scalars.insert(k, (l.clone(), display_of(v), size));
         l
     }
@@ -172,26 +172,26 @@ impl<'a> G<'a> {
         }
         match e {
             Expr::Num(n) => {
-                if *n > 65535 { self.err("E303", format!("Zahl {n} ist zu groß für 16 Bit")); return; }
+                if *n > 65535 { self.err("E303", msg!("diag-basic-e303-too-big-16", n = n)); return; }
                 if *n > 32767 && !self.hint_big {
                     self.hint_big = true;
-                    self.warn("I111", "Zahlen über 32767 gelten als 16-Bit-Muster (Adressen für PEEK/POKE/SYS); im Rechnen und im PRINT erscheinen sie negativ");
+                    self.warn("I111", msg!("diag-basic-i111-big-numbers"));
                 }
                 self.load_imm(*n);
             }
-            Expr::Float(s) => self.stage(2, &format!("Zahl {s}")),
-            Expr::Str(_) => self.stage(3, "Zeichenkette in einem Ausdruck"),
+            Expr::Float(s) => self.stage(2, msg!("basic-b2a-what-number", s = s)),
+            Expr::Str(_) => self.stage(3, msg!("basic-b2a-what-string-expr")),
             Expr::Var(v) => {
-                if v.ty == Ty::Str { self.stage(3, &format!("Zeichenkettenvariable {}$", v.name)); return; }
-                if v.ty != Ty::Int && v.name == "TI" { self.ins("jsr rt_ti"); self.warn("I112", "TI liefert nur die unteren 16 Bit der Systemuhr"); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-var-named", name = &v.name)); return; }
+                if v.ty != Ty::Int && v.name == "TI" { self.ins("jsr rt_ti"); self.warn("I112", msg!("diag-basic-i112-ti-16bit")); return; }
                 if v.ty != Ty::Int && v.name == "ST" { self.ins("lda $90"); self.ins("ldy #0"); return; }
                 let l = self.scalar(v);
                 self.ins(format!("lda {l}"));
                 self.ins(format!("ldy {l}+1"));
             }
             Expr::Elem(v, idx) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenfeld"); return; }
-                if idx.len() != 1 { self.err("E304", "Stufe 1 kennt nur eindimensionale Felder"); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-array")); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim-stage1")); return; }
                 self.expr(&idx[0]);
                 let l = self.array(v);
                 self.set_ap_keep(&l);
@@ -205,8 +205,8 @@ impl<'a> G<'a> {
             Expr::Bin(op, a, b) => {
                 let rt = match op {
                     BinOp::Add => "rt_add", BinOp::Sub => "rt_sub", BinOp::Mul => "rt_mul",
-                    BinOp::Div => { if !self.o.int_div { self.stage(2, "Division '/' (liefert Bruchzahlen; mit --int-div ganzzahlig)"); return; } "rt_div" }
-                    BinOp::Pow => { self.stage(2, "Potenz '^'"); return; }
+                    BinOp::Div => { if !self.o.int_div { self.stage(2, msg!("basic-b2a-what-division")); return; } "rt_div" }
+                    BinOp::Pow => { self.stage(2, msg!("basic-b2a-what-power")); return; }
                     BinOp::Eq => "rt_eq", BinOp::Ne => "rt_ne", BinOp::Lt => "rt_lt", BinOp::Gt => "rt_gt", BinOp::Le => "rt_le", BinOp::Ge => "rt_ge",
                     BinOp::And => "rt_and", BinOp::Or => "rt_or",
                 };
@@ -302,12 +302,12 @@ impl<'a> G<'a> {
             "PEEK" if want(1) => { self.expr(&args[0]); self.ins("jsr rt_peek"); }
             "ABS" if want(1) => { self.expr(&args[0]); self.ins("jsr rt_abs"); }
             "SGN" if want(1) => { self.expr(&args[0]); self.ins("jsr rt_sgn"); }
-            "INT" if want(1) => { self.expr(&args[0]); self.warn("I113", "INT ist in Stufe 1 ohne Wirkung (nur Ganzzahlen)"); }
-            "PEEK" | "ABS" | "SGN" | "INT" => self.err("E305", format!("{name} erwartet genau ein Argument")),
-            "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "HEX$" | "INKEY$" | "TIME$" => self.stage(3, &format!("{name}")),
-            "LEN" | "ASC" | "VAL" | "DEC" | "INSTR" => self.stage(3, name),
-            "SQR" | "RND" | "LOG" | "EXP" | "COS" | "SIN" | "TAN" | "ATN" => self.stage(2, name),
-            _ => self.err("E306", format!("Funktion {name} wird nicht übersetzt")),
+            "INT" if want(1) => { self.expr(&args[0]); self.warn("I113", msg!("diag-basic-i113-int-noop")); }
+            "PEEK" | "ABS" | "SGN" | "INT" => self.err("E305", msg!("diag-basic-e305-one-arg", name = name)),
+            "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "HEX$" | "INKEY$" | "TIME$" => self.stage(3, msg!("basic-b2a-what-name", name = name)),
+            "LEN" | "ASC" | "VAL" | "DEC" | "INSTR" => self.stage(3, msg!("basic-b2a-what-name", name = name)),
+            "SQR" | "RND" | "LOG" | "EXP" | "COS" | "SIN" | "TAN" | "ATN" => self.stage(2, msg!("basic-b2a-what-name", name = name)),
+            _ => self.err("E306", msg!("diag-basic-e306-function", name = name)),
         }
     }
 
@@ -315,15 +315,15 @@ impl<'a> G<'a> {
         if self.float { return self.fstore(lv); }
         match lv {
             LValue::Var(v) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenvariable"); return; }
-                if is_reserved_scalar(v) { self.err("E307", format!("{} kann nicht zugewiesen werden", v.name)); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-var")); return; }
+                if is_reserved_scalar(v) { self.err("E307", msg!("diag-basic-e307-assign", name = &v.name)); return; }
                 let l = self.scalar(v);
                 self.ins(format!("sta {l}"));
                 self.ins(format!("sty {l}+1"));
             }
             LValue::Elem(v, idx) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenfeld"); return; }
-                if idx.len() != 1 { self.err("E304", "Stufe 1 kennt nur eindimensionale Felder"); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-array")); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim-stage1")); return; }
                 self.ins("jsr rt_push");
                 self.expr(&idx[0]);
                 let l = self.array(v);
@@ -339,13 +339,13 @@ impl<'a> G<'a> {
     }
 
     fn target(&mut self, n: u32) -> String {
-        if !self.lines.contains(&n) { self.err("E201", format!("Sprungziel: Zeile {n} existiert nicht")); }
+        if !self.lines.contains(&n) { self.err("E201", msg!("diag-basic-e201-jump-target", n = n)); }
         format!("L{n}")
     }
 
     fn numeric_lvalue_ok(&mut self, lv: &LValue) -> bool {
         let ty = match lv { LValue::Var(v) | LValue::Elem(v, _) => v.ty };
-        if ty == Ty::Str && !self.str { self.stage(3, "Zeichenketten-Variable"); false } else { true }
+        if ty == Ty::Str && !self.str { self.stage(3, msg!("basic-b2a-what-string-var-hyphen")); false } else { true }
     }
 
     fn stmts(&mut self, list: &[Stmt], next: &str) {
@@ -359,10 +359,10 @@ impl<'a> G<'a> {
                 if self.inline_step(target, expr) { return; }
                 if self.str {
                     let (ts, es) = (lv_is_str(target), self.is_str(expr));
-                    if ts != es { self.err("E320", "Typen passen nicht (TYPE MISMATCH): Zeichenkette und Zahl"); return; }
+                    if ts != es { self.err("E320", msg!("diag-basic-e320-assign")); return; }
                     if ts { self.sexpr(expr); self.sstore(target); return; }
                 }
-                if let LValue::Var(v) = target { if v.ty == Ty::Str { self.stage(3, "Zeichenkettenzuweisung"); return; } }
+                if let LValue::Var(v) = target { if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-assign")); return; } }
                 self.expr(expr);
                 self.store(target);
             }
@@ -370,9 +370,9 @@ impl<'a> G<'a> {
             Stmt::Turbo(t) => self.turbo_stmt(t),
             Stmt::Atari { op, args } if op == "OPEN" => {
                 self.uses_gfx = true; self.uses_open = true;
-                if args.len() != 4 { self.err("E305", "OPEN erwartet #Kanal, Zahl, Zahl, Name"); return; }
+                if args.len() != 4 { self.err("E305", msg!("diag-basic-e305-open-args")); return; }
                 for a in &args[..3] { self.num_ay(a); self.ins("jsr rt_push"); }
-                if !self.is_str(&args[3]) { self.err("E320", "OPEN: der Dateiname muss eine Zeichenkette sein (TYPE MISMATCH)"); return; }
+                if !self.is_str(&args[3]) { self.err("E320", msg!("diag-basic-e320-open-name")); return; }
                 self.sexpr(&args[3]);
                 self.ins("jsr rt_open");
             }
@@ -421,7 +421,7 @@ impl<'a> G<'a> {
             }
             Stmt::Input { prompt, vars } => {
                 self.uses_io = true;
-                if vars.len() != 1 { self.err("E308", "INPUT mit mehreren Variablen wird in Stufe 1 nicht übersetzt (je Variable ein INPUT)"); return; }
+                if vars.len() != 1 { self.err("E308", msg!("diag-basic-e308-input-multi")); return; }
                 if self.str && lv_is_str(&vars[0]) {
                     if let Some(p) = prompt { let l = self.intern(p); self.ins(format!("lda #<{l}")); self.ins(format!("ldy #>{l}")); self.ins("jsr rt_print_str"); }
                     self.ins("jsr rt_input_s");
@@ -438,7 +438,7 @@ impl<'a> G<'a> {
             }
             Stmt::Get(lv) => {
                 self.uses_io = true;
-                if self.str && lv_is_str(lv) { if self.atari { self.err("E311", "GET in eine Zeichenkette gibt es in Atari-BASIC nicht (GET #n,A liest ein Byte in eine Zahl)"); return; } self.ins("jsr rt_get_s"); self.sstore(lv); return; }
+                if self.str && lv_is_str(lv) { if self.atari { self.err("E311", msg!("diag-basic-e311-get-string")); return; } self.ins("jsr rt_get_s"); self.sstore(lv); return; }
                 if !self.numeric_lvalue_ok(lv) { return; }
                 self.ins("jsr rt_get_int");
                 if self.float { self.ins("jsr rt_i2f"); }
@@ -476,7 +476,7 @@ impl<'a> G<'a> {
             Stmt::If { cond, then } => {
                 self.expr(cond);
                 if self.float {
-                    self.ins("lda F_FACEXP         ; Exponent des FAC: 0 = Zahl ist 0");
+                    self.ins(format!("lda F_FACEXP         ; {}", vc_i18n::t!("basic-b2a-asm-facexp")));
                 } else {
                     self.ins("sty rt_tmp");
                     self.ins("ora rt_tmp");
@@ -486,8 +486,8 @@ impl<'a> G<'a> {
             }
             Stmt::For { var, from, to, step } => {
                 self.uses_flow = true;
-                if var.ty == Ty::Str { self.stage(3, "FOR mit Zeichenkettenvariable"); return; }
-                if var.ty == Ty::Int { self.err("E314", format!("FOR-Variable {}% darf nicht ganzzahlig sein (im BASIC V2 ein SYNTAX ERROR)", var.name)); return; }
+                if var.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-for-string")); return; }
+                if var.ty == Ty::Int { self.err("E314", msg!("diag-basic-e314-for-int", name = &var.name)); return; }
                 let v = self.scalar(var);
                 self.expr(from);
                 if self.float {
@@ -555,7 +555,7 @@ impl<'a> G<'a> {
             Stmt::Poke(a, v) => {
                 match self.konst_addr(a) {
                     Some(addr) => {
-                        match self.konst(v) { Some(c) if (0..=255).contains(&c) => self.ins(format!("lda #{c}")), Some(_) => { self.err("E309", "POKE-Wert muss 0..255 sein"); return; } None => { self.expr(v); if self.float { self.ins("jsr rt_f2addr"); } self.ins("jsr rt_byte"); } }
+                        match self.konst(v) { Some(c) if (0..=255).contains(&c) => self.ins(format!("lda #{c}")), Some(_) => { self.err("E309", msg!("diag-basic-e309-poke-range")); return; } None => { self.expr(v); if self.float { self.ins("jsr rt_f2addr"); } self.ins("jsr rt_byte"); } }
                         self.ins(format!("sta {}", if addr < 256 { format!("${addr:02X}") } else { format!("${addr:04X}") }));
                     }
                     None => {
@@ -593,9 +593,9 @@ impl<'a> G<'a> {
             Stmt::Stop => { self.load_imm(self.line_no as i64); self.ins("jmp rt_stop"); }
             Stmt::Clr => { self.uses_clr = true; self.ins("jsr b2a_clr"); }
             Stmt::Run(None) => { self.uses_clr = true; self.uses_run = true; self.ins("jsr b2a_clr"); self.ins("jmp b2a_run"); }
-            Stmt::Run(Some(_)) => self.err("E310", "RUN mit Zeilennummer wird nicht übersetzt"),
+            Stmt::Run(Some(_)) => self.err("E310", msg!("diag-basic-e310-run-line")),
             Stmt::DefFn { name, .. } => { let l = format!("fd_{}", self.fn_label(name)); self.ins("lda #1"); self.ins(format!("sta {l}")); }
-            Stmt::Unsupported(k) => self.err("E311", format!("{k} wird nicht übersetzt (Dateien, LIST/NEW/CONT und DEF FN sind nicht Teil der Umsetzung)")),
+            Stmt::Unsupported(k) => self.err("E311", msg!("diag-basic-e311-unsupported", k = k)),
         }
     }
 
@@ -637,7 +637,7 @@ fn petscii_text(bytes: &[u8], d: &Dialect) -> String {
 }
 
 /// Dezimalzahl → 5-Byte-Gleitkommaformat des BASIC (Exponent + 128, 4 Byte Mantisse, Vorzeichen im obersten Mantissenbit)
-pub fn mbf(v: f64) -> Result<[u8; 5], String> {
+pub fn mbf(v: f64) -> Result<[u8; 5], Msg> {
     if v == 0.0 { return Ok([0; 5]); }
     let neg = v < 0.0;
     let a = v.abs();
@@ -648,13 +648,13 @@ pub fn mbf(v: f64) -> Result<[u8; 5], String> {
     let mut mant = (m * 4294967296.0).round() as u64;
     if mant >= 1 << 32 { mant >>= 1; e += 1; }
     let exp = e + 128;
-    if exp > 255 { return Err(format!("Zahl {v} ist zu groß für das BASIC-Zahlenformat")); }
+    if exp > 255 { return Err(msg!("diag-basic-e303-mbf-too-big", v = v.to_string())); }
     if exp < 1 { return Ok([0; 5]); }
     Ok([exp as u8, ((mant >> 24) & 0x7F) as u8 | if neg { 0x80 } else { 0 }, (mant >> 16) as u8, (mant >> 8) as u8, mant as u8])
 }
 
 /// Zahl als 6-Byte-BCD des Atari-OS: Byte 0 = Vorzeichen (Bit 7) und Exponent zur Basis 100 (Excess $40), Byte 1-5 = Ziffernpaare; 1.0 = 40 01 00 00 00 00
-pub fn bcd(v: f64) -> Result<[u8; 6], String> {
+pub fn bcd(v: f64) -> Result<[u8; 6], Msg> {
     if v == 0.0 { return Ok([0; 6]); }
     let neg = v < 0.0;
     let a = v.abs();
@@ -672,7 +672,7 @@ pub fn bcd(v: f64) -> Result<[u8; 6], String> {
     if x.rem_euclid(2) == 0 { digits.insert(0, 0); } else { x -= 1; }
     let e = x.div_euclid(2);
     let exp = e + 0x40;
-    if exp > 0x70 { return Err(format!("Zahl {v} ist zu groß für das BASIC-Zahlenformat (höchstens 9,99999999E+97)")); }   // Atari: 1E-98 bis 9,99999999E+97
+    if exp > 0x70 { return Err(msg!("diag-basic-e303-bcd-too-big", v = v.to_string())); }   // Atari: 1E-98 bis 9,99999999E+97
     if exp < 0x0F { return Ok([0; 6]); }
     let mut out = [0u8; 6];
     out[0] = exp as u8 | if neg { 0x80 } else { 0 };
@@ -800,11 +800,11 @@ pub const TARGETS: &[TargetInfo] = &[
 pub fn target_info(id: &str) -> Option<&'static TargetInfo> { TARGETS.iter().find(|t| t.id == id) }
 
 pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments: &[(usize, String)], o: &B2aOptions) -> Result<Converted, Vec<Diagnostic>> {
-    let Some(ti) = target_info(&o.target) else { return Err(vec![Diagnostic::error("E330", &o.file, 0, format!("Ziel '{}' ist nicht umgesetzt (verfügbar: {})", o.target, TARGETS.iter().map(|t| t.id).collect::<Vec<_>>().join(", ")))]) };
+    let Some(ti) = target_info(&o.target) else { return Err(vec![Diagnostic::error("E330", &o.file, 0, msg!("diag-basic-e330-target", target = &o.target, available = TARGETS.iter().map(|t| t.id).collect::<Vec<_>>().join(", ")))]) };
     let t = ti.id;
     let wants_float = o.force_float || needs_float(prog, o) || (ti.atari && o.stage >= 3 && needs_str(prog));   // Atari: Zeichenketten rechnen immer mit dem Fließkommapaket (VAL, STR$, DATA)
     if wants_float && !ti.float && o.stage >= 2 {
-        return Err(vec![Diagnostic::error("E331", &o.file, 0, format!("Fließkomma (Stufe 2) ist für das Ziel {t} noch nicht umgesetzt (verfügbar: {}); das Programm braucht es", TARGETS.iter().filter(|x| x.float).map(|x| x.id).collect::<Vec<_>>().join(", ")))]);
+        return Err(vec![Diagnostic::error("E331", &o.file, 0, msg!("diag-basic-e331-float-target", t = t, available = TARGETS.iter().filter(|x| x.float).map(|x| x.id).collect::<Vec<_>>().join(", ")))]);
     }
     let mut g = G {
         o, d, errs: vec![], warns: vec![], src_line: 0, line_no: 0, lines: prog.lines.iter().map(|l| l.number).collect(),
@@ -812,7 +812,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
         arrays: BTreeMap::new(), strings: vec![], data: vec![], uniq: 0, need_stage: 1,
         hint_float: false, hint_big: false, uses_flow: false, uses_io: false, uses_data: false, uses_clr: false, uses_gfx: false, uses_open: false, uses_turbo: false, ctl: vec![], procs: BTreeSet::new(), uses_run: false, body: String::new(),
     };
-    if o.stage == 0 || o.stage > 3 { g.errs.push(Diagnostic::error("E300", &o.file, 0, format!("Stufe {} ist nicht umgesetzt; verfügbar sind Stufe 1 (Ganzzahl), 2 (Fließkomma) und 3 (Zeichenketten)", o.stage))); }
+    if o.stage == 0 || o.stage > 3 { g.errs.push(Diagnostic::error("E300", &o.file, 0, msg!("diag-basic-e300-stage", stage = o.stage))); }
     if g.float { g.need_stage = 2; }
     if g.str { g.need_stage = 3; }
 
@@ -826,29 +826,29 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
         for s in all {
             match s {
                 Stmt::Dim(list) => for (v, dims) in list {
-                    if v.ty == Ty::Str && !g.str { g.stage(3, "Zeichenkettenfeld"); continue; }
+                    if v.ty == Ty::Str && !g.str { g.stage(3, msg!("basic-b2a-what-string-array")); continue; }
                     if g.atari && v.ty == Ty::Str {   // Atari: DIM A$(n) = Kapazität einer Zeichenkette (kein Feld)
-                        if dims.len() != 1 { g.err("E304", "DIM einer Zeichenkette braucht genau eine Größe: DIM A$(n)"); continue; }
+                        if dims.len() != 1 { g.err("E304", msg!("diag-basic-e304-dim-string-one-size")); continue; }
                         match g.konst(&dims[0]) {
                             Some(n) if (1..=32767).contains(&n) => { let l = label_of("v", v); let e = g.scap.entry(l).or_insert(0); *e = (*e).max(n); }
-                            Some(_) => g.err("E312", "DIM A$(n): n muss 1 bis 32767 sein (Atari-BASIC: sonst Fehler 9)"),
-                            None => g.err("E312", "DIM A$(n) braucht in basic2asm eine Zahl als Größe"),
+                            Some(_) => g.err("E312", msg!("diag-basic-e312-dim-size-range")),
+                            None => g.err("E312", msg!("diag-basic-e312-dim-size-number")),
                         }
                         continue;
                     }
-                    if dims.len() != 1 { g.err("E304", "Es sind nur eindimensionale Felder umgesetzt"); continue; }
-                    let n = match g.konst(&dims[0]) { Some(n) if n >= 0 => n, _ => { g.err("E312", "DIM braucht in Stufe 1 eine Zahl als Größe"); continue; } };
+                    if dims.len() != 1 { g.err("E304", msg!("diag-basic-e304-one-dim")); continue; }
+                    let n = match g.konst(&dims[0]) { Some(n) if n >= 0 => n, _ => { g.err("E312", msg!("diag-basic-e312-dim-number")); continue; } };
                     let label = g.array(v);
                     let a = g.arrays.get_mut(&key_of(v)).unwrap();
-                    if a.dimmed { let name = a.name.clone(); g.err("E313", format!("Feld {name} wird zweimal dimensioniert (REDIM'D ARRAY)")); continue; }
+                    if a.dimmed { let name = a.name.clone(); g.err("E313", msg!("diag-basic-e313-redim", name = name)); continue; }
                     a.dimmed = true;
                     a.count = n + 1;
                     let _ = label;
                 }
                 Stmt::DefFn { name, param, body } => {
                     let key = fn_key(name);
-                    if name.ends_with('$') || param.ty == Ty::Str { g.err("E315", format!("FN{name}: Zeichenkettenfunktionen und -parameter werden nicht übersetzt")); continue; }
-                    if g.fns.contains_key(&key) { g.err("E316", format!("FN{name} wird zweimal definiert")); continue; }
+                    if name.ends_with('$') || param.ty == Ty::Str { g.err("E315", msg!("diag-basic-e315-fn-string", name = name)); continue; }
+                    if g.fns.contains_key(&key) { g.err("E316", msg!("diag-basic-e316-fn-twice", name = name)); continue; }
                     let label = format!("{}{}", name.trim_end_matches(['%', '$']), if name.ends_with('%') { "_P" } else { "" });
                     g.fns.insert(key, FnInfo { label, param: param.clone(), body: body.clone(), line: l.src_line, number: l.number, ret_int: name.ends_with('%') });
                 }
@@ -868,7 +868,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
                             match raw_num(b) {
                                 Some(x) if x.fract() == 0.0 && x.abs() < 1e15 && !b.iter().any(|c| matches!(c, b'.' | b'E' | b'e')) => v.push(DataItem::Num(x as i64)),
                                 Some(_) => v.push(DataItem::Float(String::from_utf8_lossy(b).trim().to_string())),
-                                None => g.err("E322", format!("DATA-Eintrag '{}' ist keine Zahl (Atari-BASIC: Fehler 8 beim Lesen)", String::from_utf8_lossy(b))),
+                                None => g.err("E322", msg!("diag-basic-e322-data-entry", entry = String::from_utf8_lossy(b).into_owned())),
                             }
                         }
                         conv = v;
@@ -884,7 +884,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
                             };
                             let label = if text.is_empty() { None } else { Some(g.intern(&text)) };
                             let item = SItem { text, label, num };
-                            if let Some(x) = item.num { if g.float { if let Err(e) = g.fbytes(x) { g.err("E303", e); } } else if !(-32768.0..=65535.0).contains(&x) { g.err("E303", format!("DATA-Zahl {x} ist zu groß für 16 Bit")); } }
+                            if let Some(x) = item.num { if g.float { if let Err(e) = g.fbytes(x) { g.err("E303", e); } } else if !(-32768.0..=65535.0).contains(&x) { g.err("E303", msg!("diag-basic-e303-data-too-big-16", n = x.to_string())); } }
                             v.push(item);
                         }
                         g.data.push((l.number, nums));
@@ -894,7 +894,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
                     }
                     if g.float {
                         for it in items {
-                            let v = match it { DataItem::Num(n) => Some(*n as f64), DataItem::Float(s) => s.parse::<f64>().ok(), DataItem::Str(_) | DataItem::Raw(_) => { g.stage(3, "DATA mit Text"); None } };
+                            let v = match it { DataItem::Num(n) => Some(*n as f64), DataItem::Float(s) => s.parse::<f64>().ok(), DataItem::Str(_) | DataItem::Raw(_) => { g.stage(3, msg!("basic-b2a-what-data-text")); None } };
                             if let Some(v) = v { match g.fbytes(v) { Ok(b) => fl.push(b), Err(e) => g.err("E303", e) } }
                         }
                         g.data.push((l.number, nums));
@@ -902,7 +902,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
                         g.uses_data = true;
                         continue;
                     }
-                    for it in items { match it { DataItem::Num(n) if *n <= 65535 && *n >= -32768 => nums.push(*n), DataItem::Num(n) => g.err("E303", format!("DATA-Zahl {n} ist zu groß für 16 Bit")), DataItem::Float(s) => g.stage(2, &format!("DATA-Zahl {s}")), DataItem::Str(_) | DataItem::Raw(_) => g.stage(3, "DATA mit Text") } }
+                    for it in items { match it { DataItem::Num(n) if *n <= 65535 && *n >= -32768 => nums.push(*n), DataItem::Num(n) => g.err("E303", msg!("diag-basic-e303-data-too-big-16", n = n)), DataItem::Float(s) => g.stage(2, msg!("basic-b2a-what-data-number", s = s)), DataItem::Str(_) | DataItem::Raw(_) => g.stage(3, msg!("basic-b2a-what-data-text")) } }
                     g.data.push((l.number, nums));
                     g.uses_data = true;
                 }
@@ -916,7 +916,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
         for s in &l.stmts {
             if let Stmt::Turbo(Struct::Proc(n)) = s {
                 g.src_line = l.src_line;
-                if !g.procs.insert(n.clone()) { g.err("E340", format!("Prozedur {n} wird zweimal definiert")); }
+                if !g.procs.insert(n.clone()) { g.err("E340", msg!("diag-basic-e340-proc-twice", n = n)); }
             }
         }
     }
@@ -943,7 +943,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
         let names: Vec<&str> = labels.iter().filter(|(_, n)| *n == l.number).map(|(s, _)| s.as_str()).collect();
         let shown = if names.is_empty() { String::new() } else { format!(" ({})", names.iter().map(|n| format!("@{n}")).collect::<Vec<_>>().join(", ")) };
         if l.stmts.iter().all(|s| matches!(s, Stmt::Rem(_))) && o.no_rem { continue; }
-        g.comment(&format!("---- Zeile {}{}: {}", l.number, shown, l.text));
+        g.comment(&format!("---- {}", vc_i18n::t!("basic-b2a-asm-line", n = l.number, labels = shown.as_str(), text = l.text.as_str())));
         g.label(&format!("L{}", l.number));
         for n in &names { g.label(&format!("bas_{n}")); }
         map.push(MapEntry { basic_line: l.number, src_line: l.src_line, label: format!("L{}", l.number) });
@@ -966,13 +966,14 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
     g.subs = std::mem::replace(&mut g.body, main);
     // Zeilen, die ein `no_rem` übersprungen hat, dürfen kein Sprungziel sein: Label trotzdem anlegen
     if o.no_rem { for l in &prog.lines { if l.stmts.iter().all(|s| matches!(s, Stmt::Rem(_))) { let _ = writeln!(g.body, "L{}:", l.number); } } }
-    if !g.ctl.is_empty() { g.src_line = 0; g.err("E341", format!("{} Block(s) von Turbo BASIC XL am Programmende nicht abgeschlossen (ENDIF, WEND, UNTIL, LOOP oder ENDPROC fehlt)", g.ctl.len())); }
+    if !g.ctl.is_empty() { g.src_line = 0; g.err("E341", msg!("diag-basic-e341-open-blocks", n = g.ctl.len())); }
     if !g.errs.is_empty() { return Err(g.errs); }
 
     // Ausgabe zusammensetzen
     let mut out = String::new();
-    let _ = writeln!(out, "; Erzeugt von VintageCoder (basic2asm) aus {}", o.file);
-    let _ = writeln!(out, "; Ziel: {t}, Stufe {} ({}), Stil compact. Jede BASIC-Zeile steht als Kommentar vor ihrem Block (Label L<Zeile>).", if g.str { 3 } else if g.float { 2 } else { 1 }, match (g.str, g.float) { (true, true) => "Zeichenketten und Fließkomma", (true, false) => "Zeichenketten und Ganzzahl", (false, true) => if ti.atari { "Fließkomma über das OS-Paket" } else { "Fließkomma über das BASIC-ROM" }, _ => "Ganzzahl" });
+    let _ = writeln!(out, "; generated by VintageCoder (basic2asm) from {}", o.file);   // Kennung der erzeugten Datei (`vc_ide::b2a::MARK`): in allen Sprachen englisch; `MARK_OLD` ist die frühere deutsche Fassung
+    let kind = match (g.str, g.float) { (true, true) => vc_i18n::t!("basic-b2a-asm-kind-str-float"), (true, false) => vc_i18n::t!("basic-b2a-asm-kind-str-int"), (false, true) => if ti.atari { vc_i18n::t!("basic-b2a-asm-kind-float-os") } else { vc_i18n::t!("basic-b2a-asm-kind-float-rom") }, _ => vc_i18n::t!("basic-b2a-asm-kind-int") };
+    let _ = writeln!(out, "; {}", vc_i18n::t!("basic-b2a-asm-target", t = t, stage = if g.str { 3 } else if g.float { 2 } else { 1 }, kind = kind));
     if ti.atari { let _ = writeln!(out, ".target {t}\n.cpu {}\n.branchlong auto\n#include <atari8bit/os.asm>", ti.cpu); }
     else { let _ = writeln!(out, ".target {t}\n.cpu {}\n.branchlong {}\n#include <{t}/kernal.asm>", ti.cpu, if ti.cpu == "45gs02" { "jmp" } else { "auto" }); }   // 45GS02: Ergebnis bleibt 6502-kompatibel
     if g.float { let _ = writeln!(out, ".const RT_FLOAT = 1"); }
@@ -981,16 +982,16 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
     else { let _ = writeln!(out, ".org ${:04X}\n.basicstub b2a_start\n", ti.org); }
     let _ = writeln!(out, "b2a_start:");
     let _ = writeln!(out, "        jsr rt_init");
-    if ti.atari && g.float { let _ = writeln!(out, "        lda #0\n        sta $FB              ; DEGFLG: Bogenmaß (DEG/RAD setzen ihn über POKE 251)"); }
+    if ti.atari && g.float { let _ = writeln!(out, "        lda #0\n        sta $FB              ; {}", vc_i18n::t!("basic-b2a-asm-degflg")); }
     if g.str && !g.atari { let _ = writeln!(out, "        jsr rt_sinit"); }
     if g.uses_data || !g.data.is_empty() { let _ = writeln!(out, "        lda #<b2a_data\n        sta rt_dp\n        lda #>b2a_data\n        sta rt_dp+1"); }
     if g.uses_run { let _ = writeln!(out, "b2a_run:"); }
     out.push_str(&g.body);
     let _ = writeln!(out, "b2a_fall:");
-    let _ = writeln!(out, "        jmp rt_end              ; Programmende\n");
+    let _ = writeln!(out, "        jmp rt_end              ; {}\n", vc_i18n::t!("basic-b2a-asm-end-program"));
     if !g.subs.is_empty() { let _ = writeln!(out, "; ---------------- DEF FN ----------------"); out.push_str(&g.subs); let _ = writeln!(out); }
     if g.uses_clr {
-        let _ = writeln!(out, "; CLR: alle Variablen auf 0, Stapel leeren\nb2a_clr:");
+        let _ = writeln!(out, "; {}\nb2a_clr:", vc_i18n::t!("basic-b2a-asm-clr"));
         if g.str && !g.atari { let _ = writeln!(out, "        jsr rt_sinit"); }
         let _ = writeln!(out, "        lda #0\n        sta rt_ssp\n        sta rt_esp");
         for (l, _, size) in g.scalars.values() { for k in 0..*size { let _ = writeln!(out, "        sta {l}{}", if k == 0 { String::new() } else { format!("+{k}") }); } }
@@ -1020,8 +1021,8 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
     for (l, shown, size) in g.scalars.values() {
         match *size {
             n if n == g.fsz && g.float => { let _ = writeln!(out, "{l}: .byte {}       ; {shown}", vec!["0"; n as usize].join(", ")); }
-            4 if g.atari => { let cap = g.scap.get(l).copied().unwrap_or(0); let _ = writeln!(out, "{l}: .word 0, 0               ; {shown} (Länge, Kapazität {cap})\n        .fill {cap}, 0"); }
-            3 => { let _ = writeln!(out, "{l}: .byte 0, 0, 0             ; {shown} (Länge, Adresse)"); }
+            4 if g.atari => { let cap = g.scap.get(l).copied().unwrap_or(0); let _ = writeln!(out, "{l}: .word 0, 0               ; {}\n        .fill {cap}, 0", vc_i18n::t!("basic-b2a-asm-str-cap", shown = shown.as_str(), cap = cap)); }
+            3 => { let _ = writeln!(out, "{l}: .byte 0, 0, 0             ; {}", vc_i18n::t!("basic-b2a-asm-str-addr", shown = shown.as_str())); }
             _ => { let _ = writeln!(out, "{l}: .word 0                 ; {shown}"); }
         }
     }
@@ -1079,8 +1080,8 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
         let aroots: Vec<&str> = g.arrays.values().filter(|a| a.size == 3).map(|a| a.label.as_str()).collect();
         let _ = writeln!(out, "b2a_aroots: .word {}0", aroots.iter().map(|r| format!("{r}, ")).collect::<String>());
     }
-    let _ = writeln!(out, "b2a_end:                    ; hier endet das Programm{}", if g.str { "; darüber liegt der Zeichenketten-Heap (bis RT_HEAPTOP)" } else { "" });
-    let _ = writeln!(out, ".assert b2a_end <= RT_HEAPTOP, \"Programm zu groß für {t}: es muss unterhalb von RT_HEAPTOP enden\"");
+    let _ = writeln!(out, "b2a_end:                    ; {}{}", vc_i18n::t!("basic-b2a-asm-end"), if g.str { format!("; {}", vc_i18n::t!("basic-b2a-asm-end-heap")) } else { String::new() });
+    let _ = writeln!(out, ".assert b2a_end <= RT_HEAPTOP, \"{}\"", vc_i18n::t!("basic-b2a-asm-assert", t = t));
     let _ = (&g.d, &g.o);
     Ok(Converted { asm: out, map, modules, stage: g.need_stage.max(1), warnings: g.warns, names: vec![] })
 }
@@ -1088,7 +1089,7 @@ pub fn generate(prog: &Program, d: &Dialect, labels: &[(String, u32)], comments:
 // ---- Stufe 2: Ausdrücke im FAC (Gleitkomma-Akkumulator des BASIC-ROMs)
 impl<'a> G<'a> {
     /// Zahl im Format des Ziels: MBF (5 Byte, CBM) oder BCD (6 Byte, Atari-OS)
-    fn fbytes(&self, v: f64) -> Result<Vec<u8>, String> {
+    fn fbytes(&self, v: f64) -> Result<Vec<u8>, Msg> {
         if self.atari { bcd(v).map(|b| b.to_vec()) } else { mbf(v).map(|b| b.to_vec()) }
     }
     fn fconst(&mut self, b: Vec<u8>) -> String {
@@ -1112,13 +1113,13 @@ impl<'a> G<'a> {
         }
         match e {
             Expr::Num(n) => self.fnum(*n),
-            Expr::Float(s) => match s.parse::<f64>().map_err(|_| format!("Zahl {s} ungültig")).and_then(|v| self.fbytes(v)) {
+            Expr::Float(s) => match s.parse::<f64>().map_err(|_| msg!("diag-basic-e303-number-invalid", s = s)).and_then(|v| self.fbytes(v)) {
                 Ok(b) => { let c = self.fconst(b); self.fload(&c); }
                 Err(m) => self.err("E303", m),
             },
-            Expr::Str(_) => self.stage(3, "Zeichenkette in einem Ausdruck"),
+            Expr::Str(_) => self.stage(3, msg!("basic-b2a-what-string-expr")),
             Expr::Var(v) => {
-                if v.ty == Ty::Str { self.stage(3, &format!("Zeichenkettenvariable {}$", v.name)); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-var-named", name = &v.name)); return; }
                 if v.ty != Ty::Int && v.name == "TI" { self.ins("jsr rt_fti"); return; }
                 if v.ty != Ty::Int && v.name == "ST" { self.ins("lda $90"); self.ins("ldy #0"); self.ins("jsr rt_i2f"); return; }
                 let l = self.scalar(v);
@@ -1126,8 +1127,8 @@ impl<'a> G<'a> {
                 else { self.fload(&l); }
             }
             Expr::Elem(v, idx) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenfeld"); return; }
-                if idx.len() != 1 { self.err("E304", "Es sind nur eindimensionale Felder umgesetzt"); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-array")); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim")); return; }
                 self.fexpr(&idx[0]);
                 self.ins("jsr rt_f2addr");
                 let l = self.array(v);
@@ -1151,10 +1152,10 @@ impl<'a> G<'a> {
             }
             Expr::Call(name, args) => {
                 if args.len() != 1 && matches!(name.as_str(), "PEEK" | "ABS" | "SGN" | "INT" | "SQR" | "RND" | "LOG" | "EXP" | "SIN" | "COS" | "TAN" | "ATN" | "STICK" | "STRIG") {
-                    self.err("E305", format!("{name} erwartet genau ein Argument")); return;
+                    self.err("E305", msg!("diag-basic-e305-one-arg", name = name)); return;
                 }
                 if self.atari && name == "TAN" {
-                    self.err("E334", "TAN gibt es in Atari-BASIC nicht (SIN(x)/COS(x) benutzen)"); return;
+                    self.err("E334", msg!("diag-basic-e334-tan")); return;
                 }
                 let rom = match name.as_str() {
                     "ABS" => "F_ABS", "SGN" => "F_SGN", "INT" => "F_INT", "SQR" => "F_SQR", "RND" => "F_RND", "LOG" => "F_LOG", "EXP" => "F_EXP",
@@ -1163,8 +1164,8 @@ impl<'a> G<'a> {
                     "DPEEK" if args.len() == 1 => { self.uses_turbo = true; self.num_ay(&args[0]); self.ins("jsr rt_dpeek"); self.ins("jsr rt_u2f"); return; }
                     "STICK" | "STRIG" => { self.uses_gfx = true; self.num_ay(&args[0]); self.ins(if name == "STICK" { "jsr rt_stick" } else { "jsr rt_strig" }); self.ins("jsr rt_i2f"); return; }
                     "PEEK" => { self.fexpr(&args[0]); self.ins("jsr rt_fpeek"); return; }
-                    "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "LEN" | "ASC" | "VAL" | "HEX$" | "DEC" | "INSTR" | "INKEY$" | "TIME$" => { self.stage(3, name); return; }
-                    _ => { self.err("E306", format!("Funktion {name} wird nicht übersetzt")); return; }
+                    "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "LEN" | "ASC" | "VAL" | "HEX$" | "DEC" | "INSTR" | "INKEY$" | "TIME$" => { self.stage(3, msg!("basic-b2a-what-name", name = name)); return; }
+                    _ => { self.err("E306", msg!("diag-basic-e306-function", name = name)); return; }
                 };
                 self.fexpr(&args[0]);
                 self.ins(format!("jsr {rom}"));
@@ -1177,15 +1178,15 @@ impl<'a> G<'a> {
     fn fstore(&mut self, lv: &LValue) {
         match lv {
             LValue::Var(v) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenvariable"); return; }
-                if is_reserved_scalar(v) { self.err("E307", format!("{} kann nicht zugewiesen werden", v.name)); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-var")); return; }
+                if is_reserved_scalar(v) { self.err("E307", msg!("diag-basic-e307-assign", name = &v.name)); return; }
                 let l = self.scalar(v);
                 if v.ty == Ty::Int { self.ins("jsr rt_f2i"); self.ins(format!("sta {l}")); self.ins(format!("sty {l}+1")); }
                 else { self.ins(format!("ldx #<{l}")); self.ins(format!("ldy #>{l}")); self.ins("jsr F_MOVMF"); }
             }
             LValue::Elem(v, idx) => {
-                if v.ty == Ty::Str { self.stage(3, "Zeichenkettenfeld"); return; }
-                if idx.len() != 1 { self.err("E304", "Es sind nur eindimensionale Felder umgesetzt"); return; }
+                if v.ty == Ty::Str { self.stage(3, msg!("basic-b2a-what-string-array")); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim")); return; }
                 self.ins("jsr rt_fpush");
                 self.fexpr(&idx[0]);
                 self.ins("jsr rt_f2addr");
@@ -1211,7 +1212,7 @@ impl<'a> G<'a> {
 
     /// Zahl nach A/Y (vorzeichenlos 0..65535; im Fließkomma-Modus über das ROM)
     fn num_ay(&mut self, e: &Expr) {
-        if self.is_str(e) { self.err("E320", "Zahl erwartet, aber eine Zeichenkette (TYPE MISMATCH)"); return; }
+        if self.is_str(e) { self.err("E320", msg!("diag-basic-e320-number-expected")); return; }
         self.expr(e);
         if self.float { self.ins("jsr rt_f2addr"); }
     }
@@ -1219,24 +1220,24 @@ impl<'a> G<'a> {
     /// Behandelt Ausdrücke mit Zeichenketten im Zahlenzusammenhang; true = erledigt
     fn str_hook(&mut self, e: &Expr) -> bool {
         match e {
-            Expr::Str(_) => { self.err("E320", "Zeichenkette, aber eine Zahl erwartet (TYPE MISMATCH)"); true }
-            Expr::Var(v) | Expr::Elem(v, _) if v.ty == Ty::Str => { self.err("E320", format!("Zeichenkettenvariable {}$, aber eine Zahl erwartet (TYPE MISMATCH)", v.name)); true }
+            Expr::Str(_) => { self.err("E320", msg!("diag-basic-e320-string-expected")); true }
+            Expr::Var(v) | Expr::Elem(v, _) if v.ty == Ty::Str => { self.err("E320", msg!("diag-basic-e320-string-var-number", name = &v.name)); true }
             Expr::Bin(op, a, b) if self.is_str(a) || self.is_str(b) => {
                 let rt = match op {
                     BinOp::Eq => "rt_seq", BinOp::Ne => "rt_sne", BinOp::Lt => "rt_slt", BinOp::Gt => "rt_sgt", BinOp::Le => "rt_sle", BinOp::Ge => "rt_sge",
-                    _ => { self.err("E320", "Mit Zeichenketten sind nur + und Vergleiche erlaubt (TYPE MISMATCH)"); return true; }
+                    _ => { self.err("E320", msg!("diag-basic-e320-string-ops")); return true; }
                 };
-                if !(self.is_str(a) && self.is_str(b)) { self.err("E320", "Zeichenkette und Zahl lassen sich nicht vergleichen (TYPE MISMATCH)"); return true; }
+                if !(self.is_str(a) && self.is_str(b)) { self.err("E320", msg!("diag-basic-e320-compare")); return true; }
                 self.sexpr(a);
                 self.ins("jsr rt_spush");
                 self.sexpr(b);
                 self.ins(format!("jsr {rt}"));
                 true
             }
-            Expr::Un(_, x) if self.is_str(x) => { self.err("E320", "Mit einer Zeichenkette kann man nicht rechnen (TYPE MISMATCH)"); true }
+            Expr::Un(_, x) if self.is_str(x) => { self.err("E320", msg!("diag-basic-e320-arith")); true }
             Expr::Call(n, args) if matches!(n.as_str(), "LEN" | "ASC" | "VAL") => {
-                if args.len() != 1 { self.err("E305", format!("{n} erwartet genau ein Argument")); return true; }
-                if !self.is_str(&args[0]) { self.err("E320", format!("{n} erwartet eine Zeichenkette (TYPE MISMATCH)")); return true; }
+                if args.len() != 1 { self.err("E305", msg!("diag-basic-e305-one-arg", name = n)); return true; }
+                if !self.is_str(&args[0]) { self.err("E320", msg!("diag-basic-e320-expects-string", n = n)); return true; }
                 self.sexpr(&args[0]);
                 match n.as_str() {
                     "LEN" | "ASC" => { self.ins(if n == "LEN" { "jsr rt_len" } else { "jsr rt_asc" }); if self.float { self.ins("jsr rt_i2f"); } }
@@ -1245,14 +1246,14 @@ impl<'a> G<'a> {
                 true
             }
             Expr::Call(n, args) if n == "DEC" => {
-                if args.len() != 1 || !self.is_str(&args[0]) { self.err("E320", "DEC erwartet eine Zeichenkette (TYPE MISMATCH)"); return true; }
+                if args.len() != 1 || !self.is_str(&args[0]) { self.err("E320", msg!("diag-basic-e320-dec-string")); return true; }
                 self.uses_turbo = true;
                 self.sexpr(&args[0]);
                 self.ins("jsr rt_dec"); self.ins("jsr rt_u2f");
                 true
             }
             Expr::Call(n, args) if n == "INSTR" => {
-                if !(2..=3).contains(&args.len()) || !self.is_str(&args[0]) || !self.is_str(&args[1]) { self.err("E320", "INSTR(a$,b$) oder INSTR(a$,b$,n) mit Zeichenketten (TYPE MISMATCH)"); return true; }
+                if !(2..=3).contains(&args.len()) || !self.is_str(&args[0]) || !self.is_str(&args[1]) { self.err("E320", msg!("diag-basic-e320-instr")); return true; }
                 self.uses_turbo = true;
                 self.sexpr(&args[0]); self.ins("jsr rt_spush");
                 self.sexpr(&args[1]); self.ins("jsr rt_spush");
@@ -1260,7 +1261,7 @@ impl<'a> G<'a> {
                 self.ins("jsr rt_instr"); self.ins("jsr rt_i2f");
                 true
             }
-            Expr::Call(n, _) if matches!(n.as_str(), "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "HEX$" | "INKEY$" | "TIME$") => { self.err("E320", format!("{n} liefert eine Zeichenkette, hier wird eine Zahl erwartet (TYPE MISMATCH)")); true }
+            Expr::Call(n, _) if matches!(n.as_str(), "CHR$" | "STR$" | "LEFT$" | "RIGHT$" | "MID$" | "HEX$" | "INKEY$" | "TIME$") => { self.err("E320", msg!("diag-basic-e320-returns-string", n = n)); true }
             _ => false,
         }
     }
@@ -1287,14 +1288,14 @@ impl<'a> G<'a> {
                 self.ins("jsr rt_sload");
             }
             Expr::Elem(v, idx) => {
-                if idx.len() != 1 { self.err("E304", "Es sind nur eindimensionale Felder umgesetzt"); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim")); return; }
                 self.num_ay(&idx[0]);
                 let l = self.array(v);
                 self.set_ap_keep(&l);
                 self.ins("jsr rt_sldelem");
             }
             Expr::Bin(BinOp::Add, a, b) => {
-                if !(self.is_str(a) && self.is_str(b)) { self.err("E320", "Zeichenkette und Zahl lassen sich nicht verketten (TYPE MISMATCH)"); return; }
+                if !(self.is_str(a) && self.is_str(b)) { self.err("E320", msg!("diag-basic-e320-concat")); return; }
                 self.sexpr(a);
                 self.ins("jsr rt_spush");
                 self.sexpr(b);
@@ -1302,16 +1303,16 @@ impl<'a> G<'a> {
             }
             Expr::Call(n, args) => {
                 let arity_ok = match n.as_str() { "CHR$" | "STR$" => args.len() == 1, "LEFT$" | "RIGHT$" => args.len() == 2, _ => args.len() == 2 || args.len() == 3 };
-                if !arity_ok { self.err("E305", format!("{n}: falsche Argumentzahl")); return; }
+                if !arity_ok { self.err("E305", msg!("diag-basic-e305-arg-count", n = n)); return; }
                 match n.as_str() {
                     "CHR$" => { self.num_ay(&args[0]); self.ins("jsr rt_chr"); }
                     "STR$" => {
-                        if self.is_str(&args[0]) { self.err("E320", "STR$ erwartet eine Zahl (TYPE MISMATCH)"); return; }
+                        if self.is_str(&args[0]) { self.err("E320", msg!("diag-basic-e320-str-number")); return; }
                         self.expr(&args[0]);
                         self.ins("jsr rt_strs");
                     }
                     _ => {
-                        if !self.is_str(&args[0]) { self.err("E320", format!("{n} erwartet eine Zeichenkette (TYPE MISMATCH)")); return; }
+                        if !self.is_str(&args[0]) { self.err("E320", msg!("diag-basic-e320-expects-string", n = n)); return; }
                         self.sexpr(&args[0]);
                         self.ins("jsr rt_spush");
                         if n == "MID$" {
@@ -1326,7 +1327,7 @@ impl<'a> G<'a> {
                     }
                 }
             }
-            _ => self.err("E320", "Zeichenkettenausdruck erwartet (TYPE MISMATCH)"),
+            _ => self.err("E320", msg!("diag-basic-e320-string-expr")),
         }
     }
 
@@ -1342,7 +1343,7 @@ impl<'a> G<'a> {
                 self.ins("jsr rt_sstor");
             }
             LValue::Elem(v, idx) => {
-                if idx.len() != 1 { self.err("E304", "Es sind nur eindimensionale Felder umgesetzt"); return; }
+                if idx.len() != 1 { self.err("E304", msg!("diag-basic-e304-one-dim")); return; }
                 self.ins("jsr rt_spush");
                 self.num_ay(&idx[0]);
                 let l = self.array(v);
@@ -1358,7 +1359,7 @@ impl<'a> G<'a> {
     /// Bedingung auswerten und zu `label` springen, wenn sie 0 ist
     fn jump_if_false(&mut self, cond: &Expr, label: &str) {
         self.expr(cond);
-        if self.float { self.ins("lda F_FACEXP         ; Exponent des FAC: 0 = Zahl ist 0"); } else { self.ins("sty rt_tmp"); self.ins("ora rt_tmp"); }
+        if self.float { self.ins(format!("lda F_FACEXP         ; {}", vc_i18n::t!("basic-b2a-asm-facexp"))); } else { self.ins("sty rt_tmp"); self.ins("ora rt_tmp"); }
         self.ins(format!("beq {label}"));
     }
 
@@ -1367,33 +1368,33 @@ impl<'a> G<'a> {
             Struct::If(c) => { let (els, end) = (self.fresh(), self.fresh()); self.jump_if_false(c, &els); self.ctl.push(Ctl::If { els, end, has_else: false }); }
             Struct::Else => match self.ctl.pop() {
                 Some(Ctl::If { els, end, has_else: false }) => { self.ins(format!("jmp {end}")); self.label(&els); self.ctl.push(Ctl::If { els, end, has_else: true }); }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "ELSE ohne passendes IF (oder zweites ELSE)"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-else")); }
             },
             Struct::Endif => match self.ctl.pop() {
                 Some(Ctl::If { els, end, has_else }) => { if has_else { self.label(&end); } else { self.label(&els); } }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "ENDIF ohne passendes IF"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-endif")); }
             },
             Struct::While(c) => { let (start, end) = (self.fresh(), self.fresh()); self.label(&start); self.jump_if_false(c, &end); self.ctl.push(Ctl::While { start, end }); }
             Struct::Wend => match self.ctl.pop() {
                 Some(Ctl::While { start, end }) => { self.ins(format!("jmp {start}")); self.label(&end); }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "WEND ohne passendes WHILE"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-wend")); }
             },
             Struct::Repeat => { let (start, end) = (self.fresh(), self.fresh()); self.label(&start); self.ctl.push(Ctl::Repeat { start, end }); }
             Struct::Until(c) => match self.ctl.pop() {
                 Some(Ctl::Repeat { start, end }) => { self.jump_if_false(c, &start); self.label(&end); }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "UNTIL ohne passendes REPEAT"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-until")); }
             },
             Struct::Do => { let (start, end) = (self.fresh(), self.fresh()); self.label(&start); self.ctl.push(Ctl::Do { start, end }); }
             Struct::Loop => match self.ctl.pop() {
                 Some(Ctl::Do { start, end }) => { self.ins(format!("jmp {start}")); self.label(&end); }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "LOOP ohne passendes DO"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-loop")); }
             },
             Struct::Exit => {
                 let end = self.ctl.iter().rev().find_map(|c| match c { Ctl::While { end, .. } | Ctl::Repeat { end, .. } | Ctl::Do { end, .. } => Some(end.clone()), _ => None });
-                match end { Some(e) => self.ins(format!("jmp {e}")), None => self.err("E342", "EXIT außerhalb von WHILE, REPEAT und DO") }
+                match end { Some(e) => self.ins(format!("jmp {e}")), None => self.err("E342", msg!("diag-basic-e342-exit")) }
             }
             Struct::Proc(n) => {
-                if self.ctl.iter().any(|c| matches!(c, Ctl::Proc { .. })) { self.err("E342", "PROC innerhalb einer Prozedur"); return; }
+                if self.ctl.iter().any(|c| matches!(c, Ctl::Proc { .. })) { self.err("E342", msg!("diag-basic-e342-proc-nested")); return; }
                 let end = self.fresh();
                 self.ins(format!("jmp {end}"));   // beim Durchlaufen wird die Prozedur übersprungen
                 self.label(&format!("P_{n}"));
@@ -1401,10 +1402,10 @@ impl<'a> G<'a> {
             }
             Struct::Endproc => match self.ctl.pop() {
                 Some(Ctl::Proc { end }) => { self.uses_flow = true; self.ins("jmp rt_return"); self.label(&end); }
-                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", "ENDPROC ohne passendes PROC"); }
+                other => { if let Some(o) = other { self.ctl.push(o); } self.err("E342", msg!("diag-basic-e342-endproc")); }
             },
             Struct::OnExec(sel, names) => {
-                if let Some(n) = names.iter().find(|n| !self.procs.contains(*n)) { self.err("E343", format!("ON … EXEC: Prozedur {n} ist nicht definiert")); return; }
+                if let Some(n) = names.iter().find(|n| !self.procs.contains(*n)) { self.err("E343", msg!("diag-basic-e343-on-exec-undefined", n = n)); return; }
                 self.uses_flow = true;
                 let end = self.fresh();
                 self.set_ptr("rt_bp", &end);
@@ -1422,7 +1423,7 @@ impl<'a> G<'a> {
                 self.label(&end);
             }
             Struct::Exec(n) => {
-                if !self.procs.contains(n) { self.err("E343", format!("EXEC: Prozedur {n} ist nicht definiert")); return; }
+                if !self.procs.contains(n) { self.err("E343", msg!("diag-basic-e343-exec-undefined", n = n)); return; }
                 self.uses_flow = true;
                 let ret = self.fresh();
                 self.set_ptr("rt_bp", &ret);
@@ -1449,7 +1450,7 @@ impl<'a> G<'a> {
                 self.ins(format!("lda #<{l}")); self.ins(format!("ldy #>{l}")); self.ins("jsr rt_sload");
             }
             Expr::Elem(v, idx) if v.ty == Ty::Str => {
-                if idx.is_empty() || idx.len() > 2 { self.err("E304", "Teilzeichenkette: A$(n) oder A$(n,m)"); return; }
+                if idx.is_empty() || idx.len() > 2 { self.err("E304", msg!("diag-basic-e304-substring")); return; }
                 self.num_ay(&idx[0]);
                 self.ins("jsr rt_push");
                 match idx.get(1) { Some(m) => self.num_ay(m), None => { self.ins("lda #$FF"); self.ins("ldy #$FF"); } }
@@ -1457,21 +1458,21 @@ impl<'a> G<'a> {
                 self.set_ap_keep(&l);
                 self.ins("jsr rt_ssub");
             }
-            Expr::Bin(BinOp::Add, _, _) => self.err("E311", "Atari-BASIC kennt kein + für Zeichenketten (A$(LEN(A$)+1) = B$ hängt an)"),
+            Expr::Bin(BinOp::Add, _, _) => self.err("E311", msg!("diag-basic-e311-plus-strings")),
             Expr::Call(n, args) => match n.as_str() {
                 "CHR$" if args.len() == 1 => { self.num_ay(&args[0]); self.ins("jsr rt_chr"); }
                 "STR$" if args.len() == 1 => {
-                    if self.is_str(&args[0]) { self.err("E320", "STR$ erwartet eine Zahl (TYPE MISMATCH)"); return; }
+                    if self.is_str(&args[0]) { self.err("E320", msg!("diag-basic-e320-str-number")); return; }
                     self.expr(&args[0]);
                     self.ins("jsr rt_strs");
                 }
                 "HEX$" if args.len() == 1 => { self.uses_turbo = true; self.num_ay(&args[0]); self.ins("jsr rt_hexs"); }
                 "INKEY$" if args.is_empty() => { self.uses_turbo = true; self.ins("jsr rt_inkeys"); }
                 "TIME$" if args.is_empty() => { self.uses_turbo = true; self.ins("jsr rt_times"); }
-                "LEFT$" | "RIGHT$" | "MID$" => self.err("E311", format!("{n} gibt es in Atari-BASIC nicht (Teilzeichenkette A$(n,m) benutzen)")),
-                _ => self.err("E305", format!("{n}: falsche Argumentzahl")),
+                "LEFT$" | "RIGHT$" | "MID$" => self.err("E311", msg!("diag-basic-e311-not-in-atari", n = n)),
+                _ => self.err("E305", msg!("diag-basic-e305-arg-count", n = n)),
             },
-            _ => self.err("E320", "Zeichenkettenausdruck erwartet (TYPE MISMATCH)"),
+            _ => self.err("E320", msg!("diag-basic-e320-string-expr")),
         }
     }
 
@@ -1483,7 +1484,7 @@ impl<'a> G<'a> {
                 self.ins(format!("lda #<{l}")); self.ins(format!("ldy #>{l}")); self.ins("jsr rt_sstor");
             }
             LValue::Elem(v, idx) => {
-                if idx.is_empty() || idx.len() > 2 { self.err("E304", "Teilzeichenkette: A$(n) oder A$(n,m)"); return; }
+                if idx.is_empty() || idx.len() > 2 { self.err("E304", msg!("diag-basic-e304-substring")); return; }
                 self.ins("jsr rt_spush");
                 self.num_ay(&idx[0]);
                 self.ins("jsr rt_push");
@@ -1505,10 +1506,10 @@ impl<'a> G<'a> {
     /// FNa(arg): Argument auswerten, Unterprogramm aufrufen
     fn fn_call(&mut self, name: &str, arg: &Expr) {
         let key = fn_key(name);
-        let Some(info) = self.fns.get(&key) else { self.err("E317", format!("FN{name} ist nirgends mit DEF FN definiert (UNDEF'D FUNCTION)")); return };
+        let Some(info) = self.fns.get(&key) else { self.err("E317", msg!("diag-basic-e317-fn-undefined", name = name)); return };
         let (label, ret_int) = (info.label.clone(), info.ret_int);
-        if name.ends_with('$') { self.err("E315", "Zeichenkettenfunktionen werden nicht übersetzt"); return; }
-        if self.str && self.is_str(arg) { self.err("E320", format!("FN{name} erwartet eine Zahl (TYPE MISMATCH)")); return; }
+        if name.ends_with('$') { self.err("E315", msg!("diag-basic-e315-fn-string-plain")); return; }
+        if self.str && self.is_str(arg) { self.err("E320", msg!("diag-basic-e320-fn-number", name = name)); return; }
         self.expr(arg);
         self.ins(format!("jsr fn_{label}"));
         if ret_int && self.float { self.ins("jsr rt_f2i"); self.ins("jsr rt_i2f"); }
@@ -1519,7 +1520,7 @@ impl<'a> G<'a> {
         let flag = format!("fd_{}", f.label);
         let v = self.scalar(&f.param);
         let shown = display_of(&f.param);
-        self.comment(&format!("---- Zeile {}: DEF FN{name}({shown}) – Parameter {shown} gilt nur während des Aufrufs", f.number));
+        self.comment(&format!("---- {}", vc_i18n::t!("basic-b2a-asm-def-fn", n = f.number, name = name.as_str(), shown = shown.as_str())));
         self.label(&format!("fn_{}", f.label));
         let ok = format!("fn_{}_ok", f.label);
         if self.float {

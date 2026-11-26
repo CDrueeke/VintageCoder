@@ -1,0 +1,2538 @@
+{
+ "kind": "test",
+ "target": "vic20",
+ "program": "build/main.prg",
+ "trap": "$0340",
+ "static": [
+  {
+   "check": "size",
+   "segment": "PROGRAM",
+   "max": 3071,
+   "maxEnd": "$1c00",
+   "name": "Programm <= 3071 Byte (hartes Limit), endet vor dem Zeichensatz"
+  },
+  {
+   "check": "size",
+   "segment": "CHARSET",
+   "min": 512,
+   "max": 512,
+   "name": "Zeichensatz 64 Zeichen"
+  },
+  {
+   "check": "overlap"
+  },
+  {
+   "check": "zeropage",
+   "forbid": "$80-$ff"
+  }
+ ],
+ "tests": [
+  {
+   "name": "grid.draw: Ecke, Linie, T-Stueck, Innenraum (Zeichen und Farbe)",
+   "call": "grid.draw",
+   "expect": [
+    "[$1e16] == 29",
+    "[$1e17] == 0",
+    "[$1e1a] == 34",
+    "[$1e1b] == 0",
+    "[$1e2a] == 30",
+    "[$1e2c] == 27",
+    "[$1e2d] == 32",
+    "[$1e30] == 27",
+    "([$9616] & 15) == 6",
+    "([$961a] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.draw: Kreuzung (gx 4, gy 5) und unterste Zeile",
+   "call": "grid.draw",
+   "expect": [
+    "[$1e00 + 22 * 6 + 4] == 28",
+    "[$1e00 + 22 * 21] == 31",
+    "[$1e00 + 22 * 21 + 20] == 33",
+    "[$1e00 + 22 * 21 + 4] == 35"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 0: unten/rechts 0, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 0,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 0",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 1: unten/rechts 1, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 0,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 1",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 2: unten/rechts 2, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 10,
+     "$4a": 0,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 2",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 3: unten/rechts 3, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 14,
+     "$4a": 0,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 3",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 4: unten/rechts 4, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 18,
+     "$4a": 0,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 4",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 5: unten/rechts 5, oben/links 0",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 5,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 5",
+    "[$33] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 6: unten/rechts 6, oben/links 1",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 5,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 6",
+    "[$33] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 7: unten/rechts 7, oben/links 2",
+   "setup": {
+    "mem": {
+     "$49": 10,
+     "$4a": 5,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 7",
+    "[$33] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 8: unten/rechts 8, oben/links 3",
+   "setup": {
+    "mem": {
+     "$49": 14,
+     "$4a": 5,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 8",
+    "[$33] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 9: unten/rechts 9, oben/links 4",
+   "setup": {
+    "mem": {
+     "$49": 18,
+     "$4a": 5,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 9",
+    "[$33] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 10: unten/rechts 10, oben/links 5",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 10,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 10",
+    "[$33] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 11: unten/rechts 11, oben/links 6",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 10,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 11",
+    "[$33] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 12: unten/rechts 12, oben/links 7",
+   "setup": {
+    "mem": {
+     "$49": 10,
+     "$4a": 10,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 12",
+    "[$33] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 13: unten/rechts 13, oben/links 8",
+   "setup": {
+    "mem": {
+     "$49": 14,
+     "$4a": 10,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 13",
+    "[$33] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 14: unten/rechts 14, oben/links 9",
+   "setup": {
+    "mem": {
+     "$49": 18,
+     "$4a": 10,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 14",
+    "[$33] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 15: unten/rechts 15, oben/links 10",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 15,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 15",
+    "[$33] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 16: unten/rechts 16, oben/links 11",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 15,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 16",
+    "[$33] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 17: unten/rechts 17, oben/links 12",
+   "setup": {
+    "mem": {
+     "$49": 10,
+     "$4a": 15,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 17",
+    "[$33] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 18: unten/rechts 18, oben/links 13",
+   "setup": {
+    "mem": {
+     "$49": 14,
+     "$4a": 15,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 18",
+    "[$33] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 19: unten/rechts 19, oben/links 14",
+   "setup": {
+    "mem": {
+     "$49": 18,
+     "$4a": 15,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 19",
+    "[$33] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 20: unten/rechts 255, oben/links 15",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 20,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 21: unten/rechts 255, oben/links 16",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 20,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 22: unten/rechts 255, oben/links 17",
+   "setup": {
+    "mem": {
+     "$49": 10,
+     "$4a": 20,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 23: unten/rechts 255, oben/links 18",
+   "setup": {
+    "mem": {
+     "$49": 14,
+     "$4a": 20,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 24: unten/rechts 255, oben/links 19",
+   "setup": {
+    "mem": {
+     "$49": 18,
+     "$4a": 20,
+     "$4b": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 25: unten/rechts 0, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 0",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 26: unten/rechts 1, oben/links 0",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 1",
+    "[$33] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 27: unten/rechts 2, oben/links 1",
+   "setup": {
+    "mem": {
+     "$49": 8,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 2",
+    "[$33] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 28: unten/rechts 3, oben/links 2",
+   "setup": {
+    "mem": {
+     "$49": 12,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 3",
+    "[$33] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 29: unten/rechts 4, oben/links 3",
+   "setup": {
+    "mem": {
+     "$49": 16,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 4",
+    "[$33] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 30: unten/rechts 255, oben/links 4",
+   "setup": {
+    "mem": {
+     "$49": 20,
+     "$4a": 2,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 31: unten/rechts 5, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 5",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 32: unten/rechts 6, oben/links 5",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 6",
+    "[$33] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 33: unten/rechts 7, oben/links 6",
+   "setup": {
+    "mem": {
+     "$49": 8,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 7",
+    "[$33] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 34: unten/rechts 8, oben/links 7",
+   "setup": {
+    "mem": {
+     "$49": 12,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 8",
+    "[$33] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 35: unten/rechts 9, oben/links 8",
+   "setup": {
+    "mem": {
+     "$49": 16,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 9",
+    "[$33] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 36: unten/rechts 255, oben/links 9",
+   "setup": {
+    "mem": {
+     "$49": 20,
+     "$4a": 7,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 37: unten/rechts 10, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 10",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 38: unten/rechts 11, oben/links 10",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 11",
+    "[$33] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 39: unten/rechts 12, oben/links 11",
+   "setup": {
+    "mem": {
+     "$49": 8,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 12",
+    "[$33] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 40: unten/rechts 13, oben/links 12",
+   "setup": {
+    "mem": {
+     "$49": 12,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 13",
+    "[$33] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 41: unten/rechts 14, oben/links 13",
+   "setup": {
+    "mem": {
+     "$49": 16,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 14",
+    "[$33] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 42: unten/rechts 255, oben/links 14",
+   "setup": {
+    "mem": {
+     "$49": 20,
+     "$4a": 12,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 43: unten/rechts 15, oben/links 255",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 15",
+    "[$33] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 44: unten/rechts 16, oben/links 15",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 16",
+    "[$33] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 45: unten/rechts 17, oben/links 16",
+   "setup": {
+    "mem": {
+     "$49": 8,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 17",
+    "[$33] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 46: unten/rechts 18, oben/links 17",
+   "setup": {
+    "mem": {
+     "$49": 12,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 18",
+    "[$33] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 47: unten/rechts 19, oben/links 18",
+   "setup": {
+    "mem": {
+     "$49": 16,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 19",
+    "[$33] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 48: unten/rechts 255, oben/links 19",
+   "setup": {
+    "mem": {
+     "$49": 20,
+     "$4a": 17,
+     "$4b": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$34] == 255",
+    "[$33] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "chain_two (paint): letztes Zeichen von V(1,1) schliesst zwei Rechtecke: 411 Punkte, beide vorgemerkt",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 9,
+     "$18": 0,
+     "$17": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3,
+     "$2e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$3a": 3,
+     "$3b": 3,
+     "$969e": 7,
+     "$96b4": 7,
+     "$96ca": 7,
+     "$96e0": 6,
+     "$61": 5,
+     "$1a": [
+      255,
+      255,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$18] == 2",
+    "[$17] == 2",
+    "[$59] == 6",
+    "[$5a] == 5",
+    "[$0a] == $11",
+    "[$0b] == $04",
+    "[$0c] == 0",
+    "([$96e0] & 15) == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Segment schliesst nur ein Rechteck (kein Kettenbonus): 111 Punkte",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 9,
+     "$18": 0,
+     "$17": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3,
+     "$2e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$3a": 0,
+     "$3b": 3,
+     "$969e": 7,
+     "$96b4": 7,
+     "$96ca": 7,
+     "$96e0": 6,
+     "$61": 5,
+     "$1a": [
+      255,
+      255,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$18] == 1",
+    "[$0a] == $11",
+    "[$0b] == $01",
+    "[$3a] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Zelle schon gelb: nichts passiert",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 9,
+     "$18": 0,
+     "$17": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3,
+     "$2e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$3a": 0,
+     "$3b": 3,
+     "$969e": 7,
+     "$96b4": 7,
+     "$96ca": 7,
+     "$96e0": 7,
+     "$61": 5,
+     "$1a": [
+      255,
+      255,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$0a] == 0",
+    "[$18] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Uebertrag ueber alle Stellen",
+   "setup": {
+    "a": 153,
+    "x": 0,
+    "mem": {
+     "$0a": [
+      1,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$0a] == 0",
+    "[$0b] == 1",
+    "[$08] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Extraleben bei 10000 Punkten",
+   "setup": {
+    "a": 80,
+    "x": 0,
+    "mem": {
+     "$0a": [
+      80,
+      153,
+      9
+     ],
+     "$0d": 0,
+     "$08": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$0a] == 0",
+    "[$0b] == 0",
+    "[$0c] == $10",
+    "[$08] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Leben hoechstens 9",
+   "setup": {
+    "a": 80,
+    "x": 0,
+    "mem": {
+     "$0a": [
+      80,
+      153,
+      9
+     ],
+     "$0d": 0,
+     "$08": 9
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$08] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: 500 Punkte (X = 1)",
+   "setup": {
+    "a": 5,
+    "x": 1,
+    "mem": {
+     "$0a": [
+      32,
+      1,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$0a] == $20",
+    "[$0b] == $06"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.update: Schritt-Klick schreibt das Rauschen",
+   "setup": {
+    "mem": {
+     "$55": 0,
+     "$56": 1,
+     "$57": 0,
+     "$58": 1
+    }
+   },
+   "call": "sound.update",
+   "expect": [
+    "[$900d] == $f0",
+    "[$55] == 3",
+    "[$56] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Knoten (4, 5), Richtung runter: hoch ausgeschlossen = links, rechts, runter",
+   "setup": {
+    "mem": {
+     "$4d": 4,
+     "$4e": 5,
+     "$4f": 1
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (0, 0), Richtung hoch: runter ausgeschlossen = nur rechts",
+   "setup": {
+    "mem": {
+     "$4d": 0,
+     "$4e": 0,
+     "$4f": 0
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (0, 0), Richtung rechts: runter und rechts",
+   "setup": {
+    "mem": {
+     "$4d": 0,
+     "$4e": 0,
+     "$4f": 3
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (20, 20), Richtung links: hoch, links (Umkehr rechts liegt ausserhalb)",
+   "setup": {
+    "mem": {
+     "$4d": 20,
+     "$4e": 20,
+     "$4f": 2
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: von (0, 20) hoch nach (0, 19): faerbt, 1 Punkt, Figur gezeichnet, alte Zelle gelb",
+   "setup": {
+    "mem": {
+     "$11": 0,
+     "$12": 20,
+     "$14": 1,
+     "$15": 0,
+     "$16": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3,
+     "$5e": 0,
+     "$58": 0,
+     "$2e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$18": 0,
+     "$61": 5,
+     "$1a": [
+      255,
+      255,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$12] == 19",
+    "[$11] == 0",
+    "[$0a] == 1",
+    "[$1e00 + 22 * 20] == 43",
+    "[$1e00 + 22 * 21] == 31",
+    "([$9600 + 22 * 21] & 15) == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: auf einer waagerechten Linie ist hoch gesperrt",
+   "setup": {
+    "mem": {
+     "$11": 2,
+     "$12": 20,
+     "$14": 1,
+     "$15": 0,
+     "$16": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$5e": 0,
+     "$61": 5,
+     "$1a": [
+      255,
+      255,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$12] == 20",
+    "[$11] == 2",
+    "[$0a] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: Gegner auf der Zielzelle = Treffer, Figur bleibt",
+   "setup": {
+    "mem": {
+     "$11": 0,
+     "$12": 20,
+     "$14": 1,
+     "$16": 0,
+     "$5e": 0,
+     "$61": 5,
+     "$1a": [
+      0,
+      19,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$5e] == 1",
+    "[$12] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: Gegner auf der Zielzelle waehrend Unverwundbarkeit: kein Treffer, Figur bleibt",
+   "setup": {
+    "mem": {
+     "$11": 0,
+     "$12": 20,
+     "$14": 1,
+     "$16": 5,
+     "$5e": 0,
+     "$61": 5,
+     "$1a": [
+      0,
+      19,
+      0,
+      0,
+      6
+     ]
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$5e] == 0",
+    "[$12] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_row: Rechteck (0, 1), Zeile 0: Muster 39, gruen",
+   "setup": {
+    "x": 0,
+    "y": 1,
+    "a": 0
+   },
+   "call": "grid.fill_row",
+   "expect": [
+    "[$1e00 + 22 * 2 + 5] == 39",
+    "[$1e00 + 22 * 2 + 7] == 39",
+    "([$9600 + 22 * 2 + 5] & 15) == 5",
+    "[$1e00 + 22 * 2 + 8] != 39"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_row: Rechteck (3, 4), Zeile 3: Muster 41, rot",
+   "setup": {
+    "x": 3,
+    "y": 4,
+    "a": 3
+   },
+   "call": "grid.fill_row",
+   "expect": [
+    "[$1e00 + 22 * 20 + 17] == 41",
+    "[$1e00 + 22 * 20 + 19] == 41",
+    "([$9600 + 22 * 20 + 17] & 15) == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_row_b: Rechteck 19, Zeile 2: Zeile gy 17",
+   "setup": {
+    "a": 19,
+    "x": 2
+   },
+   "call": "grid.fill_row_b",
+   "expect": [
+    "[$1e00 + 22 * 19 + 17] == 41",
+    "[$1e00 + 22 * 19 + 19] == 41"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Gegner betritt teilweise gefaerbtes Segment: zerstoert (2 Punkte weg, Farbe zurueck)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$0a] == $18",
+    "([$961d] & 15) == 6",
+    "([$961b] & 15) == 6",
+    "[$1e] == 6",
+    "[$1b] == 0",
+    "[$1a] == 6",
+    "[$1e00 + 22 * 1 + 7] == 0",
+    "[$58] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Gegner betritt abgeschlossenes Segment ohne gefuelltes Nachbarrechteck",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$36": 3
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$36] == 2",
+    "[$0a] == $07",
+    "([$961d] & 15) == 6",
+    "([$961b] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "geschuetztes Segment (angrenzendes Rechteck gefuellt) bleibt",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$36": 4
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$36] == 4",
+    "[$0a] == $20",
+    "([$961d] & 15) == 7",
+    "[$1e] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Randsegment (nur ein Nachbarrechteck, senkrecht)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      0,
+      3,
+      1,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": 3,
+     "$9658": 2,
+     "$962c": 7,
+     "$9642": 7,
+     "$966e": 7
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$35] == 2",
+    "[$0a] == $06",
+    "([$962c] & 15) == 6",
+    "([$9642] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Segment mit zwei angrenzenden Rechtecken: beide BOXCNT - 1",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      5,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$9689": 2,
+     "$968a": 7,
+     "$968b": 7,
+     "$3b": 3,
+     "$36": 3
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$3b] == 2",
+    "[$36] == 2",
+    "[$0a] == $07"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "ungefaerbtes Segment: nichts passiert, kein Ton",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      6
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 6,
+     "$961d": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$0a] == $20",
+    "[$58] == 0",
+    "([$961d] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Gegner betritt Knoten (4, 0): alle drei dort endenden Segmente werden geprueft (Knotenregel)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      3,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": 3,
+     "$9617": 7,
+     "$9618": 7,
+     "$9619": 2,
+     "$961a": 6,
+     "$961b": 7,
+     "$961c": 6,
+     "$961d": 6,
+     "$9630": 7,
+     "$9646": 7,
+     "$965c": 6,
+     "$9672": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$9617] & 15) == 6",
+    "([$9618] & 15) == 6",
+    "([$961b] & 15) == 6",
+    "([$9630] & 15) == 6",
+    "([$9646] & 15) == 6",
+    "[$35] == 2",
+    "[$36] == 0",
+    "[$0a] == $04",
+    "[$1a] == 4",
+    "[$1e] == 6",
+    "([$9619] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knoten: Segmente an einem gefuellten Rechteck bleiben, das freie rechte wird zerstoert",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      3,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": 4,
+     "$9617": 7,
+     "$9618": 7,
+     "$9619": 2,
+     "$961a": 6,
+     "$961b": 7,
+     "$961c": 6,
+     "$961d": 6,
+     "$9630": 7,
+     "$9646": 7,
+     "$965c": 6,
+     "$9672": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$9617] & 15) == 7",
+    "([$9618] & 15) == 7",
+    "([$9630] & 15) == 7",
+    "([$961b] & 15) == 6",
+    "[$35] == 4",
+    "[$0a] == $19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knoten ohne gefaerbte Segmente: nichts passiert, kein Ton",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      3,
+      0,
+      3,
+      0,
+      6
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$9617": 6,
+     "$9618": 6,
+     "$9619": 2,
+     "$961a": 6,
+     "$961b": 6,
+     "$961c": 6,
+     "$961d": 6,
+     "$9630": 6,
+     "$9646": 6,
+     "$965c": 6,
+     "$9672": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$0a] == $20",
+    "[$58] == 0",
+    "[$1a] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Ecknoten (0, 0): zwei Segmente (rechts H(0,0), unten V(0,0))",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      1,
+      0,
+      2,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": 1,
+     "$9617": 2,
+     "$9618": 7,
+     "$9619": 7,
+     "$9616": 6,
+     "$962c": 7,
+     "$9642": 7,
+     "$9658": 6,
+     "$966e": 6
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$9618] & 15) == 6",
+    "([$962c] & 15) == 6",
+    "([$9642] & 15) == 6",
+    "[$1a] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: Segment zerstoert, beide gelben Endknoten ohne weiteres Segment werden blau",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 7,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 6,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 32,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961a] & 15) == 6",
+    "([$961e] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: weiteres gelbes Segment am Knoten (4, 0): Knoten bleibt gelb, der andere wird blau",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 7,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 7,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 32,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961a] & 15) == 7",
+    "([$961e] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: angrenzendes Rechteck gefuellt (Fuellzeichen bei (3, 1)): Knoten (4, 0) bleibt, (8, 0) wird blau",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": 4,
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 7,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 6,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 39,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961a] & 15) == 7",
+    "([$961e] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: blauer Knoten bleibt blau (nicht gefaerbt)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 6,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 6,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 32,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961a] & 15) == 6",
+    "([$961e] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: Figur steht auf dem Knoten (weiss): bleibt",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 1,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 6,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 32,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961a] & 15) == 1",
+    "([$961e] & 15) == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Knotenregel: Knoten zaehlen nicht fuer Punkte (nur 3 Zeichen + 10 abgezogen)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$961a": 7,
+     "$961e": 7,
+     "$9619": 6,
+     "$961f": 6,
+     "$9630": 6,
+     "$9634": 6,
+     "$962f": 6,
+     "$9631": 6,
+     "$9633": 6,
+     "$9635": 6,
+     "$36": 3,
+     "$1e2f": 32,
+     "$1e31": 32,
+     "$1e33": 32,
+     "$1e35": 32
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$0a] == $07"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Punktuntergrenze: nie unter 0",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 0,
+     "$12": 20,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      1,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 7,
+     "$961d": 7,
+     "$36": 3
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$0a] == 0",
+    "[$0b] == 0",
+    "[$0c] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "Figur auf dem Segment: bleibt weiss stehen, Gegner blockiert (kein Zerstoeren)",
+   "setup": {
+    "mem": {
+     "$60": 0,
+     "$61": 5,
+     "$1a": [
+      5,
+      0,
+      3,
+      0,
+      7
+     ],
+     "$11": 6,
+     "$12": 0,
+     "$16": 0,
+     "$5e": 0,
+     "$58": 0,
+     "$09": 53,
+     "$5f": 0,
+     "$0a": [
+      32,
+      0,
+      0
+     ],
+     "$35": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$961b": 2,
+     "$961c": 1,
+     "$961d": 7
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "([$961c] & 15) == 1",
+    "[$1a] == 5"
+   ],
+   "timeoutMs": 20000
+  }
+ ]
+}

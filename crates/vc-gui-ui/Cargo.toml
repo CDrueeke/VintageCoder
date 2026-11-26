@@ -8,3 +8,4 @@ description = "VintageCoder Oberflaeche (Iced): Farbrollen, Texte, Befehlstabell
 [dependencies]
 iced = { version = "=0.14.0", default-features = false, features = ["tokio", "advanced"] }
 vc-ide-model = { path = "../vc-ide-model" }
+vc-i18n = { path = "../vc-i18n" }

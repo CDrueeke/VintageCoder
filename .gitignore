@@ -14,6 +14,7 @@
 .DS_Store
 /build/
 **/build/
+**/build[0-9]*/
 
 # Lokale Arbeitsdateien (nicht im Repository)
 /assets/

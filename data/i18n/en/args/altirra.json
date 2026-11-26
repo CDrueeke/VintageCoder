@@ -1,0 +1,705 @@
+{
+ "source": "args/altirra.json",
+ "entries": {
+  "/label": {
+   "de": "Altirra (Atari 8 Bit, Windows)",
+   "en": "Altirra (Atari 8-bit, Windows)",
+   "status": "maschinell"
+  },
+  "/groups/0/label": {
+   "de": "Bild",
+   "en": "Video",
+   "status": "maschinell"
+  },
+  "/groups/1/label": {
+   "de": "Hardware",
+   "en": "Hardware",
+   "status": "unverändert"
+  },
+  "/groups/2/label": {
+   "de": "Programme und Datenträger",
+   "en": "Programs and media",
+   "status": "maschinell"
+  },
+  "/groups/3/label": {
+   "de": "Beschleunigung",
+   "en": "Acceleration",
+   "status": "maschinell"
+  },
+  "/groups/4/label": {
+   "de": "Debugger",
+   "en": "Debugger",
+   "status": "unverändert"
+  },
+  "/groups/5/label": {
+   "de": "Betrieb",
+   "en": "Operation",
+   "status": "maschinell"
+  },
+  "/params/0/label": {
+   "de": "Im Fenster",
+   "en": "In window",
+   "status": "maschinell"
+  },
+  "/params/0/hint": {
+   "de": "Startet Altirra im Fenster.",
+   "en": "Starts Altirra in a window.",
+   "status": "maschinell"
+  },
+  "/params/1/label": {
+   "de": "Vollbild",
+   "en": "Full screen",
+   "status": "maschinell"
+  },
+  "/params/1/hint": {
+   "de": "Startet Altirra im Vollbild.",
+   "en": "Starts Altirra in full screen.",
+   "status": "maschinell"
+  },
+  "/params/2/label": {
+   "de": "Rahmenloser Vollbildmodus",
+   "en": "Borderless full screen",
+   "status": "maschinell"
+  },
+  "/params/2/hint": {
+   "de": "Schaltet den rahmenlosen Vollbildmodus ein (mit /noborderless aus); laut Altirra wirkt er nur im Vollbild.",
+   "en": "Turns on borderless full screen (off with /noborderless); according to Altirra, it only works in full screen.",
+   "status": "maschinell"
+  },
+  "/params/3/label": {
+   "de": "Artefaktfarben",
+   "en": "Artifact colors",
+   "status": "maschinell"
+  },
+  "/params/3/hint": {
+   "de": "Simuliert die Farben, die aus abwechselnd hellen und dunklen Pixeln entstehen (Artefaktfarben); NTSC oder PAL passend zur gewählten Norm, „hohe Qualität“ rechnet genauer.",
+   "en": "Simulates the colors that result from alternating light and dark pixels (artifact colors); NTSC or PAL to match the selected standard, \"high quality\" calculates more accurately.",
+   "status": "maschinell"
+  },
+  "/params/3/choices/0/label": {
+   "de": "keine",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/3/choices/1/label": {
+   "de": "NTSC",
+   "en": "NTSC",
+   "status": "unverändert"
+  },
+  "/params/3/choices/2/label": {
+   "de": "NTSC (hohe Qualität)",
+   "en": "NTSC (high quality)",
+   "status": "maschinell"
+  },
+  "/params/3/choices/3/label": {
+   "de": "PAL",
+   "en": "PAL",
+   "status": "unverändert"
+  },
+  "/params/3/choices/4/label": {
+   "de": "PAL (hohe Qualität)",
+   "en": "PAL (high quality)",
+   "status": "maschinell"
+  },
+  "/params/4/label": {
+   "de": "Anzeige über GDI",
+   "en": "Display via GDI",
+   "status": "maschinell"
+  },
+  "/params/4/hint": {
+   "de": "Verwendet GDI als Anzeigetreiber.",
+   "en": "Uses GDI as the display driver.",
+   "status": "maschinell"
+  },
+  "/params/5/label": {
+   "de": "Anzeige über Direct3D 9",
+   "en": "Display via Direct3D 9",
+   "status": "maschinell"
+  },
+  "/params/5/hint": {
+   "de": "Verwendet Direct3D 9 als Anzeigetreiber.",
+   "en": "Uses Direct3D 9 as the display driver.",
+   "status": "maschinell"
+  },
+  "/params/6/label": {
+   "de": "Anzeige über Direct3D 11",
+   "en": "Display via Direct3D 11",
+   "status": "maschinell"
+  },
+  "/params/6/hint": {
+   "de": "Verwendet Direct3D 11 als Anzeigetreiber.",
+   "en": "Uses Direct3D 11 as the display driver.",
+   "status": "maschinell"
+  },
+  "/params/7/label": {
+   "de": "Vertikale Synchronisation",
+   "en": "Vertical sync",
+   "status": "maschinell"
+  },
+  "/params/7/hint": {
+   "de": "Gleicht die Ausgabe mit dem Bildwechsel des Monitors ab.",
+   "en": "Synchronizes the output with the refresh of the monitor.",
+   "status": "maschinell"
+  },
+  "/params/8/label": {
+   "de": "Betriebssystem (Kernel)",
+   "en": "Operating system (kernel)",
+   "status": "maschinell"
+  },
+  "/params/8/hint": {
+   "de": "Welches Betriebssystem-ROM Altirra benutzt.",
+   "en": "Which operating system ROM Altirra uses.",
+   "status": "maschinell"
+  },
+  "/params/8/choices/0/label": {
+   "de": "Standard",
+   "en": "Default",
+   "status": "maschinell"
+  },
+  "/params/8/choices/1/label": {
+   "de": "OS-A",
+   "en": "OS-A",
+   "status": "unverändert"
+  },
+  "/params/8/choices/2/label": {
+   "de": "OS-B",
+   "en": "OS-B",
+   "status": "unverändert"
+  },
+  "/params/8/choices/3/label": {
+   "de": "XL/XE",
+   "en": "XL/XE",
+   "status": "unverändert"
+  },
+  "/params/8/choices/4/label": {
+   "de": "LLE",
+   "en": "LLE",
+   "status": "unverändert"
+  },
+  "/params/8/choices/5/label": {
+   "de": "LLE XL/XE",
+   "en": "LLE XL/XE",
+   "status": "unverändert"
+  },
+  "/params/8/choices/7/label": {
+   "de": "5200 LLE",
+   "en": "5200 LLE",
+   "status": "unverändert"
+  },
+  "/params/9/label": {
+   "de": "Maschine",
+   "en": "Machine",
+   "status": "maschinell"
+  },
+  "/params/9/hint": {
+   "de": "Welche Maschine nachgebildet wird.",
+   "en": "Which machine is emulated.",
+   "status": "maschinell"
+  },
+  "/params/9/choices/0/label": {
+   "de": "Atari 800",
+   "en": "Atari 800",
+   "status": "unverändert"
+  },
+  "/params/9/choices/1/label": {
+   "de": "Atari 800XL",
+   "en": "Atari 800XL",
+   "status": "unverändert"
+  },
+  "/params/9/choices/2/label": {
+   "de": "Atari 5200",
+   "en": "Atari 5200",
+   "status": "unverändert"
+  },
+  "/params/10/label": {
+   "de": "Speichergröße",
+   "en": "Memory size",
+   "status": "maschinell"
+  },
+  "/params/10/hint": {
+   "de": "Größe des Arbeitsspeichers.",
+   "en": "Size of the main memory.",
+   "status": "maschinell"
+  },
+  "/params/10/choices/0/label": {
+   "de": "8K",
+   "en": "8K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/1/label": {
+   "de": "16K",
+   "en": "16K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/2/label": {
+   "de": "24K",
+   "en": "24K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/3/label": {
+   "de": "32K",
+   "en": "32K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/4/label": {
+   "de": "48K",
+   "en": "48K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/5/label": {
+   "de": "52K",
+   "en": "52K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/6/label": {
+   "de": "64K",
+   "en": "64K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/7/label": {
+   "de": "128K",
+   "en": "128K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/8/label": {
+   "de": "320K",
+   "en": "320K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/9/label": {
+   "de": "320KCOMPY",
+   "en": "320KCOMPY",
+   "status": "unverändert"
+  },
+  "/params/10/choices/10/label": {
+   "de": "576K",
+   "en": "576K",
+   "status": "unverändert"
+  },
+  "/params/10/choices/11/label": {
+   "de": "576KCOMPY",
+   "en": "576KCOMPY",
+   "status": "unverändert"
+  },
+  "/params/10/choices/12/label": {
+   "de": "1088K",
+   "en": "1088K",
+   "status": "unverändert"
+  },
+  "/params/11/label": {
+   "de": "Axlon-Speicher",
+   "en": "Axlon memory",
+   "status": "maschinell"
+  },
+  "/params/11/hint": {
+   "de": "Größe der Axlon-Speichererweiterung.",
+   "en": "Size of the Axlon memory expansion.",
+   "status": "maschinell"
+  },
+  "/params/11/choices/0/label": {
+   "de": "none",
+   "en": "none",
+   "status": "unverändert"
+  },
+  "/params/11/choices/1/label": {
+   "de": "64K",
+   "en": "64K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/2/label": {
+   "de": "128K",
+   "en": "128K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/3/label": {
+   "de": "256K",
+   "en": "256K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/4/label": {
+   "de": "512K",
+   "en": "512K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/5/label": {
+   "de": "1024K",
+   "en": "1024K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/6/label": {
+   "de": "2048K",
+   "en": "2048K",
+   "status": "unverändert"
+  },
+  "/params/11/choices/7/label": {
+   "de": "4096K",
+   "en": "4096K",
+   "status": "unverändert"
+  },
+  "/params/12/label": {
+   "de": "Hohe Speicherbänke",
+   "en": "High memory banks",
+   "status": "maschinell"
+  },
+  "/params/12/hint": {
+   "de": "Anzahl der hohen (linearen) Speicherbänke für eine 65C816-CPU; „na“ = keine. Ohne 65C816-Prozessor im Profil ohne Wirkung.",
+   "en": "Number of high (linear) memory banks for a 65C816 CPU; \"na\" = none. Has no effect if the profile has no 65C816 processor.",
+   "status": "maschinell"
+  },
+  "/params/12/choices/0/label": {
+   "de": "na",
+   "en": "na",
+   "status": "unverändert"
+  },
+  "/params/13/label": {
+   "de": "Zwei POKEYs (Stereo)",
+   "en": "Two POKEYs (stereo)",
+   "status": "maschinell"
+  },
+  "/params/13/hint": {
+   "de": "Bildet zwei POKEY-Chips nach.",
+   "en": "Emulates two POKEY chips.",
+   "status": "maschinell"
+  },
+  "/params/14/label": {
+   "de": "Soundboard",
+   "en": "Sound board",
+   "status": "maschinell"
+  },
+  "/params/14/hint": {
+   "de": "Adresse der Soundboard-Erweiterung.",
+   "en": "Address of the sound board expansion.",
+   "status": "maschinell"
+  },
+  "/params/15/label": {
+   "de": "Covox",
+   "en": "Covox",
+   "status": "unverändert"
+  },
+  "/params/15/hint": {
+   "de": "Schaltet die Covox-Tonausgabe ein.",
+   "en": "Turns on Covox sound output.",
+   "status": "maschinell"
+  },
+  "/params/16/label": {
+   "de": "Hardware auf Standard",
+   "en": "Hardware to default",
+   "status": "maschinell"
+  },
+  "/params/16/hint": {
+   "de": "Setzt die Hardware-Einstellungen (Maschine, Speicher, Kernel usw.) auf Altirras Standardwerte zurück. Mit /tempprofile, das VintageCoder setzt, wird nichts gespeichert.",
+   "en": "Resets the hardware settings (machine, memory, kernel and so on) to the Altirra default values. With /tempprofile, which VintageCoder sets, nothing is saved.",
+   "status": "maschinell"
+  },
+  "/params/17/label": {
+   "de": "Rohe Tastaturdrücke",
+   "en": "Raw keyboard presses",
+   "status": "maschinell"
+  },
+  "/params/17/hint": {
+   "de": "Schaltet die Weitergabe roher Tastaturdrücke ein (mit /norawkeys aus); Altirra nennt sie „raw keyboard presses“. Sichtbare Wirkung nicht geprüft.",
+   "en": "Turns on passing on raw keyboard presses (off with /norawkeys); Altirra calls them \"raw keyboard presses\". Visible effect not checked.",
+   "status": "maschinell"
+  },
+  "/params/18/label": {
+   "de": "Modultyp (Mapper)",
+   "en": "Cartridge type (mapper)",
+   "status": "maschinell"
+  },
+  "/params/18/hint": {
+   "de": "Typ des Moduls bei Modulabbildern ohne Kopf (Zahl oder Name des Mappers laut Altirra). Wirkt zusammen mit /cart, das VintageCoder für Modulabbilder selbst setzt.",
+   "en": "Type of the cartridge for cartridge images without a header (number or name of the mapper according to Altirra). Works together with /cart, which VintageCoder sets itself for cartridge images.",
+   "status": "maschinell"
+  },
+  "/params/19/label": {
+   "de": "Kassettenimage",
+   "en": "Cassette image",
+   "status": "maschinell"
+  },
+  "/params/19/hint": {
+   "de": "Legt dieses Kassettenimage ein.",
+   "en": "Inserts this cassette image.",
+   "status": "maschinell"
+  },
+  "/params/20/label": {
+   "de": "Bandposition",
+   "en": "Tape position",
+   "status": "maschinell"
+  },
+  "/params/20/hint": {
+   "de": "Startposition auf der Kassette als [[hh:]mm:]ss.sss.",
+   "en": "Start position on the cassette as [[hh:]mm:]ss.sss.",
+   "status": "maschinell"
+  },
+  "/params/21/label": {
+   "de": "Ordner als Festplatte (H:)",
+   "en": "Folder as hard disk (H:)",
+   "status": "maschinell"
+  },
+  "/params/21/hint": {
+   "de": "Bindet einen Ordner des Rechners als Laufwerk H: ein, nur lesend (Schreiben erlaubt /hdpathrw).",
+   "en": "Mounts a folder of the computer as drive H:, read-only (/hdpathrw allows writing).",
+   "status": "maschinell"
+  },
+  "/params/22/label": {
+   "de": "Tasten eintippen",
+   "en": "Type keys",
+   "status": "maschinell"
+  },
+  "/params/22/hint": {
+   "de": "Tippt diese Zeichen nach dem Start ein; ~ ist Enter, ` ist ein Anführungszeichen.",
+   "en": "Types these characters after start; ~ is Enter, ` is a quotation mark.",
+   "status": "maschinell"
+  },
+  "/params/23/label": {
+   "de": "Ordner als Festplatte (H:), schreibbar",
+   "en": "Folder as hard disk (H:), writable",
+   "status": "maschinell"
+  },
+  "/params/23/hint": {
+   "de": "Bindet einen Ordner des Rechners als Laufwerk H: ein, mit Schreibzugriff: Programme können dort Dateien anlegen und ändern.",
+   "en": "Mounts a folder of the computer as drive H: with write access: programs can create and change files there.",
+   "status": "maschinell"
+  },
+  "/params/24/label": {
+   "de": "PCLink-Ordner",
+   "en": "PCLink folder",
+   "status": "maschinell"
+  },
+  "/params/24/hint": {
+   "de": "Stellt einen Ordner des Rechners über PCLink bereit (Zugriff vom Atari über SIO, z. B. mit SpartaDOS X). Wert: ro,<Ordner> nur lesend oder rw,<Ordner> mit Schreibzugriff; ein anderer Modus führt zu einem Fehlerfenster von Altirra.",
+   "en": "Provides a folder of the computer through PCLink (access from the Atari over SIO, for example with SpartaDOS X). Value: ro,<folder> read-only or rw,<folder> with write access; any other mode causes an error window in Altirra.",
+   "status": "maschinell"
+  },
+  "/params/25/label": {
+   "de": "Diskette: Lesen/Schreiben",
+   "en": "Disk: read/write",
+   "status": "maschinell"
+  },
+  "/params/25/hint": {
+   "de": "Startet Diskettenabbilder im Modus Lesen/Schreiben: Änderungen des Programms landen im Abbild selbst (bei Projektdisketten also in der Datei).",
+   "en": "Starts disk images in read/write mode: changes made by the program go into the image itself (for project disks, that means into the file).",
+   "status": "maschinell"
+  },
+  "/params/26/label": {
+   "de": "Diskette: virtuell beschreibbar",
+   "en": "Disk: virtual read/write",
+   "status": "maschinell"
+  },
+  "/params/26/hint": {
+   "de": "Startet Diskettenabbilder virtuell beschreibbar: Schreiben ist erlaubt, die Änderungen bleiben aber im Speicher und das Abbild unverändert (Speichern über den Dialog Disk Drives von Altirra).",
+   "en": "Starts disk images in virtual read/write mode: writing is allowed, but the changes stay in memory and the image remains unchanged (save through the Altirra Disk Drives dialog).",
+   "status": "maschinell"
+  },
+  "/params/27/label": {
+   "de": "Kassette automatisch starten",
+   "en": "Start cassette automatically",
+   "status": "maschinell"
+  },
+  "/params/27/hint": {
+   "de": "Hält beim Start die START-Taste und löst das Laden der Kassette aus (mit /nocasautoboot aus). Funktioniert nur bei Kassetten mit Maschinenprogramm; BASIC-Kassetten lädt man mit CLOAD.",
+   "en": "Holds the START key at start and triggers loading of the cassette (off with /nocasautoboot). Only works for cassettes with a machine code program; load BASIC cassettes with CLOAD.",
+   "status": "maschinell"
+  },
+  "/params/28/label": {
+   "de": "Cheat-Datei",
+   "en": "Cheat file",
+   "status": "maschinell"
+  },
+  "/params/28/hint": {
+   "de": "Lädt eine Cheat-Datei im Format von Altirra. Fehlt die Datei, zeigt Altirra ein Fehlerfenster.",
+   "en": "Loads a cheat file in the Altirra format. If the file is missing, Altirra shows an error window.",
+   "status": "maschinell"
+  },
+  "/params/29/label": {
+   "de": "Burst-I/O",
+   "en": "Burst I/O",
+   "status": "maschinell"
+  },
+  "/params/29/hint": {
+   "de": "Verkürzt die Pause zwischen den Bytes auf dem SIO-Bus; beschleunigt eigene Diskettenlader, die der SIO-Patch nicht abfangen kann. Selten zeigen Programme dabei Fehler oder erkennen es als Kopierschutz-Umgehung, dann abschalten.",
+   "en": "Shortens the pause between bytes on the SIO bus; speeds up custom disk loaders that the SIO patch cannot intercept. Rarely, programs show errors or detect it as a copy protection bypass; then turn it off.",
+   "status": "maschinell"
+  },
+  "/params/30/label": {
+   "de": "SIO-Patch",
+   "en": "SIO patch",
+   "status": "maschinell"
+  },
+  "/params/30/hint": {
+   "de": "Beschleunigt Disketten- und Kassettenzugriffe, indem Altirra die SIO-Aufrufe des Betriebssystems direkt bedient, sodass Laden fast sofort geht.",
+   "en": "Speeds up disk and cassette access by letting Altirra handle the SIO calls of the operating system directly, so loading is almost instant.",
+   "status": "maschinell"
+  },
+  "/params/31/label": {
+   "de": "Schneller Start",
+   "en": "Fast boot",
+   "status": "maschinell"
+  },
+  "/params/31/hint": {
+   "de": "Verkürzt Startverzögerung, ROM-Prüfsumme und Geräteabfrage des XL/XE-Betriebssystems; spart beim Kaltstart einige Sekunden.",
+   "en": "Shortens the start delay, ROM checksum and device scan of the XL/XE operating system; saves a few seconds on a cold start.",
+   "status": "maschinell"
+  },
+  "/params/32/label": {
+   "de": "Genaue Laufwerkszeiten",
+   "en": "Accurate drive timing",
+   "status": "maschinell"
+  },
+  "/params/32/hint": {
+   "de": "Bildet Drehverzögerung und Kopfbewegung des Laufwerks nach: Laden dauert länger, ist aber für manche kopiergeschützten Disketten nötig. Mit SIO-Patch bleibt nur die Drehposition erfasst.",
+   "en": "Emulates the rotational delay and head movement of the drive: loading takes longer, but it is needed for some copy-protected disks. With the SIO patch, only the rotation position is kept.",
+   "status": "maschinell"
+  },
+  "/params/33/label": {
+   "de": "Debugger öffnen",
+   "en": "Open debugger",
+   "status": "maschinell"
+  },
+  "/params/33/hint": {
+   "de": "Öffnet beim Start den Debugger von Altirra.",
+   "en": "Opens the Altirra debugger at start.",
+   "status": "maschinell"
+  },
+  "/params/34/label": {
+   "de": "Halt beim Programmstart",
+   "en": "Stop at program start",
+   "status": "maschinell"
+  },
+  "/params/34/hint": {
+   "de": "Hält im Debugger an der Startadresse des mit /run geladenen Programms an.",
+   "en": "Stops in the debugger at the start address of the program loaded with /run.",
+   "status": "maschinell"
+  },
+  "/params/35/label": {
+   "de": "Debugger-Befehl",
+   "en": "Debugger command",
+   "status": "maschinell"
+  },
+  "/params/35/hint": {
+   "de": "Führt diesen Befehl beim Start im Debugger von Altirra aus.",
+   "en": "Runs this command in the Altirra debugger at start.",
+   "status": "maschinell"
+  },
+  "/params/36/label": {
+   "de": "Nur eine Instanz",
+   "en": "Single instance only",
+   "status": "maschinell"
+  },
+  "/params/36/hint": {
+   "de": "Verwendet eine bereits laufende Altirra-Instanz weiter, statt eine neue zu öffnen. Bei F5 meist unerwünscht, weil dann ein altes Fenster das Programm übernimmt.",
+   "en": "Keeps using an Altirra instance that is already running instead of opening a new one. Usually unwanted with F5, because then an old window takes over the program.",
+   "status": "maschinell"
+  },
+  "/params/37/label": {
+   "de": "Prozessorerkennung des Rechners",
+   "en": "Host CPU detection",
+   "status": "maschinell"
+  },
+  "/params/37/hint": {
+   "de": "Überschreibt, welche Befehlssätze Altirra beim Rechner annimmt (Fehlersuche bei Problemen mit SSE/AVX-Code). Unbekannte Werte nimmt Altirra ohne Meldung an.",
+   "en": "Overrides which instruction sets Altirra assumes for the computer (debugging problems with SSE/AVX code). Altirra accepts unknown values without a message.",
+   "status": "maschinell"
+  },
+  "/params/37/choices/0/label": {
+   "de": "none",
+   "en": "none",
+   "status": "unverändert"
+  },
+  "/params/37/choices/1/label": {
+   "de": "mmx",
+   "en": "mmx",
+   "status": "unverändert"
+  },
+  "/params/37/choices/2/label": {
+   "de": "sse",
+   "en": "sse",
+   "status": "unverändert"
+  },
+  "/params/37/choices/3/label": {
+   "de": "sse2",
+   "en": "sse2",
+   "status": "unverändert"
+  },
+  "/params/37/choices/4/label": {
+   "de": "sse3",
+   "en": "sse3",
+   "status": "unverändert"
+  },
+  "/params/37/choices/5/label": {
+   "de": "ssse3",
+   "en": "ssse3",
+   "status": "unverändert"
+  },
+  "/params/37/choices/6/label": {
+   "de": "sse41",
+   "en": "sse41",
+   "status": "unverändert"
+  },
+  "/params/37/choices/7/label": {
+   "de": "sse42",
+   "en": "sse42",
+   "status": "unverändert"
+  },
+  "/params/37/choices/8/label": {
+   "de": "avx",
+   "en": "avx",
+   "status": "unverändert"
+  },
+  "/params/37/choices/9/label": {
+   "de": "avx2",
+   "en": "avx2",
+   "status": "unverändert"
+  },
+  "/params/38/label": {
+   "de": "Erweiterte Einstellungen zeigen",
+   "en": "Show advanced settings",
+   "status": "maschinell"
+  },
+  "/params/38/hint": {
+   "de": "Öffnet vor dem Start den Dialog „Advanced Configuration“ und wartet, bis er geschlossen ist; für automatische Starts ungeeignet.",
+   "en": "Opens the \"Advanced Configuration\" dialog before start and waits until it is closed; not suitable for automatic starts.",
+   "status": "maschinell"
+  },
+  "/params/39/label": {
+   "de": "Einstellungen nur im Speicher",
+   "en": "Settings in memory only",
+   "status": "maschinell"
+  },
+  "/params/39/hint": {
+   "de": "Altirra lädt und speichert keine Einstellungen (Registry im Arbeitsspeicher). Es gelten die Altirra-Grundwerte statt der eigenen Einstellungen, z. B. interne Firmware statt der eingetragenen ROMs und 320K-Rambo-Speicher.",
+   "en": "Altirra does not load or save any settings (registry in main memory). The Altirra defaults apply instead of your own settings, for example internal firmware instead of the configured ROMs and 320K Rambo memory.",
+   "status": "maschinell"
+  },
+  "/params/40/label": {
+   "de": "Einstellungsgruppen zurücksetzen",
+   "en": "Reset setting groups",
+   "status": "maschinell"
+  },
+  "/params/40/hint": {
+   "de": "ACHTUNG, dauerhaft: setzt die genannten Gruppen von Altirra auf Standard zurück. Werte: display, windowlayouts, advconfig, devices (mehrere durch Komma).",
+   "en": "WARNING, permanent: resets the named Altirra groups to default. Values: display, windowlayouts, advconfig, devices (several separated by commas).",
+   "status": "maschinell"
+  },
+  "/params/41/label": {
+   "de": "Alle Einstellungen zurücksetzen",
+   "en": "Reset all settings",
+   "status": "maschinell"
+  },
+  "/params/41/hint": {
+   "de": "ACHTUNG, dauerhaft: setzt ALLE Einstellungen von Altirra auf Standard zurück (außer mit /portabletemp, dann nur im Arbeitsspeicher).",
+   "en": "WARNING, permanent: resets ALL Altirra settings to default (except with /portabletemp, then only in memory).",
+   "status": "maschinell"
+  },
+  "/params/42/label": {
+   "de": "Einrichtung überspringen",
+   "en": "Skip setup",
+   "status": "maschinell"
+  },
+  "/params/42/hint": {
+   "de": "Überspringt den Einrichtungsdialog beim ersten Start.",
+   "en": "Skips the setup dialog at the first start.",
+   "status": "maschinell"
+  }
+ }
+}

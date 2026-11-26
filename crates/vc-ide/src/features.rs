@@ -34,7 +34,7 @@ fn set_of(v: &serde_json::Value, key: &str) -> Option<BTreeSet<String>> {
 
 /// Kennung aus `FEATURES.md` (`SYS-ATARI`) → Kurzform der Registry (`atari8`) für Systeme
 fn system_id(k: &str) -> Option<&'static str> {
-    Some(match k { "SYS-C64" => "c64", "SYS-C128" => "c128", "SYS-PLUS4" => "plus4", "SYS-C16" => "c16", "SYS-VC20" => "vic20", "SYS-ATARI" => "atari8", "SYS-MEGA65" => "mega65", "SYS-PET" => "pet", "SYS-CBM2" => "cbm2", _ => return None })
+    Some(match k { "SYS-C64" => "c64", "SYS-C128" => "c128", "SYS-PLUS4" => "plus4", "SYS-C16" => "c16", "SYS-VC20" => "vic20", "SYS-ATARI" => "atari8", "SYS-MEGA65" => "mega65", "SYS-PET" => "pet", _ => return None })
 }
 
 impl Features {

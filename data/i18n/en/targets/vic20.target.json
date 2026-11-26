@@ -1,0 +1,90 @@
+{
+ "source": "targets/vic20.target.json",
+ "entries": {
+  "/memory/configs/unexpanded/label": {
+   "de": "Grundgerät (5 KB)",
+   "en": "Base machine (5 KB)",
+   "status": "maschinell"
+  },
+  "/memory/configs/3k/label": {
+   "de": "+3 KB ($0400–$0FFF)",
+   "en": "+3 KB ($0400-$0FFF)",
+   "status": "maschinell"
+  },
+  "/memory/configs/8k/label": {
+   "de": "+8 KB (Block 1: $2000–$3FFF)",
+   "en": "+8 KB (block 1: $2000-$3FFF)",
+   "status": "maschinell"
+  },
+  "/memory/configs/16k/label": {
+   "de": "+16 KB ($2000–$5FFF)",
+   "en": "+16 KB ($2000-$5FFF)",
+   "status": "maschinell"
+  },
+  "/memory/configs/24k/label": {
+   "de": "+24 KB ($2000–$7FFF)",
+   "en": "+24 KB ($2000-$7FFF)",
+   "status": "maschinell"
+  },
+  "/memory/configs/35k/label": {
+   "de": "+27 KB, voll ausgebaut (35 KB)",
+   "en": "+27 KB, fully expanded (35 KB)",
+   "status": "maschinell"
+  },
+  "/regions/0/note": {
+   "de": "KERNAL- und BASIC-Zeiger",
+   "en": "KERNAL and BASIC pointers",
+   "status": "maschinell"
+  },
+  "/regions/1/note": {
+   "de": "Stapel, KERNAL-Variablen, Kassettenpuffer",
+   "en": "Stack, KERNAL variables, cassette buffer",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "nur mit 3-KB-Erweiterung",
+   "en": "only with 3 KB expansion",
+   "status": "maschinell"
+  },
+  "/regions/3/note": {
+   "de": "Grundgerät: BASIC ab $1001, Bildschirm $1E00",
+   "en": "Base machine: BASIC from $1001, screen $1E00",
+   "status": "maschinell"
+  },
+  "/regions/4/note": {
+   "de": "Erweiterung Block 1 (8 KB)",
+   "en": "Expansion block 1 (8 KB)",
+   "status": "maschinell"
+  },
+  "/regions/5/note": {
+   "de": "Erweiterung Block 2 (8 KB)",
+   "en": "Expansion block 2 (8 KB)",
+   "status": "maschinell"
+  },
+  "/regions/6/note": {
+   "de": "Erweiterung Block 3 (8 KB)",
+   "en": "Expansion block 3 (8 KB)",
+   "status": "maschinell"
+  },
+  "/regions/7/note": {
+   "de": "Zeichensatz",
+   "en": "Character set",
+   "status": "maschinell"
+  },
+  "/regions/8/note": {
+   "de": "VIC-I $9000, VIA #1 $9110, VIA #2 $9120",
+   "en": "VIC-I $9000, VIA #1 $9110, VIA #2 $9120",
+   "status": "unverändert"
+  },
+  "/regions/9/note": {
+   "de": "Farb-RAM (nur 4 Bit); Grundgerät: $9600",
+   "en": "Color RAM (4 bits only); base machine: $9600",
+   "status": "maschinell"
+  },
+  "/regions/10/note": {
+   "de": "Steckmodul (Cartridge)",
+   "en": "Cartridge",
+   "status": "maschinell"
+  }
+ }
+}

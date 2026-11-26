@@ -12,8 +12,8 @@ use vc_ide::chipmap::{RegInfo, BitInfo};
 pub struct Card { pub start: usize, pub end: usize, pub md: String }
 
 /// Zugriff im Klartext (nie nur das Kürzel)
-pub fn access_text(a: &str) -> &'static str {
-    match a { "rw" => "lesen und schreiben (rw)", "r" => "nur lesen (r)", "w" => "nur schreiben (w)", _ => "Zugriff unbekannt" }
+pub fn access_text(a: &str) -> String {
+    match a { "rw" => vc_i18n::t!("basichover-lesen-und-schreiben-rw"), "r" => vc_i18n::t!("basichover-nur-lesen-r"), "w" => vc_i18n::t!("basichover-nur-schreiben-w"), _ => vc_i18n::t!("basichover-zugriff-unbekannt") }
 }
 
 /// Wert eines Feldes `lo..lo+width` aus `v`
@@ -123,9 +123,9 @@ fn eval_value(text: &str, line: usize, w: &str) -> Option<Val> {
 
 fn register_block(r: &RegInfo, show_bits: bool) -> String {
     let doc = if r.doc.is_empty() { String::new() } else { format!(" – {}", r.doc) };
-    let mut md = format!("**Register `{}`** (`${:04X}`), {}{}\n", r.label(), r.addr, access_text(&r.access), doc);
+    let mut md = format!("**{} `{}`** (`${:04X}`), {}{}\n", vc_i18n::t!("basichover-register"), r.label(), r.addr, access_text(&r.access), doc);
     if show_bits && !r.bits.is_empty() {
-        md.push_str("\n| Feld | Bits | Bedeutung |\n|---|---|---|\n");
+        md.push_str(&format!("\n{}\n", vc_i18n::t!("basichover-feld-bits-bedeutung")));
         for b in &r.bits { md.push_str(&format!("| {} | {} | {} |\n", b.name, bits_text(b), b.doc)); }
     }
     md
@@ -144,7 +144,7 @@ fn decomposition(r: &RegInfo, v: u32, kind: &Val) -> String {
         changed.push(if b.width <= 1 { format!("{}={}", b.name, fv) } else { format!("{}={}", b.name, fv) });
     }
     if changed.is_empty() { return String::new(); }
-    let lead = match kind { Val::Abs(_) => format!("Dieser Wert ({v}) setzt: "), Val::Or(_) => format!("`or {v}` setzt Bits der Felder: "), Val::And(_) => format!("`and {v}` löscht Bits der Felder: ") };
+    let lead = match kind { Val::Abs(_) => format!("{} ", vc_i18n::t!("basichover-dieser-wert-v-setzt", v = &v)), Val::Or(_) => format!("{} ", vc_i18n::t!("basichover-or-v-setzt-bits-der-felder", v = &v)), Val::And(_) => format!("{} ", vc_i18n::t!("basichover-and-v-loescht-bits-der-felder", v = &v)) };
     md.push_str(&format!("\n{}{}.\n", lead, changed.join(", ")));
     md
 }
@@ -189,7 +189,7 @@ pub fn hover(data: &Path, target: &str, dialect: &str, text: &str, line: usize, 
             let mut md = String::new();
             let num_span = sc.nums.iter().find(|n| hit(n.start, n.end)).map(|n| (n.start, n.end));
             md.push_str(&vc_lsp::value_hover(&match num_span { Some((s, e)) => slice(s, e), None => wtxt.clone() }, v));
-            if !(0..=255).contains(&v) { md.push_str("\n`POKE` verlangt 0–255 (sonst `?ILLEGAL QUANTITY ERROR`).\n"); }
+            if !(0..=255).contains(&v) { md.push_str(&format!("\n{}\n", vc_i18n::t!("basichover-poke-verlangt-0-255-sonst-illegal"))); }
             if let (Some(a), Some(k)) = (addr, &kind) {
                 if let Some(r) = lookup(a) {
                     md.push('\n'); md.push_str(&register_block(r, false));
@@ -213,19 +213,19 @@ fn number_card(sc: &vc_basic::numbers::Scan, ch: &[char], col: usize, o: &vc_bas
         let tx = slice(l.start, l.end);
         let notes: Vec<&vc_basic::numbers::Note> = sc.notes.iter().filter(|n| hit(n.start, n.end) || (n.start >= l.start && n.end <= l.end)).collect();
         let Some(v) = l.value else {
-            let mut md = format!("**{tx}** – ungültige Zahl\n\n");
+            let mut md = format!("**{tx}** – {}\n\n", vc_i18n::t!("basichover-ungueltige-zahl"));
             for n in &notes { md.push_str(&format!("- {}: {}\n", n.code, n.message)); }
             return Some(Card { start: l.start, end: l.end, md });
         };
         let mut md = vc_lsp::value_hover(&tx, v as i64);
         let bits = if l.radix == 16 { l.digits * 4 } else { l.digits };
-        md.push_str(&format!("| Breite | {bits} Bit ({} Ziffern) |\n", l.digits));
+        md.push_str(&format!("{}\n", vc_i18n::t!("basichover-breite-bits-bit-p2-ziffern", bits = &bits, p2 = &l.digits)));
         if let (Some(m), Some(n)) = (map, sc.nums.iter().find(|n| n.start == l.start)) {
             if n.role == vc_basic::numbers::Role::Address { if let Some(r) = m.lookup(n.value) { md.push('\n'); md.push_str(&register_block(r, true)); } }
         }
         let new = match nd { NameDialect::Cbm(d) => replacement(l, &Lexicon::Cbm(d), o), NameDialect::Atari(d) => replacement(l, &Lexicon::Atari(d), o) };
-        if let Some(n) = new { if n == l.text { md.push_str(&format!("\n| Erzeugt | `{n}` (der Dialekt liest es selbst) |\n")); } else { md.push_str(&format!("\n| Erzeugt | `{n}` (Dezimalzahl) |\n")); } }
-        if l.in_data { md.push_str("\n`DATA`-Element: wird beim Bauen umgewandelt (Text in Anführungszeichen bleibt).\n"); }
+        if let Some(n) = new { if n == l.text { md.push_str(&format!("\n{}\n", vc_i18n::t!("basichover-erzeugt-n-der-dialekt-liest-es", n = &n))); } else { md.push_str(&format!("\n{}\n", vc_i18n::t!("basichover-erzeugt-n-dezimalzahl", n = &n))); } }
+        if l.in_data { md.push_str(&format!("\n{}\n", vc_i18n::t!("basichover-data-element-wird-beim-bauen-umgewandelt"))); }
         for n in notes.iter().filter(|n| !n.error) { md.push_str(&format!("\n{}: {}\n", n.code, n.message)); }
         return Some(Card { start: l.start, end: l.end, md });
     }
@@ -236,7 +236,7 @@ fn number_card(sc: &vc_basic::numbers::Scan, ch: &[char], col: usize, o: &vc_bas
         return Some(Card { start: n.start, end: n.end, md });
     }
     let n = sc.notes.iter().find(|n| hit(n.start, n.end))?;
-    Some(Card { start: n.start, end: n.end, md: format!("**{}** {}: {}", n.code, if n.error { "Fehler" } else { "Hinweis" }, n.message) })
+    Some(Card { start: n.start, end: n.end, md: format!("**{}** {}: {}", n.code, if n.error { vc_i18n::t!("basichover-fehler") } else { vc_i18n::t!("basichover-hinweis") }, n.message) })
 }
 
 #[cfg(test)]

@@ -33,7 +33,7 @@ fn long_names_consts_and_roundtrip() {
 fn errors_are_reported_with_source_lines() {
     assert_eq!(codes("goto @nowhere\n"), vec!["B107"]);
     assert_eq!(codes("if a then\nprint 1\n"), vec!["B106"]);
-    assert_eq!(codes("print (1\n"), vec!["B100"]);
+    assert_eq!(codes("print (1\n"), vec!["B181"]);
     assert_eq!(codes("const X = a + b\n"), vec!["B108"]);
     let e = compile_atari("print 1\nprint (2\n", &d(), &AtariOptions::new("t.sbas")).err().unwrap();
     assert_eq!((e[0].file.as_str(), e[0].line), ("t.sbas", 2));

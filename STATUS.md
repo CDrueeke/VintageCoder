@@ -1,6 +1,6 @@
 # VintageCoder: Entwicklungsstand
 
-Stand: 2026-11-17 · Version im Quelltext: 0.2.1 (Alpha, noch nicht veröffentlicht; veröffentlicht ist 0.2.0). Sie bringt die **neue Oberfläche** (`vc-gui`, Iced); ihr Release-Umfang steht in `FEATURES.md`. Der Abschnitt „Stand der Version 0.1.0“ beschreibt den früheren Paketstand.
+Stand: 2026-11-25 · Version im Quelltext: 0.3.0 (noch nicht veröffentlicht; veröffentlicht ist 0.2.0). Sie bringt die **neue Oberfläche** (Tauri und Svelte: Ordner `ui/`, Kern `crates/vc-shell`; die Iced-Oberfläche `vc-gui` ist eingefroren und nur noch im Quelltext), Deutsch und Englisch und die Registry für Erweiterungen; ihr Release-Umfang steht in `FEATURES.md`; die offenen Punkte stehen in `docs/befehle-ohne-funktion.md` und `docs/paritaetsmatrix-0.3.0.md`. Der Abschnitt „Stand der Version 0.1.0“ beschreibt den früheren Paketstand.
 
 Was in ein Release kommt, wird **nur in `FEATURES.md`** angehakt. Diese Datei hat keine Häkchen: sie führt die Stände der wählbaren und der festen Bestandteile, die Release-Kriterien und die bekannten Lücken. Die Versionsnummer vergibt ausschließlich der Projektinhaber; Änderungen folgen dem Entwicklungsstand (`CHANGELOG.md`, Abschnitt „Unveröffentlicht“).
 
@@ -8,7 +8,7 @@ Was in ein Release kommt, wird **nur in `FEATURES.md`** angehakt. Diese Datei ha
 
 VintageCoder 0.1.0 ist ein **Alpha-Release**: Es enthält mit Sicherheit noch Fehler, und große Teile sind nur durch automatische Tests und einzelne praktische Läufe abgesichert, nicht durch eine vollständige manuelle Abnahme.
 
-**Enthalten** sind laut Release-Auswahl (`FEATURES.md`, Beschluss vom 2026-11-17) C64, Atari 8 Bit, MEGA65 (Emulator Xemu), Plus/4 mit C16/116, C128 und VC-20 mit allen Studios, der Kommandozeile `vcc` und dem Sprachserver `vc-lsp`. **Abgewählt** (im Quelltext vorhanden, in den Paketen ausgeblendet): PET/CBM, CBM-II, echte MEGA65-Hardware, Extraktor. (Der frühere Paketstand 0.1.0 enthielt C128 und VC-20 noch nicht.)
+**Enthalten** sind laut Release-Auswahl (`FEATURES.md`, Beschluss vom 2026-11-17) C64, Atari 8 Bit, MEGA65 (Emulator Xemu), Plus/4 mit C16/116, C128 und VC-20 mit allen Studios, der Kommandozeile `vcc` und dem Sprachserver `vc-lsp`. **Abgewählt** (im Quelltext vorhanden, in den Paketen ausgeblendet): PET/CBM, echte MEGA65-Hardware, Extraktor. (Der frühere Paketstand 0.1.0 enthielt C128 und VC-20 noch nicht.)
 
 **Pakete** (elf Dateien, alle unsigniert; Windows und Linux nur x86_64, macOS nur arm64; Intel-Macs sowie ARM unter Windows und Linux werden nicht unterstützt):
 
@@ -73,7 +73,6 @@ Die Stände dazu stehen in `FEATURES.md`.
 | `SYS-C128` | BASIC 7.0, VDC-Zeichensätze, `x128`. Nur Beispiele `border`, `tiles_demo`, `prallball`. Wenig praktisch geprüft. |
 | `SYS-VC20` | Wählbarer Speicherausbau, BASIC V2, `xvic`. Tabellen laut Zieldaten „aus der Doku übernommen, unverifiziert“. |
 | `SYS-PET` | Zieldaten, Vorlagen und BASIC-Beispiele (`pet/hello`, `pet/basic_hello`); nur als Daten angelegt. **Aus dem nächsten Release genommen.** |
-| `SYS-CBM2` | Zieldaten und BASIC-Beispiel (`cbm2/basic_hello`); nur als Daten angelegt, Hilfeseite gemeinsam mit PET. **Aus dem nächsten Release genommen.** |
 | `STU-SPRITE` | Import: SPD-Format, Rohdaten. |
 | `STU-TILES` | Neu; optische Mängel der Studio-Fenster in Behebung (Standardgröße zu klein). |
 | `STU-TRACKER` | Tracker-Knistern noch nicht abschließend geprüft; TED-Export nicht umgesetzt. Chips: SID, POKEY, 4× SID MEGA65. |

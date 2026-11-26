@@ -8,27 +8,33 @@ use std::path::Path;
 pub fn safe_rel(name: &str) -> Result<String, String> {
     let n = name.trim().replace('\\', "/");
     let n = n.trim_matches('/').to_string();
-    if n.is_empty() { return Err("Der Name ist leer.".into()); }
-    if name.trim().starts_with('/') || name.trim().starts_with('\\') || n.contains(':') { return Err("Der Pfad muss innerhalb des Projekts liegen.".into()); }
-    if n.split('/').any(|p| p.is_empty() || p == "." || p == ".." ) { return Err("Der Pfad darf kein „..“ und keine leeren Teile enthalten.".into()); }
-    if n.split('/').any(|p| p.starts_with('.')) { return Err("Namen mit führendem Punkt sind im Projektbaum versteckt.".into()); }
+    if n.is_empty() { return Err(vc_i18n::t!("fileops-der-name-ist-leer").into()); }
+    if name.trim().starts_with('/') || name.trim().starts_with('\\') || n.contains(':') { return Err(vc_i18n::t!("fileops-der-pfad-muss-innerhalb-des-projekts").into()); }
+    if n.split('/').any(|p| p.is_empty() || p == "." || p == ".." ) { return Err(vc_i18n::t!("fileops-der-pfad-darf-kein-und-keine").into()); }
+    if n.split('/').any(|p| p.starts_with('.')) { return Err(vc_i18n::t!("fileops-namen-mit-fuehrendem-punkt-sind-im").into()); }
     Ok(n)
+}
+
+/// Absoluter Pfad eines Projektpfads: wie [`safe_rel`], und zusätzlich bleibt der aufgelöste Pfad im Projektordner (kein Symlink nach draußen)
+pub fn abs_im_projekt(root: &Path, rel: &str) -> Result<std::path::PathBuf, String> {
+    let rel = safe_rel(rel)?;
+    vc_ide::safepath::resolve(root, &rel)
 }
 
 /// Neue, leere Datei (Ordner werden bei Bedarf angelegt); eine vorhandene Datei bleibt unberührt
 pub fn create_file(root: &Path, rel: &str) -> Result<String, String> {
-    let rel = safe_rel(rel)?; let abs = root.join(&rel);
-    if abs.exists() { return Err(format!("{rel} gibt es schon.")); }
-    if let Some(d) = abs.parent() { std::fs::create_dir_all(d).map_err(|e| format!("{rel}: {e}"))?; }
-    std::fs::write(&abs, "").map_err(|e| format!("{rel}: {e}"))?;
+    let rel = safe_rel(rel)?; let abs = abs_im_projekt(root, &rel)?;
+    if abs.exists() { return Err(vc_i18n::t!("fileops-rel-gibt-es-schon", rel = &rel)); }
+    if let Some(d) = abs.parent() { std::fs::create_dir_all(d).map_err(|e| vc_i18n::t!("fileops-rel-e", rel = &rel, e = &e))?; }
+    std::fs::write(&abs, "").map_err(|e| vc_i18n::t!("fileops-rel-e", rel = &rel, e = &e))?;
     Ok(rel)
 }
 
 /// Neuer Ordner (auch verschachtelt); ein vorhandener Ordner oder eine gleichnamige Datei ist ein Fehler
 pub fn create_dir(root: &Path, rel: &str) -> Result<String, String> {
-    let rel = safe_rel(rel)?; let abs = root.join(&rel);
-    if abs.exists() { return Err(format!("{rel} gibt es schon.")); }
-    std::fs::create_dir_all(&abs).map_err(|e| format!("{rel}: {e}"))?; Ok(rel)
+    let rel = safe_rel(rel)?; let abs = abs_im_projekt(root, &rel)?;
+    if abs.exists() { return Err(vc_i18n::t!("fileops-rel-gibt-es-schon", rel = &rel)); }
+    std::fs::create_dir_all(&abs).map_err(|e| vc_i18n::t!("fileops-rel-e", rel = &rel, e = &e))?; Ok(rel)
 }
 
 /// Verweise der Projektdatei auf `old` ändern (`new`) oder entfernen (`None`); speichert und lädt neu, wenn sich etwas geändert hat
@@ -47,25 +53,25 @@ pub fn project_paths(p: &mut Project, old: &str, new: Option<&str>) -> Result<bo
 /// Datei umbenennen oder verschieben; das Ziel darf nicht existieren. Liefert den neuen Pfad
 pub fn rename_file(p: &mut Project, old: &str, new: &str) -> Result<String, String> {
     let new = safe_rel(new)?; if new == old { return Ok(new); }
-    let (from, to) = (p.root.join(old), p.root.join(&new));
-    if !from.is_file() { return Err(format!("{old} gibt es nicht.")); }
-    if to.exists() { return Err(format!("{new} gibt es schon.")); }
-    if let Some(d) = to.parent() { std::fs::create_dir_all(d).map_err(|e| format!("{new}: {e}"))?; }
-    std::fs::rename(&from, &to).map_err(|e| format!("{old}: {e}"))?;
+    let (from, to) = (abs_im_projekt(&p.root, old)?, abs_im_projekt(&p.root, &new)?);
+    if !from.is_file() { return Err(vc_i18n::t!("fileops-old-gibt-es-nicht", old = &old)); }
+    if to.exists() { return Err(vc_i18n::t!("fileops-new-gibt-es-schon", new = &new)); }
+    if let Some(d) = to.parent() { std::fs::create_dir_all(d).map_err(|e| vc_i18n::t!("fileops-new-e", new = &new, e = &e))?; }
+    std::fs::rename(&from, &to).map_err(|e| vc_i18n::t!("fileops-old-e", old = &old, e = &e))?;
     project_paths(p, old, Some(&new))?; p.rescan(); Ok(new)
 }
 
 /// Ordner umbenennen oder verschieben; alle Verweise der Projektdatei auf Dateien darin ziehen mit. Liefert den neuen Pfad und die Paare (alt, neu) der enthaltenen Dateien
 pub fn rename_dir(p: &mut Project, old: &str, new: &str) -> Result<(String, Vec<(String, String)>), String> {
     let new = safe_rel(new)?; if new == old { return Ok((new, vec![])); }
-    let (from, to) = (p.root.join(old), p.root.join(&new));
-    if !from.is_dir() { return Err(format!("{old} gibt es nicht.")); }
-    if new.starts_with(&format!("{old}/")) { return Err("Ein Ordner lässt sich nicht in sich selbst verschieben.".into()); }
-    if to.exists() { return Err(format!("{new} gibt es schon.")); }
-    let mut dateien = vec![]; fn sammeln(d: &Path, rel: &str, out: &mut Vec<String>) { if let Ok(rd) = std::fs::read_dir(d) { for e in rd.flatten() { let n = e.file_name().to_string_lossy().to_string(); let r = format!("{rel}/{n}"); if e.path().is_dir() { sammeln(&e.path(), &r, out) } else { out.push(r) } } } }
+    let (from, to) = (abs_im_projekt(&p.root, old)?, abs_im_projekt(&p.root, &new)?);
+    if !from.is_dir() { return Err(vc_i18n::t!("fileops-old-gibt-es-nicht", old = &old)); }
+    if new.starts_with(&format!("{old}/")) { return Err(vc_i18n::t!("fileops-ein-ordner-laesst-sich-nicht-in").into()); }
+    if to.exists() { return Err(vc_i18n::t!("fileops-new-gibt-es-schon", new = &new)); }
+    let mut dateien = vec![]; fn sammeln(d: &Path, rel: &str, out: &mut Vec<String>) { if let Ok(rd) = std::fs::read_dir(d) { for e in rd.flatten() { let n = e.file_name().to_string_lossy().to_string(); let r = format!("{rel}/{n}"); let Ok(t) = e.file_type() else { continue }; if t.is_symlink() { continue } if t.is_dir() { sammeln(&e.path(), &r, out) } else { out.push(r) } } } }
     sammeln(&from, old, &mut dateien);
-    if let Some(d) = to.parent() { std::fs::create_dir_all(d).map_err(|e| format!("{new}: {e}"))?; }
-    std::fs::rename(&from, &to).map_err(|e| format!("{old}: {e}"))?;
+    if let Some(d) = to.parent() { std::fs::create_dir_all(d).map_err(|e| vc_i18n::t!("fileops-new-e", new = &new, e = &e))?; }
+    std::fs::rename(&from, &to).map_err(|e| vc_i18n::t!("fileops-old-e", old = &old, e = &e))?;
     let paare: Vec<(String, String)> = dateien.into_iter().map(|a| { let n = format!("{new}{}", &a[old.len()..]); (a, n) }).collect();
     for (a, n) in &paare { project_paths(p, a, Some(n))?; }
     p.rescan(); Ok((new, paare))
@@ -74,7 +80,7 @@ pub fn rename_dir(p: &mut Project, old: &str, new: &str) -> Result<(String, Vec<
 /// Ob der Papierkorb benutzt werden kann: macOS (Finder), Linux mit `gio trash` oder `trash-put`
 pub fn can_trash() -> bool {
     if kein_prozess() { return false }
-    if cfg!(target_os = "macos") { return true; }
+    if cfg!(target_os = "macos") || cfg!(windows) { return true; }   // Windows: Papierkorb über PowerShell (Microsoft.VisualBasic.FileIO)
     cfg!(target_os = "linux") && (has("gio") || has("trash-put"))
 }
 fn has(prog: &str) -> bool { std::process::Command::new(prog).arg("--version").stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null()).status().is_ok() }
@@ -88,7 +94,16 @@ pub fn move_to_trash(abs: &Path) -> bool {
     use std::process::{Command, Stdio};
     let quiet = |mut c: Command| c.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).status().map_or(false, |s| s.success());
     if cfg!(target_os = "macos") {
-        return Command::new("osascript").arg("-e").arg(format!("tell application \"Finder\" to delete POSIX file \"{}\"", abs.to_string_lossy().replace('"', "\\\""))).output().map_or(false, |o| o.status.success());
+        // Der Pfad geht als Argument (`argv`) an das Skript, nie als Text in den Skriptcode: Anführungszeichen, Rückwärtsschrägstriche und Zeilenumbrüche im Namen können keinen Code einschleusen
+        return Command::new("osascript").args(["-e", "on run argv", "-e", "tell application \"Finder\" to delete (POSIX file (item 1 of argv))", "-e", "end run"]).arg(abs).stdin(Stdio::null()).output().map_or(false, |o| o.status.success());
+    }
+    #[cfg(windows)]
+    {
+        // Pfad über die Umgebung, damit Anführungszeichen und Leerzeichen nichts durcheinanderbringen; kein Konsolenfenster
+        use std::os::windows::process::CommandExt;
+        let ps = "Add-Type -AssemblyName Microsoft.VisualBasic; $p = $env:VC_TRASH_PATH; if (Test-Path -LiteralPath $p -PathType Container) { [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($p, 'OnlyErrorDialogs', 'SendToRecycleBin') } else { [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($p, 'OnlyErrorDialogs', 'SendToRecycleBin') }";
+        let mut c = Command::new("powershell"); c.args(["-NoProfile", "-NonInteractive", "-Command", ps]).env("VC_TRASH_PATH", abs).creation_flags(0x0800_0000);
+        return quiet(c);
     }
     if cfg!(target_os = "linux") {
         if has("gio") { let mut c = Command::new("gio"); c.arg("trash").arg("--").arg(abs); if quiet(c) { return true; } }
@@ -97,13 +112,33 @@ pub fn move_to_trash(abs: &Path) -> bool {
     false
 }
 
-/// Datei löschen: mit `papierkorb` zuerst dorthin, sonst (oder wenn das scheitert) endgültig. Liefert, ob sie im Papierkorb liegt
+/// Datei löschen: mit `papierkorb` in den Papierkorb (scheitert das, bleibt die Datei und es gibt einen Fehler), sonst endgültig. Liefert, ob sie im Papierkorb liegt
 pub fn delete_file(p: &mut Project, rel: &str, papierkorb: bool) -> Result<bool, String> {
-    let rel = safe_rel(rel)?; let abs = p.root.join(&rel);
-    if !abs.is_file() { return Err(format!("{rel} gibt es nicht.")); }
+    delete_file_typed(p, rel, papierkorb).map_err(|e| e.text())
+}
+
+/// Fehler von [`delete_file_typed`]: der Papierkorb-Fall hat einen eigenen Fall, damit die Oberfläche ihn am Code erkennt (nicht am Text)
+#[derive(Debug, Clone, PartialEq)]
+pub enum DeleteFehler {
+    /// Papierkorb gewünscht, aber nicht möglich; die Datei ist unverändert. Nach Rückfrage geht endgültiges Löschen mit `papierkorb = false`
+    PapierkorbFehlgeschlagen { rel: String, text: String },
+    Anders(String),
+}
+impl DeleteFehler {
+    /// Meldungstext (übersetzt)
+    pub fn text(&self) -> String { match self { DeleteFehler::PapierkorbFehlgeschlagen { text, .. } | DeleteFehler::Anders(text) => text.clone() } }
+}
+
+/// Wie [`delete_file`], mit unterscheidbarem Papierkorb-Fehler
+pub fn delete_file_typed(p: &mut Project, rel: &str, papierkorb: bool) -> Result<bool, DeleteFehler> {
+    let a = DeleteFehler::Anders;
+    let rel = safe_rel(rel).map_err(a)?; let abs = abs_im_projekt(&p.root, &rel).map_err(DeleteFehler::Anders)?;
+    if !abs.is_file() { return Err(DeleteFehler::Anders(vc_i18n::t!("fileops-rel-gibt-es-nicht", rel = &rel).to_string())); }
+    // Papierkorb gewünscht, aber nicht möglich: nichts löschen, sondern melden (die Oberfläche kann nachfragen und mit `papierkorb = false` endgültig löschen)
     let im_korb = papierkorb && move_to_trash(&abs);
-    if !im_korb { std::fs::remove_file(&abs).map_err(|e| format!("{rel}: {e}"))?; }
-    project_paths(p, &rel, None)?; p.rescan(); Ok(im_korb)
+    if papierkorb && !im_korb { return Err(DeleteFehler::PapierkorbFehlgeschlagen { text: vc_i18n::t!("fileops-papierkorb-fehlgeschlagen", rel = &rel).to_string(), rel }); }
+    if !im_korb { std::fs::remove_file(&abs).map_err(|e| DeleteFehler::Anders(vc_i18n::t!("fileops-rel-e", rel = &rel, e = &e).to_string()))?; }
+    project_paths(p, &rel, None).map_err(DeleteFehler::Anders)?; p.rescan(); Ok(im_korb)
 }
 
 #[cfg(test)]
@@ -153,5 +188,34 @@ mod tests {
         assert_eq!(p.pf.clone().unwrap().sources[0].files, vec!["main.asm".to_string(), "bib/a.asm".into(), "bib/tief/b.asm".into()]);
         assert!(rename_dir(&mut p, "bib", "bib/innen").is_err(), "nicht in sich selbst"); std::fs::create_dir_all(r.join("x")).unwrap(); assert!(rename_dir(&mut p, "bib", "x").is_err(), "Ziel vorhanden");
         let _ = std::fs::remove_dir_all(&r);
+    }
+
+    #[test]
+    fn papierkorb_der_scheitert_loescht_nicht_still_endgueltig() {
+        let r = tmp("korb");   // im Test gibt es keinen Papierkorb (kein_prozess)
+        std::fs::write(r.join("a.asm"), "nop").unwrap(); std::fs::write(r.join("p.vcprj"), r#"{"format":1,"project":{"name":"p"},"main":"a.asm","sources":[{"name":"p","files":["a.asm"]}]}"#).unwrap();
+        let mut p = Project::load(r.clone(), Some("p.vcprj".into())).unwrap();
+        let e = delete_file(&mut p, "a.asm", true).unwrap_err(); assert!(e.contains("a.asm"), "{e}");
+        assert!(r.join("a.asm").exists(), "Datei bleibt erhalten");
+        assert_eq!(delete_file(&mut p, "a.asm", false).unwrap(), false); assert!(!r.join("a.asm").exists());
+        let _ = std::fs::remove_dir_all(&r);
+    }
+    #[cfg(unix)]
+    #[test]
+    fn symlink_nach_draussen_wird_nicht_gefolgt() {
+        let r = tmp("sym"); let aussen = tmp("sym-aussen");
+        std::fs::write(aussen.join("geheim.txt"), "x").unwrap();
+        std::os::unix::fs::symlink(&aussen, r.join("link")).unwrap();
+        assert!(abs_im_projekt(&r, "link/geheim.txt").is_err());
+        assert!(create_file(&r, "link/neu.asm").is_err()); assert!(!aussen.join("neu.asm").exists());
+        assert!(create_dir(&r, "link/ordner").is_err()); assert!(!aussen.join("ordner").exists());
+        std::fs::write(r.join("p.vcprj"), r#"{"format":1,"project":{"name":"p"},"main":"main.asm","sources":[{"name":"p","files":["main.asm"]}]}"#).unwrap(); std::fs::write(r.join("main.asm"), "nop").unwrap();
+        let mut p = Project::load(r.clone(), Some("p.vcprj".into())).unwrap();
+        assert!(delete_file(&mut p, "link/geheim.txt", false).is_err()); assert!(aussen.join("geheim.txt").exists());
+        assert!(rename_file(&mut p, "link/geheim.txt", "x.txt").is_err()); assert!(aussen.join("geheim.txt").exists());
+        std::fs::create_dir_all(r.join("d")).unwrap(); std::os::unix::fs::symlink(&aussen, r.join("d/l")).unwrap();
+        let (_, dateien) = rename_dir(&mut p, "d", "e").unwrap(); assert!(dateien.is_empty(), "Symlink zählt nicht als Inhalt: {dateien:?}");
+        assert!(aussen.join("geheim.txt").exists());
+        let _ = std::fs::remove_dir_all(&r); let _ = std::fs::remove_dir_all(&aussen);
     }
 }

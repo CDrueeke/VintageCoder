@@ -1,0 +1,8983 @@
+{
+ "kind": "test",
+ "target": "atari8",
+ "program": "build/main.xex",
+ "static": [
+  {
+   "check": "expr",
+   "name": "Programm endet vor dem Zeichensatz-RAM ($7000)",
+   "expr": "PRG_END <= $7000"
+  },
+  {
+   "check": "expr",
+   "name": "Programm kleiner als 20 KB",
+   "expr": "PRG_END - $2000 <= 20000"
+  },
+  {
+   "check": "overlap"
+  }
+ ],
+ "tests": [
+  {
+   "name": "grid.draw: Ecke, Linie, T-Stueck, Innenraum (Zeichen und Zustand)",
+   "call": "grid.draw",
+   "expect": [
+    "[$8029] == 68",
+    "[$802a] == 65",
+    "[$802d] == 72",
+    "[$8049] == 69",
+    "[$8051] == 66",
+    "[$8052] == 0",
+    "([$8701] & 15) == 4",
+    "([$8721] & 15) == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.draw: Kreuzung (gx 4, gy 4), Unterkante, Randspalten",
+   "call": "grid.draw",
+   "expect": [
+    "[$80cd] == 67",
+    "[$8349] == 70",
+    "[$8369] == 71",
+    "[$834d] == 73",
+    "[$80c9] == 74",
+    "[$80e9] == 75",
+    "[$8111] == 66",
+    "[$8341] == 66"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Ecke (0, 0) = 3",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 0
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Knoten innen (4, 4) = 3",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Ecke unten rechts (32, 20) = 3",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 20
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht oben (1, 0) = 1",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 0
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht Mitte (13, 8) = 1",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 8
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht links (0, 1) = 2",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 1
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht Mitte (20, 18) = 2",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 18
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum (1, 1) = 0",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 1
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum unten rechts (31, 19) = 0",
+   "setup": {
+    "mem": {
+     "$db": 31,
+     "$dc": 19
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum Mitte (5, 2) = 0",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 2
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 0 H(0,0): Rechtecke [0]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 0",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 1 H(0,1): Rechtecke [1]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 1",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 2 H(0,2): Rechtecke [2]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 2",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 3 H(0,3): Rechtecke [3]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 3",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 4 H(0,4): Rechtecke [4]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 4",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 5 H(0,5): Rechtecke [5]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 5",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 6 H(0,6): Rechtecke [6]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 6",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 7 H(0,7): Rechtecke [7]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 0,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 7",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 8 H(1,0): Rechtecke [8, 0]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 8",
+    "[$8677] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 9 H(1,1): Rechtecke [9, 1]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 9",
+    "[$8677] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 10 H(1,2): Rechtecke [10, 2]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 10",
+    "[$8677] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 11 H(1,3): Rechtecke [11, 3]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 11",
+    "[$8677] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 12 H(1,4): Rechtecke [12, 4]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 12",
+    "[$8677] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 13 H(1,5): Rechtecke [13, 5]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 13",
+    "[$8677] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 14 H(1,6): Rechtecke [14, 6]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 14",
+    "[$8677] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 15 H(1,7): Rechtecke [15, 7]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 4,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 15",
+    "[$8677] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 16 H(2,0): Rechtecke [16, 8]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 16",
+    "[$8677] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 17 H(2,1): Rechtecke [17, 9]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 17",
+    "[$8677] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 18 H(2,2): Rechtecke [18, 10]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 18",
+    "[$8677] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 19 H(2,3): Rechtecke [19, 11]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 19",
+    "[$8677] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 20 H(2,4): Rechtecke [20, 12]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 20",
+    "[$8677] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 21 H(2,5): Rechtecke [21, 13]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 21",
+    "[$8677] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 22 H(2,6): Rechtecke [22, 14]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 22",
+    "[$8677] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 23 H(2,7): Rechtecke [23, 15]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 8,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 23",
+    "[$8677] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 24 H(3,0): Rechtecke [24, 16]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 24",
+    "[$8677] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 25 H(3,1): Rechtecke [25, 17]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 25",
+    "[$8677] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 26 H(3,2): Rechtecke [26, 18]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 26",
+    "[$8677] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 27 H(3,3): Rechtecke [27, 19]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 27",
+    "[$8677] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 28 H(3,4): Rechtecke [28, 20]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 28",
+    "[$8677] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 29 H(3,5): Rechtecke [29, 21]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 29",
+    "[$8677] == 21"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 30 H(3,6): Rechtecke [30, 22]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 30",
+    "[$8677] == 22"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 31 H(3,7): Rechtecke [31, 23]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 12,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 31",
+    "[$8677] == 23"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 32 H(4,0): Rechtecke [32, 24]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 32",
+    "[$8677] == 24"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 33 H(4,1): Rechtecke [33, 25]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 33",
+    "[$8677] == 25"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 34 H(4,2): Rechtecke [34, 26]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 34",
+    "[$8677] == 26"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 35 H(4,3): Rechtecke [35, 27]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 35",
+    "[$8677] == 27"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 36 H(4,4): Rechtecke [36, 28]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 36",
+    "[$8677] == 28"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 37 H(4,5): Rechtecke [37, 29]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 37",
+    "[$8677] == 29"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 38 H(4,6): Rechtecke [38, 30]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 38",
+    "[$8677] == 30"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 39 H(4,7): Rechtecke [39, 31]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 16,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 39",
+    "[$8677] == 31"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 40 H(5,0): Rechtecke [32]",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 32"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 41 H(5,1): Rechtecke [33]",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 33"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 42 H(5,2): Rechtecke [34]",
+   "setup": {
+    "mem": {
+     "$db": 9,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 34"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 43 H(5,3): Rechtecke [35]",
+   "setup": {
+    "mem": {
+     "$db": 13,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 35"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 44 H(5,4): Rechtecke [36]",
+   "setup": {
+    "mem": {
+     "$db": 17,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 36"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 45 H(5,5): Rechtecke [37]",
+   "setup": {
+    "mem": {
+     "$db": 21,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 37"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 46 H(5,6): Rechtecke [38]",
+   "setup": {
+    "mem": {
+     "$db": 25,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 38"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 47 H(5,7): Rechtecke [39]",
+   "setup": {
+    "mem": {
+     "$db": 29,
+     "$dc": 20,
+     "$dd": 1
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 39"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 48 V(0,0): Rechtecke [0]",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 0",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 49 V(0,1): Rechtecke [1, 0]",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 1",
+    "[$8677] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 50 V(0,2): Rechtecke [2, 1]",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 2",
+    "[$8677] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 51 V(0,3): Rechtecke [3, 2]",
+   "setup": {
+    "mem": {
+     "$db": 12,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 3",
+    "[$8677] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 52 V(0,4): Rechtecke [4, 3]",
+   "setup": {
+    "mem": {
+     "$db": 16,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 4",
+    "[$8677] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 53 V(0,5): Rechtecke [5, 4]",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 5",
+    "[$8677] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 54 V(0,6): Rechtecke [6, 5]",
+   "setup": {
+    "mem": {
+     "$db": 24,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 6",
+    "[$8677] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 55 V(0,7): Rechtecke [7, 6]",
+   "setup": {
+    "mem": {
+     "$db": 28,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 7",
+    "[$8677] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 56 V(0,8): Rechtecke [7]",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 1,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 57 V(1,0): Rechtecke [8]",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 8",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 58 V(1,1): Rechtecke [9, 8]",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 9",
+    "[$8677] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 59 V(1,2): Rechtecke [10, 9]",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 10",
+    "[$8677] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 60 V(1,3): Rechtecke [11, 10]",
+   "setup": {
+    "mem": {
+     "$db": 12,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 11",
+    "[$8677] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 61 V(1,4): Rechtecke [12, 11]",
+   "setup": {
+    "mem": {
+     "$db": 16,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 12",
+    "[$8677] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 62 V(1,5): Rechtecke [13, 12]",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 13",
+    "[$8677] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 63 V(1,6): Rechtecke [14, 13]",
+   "setup": {
+    "mem": {
+     "$db": 24,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 14",
+    "[$8677] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 64 V(1,7): Rechtecke [15, 14]",
+   "setup": {
+    "mem": {
+     "$db": 28,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 15",
+    "[$8677] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 65 V(1,8): Rechtecke [15]",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 5,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 66 V(2,0): Rechtecke [16]",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 16",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 67 V(2,1): Rechtecke [17, 16]",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 17",
+    "[$8677] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 68 V(2,2): Rechtecke [18, 17]",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 18",
+    "[$8677] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 69 V(2,3): Rechtecke [19, 18]",
+   "setup": {
+    "mem": {
+     "$db": 12,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 19",
+    "[$8677] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 70 V(2,4): Rechtecke [20, 19]",
+   "setup": {
+    "mem": {
+     "$db": 16,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 20",
+    "[$8677] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 71 V(2,5): Rechtecke [21, 20]",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 21",
+    "[$8677] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 72 V(2,6): Rechtecke [22, 21]",
+   "setup": {
+    "mem": {
+     "$db": 24,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 22",
+    "[$8677] == 21"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 73 V(2,7): Rechtecke [23, 22]",
+   "setup": {
+    "mem": {
+     "$db": 28,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 23",
+    "[$8677] == 22"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 74 V(2,8): Rechtecke [23]",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 9,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 23"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 75 V(3,0): Rechtecke [24]",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 24",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 76 V(3,1): Rechtecke [25, 24]",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 25",
+    "[$8677] == 24"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 77 V(3,2): Rechtecke [26, 25]",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 26",
+    "[$8677] == 25"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 78 V(3,3): Rechtecke [27, 26]",
+   "setup": {
+    "mem": {
+     "$db": 12,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 27",
+    "[$8677] == 26"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 79 V(3,4): Rechtecke [28, 27]",
+   "setup": {
+    "mem": {
+     "$db": 16,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 28",
+    "[$8677] == 27"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 80 V(3,5): Rechtecke [29, 28]",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 29",
+    "[$8677] == 28"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 81 V(3,6): Rechtecke [30, 29]",
+   "setup": {
+    "mem": {
+     "$db": 24,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 30",
+    "[$8677] == 29"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 82 V(3,7): Rechtecke [31, 30]",
+   "setup": {
+    "mem": {
+     "$db": 28,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 31",
+    "[$8677] == 30"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 83 V(3,8): Rechtecke [31]",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 13,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 31"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 84 V(4,0): Rechtecke [32]",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 32",
+    "[$8677] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 85 V(4,1): Rechtecke [33, 32]",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 33",
+    "[$8677] == 32"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 86 V(4,2): Rechtecke [34, 33]",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 34",
+    "[$8677] == 33"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 87 V(4,3): Rechtecke [35, 34]",
+   "setup": {
+    "mem": {
+     "$db": 12,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 35",
+    "[$8677] == 34"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 88 V(4,4): Rechtecke [36, 35]",
+   "setup": {
+    "mem": {
+     "$db": 16,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 36",
+    "[$8677] == 35"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 89 V(4,5): Rechtecke [37, 36]",
+   "setup": {
+    "mem": {
+     "$db": 20,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 37",
+    "[$8677] == 36"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 90 V(4,6): Rechtecke [38, 37]",
+   "setup": {
+    "mem": {
+     "$db": 24,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 38",
+    "[$8677] == 37"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 91 V(4,7): Rechtecke [39, 38]",
+   "setup": {
+    "mem": {
+     "$db": 28,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 39",
+    "[$8677] == 38"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 92 V(4,8): Rechtecke [39]",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 17,
+     "$dd": 2
+    }
+   },
+   "call": "grid.nb_boxes",
+   "expect": [
+    "[$8676] == 255",
+    "[$8677] == 39"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: vierte Kante: vorgemerkt, 100 Punkte, BOXES_DONE + 1",
+   "setup": {
+    "x": 7,
+    "mem": {
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "grid.box_add",
+   "expect": [
+    "[$95] == 4",
+    "[$c1] == 1",
+    "[$8d] == 1",
+    "[$f4] == 7",
+    "[$89] == 0",
+    "[$8a] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: dritte Kante: nichts vorgemerkt",
+   "setup": {
+    "x": 7,
+    "mem": {
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "grid.box_add",
+   "expect": [
+    "[$95] == 3",
+    "[$c1] == 0",
+    "[$8d] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "chain_two (paint): letztes Zeichen von V(1,1) schliesst zwei Rechtecke: 411 Punkte, beide vorgemerkt",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 7,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87a9": 7,
+     "$87ca": 7,
+     "$87eb": 4
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$c1] == 2",
+    "[$8d] == 2",
+    "[$f4] == 9",
+    "[$f5] == 8",
+    "[$89] == $11",
+    "[$8a] == $04",
+    "[$8b] == 0",
+    "([$87eb] & 15) == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Segment schliesst nur ein Rechteck (kein Kettenbonus): 111 Punkte",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 7,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87a9": 7,
+     "$87ca": 7,
+     "$87eb": 4
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$c1] == 1",
+    "[$89] == $11",
+    "[$8a] == $01",
+    "[$96] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Zelle schon abgefahren: nichts passiert",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 7,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87a9": 7,
+     "$87ca": 7,
+     "$87eb": 7
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$89] == 0",
+    "[$c1] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Innenraum tut nichts",
+   "setup": {
+    "mem": {
+     "$db": 1,
+     "$dc": 1,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87a9": 7,
+     "$87ca": 7,
+     "$87eb": 4
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$89] == 0",
+    "[$c1] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Knoten (4, 4) tut nichts",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87a9": 7,
+     "$87ca": 7,
+     "$87eb": 4
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$89] == 0",
+    "[$c1] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: H(0,0) schliesst B(0,0) am oberen Rand: 111 Punkte",
+   "setup": {
+    "mem": {
+     "$db": 3,
+     "$dc": 0,
+     "$c1": 0,
+     "$8d": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$8e": [
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8701": 7,
+     "$8702": 7,
+     "$8703": 4
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$c1] == 1",
+    "[$f4] == 0",
+    "[$89] == $11",
+    "[$8a] == $01"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_destroy: teilweise abgefahrenes Segment: alles blau, 2 Punkte abgezogen, Zeichen zurueck",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      5,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8789": 7,
+     "$878a": 7,
+     "$80ce": 76,
+     "$80cf": 76
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$8789] == 4",
+    "[$878a] == 4",
+    "[$878b] == 4",
+    "[$80ce] == 126",
+    "[$80cf] == 126",
+    "[$8679] == 2",
+    "[$89] == 3",
+    "[$97] == 0",
+    "[$8f] == 0"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: ganz abgefahrenes Segment ohne gefuelltes Rechteck: 13 Punkte, BOXCNT der Nachbarn - 1",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$8789] == 4",
+    "[$878b] == 4",
+    "[$89] == $27",
+    "[$97] == 1",
+    "[$8f] == 0"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: geschuetztes Segment (unteres Rechteck gefuellt) bleibt",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$8789] == 7",
+    "[$878b] == 7",
+    "[$89] == $40",
+    "[$97] == 4",
+    "[$8f] == 2"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: geschuetzt durch das obere Rechteck",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$878a] == 7",
+    "[$89] == $40",
+    "[$97] == 2"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: Randsegment H(0,0): nur ein Nachbar",
+   "setup": {
+    "mem": {
+     "$db": 2,
+     "$dc": 0,
+     "$dd": 1,
+     "$89": [
+      32,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8701": 7,
+     "$8702": 7,
+     "$8703": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$8702] == 4",
+    "[$8e] == 0",
+    "[$89] == $07"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: senkrechtes Segment V(1,2) mit zwei Nachbarn",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 6,
+     "$dd": 2,
+     "$89": [
+      48,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$87ad": 7,
+     "$87ce": 7,
+     "$87ef": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$87ad] == 4",
+    "[$87ef] == 4",
+    "[$97] == 0",
+    "[$98] == 0",
+    "[$89] == $17",
+    "[$8121] == 126"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "flash_end: Zeichen des Segments zurueck, Zeilenfarbe aus GAME_P2, Warteschlange leer",
+   "setup": {
+    "mem": {
+     "$8679": 1,
+     "$867a": 1,
+     "$86e0": 6,
+     "$86e4": 4,
+     "$86e8": 1,
+     "$80ce": 126,
+     "$80cf": 126,
+     "$8511": 0,
+     "$84c5": 14,
+     "$db": 9,
+     "$dc": 8,
+     "$dd": 7
+    }
+   },
+   "call": "grid.flash_end",
+   "expect": [
+    "[$80ce] == 65",
+    "[$80cf] == 65",
+    "[$80d0] == 65",
+    "[$8679] == 0",
+    "[$867a] == 0",
+    "[$84c5] != 14",
+    "[$db] == 9",
+    "[$dc] == 8",
+    "[$dd] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_destroy: Punkte nie unter 0",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      5,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$89] == 0",
+    "[$8a] == 0",
+    "[$8b] == 0"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_destroy: nichts abgefahren: nichts geschieht",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "grid.seg_destroy",
+   "expect": [
+    "[$89] == $40",
+    "[$97] == 2"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "seg_is_closed: Nachbarrechteck gefuellt: C = 1",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "grid.seg_is_closed",
+   "expect": [
+    "fc == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: kein Nachbar gefuellt: C = 0",
+   "setup": {
+    "mem": {
+     "$db": 6,
+     "$dc": 4,
+     "$dd": 1,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "grid.seg_is_closed",
+   "expect": [
+    "fc == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: 13 von 40 = 27",
+   "setup": {
+    "a": 19,
+    "mem": {
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$e2": 0
+    }
+   },
+   "call": "hud.bcd_sub",
+   "expect": [
+    "[$89] == $27"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: Uebertrag ueber die Stellen (10000 - 1)",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$89": [
+      0,
+      0,
+      1
+     ],
+     "$e2": 0
+    }
+   },
+   "call": "hud.bcd_sub",
+   "expect": [
+    "[$89] == $99",
+    "[$8a] == $99",
+    "[$8b] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.one: Gegner betritt ein Innenzeichen eines offenen Segments: Segment zerstoert",
+   "setup": {
+    "mem": {
+     "$ed": 6,
+     "$ec": 0,
+     "$c3": [
+      5,
+      4,
+      3,
+      0,
+      5,
+      4
+     ],
+     "$b9": 0,
+     "$ba": 20,
+     "$be": 0,
+     "$ea": 0,
+     "$eb": 0,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8518": 0,
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "enemies.one",
+   "expect": [
+    "[$c3] == 6",
+    "[$8789] == 4",
+    "[$878b] == 4",
+    "[$89] == $27"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "enemies.step: eingefrorener Gegner (Eisblock) zerstoert nichts",
+   "setup": {
+    "mem": {
+     "$ed": 6,
+     "$ec": 0,
+     "$c3": [
+      5,
+      4,
+      3,
+      0,
+      5,
+      4
+     ],
+     "$b9": 0,
+     "$ba": 20,
+     "$be": 0,
+     "$ea": 0,
+     "$eb": 0,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8518": 100,
+     "$8789": 7,
+     "$878a": 7,
+     "$878b": 7
+    }
+   },
+   "call": "enemies.step",
+   "expect": [
+    "[$c3] == 5",
+    "[$8789] == 7",
+    "[$89] == $40"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "paint_node: die Figur betritt den Knoten (4, 4): Zustand abgefahren",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4,
+     "$8788": 4
+    }
+   },
+   "call": "grid.paint_node",
+   "expect": [
+    "[$8788] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint_node: Linienzelle bleibt unberuehrt",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 4,
+     "$8789": 4
+    }
+   },
+   "call": "grid.paint_node",
+   "expect": [
+    "[$8789] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten Kreuzung (4, 4) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4,
+     "$8788": 7,
+     "$80cd": 67
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten Ecke oben links (0, 0) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 0,
+     "$8700": 7,
+     "$8029": 68
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8029] == 79"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten Ecke unten rechts (32, 20) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 20,
+     "$89b4": 7,
+     "$8369": 71
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8369] == 90"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten T-Stueck oben (8, 0) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 8,
+     "$dc": 0,
+     "$8708": 7,
+     "$8031": 72
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8031] == 79"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten T-Stueck links (0, 8) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 8,
+     "$8808": 7,
+     "$8169": 74
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8169] == 91"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrener Knoten T-Stueck rechts (32, 8) wird gelb",
+   "setup": {
+    "mem": {
+     "$db": 32,
+     "$dc": 8,
+     "$8828": 7,
+     "$8189": 75
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8189] == 92"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: unberuehrter Knoten behaelt sein blaues Zeichen",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4,
+     "$8788": 4,
+     "$80cd": 0
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$80cd] == 67"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: freistehender gelber Knoten wird zurueckgesetzt (Zustand und Zeichen)",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 4",
+    "[$80cd] == 67"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: angrenzendes gelbes Segment (rechts) haelt den Knoten",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 7,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: angrenzendes gelbes Segment (unten) haelt den Knoten",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 7,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: angrenzendes gefuelltes Rechteck (Diagonalzelle) haelt den Knoten",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 5
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: gefuelltes Rechteck oben links haelt den Knoten",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 5,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: die Figur steht auf dem Knoten: er bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 4,
+     "$ba": 4,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: ein Gegner steht auf dem Knoten: er bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 6,
+     "$c3": [
+      4,
+      4,
+      0,
+      0,
+      4,
+      4
+     ],
+     "$8788": 7,
+     "$80cd": 78,
+     "$867b": 4,
+     "$867c": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 7",
+    "[$80cd] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: Eckknoten (0, 0) frei: zurueckgesetzt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8700": 7,
+     "$8029": 78,
+     "$867b": 0,
+     "$867c": 0,
+     "$8721": 4,
+     "$8701": 4,
+     "$8722": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8700] == 4",
+    "[$8029] == 68"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: Eckknoten (0, 0) mit gelbem Segment (1, 0): bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8700": 7,
+     "$8029": 78,
+     "$867b": 0,
+     "$867c": 0,
+     "$8721": 4,
+     "$8701": 7,
+     "$8722": 4
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8700] == 7",
+    "[$8029] == 78"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "node_free: nicht abgefahrener Knoten bleibt unberuehrt",
+   "setup": {
+    "mem": {
+     "$867b": 4,
+     "$867c": 4,
+     "$8788": 4,
+     "$80cd": 0,
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0
+    }
+   },
+   "call": "grid.node_free",
+   "expect": [
+    "[$8788] == 4",
+    "[$80cd] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nodes_free: alle gelben freistehenden Knoten werden zurueckgesetzt, ein gehaltener bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$8788": 7,
+     "$8810": 7,
+     "$8898": 7,
+     "$8899": 7,
+     "$8700": 4,
+     "$8721": 4,
+     "$8742": 4,
+     "$8763": 4,
+     "$8784": 4,
+     "$87a5": 4,
+     "$87c6": 4,
+     "$87e7": 4,
+     "$8808": 4,
+     "$8829": 4,
+     "$884a": 4,
+     "$886b": 4,
+     "$888c": 4,
+     "$88ad": 4,
+     "$88ce": 4,
+     "$88ef": 4,
+     "$8910": 4,
+     "$8931": 4,
+     "$8952": 4,
+     "$8973": 4,
+     "$8994": 4,
+     "$8701": 4,
+     "$8722": 4,
+     "$8743": 4,
+     "$8764": 4,
+     "$8785": 4,
+     "$87a6": 4,
+     "$87c7": 4,
+     "$87e8": 4,
+     "$8809": 4,
+     "$882a": 4,
+     "$884b": 4,
+     "$886c": 4,
+     "$888d": 4,
+     "$88ae": 4,
+     "$88cf": 4,
+     "$88f0": 4,
+     "$8911": 4,
+     "$8932": 4,
+     "$8953": 4,
+     "$8974": 4,
+     "$8995": 4,
+     "$8702": 4,
+     "$8723": 4,
+     "$8744": 4,
+     "$8765": 4,
+     "$8786": 4,
+     "$87a7": 4,
+     "$87c8": 4,
+     "$87e9": 4,
+     "$880a": 4,
+     "$882b": 4,
+     "$884c": 4,
+     "$886d": 4,
+     "$888e": 4,
+     "$88af": 4,
+     "$88d0": 4,
+     "$88f1": 4,
+     "$8912": 4,
+     "$8933": 4,
+     "$8954": 4,
+     "$8975": 4,
+     "$8996": 4,
+     "$8703": 4,
+     "$8724": 4,
+     "$8745": 4,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$87c9": 4,
+     "$87ea": 4,
+     "$880b": 4,
+     "$882c": 4,
+     "$884d": 4,
+     "$886e": 4,
+     "$888f": 4,
+     "$88b0": 4,
+     "$88d1": 4,
+     "$88f2": 4,
+     "$8913": 4,
+     "$8934": 4,
+     "$8955": 4,
+     "$8976": 4,
+     "$8997": 4,
+     "$8704": 4,
+     "$8725": 4,
+     "$8746": 4,
+     "$8767": 4,
+     "$87a9": 4,
+     "$87ca": 4,
+     "$87eb": 4,
+     "$880c": 4,
+     "$882d": 4,
+     "$884e": 4,
+     "$886f": 4,
+     "$8890": 4,
+     "$88b1": 4,
+     "$88d2": 4,
+     "$88f3": 4,
+     "$8914": 4,
+     "$8935": 4,
+     "$8956": 4,
+     "$8977": 4,
+     "$8998": 4,
+     "$8705": 4,
+     "$8726": 4,
+     "$8747": 4,
+     "$8768": 4,
+     "$8789": 4,
+     "$87aa": 4,
+     "$87cb": 4,
+     "$87ec": 4,
+     "$880d": 4,
+     "$882e": 4,
+     "$884f": 4,
+     "$8870": 4,
+     "$8891": 4,
+     "$88b2": 4,
+     "$88d3": 4,
+     "$88f4": 4,
+     "$8915": 4,
+     "$8936": 4,
+     "$8957": 4,
+     "$8978": 4,
+     "$8999": 4,
+     "$8706": 4,
+     "$8727": 4,
+     "$8748": 4,
+     "$8769": 4,
+     "$878a": 4,
+     "$87ab": 4,
+     "$87cc": 4,
+     "$87ed": 4,
+     "$880e": 4,
+     "$882f": 4,
+     "$8850": 4,
+     "$8871": 4,
+     "$8892": 4,
+     "$88b3": 4,
+     "$88d4": 4,
+     "$88f5": 4,
+     "$8916": 4,
+     "$8937": 4,
+     "$8958": 4,
+     "$8979": 4,
+     "$899a": 4,
+     "$8707": 4,
+     "$8728": 4,
+     "$8749": 4,
+     "$876a": 4,
+     "$878b": 4,
+     "$87ac": 4,
+     "$87cd": 4,
+     "$87ee": 4,
+     "$880f": 4,
+     "$8830": 4,
+     "$8851": 4,
+     "$8872": 4,
+     "$8893": 4,
+     "$88b4": 4,
+     "$88d5": 4,
+     "$88f6": 4,
+     "$8917": 4,
+     "$8938": 4,
+     "$8959": 4,
+     "$897a": 4,
+     "$899b": 4,
+     "$8708": 4,
+     "$8729": 4,
+     "$874a": 4,
+     "$876b": 4,
+     "$878c": 4,
+     "$87ad": 4,
+     "$87ce": 4,
+     "$87ef": 4,
+     "$8831": 4,
+     "$8852": 4,
+     "$8873": 4,
+     "$8894": 4,
+     "$88b5": 4,
+     "$88d6": 4,
+     "$88f7": 4,
+     "$8918": 4,
+     "$8939": 4,
+     "$895a": 4,
+     "$897b": 4,
+     "$899c": 4,
+     "$8709": 4,
+     "$872a": 4,
+     "$874b": 4,
+     "$876c": 4,
+     "$878d": 4,
+     "$87ae": 4,
+     "$87cf": 4,
+     "$87f0": 4,
+     "$8811": 4,
+     "$8832": 4,
+     "$8853": 4,
+     "$8874": 4,
+     "$8895": 4,
+     "$88b6": 4,
+     "$88d7": 4,
+     "$88f8": 4,
+     "$8919": 4,
+     "$893a": 4,
+     "$895b": 4,
+     "$897c": 4,
+     "$899d": 4,
+     "$870a": 4,
+     "$872b": 4,
+     "$874c": 4,
+     "$876d": 4,
+     "$878e": 4,
+     "$87af": 4,
+     "$87d0": 4,
+     "$87f1": 4,
+     "$8812": 4,
+     "$8833": 4,
+     "$8854": 4,
+     "$8875": 4,
+     "$8896": 4,
+     "$88b7": 4,
+     "$88d8": 4,
+     "$88f9": 4,
+     "$891a": 4,
+     "$893b": 4,
+     "$895c": 4,
+     "$897d": 4,
+     "$899e": 4,
+     "$870b": 4,
+     "$872c": 4,
+     "$874d": 4,
+     "$876e": 4,
+     "$878f": 4,
+     "$87b0": 4,
+     "$87d1": 4,
+     "$87f2": 4,
+     "$8813": 4,
+     "$8834": 4,
+     "$8855": 4,
+     "$8876": 4,
+     "$8897": 4,
+     "$88b8": 4,
+     "$88d9": 4,
+     "$88fa": 4,
+     "$891b": 4,
+     "$893c": 4,
+     "$895d": 4,
+     "$897e": 4,
+     "$899f": 4,
+     "$870c": 4,
+     "$872d": 4,
+     "$874e": 4,
+     "$876f": 4,
+     "$8790": 4,
+     "$87b1": 4,
+     "$87d2": 4,
+     "$87f3": 4,
+     "$8814": 4,
+     "$8835": 4,
+     "$8856": 4,
+     "$8877": 4,
+     "$88b9": 4,
+     "$88da": 4,
+     "$88fb": 4,
+     "$891c": 4,
+     "$893d": 4,
+     "$895e": 4,
+     "$897f": 4,
+     "$89a0": 4,
+     "$870d": 4,
+     "$872e": 4,
+     "$874f": 4,
+     "$8770": 4,
+     "$8791": 4,
+     "$87b2": 4,
+     "$87d3": 4,
+     "$87f4": 4,
+     "$8815": 4,
+     "$8836": 4,
+     "$8857": 4,
+     "$8878": 4,
+     "$88ba": 4,
+     "$88db": 4,
+     "$88fc": 4,
+     "$891d": 4,
+     "$893e": 4,
+     "$895f": 4,
+     "$8980": 4,
+     "$89a1": 4,
+     "$870e": 4,
+     "$872f": 4,
+     "$8750": 4,
+     "$8771": 4,
+     "$8792": 4,
+     "$87b3": 4,
+     "$87d4": 4,
+     "$87f5": 4,
+     "$8816": 4,
+     "$8837": 4,
+     "$8858": 4,
+     "$8879": 4,
+     "$889a": 4,
+     "$88bb": 4,
+     "$88dc": 4,
+     "$88fd": 4,
+     "$891e": 4,
+     "$893f": 4,
+     "$8960": 4,
+     "$8981": 4,
+     "$89a2": 4,
+     "$870f": 4,
+     "$8730": 4,
+     "$8751": 4,
+     "$8772": 4,
+     "$8793": 4,
+     "$87b4": 4,
+     "$87d5": 4,
+     "$87f6": 4,
+     "$8817": 4,
+     "$8838": 4,
+     "$8859": 4,
+     "$887a": 4,
+     "$889b": 4,
+     "$88bc": 4,
+     "$88dd": 4,
+     "$88fe": 4,
+     "$891f": 4,
+     "$8940": 4,
+     "$8961": 4,
+     "$8982": 4,
+     "$89a3": 4,
+     "$8710": 4,
+     "$8731": 4,
+     "$8752": 4,
+     "$8773": 4,
+     "$8794": 4,
+     "$87b5": 4,
+     "$87d6": 4,
+     "$87f7": 4,
+     "$8818": 4,
+     "$8839": 4,
+     "$885a": 4,
+     "$887b": 4,
+     "$889c": 4,
+     "$88bd": 4,
+     "$88de": 4,
+     "$88ff": 4,
+     "$8920": 4,
+     "$8941": 4,
+     "$8962": 4,
+     "$8983": 4,
+     "$89a4": 4,
+     "$8711": 4,
+     "$8732": 4,
+     "$8753": 4,
+     "$8774": 4,
+     "$8795": 4,
+     "$87b6": 4,
+     "$87d7": 4,
+     "$87f8": 4,
+     "$8819": 4,
+     "$883a": 4,
+     "$885b": 4,
+     "$887c": 4,
+     "$889d": 4,
+     "$88be": 4,
+     "$88df": 4,
+     "$8900": 4,
+     "$8921": 4,
+     "$8942": 4,
+     "$8963": 4,
+     "$8984": 4,
+     "$89a5": 4,
+     "$8712": 4,
+     "$8733": 4,
+     "$8754": 4,
+     "$8775": 4,
+     "$8796": 4,
+     "$87b7": 4,
+     "$87d8": 4,
+     "$87f9": 4,
+     "$881a": 4,
+     "$883b": 4,
+     "$885c": 4,
+     "$887d": 4,
+     "$889e": 4,
+     "$88bf": 4,
+     "$88e0": 4,
+     "$8901": 4,
+     "$8922": 4,
+     "$8943": 4,
+     "$8964": 4,
+     "$8985": 4,
+     "$89a6": 4,
+     "$8713": 4,
+     "$8734": 4,
+     "$8755": 4,
+     "$8776": 4,
+     "$8797": 4,
+     "$87b8": 4,
+     "$87d9": 4,
+     "$87fa": 4,
+     "$881b": 4,
+     "$883c": 4,
+     "$885d": 4,
+     "$887e": 4,
+     "$889f": 4,
+     "$88c0": 4,
+     "$88e1": 4,
+     "$8902": 4,
+     "$8923": 4,
+     "$8944": 4,
+     "$8965": 4,
+     "$8986": 4,
+     "$89a7": 4,
+     "$8714": 4,
+     "$8735": 4,
+     "$8756": 4,
+     "$8777": 4,
+     "$8798": 4,
+     "$87b9": 4,
+     "$87da": 4,
+     "$87fb": 4,
+     "$881c": 4,
+     "$883d": 4,
+     "$885e": 4,
+     "$887f": 4,
+     "$88a0": 4,
+     "$88c1": 4,
+     "$88e2": 4,
+     "$8903": 4,
+     "$8924": 4,
+     "$8945": 4,
+     "$8966": 4,
+     "$8987": 4,
+     "$89a8": 4,
+     "$8715": 4,
+     "$8736": 4,
+     "$8757": 4,
+     "$8778": 4,
+     "$8799": 4,
+     "$87ba": 4,
+     "$87db": 4,
+     "$87fc": 4,
+     "$881d": 4,
+     "$883e": 4,
+     "$885f": 4,
+     "$8880": 4,
+     "$88a1": 4,
+     "$88c2": 4,
+     "$88e3": 4,
+     "$8904": 4,
+     "$8925": 4,
+     "$8946": 4,
+     "$8967": 4,
+     "$8988": 4,
+     "$89a9": 4,
+     "$8716": 4,
+     "$8737": 4,
+     "$8758": 4,
+     "$8779": 4,
+     "$879a": 4,
+     "$87bb": 4,
+     "$87dc": 4,
+     "$87fd": 4,
+     "$881e": 4,
+     "$883f": 4,
+     "$8860": 4,
+     "$8881": 4,
+     "$88a2": 4,
+     "$88c3": 4,
+     "$88e4": 4,
+     "$8905": 4,
+     "$8926": 4,
+     "$8947": 4,
+     "$8968": 4,
+     "$8989": 4,
+     "$89aa": 4,
+     "$8717": 4,
+     "$8738": 4,
+     "$8759": 4,
+     "$877a": 4,
+     "$879b": 4,
+     "$87bc": 4,
+     "$87dd": 4,
+     "$87fe": 4,
+     "$881f": 4,
+     "$8840": 4,
+     "$8861": 4,
+     "$8882": 4,
+     "$88a3": 4,
+     "$88c4": 4,
+     "$88e5": 4,
+     "$8906": 4,
+     "$8927": 4,
+     "$8948": 4,
+     "$8969": 4,
+     "$898a": 4,
+     "$89ab": 4,
+     "$8718": 4,
+     "$8739": 4,
+     "$875a": 4,
+     "$877b": 4,
+     "$879c": 4,
+     "$87bd": 4,
+     "$87de": 4,
+     "$87ff": 4,
+     "$8820": 4,
+     "$8841": 4,
+     "$8862": 4,
+     "$8883": 4,
+     "$88a4": 4,
+     "$88c5": 4,
+     "$88e6": 4,
+     "$8907": 4,
+     "$8928": 4,
+     "$8949": 4,
+     "$896a": 4,
+     "$898b": 4,
+     "$89ac": 4,
+     "$8719": 4,
+     "$873a": 4,
+     "$875b": 4,
+     "$877c": 4,
+     "$879d": 4,
+     "$87be": 4,
+     "$87df": 4,
+     "$8800": 4,
+     "$8821": 4,
+     "$8842": 4,
+     "$8863": 4,
+     "$8884": 4,
+     "$88a5": 4,
+     "$88c6": 4,
+     "$88e7": 4,
+     "$8908": 4,
+     "$8929": 4,
+     "$894a": 4,
+     "$896b": 4,
+     "$898c": 4,
+     "$89ad": 4,
+     "$871a": 4,
+     "$873b": 4,
+     "$875c": 4,
+     "$877d": 4,
+     "$879e": 4,
+     "$87bf": 4,
+     "$87e0": 4,
+     "$8801": 4,
+     "$8822": 4,
+     "$8843": 4,
+     "$8864": 4,
+     "$8885": 4,
+     "$88a6": 4,
+     "$88c7": 4,
+     "$88e8": 4,
+     "$8909": 4,
+     "$892a": 4,
+     "$894b": 4,
+     "$896c": 4,
+     "$898d": 4,
+     "$89ae": 4,
+     "$871b": 4,
+     "$873c": 4,
+     "$875d": 4,
+     "$877e": 4,
+     "$879f": 4,
+     "$87c0": 4,
+     "$87e1": 4,
+     "$8802": 4,
+     "$8823": 4,
+     "$8844": 4,
+     "$8865": 4,
+     "$8886": 4,
+     "$88a7": 4,
+     "$88c8": 4,
+     "$88e9": 4,
+     "$890a": 4,
+     "$892b": 4,
+     "$894c": 4,
+     "$896d": 4,
+     "$898e": 4,
+     "$89af": 4,
+     "$871c": 4,
+     "$873d": 4,
+     "$875e": 4,
+     "$877f": 4,
+     "$87a0": 4,
+     "$87c1": 4,
+     "$87e2": 4,
+     "$8803": 4,
+     "$8824": 4,
+     "$8845": 4,
+     "$8866": 4,
+     "$8887": 4,
+     "$88a8": 4,
+     "$88c9": 4,
+     "$88ea": 4,
+     "$890b": 4,
+     "$892c": 4,
+     "$894d": 4,
+     "$896e": 4,
+     "$898f": 4,
+     "$89b0": 4,
+     "$871d": 4,
+     "$873e": 4,
+     "$875f": 4,
+     "$8780": 4,
+     "$87a1": 4,
+     "$87c2": 4,
+     "$87e3": 4,
+     "$8804": 4,
+     "$8825": 4,
+     "$8846": 4,
+     "$8867": 4,
+     "$8888": 4,
+     "$88a9": 4,
+     "$88ca": 4,
+     "$88eb": 4,
+     "$890c": 4,
+     "$892d": 4,
+     "$894e": 4,
+     "$896f": 4,
+     "$8990": 4,
+     "$89b1": 4,
+     "$871e": 4,
+     "$873f": 4,
+     "$8760": 4,
+     "$8781": 4,
+     "$87a2": 4,
+     "$87c3": 4,
+     "$87e4": 4,
+     "$8805": 4,
+     "$8826": 4,
+     "$8847": 4,
+     "$8868": 4,
+     "$8889": 4,
+     "$88aa": 4,
+     "$88cb": 4,
+     "$88ec": 4,
+     "$890d": 4,
+     "$892e": 4,
+     "$894f": 4,
+     "$8970": 4,
+     "$8991": 4,
+     "$89b2": 4,
+     "$871f": 4,
+     "$8740": 4,
+     "$8761": 4,
+     "$8782": 4,
+     "$87a3": 4,
+     "$87c4": 4,
+     "$87e5": 4,
+     "$8806": 4,
+     "$8827": 4,
+     "$8848": 4,
+     "$8869": 4,
+     "$888a": 4,
+     "$88ab": 4,
+     "$88cc": 4,
+     "$88ed": 4,
+     "$890e": 4,
+     "$892f": 4,
+     "$8950": 4,
+     "$8971": 4,
+     "$8992": 4,
+     "$89b3": 4,
+     "$8720": 4,
+     "$8741": 4,
+     "$8762": 4,
+     "$8783": 4,
+     "$87a4": 4,
+     "$87c5": 4,
+     "$87e6": 4,
+     "$8807": 4,
+     "$8828": 4,
+     "$8849": 4,
+     "$886a": 4,
+     "$888b": 4,
+     "$88ac": 4,
+     "$88cd": 4,
+     "$88ee": 4,
+     "$890f": 4,
+     "$8930": 4,
+     "$8951": 4,
+     "$8972": 4,
+     "$8993": 4,
+     "$89b4": 4
+    }
+   },
+   "call": "grid.nodes_free",
+   "expect": [
+    "[$8788] == 4",
+    "[$8810] == 4",
+    "[$8898] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.touch: Gegner betritt den Knoten (4, 4): beide Segmente ohne gefuelltes Rechteck zerstoert, Knoten frei zurueck, 3 Punkte ab",
+   "setup": {
+    "mem": {
+     "$df": 4,
+     "$e0": 4,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$867a": 0,
+     "$8679": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$8788": 7,
+     "$8789": 7,
+     "$87a9": 7,
+     "$87ca": 7,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$8768": 4,
+     "$87aa": 4,
+     "$87eb": 4,
+     "$87cb": 4,
+     "$87ec": 4,
+     "$878a": 4,
+     "$878b": 4,
+     "$87c9": 4
+    }
+   },
+   "call": "enemies.touch",
+   "expect": [
+    "[$8789] == 4",
+    "[$87a9] == 4",
+    "[$87ca] == 4",
+    "[$8788] == 4",
+    "[$89] == $37",
+    "[$867a] == 2"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "enemies.touch: beide Segmente neben einem gefuellten Rechteck (B(1,1)): nichts passiert, Knoten bleibt gelb",
+   "setup": {
+    "mem": {
+     "$df": 4,
+     "$e0": 4,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$867a": 0,
+     "$8679": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$8788": 7,
+     "$8789": 7,
+     "$87a9": 7,
+     "$87ca": 7,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$8768": 4,
+     "$87aa": 4,
+     "$87eb": 4,
+     "$87cb": 4,
+     "$87ec": 4,
+     "$878a": 4,
+     "$878b": 4,
+     "$87c9": 4
+    }
+   },
+   "call": "enemies.touch",
+   "expect": [
+    "[$8789] == 7",
+    "[$87a9] == 7",
+    "[$87ca] == 7",
+    "[$8788] == 7",
+    "[$89] == $40",
+    "[$867a] == 0"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "enemies.touch: nur das senkrechte Segment ist geschuetzt (links B(1,0) gefuellt), das waagerechte (unten B(1,1) offen) wird zerstoert",
+   "setup": {
+    "mem": {
+     "$df": 4,
+     "$e0": 4,
+     "$89": [
+      64,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8511": 0,
+     "$867a": 0,
+     "$8679": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$b9": 0,
+     "$ba": 20,
+     "$ed": 0,
+     "$8788": 7,
+     "$8789": 7,
+     "$87a9": 7,
+     "$87ca": 7,
+     "$8766": 4,
+     "$8787": 4,
+     "$87a8": 4,
+     "$8767": 4,
+     "$8768": 4,
+     "$87aa": 4,
+     "$87eb": 4,
+     "$87cb": 4,
+     "$87ec": 4,
+     "$878a": 4,
+     "$878b": 4,
+     "$87c9": 4
+    }
+   },
+   "call": "enemies.touch",
+   "expect": [
+    "[$8789] == 4",
+    "[$87a9] == 7",
+    "[$87ca] == 7",
+    "[$8788] == 7",
+    "[$89] == $39",
+    "[$867a] == 1"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "grid.show: abgefahrene waagerechte Linie (3, 0) bekommt das gelbe Zeichen",
+   "setup": {
+    "mem": {
+     "$db": 3,
+     "$dc": 0,
+     "$8703": 7
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$802c] == 76"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: abgefahrene senkrechte Linie (0, 2) bekommt das gelbe Zeichen",
+   "setup": {
+    "mem": {
+     "$db": 0,
+     "$dc": 2,
+     "$8742": 7
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$8079] == 77"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: unberuehrte Linie behaelt das blaue Zeichen",
+   "setup": {
+    "mem": {
+     "$db": 5,
+     "$dc": 4,
+     "$8789": 4,
+     "$80ce": 0
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$80ce] == 65"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: Knoten (4, 4) zeigt wieder die Kreuzung",
+   "setup": {
+    "mem": {
+     "$db": 4,
+     "$dc": 4,
+     "$8788": 4,
+     "$80cd": 124
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$80cd] == 67"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.show: Innenraum bleibt unberuehrt",
+   "setup": {
+    "mem": {
+     "$db": 2,
+     "$dc": 2,
+     "$807b": 9
+    }
+   },
+   "call": "grid.show",
+   "expect": [
+    "[$807b] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Uebertrag ueber alle Stellen",
+   "setup": {
+    "a": 153,
+    "x": 0,
+    "mem": {
+     "$89": [
+      1,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$89] == 0",
+    "[$8a] == 1",
+    "[$88] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Extraleben bei 10000 Punkten",
+   "setup": {
+    "a": 80,
+    "x": 0,
+    "mem": {
+     "$89": [
+      80,
+      153,
+      9
+     ],
+     "$8c": 0,
+     "$88": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$89] == 0",
+    "[$8a] == 0",
+    "[$8b] == $10",
+    "[$88] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: 9999 + 1 = 10000: ein Extraleben",
+   "setup": {
+    "a": 1,
+    "x": 0,
+    "mem": {
+     "$89": [
+      153,
+      153,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$89] == 0",
+    "[$8a] == 0",
+    "[$8b] == 1",
+    "[$88] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: 9998 + 1 = 9999: kein Extraleben",
+   "setup": {
+    "a": 1,
+    "x": 0,
+    "mem": {
+     "$89": [
+      152,
+      153,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$89] == $99",
+    "[$8a] == $99",
+    "[$8b] == 0",
+    "[$88] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: 9999 + 1 bei 9 Leben: bleibt 9",
+   "setup": {
+    "a": 1,
+    "x": 0,
+    "mem": {
+     "$89": [
+      153,
+      153,
+      0
+     ],
+     "$8c": 0,
+     "$88": 9
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$8b] == 1",
+    "[$88] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: Leben hoechstens 9",
+   "setup": {
+    "a": 80,
+    "x": 0,
+    "mem": {
+     "$89": [
+      80,
+      153,
+      9
+     ],
+     "$8c": 0,
+     "$88": 9
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$88] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_add: 500 Punkte (X = 1)",
+   "setup": {
+    "a": 5,
+    "x": 1,
+    "mem": {
+     "$89": [
+      32,
+      1,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3
+    }
+   },
+   "call": "hud.bcd_add",
+   "expect": [
+    "[$89] == $20",
+    "[$8a] == $06"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Knoten (4, 4), Richtung runter: hoch ausgeschlossen = links, rechts, runter",
+   "setup": {
+    "mem": {
+     "$df": 4,
+     "$e0": 4,
+     "$e1": 1
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (0, 0), Richtung hoch: runter ausgeschlossen = nur rechts",
+   "setup": {
+    "mem": {
+     "$df": 0,
+     "$e0": 0,
+     "$e1": 0
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (0, 0), Richtung rechts: runter und rechts",
+   "setup": {
+    "mem": {
+     "$df": 0,
+     "$e0": 0,
+     "$e1": 3
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (32, 20), Richtung links: hoch, links (Umkehr rechts liegt ausserhalb)",
+   "setup": {
+    "mem": {
+     "$df": 32,
+     "$e0": 20,
+     "$e1": 2
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Ecke (32, 0), Richtung hoch: nur links (runter ist die Umkehr)",
+   "setup": {
+    "mem": {
+     "$df": 32,
+     "$e0": 0,
+     "$e1": 0
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "legal_mask: Randknoten (16, 0), Richtung rechts: links ausgeschlossen = runter, rechts",
+   "setup": {
+    "mem": {
+     "$df": 16,
+     "$e0": 0,
+     "$e1": 3
+    }
+   },
+   "call": "grid.legal_mask",
+   "expect": [
+    "a == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "greedy: Gegner (4, 4), Figur (12, 4): rechts",
+   "setup": {
+    "mem": {
+     "$df": 4,
+     "$e0": 4,
+     "$e2": 15,
+     "$b9": 12,
+     "$ba": 4
+    }
+   },
+   "call": "enemies.greedy",
+   "expect": [
+    "x == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "greedy: Gegner (8, 8), Figur (8, 0): hoch",
+   "setup": {
+    "mem": {
+     "$df": 8,
+     "$e0": 8,
+     "$e2": 15,
+     "$b9": 8,
+     "$ba": 0
+    }
+   },
+   "call": "enemies.greedy",
+   "expect": [
+    "x == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "greedy: nur erlaubte Richtungen (Maske links/runter), Figur rechts unten: die bessere der erlaubten",
+   "setup": {
+    "mem": {
+     "$df": 16,
+     "$e0": 8,
+     "$e2": 6,
+     "$b9": 32,
+     "$ba": 20
+    }
+   },
+   "call": "enemies.greedy",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "greedy: Gegner (16, 12), Figur (0, 12): links",
+   "setup": {
+    "mem": {
+     "$df": 16,
+     "$e0": 12,
+     "$e2": 15,
+     "$b9": 0,
+     "$ba": 12
+    }
+   },
+   "call": "enemies.greedy",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $01 -> $B8",
+   "setup": {
+    "mem": {
+     "$84": 1
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $b8",
+    "[$84] == $b8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $B8 -> $5C",
+   "setup": {
+    "mem": {
+     "$84": 184
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $5c",
+    "[$84] == $5c"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $5C -> $2E",
+   "setup": {
+    "mem": {
+     "$84": 92
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $2e",
+    "[$84] == $2e"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $80 -> $40",
+   "setup": {
+    "mem": {
+     "$84": 128
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $40",
+    "[$84] == $40"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $FF -> $C7",
+   "setup": {
+    "mem": {
+     "$84": 255
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $c7",
+    "[$84] == $c7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 1 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 1,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 2 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 2,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 4 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 4,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 8 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 8,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 6 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 6,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 9 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 9,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 15 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$e2": 15,
+     "$84": 90
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $01 -> Index 0",
+   "setup": {
+    "mem": {
+     "$87": 1
+    }
+   },
+   "call": "enemies.level_idx",
+   "expect": [
+    "y == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $05 -> Index 4",
+   "setup": {
+    "mem": {
+     "$87": 5
+    }
+   },
+   "call": "enemies.level_idx",
+   "expect": [
+    "y == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $09 -> Index 8",
+   "setup": {
+    "mem": {
+     "$87": 9
+    }
+   },
+   "call": "enemies.level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $10 -> Index 8",
+   "setup": {
+    "mem": {
+     "$87": 16
+    }
+   },
+   "call": "enemies.level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $25 -> Index 8",
+   "setup": {
+    "mem": {
+     "$87": 37
+    }
+   },
+   "call": "enemies.level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.place_all: Stufe 1 -> 1 Gegner",
+   "setup": {
+    "mem": {
+     "$87": 1
+    }
+   },
+   "call": "enemies.place_all",
+   "expect": [
+    "[$c2] == 1",
+    "[$ed] == 6",
+    "[$c3] == 32",
+    "[$c4] == 0",
+    "[$c7] == 32",
+    "[$c6] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.place_all: Stufe 2 -> 2 Gegner",
+   "setup": {
+    "mem": {
+     "$87": 2
+    }
+   },
+   "call": "enemies.place_all",
+   "expect": [
+    "[$c2] == 2",
+    "[$ed] == 12",
+    "[$c3] == 32",
+    "[$c4] == 0",
+    "[$c7] == 32",
+    "[$c6] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.place_all: Stufe 4 -> 3 Gegner",
+   "setup": {
+    "mem": {
+     "$87": 4
+    }
+   },
+   "call": "enemies.place_all",
+   "expect": [
+    "[$c2] == 3",
+    "[$ed] == 18",
+    "[$c3] == 32",
+    "[$c4] == 0",
+    "[$c7] == 32",
+    "[$c6] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.place_all: Stufe 7 -> 4 Gegner",
+   "setup": {
+    "mem": {
+     "$87": 7
+    }
+   },
+   "call": "enemies.place_all",
+   "expect": [
+    "[$c2] == 4",
+    "[$ed] == 24",
+    "[$c3] == 32",
+    "[$c4] == 0",
+    "[$c7] == 32",
+    "[$c6] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.find: Gegner auf (7, 8) gefunden, X = Abstand",
+   "setup": {
+    "x": 7,
+    "y": 8,
+    "mem": {
+     "$ed": 12,
+     "$c3": [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      7,
+      8,
+      0,
+      1,
+      7,
+      8
+     ]
+    }
+   },
+   "call": "enemies.find",
+   "expect": [
+    "fc == 1",
+    "x == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "enemies.find: keiner auf (3, 3)",
+   "setup": {
+    "x": 3,
+    "y": 3,
+    "mem": {
+     "$ed": 12,
+     "$c3": [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      7,
+      8,
+      0,
+      1,
+      7,
+      8
+     ]
+    }
+   },
+   "call": "enemies.find",
+   "expect": [
+    "fc == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: von (0, 20) hoch nach (0, 19): faerbt, 1 Punkt, Zelle vor dem Schritt gemerkt, Zeichen gelb",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$bc": 1,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ba] == 19",
+    "[$b9] == 0",
+    "[$c0] == 20",
+    "[$89] == 1",
+    "([$8973] & 15) == 7",
+    "[$bd] == 1",
+    "[$bb] == 0",
+    "[$8321] == 77"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: waagerecht rechts von (1, 20) nach (2, 20)",
+   "setup": {
+    "mem": {
+     "$b9": 1,
+     "$ba": 20,
+     "$bc": 8,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$b9] == 2",
+    "[$ba] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: auf einer waagerechten Linie ist hoch gesperrt",
+   "setup": {
+    "mem": {
+     "$b9": 1,
+     "$ba": 20,
+     "$bc": 1,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ba] == 20",
+    "[$b9] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: ausserhalb des Gitters kein Schritt (Ecke 0, 0, hoch)",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 0,
+     "$bc": 1,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ba] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: Gegner auf der Zielzelle = Treffer, Figur bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$bc": 1,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      0,
+      19,
+      0,
+      0,
+      0,
+      19
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ea] == 1",
+    "[$ba] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: Gegner auf der Zielzelle waehrend der Unverwundbarkeit: kein Treffer, Figur bleibt",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$bc": 1,
+     "$bd": 0,
+     "$be": 5,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      0,
+      19,
+      0,
+      0,
+      0,
+      19
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ea] == 0",
+    "[$ba] == 20",
+    "[$be] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "player.step: keine Richtung gehalten: stehen bleiben, Zelle vor dem Schritt = Zelle",
+   "setup": {
+    "mem": {
+     "$b9": 0,
+     "$ba": 20,
+     "$bc": 0,
+     "$bd": 0,
+     "$be": 0,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$ea": 0,
+     "$c1": 0,
+     "$8e": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$ed": 6,
+     "$c3": [
+      255,
+      255,
+      0,
+      0,
+      255,
+      255
+     ],
+     "$8973": 4,
+     "$8994": 4,
+     "$bb": 0,
+     "$8511": 0
+    }
+   },
+   "call": "player.step",
+   "expect": [
+    "[$ba] == 20",
+    "[$c0] == 20",
+    "[$89] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_box: Rechteck (0, 1): Rahmen und Muster 113",
+   "setup": {
+    "x": 0,
+    "y": 1
+   },
+   "call": "grid.fill_box",
+   "expect": [
+    "[$8056] == 93",
+    "[$8057] == 94",
+    "[$8058] == 95",
+    "[$807e] == 96",
+    "[$807f] == 113",
+    "[$8080] == 102",
+    "[$80a6] == 103",
+    "[$80a7] == 106",
+    "[$80a8] == 107",
+    "[$8748] == 5",
+    "[$8059] != 113",
+    "[$80ce] != 113"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_box: Rechteck (4, 7): Rahmen und Muster 122",
+   "setup": {
+    "x": 4,
+    "y": 7
+   },
+   "call": "grid.fill_box",
+   "expect": [
+    "[$82ee] == 93",
+    "[$82ef] == 94",
+    "[$82f0] == 95",
+    "[$8316] == 96",
+    "[$8317] == 122",
+    "[$8318] == 102",
+    "[$833e] == 103",
+    "[$833f] == 106",
+    "[$8340] == 107",
+    "[$8970] == 5",
+    "[$82f1] != 122",
+    "[$8366] != 122"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_box: Rechteck (2, 3): Rahmen und Muster 113",
+   "setup": {
+    "x": 2,
+    "y": 3
+   },
+   "call": "grid.fill_box",
+   "expect": [
+    "[$819e] == 93",
+    "[$819f] == 94",
+    "[$81a0] == 95",
+    "[$81c6] == 96",
+    "[$81c7] == 113",
+    "[$81c8] == 102",
+    "[$81ee] == 103",
+    "[$81ef] == 106",
+    "[$81f0] == 107",
+    "[$8858] == 5",
+    "[$81a1] != 113",
+    "[$8216] != 113"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_row_b: Rechteck 39, Zeile 2: Zeile gy 19, Rahmen unten",
+   "setup": {
+    "a": 39,
+    "x": 2
+   },
+   "call": "grid.fill_row_b",
+   "expect": [
+    "[$833e] == 103",
+    "[$833f] == 106",
+    "[$8340] == 107",
+    "[$8366] != 103"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "grid.fill_row_b: Rechteck 39, Zeile 1: Muster in der Mitte",
+   "setup": {
+    "a": 39,
+    "x": 1
+   },
+   "call": "grid.fill_row_b",
+   "expect": [
+    "[$8317] == 122",
+    "[$8316] == 96",
+    "[$8318] == 102"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 1 PAL -> 12 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 1,
+     "$81": 1
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 9 PAL -> 3 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 9,
+     "$81": 1
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 5 PAL -> 7 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 5,
+     "$81": 1
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 1 NTSC -> 14 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 1,
+     "$81": 0
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 9 NTSC -> 4 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 9,
+     "$81": 0
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 5 NTSC -> 8 Bilder",
+   "setup": {
+    "mem": {
+     "$86": 5,
+     "$81": 0
+    }
+   },
+   "call": "set_tempo",
+   "expect": [
+    "[$83] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: Zelle (0, 20) ruhend: HPOS 51, Zeile 200",
+   "setup": {
+    "mem": {
+     "$8509": 0,
+     "$850a": 0,
+     "$850b": 20,
+     "$850c": 20,
+     "$8506": 5
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 51",
+    "[$8671] == 200"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: von Zelle 5 nach 6 um 4 Punkte: zwei Farbtakte",
+   "setup": {
+    "mem": {
+     "$8509": 5,
+     "$850a": 6,
+     "$850b": 3,
+     "$850c": 3,
+     "$8506": 4
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 73",
+    "[$8671] == 64"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: von Zelle 6 nach 5 um 3 Punkte zurueck: ein Farbtakt",
+   "setup": {
+    "mem": {
+     "$8509": 6,
+     "$850a": 5,
+     "$850b": 3,
+     "$850c": 3,
+     "$8506": 3
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 74",
+    "[$8671] == 64"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: senkrecht: von gy 10 nach 9 um 2 Punkte",
+   "setup": {
+    "mem": {
+     "$8509": 3,
+     "$850a": 3,
+     "$850b": 10,
+     "$850c": 9,
+     "$8506": 2
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 63",
+    "[$8671] == 118"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: rechter Rand: Zelle (32, 0): HPOS 47 + 4 * 33 = 179",
+   "setup": {
+    "mem": {
+     "$8509": 32,
+     "$850a": 32,
+     "$850b": 0,
+     "$850c": 0,
+     "$8506": 0
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 179",
+    "[$8671] == 40"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sprites.place: senkrecht abwaerts von gy 0 nach 1 um 5 Punkte",
+   "setup": {
+    "mem": {
+     "$8509": 2,
+     "$850a": 2,
+     "$850b": 0,
+     "$850c": 1,
+     "$8506": 5
+    }
+   },
+   "call": "sprites.place",
+   "expect": [
+    "[$8670] == 59",
+    "[$8671] == 45"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.check: Stern aufgenommen: 50 Punkte, Gegenstand weg",
+   "setup": {
+    "mem": {
+     "$b9": 9,
+     "$ba": 8,
+     "$8511": 1,
+     "$8512": 9,
+     "$8513": 8,
+     "$851a": 50,
+     "$8500": 0,
+     "$84": 51,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8811": 4
+    }
+   },
+   "call": "items.check",
+   "expect": [
+    "[$89] == $50",
+    "[$8511] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.check: Eisblock aufgenommen: Starre 250 Bilder (PAL), Gegenstand weg",
+   "setup": {
+    "mem": {
+     "$b9": 9,
+     "$ba": 8,
+     "$8511": 2,
+     "$8512": 9,
+     "$8513": 8,
+     "$851a": 50,
+     "$8500": 0,
+     "$84": 51,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8811": 4
+    }
+   },
+   "call": "items.check",
+   "expect": [
+    "[$8518] == 250",
+    "[$8519] == 0",
+    "[$8511] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.check: Figur nicht auf dem Gegenstand: nichts passiert",
+   "setup": {
+    "mem": {
+     "$b9": 10,
+     "$ba": 8,
+     "$8511": 1,
+     "$8512": 9,
+     "$8513": 8,
+     "$851a": 50,
+     "$8500": 0,
+     "$84": 51,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 1,
+     "$8811": 4
+    }
+   },
+   "call": "items.check",
+   "expect": [
+    "[$89] == 0",
+    "[$8511] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.check: Eisblock, NTSC: Starre 300 Bilder",
+   "setup": {
+    "mem": {
+     "$b9": 9,
+     "$ba": 8,
+     "$8511": 2,
+     "$8512": 9,
+     "$8513": 8,
+     "$851a": 50,
+     "$8500": 0,
+     "$84": 51,
+     "$89": [
+      0,
+      0,
+      0
+     ],
+     "$8c": 0,
+     "$88": 3,
+     "$81": 0,
+     "$8811": 4
+    }
+   },
+   "call": "items.check",
+   "expect": [
+    "[$8518] == 44",
+    "[$8519] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.draw_on: Stern erscheint als Zeichen in seiner Zelle",
+   "setup": {
+    "mem": {
+     "$8511": 1,
+     "$8512": 6,
+     "$8513": 4
+    }
+   },
+   "call": "items.draw_on",
+   "expect": [
+    "[$80cf] == 124"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.draw_off: Zelle zeigt wieder die Linie",
+   "setup": {
+    "mem": {
+     "$8511": 2,
+     "$8512": 6,
+     "$8513": 4,
+     "$80cf": 125,
+     "$878a": 4
+    }
+   },
+   "call": "items.draw_off",
+   "expect": [
+    "[$80cf] == 65"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "switch_player: Spieler 1 -> 2: Block gesichert, geladen, STATE = levelinit",
+   "setup": {
+    "mem": {
+     "$8501": 2,
+     "$85": 0,
+     "$8504": [
+      0,
+      0
+     ],
+     "$88": 2,
+     "$87": 3,
+     "$89": [
+      1,
+      2,
+      3
+     ],
+     "$8d": 5,
+     "$8680": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$86b0": [
+      5,
+      1,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "switch_player",
+   "expect": [
+    "fc == 1",
+    "[$85] == 1",
+    "[$80] == 1",
+    "[$86] == 5",
+    "[$88] == 3",
+    "[$8682] == 2",
+    "[$8681] == 3",
+    "[$8683] == 1",
+    "[$8503] == 1"
+   ],
+   "timeoutMs": 60000
+  },
+  {
+   "name": "switch_player: anderer Spieler ohne Leben: kein Wechsel",
+   "setup": {
+    "mem": {
+     "$8501": 2,
+     "$85": 0,
+     "$8504": [
+      0,
+      0
+     ],
+     "$88": 2,
+     "$87": 3,
+     "$89": [
+      1,
+      2,
+      3
+     ],
+     "$8d": 5,
+     "$8680": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$86b0": [
+      5,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "switch_player",
+   "expect": [
+    "fc == 0",
+    "[$85] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "switch_player: ein Spieler: kein Wechsel",
+   "setup": {
+    "mem": {
+     "$8501": 1,
+     "$85": 0,
+     "$8504": [
+      0,
+      0
+     ],
+     "$88": 2,
+     "$87": 3,
+     "$89": [
+      1,
+      2,
+      3
+     ],
+     "$8d": 5,
+     "$8680": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$86b0": [
+      5,
+      1,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "switch_player",
+   "expect": [
+    "fc == 0",
+    "[$85] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 0, Spieler 1 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$8500": 0,
+     "$85": 0
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 0, Spieler 2 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$8500": 0,
+     "$85": 1
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 1, Spieler 1 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$8500": 1,
+     "$85": 0
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 1, Spieler 2 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$8500": 1,
+     "$85": 1
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 2, Spieler 1 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$8500": 2,
+     "$85": 0
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 2, Spieler 2 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$8500": 2,
+     "$85": 1
+    }
+   },
+   "call": "input.port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Spieler 1 -> 2",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8502": 0,
+     "$8501": 1,
+     "$8500": 0
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8501] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Spieler 2 -> 1 setzt zwei Joysticks zurueck",
+   "setup": {
+    "a": 255,
+    "mem": {
+     "$8502": 0,
+     "$8501": 2,
+     "$8500": 2
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8500] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick Anschluss 1 -> 2 mit einem Spieler",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8502": 1,
+     "$8501": 1,
+     "$8500": 0
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8500] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 2 -> zwei Sticks mit einem Spieler gesperrt",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8502": 1,
+     "$8501": 1,
+     "$8500": 1
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8500] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 2 -> zwei Sticks mit zwei Spielern",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8502": 1,
+     "$8501": 2,
+     "$8500": 1
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8500] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 0 nach links bleibt 0",
+   "setup": {
+    "a": 255,
+    "mem": {
+     "$8502": 1,
+     "$8501": 2,
+     "$8500": 0
+    }
+   },
+   "call": "title_change",
+   "expect": [
+    "[$8500] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.default: Kennung, erster Platz 10000 Punkte, letzter 1000",
+   "call": "hiscore.default",
+   "expect": [
+    "[$8580] == $54",
+    "[$8584] == 1",
+    "[$858a] == 1",
+    "[$8589] == 0",
+    "[$85c8] == $10",
+    "[$8585] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand ueber dem ersten Platz (10001) -> Platz 1",
+   "setup": {
+    "mem": {
+     "$8651": [
+      1,
+      0,
+      1
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand zwischen Platz 3 und 4 (7500) -> Platz 4",
+   "setup": {
+    "mem": {
+     "$8651": [
+      0,
+      117,
+      0
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand genau gleich dem letzten (1000): nicht in der Liste -> Platz keiner",
+   "setup": {
+    "mem": {
+     "$8651": [
+      0,
+      16,
+      0
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand unter dem letzten (500) -> Platz keiner",
+   "setup": {
+    "mem": {
+     "$8651": [
+      0,
+      5,
+      0
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand gleich Platz 1 (10000): dahinter -> Platz 2",
+   "setup": {
+    "mem": {
+     "$8651": [
+      0,
+      0,
+      1
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand knapp ueber dem letzten (1001) -> Platz 10",
+   "setup": {
+    "mem": {
+     "$8651": [
+      1,
+      16,
+      0
+     ],
+     "$8580": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hiscore.place",
+   "expect": [
+    "x == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.toatari: Namenszeichen A (1) -> 33, Z (26) -> 58, Leerzeichen (32) -> 0",
+   "setup": {
+    "a": 1
+   },
+   "call": "hiscore.toatari",
+   "expect": [
+    "a == 33"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.toatari: Z -> 58",
+   "setup": {
+    "a": 26
+   },
+   "call": "hiscore.toatari",
+   "expect": [
+    "a == 58"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.toatari: Leerzeichen -> 0",
+   "setup": {
+    "a": 32
+   },
+   "call": "hiscore.toatari",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: Segment-Ton startet Stimme 1 (Prioritaet 2)",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$854c] == 2",
+    "[$8548] == 1",
+    "[$855c] == $aa",
+    "[$8558] == $a0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: gleich wichtiger laufender Effekt wird nicht ersetzt",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$854c] == 2",
+    "[$8548] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: wichtigerer Effekt (Treffer, Prioritaet 5) ersetzt einen Schritt-Klick",
+   "setup": {
+    "a": 4,
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$854f] == 5",
+    "[$854e] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: Kettenreaktion belegt alle vier Stimmen",
+   "setup": {
+    "a": 3,
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$854c] == 4",
+    "[$854d] == 4",
+    "[$854e] == 4",
+    "[$854f] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: waehrend der Titelmusik keine Effekte",
+   "setup": {
+    "a": 4,
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$854e] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.music_start: alle vier Stimmen mit Prioritaet 255, Musik-Flag",
+   "setup": {
+    "mem": {
+     "$8540": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$81": 1
+    }
+   },
+   "call": "sound.music_start",
+   "expect": [
+    "[$854c] == 255",
+    "[$854d] == 255",
+    "[$854e] == 255",
+    "[$854f] == 255",
+    "[$856d] == 1"
+   ],
+   "timeoutMs": 20000
+  }
+ ]
+}

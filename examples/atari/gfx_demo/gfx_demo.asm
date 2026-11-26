@@ -9,7 +9,7 @@
 ;   über die OS-Schattenregister gesetzt (Einzelheiten und Makros: Kopf von lib/gfx.inc).
 ;
 ; VORBEREITUNG
-;   Die Exporte build/export/atitle.asm, alevel_tiles.asm (Kachelsatz) und alevel.asm (Screen-Bank) werden vor dem Übersetzen aus den Grafikdateien
+;   Die Dateien graphics/atitle.vcscreen, alevel_tiles.vctiles (Kachelsatz) und alevel.vcscreen (Screen-Bank) werden beim Einbinden aus den Grafikdateien
 ;   erzeugt (`vcc build` oder `vcc media export graphics/<name>.<endung>`, Projektordner = aktuelles Verzeichnis).  Sie liefern die Labels atitle_chars,
 ;   alevel_tiles_chars (Zielzeichensatz des Kachelsatzes = afont.vcchar, alle 128 Zeichen angepinnt), alevel_tiles_c0.. und alevel_screens_lo/_hi sowie die
 ;   Konstanten alevel_tiles_chars_len, atitle_bg/_fg und alevel_level_id/_bg/_fg/_tiles_w/_tiles_h.
@@ -47,9 +47,9 @@ done:   jmp done
 
 gfx_runtime                         ; Unterprogramme der Bibliothek (hier, damit sie nicht ausgeführt werden)
 gfx_dlist                           ; Display-Liste (aus gfx_set_display referenziert)
-.include "build/export/atitle.asm"
-.include "build/export/alevel_tiles.asm"
-.include "build/export/alevel.asm"
+.include "graphics/atitle.vcscreen"
+.include "graphics/alevel_tiles.vctiles"
+.include "graphics/alevel.vcscreen"
 
 ; Kachel-Bibliothek: Satz alevel_tiles (2x2, ohne Farbspeicher) und Screen-Bank alevel binden, dann die Unterprogramme
         tiles_use alevel_tiles_c0, 0, alevel_tiles_props, alevel_tiles_tw, alevel_tiles_th, alevel_tiles_count, alevel_screens_lo, alevel_screens_hi, alevel_level_tiles_w, alevel_level_tiles_h

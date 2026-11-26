@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Gleicht die Tastenkürzel in Handbuch und Hilfe mit der Befehlstabelle der Oberfläche ab (crates/vc-gui-ui/src/befehle.rs).
+"""Gleicht die Tastenkürzel in Handbuch und Hilfe mit der Befehlstabelle der Oberfläche ab (crates/vc-commands/src/lib.rs, bis 0.2 crates/vc-gui-ui/src/befehle.rs).
 
     python3 tools/check_kuerzel.py            Abweichungen anzeigen (Exit 1 bei Funden)
     python3 tools/check_kuerzel.py --tabelle  alle Kürzel der Befehlstabelle als Markdown-Tabelle ausgeben
@@ -14,7 +14,7 @@ Kürzel werden normalisiert: Strg = Cmd, „Cmd/Strg+“ = „Cmd+“, → = Rec
 import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-BEFEHLE = ROOT / "crates" / "vc-gui-ui" / "src" / "befehle.rs"
+BEFEHLE = ROOT / "crates" / "vc-commands" / "src" / "lib.rs"
 VOLL = [ROOT / "docs" / "handbuch" / "kapitel" / "20-kuerzel-faq.md", ROOT / "crates" / "vc-ide" / "help" / "shortcuts.md"]
 GESAMT = sorted((ROOT / "docs" / "handbuch" / "kapitel").glob("*.md")) + sorted((ROOT / "crates" / "vc-ide" / "help").glob("*.md"))
 # feste Tasten, die nicht in der Befehlstabelle stehen (Editor, Studios, Suchleiste, Tracker): dürfen im Text vorkommen
@@ -29,10 +29,21 @@ def norm(s):
     return s
 
 
+KATALOG = ROOT / "crates" / "vc-i18n" / "catalog" / "de" / "cmd.ftl"
+TABELLE_RX = r'i\(Cmd::(\w+), "([^"]+)", "([^"]*)", "([^"]*)", '
+
+
+def namen():
+    """Befehlsname je Kennung aus dem deutschen Katalog (`cmd-<id>`); Mehrzeiliges kommt in der Tabelle nicht vor."""
+    return {m.group(1): m.group(2).strip() for m in re.finditer(r"^cmd-([a-z0-9_]+) = (.*)$", KATALOG.read_text(encoding="utf-8"), re.M)}
+
+
 def tabelle():
     out = []
-    for m in re.finditer(r'i\(Cmd::(\w+), "([^"]+)", "([^"]*)", "((?:[^"\\]|\\.)*)", "([^"]*)"', BEFEHLE.read_text(encoding="utf-8")):
-        cmd, id_, menue, name, tasten = m.groups()
+    nm = namen()
+    for m in re.finditer(TABELLE_RX, BEFEHLE.read_text(encoding="utf-8")):
+        cmd, id_, menue, tasten = m.groups()
+        name = nm.get(id_, id_)
         if tasten:
             out.append((tasten, name, menue))
     return out
@@ -51,8 +62,10 @@ def menuepfade():
     for m in re.finditer(r'((?:[A-Z]\w+\s*\|?\s*)+)=> "([^"]+)",', t[t.index("pub fn untermenue"):]):
         for c in re.findall(r"[A-Z]\w+", m.group(1)): unter[c] = m.group(2)
     pfade = set()
-    for m in re.finditer(r'i\(Cmd::(\w+), "([^"]+)", "([^"]*)", "((?:[^"\\]|\\.)*)", "([^"]*)"', t):
-        cmd, _, menue, name, _ = m.groups()
+    nm = namen()
+    for m in re.finditer(TABELLE_RX, t):
+        cmd, id_, menue, _ = m.groups()
+        name = nm.get(id_, id_)
         if menue not in menues: continue
         u = unter.get(cmd, "")
         kurz = name[len(u) + 2:] if u and name.startswith(u + ": ") else name

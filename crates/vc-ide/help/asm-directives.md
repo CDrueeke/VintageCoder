@@ -11,12 +11,12 @@ label:  .direktive  argument, argument     ; Kommentar
 - Argumente trennst du mit Kommas; jedes Argument darf ein [Ausdruck](help:asm-expr) sein.
 - Eine unbekannte Direktive meldet **E208**.
 
-Zeilen der Form `;= 01 02` in den Beispielen zeigen die vom Assembler erzeugten Bytes. Alle Beispiele sind mit dem Assembler geprüft; Beispiele, die nur mit Zusatzdateien laufen, nennen die Dateien. Mit **F1** auf einer Direktive im Editor öffnet sich die Kurzbeschreibung samt Link hierher. Als Übersicht dient der [Spickzettel](help:asm-index).
+Zeilen der Form `;= 01 02` in den Beispielen zeigen die vom Assembler erzeugten Bytes. Alle Beispiele sind mit dem Assembler geprüft; Beispiele, die nur mit Zusatzdateien laufen, nennen die Dateien. Zeigst du im Editor mit der Maus auf eine Direktive, erscheint die Kurzbeschreibung. Als Übersicht dient der [Spickzettel](help:asm-index).
 
 | Gruppe | Direktiven |
 |---|---|
-| Adresse und Speicher | `.org` `*=` `.page` `.align` `.fill` `.lohifill` `.pseudopc` `.endpseudopc` `.realpc` |
-| Daten ablegen | `.byte` `.word` `.rta` `.be16` `.dword` `.hex` `.incbin` (Texte: [Texte und Zeichensätze](help:asm-text)) |
+| Adresse und Speicher | `.org` `*=` `.align` `.fill` `.lohitable` `.relocate` `.endrelocate` |
+| Daten ablegen | `.byte` `.word` `.retaddr` `.be16` `.be32` `.dword` `.hex` `.incbin` (Texte: [Texte und Zeichensätze](help:asm-text)) |
 | Konstanten und Variablen | `=` `.const` `.equ` `.var` `.set` |
 | Bedingte Übersetzung | `.if` `.elseif` `.else` `.endif` `.ifdef` `.ifndef` `.assert` `.error` `.warning` |
 | Wiederholen | `.repeat` `.for` `.next` `.break` `.continue` |
@@ -72,33 +72,19 @@ Zwei getrennte Bereiche:
 
 `.org next(1024)` springt zur nächsten durch 1024 teilbaren Adresse (siehe [next()](help:asm-expr)). Der Unterschied zu `.align`: `.org` lässt eine Lücke, `.align` füllt sie mit Bytes.
 
-### `.page` – an die nächste Seitengrenze
+### `.align` – auf ein Vielfaches ausrichten
 
 ```
-.page          ; nächste Seite (Vielfaches von 256)
-.page n        ; nächstes Vielfaches von n, z. B. .page 1024
+.align n               ; mit Nullbytes auffüllen
+.align n, füllbyte     ; mit einem Füllbyte auffüllen, z. B. .align 4, $ea
+.align n, skip         ; ohne Füllbytes springen, neues Segment
 ```
 
-Eine **Seite** (Page) sind 256 Bytes, also die Adressen `$xx00`–`$xxFF`. Der 6502 ist an Seitengrenzen empfindlich: ein Sprung oder ein indizierter Zugriff über die Grenze kostet einen Zyklus mehr. Tabellen und Schleifen, die das nicht dürfen, legst du deshalb auf den Seitenanfang.
+Alle drei Formen bringen den Programmzähler auf das nächste Vielfache von `n`. Ist die Adresse schon passend, bleibt sie.
 
-`.page` beginnt ein neues Segment an der nächsten Grenze, **ohne Füllbytes zu erzeugen** (wie `.org next(256)`). Ist die Adresse schon passend, bleibt sie.
+Eine **Seite** (Page) sind 256 Bytes, also die Adressen `$xx00`–`$xxFF`. Der 6502 ist an Seitengrenzen empfindlich: ein Sprung oder ein indizierter Zugriff über die Grenze kostet einen Zyklus mehr. Tabellen und Schleifen, die das nicht dürfen, legst du deshalb auf den Seitenanfang: `.align 256, skip`.
 
-```asm
-*= $c001
-        nop
-        .page
-tab:    .byte 7
-        .word tab
-;=* ea
-```
-
-### `.align` – mit Nullbytes auffüllen
-
-```
-.align n
-```
-
-Füllt mit **Nullbytes** auf das nächste Vielfache von `n` auf. Das Ziel ist wie bei `.page`, nur für beliebiges `n` und mit Füllbytes im selben Segment – nützlich, wenn der Bereich zusammenhängend im Modul-Abbild stehen muss.
+**`.align n`** füllt mit **Nullbytes** auf. Die Füllbytes liegen im selben Segment – nützlich, wenn der Bereich zusammenhängend im Modul-Abbild stehen muss.
 
 ```asm
 *= $c001
@@ -107,6 +93,29 @@ Füllt mit **Nullbytes** auf das nächste Vielfache von `n` auf. Das Ziel ist wi
         .byte 9
 ;= ea 00 00 09
 ```
+
+**`.align n, füllbyte`** füllt mit dem angegebenen Byte (ein Ausdruck von −128 bis 255, sonst **E203**). Mit `$ea` polsterst du mit `nop`:
+
+```asm
+*= $c001
+        rts
+        .align 4, $ea
+        .byte 9
+;= 60 ea ea 09
+```
+
+**`.align n, skip`** beginnt ein neues Segment an der nächsten Grenze, **ohne Füllbytes zu erzeugen** (wie `.org next(n)`). `n` muss mindestens 1 sein (sonst **E203**).
+
+```asm
+*= $c001
+        nop
+        .align 256, skip
+tab:    .byte 7
+        .word tab
+;=* ea
+```
+
+`skip` ist nur an dieser Stelle ein Schlüsselwort. Früher hieß diese Form `.page` (`.page` = `.align 256, skip`, `.page n` = `.align n, skip`); der alte Name gilt weiter.
 
 ### `.fill` – Bytes füllen und Tabellen erzeugen
 
@@ -127,16 +136,16 @@ Legt `anzahl` Bytes ab (0 bis 65536). Im `ausdruck` steht die **Laufvariable** (
 
 Praktisch für Platzhalter (`puffer: .fill 256`) und kleine Tabellen. Für Kurven nimm `.repeat` oder `.for` mit Kommazahlen (siehe [Ausdrücke](help:asm-expr)).
 
-### `.lohifill` – Adresstabellen für den 6502
+### `.lohitable` – Adresstabellen für den 6502
 
 ```
-.lohifill anzahl, ausdruck [, laufvariable]
+.lohitable anzahl, ausdruck [, laufvariable]
 ```
 
 Legt eine Tabelle von 16-Bit-Werten so ab, wie der 6502 sie am bequemsten liest: **erst alle Low-Bytes, dann alle High-Bytes**. Der Zugriff ist dann `lda tab,x` und `lda tab+anzahl,x`. Werte außerhalb von 16 Bit melden **E203**.
 
 ```asm
-zeilen:  .lohifill 25, $0400 + 40 * i    ; Startadressen der 25 Bildschirmzeilen
+zeilen:  .lohitable 25, $0400 + 40 * i    ; Startadressen der 25 Bildschirmzeilen
 ;=* 00 28 50 78
         lda zeilen,x                     ; Low-Byte der Zeile x
         sta $fb
@@ -144,20 +153,20 @@ zeilen:  .lohifill 25, $0400 + 40 * i    ; Startadressen der 25 Bildschirmzeilen
         sta $fc
 ```
 
-### `.pseudopc`, `.endpseudopc`, `.realpc` – Code für eine andere Adresse
+### `.relocate` / `.endrelocate` – Code für eine andere Adresse
 
 Der **Pseudo-PC** ist ein „falscher“ Programmzähler: Der Assembler legt die Bytes dort ab, wo sie in der Datei stehen, rechnet aber alle Adressen und Labels so, als lägen sie woanders. Das braucht man, wenn Code zur Laufzeit an eine andere Stelle **kopiert** wird – etwa eine Routine aus einem Steckmodul (ROM) ins RAM, ein Programm in die Zeropage oder ein Overlay.
 
 ```
-.pseudopc adresse
+.relocate adresse
 ...
-.endpseudopc          ; auch  .realpc
+.endrelocate
 ```
 
 - Zwischen den beiden Direktiven gelten Labels und `*` mit der **Laufzeitadresse** `adresse`.
-- Die Bytes werden trotzdem an der **echten** Stelle abgelegt; hinter `.endpseudopc` (oder `.realpc`) geht es dort weiter.
-- Ein Label **vor** `.pseudopc` (auch in derselben Zeile) hat die echte Adresse.
-- Vor `.org` ist es ein Fehler (**E300**). Verschachtelte Pseudo-PC-Abschnitte gibt es nicht: `.endpseudopc` kehrt immer zur echten Adresse zurück.
+- Die Bytes werden trotzdem an der **echten** Stelle abgelegt; hinter `.endrelocate` geht es dort weiter.
+- Ein Label **vor** `.relocate` (auch in derselben Zeile) hat die echte Adresse.
+- Vor `.org` ist es ein Fehler (**E300**). Verschachtelte Pseudo-PC-Abschnitte gibt es nicht: `.endrelocate` kehrt immer zur echten Adresse zurück.
 
 ```asm
 start:  ldx #0
@@ -168,10 +177,10 @@ copy:   lda image,x          ; image = echte Adresse im Programm
         bne copy
         jmp $0200
 image:
-        .pseudopc $0200
+        .relocate $0200
 lauf:   inc $d020
         jmp lauf             ; lauf = $0200, nicht die echte Adresse
-        .endpseudopc
+        .endrelocate
 image_end:
 ;=* a2 00 bd 10 c0
 ```
@@ -186,7 +195,7 @@ Das Beispiel kopiert die Routine ab `image` nach `$0200` und springt hin. Die L�
 .byte wert, wert, "text", …
 ```
 
-Jedes Argument ist ein Ausdruck (−128 bis 255, sonst **E203**) oder eine Zeichenkette in Anführungszeichen. Eine Zeichenkette ergibt die Zeichen **unverändert als ASCII**, bei `ä`, `ß` & Co. als UTF-8-Bytes. Für C64-Bildschirm oder PETSCII nimm [.petscii, .screen oder .text mit .encoding](help:asm-text). Eine Liste liefert alle ihre Elemente.
+Jedes Argument ist ein Ausdruck (−128 bis 255, sonst **E203**) oder eine Zeichenkette in Anführungszeichen. Eine Zeichenkette ergibt die Zeichen **unverändert als ASCII**, bei `ä`, `ß` & Co. als UTF-8-Bytes. Für C64-Bildschirm oder PETSCII nimm [.petscii, .screencode oder .text mit .encoding](help:asm-text). Eine Liste liefert alle ihre Elemente.
 
 ```asm
 .byte 1, $ff, -1, "AB", 'C', 2 + 3
@@ -208,17 +217,17 @@ start:  .word start, $1234, -1
 ;= 00 c0 34 12 ff ff
 ```
 
-### `.rta` – Adresse minus eins (für `rts`-Sprünge)
+### `.retaddr` – Adresse minus eins (für `rts`-Sprünge)
 
 ```
-.rta ziel, ziel, …
+.retaddr ziel, ziel, …
 ```
 
-Legt ein Wort mit `ziel − 1` ab. Der 6502-Befehl `rts` springt zu der Adresse, die oben auf dem Stack liegt, **plus eins**. Legst du eine Adresse minus eins auf den Stack (Low und High per `pha`) und führst `rts` aus, springt der Prozessor dorthin – das ist die klassische Sprungtabelle. `.rta` erledigt das „minus eins“.
+Legt ein Wort mit `ziel − 1` ab. Der 6502-Befehl `rts` springt zu der Adresse, die oben auf dem Stack liegt, **plus eins**. Legst du eine Adresse minus eins auf den Stack (Low und High per `pha`) und führst `rts` aus, springt der Prozessor dorthin – das ist die klassische Sprungtabelle. `.retaddr` erledigt das „minus eins“.
 
 ```asm
 *= $c000
-tabelle: .rta eins, zwei
+tabelle: .retaddr eins, zwei
 eins:   nop
 zwei:   nop
 ;= 03 c0 04 c0 ea ea
@@ -226,7 +235,7 @@ zwei:   nop
 
 `eins` liegt bei `$c004`, im Wort steht deshalb `$c003` (Bytes `03 c0`); `zwei` liegt bei `$c005`, im Wort steht `$c004`.
 
-### `.be16` / `.dbyt` – 16 Bit, High-Byte zuerst
+### `.be16` / `.be32` – 16 und 32 Bit, High-Byte zuerst
 
 Wie `.word`, aber in der Reihenfolge „big endian“, wie sie manche Dateiformate und Hardware (z. B. der Atari-SIO-Bus oder Netzwerkdaten) erwarten.
 
@@ -235,9 +244,16 @@ Wie `.word`, aber in der Reihenfolge „big endian“, wie sie manche Dateiforma
 ;= 12 34
 ```
 
-### `.dword` / `.long` – 32 Bit
+`.be32` legt vier Bytes ab, ebenfalls High-Byte zuerst (Wertebereich −2147483648 bis 4294967295, sonst **E203**) – für Tabellen und Dateiformate in Big-Endian-Reihenfolge.
 
-Vier Bytes, Low-Byte zuerst. Wertebereich −2147483648 bis 4294967295 (sonst **E203**). `.long` ist hier ein Synonym und **auch 32 Bit** breit (in manchen anderen Assemblern ist `.long` 24 Bit).
+```asm
+.be32 $12345678
+;= 12 34 56 78
+```
+
+### `.dword` – 32 Bit
+
+Vier Bytes, Low-Byte zuerst. Wertebereich −2147483648 bis 4294967295 (sonst **E203**). Der alte Name `.long` gilt weiter, **legt aber vier Byte ab** (in manchen anderen Assemblern ist `.long` 24 Bit breit); schreibe deshalb besser `.dword`.
 
 ```asm
 .dword $12345678
@@ -267,7 +283,7 @@ Fügt den Inhalt einer Datei unverändert ein. `offset` überspringt Bytes am An
 
 - Datei nicht gefunden: **E212**. Bereich größer als die Datei: **E203**.
 - Eine `.prg`-Datei beginnt mit der **Ladeadresse** (2 Bytes). Willst du nur die Daten, schreibe `.incbin "bild.prg", 2`.
-- Sprites, Zeichensätze, Bildschirme und Songs aus dem Projekt exportiert der Build nach `build/export/` – als `.asm` zum Einbinden mit `.include`, nicht als Binärdatei.
+- Sprites, Zeichensätze, Bildschirme und Songs aus dem Projekt bindest du mit ihrer Datei ein (`.include "graphics/hero.vcsprite"`); der Assembler wandelt sie dabei in Assembler-Text um, nicht in eine Binärdatei (siehe unten: Mediendateien einbinden). Mit `as name` liegen die Marken in einem eigenen Namensraum.
 
 Beispiel mit einer Datei `daten.bin` (16 Bytes: 00 01 … 0f):
 
@@ -484,30 +500,30 @@ lbl:    dex
 
 `.break` und `.continue` gelten auch in `.repeat`.
 
-### `.for` / `.next` – Schleife mit Zähler oder Liste
+### `.for` / `.endfor` – Schleife mit Zähler oder Liste
 
-Es gibt drei Schreibweisen:
+Das Ende heißt `.endfor`; der alte Name `.next` gilt ebenso (auch gemischt). Es gibt drei Schreibweisen:
 
 ```
 .for i = 0, i < 10, i += 3          ; Anfang, Bedingung, Schritt
 .for i in range(3)                  ; Zahlen 0, 1, 2  (auch range(a, b) und range(a, b, schritt))
 .for c in [2, 5, 7]                 ; Elemente einer Liste
     …
-.next
+.endfor
 ```
 
 ```asm
 .for i = 0, i < 10, i += 3
         .byte i                     ; 0, 3, 6, 9
-.next
+.endfor
 ;= 00 03 06 09
 .for i in range(3)
         .byte i
-.next
+.endfor
 ;= 00 01 02
 .for c in [2, 5, 7]
         .byte c * 2
-.next
+.endfor
 ;= 04 0a 0e
 ```
 
@@ -524,7 +540,7 @@ Es gibt drei Schreibweisen:
         .break                      ; bei 5 aufhören
         .endif
         .byte i
-.next
+.endfor
 ;= 00 01 03 04
 ```
 
@@ -592,6 +608,24 @@ spiele: lda #SPEED
 - Ein ungültiger Name hinter `as` meldet **E208**.
 - **Makros** bleiben auch bei `as name` global: ein Makro aus der Datei rufst du weiter einfach mit `makroname` auf.
 - Steht `.include` in einem `.if`-Zweig, der nicht gilt, wird auch die Datei nicht übersetzt.
+
+### Mediendateien einbinden
+
+Eine Mediendatei aus den Editoren (Endung `.vcsprite`, `.vcpmg`, `.vcchar`, `.vcscreen`, `.vctiles`, `.vcpal`, `.vcsong` oder `.vcplay`) bindest du mit ihrem Namen ein, genau wie eine Quelldatei:
+
+```
+.org $2000
+.include "graphics/hero.vcsprite"
+```
+
+Du musst nichts exportieren. Beim Bauen wandelt der Assembler das Medium selbst in Assembler-Text um (Daten, Marken und Konstanten wie `hero_sprite`; bei Sprites mit Animationen stehen die Tabellen im selben Text) und setzt ihn an die Stelle der Zeile. `#include` und `as name` funktionieren ebenso. Mit `.org` davor legst du fest, wohin die Daten kommen (zum Beispiel ein Vielfaches von 64 für ein C64-Sprite).
+
+- Das Ergebnis liegt zur Beschleunigung im Zwischenspeicher `build/.media-cache/`; dort steht auch eine lesbare Kopie `<name>.asm`. Der Ordner darf jederzeit gelöscht werden.
+- Gehört das Medium zu einem anderen Zielsystem als dem des Baus, ist die Datei kein Medium oder lässt sich nicht umwandeln, meldet der Assembler **E219** mit dem Grund. Fehlt die Datei, meldet er **E212**.
+- Der **alte Weg** über `build/export/hero.asm` (und `hero.anim.asm`) funktioniert noch, warnt aber mit **W208** und nennt die Mediendatei, die du stattdessen einbinden sollst. Eine Zeile mit `hero.anim.asm` hinter dem Include entfällt: Die Mediendatei liefert Daten und Tabellen zusammen. `vcc migrate includes` stellt alte Projekte um (ohne `--apply` zeigt es nur, was sich ändern würde).
+- Im Export-Dialog (Cmd/Strg+Umschalt+E) fügt **Als Include einfügen** die Zeile in den geöffneten Quelltext ein (siehe [Export](help:export)).
+
+*[Bild folgt in E13: include-eingefuegt]*
 
 ## Programm starten
 
@@ -668,7 +702,7 @@ start:  rts
 warning[W204]: .basicstub steht bei $0801, die BASIC-Startadresse des Zielsystems ist $1C01 (BASIC findet die Zeile dort nicht)
 ```
 
-Keine Warnung gibt es, wenn `.cartridge` davor steht (ein Modul startet nicht über BASIC) oder der Stub in einem `.pseudopc`-Abschnitt liegt. Der Stub muss am Anfang des Programms stehen: Wurden davor schon Bytes ausgegeben, meldet der Assembler **E218**.
+Keine Warnung gibt es, wenn `.cartridge` davor steht (ein Modul startet nicht über BASIC) oder der Stub in einem `.relocate`-Abschnitt liegt. Der Stub muss am Anfang des Programms stehen: Wurden davor schon Bytes ausgegeben, meldet der Assembler **E218**.
 
 ```asm fehler roh
 .org $0801
@@ -679,6 +713,19 @@ start:  rts
 
 ```text
 error[E218]: .basicstub muss am Anfang des Programms stehen (davor wurden schon Bytes ausgegeben)
+```
+
+**Ziel ohne BASIC-Zeile:** Auf dem Atari gibt es keine BASIC-Zeile mit `SYS`. Ein `.basicstub` legt dort trotzdem eine Zeile in die Datei, die niemand ausführt; der Assembler meldet **W205**, die Ausgabe bleibt unverändert. Für den Start nimm `.run label`.
+
+```asm warnung roh target=atari8
+.org $2000
+.basicstub start
+start:  rts
+.run start
+```
+
+```text
+warning[W205]: .basicstub hat auf diesem Ziel keine Wirkung (kein BASIC mit SYS); für den Start .run label verwenden
 ```
 
 Wann nehme ich was?
@@ -693,12 +740,22 @@ Wann nehme ich was?
 .run adresse
 ```
 
-Merkt sich die Startadresse des Programms. Der Assembler schreibt sie beim Atari-XEX als eigenes Segment nach `$02E0` (RUNAD: dorthin springt der Atari nach dem Laden), beim Atari-Modul in die Startvektoren bei `$BFFA`. Beim C64 hat `.run` keine Wirkung – nimm dort `.basicstub`.
+Merkt sich die Startadresse des Programms. Der Assembler schreibt sie beim Atari-XEX als eigenes Segment nach `$02E0` (RUNAD: dorthin springt der Atari nach dem Laden), beim Atari-Modul in die Startvektoren bei `$BFFA`. Beim C64 hat `.run` keine Wirkung – nimm dort `.basicstub`; der Assembler weist mit **W206** darauf hin (siehe unten).
 
 ```asm fmt=xex target=atari8
 *= $2000
 start:  jmp start
 .run start
+```
+
+Die Hinweise zum Ziel sind Warnungen, die Ausgabe bleibt wie sie war:
+
+- **W206** – `.run` steht auf einem Ziel ohne Startvektor (zum Beispiel C64, MEGA65, Plus/4): die Zeile wirkt nicht; verwende `.basicstub label`. Bei einem Modul (`.cartridge`) gibt es keine Meldung, ein Modul startet über seine eigenen Vektoren.
+- **W207** – ein Atari-Programm enthält Befehle, aber kein `.run`: die XEX-Datei hat keinen Startvektor und startet nicht von selbst; ergänze `.run label`. Keine Meldung gibt es bei Modulen und bei reinen Datendateien ohne Befehle.
+
+```text
+warning[W206]: .run hat auf diesem Ziel keine Wirkung (PRG hat keinen Startvektor); für den Start .basicstub label verwenden
+warning[W207]: Kein Startvektor festgelegt; mit .run label ergänzen
 ```
 
 ## Zyklen zählen: `.cycles`
@@ -850,5 +907,24 @@ Nur die Angabe `illegals = deny | warn | allow` wirkt (Behandlung **undokumentie
 ```text
 error[E201]: undokumentierter Opcode LAX (illegals=deny)
 ```
+
+## Alte Namen
+
+Frühere Schreibweisen bleiben **gleichwertig und stumm**: sie liefern dieselben Bytes und dieselben Meldungen, der Assembler warnt nicht davor. Im Editor bietet ein Quick-Fix an, sie durch den neuen Namen zu ersetzen. Neue Namen brauchen eine Version ab 0.3.0; ältere Versionen melden bei ihnen **E208**.
+
+| Neuer Name | Alter Name (gleichwertig) |
+|---|---|
+| `.relocate` … `.endrelocate` | `.pseudopc` … `.endpseudopc` oder `.realpc` |
+| `.retaddr` | `.rta` |
+| `.lohitable` | `.lohifill` |
+| `.screencode` | `.screen` |
+| `.textnull`, `.textlen`, `.textshift` | `.null`, `.ptext`, `.shift` |
+| `.align n, skip` | `.page` (= `.align 256, skip`), `.page n` |
+| `.endfor` | `.next` |
+| `.be16` | `.dbyt` |
+| `.dword` | `.long` (**vier** Byte; in anderen Assemblern oft 3 Byte) |
+| `.byte`, `.word`, `.const` | `.db`, `.dw` und `.addr`, `.equ` |
+
+Direktivennamen werden nie übersetzt; sie sind in jeder Sprache gleich.
 
 Weiter mit: [Makros, Scopes und Strukturen](help:asm-macros), [Texte und Zeichensätze](help:asm-text), [Spickzettel](help:asm-index).

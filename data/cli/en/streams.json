@@ -1,0 +1,506 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "8ce84c5116f7" },
+  "command": "streams",
+  "group": "testen",
+  "summary": "Receive the video, audio and debug streams of an Ultimate 64",
+  "description": [
+    "Works with the data streams of an Ultimate 64 on the network. The subcommands start the streams, analyze them and stop them again. They change neither the configuration of the device nor the flash."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "shot",
+      "usage": "vcc streams shot --host <host> --out <file.png> [optionen]",
+      "summary": "Save an image of the Ultimate as PNG",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Device"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Address of the Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--out",
+          "short": "",
+          "value": "file.png",
+          "group": "ausgabe",
+          "help": "Target file of the image.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Network password. Otherwise the password of the machine with the same address from the settings.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Receives the streams via multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Save an image",
+          "cmd": "vcc streams shot --host 192.168.1.64 --out image.png"
+        }
+      ],
+      "notes": [
+        "Waits at most 5 seconds for a complete image."
+      ],
+      "exit": {
+        "0": "image saved",
+        "1": "no image received, or error",
+        "2": "unknown option"
+      },
+      "see_also": []
+    },
+    {
+      "id": "listen",
+      "usage": "vcc streams listen --host <host> <song.vcsong> [optionen]",
+      "summary": "Listen to a song on the real SID of the Ultimate",
+      "args": [
+        {
+          "name": "song.vcsong",
+          "required": true,
+          "repeat": false,
+          "help": "Song that is loaded as a player program."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Device"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        },
+        {
+          "id": "abspiel",
+          "label": "Playback"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Address of the Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Network password. Otherwise the password of the machine with the same address from the settings.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Receives the streams via multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "seconds",
+          "group": "abspiel",
+          "help": "Playback duration in seconds. Values outside 2 to 120 are limited to that range.",
+          "default": "6",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--wav",
+          "short": "",
+          "value": "file.wav",
+          "group": "ausgabe",
+          "help": "Writes the received audio as a WAV file (source rate).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--ntsc",
+          "short": "",
+          "value": "",
+          "group": "abspiel",
+          "help": "Builds the player program and calculates the rate for NTSC instead of PAL.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--keep",
+          "short": "",
+          "value": "",
+          "group": "abspiel",
+          "help": "Lets the Ultimate keep running after listening, instead of resetting it.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Listen for six seconds and save as WAV",
+          "cmd": "vcc streams listen --host 192.168.1.64 song.vcsong --wav song.wav"
+        }
+      ],
+      "notes": [
+        "Loads the player program onto the Ultimate and resets it. Its running state is lost.",
+        "At the end, prints packets, losses and buffer statistics."
+      ],
+      "exit": {
+        "0": "audio received",
+        "1": "error, or no packets received",
+        "2": "unknown option"
+      },
+      "see_also": []
+    },
+    {
+      "id": "probe",
+      "usage": "vcc streams probe --host <host> [optionen]",
+      "summary": "Start the streams, count packets, and print rate and losses",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Device"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Address of the Ultimate 64.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Network password. Otherwise the password of the machine with the same address from the settings.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Receives the streams via multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--video",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Checks the video stream. Without --video, --audio and --debug, video and audio are checked.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--audio",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Checks the audio stream.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Checks the debug stream. It never runs at the same time as the video stream.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "seconds",
+          "group": "ausgabe",
+          "help": "Measurement duration in seconds. Values outside 2 to 60 are limited to that range.",
+          "default": "5",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--record",
+          "short": "",
+          "value": "folder",
+          "group": "ausgabe",
+          "help": "Writes the received packets of each stream to a .bin file in this folder.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--count",
+          "short": "",
+          "value": "count",
+          "group": "ausgabe",
+          "help": "Maximum number of packets per stream with --record.",
+          "default": "400",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Check video and audio for five seconds",
+          "cmd": "vcc streams probe --host 192.168.1.64"
+        },
+        {
+          "title": "Check the debug stream",
+          "cmd": "vcc streams probe --host 192.168.1.64 --debug --secs 10"
+        }
+      ],
+      "notes": [
+        "--video together with --debug is an error.",
+        "For each stream, the output shows the state, packets (per second, Mbit/s), missing and dropped packets, and restarts."
+      ],
+      "exit": {
+        "0": "streams ran without errors",
+        "1": "error in a stream, with --host, or in the recording",
+        "2": "unknown option or subcommand"
+      },
+      "see_also": []
+    },
+    {
+      "id": "trace",
+      "usage": "vcc streams trace --host <host> [optionen]",
+      "summary": "Analyze and summarize the debug stream (6510 Only)",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Device"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        },
+        {
+          "id": "auswertung",
+          "label": "Analysis"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--host",
+          "short": "",
+          "value": "host",
+          "group": "ziel",
+          "help": "Address of the Ultimate 64. The debug stream mode on the device must be 6510 Only.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "ziel",
+          "help": "Network password. Otherwise the password of the machine with the same address from the settings.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--multicast",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Receives the streams via multicast.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--secs",
+          "short": "",
+          "value": "seconds",
+          "group": "ausgabe",
+          "help": "Recording duration in seconds. Values outside 1 to 300 are limited to that range.",
+          "default": "5",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--debug",
+          "short": "",
+          "value": "file.vcdbg",
+          "group": "auswertung",
+          "help": "Debug file of the program. It maps instructions to source lines, lists lines that were not reached, and makes symbols usable in --measure.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--measure",
+          "short": "",
+          "value": "A:B",
+          "group": "auswertung",
+          "help": "Measures the cycles from address A to address B. Write addresses as $1234, 0x1234, a decimal number, or a symbol from the .vcdbg.",
+          "default": "",
+          "default_text": "",
+          "repeat": true,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "auswertung",
+          "help": "CPU description for the instruction table. The 45GS02 is not analyzed.",
+          "default": "6510",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--out",
+          "short": "",
+          "value": "file",
+          "group": "ausgabe",
+          "help": "Writes all recorded instructions to this file.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--tail",
+          "short": "",
+          "value": "count",
+          "group": "ausgabe",
+          "help": "Number of the most recently executed instructions in the output.",
+          "default": "10",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "auswertung",
+          "help": "Folder of the hardware database.",
+          "default": "",
+          "default_text": "VC_DATA, otherwise next to the program or in the working folder",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Record for five seconds",
+          "cmd": "vcc streams trace --host 192.168.1.64"
+        },
+        {
+          "title": "Measure the cycles between two addresses",
+          "cmd": "vcc streams trace --host 192.168.1.64 --measure $0810:$0820 --secs 3"
+        },
+        {
+          "title": "With source lines and instruction log",
+          "cmd": "vcc streams trace --host 192.168.1.64 --debug build/prog.vcdbg --out trace.txt"
+        }
+      ],
+      "notes": [
+        "Pauses the video stream while the debug stream runs.",
+        "The output shows cycles, events (IRQ, NMI), instruction decoding, packet losses, coverage, SID/VIC writes, and the last instructions."
+      ],
+      "exit": {
+        "0": "analysis printed",
+        "1": "error in the stream, unsupported mode, file not readable or writable, invalid address",
+        "2": "unknown option"
+      },
+      "see_also": [
+        "test"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+ "source": "chips/vdc.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Adress-/Statusregister (Bit 7 = bereit)",
+   "en": "Address/status register (bit 7 = ready)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Datenregister (Register wie in $D600 gewählt)",
+   "en": "Data register (register selected as in $D600)",
+   "status": "maschinell"
+  }
+ }
+}

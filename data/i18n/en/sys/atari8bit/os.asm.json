@@ -1,0 +1,740 @@
+{
+ "source": "sys/atari8bit/os.asm",
+ "entries": {
+  "/L4": {
+   "de": "PIA ($D300)",
+   "en": "PIA ($D300)",
+   "status": "unverändert"
+  },
+  "/L5": {
+   "de": "Port A (Joysticks 1/2)",
+   "en": "Port A (joysticks 1/2)",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Port B (XL/XE: Speicherbelegung)",
+   "en": "Port B (XL/XE: memory configuration)",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Steuerung Port A",
+   "en": "Port A control",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Steuerung Port B",
+   "en": "Port B control",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Zeropage",
+   "en": "Zero page",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Warmstart-Flag",
+   "en": "Warm start flag",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Boot-Status",
+   "en": "Boot status",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "DOS-Startvektor",
+   "en": "DOS start vector",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "DOS-Initialisierungsvektor",
+   "en": "DOS initialization vector",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Obere Grenze des Anwenderspeichers",
+   "en": "Upper limit of user memory",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "IRQEN-Schatten",
+   "en": "IRQEN shadow",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "BREAK-Flag",
+   "en": "BREAK flag",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "Echtzeituhr (3 Byte, 1/50 bzw. 1/60 s)",
+   "en": "Real-time clock (3 bytes, 1/50 or 1/60 s)",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Ton bei Ein-/Ausgabe",
+   "en": "Sound during input/output",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Kritischer Abschnitt",
+   "en": "Critical section",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Bildschirmschoner-Zähler",
+   "en": "Screen saver counter",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Abdunklungsmaske",
+   "en": "Darkening mask",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Farbverschiebung",
+   "en": "Color shift",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Linker Rand",
+   "en": "Left margin",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Rechter Rand",
+   "en": "Right margin",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Cursor-Zeile",
+   "en": "Cursor row",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Cursor-Spalte (2 Byte)",
+   "en": "Cursor column (2 bytes)",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Aktueller Grafikmodus",
+   "en": "Current graphics mode",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Zeiger auf Bildschirmspeicher",
+   "en": "Pointer to screen memory",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "RAM-Obergrenze (Seiten)",
+   "en": "RAM top (pages)",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Interrupt-Vektoren und Schatten",
+   "en": "Interrupt vectors and shadows",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "DLI-Vektor",
+   "en": "DLI vector",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Serial-Proceed-Vektor",
+   "en": "Serial proceed vector",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Serial-Interrupt-Vektor",
+   "en": "Serial interrupt vector",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "BRK-Vektor",
+   "en": "BRK vector",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Tastatur-IRQ-Vektor",
+   "en": "Keyboard IRQ vector",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Serial-Eingabe bereit",
+   "en": "Serial input ready",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "Serial-Ausgabe bereit",
+   "en": "Serial output ready",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Serial-Ausgabe fertig",
+   "en": "Serial output complete",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "POKEY-Timer 1",
+   "en": "POKEY timer 1",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "POKEY-Timer 2",
+   "en": "POKEY timer 2",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "POKEY-Timer 4",
+   "en": "POKEY timer 4",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "IRQ-Vektor",
+   "en": "IRQ vector",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Systemzeitgeber 1",
+   "en": "System timer 1",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "Systemzeitgeber 2",
+   "en": "System timer 2",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "Systemzeitgeber 3",
+   "en": "System timer 3",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "Systemzeitgeber 4",
+   "en": "System timer 4",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "Systemzeitgeber 5",
+   "en": "System timer 5",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "Immediate-VBI-Vektor",
+   "en": "Immediate VBI vector",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "Deferred-VBI-Vektor",
+   "en": "Deferred VBI vector",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "DMACTL-Schatten",
+   "en": "DMACTL shadow",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Display-List-Schatten (niedrig)",
+   "en": "Display list shadow (low)",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Display-List-Schatten (hoch)",
+   "en": "Display list shadow (high)",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "SKCTL-Schatten",
+   "en": "SKCTL shadow",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "BREAK-Vektor",
+   "en": "BREAK vector",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "PRIOR-Schatten",
+   "en": "PRIOR shadow",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Paddle 0-7 (8 Byte)",
+   "en": "Paddles 0-7 (8 bytes)",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "Joystick 0-3 (4 Byte)",
+   "en": "Joysticks 0-3 (4 bytes)",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "Paddle-Knöpfe 0-7 (8 Byte)",
+   "en": "Paddle buttons 0-7 (8 bytes)",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "Joystick-Knöpfe 0-3 (4 Byte)",
+   "en": "Joystick buttons 0-3 (4 bytes)",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "COLPM0-Schatten",
+   "en": "COLPM0 shadow",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "COLPM1-Schatten",
+   "en": "COLPM1 shadow",
+   "status": "maschinell"
+  },
+  "/L64": {
+   "de": "COLPM2-Schatten",
+   "en": "COLPM2 shadow",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "COLPM3-Schatten",
+   "en": "COLPM3 shadow",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "COLPF0-Schatten",
+   "en": "COLPF0 shadow",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "COLPF1-Schatten",
+   "en": "COLPF1 shadow",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "COLPF2-Schatten",
+   "en": "COLPF2 shadow",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "COLPF3-Schatten",
+   "en": "COLPF3 shadow",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "COLBK-Schatten",
+   "en": "COLBK shadow",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "Obergrenze des freien Speichers",
+   "en": "Upper limit of free memory",
+   "status": "maschinell"
+  },
+  "/L72": {
+   "de": "Untergrenze des freien Speichers",
+   "en": "Lower limit of free memory",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "CHACTL-Schatten",
+   "en": "CHACTL shadow",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "CHBASE-Schatten",
+   "en": "CHBASE shadow",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Letzter Tastaturcode ($FF = keiner)",
+   "en": "Last keyboard code ($FF = none)",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "IOCB (8 Blöcke zu 16 Byte ab $0340)",
+   "en": "IOCB (8 blocks of 16 bytes from $0340)",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "Kanal 0 (Editor)",
+   "en": "Channel 0 (editor)",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "Kanal 1",
+   "en": "Channel 1",
+   "status": "maschinell"
+  },
+  "/L80": {
+   "de": "Kanal 2",
+   "en": "Channel 2",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "Kanal 3",
+   "en": "Channel 3",
+   "status": "maschinell"
+  },
+  "/L82": {
+   "de": "Kanal 4",
+   "en": "Channel 4",
+   "status": "maschinell"
+  },
+  "/L83": {
+   "de": "Kanal 5",
+   "en": "Channel 5",
+   "status": "maschinell"
+  },
+  "/L84": {
+   "de": "Kanal 6",
+   "en": "Channel 6",
+   "status": "maschinell"
+  },
+  "/L85": {
+   "de": "Kanal 7",
+   "en": "Channel 7",
+   "status": "maschinell"
+  },
+  "/L86": {
+   "de": "Offset: Gerätekennung",
+   "en": "Offset: device identifier",
+   "status": "maschinell"
+  },
+  "/L87": {
+   "de": "Offset: Gerätenummer",
+   "en": "Offset: device number",
+   "status": "maschinell"
+  },
+  "/L88": {
+   "de": "Offset: Kommando",
+   "en": "Offset: command",
+   "status": "maschinell"
+  },
+  "/L89": {
+   "de": "Offset: Status",
+   "en": "Offset: status",
+   "status": "maschinell"
+  },
+  "/L90": {
+   "de": "Offset: Pufferadresse niedrig",
+   "en": "Offset: buffer address low",
+   "status": "maschinell"
+  },
+  "/L91": {
+   "de": "Offset: Pufferadresse hoch",
+   "en": "Offset: buffer address high",
+   "status": "maschinell"
+  },
+  "/L92": {
+   "de": "Offset: PUT-Routine niedrig",
+   "en": "Offset: PUT routine low",
+   "status": "maschinell"
+  },
+  "/L93": {
+   "de": "Offset: PUT-Routine hoch",
+   "en": "Offset: PUT routine high",
+   "status": "maschinell"
+  },
+  "/L94": {
+   "de": "Offset: Pufferlänge niedrig",
+   "en": "Offset: buffer length low",
+   "status": "maschinell"
+  },
+  "/L95": {
+   "de": "Offset: Pufferlänge hoch",
+   "en": "Offset: buffer length high",
+   "status": "maschinell"
+  },
+  "/L96": {
+   "de": "Offset: Zusatz 1 (Öffnungsmodus)",
+   "en": "Offset: auxiliary 1 (open mode)",
+   "status": "maschinell"
+  },
+  "/L97": {
+   "de": "Offset: Zusatz 2",
+   "en": "Offset: auxiliary 2",
+   "status": "maschinell"
+  },
+  "/L98": {
+   "de": "Offset: Zusatz 3",
+   "en": "Offset: auxiliary 3",
+   "status": "maschinell"
+  },
+  "/L99": {
+   "de": "Offset: Zusatz 4",
+   "en": "Offset: auxiliary 4",
+   "status": "maschinell"
+  },
+  "/L101": {
+   "de": "CIO-Kommandos und Modi",
+   "en": "CIO commands and modes",
+   "status": "maschinell"
+  },
+  "/L102": {
+   "de": "OPEN",
+   "en": "OPEN",
+   "status": "unverändert"
+  },
+  "/L103": {
+   "de": "Zeile lesen",
+   "en": "Read line",
+   "status": "maschinell"
+  },
+  "/L104": {
+   "de": "Bytes lesen",
+   "en": "Read bytes",
+   "status": "maschinell"
+  },
+  "/L105": {
+   "de": "Zeile schreiben",
+   "en": "Write line",
+   "status": "maschinell"
+  },
+  "/L106": {
+   "de": "Bytes schreiben",
+   "en": "Write bytes",
+   "status": "maschinell"
+  },
+  "/L107": {
+   "de": "CLOSE",
+   "en": "CLOSE",
+   "status": "unverändert"
+  },
+  "/L108": {
+   "de": "STATUS",
+   "en": "STATUS",
+   "status": "unverändert"
+  },
+  "/L109": {
+   "de": "Gerätespezifisch",
+   "en": "Device-specific",
+   "status": "maschinell"
+  },
+  "/L110": {
+   "de": "ICAX1: Lesen",
+   "en": "ICAX1: read",
+   "status": "maschinell"
+  },
+  "/L111": {
+   "de": "ICAX1: Schreiben",
+   "en": "ICAX1: write",
+   "status": "maschinell"
+  },
+  "/L112": {
+   "de": "ICAX1: Lesen und Schreiben",
+   "en": "ICAX1: read and write",
+   "status": "maschinell"
+  },
+  "/L114": {
+   "de": "Betriebssystem-Einsprünge",
+   "en": "Operating system entry points",
+   "status": "maschinell"
+  },
+  "/L115": {
+   "de": "Editor-Gerätetabelle",
+   "en": "Editor device table",
+   "status": "maschinell"
+  },
+  "/L116": {
+   "de": "Bildschirm-Gerätetabelle",
+   "en": "Screen device table",
+   "status": "maschinell"
+  },
+  "/L117": {
+   "de": "Tastatur-Gerätetabelle",
+   "en": "Keyboard device table",
+   "status": "maschinell"
+  },
+  "/L118": {
+   "de": "Drucker-Gerätetabelle",
+   "en": "Printer device table",
+   "status": "maschinell"
+  },
+  "/L119": {
+   "de": "Kassetten-Gerätetabelle",
+   "en": "Cassette device table",
+   "status": "maschinell"
+  },
+  "/L120": {
+   "de": "Zentrale Ein-/Ausgabe",
+   "en": "Central input/output",
+   "status": "maschinell"
+  },
+  "/L121": {
+   "de": "Serielle Ein-/Ausgabe",
+   "en": "Serial input/output",
+   "status": "maschinell"
+  },
+  "/L122": {
+   "de": "VBI-Vektoren und Zeitgeber setzen",
+   "en": "Set VBI vectors and timers",
+   "status": "maschinell"
+  },
+  "/L123": {
+   "de": "Ende-Sprung für Immediate-VBI",
+   "en": "Exit jump for immediate VBI",
+   "status": "maschinell"
+  },
+  "/L124": {
+   "de": "Ende-Sprung für Deferred-VBI",
+   "en": "Exit jump for deferred VBI",
+   "status": "maschinell"
+  },
+  "/L125": {
+   "de": "Warmstart",
+   "en": "Warm start",
+   "status": "maschinell"
+  },
+  "/L126": {
+   "de": "Kaltstart",
+   "en": "Cold start",
+   "status": "maschinell"
+  },
+  "/L128": {
+   "de": "Fließkommapaket des Betriebssystems (6-Byte-BCD: Byte 0 = Vorzeichen + Exponent zur Basis 100 (Excess $40), Byte 1-5 = Ziffernpaare)",
+   "en": "Floating-point package of the operating system (6-byte BCD: byte 0 = sign + exponent to base 100 (excess $40), bytes 1-5 = digit pairs)",
+   "status": "maschinell"
+  },
+  "/L129": {
+   "de": "Gleitkomma-Register 0 (6 Byte); Ganzzahl-Ein-/Ausgabe: FR0 niedrig, FR0+1 hoch",
+   "en": "Floating-point register 0 (6 bytes); integer input/output: FR0 low, FR0+1 high",
+   "status": "maschinell"
+  },
+  "/L130": {
+   "de": "Gleitkomma-Register 1 (6 Byte)",
+   "en": "Floating-point register 1 (6 bytes)",
+   "status": "maschinell"
+  },
+  "/L131": {
+   "de": "Index in den Eingabepuffer (AFP)",
+   "en": "Index into the input buffer (AFP)",
+   "status": "maschinell"
+  },
+  "/L132": {
+   "de": "Zeiger auf den Text (AFP liest, FASC liefert)",
+   "en": "Pointer to the text (AFP reads, FASC delivers)",
+   "status": "maschinell"
+  },
+  "/L133": {
+   "de": "Zeiger für FLD0P/FLD1P/FST0P",
+   "en": "Pointer for FLD0P/FLD1P/FST0P",
+   "status": "maschinell"
+  },
+  "/L134": {
+   "de": "Zeilenpuffer des Pakets (FASC schreibt hierhin)",
+   "en": "Line buffer of the package (FASC writes here)",
+   "status": "maschinell"
+  },
+  "/L135": {
+   "de": "Text ab (INBUFF)+CIX -> FR0; C gesetzt: kein gültiges Zahlenformat",
+   "en": "Text from (INBUFF)+CIX -> FR0; C set: not a valid number format",
+   "status": "maschinell"
+  },
+  "/L136": {
+   "de": "FR0 -> Text bei (INBUFF); letztes Zeichen hat Bit 7 gesetzt",
+   "en": "FR0 -> text at (INBUFF); last character has bit 7 set",
+   "status": "maschinell"
+  },
+  "/L137": {
+   "de": "Ganzzahl 0..65535 in FR0/FR0+1 -> FR0",
+   "en": "Integer 0..65535 in FR0/FR0+1 -> FR0",
+   "status": "maschinell"
+  },
+  "/L138": {
+   "de": "FR0 -> Ganzzahl (gerundet) in FR0/FR0+1; C gesetzt: außerhalb 0..65535",
+   "en": "FR0 -> integer (rounded) in FR0/FR0+1; C set: outside 0..65535",
+   "status": "maschinell"
+  },
+  "/L139": {
+   "de": "FR0 = 0",
+   "en": "FR0 = 0",
+   "status": "unverändert"
+  },
+  "/L140": {
+   "de": "6 Byte ab (X) auf Null setzen",
+   "en": "Set 6 bytes starting at (X) to zero",
+   "status": "maschinell"
+  },
+  "/L141": {
+   "de": "FR0 = FR0 - FR1; C gesetzt: Überlauf",
+   "en": "FR0 = FR0 - FR1; C set: overflow",
+   "status": "maschinell"
+  },
+  "/L142": {
+   "de": "FR0 = FR0 + FR1",
+   "en": "FR0 = FR0 + FR1",
+   "status": "unverändert"
+  },
+  "/L143": {
+   "de": "FR0 = FR0 * FR1",
+   "en": "FR0 = FR0 * FR1",
+   "status": "unverändert"
+  },
+  "/L144": {
+   "de": "FR0 = FR0 / FR1; C gesetzt: Division durch 0 oder Überlauf",
+   "en": "FR0 = FR0 / FR1; C set: division by 0 or overflow",
+   "status": "maschinell"
+  },
+  "/L145": {
+   "de": "FR0 = (X niedrig/Y hoch)",
+   "en": "FR0 = (X low/Y high)",
+   "status": "maschinell"
+  },
+  "/L146": {
+   "de": "FR0 = (FLPTR)",
+   "en": "FR0 = (FLPTR)",
+   "status": "unverändert"
+  },
+  "/L147": {
+   "de": "FR1 = (X/Y)",
+   "en": "FR1 = (X/Y)",
+   "status": "unverändert"
+  },
+  "/L148": {
+   "de": "FR1 = (FLPTR)",
+   "en": "FR1 = (FLPTR)",
+   "status": "unverändert"
+  },
+  "/L149": {
+   "de": "(X/Y) = FR0",
+   "en": "(X/Y) = FR0",
+   "status": "unverändert"
+  },
+  "/L150": {
+   "de": "(FLPTR) = FR0",
+   "en": "(FLPTR) = FR0",
+   "status": "unverändert"
+  },
+  "/L151": {
+   "de": "FR1 = FR0",
+   "en": "FR1 = FR0",
+   "status": "unverändert"
+  },
+  "/L152": {
+   "de": "FR0 = e^FR0; C gesetzt: Überlauf",
+   "en": "FR0 = e^FR0; C set: overflow",
+   "status": "maschinell"
+  },
+  "/L153": {
+   "de": "FR0 = 10^FR0",
+   "en": "FR0 = 10^FR0",
+   "status": "unverändert"
+  },
+  "/L154": {
+   "de": "FR0 = ln(FR0); C gesetzt: FR0 <= 0",
+   "en": "FR0 = ln(FR0); C set: FR0 <= 0",
+   "status": "maschinell"
+  },
+  "/L155": {
+   "de": "FR0 = log10(FR0)",
+   "en": "FR0 = log10(FR0)",
+   "status": "unverändert"
+  },
+  "/L156": {
+   "de": "Polynom auswerten: A = Anzahl der Koeffizienten, X/Y = Tafel (6-Byte-BCD, höchste Potenz zuerst), FR0 = Argument",
+   "en": "Evaluate polynomial: A = number of coefficients, X/Y = table (6-byte BCD, highest power first), FR0 = argument",
+   "status": "maschinell"
+  }
+ }
+}

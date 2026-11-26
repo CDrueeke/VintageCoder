@@ -75,7 +75,7 @@ levels_rle_map2:  .byte $03,$03,$04,$01,$02,$01,$03,$01,$04,$01,$02,$01,$01,$01,
                   .byte $04,$01,$00,$01,$03,$01,$05,$01,$04,$01,$01,$01,$03,$01,$02,$01
 levels_rle_lo:  .byte <levels_rle_map0,<levels_rle_map1,<levels_rle_map2
 levels_rle_hi:  .byte >levels_rle_map0,>levels_rle_map1,>levels_rle_map2
-levels_screens: .lohifill 3, levels_map0 + 77 * i
+levels_screens: .lohitable 3, levels_map0 + 77 * i
 levels_screens_lo = levels_screens
 levels_screens_hi = levels_screens + 3
 .const levels_count = 3

@@ -1,0 +1,215 @@
+{
+ "source": "chips/vic4.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Schlüsselregister: erst $47, dann $53 schreiben schaltet die erweiterten VIC-IV-Register frei (vorher wirkungslos); Makro mega65_enable_vic4",
+   "en": "Key register: writing $47, then $53 unlocks the extended VIC-IV registers (no effect before); macro mega65_enable_vic4",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Bitplane enable bits",
+   "en": "Bitplane enable bits",
+   "status": "unverändert"
+  },
+  "/regs/2/doc": {
+   "de": "Complement bitplane flags",
+   "en": "Complement bitplane flags",
+   "status": "unverändert"
+  },
+  "/regs/3/doc": {
+   "de": "Bitplane X",
+   "en": "Bitplane X",
+   "status": "unverändert"
+  },
+  "/regs/4/doc": {
+   "de": "Bitplane Y",
+   "en": "Bitplane Y",
+   "status": "unverändert"
+  },
+  "/regs/5/doc": {
+   "de": "Bitplane X Offset",
+   "en": "Bitplane X Offset",
+   "status": "unverändert"
+  },
+  "/regs/6/doc": {
+   "de": "Bitplane Y Offset",
+   "en": "Bitplane Y Offset",
+   "status": "unverändert"
+  },
+  "/regs/7/doc": {
+   "de": "Display Address Translater (DAT) Bitplane N port",
+   "en": "Display Address Translater (DAT) Bitplane N port",
+   "status": "unverändert"
+  },
+  "/regs/8/doc": {
+   "de": "top border position",
+   "en": "top border position",
+   "status": "unverändert"
+  },
+  "/regs/9/doc": {
+   "de": "bottom border position",
+   "en": "bottom border position",
+   "status": "unverändert"
+  },
+  "/regs/10/doc": {
+   "de": "character generator horizontal position",
+   "en": "character generator horizontal position",
+   "status": "unverändert"
+  },
+  "/regs/11/doc": {
+   "de": "Character generator vertical position",
+   "en": "Character generator vertical position",
+   "status": "unverändert"
+  },
+  "/regs/12/doc": {
+   "de": "Read horizontal raster scan position LSB",
+   "en": "Read horizontal raster scan position LSB",
+   "status": "unverändert"
+  },
+  "/regs/13/doc": {
+   "de": "Read physical raster position",
+   "en": "Read physical raster position",
+   "status": "unverändert"
+  },
+  "/regs/14/doc": {
+   "de": "sprite extended height enable (one bit per sprite)",
+   "en": "sprite extended height enable (one bit per sprite)",
+   "status": "unverändert"
+  },
+  "/regs/15/doc": {
+   "de": "Sprite extended height size (sprite pixels high)",
+   "en": "Sprite extended height size (sprite pixels high)",
+   "status": "unverändert"
+  },
+  "/regs/16/doc": {
+   "de": "Sprite extended width enables (8 bytes per sprite row = 64 pixels wide for normal sprites or 16 pixels wide for 16-colour sprite mode)",
+   "en": "Sprite extended width enables (8 bytes per sprite row = 64 pixels wide for normal sprites or 16 pixels wide for 16-colour sprite mode)",
+   "status": "unverändert"
+  },
+  "/regs/17/doc": {
+   "de": "number of bytes to advance between each text row (LSB)",
+   "en": "number of bytes to advance between each text row (LSB)",
+   "status": "unverändert"
+  },
+  "/regs/18/doc": {
+   "de": "number of bytes to advance between each text row (MSB)",
+   "en": "number of bytes to advance between each text row (MSB)",
+   "status": "unverändert"
+  },
+  "/regs/19/doc": {
+   "de": "Horizontal hardware scale of text mode (pixel 120ths per pixel)",
+   "en": "Horizontal hardware scale of text mode (pixel 120ths per pixel)",
+   "status": "unverändert"
+  },
+  "/regs/20/doc": {
+   "de": "Vertical scaling of text mode (number of physical rasters per char text row)",
+   "en": "Vertical scaling of text mode (number of physical rasters per char text row)",
+   "status": "unverändert"
+  },
+  "/regs/21/doc": {
+   "de": "Number of characters to display per row (LSB)",
+   "en": "Number of characters to display per row (LSB)",
+   "status": "unverändert"
+  },
+  "/regs/22/doc": {
+   "de": "Sprite H640 X Super-MSBs",
+   "en": "Sprite H640 X Super-MSBs",
+   "status": "unverändert"
+  },
+  "/regs/23/doc": {
+   "de": "screen RAM precise base address (bits 7 - 0)",
+   "en": "screen RAM precise base address (bits 7 - 0)",
+   "status": "unverändert"
+  },
+  "/regs/24/doc": {
+   "de": "screen RAM precise base address (bits 15 - 8)",
+   "en": "screen RAM precise base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/regs/25/doc": {
+   "de": "screen RAM precise base address (bits 23 - 16)",
+   "en": "screen RAM precise base address (bits 23 - 16)",
+   "status": "unverändert"
+  },
+  "/regs/26/doc": {
+   "de": "colour RAM base address (bits 0 - 7)",
+   "en": "colour RAM base address (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/regs/27/doc": {
+   "de": "colour RAM base address (bits 15 - 8)",
+   "en": "colour RAM base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/regs/28/doc": {
+   "de": "Character set precise base address (bits 0 - 7)",
+   "en": "Character set precise base address (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/regs/29/doc": {
+   "de": "Character set precise base address (bits 15 - 8)",
+   "en": "Character set precise base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/regs/30/doc": {
+   "de": "Character set precise base address (bits 23 - 16)",
+   "en": "Character set precise base address (bits 23 - 16)",
+   "status": "unverändert"
+  },
+  "/regs/31/doc": {
+   "de": "sprite 16-colour mode enables",
+   "en": "sprite 16-colour mode enables",
+   "status": "unverändert"
+  },
+  "/regs/32/doc": {
+   "de": "sprite pointer address (bits 7 - 0)",
+   "en": "sprite pointer address (bits 7 - 0)",
+   "status": "unverändert"
+  },
+  "/regs/33/doc": {
+   "de": "sprite pointer address (bits 15 - 8)",
+   "en": "sprite pointer address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/regs/34/doc": {
+   "de": "VIC-IV 16-colour bitplane enable flags",
+   "en": "VIC-IV 16-colour bitplane enable flags",
+   "status": "unverändert"
+  },
+  "/regs/35/doc": {
+   "de": "Sprite Y position adjustment",
+   "en": "Sprite Y position adjustment",
+   "status": "unverändert"
+  },
+  "/regs/36/doc": {
+   "de": "Sprite alpha-blend enable",
+   "en": "Sprite alpha-blend enable",
+   "status": "unverändert"
+  },
+  "/regs/37/doc": {
+   "de": "Sprite alpha-blend value",
+   "en": "Sprite alpha-blend value",
+   "status": "unverändert"
+  },
+  "/regs/38/doc": {
+   "de": "Sprite V400 enables",
+   "en": "Sprite V400 enables",
+   "status": "unverändert"
+  },
+  "/regs/39/doc": {
+   "de": "Sprite V400 Y position MSBs",
+   "en": "Sprite V400 Y position MSBs",
+   "status": "unverändert"
+  },
+  "/regs/40/doc": {
+   "de": "Sprite V400 Y position super MSBs",
+   "en": "Sprite V400 Y position super MSBs",
+   "status": "unverändert"
+  },
+  "/regs/41/doc": {
+   "de": "Physical raster compare value to be used if FNRSTCMP is clear",
+   "en": "Physical raster compare value to be used if FNRSTCMP is clear",
+   "status": "unverändert"
+  }
+ }
+}

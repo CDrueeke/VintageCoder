@@ -1,0 +1,40 @@
+{
+ "source": "chips/dmagic.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "DMAgic DMA list address LSB (bits 0 - 7), trigger DMA when written.",
+   "en": "DMAgic DMA list address LSB (bits 0 - 7), trigger DMA when written.",
+   "status": "unverändert"
+  },
+  "/regs/1/doc": {
+   "de": "DMA list address high byte (bits 8 - 15).",
+   "en": "DMA list address high byte (bits 8 - 15).",
+   "status": "unverändert"
+  },
+  "/regs/2/doc": {
+   "de": "DMA list address mega-byte (bits 20 - 27). Overlaps with ADDRBANK!",
+   "en": "DMA list address mega-byte (bits 20 - 27). Overlaps with ADDRBANK!",
+   "status": "unverändert"
+  },
+  "/regs/3/doc": {
+   "de": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list address specified as 28-bit flat address (uses DMA option",
+   "en": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list address specified as 28-bit flat address (uses DMA option",
+   "status": "unverändert"
+  },
+  "/regs/4/doc": {
+   "de": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list in current CPU memory map (uses DMA option list)",
+   "en": "Set low-order byte of DMA list address (bits 0 - 7), and trigger Enhanced DMA job, with list in current CPU memory map (uses DMA option list)",
+   "status": "unverändert"
+  },
+  "/regs/5/doc": {
+   "de": "Trigger Enhanced DMAgic job inline (i.e., beginning at PC value, and setting PC to end of job when done)",
+   "en": "Trigger Enhanced DMAgic job inline (i.e., beginning at PC value, and setting PC to end of job when done)",
+   "status": "unverändert"
+  },
+  "/regs/6/doc": {
+   "de": "DMA list address low byte (bits 0 - 7) WITHOUT STARTING A DMA JOB (used by Hypervisor for unfreezing DMA-using tasks)",
+   "en": "DMA list address low byte (bits 0 - 7) WITHOUT STARTING A DMA JOB (used by Hypervisor for unfreezing DMA-using tasks)",
+   "status": "unverändert"
+  }
+ }
+}

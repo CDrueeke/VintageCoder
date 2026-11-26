@@ -13,10 +13,10 @@ pub fn takt_text(data: &Path, system: &str, norm: &str) -> Option<String> {
     let v: serde_json::Value = serde_json::from_str(&text).ok()?;
     let norm = if norm.eq_ignore_ascii_case("ntsc") { "ntsc" } else { "pal" };
     let var = &v["variants"][norm]; let hz = var["clockHz"].as_f64()?;
-    let mut t = format!("{} · {} MHz · {}", cpu_name(v["target"]["cpu"].as_str().unwrap_or("")), format!("{:.3}", hz / 1_000_000.0).replace('.', ","), norm.to_uppercase());
+    let mut t = vc_i18n::t!("telemetrie-p1-p2-mhz-p3", p1 = cpu_name(v["target"]["cpu"].as_str().unwrap_or("")), p2 = vc_i18n::num(hz / 1_000_000.0, 3), p3 = norm.to_uppercase());
     // Zeilen und Zyklen nur dort, wo beides CPU-Zyklen sind (die Zyklen je Zeile müssen zu Takt und Zeilenfrequenz passen: Takt ≈ Zeilen × Zyklen × Bildrate)
     if let (Some(z), Some(c)) = (var["linesPerFrame"].as_u64(), var["cyclesPerLine"].as_u64()) {
-        let bild = hz / (z * c) as f64; if (40.0..75.0).contains(&bild) { t.push_str(&format!(" · {z} Zeilen · {c} Zyklen/Zeile")) }
+        let bild = hz / (z * c) as f64; if (40.0..75.0).contains(&bild) { t.push_str(&format!(" {}", vc_i18n::t!("telemetrie-z-zeilen-c-zyklen-zeile", z = &z, c = &c))) }
     }
     Some(t)
 }

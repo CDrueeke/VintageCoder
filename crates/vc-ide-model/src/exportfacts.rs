@@ -3,6 +3,14 @@
 use std::path::Path;
 
 /// Formate des Dialogs: (Kennung für `vc_media::project::export`, Beschriftung)
+/// Bezeichnung eines Exportformats in der gewählten Sprache
+pub fn format_label(id: &str) -> String {
+    match id {
+        "asm" => "Assembler".to_string(), "inc" => vc_i18n::t!("exportfacts-konstanten"), "bin" => vc_i18n::t!("exportfacts-binaer"), "prg" => "PRG".to_string(), "data" => "BASIC DATA".to_string(),
+        _ => id.to_string(),
+    }
+}
+
 pub const FORMATS: &[(&str, &str)] = &[("asm", "Assembler"), ("inc", "Konstanten"), ("bin", "Binär"), ("prg", "PRG"), ("data", "BASIC DATA")];
 
 /// Adresse in `$C000`, `0xC000` oder dezimaler Schreibweise
@@ -23,7 +31,7 @@ pub fn hex_dump(bytes: &[u8], base: usize, max: usize) -> String {
         let asc: String = ch.iter().map(|b| if (0x20..0x7f).contains(b) { *b as char } else { '.' }).collect();
         out.push_str(&format!("{:04x}  {:<47}  {asc}\n", base + i * 16, hex.join(" ")));
     }
-    if bytes.len() > max { out.push_str(&format!("… {} weitere Bytes\n", bytes.len() - max)); }
+    if bytes.len() > max { out.push_str(&format!("{}\n", vc_i18n::t!("exportfacts-p1-weitere-bytes", p1 = bytes.len() - max))); }
     out
 }
 
@@ -64,17 +72,33 @@ pub fn preview_im_projekt(root: Option<&Path>, data: &Path, rel: &str, media_tex
     let _ = std::fs::remove_dir_all(&tmp);
     let run = || -> Result<Preview, String> {
         let file = tmp.join(rel);
-        std::fs::create_dir_all(file.parent().ok_or("Pfad")?).map_err(|e| e.to_string())?;
+        std::fs::create_dir_all(file.parent().ok_or(vc_i18n::t!("exportfacts-pfad"))?).map_err(|e| e.to_string())?;
         std::fs::write(&file, media_text).map_err(|e| e.to_string())?; abhaengige_kopieren(root, &tmp, media_text);
         let v = vc_media::project::export(&tmp, data, rel, format, Some(label).filter(|l| !l.is_empty()), addr, 10, 10)?;
         let files: Vec<(String, usize)> = v["files"].as_array().map(|a| a.iter().filter_map(|f| Some((f["path"].as_str()?.rsplit('/').next()?.to_string(), f["size"].as_u64()? as usize))).collect()).unwrap_or_default();
         let first = v["files"][0]["path"].as_str().map(|p| tmp.join(p));
         let bytes = first.and_then(|p| std::fs::read(p).ok()).unwrap_or_default();
         let is_text = matches!(format, "asm" | "inc" | "data" | "bas");
-        let text = if is_text { v["preview"].as_str().unwrap_or("").to_string() } else { format!("{}\n(Binärdaten: Reiter „Hex“)", v["preview"].as_str().unwrap_or("")) };
+        let text = if is_text { v["preview"].as_str().unwrap_or("").to_string() } else { vc_i18n::t!("exportfacts-p1-binaerdaten-reiter-hex", p1 = v["preview"].as_str().unwrap_or("")) };
         Ok(Preview { files, text, hex: hex_dump(&bytes, addr.unwrap_or(0) as usize, 512), error: None, tiles_use: v["tilesUse"].as_str().unwrap_or("").to_string() })
     };
     let r = run().unwrap_or_else(|e| Preview { error: Some(e), ..Default::default() });
+    let _ = std::fs::remove_dir_all(&tmp);
+    r
+}
+
+/// Vollständiger Text des ersten erzeugten Textdatei-Exports (asm, inc, data), ohne die Kürzung der Vorschau; für „direkt in den Quelltext kopieren“
+pub fn volltext_im_projekt(root: Option<&Path>, data: &Path, rel: &str, media_text: &str, format: &str, label: &str, addr: Option<u16>) -> Result<String, String> {
+    let tmp = unique_tmp("vc_export_full");
+    let _ = std::fs::remove_dir_all(&tmp);
+    let r = (|| -> Result<String, String> {
+        let file = tmp.join(rel);
+        std::fs::create_dir_all(file.parent().ok_or(vc_i18n::t!("exportfacts-pfad"))?).map_err(|e| e.to_string())?;
+        std::fs::write(&file, media_text).map_err(|e| e.to_string())?; abhaengige_kopieren(root, &tmp, media_text);
+        let v = vc_media::project::export(&tmp, data, rel, format, Some(label).filter(|l| !l.is_empty()), addr, 10, 10)?;
+        let p = v["files"][0]["path"].as_str().ok_or_else(|| vc_i18n::t!("exportdlg-der-export-hat-keine-datei-erzeugt").to_string())?;
+        std::fs::read_to_string(tmp.join(p)).map_err(|e| e.to_string())
+    })();
     let _ = std::fs::remove_dir_all(&tmp);
     r
 }
@@ -86,7 +110,7 @@ pub fn preview_data_im_projekt(root: Option<&Path>, data: &Path, rel: &str, medi
     let _ = std::fs::remove_dir_all(&tmp);
     let r = (|| -> Result<String, String> {
         let file = tmp.join(rel);
-        std::fs::create_dir_all(file.parent().ok_or("Pfad")?).map_err(|e| e.to_string())?;
+        std::fs::create_dir_all(file.parent().ok_or(vc_i18n::t!("exportfacts-pfad"))?).map_err(|e| e.to_string())?;
         std::fs::write(&file, media_text).map_err(|e| e.to_string())?; abhaengige_kopieren(root, &tmp, media_text);
         let v = vc_media::project::export(&tmp, data, rel, "data", Some(label).filter(|l| !l.is_empty()), None, 10, 10)?;
         Ok(v["preview"].as_str().unwrap_or("").to_string())

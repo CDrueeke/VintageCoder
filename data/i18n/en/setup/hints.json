@@ -1,0 +1,85 @@
+{
+ "source": "setup/hints.json",
+ "entries": {
+  "/0/note": {
+   "de": "Alternativ das fertige Paket von der Webseite (Ordner nach /Applications ziehen).",
+   "en": "Alternatively, use the ready-made package from the website (drag the folder to /Applications).",
+   "status": "geprüft"
+  },
+  "/1/note": {
+   "de": "Das ZIP von der Webseite entpacken; den Pfad zu x64sc.exe unter „Pfad wählen“ eintragen.",
+   "en": "Unpack the ZIP from the website; enter the path to x64sc.exe under \"Choose path\".",
+   "status": "geprüft"
+  },
+  "/2/note": {
+   "de": "Debian und Ubuntu.",
+   "en": "Debian and Ubuntu.",
+   "status": "geprüft"
+  },
+  "/3/note": {
+   "de": "Fedora: das Paket liegt bei RPM Fusion; dort zuerst das Repository einrichten.",
+   "en": "Fedora: the package is in RPM Fusion; set up that repository first.",
+   "status": "maschinell"
+  },
+  "/4/note": {
+   "de": "openSUSE: das Paket liegt im Repository Packman.",
+   "en": "openSUSE: the package is in the Packman repository.",
+   "status": "maschinell"
+  },
+  "/5/note": {
+   "de": "Ein Flatpak liegt nicht im PATH; den Fundort „flatpak run net.sf.VICE“ bitte unter „Pfad wählen“ prüfen.",
+   "en": "A Flatpak is not in the PATH; please check the location \"flatpak run net.sf.VICE\" under \"Choose path\".",
+   "status": "geprüft"
+  },
+  "/7/note": {
+   "de": "Unter Windows nutzt VintageCoder bevorzugt Altirra; atari800 ist die Alternative.",
+   "en": "On Windows, VintageCoder prefers Altirra; atari800 is the alternative.",
+   "status": "maschinell"
+  },
+  "/8/note": {
+   "de": "Debian und Ubuntu.",
+   "en": "Debian and Ubuntu.",
+   "status": "geprüft"
+  },
+  "/9/note": {
+   "de": "Fedora.",
+   "en": "Fedora.",
+   "status": "unverändert"
+  },
+  "/10/note": {
+   "de": "openSUSE.",
+   "en": "openSUSE.",
+   "status": "unverändert"
+  },
+  "/11/note": {
+   "de": "Nicht auf einer Maschine geprüft; den Namen des Flatpaks bitte vor dem Kopieren auf Flathub nachsehen.",
+   "en": "Not tested on a machine; please look up the name of the Flatpak on Flathub before copying it.",
+   "status": "maschinell"
+  },
+  "/12/note": {
+   "de": "Die fertige Version „xmega65“ von der Webseite laden; macOS fragt beim ersten Start nach (Rechtsklick ▸ Öffnen).",
+   "en": "Download the ready-made version \"xmega65\" from the website; macOS asks at the first start (right-click > Open).",
+   "status": "maschinell"
+  },
+  "/13/note": {
+   "de": "Das fertige Paket „xmega65“ von der Webseite entpacken und den Pfad unter „Pfad wählen“ eintragen.",
+   "en": "Unpack the ready-made package \"xmega65\" from the website and enter the path under \"Choose path\".",
+   "status": "maschinell"
+  },
+  "/14/note": {
+   "de": "Je nach Verteilung als Paket oder zum Selbstbauen; die Webseite beschreibt beide Wege.",
+   "en": "Depending on the distribution, as a package or to build yourself; the website describes both ways.",
+   "status": "geprüft"
+  },
+  "/15/note": {
+   "de": "Das ZIP entpacken; Altirra64.exe ist das 64-Bit-Programm.",
+   "en": "Unpack the ZIP; Altirra64.exe is the 64-bit program.",
+   "status": "geprüft"
+  },
+  "/16/note": {
+   "de": "Gibt deinem Benutzer Zugriff auf serielle Schnittstellen (MEGA65). Danach ab- und wieder anmelden. Auf manchen Verteilungen heißt die Gruppe uucp. VintageCoder führt diesen Befehl nie selbst aus.",
+   "en": "Gives your user access to serial ports (MEGA65). Then log out and log in again. On some distributions the group is called uucp. VintageCoder never runs this command itself.",
+   "status": "geprüft"
+  }
+ }
+}

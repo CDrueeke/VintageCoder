@@ -71,7 +71,7 @@ pub fn migrate(root: &Path) -> Result<Vec<(String, String)>, String> {
         if r.starts_with("build/") || !r.ends_with(LEGACY_EXT) { continue; }
         let text = std::fs::read_to_string(p).map_err(|e| format!("{r}: {e}"))?;
         let v: Value = serde_json::from_str(&text).map_err(|e| format!("{r}: {e}"))?;
-        let kind = v["kind"].as_str().ok_or_else(|| format!("{r}: kind fehlt"))?;
+        let kind = v["kind"].as_str().ok_or_else(|| vc_i18n::t!("media-r-kind-fehlt", r = &r))?;
         let st = stem(&r).to_string();
         let (dir, file) = match r.rsplit_once('/') { Some((d, _)) => (d.to_string(), st.clone()), None => (String::new(), st.clone()) };
         let new_dir = if dir == "assets" { default_dir(kind).to_string() } else if let Some(rest) = dir.strip_prefix("assets/") { format!("{}/{}", default_dir(kind), rest) } else { dir };
@@ -80,7 +80,7 @@ pub fn migrate(root: &Path) -> Result<Vec<(String, String)>, String> {
     }
     // Zielkonflikte vermeiden
     let mut seen = std::collections::HashSet::new();
-    for (_, t) in &moves { if !seen.insert(t.clone()) || root.join(t).exists() { return Err(format!("Umstellung abgebrochen: {t} existiert bereits oder kommt doppelt vor")); } }
+    for (_, t) in &moves { if !seen.insert(t.clone()) || root.join(t).exists() { return Err(vc_i18n::t!("media-umstellung-abgebrochen-t-existiert-bereits-oder", t = &t)); } }
     // Verweise in Textdateien (Quelltexte, Includes, Projektdatei, Daten) ersetzen
     let exts = ["asm", "inc", "sbas", "bas", "json", "vcprj", "vcchar", "vcsprite", "vcpmg", "vcscreen", "vctiles", "vcsong", "vcpal", "vcplay", "vctest", "md", "txt", "vs"];
     for p in &all {
@@ -91,7 +91,7 @@ pub fn migrate(root: &Path) -> Result<Vec<(String, String)>, String> {
         for (from, to) in &moves { t = t.replace(from.as_str(), to.as_str()); }
         t = t.replace("build/assets/", "build/export/");
         if t.contains("\"assets\"") && r.ends_with(".vcprj") { t = t.replace("\"assets\"", "\"export\""); }
-        if t != text { std::fs::write(p, t).map_err(|e| format!("{r}: {e}"))?; }
+        if t != text { vc_core::atomar::schreiben(p, t).map_err(|e| format!("{r}: {e}"))?; }
     }
     for (from, to) in &moves {
         let dst = root.join(to); if let Some(d) = dst.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }

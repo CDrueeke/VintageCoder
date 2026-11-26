@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
+  <key>CFBundleDevelopmentRegion</key><string>de</string>
+  <key>CFBundleLocalizations</key><array><string>de</string><string>en</string></array>
   <key>CFBundleName</key><string>VintageCoder</string>
   <key>CFBundleDisplayName</key><string>VintageCoder</string>
   <key>CFBundleIdentifier</key><string>de.drueeke.vintagecoder</string>
@@ -15,6 +17,11 @@
     <key>CFBundleTypeName</key><string>VintageCoder-Projekt</string>
     <key>CFBundleTypeRole</key><string>Editor</string>
     <key>LSItemContentTypes</key><array><string>de.drueeke.vintagecoder.project</string></array>
+  </dict><dict>
+    <key>CFBundleTypeName</key><string>VintageCoder-Mediendatei</string>
+    <key>CFBundleTypeRole</key><string>Editor</string>
+    <key>CFBundleTypeExtensions</key><array><string>vcsprite</string><string>vcpmg</string><string>vcchar</string><string>vctiles</string><string>vcsong</string><string>vcscreen</string><string>vcpal</string></array>
+    <key>LSHandlerRank</key><string>Default</string>
   </dict></array>
   <key>UTExportedTypeDeclarations</key><array><dict>
     <key>UTTypeIdentifier</key><string>de.drueeke.vintagecoder.project</string>

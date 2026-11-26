@@ -32,7 +32,7 @@ GUESS = {
     "vice-x64sc": [VICE + "/x64sc"], "vice-x128": [VICE + "/x128"], "vice-xplus4": [VICE + "/xplus4"], "vice-xvic": [VICE + "/xvic"],
     "atari800": [shutil.which("atari800") or ""], "xemu": ["/Applications/xmega65.app/Contents/MacOS/xmega65", shutil.which("xmega65") or ""],
 }
-HELP = {"xemu": ["-h"], "atari800": ["-help"], "vcc-asm": ["--help"]}
+HELP = {"xemu": ["-h"], "atari800": ["-help"], "vcc-asm": ["asm", "--help"]}   # vcc asm --help: jeder Schalter steht in einer eigenen Zeile
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 GUESS["vcc-asm"] = [os.path.join(REPO, "target/debug/vcc"), os.path.join(REPO, "target/release/vcc")]
 
@@ -51,11 +51,8 @@ def main():
             print("%-12s nicht geprüft (Programm nicht gefunden)" % prog); continue
         text = help_text(prog, exe)
         flags = {t for p in cat["params"] for t in (p.get("flag"), p.get("off_flag")) if t}
-        if prog == "vcc-asm":   # die Hilfe nennt die Schalter im Fließtext: [--illegals …] [-I verzeichnis]
-            text = "\n".join(l for l in text.splitlines() if l.startswith("vcc asm") or l.startswith("\t[--labels"))
-            miss = sorted(fl for fl in flags if not re.search(r"(?<![\w-])" + re.escape(fl) + r"(?![\w-])", text))
-        else:
-            miss = sorted(fl for fl in flags if not re.search(r"(?m)^\s*" + re.escape(fl) + r"(\s|$)", text))
+        # alle Programme: der Schalter steht am Zeilenanfang der Hilfe (vcc asm --help führt jeden Schalter in einer eigenen Zeile, z. B. "      --illegals <regel>")
+        miss = sorted(fl for fl in flags if not re.search(r"(?m)^\s*" + re.escape(fl) + r"(\s|$)", text))
         print("%-12s %d Flags, fehlend: %s" % (prog, len(flags), ", ".join(miss) or "keine"))
         bad += len(miss)
         ids = [p["id"] for p in cat["params"]]

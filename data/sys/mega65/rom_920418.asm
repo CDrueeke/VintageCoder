@@ -552,3 +552,5 @@
 .const IOBYTE                  = $1F95
 .const FILE_TYPE               = $1F96
 .const PARTITION               = $1F97
+
+// Für die ROM-Versionen 920413, 920423 und 999422 gibt es noch keine eigene Datei: diese Adressen dort nicht voraussetzen.

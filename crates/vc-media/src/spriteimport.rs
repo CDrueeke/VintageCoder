@@ -26,19 +26,19 @@ pub struct SpdInfo { pub version: u8, pub sprites: usize, pub colors: [u8; 3], p
 
 /// Kopf einer SPD-Datei (Versionen 1, 3 und 5)
 pub fn spd_info(b: &[u8]) -> Result<SpdInfo, String> {
-    if b.len() < 9 || &b[0..3] != b"SPD" { return Err("keine SPD-Datei (SPD)".into()); }
+    if b.len() < 9 || &b[0..3] != b"SPD" { return Err(vc_i18n::t!("media-keine-spd-datei-spd").into()); }
     let version = b[3];
     let u16at = |o: usize| b.get(o..o + 2).map(|x| x[0] as usize | (x[1] as usize) << 8);
     let (sprites, colors, start) = match version {
         1 => (b[4] as usize + 1, [b[6], b[7], b[8]], 9),
         3 | 5 => {
-            if b.len() < 16 { return Err("SPD-Kopf unvollständig".into()); }
+            if b.len() < 16 { return Err(vc_i18n::t!("media-spd-kopf-unvollstaendig").into()); }
             (u16at(5).unwrap_or(0), [b[13], b[14], b[15]], if version == 5 { 20 } else { 16 })
         }
-        v => return Err(format!("SPD-Version {v} wird nicht unterstützt (1, 3 und 5)")),
+        v => return Err(vc_i18n::t!("media-spd-version-v-wird-nicht-unterstuetzt", v = &v)),
     };
-    if sprites == 0 { return Err("die SPD-Datei enthält keine Sprites".into()); }
-    if b.len() < start + 64 * sprites { return Err(format!("SPD-Datei zu kurz: {sprites} Sprites brauchen {} Bytes ab Offset {start}, Datei hat {}", 64 * sprites, b.len())); }
+    if sprites == 0 { return Err(vc_i18n::t!("media-die-spd-datei-enthaelt-keine-sprites").into()); }
+    if b.len() < start + 64 * sprites { return Err(vc_i18n::t!("media-spd-datei-zu-kurz-sprites-sprites", sprites = &sprites, p2 = 64 * sprites, start = &start, p4 = b.len())); }
     Ok(SpdInfo { version, sprites, colors, data_start: start })
 }
 
@@ -61,57 +61,57 @@ pub fn read_spd(b: &[u8]) -> Result<(Vec<C64Spr>, [u8; 3], Vec<String>), String>
         if attr & 0x10 != 0 { overlays += 1; }
         out.push(C64Spr { mc: attr & 0x80 != 0, rows: decode_block(&blk[..63], attr & 0x80 != 0) });
     }
-    if colors_differ { warn.push("Die Sprites haben im SPD-Format verschiedene Farben; übernommen wird die Farbe des ersten (ein Sprite-Asset hat eine Sprite-Farbe)".into()); }
-    if overlays > 0 { warn.push(format!("{overlays} Sprite(s) sind im SPD-Format als Overlay markiert; die Overlay-Zuordnung wird nicht übernommen")); }
+    if colors_differ { warn.push(vc_i18n::t!("media-die-sprites-haben-im-spd-format").into()); }
+    if overlays > 0 { warn.push(vc_i18n::t!("media-overlays-sprite-s-sind-im-spd", overlays = &overlays)); }
     Ok((out, [first_color.unwrap_or(1), i.colors[1], i.colors[2]], warn))
 }
 
 /// Rohdaten: Blöcke zu 64 Bytes (63 Daten + 1 Füll-/Attributbyte)
 pub fn read_raw(b: &[u8], o: &SprOpts, default_mc: bool) -> Result<Vec<C64Spr>, String> {
-    let tail = b.get(o.offset..).ok_or_else(|| format!("Offset {} liegt hinter dem Dateiende ({} Bytes)", o.offset, b.len()))?;
+    let tail = b.get(o.offset..).ok_or_else(|| vc_i18n::t!("media-offset-p1-liegt-hinter-dem-dateiende", p1 = &o.offset, p2 = b.len()))?;
     let avail = tail.len() / 64;
-    if avail == 0 { return Err(format!("ab Offset {} sind weniger als 64 Bytes übrig", o.offset)); }
+    if avail == 0 { return Err(vc_i18n::t!("media-ab-offset-p1-sind-weniger-als", p1 = &o.offset)); }
     let n = if o.count == 0 { avail } else { o.count.min(avail) };
-    if o.count > avail { return Err(format!("{} Sprites verlangt, ab Offset {} gibt es nur {avail} vollständige Blöcke", o.count, o.offset)); }
+    if o.count > avail { return Err(vc_i18n::t!("media-p1-sprites-verlangt-ab-offset-p2", p1 = &o.count, p2 = &o.offset, avail = &avail)); }
     let mc = o.mc.unwrap_or(default_mc);
     Ok((0..n.min(256)).map(|i| C64Spr { mc, rows: decode_block(&tail[i * 64..i * 64 + 63], mc) }).collect())
 }
 
 /// Sprites eines C64-Sprite-Assets
 pub fn read_c64_media(src: &Value, from: &Profile) -> Result<Vec<C64Spr>, String> {
-    src["frames"].as_array().ok_or("frames fehlen")?.iter().enumerate().map(|(i, f)| {
+    src["frames"].as_array().ok_or(vc_i18n::t!("media-frames-fehlen"))?.iter().enumerate().map(|(i, f)| {
         let mc = frame_is_mc(from, f);
-        let rows = f["rows"].as_array().ok_or(format!("Frame {i}: rows fehlt"))?.iter().map(|r| r.as_str().unwrap_or("").chars().map(|c| c.to_digit(16).unwrap_or(0) as u8).collect::<Vec<u8>>()).collect::<Vec<_>>();
+        let rows = f["rows"].as_array().ok_or(vc_i18n::t!("media-frame-i-rows-fehlt", i = &i))?.iter().map(|r| r.as_str().unwrap_or("").chars().map(|c| c.to_digit(16).unwrap_or(0) as u8).collect::<Vec<u8>>()).collect::<Vec<_>>();
         let w = if mc { 12 } else { 24 };
-        if rows.len() != 21 || rows.iter().any(|r| r.len() != w) { return Err(format!("Frame {i}: {}×{} statt {w}×21 Pixel", rows.first().map_or(0, |r| r.len()), rows.len())); }
+        if rows.len() != 21 || rows.iter().any(|r| r.len() != w) { return Err(vc_i18n::t!("media-frame-i-pixelgroesse", i = &i, p1 = rows.first().map_or(0, |r| r.len()), p2 = rows.len(), w = &w)); }
         Ok(C64Spr { mc, rows })
     }).collect()
 }
 
 /// Atari-PMG-Asset → C64-Sprite: die Player 0–2 nebeneinander (24 Pixel breit, Hires), auf 21 Zeilen gekürzt
 pub fn pmg_to_c64(src: &Value, warn: &mut Vec<String>) -> Result<C64Spr, String> {
-    let frames = src["frames"].as_array().ok_or("frames fehlen")?;
-    if frames.len() < 3 { return Err("PMG-Datei hat weniger als 3 Player".into()); }
+    let frames = src["frames"].as_array().ok_or(vc_i18n::t!("media-frames-fehlen"))?;
+    if frames.len() < 3 { return Err(vc_i18n::t!("media-pmg-datei-hat-weniger-als-3").into()); }
     let rows_of = |f: &Value| f["rows"].as_array().map(|r| r.iter().map(|x| x.as_str().unwrap_or("").chars().map(|c| (c == '1') as u8).collect::<Vec<u8>>()).collect::<Vec<_>>()).unwrap_or_default();
     let players: Vec<Vec<Vec<u8>>> = frames.iter().map(rows_of).collect();
     let h = players[0].len();
     let mut rows = vec![vec![0u8; 24]; 21];
     for y in 0..21 { for p in 0..3 { for x in 0..8 { rows[y][p * 8 + x] = players[p].get(y).and_then(|r| r.get(x)).copied().unwrap_or(0); } } }
-    if h > 21 && players.iter().take(3).any(|p| p.iter().skip(21).any(|r| r.iter().any(|&v| v != 0))) { warn.push(format!("Die PMG-Grafik hat {h} Zeilen; die Zeilen ab 22 fehlen im C64-Sprite")); }
-    if players.get(3).map_or(false, |p| p.iter().any(|r| r.iter().any(|&v| v != 0))) { warn.push("Player 3 hat Pixel; ein C64-Sprite ist nur 24 Pixel breit, Player 3 wird nicht übernommen".into()); }
-    warn.push("Die Farben der Player werden nicht übernommen (C64-Farben stehen im Sprite-Asset)".into());
+    if h > 21 && players.iter().take(3).any(|p| p.iter().skip(21).any(|r| r.iter().any(|&v| v != 0))) { warn.push(vc_i18n::t!("media-die-pmg-grafik-hat-h-zeilen", h = &h)); }
+    if players.get(3).map_or(false, |p| p.iter().any(|r| r.iter().any(|&v| v != 0))) { warn.push(vc_i18n::t!("media-player-3-hat-pixel-ein-c64").into()); }
+    warn.push(vc_i18n::t!("media-die-farben-der-player-werden-nicht").into());
     Ok(C64Spr { mc: false, rows })
 }
 
 /// C64-Sprite → Atari-PMG-Asset: Hires-Pixel auf drei Player (je 8 Pixel), Player 3 bleibt leer. Multicolor wird zu Hires verdoppelt.
 pub fn c64_to_pmg(s: &C64Spr, to: &Profile, name: &str, warn: &mut Vec<String>) -> Value {
-    let hires = if s.mc { warn.push("Multicolor-Sprite: die Pixel werden doppelt breit als Hires übernommen, die Mehrfarbigkeit geht verloren (der Atari hat je Player eine Farbe)".into()); mc_to_hires(&s.rows) } else { s.rows.clone() };
+    let hires = if s.mc { warn.push(vc_i18n::t!("media-multicolor-sprite-die-pixel-werden-doppelt").into()); mc_to_hires(&s.rows) } else { s.rows.clone() };
     let mut m = new_media(to, name);
     let h = m["height"].as_u64().unwrap_or(to.height as u64) as usize;
-    if h < 21 { warn.push(format!("Das PMG-Profil hat nur {h} Zeilen; das Sprite wird unten abgeschnitten")); }
+    if h < 21 { warn.push(vc_i18n::t!("media-das-pmg-profil-hat-nur-h", h = &h)); }
     let frames: Vec<Value> = (0..4).map(|p| json!({ "rows": (0..h).map(|y| (0..8).map(|x| if p < 3 { hires.get(y).and_then(|r| r.get(p * 8 + x)).map_or('0', |&v| if v != 0 { '1' } else { '0' }) } else { '0' }).collect::<String>()).collect::<Vec<_>>() })).collect();
     m["frames"] = Value::Array(frames);
-    warn.push("Die Farben werden nicht übernommen (Standardfarben der Player); die drei Player müssen im Programm nebeneinander positioniert werden".into());
+    warn.push(vc_i18n::t!("media-die-farben-werden-nicht-uebernommen-standardfarben").into());
     m
 }
 

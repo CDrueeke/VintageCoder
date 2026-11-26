@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: PRALLBALL",
+    "description": "Ball-and-paddle game with character sprites (TED), joystick/keyboard, 24 levels, high score list"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

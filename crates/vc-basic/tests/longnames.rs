@@ -83,7 +83,7 @@ fn names_that_collide_are_separated_and_warned() {
     assert_ne!(a, b);
     assert_ne!(a, "PU", "PU hat der Programmierer selbst geschrieben");
     assert_ne!(b, "PU");
-    assert!(c.warnings.iter().any(|w| w.code == "W313" && w.message.contains("'punkte'") && w.message.contains("'punkt'")), "{:?}", c.warnings);
+    assert!(c.warnings.iter().any(|w| w.code == "W313" && w.key == "diag-basic-w313-names-collide" && w.arg_text("names").contains("'punkte'") && w.arg_text("names").contains("'punkt'")), "{:?}", c.warnings);
     // PU bleibt PU
     assert!(c.listing.to_ascii_uppercase().contains("PU = 3"), "{}", c.listing);
 }

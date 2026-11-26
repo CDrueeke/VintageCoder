@@ -1,0 +1,60 @@
+{
+ "source": "args/vcc-asm.json",
+ "entries": {
+  "/label": {
+   "de": "Assembler (vc-asm)",
+   "en": "Assembler (vc-asm)",
+   "status": "unverändert"
+  },
+  "/groups/0/label": {
+   "de": "Assembler",
+   "en": "Assembler",
+   "status": "unverändert"
+  },
+  "/params/0/label": {
+   "de": "Illegale Opcodes",
+   "en": "Illegal opcodes",
+   "status": "maschinell"
+  },
+  "/params/0/hint": {
+   "de": "Wie der Assembler mit illegalen (undokumentierten) 6502-Befehlen umgeht.",
+   "en": "How the assembler handles illegal (undocumented) 6502 instructions.",
+   "status": "maschinell"
+  },
+  "/params/0/choices/0/label": {
+   "de": "verbieten (Fehler)",
+   "en": "forbid (error)",
+   "status": "maschinell"
+  },
+  "/params/0/choices/1/label": {
+   "de": "warnen",
+   "en": "warn",
+   "status": "maschinell"
+  },
+  "/params/0/choices/2/label": {
+   "de": "erlauben",
+   "en": "allow",
+   "status": "maschinell"
+  },
+  "/params/1/label": {
+   "de": "Include-Ordner",
+   "en": "Include folder",
+   "status": "maschinell"
+  },
+  "/params/1/hint": {
+   "de": "Zusätzlicher Suchordner für .include und .incbin; nach dem Projektordner, vor den Systemdateien. Weitere Ordner im freien Feld mit je einem eigenen -I.",
+   "en": "Additional search folder for .include and .incbin; after the project folder, before the system files. Further folders in the free field, each with its own -I.",
+   "status": "maschinell"
+  },
+  "/params/2/label": {
+   "de": "Konstante",
+   "en": "Constant",
+   "status": "maschinell"
+  },
+  "/params/2/hint": {
+   "de": "Legt eine Konstante NAME=Zahl für alle Quellen an (z. B. DEBUG=1 für .if DEBUG). Weitere im freien Feld mit je einem eigenen -D.",
+   "en": "Defines a constant NAME=number for all sources (for example DEBUG=1 for .if DEBUG). Further ones in the free field, each with its own -D.",
+   "status": "maschinell"
+  }
+ }
+}

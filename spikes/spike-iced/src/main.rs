@@ -20,8 +20,8 @@ use std::path::PathBuf;
 use std::time::Instant;
 
 const LOGO_ICON: &[u8] = include_bytes!("../../../branding/vintagecoder-icon.png");
-const WORDMARK_FOR_DARK: &[u8] = include_bytes!("../../../branding/vintagecoder-wordmark-light.png");
-const WORDMARK_FOR_LIGHT: &[u8] = include_bytes!("../../../branding/vintagecoder-wordmark-dark.png");
+const WORDMARK_FOR_DARK: &[u8] = include_bytes!("../../../branding/vintagecoder-wortmarke-transparent.png");
+const WORDMARK_FOR_LIGHT: &[u8] = include_bytes!("../../../branding/vintagecoder-wortmarke-hell.png");
 
 pub static UPDATE_NS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 pub static VIEW_NS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);

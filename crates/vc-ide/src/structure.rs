@@ -21,12 +21,19 @@ pub struct Structure {
     pub user: bool,
 }
 
-/// Alle mitgelieferten Strukturen aus `<data>/templates/structures.json` (Vorgabe zuerst: `einfach`)
-pub fn list(data: &Path) -> Vec<Structure> { load_file(&data.join("templates/structures.json"), false) }
+/// Alle mitgelieferten Strukturen aus `<data>/templates/structures.json` (Vorgabe zuerst: `einfach`), ergänzt um die der weiteren Quellen der Registry (Erweiterungen);
+/// bei gleicher Kennung gewinnt die Quelle mit dem höheren Vorrang
+pub fn list(data: &Path) -> Vec<Structure> { list_registry(&crate::registry::Registry::programm(Some(data)).mit_entwicklungsordner()) }
+
+/// Strukturen aus allen Quellen einer Registry (`data/templates/structures.json`): zusammengeführt nach Kennung, Reihenfolge des ersten Auftretens
+pub fn list_registry(r: &crate::registry::Registry) -> Vec<Structure> {
+    r.json_liste("data/templates", "structures.json", Some("structures"), "id").eintraege.iter().filter_map(|e| parse(&e.wert)).collect()
+}
 
 /// Strukturen aus einer Datei im Format von `structures.json`
 pub fn load_file(path: &Path, user: bool) -> Vec<Structure> {
-    let Some(v) = std::fs::read_to_string(path).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()) else { return vec![] };
+    let Some(mut v) = std::fs::read_to_string(path).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()) else { return vec![] };
+    if !user { vc_i18n::localize_json(&mut v, "templates/structures.json"); }
     v["structures"].as_array().into_iter().flatten().filter_map(parse).map(|mut s| { s.user = user; s }).collect()
 }
 
@@ -67,7 +74,7 @@ pub fn delete_user(file: &Path, id: &str) -> Result<bool, String> {
 fn write_all(file: &Path, all: &[Structure]) -> Result<(), String> {
     if let Some(p) = file.parent() { std::fs::create_dir_all(p).map_err(|e| format!("{}: {e}", p.display()))?; }
     let v = serde_json::json!({ "structures": all.iter().map(to_json).collect::<Vec<_>>() });
-    std::fs::write(file, serde_json::to_string_pretty(&v).map_err(|e| e.to_string())? + "\n").map_err(|e| format!("{}: {e}", file.display()))
+    vc_core::atomar::schreiben(file, serde_json::to_string_pretty(&v).map_err(|e| e.to_string())? + "\n").map_err(|e| format!("{}: {e}", file.display()))
 }
 
 /// Kennung aus einem Namen: Kleinbuchstaben, Ziffern, `-`
@@ -134,7 +141,7 @@ pub fn preview_project(root: &Path, pf: &ProjectFile) -> Vec<PreviewLine> {
     let mut paths: Vec<String> = list_dirs(root).into_iter().map(|d| format!("{d}/")).collect();
     let mut notes: BTreeMap<String, String> = BTreeMap::new();
     let mut add_note = |d: &str, t: String| { let e = notes.entry(d.to_string()).or_default(); if !e.is_empty() { e.push_str(", "); } e.push_str(&t); };
-    for f in &pf.folders { if !f.dir.is_empty() { paths.push(format!("{}/", f.dir)); if let Some(l) = crate::projfile::role_label(&f.role) { add_note(&f.dir, l.to_string()); } } }
+    for f in &pf.folders { if !f.dir.is_empty() { paths.push(format!("{}/", f.dir)); if let Some(l) = crate::projfile::role_text(&f.role) { add_note(&f.dir, l); } } }
     for (k, d) in &pf.layout {
         if d.is_empty() || !valid_dir(d) { continue; }
         paths.push(format!("{d}/"));
@@ -153,6 +160,16 @@ fn parse(v: &Value) -> Option<Structure> {
     let layout = v["layout"].as_object().map(|o| o.iter().filter_map(|(k, x)| x.as_str().map(|d| (k.clone(), d.to_string()))).collect()).unwrap_or_default();
     let roles = v["roles"].as_object().map(|o| o.iter().filter_map(|(k, x)| x.as_str().map(|d| (k.clone(), d.to_string()))).collect()).unwrap_or_default();
     Some(Structure { id, name: s("name"), description: s("description"), dirs, layout, roles, user: false })
+}
+
+/// Frühere deutsche Kennungen der mitgelieferten Strukturen gelten als Alias der englischen (`einfach` = `simple` …)
+pub fn canonical_id(id: &str) -> &str {
+    match id { "einfach" => "simple", "gross" => "large", "mehrsystem" => "multisystem", "bibliothek" => "library", "spiel" => "game", other => other }
+}
+
+/// Struktur zu einer Kennung (englisch oder früherer deutscher Alias); eine eigene Struktur mit genau dieser Kennung hat Vorrang
+pub fn find<'a>(list: &'a [Structure], id: &str) -> Option<&'a Structure> {
+    list.iter().find(|s| s.id == id).or_else(|| { let c = canonical_id(id); list.iter().find(|s| s.id == c) })
 }
 
 impl Structure {
@@ -175,7 +192,7 @@ impl Structure {
             let new = !p.exists();
             std::fs::create_dir_all(&p).map_err(|e| format!("{d}: {e}"))?;
             if new {
-                if gitkeep { std::fs::write(p.join(".gitkeep"), "").map_err(|e| format!("{d}: {e}"))?; }
+                if gitkeep { vc_core::atomar::schreiben(p.join(".gitkeep"), "").map_err(|e| format!("{d}: {e}"))?; }
                 made.push(d);
             }
         }
@@ -199,7 +216,7 @@ mod tests {
     fn mitgelieferte_strukturen_sind_gueltig() {
         let l = list(&data());
         let ids: Vec<&str> = l.iter().map(|s| s.id.as_str()).collect();
-        assert_eq!(ids, ["einfach", "standard", "gross", "mehrsystem", "bibliothek", "spiel"]);
+        assert_eq!(ids, ["simple", "standard", "large", "multisystem", "library", "game"]);
         assert!(l[0].dirs.is_empty() && l[0].layout.is_empty(), "Vorgabe ändert nichts");
         for s in &l {
             assert!(!s.name.is_empty() && !s.description.is_empty(), "{}", s.id);
@@ -213,7 +230,7 @@ mod tests {
     fn anwenden_legt_ordner_an_und_traegt_layout_ein() {
         let root = std::env::temp_dir().join(format!("vc_struct_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root); std::fs::create_dir_all(root.join("doc")).unwrap();
-        let s = list(&data()).into_iter().find(|s| s.id == "mehrsystem").unwrap();
+        let s = list(&data()).into_iter().find(|s| s.id == "multisystem").unwrap();
         let sys = vec!["c64".to_string(), "atari8".to_string()];
         assert_eq!(s.dirs_for(&sys), ["src/common", "src/c64", "src/atari8", "res/common", "res/c64", "res/atari8", "doc", "tests"]);
         let mut pf = ProjectFile::default();
@@ -282,5 +299,19 @@ mod tests {
         let v = preview_project(&root, &pf);
         assert!(v.iter().any(|l| l.name == "bin" && l.note.contains("Binärdaten") && l.new) && v.iter().any(|l| l.name == "music" && l.note.contains("*.sid")) && v.iter().any(|l| l.name == "src" && !l.new));
         let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn deutsche_kennungen_bleiben_alias() {
+        let l = list(&data());
+        for (alt, neu) in [("einfach", "simple"), ("standard", "standard"), ("gross", "large"), ("mehrsystem", "multisystem"), ("bibliothek", "library"), ("spiel", "game")] {
+            assert_eq!(find(&l, alt).map(|s| s.id.as_str()), Some(neu), "{alt}");
+            assert_eq!(find(&l, neu).map(|s| s.id.as_str()), Some(neu), "{neu}");
+        }
+        assert!(find(&l, "gibtsnicht").is_none());
+        // eine eigene Struktur mit der Kennung „spiel“ hat Vorrang vor dem Alias
+        let mut mit_eigener = l.clone();
+        mit_eigener.push(Structure { id: "spiel".into(), name: "Mein Spiel".into(), user: true, ..Default::default() });
+        assert_eq!(find(&mit_eigener, "spiel").map(|s| s.name.as_str()), Some("Mein Spiel"));
     }
 }

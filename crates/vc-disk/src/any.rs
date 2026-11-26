@@ -74,7 +74,7 @@ impl AnyDisk {
         if n.ends_with(".atr") { Atr::from_bytes(b).map(AnyDisk::Atr) }
         else if n.ends_with(".d64") { D64::from_bytes(b).map(AnyDisk::D64) }
         else if let Some(k) = Kind::from_extension(&n) { Disk::from_bytes(k, b).map(AnyDisk::Cbm) }
-        else { Err(format!("{name}: unbekanntes Imageformat (erwartet .d64, .d71, .d81 oder .atr)")) }
+        else { Err(vc_i18n::t!("disk-name-unbekanntes-imageformat-erwartet-d64-d71", name = &name)) }
     }
 
     /// Leere, formatierte Diskette
@@ -91,11 +91,11 @@ impl AnyDisk {
         match self { AnyDisk::D64(_) => Format::D64, AnyDisk::Cbm(d) => if d.kind() == Kind::D71 { Format::D71 } else { Format::D81 }, AnyDisk::Atr(_) => Format::Atr }
     }
     pub fn to_bytes(&self) -> Vec<u8> { match self { AnyDisk::D64(d) => d.to_bytes(), AnyDisk::Cbm(d) => d.to_bytes(), AnyDisk::Atr(a) => a.to_bytes() } }
-    pub fn tracks(&self) -> usize { match self { AnyDisk::D64(_) => 35, AnyDisk::Cbm(d) => d.kind().tracks(), AnyDisk::Atr(_) => crate::atr::SECTORS / ATR_PER_TRACK } }
+    pub fn tracks(&self) -> usize { match self { AnyDisk::D64(_) => 35, AnyDisk::Cbm(d) => d.kind().tracks(), AnyDisk::Atr(a) => a.sector_count().div_ceil(ATR_PER_TRACK) } }
     pub fn sectors_in_track(&self, t: usize) -> usize {
-        match self { AnyDisk::D64(_) => crate::sectors_in_track(t), AnyDisk::Cbm(d) => d.kind().sectors(t), AnyDisk::Atr(_) => ATR_PER_TRACK }
+        match self { AnyDisk::D64(_) => crate::sectors_in_track(t), AnyDisk::Cbm(d) => d.kind().sectors(t), AnyDisk::Atr(a) => ATR_PER_TRACK.min(a.sector_count().saturating_sub(t.saturating_sub(1) * ATR_PER_TRACK)) }
     }
-    pub fn sector_size(&self) -> usize { if self.format().is_atari() { crate::atr::SECTOR_SIZE } else { 256 } }
+    pub fn sector_size(&self) -> usize { match self { AnyDisk::Atr(a) => a.sector_size(), _ => 256 } }
     pub fn total_sectors(&self) -> usize { (1..=self.tracks()).map(|t| self.sectors_in_track(t)).sum() }
     /// Disketten-Name (leer beim Atari)
     pub fn title(&self) -> Vec<u8> {
@@ -116,7 +116,7 @@ impl AnyDisk {
         match self {
             AnyDisk::D64(d) => d.raw_sector(a.track, a.sector).map(|s| s.to_vec()),
             AnyDisk::Cbm(d) => d.raw_sector(a.track, a.sector).map(|s| s.to_vec()),
-            AnyDisk::Atr(x) => { if a.track == 0 || a.track > self.tracks() || a.sector >= ATR_PER_TRACK { None } else { Some(x.sector(Self::atr_number(a)).to_vec()) } }
+            AnyDisk::Atr(x) => { if a.track == 0 || a.track > self.tracks() || a.sector >= self.sectors_in_track(a.track) { None } else { Some(x.sector(Self::atr_number(a)).to_vec()) } }
         }
     }
 
@@ -131,8 +131,8 @@ impl AnyDisk {
         let s = self.sector(a)?;
         if self.format().is_atari() {
             if !matches!(an.cell(a)?, Cell::File(_) | Cell::Conflict) { return None; }
-            let n = ((s[125] & 3) as usize) << 8 | s[126] as usize;
-            return if n == 0 || n > crate::atr::SECTORS { None } else { Some(Self::atr_addr(n)) };
+            let l = s.len(); let n = ((s[l - 3] & 3) as usize) << 8 | s[l - 2] as usize;
+            return if n == 0 || n > self.atr_count() { None } else { Some(Self::atr_addr(n)) };
         }
         let n = Addr { track: s[0] as usize, sector: s[1] as usize };
         if n.track == 0 || !self.valid(n) { None } else { Some(n) }
@@ -147,18 +147,20 @@ impl AnyDisk {
             AnyDisk::D64(d) => cbm_files(d.entries()),
             AnyDisk::Cbm(d) => cbm_files(d.entries()),
             AnyDisk::Atr(a) => a.dos2_entries().into_iter().map(|e| {
-                let kind = match a.dos2_read(&e.name) {
+                let kind = if e.dir { "DIR" } else { match a.dos2_read(&e.name) {
                     Ok(d) if d.len() >= 2 && d[0] == 0xFF && d[1] == 0xFF => "XEX",
                     _ if e.name.ends_with(".BAS") => "BAS",
                     _ => "DAT",
-                };
-                FileInfo { autostart: e.name == "AUTORUN.SYS", name: e.name.into_bytes(), kind, start: Self::atr_addr((e.start as usize).clamp(1, crate::atr::SECTORS)), blocks: e.sectors, locked: e.locked }
+                } };
+                FileInfo { autostart: e.name == "AUTORUN.SYS", name: e.name.into_bytes(), kind, start: Self::atr_addr((e.start as usize).clamp(1, a.sector_count())), blocks: e.sectors, locked: e.locked }
             }).collect(),
         }
     }
 
     /// Prüfmeldungen des Dateisystems (leer = in Ordnung)
     /// Hat das Image ein Dateisystem mit Verzeichnis? Nur eine ATR-Boot-Diskette ohne DOS-2-VTOC hat keines.
+    /// Anzahl der Sektoren eines ATR-Abbilds (sonst 0)
+    fn atr_count(&self) -> usize { match self { AnyDisk::Atr(a) => a.sector_count(), _ => 0 } }
     pub fn has_filesystem(&self) -> bool { match self { AnyDisk::Atr(a) => a.has_dos2(), _ => true } }
     pub fn check(&self) -> Vec<String> { match self { AnyDisk::D64(d) => d.check(), AnyDisk::Cbm(d) => d.check(), AnyDisk::Atr(a) => a.dos2_check() } }
 
@@ -168,6 +170,19 @@ impl AnyDisk {
             AnyDisk::D64(d) => { d.add_prg(name, data)?; Ok(name.to_ascii_uppercase()) }
             AnyDisk::Cbm(d) => { d.add_prg(name, data)?; Ok(name.to_ascii_uppercase()) }
             AnyDisk::Atr(a) => { let n = dos2_name(name); a.dos2_add(&n, data)?; Ok(n) }
+        }
+    }
+
+    /// Verzeichniseintrag `von` an die Stelle `nach` setzen (Nummern wie in [`AnyDisk::files`]); die Dateien selbst bleiben unberührt.
+    /// Atari: nur Einträge des Hauptverzeichnisses, nur 128-Byte-Sektoren.
+    pub fn move_entry(&mut self, from: usize, to: usize) -> Result<(), String> {
+        match self {
+            AnyDisk::D64(d) => d.move_entry(from, to),
+            AnyDisk::Cbm(d) => d.move_entry(from, to),
+            AnyDisk::Atr(a) => {
+                let wurzel: Vec<usize> = a.dos2_entries().iter().enumerate().filter(|(_, e)| !e.name.contains('/')).map(|(i, _)| i).collect();
+                match (wurzel.iter().position(|&i| i == from), wurzel.iter().position(|&i| i == to)) { (Some(rf), Some(rt)) => a.dos2_move(rf, rt), _ => Err(vc_i18n::t!("disk-verschieben-nur-hauptverzeichnis").into()) }
+            }
         }
     }
 
@@ -181,11 +196,11 @@ impl AnyDisk {
         let mut problems = vec![];
         // Boot-Diskette ohne Dateisystem: belegt sind genau die Sektoren mit Inhalt, es gibt kein Verzeichnis
         let boot_only = !self.has_filesystem();
-        let system: Vec<Addr> = if boot_only { (1..=crate::atr::SECTORS).map(Self::atr_addr).filter(|a| self.sector(*a).map_or(false, |s| s.iter().any(|&b| b != 0))).collect() } else { match self {
+        let system: Vec<Addr> = if boot_only { (1..=self.atr_count()).map(Self::atr_addr).filter(|a| self.sector(*a).map_or(false, |s| s.iter().any(|&b| b != 0))).collect() } else { match self {
             AnyDisk::D64(_) => vec![Addr { track: 18, sector: 0 }],
             AnyDisk::Cbm(d) if d.kind() == Kind::D71 => (0..19).map(|s| Addr { track: 53, sector: s }).chain([Addr { track: 18, sector: 0 }]).collect(),
             AnyDisk::Cbm(_) => (0..3).map(|s| Addr { track: 40, sector: s }).collect(),
-            AnyDisk::Atr(_) => (1..=3).chain([360, 720]).map(Self::atr_addr).collect(),
+            AnyDisk::Atr(a) => a.system_sectors().into_iter().filter(|n| !(361..=368).contains(n) && !a.subdir_sectors().contains(n)).map(Self::atr_addr).collect(),
         } };
         for a in system { set(&mut cells, a, Cell::System); }
         if let Some(mut a) = self.dir_start() {
@@ -196,14 +211,16 @@ impl AnyDisk {
                 let Some(s) = self.sector(a) else { break };
                 let nx = Addr { track: s[0] as usize, sector: s[1] as usize };
                 if nx.track == 0 || !self.valid(nx) || n > 400 { break; }
-                if cells[nx.track - 1][nx.sector] == Some(Cell::Dir) { problems.push("Verzeichniskette ist ein Kreis".into()); break; }
+                if cells[nx.track - 1][nx.sector] == Some(Cell::Dir) { problems.push(vc_i18n::t!("disk-verzeichniskette-ist-ein-kreis").into()); break; }
                 a = nx;
             }
         } else if !boot_only {
-            for n in 361..=368 { set(&mut cells, Self::atr_addr(n), Cell::Dir); }
+            let sub = if let AnyDisk::Atr(a) = self { a.subdir_sectors() } else { vec![] };
+            for n in (361..=368).chain(sub) { if n <= self.atr_count() { set(&mut cells, Self::atr_addr(n), Cell::Dir); } }
         }
         let mut link_deltas: Vec<usize> = vec![];
         for (i, f) in files.iter().enumerate() {
+            if f.kind == "DIR" { continue; }   // Unterverzeichnis: seine Sektoren stehen schon als Verzeichnis in der Karte
             let mut a = f.start;
             let mut steps = 0;
             while self.valid(a) {
@@ -211,8 +228,8 @@ impl AnyDisk {
                 steps += 1;
                 let Some(s) = self.sector(a) else { break };
                 let nx = if self.format().is_atari() {
-                    let n = ((s[125] & 3) as usize) << 8 | s[126] as usize;
-                    if n == 0 || n > crate::atr::SECTORS { break } else { Self::atr_addr(n) }
+                    let l = s.len(); let n = ((s[l - 3] & 3) as usize) << 8 | s[l - 2] as usize;
+                    if n == 0 || n > self.atr_count() { break } else { Self::atr_addr(n) }
                 } else {
                     let nx = Addr { track: s[0] as usize, sector: s[1] as usize };
                     if nx.track == 0 { break } else { nx }
@@ -257,4 +274,35 @@ pub fn dos2_name(name: &str) -> String {
     if !b.chars().next().map_or(false, |c| c.is_ascii_uppercase()) { b = format!("F{b}").chars().take(8).collect(); }
     let e = clean(ext, 3);
     if e.is_empty() { b } else { format!("{b}.{e}") }
+}
+
+#[cfg(test)]
+mod tests_verschieben {
+    use super::*;
+    fn namen(d: &AnyDisk) -> Vec<String> { d.files().iter().map(|f| String::from_utf8_lossy(&f.name).into_owned()).collect() }
+    fn mit_dateien(f: Format) -> AnyDisk {
+        let mut d = AnyDisk::blank(f, "T", "01").unwrap();
+        for (n, len) in [("AAA", 300usize), ("BBB", 700), ("CCC", 120), ("DDD", 1000)] { let nm = if f.is_atari() { format!("{n}.DAT") } else { n.to_string() }; let mut b = vec![n.as_bytes()[0]; len]; if !f.is_atari() { b[0] = 1; b[1] = 8; } d.add_file(&nm, &b).unwrap(); }
+        d
+    }
+    #[test]
+    fn eintraege_umordnen_in_allen_formaten_dateien_bleiben_lesbar() {
+        for f in [Format::D64, Format::D71, Format::D81, Format::Atr] {
+            let mut d = mit_dateien(f); let vor = namen(&d); assert_eq!(vor.len(), 4, "{f:?}");
+            d.move_entry(0, 2).unwrap();
+            let nach = namen(&d); assert_eq!(nach, vec![vor[1].clone(), vor[2].clone(), vor[0].clone(), vor[3].clone()], "{f:?}");
+            d.move_entry(3, 0).unwrap(); assert_eq!(namen(&d)[0], vor[3], "{f:?}");
+            assert!(d.check().is_empty(), "{f:?} nach dem Umordnen unverändert in Ordnung: {:?}", d.check());
+            // neu geschrieben und wieder gelesen: gleiche Reihenfolge
+            let b = d.to_bytes(); let wieder = AnyDisk::from_file_bytes(&format!("x.{}", f.label().to_lowercase()), &b).unwrap(); assert_eq!(namen(&wieder), namen(&d), "{f:?}");
+            assert!(d.move_entry(0, 9).is_err(), "{f:?}");
+        }
+    }
+    #[test]
+    fn atari_datei_nummern_folgen_dem_eintrag() {
+        let mut d = mit_dateien(Format::Atr); let AnyDisk::Atr(a) = &d else { panic!() }; let inh: Vec<Vec<u8>> = ["AAA.DAT", "BBB.DAT", "CCC.DAT", "DDD.DAT"].iter().map(|n| a.dos2_read(n).unwrap()).collect();
+        d.move_entry(3, 0).unwrap(); d.move_entry(1, 3).unwrap();
+        let AnyDisk::Atr(a) = &d else { panic!() };
+        for (n, i) in [("AAA.DAT", 0), ("BBB.DAT", 1), ("CCC.DAT", 2), ("DDD.DAT", 3)] { assert_eq!(a.dos2_read(n).unwrap(), inh[i], "{n} unverändert lesbar"); }
+    }
 }

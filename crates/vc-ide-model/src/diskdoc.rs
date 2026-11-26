@@ -32,6 +32,10 @@ pub struct DiskDoc {
     pub report: Option<Vec<String>>,
     /// letzte Meldung (Erfolg, Text)
     pub note: Option<(bool, String)>,
+    /// Rückgängig/Wiederholen: Abbilder (Bytes) vor bzw. nach einer Änderung; `gespeichert` = Tiefe des Rückgängig-Verlaufs beim letzten Speichern
+    pub undo: Vec<Vec<u8>>,
+    pub redo: Vec<Vec<u8>>,
+    gespeichert: Option<usize>,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -52,16 +56,21 @@ pub fn atascii_text(b: &[u8]) -> String { b.iter().map(|&c| if (0x20..0x7F).cont
 pub fn name_text(atari: bool, b: &[u8]) -> String { if atari { atascii_text(b) } else { petscii_text(b) } }
 
 /// „3,5 KB“ wie im Mockup
-pub fn size_text(n: usize) -> String { if n < 1024 { format!("{n} B") } else { format!("{:.1} KB", n as f64 / 1024.0).replace('.', ",") } }
+pub fn size_text(n: usize) -> String { if n < 1024 { vc_i18n::t!("diskdoc-n-b", n = &n) } else { vc_i18n::t!("diskdoc-p1-kb", p1 = vc_i18n::num((n as f64 / 1024.0) as f64, 1)).replace('.', ",") } }
 
 pub fn addr_text(f: Format, a: Addr) -> String { if f.is_atari() { format!("{}", AnyDisk::atr_number(a)) } else { format!("{}/{:02}", a.track, a.sector) } }
 
 pub fn geometry_text(d: &AnyDisk) -> String {
     match d.format() {
-        Format::D64 => "1541 · 35 Spuren · 683 Sektoren".into(),
-        Format::D71 => "1571 · 70 Spuren (2 Seiten) · 1366 Sektoren".into(),
-        Format::D81 => "1581 · 80 Spuren zu 40 Sektoren · 3200 Sektoren".into(),
-        Format::Atr => "Atari DOS 2 · 720 Sektoren zu 128 Byte".into(),
+        Format::D64 => vc_i18n::t!("diskdoc-1541-35-spuren-683-sektoren").into(),
+        Format::D71 => vc_i18n::t!("diskdoc-1571-70-spuren-2-seiten-1366").into(),
+        Format::D81 => vc_i18n::t!("diskdoc-1581-80-spuren-zu-40-sektoren").into(),
+        Format::Atr => match d { AnyDisk::Atr(a) => {
+            let dos = a.kind().name();
+            let mut t: String = if dos.is_empty() { vc_i18n::t!("diskdoc-atari-ohne-dos", n = &a.sector_count(), ssz = &a.sector_size()).into() } else { vc_i18n::t!("diskdoc-atari-geometrie", dos = dos, n = &a.sector_count(), ssz = &a.sector_size()).into() };
+            if a.boot_128() { t.push_str(&vc_i18n::t!("diskdoc-atari-boot-128")); }
+            t
+        } _ => String::new() },
     }
 }
 
@@ -76,12 +85,12 @@ pub fn ist_programm(img: &Image, kind: &str) -> bool { kind == "PRG" || (img.ata
 /// Wer ein Sektor ist, in Worten (Inspektor, Hinweis über der Belegungskarte)
 pub fn zelle_text(atari: bool, c: Cell, files: &[FileInfo]) -> String {
     match c {
-        Cell::Free => "frei".to_string(),
-        Cell::System => if atari { "Boot / VTOC".into() } else { "Kopf / BAM".into() },
-        Cell::Dir => "Verzeichnis".into(),
+        Cell::Free => vc_i18n::t!("diskdoc-frei"),
+        Cell::System => if atari { vc_i18n::t!("diskdoc-boot-vtoc").into() } else { vc_i18n::t!("diskdoc-kopf-bam").into() },
+        Cell::Dir => vc_i18n::t!("diskdoc-verzeichnis").into(),
         Cell::File(i) => files.get(i).map(|f| format!("{} ({})", name_text(atari, &f.name), f.kind)).unwrap_or_default(),
-        Cell::Orphan => "belegt, aber ohne Datei".into(),
-        Cell::Conflict => "von mehreren Ketten erreicht".into(),
+        Cell::Orphan => vc_i18n::t!("diskdoc-belegt-aber-ohne-datei").into(),
+        Cell::Conflict => vc_i18n::t!("diskdoc-von-mehreren-ketten-erreicht").into(),
     }
 }
 
@@ -91,7 +100,7 @@ pub struct HexZeile { pub versatz: usize, pub bytes: Vec<(u8, bool)>, pub text: 
 impl DiskDoc {
     fn leer(data: Option<PathBuf>) -> DiskDoc {
         DiskDoc { kette_an: true, path: None, disk: Err(String::new()), img: None, files: vec![], an: Analysis { cells: vec![], free: 0, used: 0, problems: vec![], interleave: None },
-            dirty: false, sel_file: None, cur: Addr { track: 1, sector: 0 }, history: vec![], checked: vec![], basic: vec![], opts: ImportOpts::default(), data, report: None, note: None }
+            dirty: false, sel_file: None, cur: Addr { track: 1, sector: 0 }, history: vec![], checked: vec![], basic: vec![], opts: ImportOpts::default(), data, report: None, note: None, undo: vec![], redo: vec![], gespeichert: Some(0) }
     }
 
     /// Image aus einer Datei öffnen; ein unlesbares Image bleibt als Fehlertext im Dokument (`disk` = `Err`)
@@ -104,7 +113,7 @@ impl DiskDoc {
     /// Neue, leere Diskette (noch nicht gespeichert)
     pub fn neu(format: Format, name: &str, id: &str, data: Option<PathBuf>) -> Result<DiskDoc, String> {
         let d = AnyDisk::blank(format, name, id)?;
-        let mut s = Self::leer(data); s.dirty = true; s.set_disk(Ok(d)); Ok(s)
+        let mut s = Self::leer(data); s.dirty = true; s.gespeichert = None; s.set_disk(Ok(d)); Ok(s)
     }
 
     fn set_disk(&mut self, d: Result<AnyDisk, String>) {
@@ -134,7 +143,7 @@ impl DiskDoc {
     pub fn format(&self) -> Option<Format> { self.disk.as_ref().ok().map(|d| d.format()) }
     pub fn atari(&self) -> bool { self.format().is_some_and(|f| f.is_atari()) }
     /// Dateiname (oder „neu, nicht gespeichert“)
-    pub fn titel(&self) -> String { self.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "(neu, nicht gespeichert)".into()) }
+    pub fn titel(&self) -> String { self.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| vc_i18n::t!("diskdoc-neu-nicht-gespeichert").into()) }
     pub fn ist_d81(&self) -> bool { self.path.as_ref().and_then(|p| p.extension()).is_some_and(|e| e.eq_ignore_ascii_case("d81")) }
 
     // -- Auswahl und Vormerken ---------------------------------------------------------------------------------------
@@ -183,28 +192,28 @@ impl DiskDoc {
 
     // -- Inspektor ----------------------------------------------------------------------------------------------------
 
-    pub fn sektor_titel(&self) -> String { if self.atari() { format!("Sektor {}", AnyDisk::atr_number(self.cur)) } else { format!("Sektor {}/{}", self.cur.track, self.cur.sector) } }
+    pub fn sektor_titel(&self) -> String { if self.atari() { vc_i18n::t!("diskdoc-sektor-p1", p1 = AnyDisk::atr_number(self.cur)) } else { vc_i18n::t!("diskdoc-sektor-p1-p2", p1 = &self.cur.track, p2 = &self.cur.sector) } }
     /// Zugehörigkeit des aktuellen Sektors in Worten
     pub fn besitzer(&self) -> Option<String> {
         let atari = self.atari();
         Some(match self.an.cell(self.cur)? {
-            Cell::File(i) => self.files.get(i).map(|f| format!("gehört zu {}", name_text(atari, &f.name)))?,
-            Cell::Dir => "Verzeichnis".into(), Cell::System => if atari { "Boot bzw. VTOC".into() } else { "Kopf / BAM".into() },
-            Cell::Free => "frei laut BAM".into(), Cell::Orphan => "belegt ohne Datei".into(), Cell::Conflict => "Konflikt: mehrfach belegt".into(),
+            Cell::File(i) => self.files.get(i).map(|f| vc_i18n::t!("diskdoc-gehoert-zu-p1", p1 = name_text(atari, &f.name)))?,
+            Cell::Dir => vc_i18n::t!("diskdoc-verzeichnis").into(), Cell::System => if atari { vc_i18n::t!("diskdoc-boot-bzw-vtoc").into() } else { vc_i18n::t!("diskdoc-kopf-bam").into() },
+            Cell::Free => vc_i18n::t!("diskdoc-frei-laut-bam").into(), Cell::Orphan => vc_i18n::t!("diskdoc-belegt-ohne-datei").into(), Cell::Conflict => vc_i18n::t!("diskdoc-konflikt-mehrfach-belegt").into(),
         })
     }
     /// Hinweis zum Kettenzeiger des aktuellen Sektors
     pub fn zeiger_hinweis(&self) -> Option<String> {
         let data = self.disk.as_ref().ok()?.sector(self.cur)?;
         Some(if self.atari() {
-            let n = ((data[125] & 3) as usize) << 8 | data[126] as usize;
-            format!("Datei-Nr. {} · Folgesektor {} · {} Datenbytes", data[125] >> 2, if n == 0 { "–".into() } else { n.to_string() }, data[127])
-        } else if data[0] == 0 { format!("Kettenende · letztes Byte {}", data[1]) } else { format!("Zeiger {}/{}", data[0], data[1]) })
+            let l = data.len(); let n = ((data[l - 3] & 3) as usize) << 8 | data[l - 2] as usize;
+            vc_i18n::t!("diskdoc-datei-nr-p1-folgesektor-p2-p3", p1 = data[l - 3] >> 2, p2 = if n == 0 { "–".into() } else { n.to_string() }, p3 = data[l - 1])
+        } else if data[0] == 0 { vc_i18n::t!("diskdoc-kettenende-letztes-byte-p1", p1 = data[1]) } else { vc_i18n::t!("diskdoc-zeiger-p1-p2", p1 = data[0], p2 = data[1]) })
     }
     /// Hexdarstellung des aktuellen Sektors (`breite` Bytes je Zeile); `None` = außerhalb der Diskette
     pub fn sektor_zeilen(&self, breite: usize) -> Option<Vec<HexZeile>> {
         let data = self.disk.as_ref().ok()?.sector(self.cur)?;
-        let zeiger: std::ops::Range<usize> = if self.atari() { 125..128 } else { 0..2 };
+        let zeiger: std::ops::Range<usize> = if self.atari() { data.len() - 3..data.len() } else { 0..2 };
         let breite = breite.max(1);
         Some(data.chunks(breite).enumerate().map(|(r, c)| HexZeile { versatz: r * breite, bytes: c.iter().enumerate().map(|(i, b)| (*b, zeiger.contains(&(r * breite + i)))).collect(), text: c.iter().map(|&b| if (0x20..0x7F).contains(&b) { b as char } else { '·' }).collect() }).collect())
     }
@@ -213,12 +222,50 @@ impl DiskDoc {
 
     // -- Aktionen -----------------------------------------------------------------------------------------------------
 
+    // -- Rückgängig/Wiederholen und Umordnen -------------------------------------------------------------------------------
+    const VERLAUF_MAX: usize = 30;
+    fn verlauf_merken(&mut self, vorher: Vec<u8>) {
+        if self.gespeichert.is_some_and(|g| g > self.undo.len()) { self.gespeichert = None; }   // der gespeicherte Stand ist durch die neue Änderung nicht mehr erreichbar
+        self.undo.push(vorher); self.redo.clear(); if self.undo.len() > Self::VERLAUF_MAX { self.undo.remove(0); self.gespeichert = self.gespeichert.and_then(|g| g.checked_sub(1)); }
+    }
+    fn abbild_setzen(&mut self, bytes: &[u8]) -> bool {
+        let Some(f) = self.format() else { return false };
+        match AnyDisk::from_file_bytes(&format!("x.{}", f.label().to_lowercase()), bytes) {
+            Ok(d) => { let sel = self.sel_file; let marken = self.checked.clone(); self.disk = Ok(d); self.refresh(); self.sel_file = sel.filter(|&i| i < self.files.len()); if marken.len() == self.checked.len() { self.checked = marken; } true }
+            Err(_) => false,
+        }
+    }
+    fn dirty_nachfuehren(&mut self) { self.dirty = self.gespeichert != Some(self.undo.len()); }
+    pub fn rueckgaengig(&mut self) -> bool {
+        let Some(b) = self.undo.pop() else { return false }; let Ok(d) = &self.disk else { return false };
+        let jetzt = d.to_bytes(); if !self.abbild_setzen(&b) { self.undo.push(b); return false }
+        self.redo.push(jetzt); self.dirty_nachfuehren(); true
+    }
+    pub fn wiederholen(&mut self) -> bool {
+        let Some(b) = self.redo.pop() else { return false }; let Ok(d) = &self.disk else { return false };
+        let jetzt = d.to_bytes(); if !self.abbild_setzen(&b) { self.redo.push(b); return false }
+        self.undo.push(jetzt); self.dirty_nachfuehren(); true
+    }
+    /// Verzeichniseintrag `von` an die Stelle `nach` setzen (ein Rückgängig-Schritt); gewählte Datei und Vormerkung wandern mit
+    pub fn datei_verschieben(&mut self, von: usize, nach: usize) -> Result<(), String> {
+        let n = self.files.len(); if von >= n || nach >= n { return Err(vc_i18n::t!("disk-eintrag-nummer-ungueltig").into()); }
+        if von == nach { return Ok(()) }
+        let Ok(d) = &mut self.disk else { return Err(vc_i18n::t!("disk-eintrag-nummer-ungueltig").into()) };
+        let vorher = d.to_bytes(); d.move_entry(von, nach)?;
+        self.verlauf_merken(vorher); self.dirty = true;
+        let (sel, mut marken) = (self.sel_file, self.checked.clone());
+        self.refresh();
+        let m = marken.remove(von); marken.insert(nach, m); if marken.len() == self.checked.len() { self.checked = marken; }
+        self.sel_file = sel.map(|s| if s == von { nach } else if von < nach && s > von && s <= nach { s - 1 } else if nach < von && s >= nach && s < von { s + 1 } else { s });
+        Ok(())
+    }
+
     pub fn validieren(&mut self) { if let Ok(d) = &self.disk { self.report = Some(d.check()) } }
 
     pub fn speichern_unter(&mut self, p: PathBuf) {
         let Ok(d) = &self.disk else { return };
-        match std::fs::write(&p, d.to_bytes()) {
-            Ok(()) => { self.note = Some((true, format!("gespeichert: {}", p.display()))); self.path = Some(p); self.dirty = false; self.refresh(); }
+        match vc_core::atomar::schreiben(&p, d.to_bytes()) {
+            Ok(()) => { self.note = Some((true, vc_i18n::t!("diskdoc-gespeichert-p1", p1 = p.display()))); self.path = Some(p); self.dirty = false; self.gespeichert = Some(self.undo.len()); self.refresh(); }
             Err(e) => self.note = Some((false, format!("{}: {e}", p.display()))),
         }
     }
@@ -226,19 +273,20 @@ impl DiskDoc {
 
     /// Dateien auf die Diskette schreiben (Ablegen/„Hinzufügen“); der Name wird auf die Regeln des Formats gebracht
     pub fn dateien_ablegen(&mut self, paths: &[PathBuf]) {
+        let vorher = self.disk.as_ref().ok().map(|d| d.to_bytes());
         let Ok(d) = &mut self.disk else { return };
-        if !d.has_filesystem() { self.note = Some((false, "Boot-Diskette ohne Dateisystem: Dateien lassen sich hier nicht ablegen.".into())); return }
+        if !d.has_filesystem() { self.note = Some((false, vc_i18n::t!("diskdoc-boot-diskette-ohne-dateisystem-dateien-lassen").into())); return }
         let (mut meldungen, mut ok) = (vec![], 0);
         for p in paths {
             let stem = p.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
             let name = if d.format().is_atari() { p.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default() } else { stem.chars().take(16).collect() };
             match std::fs::read(p).map_err(|e| e.to_string()).and_then(|b| d.add_file(&name, &b)) {
-                Ok(n) => { ok += 1; meldungen.push(format!("»{n}« hinzugefügt")) }
+                Ok(n) => { ok += 1; meldungen.push(vc_i18n::t!("diskdoc-n-hinzugefuegt", n = &n)) }
                 Err(e) => meldungen.push(format!("{}: {e}", p.display())),
             }
         }
         self.note = Some((ok > 0 && meldungen.len() == ok, meldungen.join(" · ")));
-        if ok > 0 { self.dirty = true; self.refresh() }
+        if ok > 0 { if let Some(b) = vorher { self.verlauf_merken(b); } self.dirty = true; self.refresh() }
     }
 
     /// Vorgemerkte Dateien ins Projekt übernehmen; Meldungen (Erfolg, Text)

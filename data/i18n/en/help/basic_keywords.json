@@ -1,0 +1,515 @@
+{
+ "source": "help/basic_keywords.json",
+ "entries": {
+  "/keywords/PRINT/text": {
+   "de": "Gibt Text und Zahlen aus. `;` hängt direkt an, `,` springt zur nächsten Spalte.",
+   "en": "Prints text and numbers. `;` continues directly, `,` jumps to the next column.",
+   "status": "maschinell"
+  },
+  "/keywords/INPUT/text": {
+   "de": "Liest eine Eingabe in eine Variable.",
+   "en": "Reads input into a variable.",
+   "status": "maschinell"
+  },
+  "/keywords/GET/text": {
+   "de": "Liest eine einzelne Taste (ohne Warten) in eine Variable.",
+   "en": "Reads a single key (without waiting) into a variable.",
+   "status": "maschinell"
+  },
+  "/keywords/LET/text": {
+   "de": "Zuweisung (das Wort `let` ist optional).",
+   "en": "Assignment (the word `let` is optional).",
+   "status": "maschinell"
+  },
+  "/keywords/IF/text": {
+   "de": "Bedingte Ausführung: `if bedingung then anweisung`. Statt einer Anweisung darf eine Zeilennummer oder Marke stehen. Mehrzeilig mit `else`/`endif` nur in Turbo BASIC XL; BASIC 3.5/7/65 kennen `else` in einer Zeile.",
+   "en": "Conditional execution: `if condition then statement`. Instead of a statement, you can give a line number or label. Multi-line with `else`/`endif` only in Turbo BASIC XL; BASIC 3.5/7/65 allow `else` on one line.",
+   "status": "maschinell"
+  },
+  "/keywords/THEN/text": {
+   "de": "Folgt auf `if`; danach eine Anweisung, eine Zeilennummer oder eine Marke.",
+   "en": "Follows `if`; after it comes a statement, a line number or a label.",
+   "status": "maschinell"
+  },
+  "/keywords/ELSE/text": {
+   "de": "BASIC 3.5/7/65: Alternative in derselben Zeile (`if … then … else …`). Turbo BASIC XL: Alternative des mehrzeiligen `if` bis `endif`. BASIC V2 und Atari BASIC kennen `else` nicht.",
+   "en": "BASIC 3.5/7/65: alternative on the same line (`if ... then ... else ...`). Turbo BASIC XL: alternative of the multi-line `if` up to `endif`. BASIC V2 and Atari BASIC do not have `else`.",
+   "status": "maschinell"
+  },
+  "/keywords/FOR/text": {
+   "de": "Zählschleife: `for i = 1 to 10 [step n]` … `next`.",
+   "en": "Counting loop: `for i = 1 to 10 [step n]` ... `next`.",
+   "status": "maschinell"
+  },
+  "/keywords/TO/text": {
+   "de": "Obergrenze der `for`-Schleife.",
+   "en": "Upper limit of the `for` loop.",
+   "status": "maschinell"
+  },
+  "/keywords/STEP/text": {
+   "de": "Schrittweite der `for`-Schleife (auch negativ).",
+   "en": "Step size of the `for` loop (can be negative).",
+   "status": "maschinell"
+  },
+  "/keywords/NEXT/text": {
+   "de": "Ende der `for`-Schleife; optional mit Variablenname.",
+   "en": "End of the `for` loop; optionally with a variable name.",
+   "status": "maschinell"
+  },
+  "/keywords/GOTO/text": {
+   "de": "Springt zu einer Zeile. Mit Marke (`@name:` am Zeilenanfang) braucht es keine Zeilennummern; der Bau setzt die Nummer ein.",
+   "en": "Jumps to a line. With a label (`@name:` at the start of a line) you need no line numbers; the build inserts the number.",
+   "status": "maschinell"
+  },
+  "/keywords/GOSUB/text": {
+   "de": "Ruft ein Unterprogramm auf; Rückkehr mit `return`. Ziel als Marke oder Zeilennummer.",
+   "en": "Calls a subroutine; return with `return`. Target as a label or line number.",
+   "status": "maschinell"
+  },
+  "/keywords/RETURN/text": {
+   "de": "Kehrt aus einem Unterprogramm zurück.",
+   "en": "Returns from a subroutine.",
+   "status": "maschinell"
+  },
+  "/keywords/ON/text": {
+   "de": "Verzweigung nach Wert: `on x goto a, b, c` (x = 1, 2, 3) oder `on x gosub …`. Ziele als Marken oder Zeilennummern.",
+   "en": "Branch by value: `on x goto a, b, c` (x = 1, 2, 3) or `on x gosub ...`. Targets as labels or line numbers.",
+   "status": "maschinell"
+  },
+  "/keywords/END/text": {
+   "de": "Beendet das Programm.",
+   "en": "Ends the program.",
+   "status": "maschinell"
+  },
+  "/keywords/STOP/text": {
+   "de": "Hält das Programm an (mit Meldung); mit `cont` weiter.",
+   "en": "Halts the program (with a message); continue with `cont`.",
+   "status": "maschinell"
+  },
+  "/keywords/REM/text": {
+   "de": "Kommentar bis zum Zeilenende; bleibt im Programm. Ein `;` am Zeilenanfang ist ein Kommentar, der nicht ins Programm kommt (Turbo BASIC XL: auch `'`).",
+   "en": "Comment up to the end of the line; stays in the program. A `;` at the start of a line is a comment that does not go into the program (Turbo BASIC XL: also `'`).",
+   "status": "maschinell"
+  },
+  "/keywords/DIM/text": {
+   "de": "Legt Felder (Arrays) an: `dim a(10)`, `dim n$(5)`. Einmal je Feld.",
+   "en": "Creates arrays: `dim a(10)`, `dim n$(5)`. Once per array.",
+   "status": "maschinell"
+  },
+  "/keywords/READ/text": {
+   "de": "Liest den nächsten Wert aus `data`-Zeilen.",
+   "en": "Reads the next value from `data` lines.",
+   "status": "maschinell"
+  },
+  "/keywords/DATA/text": {
+   "de": "Enthält Werte für `read`, der Reihe nach über alle `data`-Zeilen. Exportierte Assets (Sprites, Zeichensätze) kommen als `data` per `#include`; in `data` wird `@name` nicht ersetzt.",
+   "en": "Holds values for `read`, in order across all `data` lines. Exported assets (sprites, character sets) come as `data` through `#include`; `@name` is not replaced inside `data`.",
+   "status": "maschinell"
+  },
+  "/keywords/RESTORE/text": {
+   "de": "Setzt den `data`-Zeiger zurück. Mit Zeile (`restore @daten`) auf C128, Plus/4, MEGA65 und Atari; BASIC V2 (C64, VC-20) kennt nur `restore` ohne Zeile.",
+   "en": "Resets the `data` pointer. With a line (`restore @data`) on C128, Plus/4, MEGA65 and Atari; BASIC V2 (C64, VIC-20) only has `restore` without a line.",
+   "status": "maschinell"
+  },
+  "/keywords/POKE/text": {
+   "de": "Schreibt ein Byte in den Speicher: `poke adresse, wert` (0–255).",
+   "en": "Writes a byte to memory: `poke address, value` (0-255).",
+   "status": "maschinell"
+  },
+  "/keywords/PEEK/text": {
+   "de": "Liest ein Byte aus dem Speicher: `peek(adresse)`.",
+   "en": "Reads a byte from memory: `peek(address)`.",
+   "status": "maschinell"
+  },
+  "/keywords/SYS/text": {
+   "de": "Ruft ein Maschinenprogramm auf (C64: `sys adresse`).",
+   "en": "Calls a machine language program (C64: `sys address`).",
+   "status": "maschinell"
+  },
+  "/keywords/USR/text": {
+   "de": "Ruft ein Maschinenprogramm auf und liefert einen Wert zurück: `x = usr(adresse [, wert])`.",
+   "en": "Calls a machine language program and returns a value: `x = usr(address [, value])`.",
+   "status": "maschinell"
+  },
+  "/keywords/WAIT/text": {
+   "de": "Wartet, bis ein Speicherbit gesetzt ist: `wait adresse, maske [, xor]`.",
+   "en": "Waits until a memory bit is set: `wait address, mask [, xor]`.",
+   "status": "maschinell"
+  },
+  "/keywords/OPEN/text": {
+   "de": "Öffnet eine Datei/ein Gerät. C64: `open lfn, gerät, sa, \"name\"`; Atari: `open #n, modus, 0, \"D:NAME\"`.",
+   "en": "Opens a file/device. C64: `open lfn, device, sa, \"name\"`; Atari: `open #n, mode, 0, \"D:NAME\"`.",
+   "status": "maschinell"
+  },
+  "/keywords/CLOSE/text": {
+   "de": "Schließt eine Datei.",
+   "en": "Closes a file.",
+   "status": "maschinell"
+  },
+  "/keywords/LOAD/text": {
+   "de": "Lädt ein Programm; `,8,1` lädt an die gespeicherte Adresse.",
+   "en": "Loads a program; `,8,1` loads to the saved address.",
+   "status": "maschinell"
+  },
+  "/keywords/SAVE/text": {
+   "de": "Speichert das Programm.",
+   "en": "Saves the program.",
+   "status": "maschinell"
+  },
+  "/keywords/RUN/text": {
+   "de": "Startet das Programm (löscht Variablen).",
+   "en": "Starts the program (clears variables).",
+   "status": "maschinell"
+  },
+  "/keywords/LIST/text": {
+   "de": "Listet das Programm.",
+   "en": "Lists the program.",
+   "status": "maschinell"
+  },
+  "/keywords/NEW/text": {
+   "de": "Löscht das Programm.",
+   "en": "Deletes the program.",
+   "status": "maschinell"
+  },
+  "/keywords/CLR/text": {
+   "de": "Löscht alle Variablen.",
+   "en": "Clears all variables.",
+   "status": "maschinell"
+  },
+  "/keywords/CONT/text": {
+   "de": "Setzt ein mit STOP/END angehaltenes Programm fort.",
+   "en": "Continues a program halted with STOP/END.",
+   "status": "maschinell"
+  },
+  "/keywords/DEF/text": {
+   "de": "Definiert eine Funktion: `def fn f(x) = x * 2`.",
+   "en": "Defines a function: `def fn f(x) = x * 2`.",
+   "status": "maschinell"
+  },
+  "/keywords/FN/text": {
+   "de": "Ruft eine mit `def fn` definierte Funktion auf.",
+   "en": "Calls a function defined with `def fn`.",
+   "status": "maschinell"
+  },
+  "/keywords/INT/text": {
+   "de": "Ganzzahliger Anteil (rundet nach unten).",
+   "en": "Integer part (rounds down).",
+   "status": "maschinell"
+  },
+  "/keywords/ABS/text": {
+   "de": "Betrag.",
+   "en": "Absolute value.",
+   "status": "maschinell"
+  },
+  "/keywords/SGN/text": {
+   "de": "Vorzeichen: -1, 0 oder 1.",
+   "en": "Sign: -1, 0 or 1.",
+   "status": "maschinell"
+  },
+  "/keywords/SQR/text": {
+   "de": "Quadratwurzel.",
+   "en": "Square root.",
+   "status": "maschinell"
+  },
+  "/keywords/RND/text": {
+   "de": "Zufallszahl 0 ≤ x < 1. C64: `rnd(1)`, `rnd(-ti)` zum Initialisieren.",
+   "en": "Random number 0 <= x < 1. C64: `rnd(1)`, `rnd(-ti)` to initialize.",
+   "status": "maschinell"
+  },
+  "/keywords/SIN/text": {
+   "de": "Sinus (Bogenmaß).",
+   "en": "Sine (radians).",
+   "status": "maschinell"
+  },
+  "/keywords/COS/text": {
+   "de": "Kosinus (Bogenmaß).",
+   "en": "Cosine (radians).",
+   "status": "maschinell"
+  },
+  "/keywords/TAN/text": {
+   "de": "Tangens.",
+   "en": "Tangent.",
+   "status": "maschinell"
+  },
+  "/keywords/ATN/text": {
+   "de": "Arkustangens.",
+   "en": "Arctangent.",
+   "status": "maschinell"
+  },
+  "/keywords/LOG/text": {
+   "de": "Natürlicher Logarithmus.",
+   "en": "Natural logarithm.",
+   "status": "maschinell"
+  },
+  "/keywords/EXP/text": {
+   "de": "e hoch x.",
+   "en": "e to the power of x.",
+   "status": "maschinell"
+  },
+  "/keywords/LEN/text": {
+   "de": "Länge einer Zeichenkette.",
+   "en": "Length of a string.",
+   "status": "maschinell"
+  },
+  "/keywords/LEFT$/text": {
+   "de": "Linker Teil: `left$(a$, n)`.",
+   "en": "Left part: `left$(a$, n)`.",
+   "status": "maschinell"
+  },
+  "/keywords/RIGHT$/text": {
+   "de": "Rechter Teil: `right$(a$, n)`.",
+   "en": "Right part: `right$(a$, n)`.",
+   "status": "maschinell"
+  },
+  "/keywords/MID$/text": {
+   "de": "Teil ab Position: `mid$(a$, start [, n])` (Start bei 1).",
+   "en": "Part from a position: `mid$(a$, start [, n])` (start at 1).",
+   "status": "maschinell"
+  },
+  "/keywords/STR$/text": {
+   "de": "Zahl in Text umwandeln.",
+   "en": "Converts a number to text.",
+   "status": "maschinell"
+  },
+  "/keywords/VAL/text": {
+   "de": "Text in Zahl umwandeln.",
+   "en": "Converts text to a number.",
+   "status": "maschinell"
+  },
+  "/keywords/CHR$/text": {
+   "de": "Zeichen zu einem Code.",
+   "en": "Character for a code.",
+   "status": "maschinell"
+  },
+  "/keywords/ASC/text": {
+   "de": "Code des ersten Zeichens.",
+   "en": "Code of the first character.",
+   "status": "maschinell"
+  },
+  "/keywords/TAB/text": {
+   "de": "Spalte in `print` (C64: `tab(n)`).",
+   "en": "Column in `print` (C64: `tab(n)`).",
+   "status": "maschinell"
+  },
+  "/keywords/SPC/text": {
+   "de": "Leerzeichen in `print`.",
+   "en": "Spaces in `print`.",
+   "status": "maschinell"
+  },
+  "/keywords/FRE/text": {
+   "de": "Freier Speicher: `fre(0)`.",
+   "en": "Free memory: `fre(0)`.",
+   "status": "maschinell"
+  },
+  "/keywords/POS/text": {
+   "de": "Aktuelle Cursor-Spalte.",
+   "en": "Current cursor column.",
+   "status": "maschinell"
+  },
+  "/keywords/AND/text": {
+   "de": "Logisches/bitweises UND.",
+   "en": "Logical/bitwise AND.",
+   "status": "maschinell"
+  },
+  "/keywords/OR/text": {
+   "de": "Logisches/bitweises ODER.",
+   "en": "Logical/bitwise OR.",
+   "status": "maschinell"
+  },
+  "/keywords/NOT/text": {
+   "de": "Logisches NICHT.",
+   "en": "Logical NOT.",
+   "status": "maschinell"
+  },
+  "/keywords/GRAPHICS/text": {
+   "de": "Atari: wählt den Grafikmodus: `graphics 0` = Text, `graphics 8` = Hires.",
+   "en": "Atari: selects the graphics mode: `graphics 0` = text, `graphics 8` = hires.",
+   "status": "maschinell"
+  },
+  "/keywords/COLOR/text": {
+   "de": "Atari: Zeichenfarbe für `plot`/`drawto`. C128, Plus/4: `color quelle, farbe` setzt Bildschirm- und Rahmenfarben (Quelle 0 = Hintergrund, 4 = Rahmen).",
+   "en": "Atari: drawing color for `plot`/`drawto`. C128, Plus/4: `color source, color` sets screen and border colors (source 0 = background, 4 = border).",
+   "status": "maschinell"
+  },
+  "/keywords/SETCOLOR/text": {
+   "de": "Atari: `setcolor register, farbton, helligkeit`.",
+   "en": "Atari: `setcolor register, hue, luminance`.",
+   "status": "maschinell"
+  },
+  "/keywords/PLOT/text": {
+   "de": "Atari: Punkt setzen.",
+   "en": "Atari: plot a point.",
+   "status": "maschinell"
+  },
+  "/keywords/DRAWTO/text": {
+   "de": "Atari: Linie vom letzten Punkt.",
+   "en": "Atari: line from the last point.",
+   "status": "maschinell"
+  },
+  "/keywords/POSITION/text": {
+   "de": "Atari: Cursor positionieren.",
+   "en": "Atari: position the cursor.",
+   "status": "maschinell"
+  },
+  "/keywords/SOUND/text": {
+   "de": "Atari: `sound stimme, tonhöhe, verzerrung, lautstärke`.",
+   "en": "Atari: `sound voice, pitch, distortion, volume`.",
+   "status": "maschinell"
+  },
+  "/keywords/TRAP/text": {
+   "de": "Fehler abfangen: springt bei einem Fehler zur Zeile (Atari, C128, Plus/4, MEGA65). Ziel als Marke oder Zeilennummer.",
+   "en": "Catches errors: jumps to the line on an error (Atari, C128, Plus/4, MEGA65). Target as a label or line number.",
+   "status": "maschinell"
+  },
+  "/keywords/BYE/text": {
+   "de": "Atari: zurück zum Selbsttest.",
+   "en": "Atari: back to the self-test.",
+   "status": "maschinell"
+  },
+  "/keywords/DOS/text": {
+   "de": "Atari: ins DOS.",
+   "en": "Atari: go to DOS.",
+   "status": "maschinell"
+  },
+  "/keywords/XIO/text": {
+   "de": "Atari: erweiterte E/A-Operation.",
+   "en": "Atari: extended I/O operation.",
+   "status": "maschinell"
+  },
+  "/keywords/PUT/text": {
+   "de": "Atari: ein Byte an ein Gerät senden.",
+   "en": "Atari: send a byte to a device.",
+   "status": "maschinell"
+  },
+  "/keywords/NOTE/text": {
+   "de": "Atari: aktuelle Dateiposition lesen.",
+   "en": "Atari: read the current file position.",
+   "status": "maschinell"
+  },
+  "/keywords/POINT/text": {
+   "de": "Atari: Dateiposition setzen.",
+   "en": "Atari: set the file position.",
+   "status": "maschinell"
+  },
+  "/keywords/WHILE/text": {
+   "de": "Turbo BASIC XL: Schleife mit Bedingung am Anfang, `while bedingung` … `wend`. BASIC 3.5/7/65: `do while bedingung` … `loop`.",
+   "en": "Turbo BASIC XL: loop with the condition at the start, `while condition` ... `wend`. BASIC 3.5/7/65: `do while condition` ... `loop`.",
+   "status": "maschinell"
+  },
+  "/keywords/WEND/text": {
+   "de": "Turbo BASIC XL: Ende von `while`.",
+   "en": "Turbo BASIC XL: end of `while`.",
+   "status": "maschinell"
+  },
+  "/keywords/REPEAT/text": {
+   "de": "Turbo BASIC XL: Schleife mit Bedingung am Ende, `repeat` … `until bedingung`.",
+   "en": "Turbo BASIC XL: loop with the condition at the end, `repeat` ... `until condition`.",
+   "status": "maschinell"
+  },
+  "/keywords/UNTIL/text": {
+   "de": "Turbo BASIC XL: Ende von `repeat`. BASIC 3.5/7/65: Bedingung bei `do until` und `loop until`.",
+   "en": "Turbo BASIC XL: end of `repeat`. BASIC 3.5/7/65: condition for `do until` and `loop until`.",
+   "status": "maschinell"
+  },
+  "/keywords/ENDIF/text": {
+   "de": "Turbo BASIC XL: Ende des mehrzeiligen `if`.",
+   "en": "Turbo BASIC XL: end of the multi-line `if`.",
+   "status": "maschinell"
+  },
+  "/keywords/DO/text": {
+   "de": "BASIC 3.5/7/65 und Turbo BASIC XL: Schleife ohne Zeilennummern-Sprung, `do [while|until bedingung]` … `loop [while|until bedingung]`. BASIC V2 und Atari BASIC haben kein `do`; dort springst du mit einer Marke zurück.",
+   "en": "BASIC 3.5/7/65 and Turbo BASIC XL: loop without a line number jump, `do [while|until condition]` ... `loop [while|until condition]`. BASIC V2 and Atari BASIC have no `do`; there you jump back with a label.",
+   "status": "maschinell"
+  },
+  "/keywords/LOOP/text": {
+   "de": "Ende von `do`; optional mit `while` oder `until` und einer Bedingung.",
+   "en": "End of `do`; optionally with `while` or `until` and a condition.",
+   "status": "maschinell"
+  },
+  "/keywords/EXIT/text": {
+   "de": "BASIC 3.5/7/65 und Turbo BASIC XL: verlässt die innerste `do`-Schleife (Turbo BASIC XL: auch `while` und `repeat`).",
+   "en": "BASIC 3.5/7/65 and Turbo BASIC XL: leaves the innermost `do` loop (Turbo BASIC XL: also `while` and `repeat`).",
+   "status": "maschinell"
+  },
+  "/keywords/PROC/text": {
+   "de": "Turbo BASIC XL: Prozedur `proc name` … `endproc`, aufgerufen mit `exec name`. Andere Dialekte haben kein `proc`; dort nimmst du `gosub @name` und `return`.",
+   "en": "Turbo BASIC XL: procedure `proc name` ... `endproc`, called with `exec name`. Other dialects have no `proc`; there you use `gosub @name` and `return`.",
+   "status": "maschinell"
+  },
+  "/keywords/ENDPROC/text": {
+   "de": "Turbo BASIC XL: Ende einer Prozedur.",
+   "en": "Turbo BASIC XL: end of a procedure.",
+   "status": "maschinell"
+  },
+  "/keywords/EXEC/text": {
+   "de": "Turbo BASIC XL: ruft eine Prozedur auf (`exec name`); `on x exec a, b` wählt nach Wert.",
+   "en": "Turbo BASIC XL: calls a procedure (`exec name`); `on x exec a, b` selects by value.",
+   "status": "maschinell"
+  },
+  "/keywords/INCLUDE/text": {
+   "de": "Direktive des Übersetzers (kein BASIC-Befehl): `#include \"datei.bas\"` in einer eigenen Zeile fügt die Datei beim Bauen ein. Pfad relativ zur einbindenden Datei. Für Assets (Sprites, Zeichensätze, Songs) bindest du die Mediendatei ein, z. B. `graphics/hero.vcsprite`; sie wird beim Bauen zu DATA-Zeilen.",
+   "en": "Compiler directive (not a BASIC command): `#include \"file.bas\"` on its own line inserts the file at build time. Path relative to the including file. For assets (sprites, character sets, songs), you include the media file, e.g. `graphics/hero.vcsprite`; it is turned into DATA lines when building.",
+   "status": "maschinell"
+  },
+  "/keywords/LONGNAMES/text": {
+   "de": "Direktive des Übersetzers: `#longnames` in einer eigenen Zeile erlaubt lange Variablennamen. Auf C64, VC-20, C128, Plus/4 und MEGA65 unterscheidet BASIC nur 2 Zeichen; der Bau bildet lange Namen auf freie Kurznamen ab und warnt bei Kollisionen (W313).",
+   "en": "Compiler directive: `#longnames` on its own line allows long variable names. On C64, VIC-20, C128, Plus/4 and MEGA65, BASIC only distinguishes 2 characters; the build maps long names to free short names and warns about collisions (W313).",
+   "status": "maschinell"
+  },
+  "/keywords/GRAPHIC/text": {
+   "de": "C128, Plus/4, MEGA65: Grafikmodus wählen und optional löschen: `graphic modus [, löschen]` (0 = Text, 1 = Hires, 2 = Hires geteilt, 3 = Multicolor, 4 = Multicolor geteilt).",
+   "en": "C128, Plus/4, MEGA65: select the graphics mode and optionally clear: `graphic mode [, clear]` (0 = text, 1 = hires, 2 = hires split, 3 = multicolor, 4 = multicolor split).",
+   "status": "maschinell"
+  },
+  "/keywords/CIRCLE/text": {
+   "de": "C128, Plus/4, MEGA65: Kreis oder Ellipse: `circle farbe, x, y, xradius [, yradius]`.",
+   "en": "C128, Plus/4, MEGA65: circle or ellipse: `circle color, x, y, xradius [, yradius]`.",
+   "status": "maschinell"
+  },
+  "/keywords/BOX/text": {
+   "de": "C128, Plus/4, MEGA65: Rechteck: `box farbe, x1, y1, x2, y2`.",
+   "en": "C128, Plus/4, MEGA65: rectangle: `box color, x1, y1, x2, y2`.",
+   "status": "maschinell"
+  },
+  "/keywords/DRAW/text": {
+   "de": "C128, Plus/4: Punkt oder Linie: `draw farbe, x1, y1 [to x2, y2]`.",
+   "en": "C128, Plus/4: point or line: `draw color, x1, y1 [to x2, y2]`.",
+   "status": "maschinell"
+  },
+  "/keywords/SPRITE/text": {
+   "de": "C128, MEGA65: Sprite einschalten und einstellen: `sprite nummer, ein, farbe, vorrang, …`.",
+   "en": "C128, MEGA65: turn a sprite on and set it up: `sprite number, on, color, priority, ...`.",
+   "status": "maschinell"
+  },
+  "/keywords/BORDER/text": {
+   "de": "MEGA65: Rahmenfarbe setzen (`border farbe`). Entsprechend `background` und `foreground`.",
+   "en": "MEGA65: set the border color (`border color`). Likewise `background` and `foreground`.",
+   "status": "maschinell"
+  },
+  "/keywords/TRON/text": {
+   "de": "C128, Plus/4, MEGA65: schaltet die Zeilenverfolgung ein (`troff` aus).",
+   "en": "C128, Plus/4, MEGA65: turns line tracing on (`troff` off).",
+   "status": "maschinell"
+  },
+  "/keywords/SCNCLR/text": {
+   "de": "C128, Plus/4, MEGA65: löscht den Bildschirm.",
+   "en": "C128, Plus/4, MEGA65: clears the screen.",
+   "status": "maschinell"
+  },
+  "/keywords/SLEEP/text": {
+   "de": "C128, MEGA65: wartet die angegebene Zahl Sekunden.",
+   "en": "C128, MEGA65: waits the given number of seconds.",
+   "status": "maschinell"
+  },
+  "/keywords/DPOKE/text": {
+   "de": "Turbo BASIC XL: schreibt ein 16-Bit-Wort in den Speicher (`dpoke adresse, wert`).",
+   "en": "Turbo BASIC XL: writes a 16-bit word to memory (`dpoke address, value`).",
+   "status": "maschinell"
+  },
+  "/keywords/TIME/text": {
+   "de": "Turbo BASIC XL: Zähler der Bildschirmuhr (`time`, auch `time$`).",
+   "en": "Turbo BASIC XL: screen clock counter (`time`, also `time$`).",
+   "status": "maschinell"
+  }
+ }
+}

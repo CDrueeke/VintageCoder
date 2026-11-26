@@ -11,7 +11,7 @@
 ;   music_runtime                         ; EINMAL, hinter dem Hauptprogramm (nicht ausgeführt): Spielroutine und Variablen
 ;   .include "lib/vic_freq.inc"           ; Frequenztabellen (mit .const NTSC = 1 vor dem Include die NTSC-Tabelle)
 ;
-; DATENFORMAT (Export des Trackers, hier build/export/tune.asm)
+; DATENFORMAT (Export des Trackers, hier der Text aus music/tune.vcsong)
 ;   order: eine Musternummer je Byte; $FF = Ende der Reihenfolge, das Byte dahinter ist die Position, bei der sie wieder beginnt (Wiederholung).
 ;   patterns: Muster zu je patsize Byte = rows Zeilen zu je 8 Byte; eine Zeile enthält die 4 Stimmen zu je 2 Byte (Note, Instrument). Stimme 0 =
 ;   Bass, 1 = Alt, 2 = Sopran, 3 = Rauschen. Note: 0 = nichts (der Ton läuft weiter), $FF = Ton aus, 1..96 = Note (C-0 = 1; größere Werte sind nicht

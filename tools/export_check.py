@@ -37,6 +37,8 @@ TECH_ALLOW_DIRS = ("editors/ext/",)
 
 ALLOWED_EMAILS = {"vintagecoder@drueeke.de"}
 ALLOWED_EMAIL_SUFFIXES = ("@users.noreply.github.com",)
+# Bildnamen wie `128x128@2x.png` (Retina-Schreibweise) sind keine Adressen
+IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico", ".icns")
 # Beispieladressen aus Handbuch und Dokumentation (192.168.1.64: Beispielgeraet in den `vcc streams`-Beispielen)
 ALLOWED_IPS = {"192.168.0.10", "192.168.1.50", "192.168.1.64"}
 # Namen des Autors/Herausgebers in GitHub-Adressen sind gewollt
@@ -151,7 +153,7 @@ def scan_line(rel, n, line, ctx):
         out.append(Finding(rel, n, "privater-name", short(line)))
     for m in EMAIL_RX.finditer(line):
         a = m.group(0)
-        if a.lower() in ALLOWED_EMAILS or a.lower().endswith(ALLOWED_EMAIL_SUFFIXES):
+        if a.lower() in ALLOWED_EMAILS or a.lower().endswith(ALLOWED_EMAIL_SUFFIXES + IMAGE_SUFFIXES):
             continue
         out.append(Finding(rel, n, "e-mail", a))
     # Testdateien und Pruefzeilen (`assert…`): erfundene Testwerte (Adressen, Kennwoerter) sind nur ein Hinweis

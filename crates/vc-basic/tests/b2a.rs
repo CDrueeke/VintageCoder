@@ -245,7 +245,8 @@ fn parser_keeps_rom_keyword_rules() {
 fn zeilenkarte_and_comments() {
     let d = Dialect::load(&data(), "cbm_v2").unwrap();
     let c = convert("@start:\nx = 1\nprint x\n", &d, &B2aOptions::new("t.bas")).unwrap();
-    assert!(c.asm.contains(";---- Zeile 10 (@start): x = 1"), "{}", c.asm);
+    // Kommentar im erzeugten Assembler: Text aus dem Katalog (Standardsprache Deutsch)
+    assert!(c.asm.contains(&format!(";---- {}", vc_i18n::t!("basic-b2a-asm-line", n = 10, labels = " (@start)", text = "x = 1"))), "{}", c.asm);
     assert!(c.asm.contains("bas_start:"));
     assert_eq!(c.map.len(), 2);
     assert!(c.map_json("t.bas").contains("\"label\": \"L20\""));
@@ -482,7 +483,7 @@ fn c128_and_plus4_use_their_load_address_and_memory_limit() {
     let mut ao = Options::new("t.asm", Policy::Allow);
     ao.include_dirs.push(data().join("sys"));
     let e = assemble(&c.asm, &cpu, &ao).unwrap_err();
-    assert!(e.iter().any(|x| x.message.contains("Programm zu groß")), "{e:?}");
+    assert!(e.iter().any(|x| x.message.contains("RT_HEAPTOP")), "{e:?}");
 }
 
 #[test]
@@ -624,6 +625,25 @@ fn embedded_runtime_is_self_contained_and_identical() {
     o.embed = true;
     let d = Dialect::load(&data(), "cbm_v2").unwrap();
     assert!(convert(INT_PROG, &d, &o).unwrap_err()[0].to_string().contains("E192"));
+}
+
+/// Englisch: die eingebettete Laufzeit hat englische Kommentare und ergibt dieselben Bytes wie die deutsche Fassung
+#[test]
+fn embedded_runtime_english_comments_same_bytes() {
+    for target in ["c64", "c128", "plus4", "vic20", "atari8", "mega65"] {
+        let Some(ti) = vc_basic::b2a::target_info(target) else { continue };
+        let Ok(d) = Dialect::load(&data(), ti.dialect) else { continue };
+        let cpu = vc_target::load_cpu(&data(), ti.cpu).unwrap();
+        let mut o = B2aOptions::new("t.bas");
+        o.target = target.into();
+        o.embed = true;
+        o.data_dir = Some(data());
+        let mk = |l: vc_i18n::Lang| { vc_i18n::set_thread_language(Some(l)); let r = convert(INT_PROG, &d, &o); vc_i18n::set_thread_language(Some(vc_i18n::Lang::De)); r };
+        let (Ok(de), Ok(en)) = (mk(vc_i18n::Lang::De), mk(vc_i18n::Lang::En)) else { continue };
+        assert!(de.asm.contains("Ende common/b2a/rt_core.asm") && en.asm.contains("End common/b2a/rt_core.asm"), "{target}: Endemarke");
+        let bytes = |asm: &str| { let r = assemble(asm, &cpu, &Options::new("t.asm", Policy::Allow)).unwrap_or_else(|e| panic!("{target}: {}", e.iter().map(|x| x.to_string()).collect::<Vec<_>>().join("\n"))); r.segments.iter().map(|s| (s.start, s.bytes.clone())).collect::<Vec<_>>() };
+        assert_eq!(bytes(&de.asm), bytes(&en.asm), "{target}: englische Laufzeit ergibt andere Bytes");
+    }
 }
 
 #[test]

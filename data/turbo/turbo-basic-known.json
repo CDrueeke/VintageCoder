@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "note": "Bekannte Abbilder von Turbo BASIC XL (nur Prüfsummen und Namen, keine Dateien). Weitere Versionen werden eingetragen, sobald sie vorliegen.",
+  "disks": [
+    { "id": "turbo-basic-xl-1.5-90k", "label": "Turbo BASIC XL 1.5 (90 KB)", "version": "1.5", "size": 92176, "sha256": "814ebeb7a2cd84cfa8d5366c97d94ae7504a5bfe80523bd1a295b3cf1cfb9f5f" }
+  ]
+}

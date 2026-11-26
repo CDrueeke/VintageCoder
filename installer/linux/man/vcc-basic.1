@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-BASIC 1 "" "VintageCoder 0.2.1" "VintageCoder Handbuch"
+.TH VCC\-BASIC 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-basic \- BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
 .SH ÜBERSICHT
@@ -11,6 +11,8 @@ vcc\-basic \- BASIC tokenisieren, zurücklesen, als Syntaxbaum ausgeben
 .B vcc basic \-\-detokenize <datei.prg> [optionen]
 .br
 .B vcc basic \-\-suggest\-hex <datei.bas|datei.lst> [optionen]
+.br
+.B vcc basic (\-\-to\-labels | \-\-to\-numbers | \-\-renumber) <datei.bas|datei.lst|datei.tur> [optionen]
 .br
 .B vcc basic ast <datei.bas> [optionen]
 .br
@@ -31,7 +33,7 @@ Quelltext. Die Endungen .bas, .lst und .tur (oder \-\-plain) wählen das native 
 \fBZielsystem und Dialekt\fR
 .TP
 \fB\-\-target\fR \fIsystem\fR
-Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet, cbm2 oder atari8. Standard: c64.
+Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet oder atari8. Standard: c64.
 .TP
 \fB\-\-dialect\fR \fIid\fR
 BASIC\-Dialekt (Datei in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic oder turbo_basic_xl. Standard: Dialekt des Zielsystems.
@@ -51,10 +53,22 @@ Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Prog
 Ausgabedatei. Bei natives BASIC darf sie nicht die Quelldatei sein. Standard: Quellname mit .prg (Commodore) bzw. .bas (Atari).
 .TP
 \fB\-\-start\fR \fIn\fR
-Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. Standard: 10.
+Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. Standard: 10.
 .TP
 \fB\-\-step\fR \fIn\fR
-Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. Standard: 10.
+Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. Standard: 10.
+.TP
+\fB\-\-check\fR
+Nur prüfen: Warnungen (B150–B159, B167) ausgeben, keine Datei schreiben.
+.TP
+\fB\-\-compact\fR
+Leerzeichen innerhalb der Anweisungen entfernen, wo es nichts ändert (nur Commodore; spart Speicher und Laufzeit). Zeichenketten, REM und DATA bleiben.
+.TP
+\fB\-\-no\-check\fR
+Die Syntaxprüfung beim Übersetzen auslassen.
+.TP
+\fB\-\-disable\fR \fIcodes\fR
+Einzelne Warnungen abschalten, Codes durch Komma getrennt (z. B. B150,B154). Fehler lassen sich nicht abschalten.
 .PP
 \fBNur für Quelltext mit anderer Endung (strukturiertes BASIC)\fR
 .TP
@@ -62,7 +76,7 @@ Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still du
 Suchordner für eingebundene Dateien; der erste ist auch die Wurzel für Maschinencode\-Einbindungen. Standard: Arbeitsordner (Wurzel). Mehrfach möglich.
 .TP
 \fB\-D\fR \fINAME=zahl\fR
-Konstante für den Quelltext setzen. Mehrfach möglich.
+Konstante für den Quelltext setzen (natives BASIC: wirkt wie ein #define NAME zahl). Mehrfach möglich.
 .TP
 \fB\-\-pack\fR
 Zeilen zusammenfassen (nur Commodore).
@@ -156,6 +170,54 @@ Nummern der Vorschläge (aus der Liste, durch Komma getrennt), die in die Ausgab
 .TP
 \fB\-o\fR \fIausgabe\fR
 Ausgabedatei für \-\-apply (die Quelldatei wird nie überschrieben).
+.SS Form convert
+Zeilennummern in Labels umwandeln, Labels in Zeilennummern umwandeln oder neu nummerieren
+.PP
+.TP
+\fIdatei.bas\fR
+BASIC\-Quelltext; eingebundene Dateien (#include) werden mitumgewandelt.
+.PP
+\fBArt der Umwandlung\fR
+.TP
+\fB\-\-to\-labels\fR
+Zeilennummern in Labels umwandeln: nur angesprungene Zeilen bekommen ein Label, vorhandene Namen bleiben. Berechnete Sprungziele (GOTO A*10) brechen die Umwandlung ab (B162).
+.TP
+\fB\-\-to\-numbers\fR
+Labels in Zeilennummern umwandeln: immer neu nummeriert; die Namen bleiben als Markerzeilen ;@name erhalten.
+.TP
+\fB\-\-renumber\fR
+Zeilen neu nummerieren und alle Sprungziele anpassen.
+.TP
+\fB\-\-range\fR \fIa\-b\fR
+Nur Zeilen mit alter Nummer von a bis b neu nummerieren (mit \-\-renumber, nur im Nummernmodus).
+.PP
+\fBAusgabe und Nummerierung\fR
+.TP
+\fB\-\-start\fR \fIn\fR
+Erste Zeilennummer. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. Standard: 10.
+.TP
+\fB\-\-step\fR \fIn\fR
+Schritt der Zeilennummern. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. Standard: 10.
+.TP
+\fB\-o\fR \fIdatei\fR
+Ergebnis (nur die Hauptdatei) in diese Datei schreiben. Standard: Standardausgabe.
+.TP
+\fB\-\-write\fR
+Alle geänderten Dateien an Ort und Stelle überschreiben.
+.TP
+\fB\-\-preview\fR
+Nur die geänderten Zeilen (alt → neu) auflisten, nichts schreiben.
+.PP
+\fBZielsystem und Dialekt\fR
+.TP
+\fB\-\-target\fR \fIsystem\fR
+Zielsystem (Datei in data/targets); bestimmt den Dialekt. Standard: c64.
+.TP
+\fB\-\-dialect\fR \fIid\fR
+BASIC\-Dialekt (Datei in data/basic); eine Zeile #dialect <id> in der Datei hat Vorrang. Standard: Dialekt des Zielsystems.
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner mit der Hardware\-Datenbank (data). Standard: VC_DATA oder neben dem Programm.
 .SS Form ast
 Syntaxbaum eines BASIC\-Programms ausgeben
 .PP
@@ -245,6 +307,27 @@ Vorschläge 1 und 3 übernehmen:
 vcc basic \-\-suggest\-hex spiel.bas \-\-apply 1,3 \-o spiel_hex.bas
 .fi
 .RE
+Vorschau der Umwandlung in Labels:
+.PP
+.RS 8
+.nf
+vcc basic \-\-to\-labels spiel.bas \-\-preview
+.fi
+.RE
+In Zeilennummern umwandeln und die Datei überschreiben:
+.PP
+.RS 8
+.nf
+vcc basic \-\-to\-numbers spiel.bas \-\-write
+.fi
+.RE
+Neu nummerieren ab 100 in Fünferschritten:
+.PP
+.RS 8
+.nf
+vcc basic \-\-renumber spiel.bas \-\-start 100 \-\-step 5 \-o neu.bas
+.fi
+.RE
 Syntaxbaum als JSON:
 .PP
 .RS 8
@@ -260,9 +343,13 @@ vcc basic ast examples/c64/basic_native/sterne.bas \-\-roundtrip
 .fi
 .RE
 .SH HINWEISE
+#include bindet Dateien und Medien ein (z. B. #include "graphics/hero.vcsprite" als DATA, Projektordner = nächster Ordner mit Projektdatei); Medien werden bei der Umwandlung (\-\-to\-labels, \-\-to\-numbers, \-\-renumber) mitgelesen, aber nie zurückgeschrieben.
+.PP
+Direktiven im nativen BASIC: #define NAME wert (Ersetzung vor der Nummerierung), #if SYSTEM_C64 / #else / #endif, #dialect <id> (Dialekt dieser Datei) und #asm "datei.asm" [with "song.asm"] (Maschinencode hinter dem BASIC\-Text bzw. als DATA\-Zeilen; die Marken stehen im Programm als asm.name).
+.PP
 Es werden die Marken (@name = Zeile n) und bei #longnames die Zuordnung der langen Namen ausgegeben. Eine .sbas\-Datei wird abgelehnt.
 .PP
-Die Optionen \-I, \-D, \-\-pack, \-\-map und \-\-labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne \-\-plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt.
+Die Optionen \-I, \-\-pack, \-\-map und \-\-labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne \-\-plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt. Die Option \-D wirkt auch beim nativen BASIC (wie ein #define).
 .PP
 Eine Zeile ohne Zeilennummer ist ein Fehler (B100). Für Quelltext mit Marken und Direktiven die Form ohne \-\-tokenize verwenden.
 .PP
@@ -270,11 +357,15 @@ Schlüsselwörter erscheinen bei Commodore klein, beim Atari groß; Steuerzeiche
 .PP
 Vorgeschlagen werden nur vollständige Dezimaladressen ab 256 als Argument von POKE, PEEK, SYS, WAIT und USR, die ein Chipregister des Zielsystems sind. Rechenausdrücke, DATA und Zeichenketten bleiben unberührt.
 .PP
+Der Modus einer Datei ergibt sich aus ihrem Inhalt; eine Mischung aus Nummern und Labels (B160) lässt sich mit jeder der beiden Umwandlungen auflösen.
+.PP
+Die Namen manuell vergebener Labels bleiben als Zeile ;@name vor der Anweisung erhalten und werden bei der Rückumwandlung wiederverwendet.
+.PP
 Der Aufruf nutzt den Parser von basic2asm; dessen übrige Optionen (\-o, \-\-map, \-\-stage, \-\-float, \-\-int\-div, \-\-style, \-\-runtime, \-\-no\-track\-line, \-\-no\-rem, \-\-check) werden angenommen, haben hier aber keine Wirkung.
 .PP
 Anweisungen, die der Konverter nicht übersetzt (OPEN, LOAD …), lassen sich nicht zurückschreiben (E190).
 .PP
 .SH RÜCKGABEWERT
-0 = Baum ausgegeben bzw. Rundreise in Ordnung, 1 = Fehler im Quelltext oder Rundreise nicht in Ordnung
+0 = Umwandlung erfolgreich, 1 = Umwandlung nicht möglich (Fehler B1xx)
 .SH SIEHE AUCH
 vcc(1), vcc\-basic2asm(1), vcc\-import(1), vcc\-build(1), vcc\-basic(1)

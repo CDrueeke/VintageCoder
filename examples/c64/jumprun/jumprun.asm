@@ -10,12 +10,12 @@
 ; AUFBAU DER QUELLEN
 ;   jumprun.asm              dieses Hauptprogramm (Ablaufsteuerung, Titelbild)
 ;   hal_c64.asm              Hardware-Schicht: VIC-II (Bild, Sprites), SID (Klang), Interrupt
-;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
+;   lib/core.asm             Spiellogik (plattformneutral; eigene Kopie dieses Projekts, unabhaengig von den anderen Systemen)
 ;   lib/music.inc            Spielroutine fuer die Tracker-Musik (SID, 3 Stimmen; hier fuer Klangeffekte angepasst)
 ;   lib/levels.inc           Tabellen: Farben, Startpositionen, Autopilot-Skripte, Texte
 ;                            (ERZEUGT von tools/gen_jumprun_c64.py aus den Kunstdaten tools/jumprun_art.py)
 ;   graphics/*, music/       Projektdateien der Editoren: Zeichensatz, Kachelsatz hg, Screen-Bank levels (4 Bilder), Titelbild, Sprites, Song
-;                            (beim Bauen exportiert die IDE sie nach build/export/*.asm, die unten eingebunden werden)
+;                            (beim Bauen wandelt der Assembler sie beim Einbinden unten selbst um)
 ;
 ; SPEICHERKARTE
 ;   $0801-$1F81  Programm (BASIC-Starter + Code; Stand dieser Fassung bis $16BD)     $1F82-$1FFF  Tabellen des Kachelsatzes (hg_props ...)
@@ -230,7 +230,7 @@ play_level:
 ; Die Reihenfolge ist egal (der Assembler loest Vorwaertsverweise auf); wichtig ist nur, dass der Code vor $1F82 endet, wo die Tabellen
 ; des Kachelsatzes beginnen (siehe unten, .org $2000 - 126).
 .include "hal_c64.asm"
-.include "../../common/jumprun/core.asm"
+.include "lib/core.asm"
 .include "lib/levels.inc"
 
 ; Kacheleigenschaften der Spiellogik (core.asm liest tile_attr,x): 0 leer, 1 tragend (hg_p_solid), 2 Leiter (hg_p_ladder) - aus dem Kachelsatz
@@ -245,20 +245,20 @@ music_runtime                          ; Unterprogramme der Musik (music_play ..
 ; Der Zeichensatz ist der Zielzeichensatz hg_chars des Kachelsatzes (alle 256 Zeichen von chars.vcchar sind angepinnt: Kachelzeichen, Vollflaeche,
 ; Schrift). Der Export legt vor hg_chars die Tabellen des Satzes (6 x 21 Byte); deshalb beginnt die Datei 126 Byte vor $2000.
 .org $2000 - 126
-.include "build/export/hg.asm"
+.include "graphics/hg.vctiles"
 .assert hg_chars == $2000
 .org $2800
-.include "build/export/hero_base.asm"
-.include "build/export/hero_over.asm"
-.include "build/export/enemy_base.asm"
-.include "build/export/enemy_over.asm"
+.include "graphics/hero_base.vcsprite"
+.include "graphics/hero_over.vcsprite"
+.include "graphics/enemy_base.vcsprite"
+.include "graphics/enemy_over.vcsprite"
 .assert hero_over == $2b80
 .assert enemy_base == $2f00
 .assert enemy_over == $3080
 .org $3200
-.include "build/export/title.asm"
-.include "build/export/levels.asm"
-.include "build/export/tune.asm"
+.include "graphics/title.vcscreen"
+.include "graphics/levels.vcscreen"
+.include "music/tune.vcsong"
 
 ; Bindung der Bibliothek an Kachelsatz und Screen-Bank, dann die Unterprogramme (tile_put = hal_put_tile, screen_select_a, screen_draw_all)
         tiles_use hg_c0, hg_col, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_lv1_tiles_w, levels_lv1_tiles_h

@@ -1,0 +1,150 @@
+{
+ "source": "chips/sid4.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Stimme 1 Frequenz Low",
+   "en": "Voice 1 frequency low",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Stimme 1 Frequenz High",
+   "en": "Voice 1 frequency high",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Stimme 1 Pulsbreite Low",
+   "en": "Voice 1 pulse width low",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Stimme 1 Pulsbreite High",
+   "en": "Voice 1 pulse width high",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Stimme 1 Steuerung (Wellenform, Gate)",
+   "en": "Voice 1 control (waveform, gate)",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Stimme 1 Attack/Decay",
+   "en": "Voice 1 attack/decay",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Stimme 1 Sustain/Release",
+   "en": "Voice 1 sustain/release",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Stimme 2 Frequenz Low",
+   "en": "Voice 2 frequency low",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Stimme 2 Frequenz High",
+   "en": "Voice 2 frequency high",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Stimme 2 Pulsbreite Low",
+   "en": "Voice 2 pulse width low",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "Stimme 2 Pulsbreite High",
+   "en": "Voice 2 pulse width high",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Stimme 2 Steuerung (Wellenform, Gate)",
+   "en": "Voice 2 control (waveform, gate)",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Stimme 2 Attack/Decay",
+   "en": "Voice 2 attack/decay",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Stimme 2 Sustain/Release",
+   "en": "Voice 2 sustain/release",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Stimme 3 Frequenz Low",
+   "en": "Voice 3 frequency low",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Stimme 3 Frequenz High",
+   "en": "Voice 3 frequency high",
+   "status": "maschinell"
+  },
+  "/regs/16/doc": {
+   "de": "Stimme 3 Pulsbreite Low",
+   "en": "Voice 3 pulse width low",
+   "status": "maschinell"
+  },
+  "/regs/17/doc": {
+   "de": "Stimme 3 Pulsbreite High",
+   "en": "Voice 3 pulse width high",
+   "status": "maschinell"
+  },
+  "/regs/18/doc": {
+   "de": "Stimme 3 Steuerung (Wellenform, Gate)",
+   "en": "Voice 3 control (waveform, gate)",
+   "status": "maschinell"
+  },
+  "/regs/19/doc": {
+   "de": "Stimme 3 Attack/Decay",
+   "en": "Voice 3 attack/decay",
+   "status": "maschinell"
+  },
+  "/regs/20/doc": {
+   "de": "Stimme 3 Sustain/Release",
+   "en": "Voice 3 sustain/release",
+   "status": "maschinell"
+  },
+  "/regs/21/doc": {
+   "de": "Filter-Grenzfrequenz Low",
+   "en": "Filter cutoff frequency low",
+   "status": "maschinell"
+  },
+  "/regs/22/doc": {
+   "de": "Filter-Grenzfrequenz High",
+   "en": "Filter cutoff frequency high",
+   "status": "maschinell"
+  },
+  "/regs/23/doc": {
+   "de": "Resonanz/Filterzuordnung",
+   "en": "Resonance/filter routing",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Filtermodus und Lautstärke",
+   "en": "Filter mode and volume",
+   "status": "maschinell"
+  },
+  "/regs/25/doc": {
+   "de": "Paddle X",
+   "en": "Paddle X",
+   "status": "unverändert"
+  },
+  "/regs/26/doc": {
+   "de": "Paddle Y",
+   "en": "Paddle Y",
+   "status": "unverändert"
+  },
+  "/regs/27/doc": {
+   "de": "Oszillator 3 (Zufall)",
+   "en": "Oscillator 3 (random)",
+   "status": "maschinell"
+  },
+  "/regs/28/doc": {
+   "de": "Hüllkurve 3",
+   "en": "Envelope 3",
+   "status": "maschinell"
+  }
+ }
+}

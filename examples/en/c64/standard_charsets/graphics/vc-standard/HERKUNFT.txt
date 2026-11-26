@@ -1,0 +1,10 @@
+Origin of the character sets in this folder
+===========================================
+
+These files are the own standard character sets "VC-Standard" of VintageCoder.
+Author: the VintageCoder project. License: CC0-1.0 (public domain, freely redistributable, also in your own programs).
+No original ROMs and no replicas of original characters were used.
+The design is a rule-based draft; the release of the character shapes is still pending.
+
+Sets:
+  vc-c64-upper (revision 1, license CC0-1.0): VC-Standard C64 Upper case/graphics

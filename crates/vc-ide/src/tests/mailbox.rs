@@ -51,7 +51,7 @@ impl Mailbox {
     }
 }
 
-fn kind_name(k: u8) -> &'static str { match k { 1 => "assert_a_eq (A)", 2 => "assert_x_eq (X)", 3 => "assert_y_eq (Y)", 4 => "assert_mem_eq (Speicher)", _ => "unbekannte Art" } }
+fn kind_name(k: u8) -> String { match k { 1 => "assert_a_eq (A)".to_string(), 2 => "assert_x_eq (X)".to_string(), 3 => "assert_y_eq (Y)".to_string(), 4 => vc_i18n::t!("testrun-kind-mem"), _ => vc_i18n::t!("testrun-kind-unknown") } }
 
 /// Adresse der Endlosschleife von `test_end`: `jmp` auf die eigene Adresse in einer Befehlszeile des Programms (die letzte)
 pub fn find_done_address(pre: &Prepared) -> Option<u16> {
@@ -67,7 +67,7 @@ impl Ctx for MCtx<'_> {
         Some(match name { "a" => r.a as i64, "x" => r.x as i64, "y" => r.y as i64, "sp" | "s" => r.sp as i64, "pc" => r.pc as i64, "p" | "flags" => r.flags as i64,
             "fn" => (r.flags >> 7 & 1) as i64, "fv" => (r.flags >> 6 & 1) as i64, "fb" => (r.flags >> 4 & 1) as i64, "fd" => (r.flags >> 3 & 1) as i64, "fi" => (r.flags >> 2 & 1) as i64, "fz" => (r.flags >> 1 & 1) as i64, "fc" => (r.flags & 1) as i64, _ => return None })
     }
-    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| "Speicher nicht lesbar".to_string()) }
+    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| vc_i18n::t!("testrun-mem-unreadable")) }
 }
 
 /// Wartet auf das Ende des Testprogramms und liefert das Postfach; `None`: Zeitlimit (dann das letzte gelesene Postfach, falls lesbar)
@@ -117,45 +117,45 @@ pub fn run_mailbox(tf: &TestFile, pre: &Prepared, ro: &RunOptions, launch: &mut 
     }
     let emit = |out: &mut Vec<Outcome>, o: Outcome| { if let Some(f) = &ro.on_outcome { f(&o); } out.push(o); };
     let skip_all = |out: &mut Vec<Outcome>, cases: &[MailboxCase], why: String| for c in cases { emit(out, Outcome::skipped(c.name.clone(), why.clone())); };
-    let Some(mb) = pre.target.test_mailbox else { skip_all(&mut out, &cases, format!("für das Ziel „{}“ ist in den Zieldaten kein Postfach (testMailbox) festgelegt", tf.target)); return out; };
+    let Some(mb) = pre.target.test_mailbox else { skip_all(&mut out, &cases, vc_i18n::t!("testrun-mailbox-none-for-target", target = &tf.target)); return out; };
     let done = find_done_address(pre);
     // Eine Quellstelle gibt es nicht: die Endlosschleife steht im Makro `test_end` (test.inc), nicht im Testprogramm
     let with_loc = |o: Outcome| o;
     let mut broken: Option<String> = None;
     for c in &cases {
-        if ro.cancel.as_ref().map_or(false, |f| f.load(Ordering::SeqCst)) { emit(&mut out, Outcome::skipped(c.name.clone(), "abgebrochen")); continue; }
+        if ro.cancel.as_ref().map_or(false, |f| f.load(Ordering::SeqCst)) { emit(&mut out, Outcome::skipped(c.name.clone(), vc_i18n::t!("testrun-cancelled"))); continue; }
         if let Some(why) = &broken { emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); continue; }
         let mut emu = match launch(&pre.program) {
             Ok(e) => e,
-            Err(e) => { let why = format!("Emulator nicht startbar: {e}"); emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); broken = Some(why); continue; }
+            Err(e) => { let why = vc_i18n::t!("testrun-emulator-start-failed", e = e); emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); broken = Some(why); continue; }
         };
         let timeout = Duration::from_millis(c.timeout_ms);
         let waited = wait_for_end(emu.as_mut(), mb, done, timeout, ro.poll);
         let o = match waited {
-            Err(e) => with_loc(Outcome::failed(c.name.clone(), Level::Error, format!("Postfach nicht lesbar: {e}"))),
+            Err(e) => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-unreadable", e = e))),
             Ok((false, last)) => {
-                let st = last.as_deref().and_then(Mailbox::parse).map_or("unbekannt".to_string(), |m| format!("Status {}, {} Prüfung(en) bisher", m.status, m.count));
-                let hint = if last.as_deref().and_then(|b| b.first()).map_or(false, |s| *s == 0) { " (Status 0: test_begin wurde nie ausgeführt, das Programm startet nicht oder hängt vorher)" } else { "" };
-                with_loc(Outcome::timed_out(c.name.clone(), format!("das Testprogramm endete nach {} ms nicht: {st}{hint}; der Emulator wird beendet", c.timeout_ms)))
+                let st = last.as_deref().and_then(Mailbox::parse).map_or(vc_i18n::t!("testrun-mailbox-state-unknown"), |m| vc_i18n::t!("testrun-mailbox-state", status = m.status, count = m.count));
+                let hint = if last.as_deref().and_then(|b| b.first()).map_or(false, |s| *s == 0) { format!(" {}", vc_i18n::t!("testrun-mailbox-hint-status0")) } else { String::new() };
+                with_loc(Outcome::timed_out(c.name.clone(), vc_i18n::t!("testrun-mailbox-timeout", ms = c.timeout_ms, st = st, hint = hint)))
             }
             Ok((true, bytes)) => {
                 let m = bytes.as_deref().and_then(Mailbox::parse);
                 match m.map(|m| m.verdict()) {
-                    None => with_loc(Outcome::failed(c.name.clone(), Level::Error, "Postfach unvollständig gelesen")),
-                    Some(Verdict::Fail { number, of, kind, actual, expected }) => with_loc(Outcome::failed(c.name.clone(), Level::Error, format!("Prüfung Nr. {number} von {of} fehlgeschlagen ({}): Ist-Wert {actual} (${actual:02X}), erwartet {expected} (${expected:02X})", kind_name(kind)))),
-                    Some(Verdict::NoChecks) => with_loc(Outcome::failed(c.name.clone(), Level::Error, "das Programm lief durch, hat aber keine Prüfung ausgeführt (assert_… fehlen)")),
-                    Some(Verdict::Unfinished(s)) => with_loc(Outcome::failed(c.name.clone(), Level::Error, format!("Postfach zeigt nach dem Ende Status ${s:02X}: das Programm hat das Postfach überschrieben oder test_end nicht erreicht"))),
+                    None => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-incomplete"))),
+                    Some(Verdict::Fail { number, of, kind, actual, expected }) => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-fail", number = number, of = of, kind = kind_name(kind), actual = actual, actualhex = format!("${actual:02X}"), expected = expected, expectedhex = format!("${expected:02X}")))),
+                    Some(Verdict::NoChecks) => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-no-checks"))),
+                    Some(Verdict::Unfinished(s)) => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-unfinished", status = format!("${s:02X}")))),
                     Some(Verdict::Pass { checks }) => {
                         // zusätzliche Erwartungen über Speicher und Register nach dem Ende
                         let regs = emu.registers().ok().map(|r| RegSnap { pc: r.pc, a: r.a, x: r.x, y: r.y, sp: r.sp, flags: r.flags });
                         let mut bad: Option<String> = None;
                         for src in &c.expect {
                             let r = Expr::parse(src, &pre.dbg.symbols).and_then(|e| e.holds(&mut MCtx { regs, backend: emu.as_mut() }));
-                            match r { Ok(true) => {} Ok(false) => { bad.get_or_insert(format!("Erwartung „{src}“ ist nach dem Ende nicht erfüllt")); } Err(e) => { bad.get_or_insert(format!("Erwartung „{src}“ nicht auswertbar: {e}")); } }
+                            match r { Ok(true) => {} Ok(false) => { bad.get_or_insert(vc_i18n::t!("testrun-mailbox-expect-unmet", src = src)); } Err(e) => { bad.get_or_insert(vc_i18n::t!("testrun-expect-unevaluable", src = src, e = e)); } }
                         }
                         match bad {
-                            Some(b) => with_loc(Outcome::failed(c.name.clone(), Level::Error, format!("alle {checks} Prüfungen des Programms bestanden, aber {b}"))),
-                            None => with_loc(Outcome::passed(c.name.clone(), Some(format!("{checks} Prüfung{}", if checks == 1 { "" } else { "en" })))),
+                            Some(b) => with_loc(Outcome::failed(c.name.clone(), Level::Error, vc_i18n::t!("testrun-mailbox-expect-after", checks = checks, b = b))),
+                            None => with_loc(Outcome::passed(c.name.clone(), Some(vc_i18n::t!("testrun-mailbox-checks", n = checks)))),
                         }
                     }
                 }
@@ -165,4 +165,27 @@ pub fn run_mailbox(tf: &TestFile, pre: &Prepared, ro: &RunOptions, launch: &mut 
         emit(&mut out, o);
     }
     out
+}
+
+#[cfg(test)]
+mod i18n_tests {
+    use super::*;
+
+    #[test]
+    fn texts_in_both_languages() {
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert_eq!(kind_name(4), "assert_mem_eq (Speicher)");
+        assert_eq!(vc_i18n::t!("testrun-mailbox-checks", n = 1), "1 Prüfung");
+        assert_eq!(vc_i18n::t!("testrun-mailbox-checks", n = 3), "3 Prüfungen");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        assert_eq!(kind_name(4), "assert_mem_eq (memory)");
+        assert_eq!(kind_name(9), "unknown kind");
+        assert_eq!(vc_i18n::t!("testrun-mailbox-checks", n = 1), "1 check");
+        assert_eq!(vc_i18n::t!("testrun-mailbox-checks", n = 12), "12 checks");
+        let m = vc_i18n::t!("testrun-mailbox-fail", number = 2, of = 5, kind = kind_name(1), actual = 7, actualhex = "$07", expected = 8, expectedhex = "$08");
+        assert_eq!(m, "Check no. 2 of 5 failed (assert_a_eq (A)): actual value 7 ($07), expected 8 ($08)");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        let m = vc_i18n::t!("testrun-mailbox-fail", number = 2, of = 5, kind = kind_name(1), actual = 7, actualhex = "$07", expected = 8, expectedhex = "$08");
+        assert_eq!(m, "Prüfung Nr. 2 von 5 fehlgeschlagen (assert_a_eq (A)): Ist-Wert 7 ($07), erwartet 8 ($08)");
+    }
 }

@@ -1,0 +1,65 @@
+{
+ "source": "templates/structures.json",
+ "entries": {
+  "/structures/0/name": {
+   "de": "Einfach",
+   "en": "Simple",
+   "status": "geprüft"
+  },
+  "/structures/0/description": {
+   "de": "Kleine Programme: keine zusätzlichen Ordner, abgelegte Dateien kommen nach lib/, doc/, data/ und graphics/.",
+   "en": "Small programs: no additional folders; dropped files go to lib/, doc/, data/ and graphics/.",
+   "status": "maschinell"
+  },
+  "/structures/1/name": {
+   "de": "Standard",
+   "en": "Standard",
+   "status": "unverändert"
+  },
+  "/structures/1/description": {
+   "de": "Quelltext, Bibliothek, Daten, Grafik, Doku und Tests in eigenen Ordnern.",
+   "en": "Source code, library, data, graphics, docs and tests in separate folders.",
+   "status": "geprüft"
+  },
+  "/structures/2/name": {
+   "de": "Groß, modular",
+   "en": "Large, modular",
+   "status": "geprüft"
+  },
+  "/structures/2/description": {
+   "de": "Module in src/, Ressourcen getrennt nach Art, Werkzeuge, Doku und Tests.",
+   "en": "Modules in src/, resources separated by type, tools, docs and tests.",
+   "status": "geprüft"
+  },
+  "/structures/3/name": {
+   "de": "Mehrere Systeme",
+   "en": "Multiple systems",
+   "status": "geprüft"
+  },
+  "/structures/3/description": {
+   "de": "Gemeinsamer Code in common/, je Zielsystem eigene Unterordner für Quelltext und Ressourcen.",
+   "en": "Shared code in common/, a separate subfolder per target system for source code and resources.",
+   "status": "geprüft"
+  },
+  "/structures/4/name": {
+   "de": "Bibliothek",
+   "en": "Library",
+   "status": "geprüft"
+  },
+  "/structures/4/description": {
+   "de": "Wiederverwendbarer Code in lib/ mit Beispielen, Tests und Doku.",
+   "en": "Reusable code in lib/ with examples, tests and docs.",
+   "status": "maschinell"
+  },
+  "/structures/5/name": {
+   "de": "Spiel mit Levels",
+   "en": "Game with levels",
+   "status": "geprüft"
+  },
+  "/structures/5/description": {
+   "de": "Levels, Grafik und Musik nach Art getrennt.",
+   "en": "Levels, graphics and music separated by type.",
+   "status": "maschinell"
+  }
+ }
+}

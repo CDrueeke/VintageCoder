@@ -1,0 +1,287 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "085d5a8fff3c" },
+  "command": "basic",
+  "group": "bauen",
+  "summary": "Tokenize BASIC, read it back, print the syntax tree",
+  "description": [
+    "Without further options, vcc basic translates a native BASIC program (line numbers optional, jump labels @name) into the storage format of the target system: PRG on Commodore, SAVE format (.bas) on Atari. The forms --tokenize and --detokenize work on the token level only. vcc basic ast prints the syntax tree.",
+    "The files are in the data folder. vcc finds it through --data-dir, VC_DATA, the location of the program or the working folder."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc basic <file.bas|file.lst|file.tur> [optionen]",
+      "summary": "translate native BASIC to PRG (Commodore) or BAS (Atari)",
+      "args": [
+        { "name": "file", "required": true, "repeat": false, "help": "Source text. The extensions .bas, .lst and .tur (or --plain) select native BASIC. .sbas is switched off." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target system and dialect" },
+        { "id": "ausgabe", "label": "Output and numbering" },
+        { "id": "alt", "label": "Only for source text with another extension (structured BASIC)" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system (file in data/targets), e.g. c64, c128, plus4, mega65, vic20, pet or atari8.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC dialect (file in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic or turbo_basic_xl.", "default": "", "default_text": "dialect of the target system", "repeat": false, "required": false },
+        { "flag": "--memory", "short": "", "value": "memory", "group": "ziel", "help": "Memory expansion of the target. It sets the BASIC start address. Only the VIC-20 has it (unexpanded, 3k, 8k, 16k, 24k, 35k). Other targets ignore it.", "default": "", "default_text": "default of the target (VIC-20: unexpanded)", "repeat": false, "required": false },
+        { "flag": "--plain", "short": "", "value": "", "group": "ziel", "help": "Read the source text as native BASIC, even with an extension other than .bas, .lst and .tur.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ziel", "help": "Folder with the hardware database (data).", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "output", "group": "ausgabe", "help": "Output file. For native BASIC it must not be the source file.", "default": "", "default_text": "source name with .prg (Commodore) or .bas (Atari)", "repeat": false, "required": false },
+        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "Number of the first line without its own line number. An invalid number is silently replaced by the default. A line #numbering start=N step=N in the file takes precedence; step at least 1, on overflow B192 suggests a smaller one.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Step size of the automatic line numbers. An invalid number is silently replaced by the default. A line #numbering start=N step=N in the file takes precedence; step at least 1, on overflow B192 suggests a smaller one.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Check only: print warnings (B150–B159, B167), write no file.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--compact", "short": "", "value": "", "group": "ausgabe", "help": "Remove spaces inside statements where that changes nothing (Commodore only; saves memory and run time). Strings, REM and DATA stay.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-check", "short": "", "value": "", "group": "ausgabe", "help": "Skip the syntax check while translating.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--disable", "short": "", "value": "codes", "group": "ausgabe", "help": "Switch off individual warnings, codes separated by commas (e.g. B150,B154). Errors cannot be switched off.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-I", "short": "", "value": "folder", "group": "alt", "help": "Search folder for included files. The first one is also the root for machine code includes.", "default": "", "default_text": "working folder (root)", "repeat": true, "required": false },
+        { "flag": "-D", "short": "", "value": "NAME=number", "group": "alt", "help": "Set a constant for the source text (native BASIC: acts like #define NAME number).", "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--pack", "short": "", "value": "", "group": "alt", "help": "Combine lines (Commodore only).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--map", "short": "", "value": "file", "group": "alt", "help": "Write the mapping of source name to BASIC name and label to line into a text file (Commodore only).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--labels", "short": "", "value": "file", "group": "alt", "help": "Read a VICE label file. Its addresses are available in the source text as constants asm.name (Commodore only).", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Translate a C64 program with jump labels", "cmd": "vcc basic examples/c64/basic_native/sterne.bas -o sterne.prg" },
+        { "title": "Translate an Atari BASIC program", "cmd": "vcc basic examples/atari/basic_native/farben.bas --target atari8 -o farben.bas" },
+        { "title": "Translate Turbo BASIC XL", "cmd": "vcc basic examples/atari/turbo_basic/balken.tur --target atari8 --dialect turbo_basic_xl -o balken.bas" },
+        { "title": "VIC-20 with 8 KB expansion", "cmd": "vcc basic examples/c64/basic_native/sterne.bas --target vic20 --memory 8k -o sterne.prg" }
+      ],
+      "notes": [
+        "#include brings in files and media (e.g. #include \"graphics/hero.vcsprite\" as DATA; project folder = nearest folder with a project file); media are read during conversion (--to-labels, --to-numbers, --renumber) but never written back.",
+        "Directives in native BASIC: #define NAME value (replacement before numbering), #if SYSTEM_C64 / #else / #endif, #dialect <id> (dialect of this file) and #asm \"file.asm\" [with \"song.asm\"] (machine code behind the BASIC text or as DATA lines; the symbols appear in the program as asm.name).",
+        "The output lists the labels (@name = line n) and, with #longnames, the mapping of the long names. A .sbas file is rejected.",
+        "The options -I, --pack, --map and --labels only work when translating source text with an extension other than .bas, .lst and .tur without --plain. For native BASIC they are accepted but not used. The option -D also works for native BASIC (like a #define)."
+      ],
+      "see_also": ["basic2asm", "import", "build"]
+    },
+    {
+      "id": "tokenize",
+      "usage": "vcc basic --tokenize <list.lst> [optionen]",
+      "summary": "tokenize a classic numbered listing",
+      "args": [
+        { "name": "list", "required": true, "repeat": false, "help": "Listing with a line number on every line, without labels and without directives." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target system and dialect" },
+        { "id": "ausgabe", "label": "Output" }
+      ],
+      "options": [
+        { "flag": "--tokenize", "short": "", "value": "", "group": "ziel", "help": "Switches to this form.", "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system (file in data/targets). It sets the dialect and the load address.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC dialect (file in data/basic).", "default": "", "default_text": "dialect of the target system", "repeat": false, "required": false },
+        { "flag": "--memory", "short": "", "value": "memory", "group": "ziel", "help": "Memory expansion of the target. It sets the load address (VIC-20: unexpanded, 3k, 8k, 16k, 24k, 35k).", "default": "", "default_text": "default of the target", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ziel", "help": "Folder with the hardware database (data).", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "output", "group": "ausgabe", "help": "Output file.", "default": "", "default_text": "source name with .prg (Commodore) or .bas (Atari)", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Tokenize a listing to PRG", "cmd": "vcc basic --tokenize liste.lst --target c64 -o liste.prg" }
+      ],
+      "notes": [
+        "A line without a line number is an error (B100). For source text with labels and directives, use the form without --tokenize."
+      ],
+      "see_also": ["basic"]
+    },
+    {
+      "id": "detokenize",
+      "usage": "vcc basic --detokenize <file.prg> [optionen]",
+      "summary": "print a PRG or Atari SAVE file as a listing",
+      "args": [
+        { "name": "datei", "required": true, "repeat": false, "help": "Commodore PRG or Atari BASIC file in SAVE format." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target system and dialect" },
+        { "id": "ausgabe", "label": "Output" }
+      ],
+      "options": [
+        { "flag": "--detokenize", "short": "", "value": "", "group": "ziel", "help": "Switches to this form.", "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system (file in data/targets). For Atari files, give atari8. Without it, the Commodore PRG format applies.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC dialect (file in data/basic). It provides the word list to translate the tokens back.", "default": "", "default_text": "dialect of the target system", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ziel", "help": "Folder with the hardware database (data).", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false },
+        { "flag": "--structured", "short": "", "value": "", "group": "ausgabe", "help": "Print text with labels (@L10) instead of the classic listing. Commodore only.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "output", "group": "ausgabe", "help": "Write the listing to a file.", "default": "", "default_text": "output to stdout", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Read a PRG as a listing", "cmd": "vcc basic --detokenize stars.prg" },
+        { "title": "Convert an Atari file back to a text file", "cmd": "vcc basic --detokenize colors.bas --target atari8 -o colors.lst" }
+      ],
+      "notes": [
+        "Keywords appear in lower case on Commodore and in upper case on Atari. Control characters appear as {clr} and so on. If the file starts with two zero bytes, the error message points to --target atari8."
+      ],
+      "see_also": ["basic", "import"]
+    },
+    {
+      "id": "suggest-hex",
+      "usage": "vcc basic --suggest-hex <datei.bas|datei.lst> [optionen]",
+      "summary": "show hex suggestions for chip register addresses or apply selected ones",
+      "args": [
+        {
+          "name": "datei",
+          "required": true,
+          "repeat": false,
+          "help": "Native BASIC with decimal addresses (e.g. an imported program)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Target system and dialect"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--suggest-hex",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Switches to this form.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "ziel",
+          "help": "Target system (file in data/targets). It sets the dialect and the known chip registers.",
+          "default": "c64",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dialect",
+          "short": "",
+          "value": "id",
+          "group": "ziel",
+          "help": "BASIC dialect (file in data/basic).",
+          "default": "",
+          "default_text": "dialect of the target system",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "ziel",
+          "help": "Folder with the hardware database (data).",
+          "default": "",
+          "default_text": "VC_DATA or next to the program",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--apply",
+          "short": "",
+          "value": "list",
+          "group": "ausgabe",
+          "help": "Numbers of the suggestions (from the list, separated by commas) to write to the output file. Without --apply, the suggestions are only listed. Nothing is ever changed without a selection.",
+          "default": "",
+          "default_text": "list only",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "output",
+          "group": "ausgabe",
+          "help": "Output file for --apply (the source file is never overwritten).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "View the suggestions",
+          "cmd": "vcc basic --suggest-hex game.bas --target c64"
+        },
+        {
+          "title": "Apply suggestions 1 and 3",
+          "cmd": "vcc basic --suggest-hex game.bas --apply 1,3 -o game_hex.bas"
+        }
+      ],
+      "notes": [
+        "Only complete decimal addresses from 256 upward are suggested, as an argument of POKE, PEEK, SYS, WAIT and USR, and only if they are a chip register of the target system. Arithmetic expressions, DATA and strings are left untouched."
+      ],
+      "see_also": [
+        "basic"
+      ]
+    },
+    {
+      "id": "convert",
+      "usage": "vcc basic (--to-labels | --to-numbers | --renumber) <datei.bas|datei.lst|datei.tur> [optionen]",
+      "summary": "Convert line numbers to labels, labels to line numbers, or renumber",
+      "args": [
+        { "name": "datei.bas", "required": true, "repeat": false, "help": "BASIC source; included files (#include) are converted along with it." }
+      ],
+      "option_groups": [
+        { "id": "art", "label": "Kind of conversion" },
+        { "id": "ausgabe", "label": "Output and numbering" },
+        { "id": "ziel", "label": "Target system and dialect" }
+      ],
+      "options": [
+        { "flag": "--to-labels", "short": "", "value": "", "group": "art", "help": "Convert line numbers to labels: only lines that are jumped to get a label, existing names are kept. Computed jump targets (GOTO A*10) abort the conversion (B162).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--to-numbers", "short": "", "value": "", "group": "art", "help": "Convert labels to line numbers: always renumbered; the names are kept as marker lines ;@name.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--renumber", "short": "", "value": "", "group": "art", "help": "Renumber the lines and adjust all jump targets.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--range", "short": "", "value": "a-b", "group": "art", "help": "Renumber only lines whose old number is from a to b (with --renumber, line-number mode only).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "First line number. A line #numbering start=N step=N in the file takes precedence; step at least 1, on overflow B192 suggests a smaller one.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Line number step. A line #numbering start=N step=N in the file takes precedence; step at least 1, on overflow B192 suggests a smaller one.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "datei", "group": "ausgabe", "help": "Write the result (main file only) to this file.", "default": "", "default_text": "standard output", "repeat": false, "required": false },
+        { "flag": "--write", "short": "", "value": "", "group": "ausgabe", "help": "Overwrite all changed files in place.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--preview", "short": "", "value": "", "group": "ausgabe", "help": "Only list the changed lines (old → new), write nothing.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system (file in data/targets); determines the dialect.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC dialect (file in data/basic); a line #dialect <id> in the file takes precedence.", "default": "", "default_text": "dialect of the target system", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Folder with the hardware database (data).", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Preview of the conversion to labels", "cmd": "vcc basic --to-labels spiel.bas --preview" },
+        { "title": "Convert to line numbers and overwrite the file", "cmd": "vcc basic --to-numbers spiel.bas --write" },
+        { "title": "Renumber from 100 in steps of 5", "cmd": "vcc basic --renumber spiel.bas --start 100 --step 5 -o neu.bas" }
+      ],
+      "notes": [
+        "The mode of a file follows from its content; a mix of numbers and labels (B160) can be resolved with either conversion.",
+        "The names of manually assigned labels are kept as a line ;@name before the statement and reused when converting back."
+      ],
+      "exit": { "0": "Conversion succeeded", "1": "Conversion not possible (error B1xx)" },
+      "see_also": ["basic"]
+    },
+    {
+      "id": "ast",
+      "usage": "vcc basic ast <file.bas> [optionen]",
+      "summary": "print the syntax tree of a BASIC program",
+      "args": [
+        { "name": "file.bas", "required": true, "repeat": false, "help": "BASIC source text (the same reader as in basic2asm)." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target system" },
+        { "id": "ausgabe", "label": "Output form" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system. It sets the BASIC dialect.", "choices": ["c64", "c128", "plus4", "mega65", "atari8"], "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--turbo", "short": "", "value": "", "group": "ziel", "help": "Read the source text as Turbo BASIC XL (target atari8 only).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ziel", "help": "Folder with the hardware database (data).", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false },
+        { "flag": "--json", "short": "", "value": "", "group": "ausgabe", "help": "Print the tree as JSON (lines, statements, expressions; strings as byte lists).", "default": "", "default_text": "Rust debug output of the lines", "repeat": false, "required": false },
+        { "flag": "--roundtrip", "short": "", "value": "", "group": "ausgabe", "help": "Print the tree as canonical text, read it back and report E191 if the tree is not the same. Takes precedence over --json.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Syntax tree as JSON", "cmd": "vcc basic ast examples/c64/basic_native/sterne.bas --json", "run": true },
+        { "title": "Check the round trip", "cmd": "vcc basic ast examples/c64/basic_native/sterne.bas --roundtrip", "run": true }
+      ],
+      "notes": [
+        "The call uses the parser of basic2asm. Its other options (-o, --map, --stage, --float, --int-div, --style, --runtime, --no-track-line, --no-rem, --check) are accepted but have no effect here.",
+        "Statements that the converter does not translate (OPEN, LOAD ...) cannot be written back (E190)."
+      ],
+      "exit": { "0": "tree printed, or round trip OK", "1": "error in the source text, or round trip not OK" },
+      "see_also": ["basic2asm"]
+    }
+  ]
+}

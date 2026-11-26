@@ -111,7 +111,7 @@ pub fn run(p: &Params, cancel: &AtomicBool, emit: &mut dyn FnMut(Hit)) -> Summar
         let text = match p.overrides.get(rel) {
             Some(t) => t.clone(),
             None => {
-                let path = p.root.join(rel);
+                let Ok(path) = vc_ide::safepath::resolve(&p.root, rel) else { continue };   // Symlink aus dem Projekt heraus: nicht lesen
                 if std::fs::metadata(&path).map_or(true, |m| m.len() > MAX_FILE) { continue; }
                 match std::fs::read(&path).ok().and_then(|b| if b.contains(&0) { None } else { String::from_utf8(b).ok() }) { Some(t) => t, None => continue }
             }

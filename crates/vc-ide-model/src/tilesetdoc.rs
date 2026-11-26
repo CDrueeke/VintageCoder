@@ -111,7 +111,7 @@ pub fn banken_umnummerieren(root: &Path, set_rel: &str, del: usize, nach: usize)
                 if let Some(n) = t.as_u64() { let n = n as usize; let m = if n == del { nach } else if n > del { n - 1 } else { n }; if m != n { *t = json!(m); any = true } }
             } }
         }
-        if any { std::fs::write(&f, vc_media::project::format_media(&v)).map_err(|e| format!("{}: {e}", f.display()))?; geaendert += 1 }
+        if any { vc_core::atomar::schreiben(&f, vc_media::project::format_media(&v)).map_err(|e| format!("{}: {e}", f.display()))?; geaendert += 1 }
     }
     Ok(geaendert)
 }
@@ -119,8 +119,8 @@ pub fn banken_umnummerieren(root: &Path, set_rel: &str, del: usize, nach: usize)
 impl TilesetDoc {
     pub fn oeffnen(root: &Path, rel: &str, data: &Path) -> Result<TilesetDoc, String> {
         let abs = root.join(rel);
-        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
-        let ts = tiles::parse_tileset(&media).map_err(|e| format!("{rel}: {e}"))?;
+        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("tilesetdoc-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("tilesetdoc-rel-e", rel = &rel, e = e.to_string()))?;
+        let ts = tiles::parse_tileset(&media).map_err(|e| vc_i18n::t!("tilesetdoc-rel-e", rel = &rel, e = &e))?;
         let profiles = vc_media::load_profiles(data)?; let p = vc_media::profile(&profiles, media["profile"].as_str().unwrap_or(""))?; let target = p.target.clone();
         let zs = crate::screendoc::zeichensaetze_im_projekt(root, &target, &profiles);
         let zeichensaetze = zs.into_iter().map(|c| { let pr = std::fs::read_to_string(root.join(&c)).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()).and_then(|v| v["profile"].as_str().map(String::from)).unwrap_or_default(); (c, pr) }).collect();
@@ -165,7 +165,7 @@ impl TilesetDoc {
     pub fn kann_redo(&self) -> bool { !self.redo.is_empty() }
     pub fn media_text(&self) -> String { vc_media::project::format_media(&self.media) }
     pub fn speichern(&mut self) -> Result<(), String> {
-        std::fs::write(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = "gespeichert".into(); self.banken_lesen(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = vc_i18n::t!("tilesetdoc-gespeichert"); self.banken_lesen(); Ok(())
     }
     /// Änderung am Satz; `undo` = Rückgängig-Punkt vorher setzen
     fn aendern(&mut self, undo: bool, f: impl FnOnce(&mut TileSet)) {
@@ -240,7 +240,7 @@ impl TilesetDoc {
     pub fn frage_bestaetigen(&mut self) -> Result<(), String> {
         match self.frage.take() {
             Some(Frage::Groesse(w, h)) => self.aendern(true, move |ts| neue_groesse(ts, w, h)),
-            Some(Frage::Loeschen(i)) => { self.entfernen(i); self.speichern()?; let n = banken_umnummerieren(&self.root, &self.rel, i, 0)?; self.status = format!("Kachel {i} gelöscht, {n} Bank(en) angepasst"); self.banken_lesen() }
+            Some(Frage::Loeschen(i)) => { self.entfernen(i); self.speichern()?; let n = banken_umnummerieren(&self.root, &self.rel, i, 0)?; self.status = vc_i18n::t!("tilesetdoc-kachel-i-geloescht-n-bank-en", i = &i, n = &n); self.banken_lesen() }
             None => {}
         }
         Ok(())
@@ -250,7 +250,7 @@ impl TilesetDoc {
     pub fn zusammenfuehren(&mut self) -> Result<(), String> {
         let s = self.sel; let Some(j) = self.doppelt.get(s).copied().flatten() else { return Ok(()) };
         self.entfernen(s);
-        if !self.banken.is_empty() { self.speichern()?; let n = banken_umnummerieren(&self.root, &self.rel, s, j)?; self.status = format!("Kachel {s} mit {j} zusammengeführt, {n} Bank(en) angepasst"); self.banken_lesen() }
+        if !self.banken.is_empty() { self.speichern()?; let n = banken_umnummerieren(&self.root, &self.rel, s, j)?; self.status = vc_i18n::t!("tilesetdoc-kachel-s-mit-j-zusammengefuehrt-n", s = &s, j = &j, n = &n); self.banken_lesen() }
         Ok(())
     }
     pub fn kachel_umbenennen(&mut self, name: &str, erster: bool) { let (s, n) = (self.sel, name.to_string()); self.aendern(erster, move |ts| { if let Some(t) = ts.tiles.get_mut(s) { t.name = n } }) }

@@ -9,10 +9,10 @@ Diese Seite richtet sich an alle, die aus dem Quellbaum ein Release zusammenstel
 | Abschnitt | Inhalt | Kennungen |
 |---|---|---|
 | 1. Programm | die Entwicklungsumgebung `vintagecoder` und die Update-Prüfung (Hinweis auf neue Versionen, ohne Laden und Installieren; ohne sie baut das Paket nie eine solche Verbindung auf) | `IDE-APP`, `IDE-UPDATE` |
-| 2. Studios | Editoren für Grafik, Klang und Medien (nur wirksam mit `IDE-APP`) | `STU-SPRITE`, `STU-CHAR`, `STU-SCREEN`, `STU-TILES`, `STU-PALETTE`, `STU-TRACKER`, `STU-PLAY`, `STU-DISK`, `STU-MEMMAP`, `STU-EXTRACT` |
+| 2. Editoren | Grafik, Klang und Medien (nur wirksam mit `IDE-APP`) | `STU-SPRITE`, `STU-CHAR`, `STU-SCREEN`, `STU-TILES`, `STU-PALETTE`, `STU-TRACKER`, `STU-PLAY`, `STU-DISK`, `STU-MEMMAP`, `STU-EXTRACT` |
 | 3. Anbindungen | Emulatoren und echte Geräte | `EMU-VICE`, `EMU-ATARI800`, `EMU-ALTIRRA`, `EMU-FUJISAN`, `EMU-XEMU`, `HW-ULTIMATE`, `HW-MEGA65` |
-| 4. Zielsysteme | C64, Atari 8 Bit, MEGA65, Plus/4, C16, C128, VC-20 (dazu zwei Zeilen für Systeme, die derzeit nicht gewählt sind) | `SYS-C64`, `SYS-ATARI`, `SYS-MEGA65`, `SYS-PLUS4`, `SYS-C16`, `SYS-C128`, `SYS-VC20`, `SYS-PET`, `SYS-CBM2` |
-| 5. Beispielprojekte | Pakete von Beispielen | `EX-HELLO`, `EX-JUMPRUN`, `EX-PRALLBALL`, `EX-DEMOS` |
+| 4. Zielsysteme | C64, Atari 8 Bit, MEGA65, Plus/4, C16, C128, VC-20 (dazu eine Zeile für ein System, das derzeit nicht gewählt ist) | `SYS-C64`, `SYS-ATARI`, `SYS-MEGA65`, `SYS-PLUS4`, `SYS-C16`, `SYS-C128`, `SYS-VC20`, `SYS-PET` |
+| 5. Beispielprojekte | Pakete von Beispielen | `EX-HELLO`, `EX-JUMPRUN`, `EX-PRALLBALL`, `EX-TROXX`, `EX-DEMOS` |
 
 Jede Zeile hat vier Spalten: **Kennung** (in Backticks), Beschreibung, **Stand** (Stabil, Beta, In Arbeit, Spike, Konzept) und **Release**. Angehakt ist eine Zeile, wenn das letzte Feld `[x]` enthält; `[X]`, `[ x]`, `[x ]` und `[ X]` zählen ebenso, `[ ]` und ein leeres Feld nicht. Text außerhalb der Tabellen und HTML-Kommentare liest das Skript nicht. Die Kennung muss genau einmal in `FEATURES.md` und genau einmal in der Registry stehen.
 
@@ -31,13 +31,13 @@ Drei Dateien hängen zusammen:
   "studios": ["sprite", "char", "screen", "tiles", "palette", "tracker", "play", "disk", "memmap"],
   "links": ["vice", "atari800", "altirra", "fujisan", "xemu", "ultimate"],
   "targets": ["c64", "atari8", "mega65", "plus4", "c16", "c128", "vic20"],
-  "examples": ["EX-HELLO", "EX-JUMPRUN", "EX-PRALLBALL", "EX-DEMOS"] }
+  "examples": ["EX-HELLO", "EX-JUMPRUN", "EX-PRALLBALL", "EX-TROXX", "EX-DEMOS"] }
 ```
 
 **Regeln beim Lesen** (Modul `vc_ide::features`, von `vintagecoder` und `vcc` gleich verwendet):
 
 - Die Datei fehlt: **alles ist an**. So verhalten sich der Quellbaum, `cargo run` und `cargo test`.
-- Ein Schlüssel fehlt: dafür ist alles an. Ein Schlüssel ist da: nur die genannten Einträge. Neue Studios in einer alten `release.json` bleiben also aus.
+- Ein Schlüssel fehlt: dafür ist alles an. Ein Schlüssel ist da: nur die genannten Einträge. Neue Editoren in einer alten `release.json` bleiben also aus.
 - Ist die Datei kaputt oder ihr `format` neuer, als das Programm kennt, gilt die **Mindestauswahl** (nichts Wählbares an) mit einer Warnung, nie „alles an“.
 - `VC_RELEASE=all` erzwingt „alles an“, `VC_RELEASE=<Pfad>` lädt eine andere `release.json`. Das ist der Weg, ein Release im Quellbau auszuprobieren, ohne zu paketieren.
 
@@ -80,7 +80,7 @@ Zeilen unter Beta, die ausdrücklich mitgeliefert werden sollen, stehen in `rele
 
 ## Abhängigkeiten
 
-Ein Studio braucht `IDE-APP`. `EMU-ATARI800`, `EMU-ALTIRRA` und `EMU-FUJISAN` brauchen `SYS-ATARI`, `EMU-XEMU` und `HW-MEGA65` brauchen `SYS-MEGA65`, `HW-ULTIMATE` braucht `SYS-C64`, `EMU-VICE` mindestens eines der VICE-Systeme. `STU-TRACKER` und `STU-PLAY` brauchen ein Ziel mit Tonchip. Ein Beispiel wird nur ausgeliefert, wenn sein **Paket und das Zielsystem seines Ordners** gewählt sind. Genaue Regeln: `check --explain <Kennung>`.
+Ein Editor braucht `IDE-APP`. `EMU-ATARI800`, `EMU-ALTIRRA` und `EMU-FUJISAN` brauchen `SYS-ATARI`, `EMU-XEMU` und `HW-MEGA65` brauchen `SYS-MEGA65`, `HW-ULTIMATE` braucht `SYS-C64`, `EMU-VICE` mindestens eines der VICE-Systeme. `STU-TRACKER` und `STU-PLAY` brauchen ein Ziel mit Tonchip. Ein Beispiel wird nur ausgeliefert, wenn sein **Paket und das Zielsystem seines Ordners** gewählt sind. Genaue Regeln: `check --explain <Kennung>`.
 
 Bei einer verletzten **harten** Abhängigkeit bricht `check` (und damit `stage`) mit einer Meldung wie „`HW-MEGA65` braucht `SYS-MEGA65`“ ab und nennt, was anzukreuzen oder abzuwählen ist. Das Skript ändert die Auswahl nie stillschweigend (Ausnahme: `--auto-deps`). **Weiche** Abhängigkeiten ergeben nur eine Warnung im Bericht, etwa „Zielsystem ohne Emulator oder Gerät: nur Bau, kein Start“. Eine gewählte Zeile mit Stand unter Beta bricht ebenfalls ab (Ausnahme: `--allow-unfinished`).
 
@@ -88,7 +88,7 @@ Bei einer verletzten **harten** Abhängigkeit bricht `check` (und damit `stage`)
 
 **Versteckt, nicht entfernt.** Der Code bleibt im Programm; die Oberfläche zeigt abgewählte Teile nirgends und lässt sich nicht dorthin führen.
 
-- **Studios:** keine Menüpunkte, keine Befehle in der Befehlspalette, keine Schaltflächen (Startseite, Auswahl „Art“ im Dialog „Neue Datei“ des Projektbaums), kein Reiter. Die Datei eines abgewählten Studios (etwa `*.sprite.json`) öffnet im Text-Editor mit einem Hinweis. **Dateiformate, `vcc media` und `vcc import` bleiben immer**; Projekte bleiben baubar. Gespeicherte Fensterlagen mit abgewählten Studios bleiben in `layout.json`, wirken aber nicht.
+- **Editoren:** keine Menüpunkte, keine Befehle in der Befehlspalette, keine Schaltflächen (Startseite, Auswahl „Art“ im Dialog „Neue Datei“ des Projektbaums), kein Reiter. Die Datei eines abgewählten Editors (etwa `*.sprite.json`) öffnet im Text-Editor mit einem Hinweis. **Dateiformate, `vcc media` und `vcc import` bleiben immer**; Projekte bleiben baubar. Gespeicherte Fensterlagen mit abgewählten Editoren bleiben in `layout.json`, wirken aber nicht.
 - **Anbindungen:** Erkennung, F5, Debugger, `vcc test --backend`, `vcc emulator` und `vcc streams` melden „nicht im Paket enthalten“ (Rückgabewert 1). Einstellungen zeigen nur Karten der gewählten Anbindungen; bereits gespeicherte Einträge bleiben in der Datei. Debugger-Befehle, das Panel „Bild“ und die Hilfeseite „Emulatoren“ richten sich nach den gewählten Anbindungen. Emulatoren und ROMs werden nie ausgeliefert.
 - **Zielsysteme:** Projekt-Assistent, Startseite, Einstellungen, Vorlagen und `vcc new` führen nur gelieferte Systeme. Ein Projekt mit fehlendem Ziel lässt sich öffnen und bearbeiten; Bau und Start melden „Zielsystem ‚x‘ ist in diesem Release nicht enthalten“, `vcc` endet mit Rückgabewert 2. Die Projektdatei wird nie verändert. Das Vorgabe-Target ist der C64, wenn geliefert, sonst das erste gelieferte.
 - **Hilfe:** Themen, die nur zu abgewählten Teilen gehören, fehlen in Liste, Suche und Verweisen (ein Link wird zu Text). Die Zuordnung steht in `vc_ide::help::needs` und im Feld `help` der Registry; ein Test hält beide gleich.

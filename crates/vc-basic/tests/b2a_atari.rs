@@ -23,6 +23,14 @@ struct Run { out: String, ram: Vec<u8> }
 
 fn opts() -> B2aOptions { let mut o = B2aOptions::new("t.bas"); o.target = "atari8".into(); o }
 
+/// Innere Meldung (Schlüssel und Parameter) der ersten Diagnose, die E103 um die Zeilennummer wickelt
+fn parse_msg(src: &str, o: &B2aOptions) -> vc_core::Msg {
+    let d = Dialect::load(&data(), vc_basic::b2a::target_info(&o.target).unwrap().dialect).unwrap();
+    let e = convert(src, &d, o).err().expect("Fehler erwartet");
+    assert_eq!(e[0].code, "E103");
+    match e[0].args.iter().find(|(k, _)| *k == "e") { Some((_, vc_core::MsgArg::Msg(m))) => (**m).clone(), other => panic!("{other:?}") }
+}
+
 fn try_convert(src: &str, o: &B2aOptions) -> Result<vc_basic::b2a::Converted, String> {
     let d = Dialect::load(&data(), vc_basic::b2a::target_info(&o.target).unwrap().dialect).unwrap();
     convert(src, &d, o).map_err(|e| e.iter().map(|x| x.to_string()).collect::<Vec<_>>().join("\n"))
@@ -301,8 +309,8 @@ fn atari_graphics_statements_are_parsed() {
     for src in ["graphics 8+16\ncolor 1\nplot 10,10\ndrawto 20,20\nposition 5,5\nsetcolor 2,0,0\nsound 0,1,2,3\nlocate 1,1,a\nprint #6;\"x\";a\nprint stick(0);strig(0)\n"] {
         try_convert(src, &opts()).unwrap_or_else(|e| panic!("{e}"));
     }
-    let e = try_convert("plot 1\n", &opts()).unwrap_err();
-    assert!(e.contains("PLOT erwartet 2 Zahlen"), "{e}");
+    let m = parse_msg("plot 1\n", &opts());
+    assert_eq!((m.key, m.arg_text("k").as_str(), m.arg_text("want").as_str()), ("diag-basic-e103-numbers-expected", "PLOT", "2"));
     let e = try_convert("xio 1,2\n", &opts()).unwrap_err();
     assert!(e.contains("E311"), "{e}");
 }
@@ -312,8 +320,7 @@ fn atari_unary_sign_quirks() {
     // Messung am echten BASIC: ein Vorzeichen vor einem weiteren Vorzeichen entfällt; NOT -1 ist Fehler 11 (wird beim Übersetzen gemeldet)
     let Some(r) = runf("print - -2; \" \"; 3- -2; \" \"; - +4; \" \"; not (-1)\n") else { return };
     assert_eq!(r.out, "-2 5 4 0\n", "{}", r.out);
-    let e = try_convert("print not -1\n", &opts()).unwrap_err();
-    assert!(e.contains("Fehler 11"), "{e}");
+    assert_eq!(parse_msg("print not -1\n", &opts()).key, "diag-basic-e103-not-sign");
 }
 
 // ---- Turbo BASIC XL (nur Ziel atari8): Blockanweisungen und Prozeduren, in einfache Sprünge übersetzt

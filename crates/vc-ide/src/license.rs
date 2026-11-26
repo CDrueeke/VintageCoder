@@ -17,7 +17,8 @@ pub struct Policy {
 }
 
 /// Kurzer Lizenzhinweis für `vcc --license` und den Über-Dialog (Wortlaut: LICENSING.md)
-pub const NOTICE_SHORT: &str = "VintageCoder steht unter der GNU General Public License, Version 3 oder später (Datei LICENSE). Was du mit VintageCoder erzeugst, gehört dir und ist frei nutzbar; die Sprache VCASM und die Dateiformate sind frei, vcc und vc-lsp darfst du aus beliebiger Software aufrufen. Systemdateien, Vorlagen und Beispiele stehen unter MIT-0 (LICENSES/MIT-0.txt). Die Einzelheiten stehen in LICENSING.md.";
+/// Kurzer Lizenzhinweis (Infofenster, `vcc --license`) in der gewählten Sprache
+pub fn notice_short() -> String { vc_i18n::t!("license-notice-short") }
 
 static CLI: Mutex<Policy> = Mutex::new(Policy { deny: vec![], allow: vec![] });
 
@@ -54,7 +55,7 @@ pub fn show_path(root: &Path, data: &Path, file: &str) -> String {
     vc_core::paths::slashes(file)
 }
 
-fn holder_text(h: &str) -> String { if h.is_empty() { "Urheber unbekannt".into() } else { h.to_string() } }
+fn holder_text(h: &str) -> String { if h.is_empty() { vc_i18n::t!("license-urheber-unbekannt").into() } else { h.to_string() } }
 
 /// Hinweise `L001`, je Lizenz einer (nur Copyleft, nicht in `allow`). Texte ohne Vorspann „Hinweis (L001):“.
 pub fn copyleft_notes(entries: &[LicenseEntry], policy: &Policy, show: &dyn Fn(&str) -> String) -> Vec<String> {
@@ -68,17 +69,16 @@ pub fn copyleft_notes(entries: &[LicenseEntry], policy: &Policy, show: &dyn Fn(&
         files.truncate(3);
         let mut holders: Vec<String> = vec![];
         for e in &es { let h = holder_text(&e.holder); if !holders.contains(&h) { holders.push(h); } }
-        format!("Das Programm enthält Quelltext unter {lic} ({}{}, {}). Wer das Programm weitergibt, muss die Bedingungen dieser Lizenz einhalten (u. a. den Quelltext bereitstellen). Mit --license-report erhältst du die Liste.",
-            files.join(", "), if n > 3 { format!(" u. a., {n} Dateien") } else { String::new() }, holders.join("; "))
+        vc_i18n::t!("license-das-programm-enthaelt-quelltext-unter-lic", lic = &lic, p2 = files.join(", "), p3 = if n > 3 { format!(" {}", vc_i18n::t!("license-u-a-n-dateien", n = &n)) } else { String::new() }, p4 = holders.join("; "))
     }).collect()
 }
 
 /// Gesperrte Lizenzen: Fehlertexte `L002`, je beitragender Datei einer
 pub fn denied(entries: &[LicenseEntry], policy: &Policy, show: &dyn Fn(&str) -> String) -> Vec<String> {
-    entries.iter().filter(|e| policy.denies(&e.license)).map(|e| format!("Die Lizenz {} ist für dieses Projekt gesperrt (--deny-license oder licenses.deny in der Projektdatei): {} ({}).", e.license, show(&e.file), holder_text(&e.holder))).collect()
+    entries.iter().filter(|e| policy.denies(&e.license)).map(|e| vc_i18n::t!("license-die-lizenz-p1-ist-fuer-dieses", p1 = &e.license, p2 = show(&e.file), p3 = holder_text(&e.holder))).collect()
 }
 
-pub fn origin_text(o: &Origin) -> &'static str { match o { Origin::Header => "Kopfzeile", Origin::Folder(_) => "Ordnervermerk" } }
+pub fn origin_text(o: &Origin) -> String { match o { Origin::Header => vc_i18n::t!("license-kopfzeile"), Origin::Folder(_) => vc_i18n::t!("license-ordnervermerk") } }
 
 pub fn entry_json(e: &LicenseEntry, show: &dyn Fn(&str) -> String) -> Value {
     json!({ "file": show(&e.file), "license": e.license, "holder": e.holder, "source": origin_text(&e.origin),
@@ -87,16 +87,14 @@ pub fn entry_json(e: &LicenseEntry, show: &dyn Fn(&str) -> String) -> Value {
 
 /// Bericht (`build/LICENSES.txt`, `--license-report`): `programs` = (Programm, Ziel, Einträge, Anzahl Dateien ohne Kennung)
 pub fn report_text(programs: &[(String, String, Vec<LicenseEntry>, usize)], show: &dyn Fn(&str) -> String) -> String {
-    let mut s = String::from("Lizenzen der übersetzten Quelltexte (erzeugt von VintageCoder)\n\
-        Gelesen werden die Zeilen SPDX-License-Identifier in den Kopfzeilen der Dateien (sonst ein Ordnervermerk LICENSE).\n\
-        Das ist nur so gut wie diese Kopfzeilen; Binärdaten und Dateien ohne Kennung werden nicht erkannt. Kein Rechtsurteil.\n");
+    let mut s = format!("{}\n{}\n{}\n", vc_i18n::t!("cli-license-report-title"), vc_i18n::t!("cli-license-report-how"), vc_i18n::t!("cli-license-report-caveat"));
     for (prog, target, es, none) in programs {
-        s.push_str(&format!("\n== {prog} (Ziel {target}) ==\n"));
+        s.push_str(&format!("\n{}\n", vc_i18n::t!("license-prog-ziel-target", prog = &prog, target = &target)));
         for e in es {
-            s.push_str(&format!("{:<18} {}  [{}; {}]{}\n", e.license, show(&e.file), holder_text(&e.holder), origin_text(&e.origin), if is_copyleft(&e.license) { "  Copyleft" } else { "" }));
+            s.push_str(&format!("{:<18} {}  [{}; {}]{}\n", e.license, show(&e.file), holder_text(&e.holder), origin_text(&e.origin), if is_copyleft(&e.license) { format!("  {}", vc_i18n::t!("license-copyleft")) } else { String::new() }));
         }
-        if es.is_empty() { s.push_str("(keine Lizenzkennung gefunden)\n"); }
-        if *none > 0 { s.push_str(&format!("{none} Datei(en) ohne Kennung (neutral)\n")); }
+        if es.is_empty() { s.push_str(&format!("{}\n", vc_i18n::t!("license-keine-lizenzkennung-gefunden"))); }
+        if *none > 0 { s.push_str(&format!("{}\n", vc_i18n::t!("license-none-datei-en-ohne-kennung-neutral", none = &none))); }
     }
     s
 }
@@ -137,5 +135,17 @@ mod tests {
         let d = denied(&es, &p, &|f| f.to_string());
         assert_eq!(d.len(), 1);
         assert!(d[0].contains("a/rmtplayr.asm"));
+    }
+
+    #[test]
+    fn berichtskopf_folgt_der_sprache() {
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        let de = report_text(&[], &|f| f.to_string());
+        assert!(de.starts_with("Lizenzen der übersetzten Quelltexte (erzeugt von VintageCoder)\nGelesen werden die Zeilen SPDX-License-Identifier"), "{de}");
+        assert!(de.ends_with("Kein Rechtsurteil.\n"));
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        let en = report_text(&[], &|f| f.to_string());
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert!(en.starts_with("Licenses of the assembled source code") && en.contains("SPDX-License-Identifier") && !en.contains("Lizenz"), "{en}");
     }
 }

@@ -14,7 +14,7 @@
 ;   tiles_runtime                         ; EINMAL, nur wenn Kachelkarten gezeichnet werden (Unterprogramme der Kachel-Bibliothek)
 ;
 ; Kachelkarten zeichnet die Kachel-Bibliothek (#include <c64/tiles.asm>, unten eingebunden): Kachelsatz (.vctiles) und Screen-Bank (.vcscreen)
-; mit dem Editor entwerfen, exportieren (build/export/*.asm) und mit tiles_use binden; Befehle und Schalter stehen im Kopf von common/tiles.asm.
+; mit dem Editor entwerfen, als Datei einbinden (`.include "graphics/<name>.vctiles"`) und mit tiles_use binden; Befehle und Schalter stehen im Kopf von common/tiles.asm.
 ;
 ; Überblick über die Makros:
 ;   gfx_copy src, dst, len      allgemeines Kopieren (benutzt gfx_memcpy)           gfx_clear char, color      Text und Farbe füllen

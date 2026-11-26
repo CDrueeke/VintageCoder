@@ -1,0 +1,51 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "27817bae0ccc" },
+  "command": "basic2asm",
+  "group": "bauen",
+  "summary": "Convert a BASIC program to assembler source",
+  "description": [
+    "Converts a BASIC program to readable assembler source that runs as a machine program. Each BASIC line becomes a section with the original as a comment and the label L<line>. Besides the .asm file, a line map (JSON) is created for the debugger.",
+    "The converter picks the smallest stage the program needs: 1 = integer, 2 = floating point, 3 = strings. --stage sets the upper limit."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc basic2asm <file.bas> [options]",
+      "args": [
+        { "name": "file.bas", "required": true, "repeat": false, "help": "BASIC source." }
+      ],
+      "option_groups": [
+        { "id": "ziel", "label": "Target system" },
+        { "id": "umfang", "label": "Scope and style" },
+        { "id": "ausgabe", "label": "Output" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Target system. Sets the start address, processor and BASIC dialect. The MEGA65 has no floating point (E331).", "choices": ["c64", "c128", "plus4", "mega65", "atari8"], "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--turbo", "short": "", "value": "", "group": "ziel", "help": "Read the source as Turbo BASIC XL (target atari8 only, otherwise E344). Blocks like WHILE/WEND and PROC/EXEC become jumps.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "ziel", "help": "Folder with the hardware database (data). With --runtime embed, also the source of the runtime.", "default": "", "default_text": "VC_DATA or next to the program", "repeat": false, "required": false },
+        { "flag": "--stage", "short": "", "value": "1|2|3", "group": "umfang", "help": "Highest allowed stage. The smallest one the program needs is chosen. Numbers other than 1 to 3 report E300.", "default": "3", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--float", "short": "", "value": "", "group": "umfang", "help": "Include the floating-point runtime even if the program does not need it.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--int-div", "short": "", "value": "", "group": "umfang", "help": "Translate / as integer division. Otherwise it needs stage 2.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--style", "short": "", "value": "style", "group": "umfang", "help": "compact: each operation calls a runtime routine. inline: simple integer expressions appear as direct 6502 instructions (longer in the source, shorter in the runtime).", "choices": ["compact", "inline"], "default": "compact", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--runtime", "short": "", "value": "mode", "group": "umfang", "help": "include: the runtime comes from data/sys via #include. embed: it is copied into the result file, which can then be assembled without an include folder.", "choices": ["include", "embed"], "default": "include", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-track-line", "short": "", "value": "", "group": "umfang", "help": "Do not keep a line number at run time: smaller, but error messages have no line.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-rem", "short": "", "value": "", "group": "umfang", "help": "Do not take lines that consist only of REM.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "file.asm", "group": "ausgabe", "help": "Output file with the assembler source.", "default": "", "default_text": "source name with .asm", "repeat": false, "required": false },
+        { "flag": "--map", "short": "", "value": "file.json", "group": "ausgabe", "help": "Line map: BASIC line, source line and label in the assembler.", "default": "", "default_text": "source name with .b2a.json", "repeat": false, "required": false },
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Only check and report the stage and number of lines. No files are written.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "simple conversion", "cmd": "vcc basic2asm examples/c64/basic_native/sterne.bas -o sterne.asm" },
+        { "title": "convert for the Atari", "cmd": "vcc basic2asm examples/atari/basic_native/farben.bas --target atari8 -o farben.asm" },
+        { "title": "Turbo BASIC XL with a stage limit", "cmd": "vcc basic2asm examples/atari/turbo_basic/balken.tur --target atari8 --turbo --stage 2 -o balken.asm" },
+        { "title": "check only", "cmd": "vcc basic2asm examples/c64/basic_native/sterne.bas --check", "run": true }
+      ],
+      "notes": [
+        "Commands the converter does not translate (OPEN, LOAD, LIST, NEW ...) are reported (E311), not silently replaced. On the Atari, you always get the note I150 about numbers.",
+        "You can print the syntax tree with vcc basic ast."
+      ],
+      "see_also": ["basic", "asm"]
+    }
+  ]
+}

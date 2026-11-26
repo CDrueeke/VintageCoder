@@ -109,9 +109,9 @@ Beim Bauen geht der Übersetzer die Datei von oben nach unten durch:
 
 - Eine Zeile **ohne Nummer** bekommt die nächste Nummer. Es beginnt bei **10**, die Schrittweite ist **10** (10, 20, 30, …).
 - Eine Zeile **mit eigener Nummer** behält sie. Danach geht es mit dieser Nummer plus der Schrittweite weiter. Du kannst nummerierte und unnummerierte Zeilen mischen.
-- Leere Zeilen, Kommentarzeilen (`;` am Anfang), Zeilen mit nur einer Marke und die Zeilen `#include` und `#longnames` bekommen **keine** Nummer und kosten nichts. `REM`-Zeilen sind dagegen echte Zeilen und werden nummeriert.
+- Leere Zeilen, Kommentarzeilen (`;` am Anfang), Zeilen mit nur einer Marke und alle Direktivenzeilen (`#include`, `#longnames`, `#define`, `#if` …) bekommen **keine** Nummer und kosten nichts. `REM`-Zeilen sind dagegen echte Zeilen und werden nummeriert.
 - Die Nummern müssen **aufsteigen**. Eine eigene Nummer, die nicht größer ist als die vorige, meldet der Bau als Fehler **B100**.
-- Die höchste Zeilennummer ist 63999 (Commodore) bzw. 32767 (Atari). Wird sie überschritten, meldet der Bau B100.
+- Die höchste Zeilennummer ist 63999 (Commodore) bzw. 32767 (Atari). Wird sie überschritten, meldet der Bau B100 (Atari: B185).
 
 ```basic liste
 print "a"
@@ -142,7 +142,11 @@ Auch eine Nummer, die sich mit einer automatisch vergebenen deckt, ist ein Fehle
 
 ### Schrittweite und Startnummer
 
-Der Standard 10/10 gilt im Editor und beim Bauen im Projekt immer. Nur der Befehl `vcc basic` kennt die Schalter `--start` und `--step`:
+Der Standard ist Start 10 und Schrittweite 10. Du änderst ihn an drei Stellen. Es gilt die genaueste: Eine Zeile `#numbering start=N step=N` in der Datei geht den Werten des Projekts vor, und diese gehen dem Standard vor.
+
+- **In der Datei:** `#numbering start=100 step=5` (siehe [Direktiven](help:basic-directives)). Wer nur `start=` oder nur `step=` schreibt, ändert nur diesen Wert.
+- **Im Projekt:** Bereich **Projekt**, Seite **Quellen**, Karte „BASIC“, Abschnitt „Zeilennummern“ mit den Feldern „Start“ und „Schrittweite“ (im Projekt steht das Objekt `basic` der `.vcprj`). Dort gilt es für alle BASIC-Dateien des Projekts.
+- **Auf der Kommandozeile:** `vcc basic` kennt die Schalter `--start` und `--step`, sie ersetzen die Vorgabe des Projekts.
 
 ```bash
 vcc basic hallo.bas --start 100 --step 5 -o hallo.prg
@@ -152,6 +156,10 @@ vcc basic hallo.bas --start 100 --step 5 -o hallo.prg
 @a = Zeile 100
 hallo.prg: 24 Bytes
 ```
+
+Die Schrittweite muss mindestens 1 sein, der Start höchstens die größte Nummer des Dialekts (63999, Atari 32767); sonst meldet der Bau **B191**. Reichen die Nummern nicht für alle Zeilen, meldet er **B192** und nennt eine kleinere Schrittweite.
+
+*[Bild folgt in E13: basic-karte-nummerierung]*
 
 Nutze eine eigene Nummer, um im Projekt einen anderen Start zu bekommen: `1000 print "start"` setzt die Zählung ab 1000 fort. Das ist auch nützlich, wenn eine Routine eine **feste Zeilennummer** haben muss, etwa weil Maschinencode oder ein anderes Programm sie kennt:
 
@@ -173,6 +181,30 @@ return
 
 Wie diese Zeilennummer-Sprünge mit `@name` zusammenspielen: Ein klassisches `GOTO 9000` bleibt, wie es ist. Der Übersetzer ändert nur Marken, nie vorhandene Zahlen.
 
+## Zwischen Nummern und Labels umwandeln
+
+Eine BASIC-Datei ist entweder im **Nummernmodus** (die Zeilen haben Nummern, gesprungen wird mit `GOTO 100`) oder im **Labelmodus** (Marken `@name`, wenige oder keine Nummern). Der Modus ergibt sich aus dem Inhalt. Mischt eine Datei beides, warnt der Bau mit **B160**. Drei Befehle wandeln um; sie stehen im Menü **Bearbeiten ▸ Zahlen und BASIC**, in der Befehlspalette und im Rechtsklick-Menü einer BASIC-Datei (ohne Kürzel):
+
+| Befehl | Wirkung |
+|---|---|
+| **BASIC: In Labels umwandeln …** | Ersetzt Zeilennummern und die Sprungziele dahinter durch Labels. Nur Zeilen, zu denen gesprungen wird, bekommen eine Marke. Eigene Namen bleiben; neue Namen entstehen aus dem Kommentar davor (sonst aus der alten Nummer, etwa `z120`) und tragen eine Markerzeile `;@name auto`. |
+| **BASIC: In Nummern umwandeln …** | Vergibt Zeilennummern nach Start und Schrittweite und ersetzt die Labels in den Sprungzielen durch Nummern. Die Namen bleiben als Markerzeile `;@name` vor der Zeile erhalten, damit du später wieder in Labels umwandeln kannst. |
+| **BASIC: Neu nummerieren …** | Vergibt die Nummern neu und passt alle Sprungziele an. Mit einem Bereich („Von“ und „Bis“, beide ausfüllen oder beide leer lassen) werden nur Zeilen von Nummer bis Nummer neu nummeriert. |
+
+Jeder Befehl öffnet einen Dialog (Titel **In Labels umwandeln**, **In Nummern umwandeln** oder **Neu nummerieren**) mit einer kurzen Erklärung, dem **Modus** der Datei, der Nummerierung (Start und Schrittweite), einer **Vorschau** der Zeilen, die sich ändern (alt → neu), und Meldungen. Erst **Anwenden** ändert den Text, in einem einzigen Schritt, den **Rückgängig** wieder zurücknimmt. **Abbrechen** ändert nichts.
+
+![Der Reiter „Code“ mit test.bas und darüber der Dialog „In Nummern umwandeln“. Er erklärt den Vorgang, nennt Modus „Labels“, Start 10 und Schrittweite 10 und zeigt eine Vorschau mit sieben Zeilen, links alt, rechts neu. Unten die Knöpfe „Abbrechen“ und „Anwenden“.](bild:basic-umwandeln-dialog "Der Dialog „In Nummern umwandeln“ mit Vorschau der geänderten Zeilen.")
+
+- **Eingebundene Dateien:** Hat das Programm `#include`-Zeilen mit BASIC-Dateien, bietet der Dialog „Eingebundene Dateien mitumwandeln“ an, sonst wandelt er nur die offene Datei um. Haben eingebundene Dateien ungespeicherte Änderungen, bittet der Dialog, erst zu speichern. Mediendateien (`.vcsprite` und andere) werden gelesen, aber nie verändert.
+- **Nicht möglich** ist die Umwandlung in Labels bei berechneten Sprungzielen wie `GOTO A*10` (**B162**, Zusammenfassung **B161**); der Dialog nennt die Stellen. Ein Bereich lässt sich nur im Nummernmodus neu nummerieren und darf die Reihenfolge der Zeilen nicht ändern (**B161**).
+- **Warnungen:** `ER`, `EL` und ähnliche Wörter, die die Zeilennummer zur Laufzeit liefern, meldet **B163**: Nach dem Umwandeln stimmen die Zahlen nicht mehr. Eine Markerzeile ohne Anweisung dahinter meldet **B165**, eine ungültige oder doppelte **B168**; haben eingebundene Dateien einen anderen Modus als die übrigen, meldet der Dialog **B166**.
+- **Kommandozeile:** `vcc basic --to-labels datei.bas`, `--to-numbers` und `--renumber` (auch `--range von-bis`). `--preview` listet nur die geänderten Zeilen, `--write` überschreibt alle geänderten Dateien, `-o` schreibt das Ergebnis der Hauptdatei in eine andere Datei, ohne beides geht es auf die Standardausgabe.
+
+```bash
+vcc basic --to-labels spiel.bas --preview
+vcc basic --renumber spiel.bas --start 100 --step 5 -o neu.bas
+```
+
 ## Zuordnung Marke ↔ Zeilennummer sehen
 
 Nach dem Bauen gibt es mehrere Stellen, an denen du nachsehen kannst, welche Zeile eine Marke bekommen hat:
@@ -193,7 +225,7 @@ Diese Zuordnung brauchst du vor allem bei **Fehlermeldungen des Geräts**. Melde
 | B111 | `Label @x ist doppelt definiert` | Zwei Zeilen tragen dieselbe Marke (Groß-/Kleinschreibung zählt nicht; die Meldung nennt den Namen klein geschrieben) |
 | B112 | `Label @x steht am Ende ohne Anweisung dahinter` | Hinter der letzten Marke kommt nichts mehr, die Marke hätte keine Zeile |
 | B100 | `Zeilennummer N nicht größer als die vorige (M)` | Eigene Nummern sind nicht aufsteigend, oder sie kollidieren mit der automatischen Nummer |
-| B100 | `Zeilennummer N größer als 63999` | Zu viele Zeilen oder zu große eigene Nummer (Atari: 32767) |
+| B100 | `Zeilennummer N größer als 63999` | Zu viele Zeilen oder zu große eigene Nummer (Atari: 32767, Code B185) |
 
 Beispiele:
 
@@ -226,7 +258,7 @@ print 1
 main.bas:2: error B112: Label @ende steht am Ende ohne Anweisung dahinter
 ```
 
-Der Übersetzer sammelt mehrere Meldungen und zeigt sie alle im Reiter **Probleme** der Schublade.
+Der Übersetzer sammelt mehrere Meldungen und zeigt sie alle im Reiter **Probleme** in der Ablage unter dem Editor.
 
 ## Fallen
 

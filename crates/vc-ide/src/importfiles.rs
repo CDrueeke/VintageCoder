@@ -15,11 +15,11 @@ use std::path::{Component, Path, PathBuf};
 pub enum Kind { Asm, Basic, Text, Binary, Prg, Charset, Image, RawBitmap, DiskImage, Studio }
 
 impl Kind {
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Kind::Asm => "Assembler-Quelltext", Kind::Basic => "BASIC-Quelltext", Kind::Text => "Text", Kind::Binary => "Binärdaten",
-            Kind::Prg => "PRG (Ladeadresse + Daten)", Kind::Charset => "Zeichensatz-Rohdaten", Kind::Image => "Bild",
-            Kind::RawBitmap => "Grafik-Rohdaten (Bitmap)", Kind::DiskImage => "Diskettenimage", Kind::Studio => "Studio-Datei (Sprite, Song …)",
+            Kind::Asm => vc_i18n::t!("importfiles-assembler-quelltext"), Kind::Basic => vc_i18n::t!("importfiles-basic-quelltext"), Kind::Text => vc_i18n::t!("importfiles-text"), Kind::Binary => vc_i18n::t!("importfiles-binaerdaten"),
+            Kind::Prg => vc_i18n::t!("importfiles-prg-ladeadresse-daten"), Kind::Charset => vc_i18n::t!("importfiles-zeichensatz-rohdaten"), Kind::Image => vc_i18n::t!("importfiles-bild"),
+            Kind::RawBitmap => vc_i18n::t!("importfiles-grafik-rohdaten-bitmap"), Kind::DiskImage => vc_i18n::t!("importfiles-diskettenimage"), Kind::Studio => vc_i18n::t!("importfiles-studio-datei-sprite-song"),
         }
     }
     /// Vorgeschlagene Kategorie
@@ -42,8 +42,8 @@ impl Category {
         match self { Category::Source => "source", Category::Text => "text", Category::Binary => "binary", Category::Graphics => "graphics", Category::Charset => "charset", Category::Studio => "studio" }
     }
     pub fn from_id(s: &str) -> Option<Category> { [Category::Source, Category::Text, Category::Binary, Category::Graphics, Category::Charset, Category::Studio].into_iter().find(|c| c.id() == s) }
-    pub fn label(self) -> &'static str {
-        match self { Category::Source => "Quelltext", Category::Text => "Text / Doku", Category::Binary => "Binärdaten", Category::Graphics => "Grafikrohdaten", Category::Charset => "Zeichensatz (roh)", Category::Studio => "Studio-Datei" }
+    pub fn label(self) -> String {
+        match self { Category::Source => vc_i18n::t!("importfiles-quelltext"), Category::Text => vc_i18n::t!("importfiles-text-doku"), Category::Binary => vc_i18n::t!("importfiles-binaerdaten"), Category::Graphics => vc_i18n::t!("importfiles-grafikrohdaten"), Category::Charset => vc_i18n::t!("importfiles-zeichensatz-roh"), Category::Studio => vc_i18n::t!("importfiles-studio-datei") }
     }
     /// Vorgeschlagener Zielordner im Projekt (leer = Projektordner)
     pub fn dir(self) -> &'static str {
@@ -232,9 +232,9 @@ impl Outcome {
 /// Übernimmt eine Datei: kopiert sie nach `<root>/<dir>/<name>` (Konflikt nach `plan.conflict`) und trägt sie in `pf` ein
 /// (außer Studio-Dateien). Liegt die Quelle schon im Projektordner, wird nichts kopiert.
 pub fn import(root: &Path, pf: Option<&mut ProjectFile>, plan: &Plan) -> Result<Outcome, String> {
-    if !valid_name(&plan.name) { return Err(format!("{}: ungültiger Dateiname", plan.name)); }
-    if !valid_dir(&plan.dir) { return Err(format!("{}: ungültiger Zielordner", plan.dir)); }
-    if plan.src.is_dir() { return Err(format!("{}: Ordner werden nicht übernommen", plan.src.display())); }
+    if !valid_name(&plan.name) { return Err(vc_i18n::t!("importfiles-p1-ungueltiger-dateiname", p1 = &plan.name)); }
+    if !valid_dir(&plan.dir) { return Err(vc_i18n::t!("importfiles-p1-ungueltiger-zielordner", p1 = &plan.dir)); }
+    if plan.src.is_dir() { return Err(vc_i18n::t!("importfiles-p1-ordner-werden-nicht-uebernommen", p1 = plan.src.display())); }
     // Quelle liegt schon im Projekt: bleibt, wo sie ist
     let inside = plan.src.canonicalize().ok().zip(root.canonicalize().ok()).and_then(|(s, r)| s.strip_prefix(&r).ok().map(|p| p.to_string_lossy().replace('\\', "/")));
     let (rel, out) = if let Some(rel) = inside { (rel.clone(), Outcome::Existing(rel)) } else {

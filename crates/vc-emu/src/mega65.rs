@@ -47,16 +47,16 @@ impl Mega65 {
             #[cfg(unix)]
             { let s = UnixStream::connect(p).map_err(|e| format!("{p}: {e}"))?; s.set_read_timeout(Some(Duration::from_millis(300))).ok(); (Io::Unix(s), "MEGA65 (Xemu)".to_string()) }
             #[cfg(not(unix))]
-            { return Err(format!("{p}: Unix-Sockets gibt es unter Windows nicht – tcp:127.0.0.1:Port verwenden")); }
+            { return Err(vc_i18n::t!("emu-p-unix-sockets-gibt-es-unter", p = &p)); }
         } else {
             let path = spec.strip_prefix("serial:").unwrap_or(spec); let (dev, baud) = path.split_once('@').unwrap_or((path, "2000000"));
             // Schnittstelle: roh, 8N1, kein Echo; Lesen kehrt nach 0,3 s ohne Daten zurück (VMIN=0, VTIME=3)
             let ok = Command::new("stty").args([if cfg!(target_os = "linux") { "-F" } else { "-f" }, dev, baud, "raw", "-echo", "cs8", "-cstopb", "-parenb", "min", "0", "time", "3"]).stdout(Stdio::null()).stderr(Stdio::null()).status().map_err(|e| format!("stty: {e}"))?;
-            if !ok.success() { return Err(format!("{dev}: Schnittstelle lässt sich nicht einstellen")); }
+            if !ok.success() { return Err(vc_i18n::t!("emu-dev-schnittstelle-laesst-sich-nicht-einstellen", dev = &dev)); }
             (Io::Serial(std::fs::OpenOptions::new().read(true).write(true).open(dev).map_err(|e| format!("{dev}: {e}"))?), "MEGA65 (Hardware)".to_string())
         };
         let mut m = Mega65 { expect_pc: None, io, child: None, paused: false, bp: None, label, watches: vec![], next_watch: 1, emulating: false, hit: None };
-        m.send("r", Duration::from_secs(3)).map_err(|e| format!("keine Antwort des Monitors: {e}"))?;
+        m.send("r", Duration::from_secs(3)).map_err(|e| vc_i18n::t!("emu-keine-antwort-des-monitors-e", e = &e))?;
         Ok(m)
     }
 
@@ -94,13 +94,13 @@ impl Mega65 {
 
     /// Wie `launch_xemu`, mit zusätzlichen Kommandozeilenargumenten (Einstellungen des Benutzers).
     pub fn launch_xemu_with(exe: Option<&str>, sd_dir: &str, extra: &[String]) -> Result<Mega65, String> {
-        let rom = Self::rom_in(sd_dir).ok_or_else(|| format!("{sd_dir}: keine MEGA65.ROM gefunden"))?;
+        let rom = Self::rom_in(sd_dir).ok_or_else(|| vc_i18n::t!("emu-sd-dir-keine-mega65-rom-gefunden", sd_dir = &sd_dir))?;
         Self::launch_xemu_rom(exe, &rom, extra)
     }
 
     /// Wie `launch_xemu_with`, mit der ROM-Datei selbst (aus dem ROM-Verzeichnis, `-rom <datei>`)
     pub fn launch_xemu_rom(exe: Option<&str>, rom: &str, extra: &[String]) -> Result<Mega65, String> {
-        let exe = exe.map(String::from).or_else(|| std::env::var("VC_XEMU").ok()).or_else(|| find_program("xmega65", &["/opt/homebrew/bin", "/usr/local/bin", "/Applications/xmega65.app/Contents/MacOS", "/Applications/Xemu"])).ok_or("xmega65 (Xemu) nicht gefunden – VC_XEMU setzen")?;
+        let exe = exe.map(String::from).or_else(|| std::env::var("VC_XEMU").ok()).or_else(|| find_program("xmega65", &["/opt/homebrew/bin", "/usr/local/bin", "/Applications/xmega65.app/Contents/MacOS", "/Applications/Xemu"])).ok_or(vc_i18n::t!("emu-xmega65-xemu-nicht-gefunden-vc-xemu"))?;
         static N: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0); let n = N.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         let sock = std::env::temp_dir().join(format!("vc_xemu_{}_{n}.sock", std::process::id())); let _ = std::fs::remove_file(&sock);
         let log = std::env::temp_dir().join(format!("vc_xemu_{}_{n}.log", std::process::id()));
@@ -151,13 +151,13 @@ impl Mega65 {
             match self.io.read(&mut buf) { Ok(0) => {} Ok(n) => out.extend_from_slice(&buf[..n]), Err(e) if matches!(e.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) => {} Err(e) => return Err(e.to_string()) }
             let s = String::from_utf8_lossy(&out);
             if s.lines().any(|l| l.trim() == ".") { return Ok(s.into_owned()); }
-            if Instant::now() > end { return Err(format!("keine Antwort auf '{cmd}'")); }
+            if Instant::now() > end { return Err(vc_i18n::t!("emu-keine-antwort-auf-cmd", cmd = &cmd)); }
         }
     }
 
     /// Programm laden (`prg` mit zwei Bytes Ladeadresse) und den PC auf `entry` setzen; die Maschine bleibt angehalten.
     pub fn load_prg(&mut self, prg: &[u8], entry: u16) -> Result<(), String> {
-        if prg.len() < 3 { return Err("PRG zu kurz".into()); }
+        if prg.len() < 3 { return Err(vc_i18n::t!("emu-prg-zu-kurz").into()); }
         self.pause()?; let addr = prg[0] as usize | (prg[1] as usize) << 8;
         self.write_mem(addr as u16, &prg[2..])?;
         self.send(&format!("g {entry:x}"), Duration::from_secs(3))?; Ok(())
@@ -221,9 +221,9 @@ impl Backend for Mega65 {
     }
     fn caps(&self) -> Caps { Caps { registers: true, step: true, breakpoints: true, watch: true } }
     fn set_watch(&mut self, start: u16, end: u16, kind: WatchKind) -> Result<u32, String> {
-        if kind != WatchKind::Write { return Err("MEGA65-Monitor: nur Schreib-Haltepunkte (Wertänderung) per Einzelschritt-Beobachtung".into()); }
-        if end as usize - start as usize >= 256 { return Err("Bereich höchstens 256 Bytes".into()); }
-        if self.watches.len() >= 4 { return Err("höchstens 4 beobachtete Bereiche".into()); }
+        if kind != WatchKind::Write { return Err(vc_i18n::t!("emu-mega65-monitor-nur-schreib-haltepunkte-wertaenderung").into()); }
+        if end as usize - start as usize >= 256 { return Err(vc_i18n::t!("emu-bereich-hoechstens-256-bytes").into()); }
+        if self.watches.len() >= 4 { return Err(vc_i18n::t!("emu-hoechstens-4-beobachtete-bereiche").into()); }
         let snap = self.read_mem(start, end as usize - start as usize + 1)?;
         let id = self.next_watch; self.next_watch += 1; self.watches.push(Watch { id, start, end, snap }); Ok(id)
     }
@@ -240,13 +240,13 @@ impl Backend for Mega65 {
         }
         RunState::Running
     }
-    fn registers(&mut self) -> Result<Regs, String> { let t = self.send("r", Duration::from_secs(3))?; Mega65::parse_regs(&t).ok_or_else(|| format!("Register nicht lesbar: {t:?}")) }
+    fn registers(&mut self) -> Result<Regs, String> { let t = self.send("r", Duration::from_secs(3))?; Mega65::parse_regs(&t).ok_or_else(|| vc_i18n::t!("emu-register-nicht-lesbar-roh", raw = format!("{t:?}"))) }
     fn read_mem(&mut self, addr: u16, len: usize) -> Result<Vec<u8>, String> {
         let mut out = Vec::with_capacity(len); let mut a = addr as usize;
         while out.len() < len && a <= 0xFFFF {
             let t = self.send(&format!("M 777{a:04x}"), Duration::from_secs(5))?; let mut got = vec![];
             for l in t.lines() { if let Some(rest) = l.trim().strip_prefix(':') { if let Some((_, h)) = rest.split_once(':') { if let Some(b) = hex_ok(h.trim()) { got.extend(b); } } } }
-            if got.is_empty() { return Err("Speicher nicht lesbar".into()); }
+            if got.is_empty() { return Err(vc_i18n::t!("emu-speicher-nicht-lesbar").into()); }
             let take = got.len().min(len - out.len()).min(0x10000 - a); out.extend_from_slice(&got[..take]); a += got.len();
         }
         Ok(out)

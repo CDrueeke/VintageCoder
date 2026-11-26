@@ -235,7 +235,7 @@ hero_x = 1
 ```
 
 ```text
-main.bas:1: error B100: '=' nach 'HERO' erwartet
+main.bas:1: error B180: '=' nach 'HERO' erwartet
 main.bas:2: error B100: unerwartetes Zeichen '_'
 ```
 

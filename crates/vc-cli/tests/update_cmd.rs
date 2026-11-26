@@ -7,7 +7,7 @@ fn tmp(name: &str) -> PathBuf { let d = std::env::temp_dir().join(format!("vcc-u
 fn data() -> PathBuf { Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data") }
 fn vcc(dir: &Path, feed: &str, release: Option<&str>, args: &[&str]) -> Output {
     let mut c = Command::new(env!("CARGO_BIN_EXE_vcc"));
-    c.args(args).env("VC_DATA", data()).env("VC_UPDATE_URL", feed).env("VC_UPDATE_DIR", dir.join("updates")).env("VC_SETTINGS", dir.join("settings.json")).env("HOME", dir).env("XDG_CONFIG_HOME", dir.join("cfg")).current_dir(dir);
+    c.args(args).env("VC_LANG", "de").env("VC_DATA", data()).env("VC_UPDATE_URL", feed).env("VC_UPDATE_DIR", dir.join("updates")).env("VC_SETTINGS", dir.join("settings.json")).env("HOME", dir).env("XDG_CONFIG_HOME", dir.join("cfg")).current_dir(dir);
     if let Some(r) = release { c.env("VC_RELEASE", r); }
     c.output().unwrap()
 }

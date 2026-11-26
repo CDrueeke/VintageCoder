@@ -18,6 +18,27 @@
 // Bedienung: Z oder , = links, X oder . = rechts, Leertaste = Ball abschiessen / Titel verlassen, P = Pause, RUN/STOP = Abbruch.
 // Testfassungen (mit -D): AUTOPLAY=1 (Schlaeger folgt dem Ball), STARTLEVEL=n (n = 0..21), STARTLIVES=n (Leben zu Beginn, Vorgabe 3),
 //   TESTLOSE=1 (zusammen mit AUTOPLAY: der Schlaeger bleibt links stehen, der Ball geht verloren).
+; ---------------------------------------- English ----------------------------------------
+; PRALLBALL for the Commodore PET (4000 series, 40 columns, BASIC 4) - ball and paddle game.
+;
+; The PET has only text: no color, no sprites, no sound chip.  The picture consists of 40 x 25 characters; drawing uses the quarter-block
+; characters of the PET character set (2 x 2 sub-cells per character = 80 x 50 sub-cells).  The ball is one sub-cell, the paddle a row of sub-cells.
+; Sound: only a beep through the shift register of the VIA (sound.asm).  Input: keyboard only (input.asm).
+;
+; Layout of the picture (character cells, column 0..39, row 0..24):
+;   Row 0          display: score, level, lives, messages
+;   Row 1          top wall; columns 0 and 39 = side walls
+;   Rows 3..14     12 rows of 18 bricks, each 2 characters wide (columns 2..37)
+;   Row 23         paddle (lower half of the characters)
+; Two layers: The screen ($8000) holds bricks, walls and text; an "overlay" ($6C00, one mask of the four quarter-block bits per cell)
+;   holds ball and paddle.  An overlay bit always belongs to an otherwise empty cell; the cell then shows the matching quarter-block character.
+; Flow: title -> game (level 1..22) -> game over -> high-score table (name entry) -> title.  The game logic runs once per frame (the interrupt counts).
+; Memory: program from $0401, level map $6B00 (216 bytes), overlay $6C00 (1000 bytes); at least 32 KB RAM are needed (4032, 8032 with 40 columns).
+;
+; Controls: Z or , = left, X or . = right, Space = launch ball / leave title, P = pause, RUN/STOP = abort.
+; Test versions (with -D): AUTOPLAY=1 (paddle follows the ball), STARTLEVEL=n (n = 0..21), STARTLIVES=n (lives at the start, default 3),
+;   TESTLOSE=1 (together with AUTOPLAY: the paddle stays at the left, the ball is lost).
+; Setting WINKEL_ZUFALL (default 64 of 256; -D WINKEL_ZUFALL=0 = off): chance per paddle hit to shift the bounce angle by one zone to the left or right.
 
 .target pet
 .cpu nmos6502 { illegals = deny }
@@ -30,6 +51,12 @@
 .const PADROW   = 23                    // Zeichenzeile des Schlaegers
 .const PADY     = 47                    // Teilzeile des Schlaegers (untere Haelfte der Zeile 23)
 .const LOSTY    = 49                    // ab dieser Teilzeile ist der Ball verloren
+
+// Winkelzufall am Schlaeger: Chance (x von 256) je Schlaegertreffer, den Abprallwinkel um EINE Zone (ein Achtel der Schlaegerbreite) nach links oder rechts
+// zu verschieben (Mensch und AUTOPLAY); 0 = aus.  Der Ball bleibt immer in den Zonen 0..7.  Verhindert endlose Bahnen.
+.ifndef WINKEL_ZUFALL
+.const WINKEL_ZUFALL = 64
+.endif
 
 .const ST_TITLE = 0
 .const ST_PLAY  = 1
@@ -284,7 +311,7 @@ hud_bcd:
         inc sp + 1
 .h1:    rts
 // level-Ziffern: t7 wird vor update_hud nicht geloescht: in update_hud ab "ldx level" mit t7 = 0 starten
-hud_text:  .screen "punkte 000000  level 01  leben 3"
+hud_text:  .screencode "punkte 000000  level 01  leben 3"
            .byte 0
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -548,13 +575,13 @@ bonus_msg:
         jsr puts
         lda #$50                        // Ueberraschung: 50 Punkte
         jmp add_score
-msg_wide:  .screen "breit  "
+msg_wide:  .screencode "breit  "
            .byte 0
-msg_life:  .screen "leben+ "
+msg_life:  .screencode "leben+ "
            .byte 0
-msg_slow:  .screen "langsam"
+msg_slow:  .screencode "langsam"
            .byte 0
-msg_none:  .screen "       "
+msg_none:  .screencode "       "
            .byte 0
 
 // Anzeige der Brickfarben ersetzt durch Muster: Typ 0..13.  brl/brr = linkes/rechtes Zeichen des Steins.
@@ -778,12 +805,38 @@ paddle_test:
         sta byh
         lda #0
         sta byl
+        jsr zone_jitter                 // Winkelzufall (WINKEL_ZUFALL)
         txa
         jsr set_vel
         jsr sfx_paddle
         sec
         rts
 .miss:  clc
+        rts
+
+// zone_jitter: Winkelzufall (WINKEL_ZUFALL, siehe oben): mit der Chance WINKEL_ZUFALL / 256 wird die Abprallzone in X um 1 nach links oder rechts
+//   verschoben (nicht ueber 0 und 7 hinaus).  Zone in X, Rueckgabe in X.  Veraendert A.
+zone_jitter:
+        txa
+        pha
+        jsr rand_byte
+        cmp #WINKEL_ZUFALL
+        bcs .zj0                        // kein Zufall
+        jsr rand_byte
+        lsr                             // Bit 0: Richtung
+        pla
+        tax
+        bcs .zjr
+        cpx #0
+        beq .zj9                        // schon ganz links
+        dex
+        rts
+.zjr:   cpx #7
+        bcs .zj9                        // schon ganz rechts
+        inx
+.zj9:   rts
+.zj0:   pla
+        tax
         rts
 
 // move_ball: einen Schritt; zuerst X, dann Y.  Trifft die neue Zelle auf etwas Festes, kehrt die Richtung um und der Stein wird getroffen.
@@ -1206,21 +1259,21 @@ draw_best:
         bne .b1
         rts
 
-t_title: .screen "p r a l l b a l l"
+t_title: .screencode "p r a l l b a l l"
          .byte 0
-t_help1: .screen "z oder , = links   x oder . = rechts"
+t_help1: .screencode "z oder , = links   x oder . = rechts"
          .byte 0
-t_help2: .screen "leertaste = abschiessen   p = pause"
+t_help2: .screencode "leertaste = abschiessen   p = pause"
          .byte 0
-t_help3: .screen "run/stop = ende"
+t_help3: .screencode "run/stop = ende"
          .byte 0
-t_best:  .screen "die besten"
+t_best:  .screencode "die besten"
          .byte 0
-t_start: .screen "leertaste startet das spiel"
+t_start: .screencode "leertaste startet das spiel"
          .byte 0
-t_over:  .screen "spiel zu ende"
+t_over:  .screencode "spiel zu ende"
          .byte 0
-t_new:   .screen "neuer rekord! name: "
+t_new:   .screencode "neuer rekord! name: "
          .byte 0
 
 // game_over: "SPIEL ZU ENDE"; Bestenliste pruefen, Namenseingabe und Speichern; danach zurueck zum Titel.

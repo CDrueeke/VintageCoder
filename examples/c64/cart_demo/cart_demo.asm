@@ -2,7 +2,7 @@
 ;
 ; Zweck: zeigt, wie ein Steckmodul mit mehreren ROM-Bänken aufgebaut wird: CBM80-Kopf, .segment/.bank, Bankumschaltung über das
 ;   Register $DE00 und – weil das umschaltende Programm sich nicht selbst aus dem Fenster wegschalten darf – eine Routine, die ins RAM
-;   kopiert und dort mit .pseudopc für ihre Laufadresse übersetzt wird. Makros und Beschreibung der Umschaltung: lib/cart.inc.
+;   kopiert und dort mit .relocate für ihre Laufadresse übersetzt wird. Makros und Beschreibung der Umschaltung: lib/cart.inc.
 ;
 ; Bauen (im Repository-Wurzelverzeichnis; `vcc build examples/c64/cart_demo` erzeugt die Magic-Desk-Fassung build/cart_demo.crt):
 ;   vcc asm examples/c64/cart_demo/cart_demo.asm -o build/cart_md.crt --target c64                (Magic Desk)
@@ -47,7 +47,7 @@ copy:   lda image,x                 ; Umschaltroutine aus dem ROM ...
         jsr $c000                   ; Routine ausführen; sie kehrt mit RTS zurück
         jmp *                       ; fertig: Endlosschleife
 image:
-.pseudopc $c000                     ; ab hier gelten Labels und `*` als Adressen im RAM ($C000), die Bytes liegen aber hier im ROM
+.relocate $c000                     ; ab hier gelten Labels und `*` als Adressen im RAM ($C000), die Bytes liegen aber hier im ROM
         .ifdef OCEAN
         ocean_bank 1                ; Bank 1 einblenden (ab hier zeigt $8000-$9FFF den Inhalt von Bank 1)
         .else
@@ -63,7 +63,7 @@ image:
         lda $8100                   ; Kennung von Bank 0 ($B0)
         sta $0401                   ; daneben
         rts
-.endpseudopc
+.endrelocate
 image_end:
 .org $8100                          ; neues Segment (gehört weiter zu BANK0): Kennung an der Adresse, die der Test in jeder Bank liest
         .byte $b0                   ; Kennung Bank 0

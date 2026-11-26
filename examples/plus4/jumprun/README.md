@@ -1,7 +1,7 @@
 # Hugo & Gumbo (Plus/4)
 
 Selbstlaufende Jump-and-Run-Demo in Assembler: Titelbild, vier Bilder mit Autopilot, Finale, von vorn.
-Gleiche Spiellogik wie die C64- und Atari-Version (`../../common/jumprun/core.asm`), eigene Hardware-Schicht `hal_plus4.asm`:
+Gleiche Spiellogik wie die C64- und Atari-Version (`lib/core.asm`), eigene Hardware-Schicht `hal_plus4.asm`:
 
 - TED-Mehrfarb-Text mit eigenem Zeichensatz (256 Zeichen im RAM); Mehrfarbe gilt je Zelle über Bit 3 des Farb-RAM-Werts
 - Himmelsbalken per Rasterinterrupt (Hintergrundfarbe `$FF15`)

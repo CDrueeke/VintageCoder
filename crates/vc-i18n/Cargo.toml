@@ -1,0 +1,11 @@
+[package]
+name = "vc-i18n"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Mehrsprachigkeit für VintageCoder: Fluent-Kataloge, Sprachwahl, Zahlenformat"
+
+[dependencies]
+fluent-bundle = "0.16.0"
+unic-langid = "0.9.6"
+serde_json.workspace = true

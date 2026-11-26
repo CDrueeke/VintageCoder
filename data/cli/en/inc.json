@@ -1,0 +1,84 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "01a3494639b5" },
+  "command": "inc",
+  "group": "daten",
+  "summary": "Print an include file with hardware constants",
+  "description": [
+    "Creates an include file from the hardware database (data/chips) with the registers of the chips of the target system as .const lines. Without -o, the text goes to standard output."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc inc --target <system> [options]",
+      "summary": "",
+      "args": [],
+      "option_groups": [
+        {
+          "id": "inc",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--target",
+          "short": "",
+          "value": "system",
+          "group": "inc",
+          "help": "Target system whose chips are printed.",
+          "choices": [
+            "atari8",
+            "c128",
+            "c64",
+            "mega65",
+            "pet",
+            "plus4",
+            "vic20"
+          ],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": true
+        },
+        {
+          "flag": "-o",
+          "short": "",
+          "value": "file.inc",
+          "group": "inc",
+          "help": "Output file. Without the option, the text appears on the screen.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "inc",
+          "help": "Folder of the hardware database (data). Replaces VC_DATA and the automatic search.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Print C64 constants",
+          "cmd": "vcc inc --target c64",
+          "run": true
+        },
+        {
+          "title": "Atari constants to a file",
+          "cmd": "vcc inc --target atari8 -o atari.inc"
+        }
+      ],
+      "see_also": [
+        "asm"
+      ]
+    }
+  ]
+}

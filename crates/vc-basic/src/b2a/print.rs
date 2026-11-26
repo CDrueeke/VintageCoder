@@ -3,6 +3,7 @@
 use super::ast::*;
 use crate::{petscii, Dialect};
 use serde_json::{json, Value};
+use vc_core::{msg, Msg};
 
 /// Vorrangstufen (niedrig → hoch). CBM: OR < AND < NOT < Vergleich < +- < */ < unäres - < ^; Atari: NOT und unäre Vorzeichen stehen über ^.
 const OR: u8 = 1;
@@ -18,7 +19,7 @@ const ATOM: u8 = 10;
 struct W<'a> { d: &'a Dialect, atari: bool }
 
 impl<'a> W<'a> {
-    fn text(&self, b: &[u8]) -> Result<String, String> {
+    fn text(&self, b: &[u8]) -> Result<String, Msg> {
         if self.atari { return Ok(b.iter().map(|c| *c as char).collect()); }
         Ok(b.iter().map(|c| petscii::to_text(*c, self.d)).collect())
     }
@@ -33,7 +34,7 @@ impl<'a> W<'a> {
         }
     }
     /// Ausdruck; `need` = niedrigste Stufe, die ohne Klammern stehen darf
-    fn expr(&self, e: &Expr, need: u8) -> Result<String, String> {
+    fn expr(&self, e: &Expr, need: u8) -> Result<String, Msg> {
         let s = match e {
             Expr::Num(n) => n.to_string(),
             Expr::Float(f) => f.clone(),
@@ -56,11 +57,11 @@ impl<'a> W<'a> {
         };
         Ok(if self.level(e) < need { format!("({s})") } else { s })
     }
-    fn list(&self, a: &[Expr]) -> Result<String, String> { Ok(a.iter().map(|x| self.expr(x, 0)).collect::<Result<Vec<_>, _>>()?.join(",")) }
-    fn lv(&self, l: &LValue) -> Result<String, String> {
+    fn list(&self, a: &[Expr]) -> Result<String, Msg> { Ok(a.iter().map(|x| self.expr(x, 0)).collect::<Result<Vec<_>, _>>()?.join(",")) }
+    fn lv(&self, l: &LValue) -> Result<String, Msg> {
         Ok(match l { LValue::Var(v) => Self::var(v), LValue::Elem(v, a) => format!("{}({})", Self::var(v), self.list(a)?) })
     }
-    fn items(&self, items: &[PrintItem]) -> Result<String, String> {
+    fn items(&self, items: &[PrintItem]) -> Result<String, Msg> {
         let mut s = String::new();
         for i in items {
             match i {
@@ -73,8 +74,8 @@ impl<'a> W<'a> {
         }
         Ok(s)
     }
-    fn stmts(&self, v: &[Stmt]) -> Result<String, String> { Ok(v.iter().map(|s| self.stmt(s)).collect::<Result<Vec<_>, _>>()?.join(":")) }
-    fn stmt(&self, s: &Stmt) -> Result<String, String> {
+    fn stmts(&self, v: &[Stmt]) -> Result<String, Msg> { Ok(v.iter().map(|s| self.stmt(s)).collect::<Result<Vec<_>, _>>()?.join(":")) }
+    fn stmt(&self, s: &Stmt) -> Result<String, Msg> {
         Ok(match s {
             Stmt::Let { target, expr } => format!("{}={}", self.lv(target)?, self.expr(expr, 0)?),
             Stmt::Print { items } => format!("PRINT {}", self.items(items)?).trim_end().to_string(),
@@ -92,14 +93,14 @@ impl<'a> W<'a> {
             Stmt::If { cond, then } => format!("IF {} THEN {}", self.expr(cond, 0)?, self.stmts(then)?),
             Stmt::For { var, from, to, step } => format!("FOR {}={} TO {}{}", Self::var(var), self.expr(from, 0)?, self.expr(to, 0)?, match step { Some(e) => format!(" STEP {}", self.expr(e, 0)?), None => String::new() }),
             Stmt::Next(v) => format!("NEXT {}", v.iter().map(Self::var).collect::<Vec<_>>().join(",")).trim_end().to_string(),
-            Stmt::Dim(l) => format!("DIM {}", l.iter().map(|(v, d)| Ok(format!("{}({})", Self::var(v), self.list(d)?))).collect::<Result<Vec<_>, String>>()?.join(",")),
+            Stmt::Dim(l) => format!("DIM {}", l.iter().map(|(v, d)| Ok(format!("{}({})", Self::var(v), self.list(d)?))).collect::<Result<Vec<_>, Msg>>()?.join(",")),
             Stmt::Read(v) => format!("READ {}", v.iter().map(|x| self.lv(x)).collect::<Result<Vec<_>, _>>()?.join(",")),
             Stmt::Data(items) => format!("DATA {}", items.iter().map(|i| Ok(match i {
                 DataItem::Num(n) => n.to_string(),
                 DataItem::Float(f) => f.clone(),
                 DataItem::Str(b) => format!("\"{}\"", self.text(b)?),
                 DataItem::Raw(b) => self.text(b)?,
-            })).collect::<Result<Vec<_>, String>>()?.join(",")),
+            })).collect::<Result<Vec<_>, Msg>>()?.join(",")),
             Stmt::Restore(t) => match t { Some(n) => format!("RESTORE {n}"), None => "RESTORE".into() },
             Stmt::Poke(a, b) => format!("POKE {},{}", self.expr(a, 0)?, self.expr(b, 0)?),
             Stmt::Sys(e) => format!("SYS {}", self.expr(e, 0)?),
@@ -121,16 +122,16 @@ impl<'a> W<'a> {
             },
             Stmt::GetCh(c, l) => format!("GET #{},{}", self.expr(c, 0)?, self.lv(l)?),
             Stmt::Locate(x, y, l) => format!("LOCATE {},{},{}", self.expr(x, 0)?, self.expr(y, 0)?, self.lv(l)?),
-            Stmt::Unsupported(k) => return Err(format!("{k} lässt sich nicht zurückschreiben (nicht übersetzte Anweisung)")),
+            Stmt::Unsupported(k) => return Err(msg!("diag-basic-e190-unsupported", k = k)),
         })
     }
 }
 
 /// Kanonischer Text des Programms (eine Zeile je BASIC-Zeile, ohne Leerzeichen außer vor Schlüsselwörtern). `atari`: Atari-Regeln (Rang, ASCII-Texte)
-pub fn to_text(prog: &Program, d: &Dialect, atari: bool) -> Result<String, String> {
+pub fn to_text(prog: &Program, d: &Dialect, atari: bool) -> Result<String, Msg> {
     let w = W { d, atari };
     let mut out = String::new();
-    for l in &prog.lines { out.push_str(&format!("{} {}\n", l.number, w.stmts(&l.stmts).map_err(|e| format!("Zeile {}: {e}", l.number))?)); }
+    for l in &prog.lines { out.push_str(&format!("{} {}\n", l.number, w.stmts(&l.stmts).map_err(|e| msg!("diag-basic-e190-line", n = l.number, e = e))?)); }
     Ok(out)
 }
 

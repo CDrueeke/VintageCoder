@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: tests_cycles",
+    "description": "Cycle measurement on the Ultimate 64 (debug stream) as a check in vcc test"
+  },
+  "targets": [ { "id": "c64", "system": "c64", "variant": "pal", "cpu": "6510", "illegals": "deny", "emulator": "vice" } ],
+  "sources": [ { "targets": [ "c64" ], "kind": "asm", "files": [ "tests_cycles.asm" ] } ],
+  "main": "tests_cycles.asm"
+}

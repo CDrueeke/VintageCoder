@@ -9,8 +9,8 @@
 ;   fremde Bibliothek).
 ;
 ; VORBEREITUNG
-;   Vorher exportieren:  vcc media export music/atune.vcsong     (RMT-Modul als ASM: build/export/atune.asm, Label atune_rmt)
-;   (`vcc build` erledigt das automatisch.)  Der zweite Song music/tune_pokey.vcsong wird hier nicht benutzt.
+;   Vorher exportieren:  vcc media export music/atune.vcsong     (RMT-Modul als ASM, Label atune_rmt)
+;   (Beim Bauen wandelt `.include "music/atune.vcsong"` das selbst um.)  Der zweite Song music/tune_pokey.vcsong wird hier nicht benutzt.
 ;
 ; ABLAUF
 ;   1. rmt_start: Player mit dem Modul bei Zeile 0 initialisieren (Rückgabe in A: Instrumentgeschwindigkeit des Moduls, hier 1).
@@ -37,5 +37,5 @@ done:   jmp done
 rmt_vbi_code                        ; Deferred-VBI-Routine rmt_vbi_entry (steht hinter done, wird nicht durchlaufen)
 .include "lib/rmtplayr.asm"         ; Player: Tabellen ab $30E0, Code ab $3400 (RMT_PLAYER nicht gesetzt -> Standard $3400)
 .org $4000                          ; Modul hinter dem Player
-.include "build/export/atune.asm"
+.include "music/atune.vcsong"
 .run start

@@ -33,11 +33,11 @@ pub struct RomRef { pub system: String, pub role: String, pub rev: Option<String
 
 impl RomRef {
     pub fn parse(text: &str) -> Result<RomRef, String> {
-        let rest = text.strip_prefix("rom:").ok_or_else(|| format!("'{text}' ist kein ROM-Verweis (rom:system/rolle#satz)"))?;
-        let (path, set) = rest.split_once('#').ok_or_else(|| format!("'{text}': Satz fehlt (rom:system/rolle#satz)"))?;
+        let rest = text.strip_prefix("rom:").ok_or_else(|| vc_i18n::t!("media-text-ist-kein-rom-verweis-rom", text = &text))?;
+        let (path, set) = rest.split_once('#').ok_or_else(|| vc_i18n::t!("media-text-satz-fehlt-rom-system-rolle", text = &text))?;
         let (sr, rev) = match path.split_once('@') { Some((a, b)) => (a, Some(b.to_string())), None => (path, None) };
-        let (system, role) = sr.split_once('/').ok_or_else(|| format!("'{text}': system/rolle erwartet"))?;
-        if system.is_empty() || role.is_empty() || set.is_empty() { return Err(format!("'{text}': unvollständiger ROM-Verweis")); }
+        let (system, role) = sr.split_once('/').ok_or_else(|| vc_i18n::t!("media-text-system-rolle-erwartet", text = &text))?;
+        if system.is_empty() || role.is_empty() || set.is_empty() { return Err(vc_i18n::t!("media-text-unvollstaendiger-rom-verweis", text = &text)); }
         // ältere Projektdateien: der Plus/4-Satz hieß vor den zwei Sätzen „standard“ (= Groß/Grafik)
         let set = if system == "plus4" && set == "standard" { "upper" } else { set };
         Ok(RomRef { system: system.into(), role: role.into(), rev, set: set.into() })
@@ -76,9 +76,9 @@ impl SetData {
     /// Hinweistext zu Ersatz-ROM bzw. unbekannter Revision (für Banner und Bau-Warnung)
     pub fn note(&self) -> Option<String> {
         match self.status {
-            Status::Replacement if self.path.as_os_str() == BUILTIN_PATH => Some("Eingebaute Ersatzschrift (Eigenbau), nicht die Originalschrift des Systems – ROMs einrichten für das Original".into()),
-            Status::Replacement => Some("Ersatzschrift (freie ROM), nicht die Originalschrift des Systems".into()),
-            Status::UnknownRevision => Some("unbekannte Revision des Zeichensatz-ROMs".into()),
+            Status::Replacement if self.path.as_os_str() == BUILTIN_PATH => Some(vc_i18n::t!("media-eingebaute-ersatzschrift-eigenbau-nicht-die-originalschrift").into()),
+            Status::Replacement => Some(vc_i18n::t!("media-ersatzschrift-freie-rom-nicht-die-originalschrift").into()),
+            Status::UnknownRevision => Some(vc_i18n::t!("media-unbekannte-revision-des-zeichensatz-roms").into()),
             _ => None,
         }
     }
@@ -97,10 +97,10 @@ fn candidates<'a>(store: &'a RomStore, system: &str, role: &str, rev: Option<&st
 
 fn not_found(store: &RomStore, r: &RomRef) -> RomError {
     let rd = systems::role(&r.system, &r.role);
-    let size = rd.map(|d| d.sizes.iter().map(|s| format!("{s} Byte")).collect::<Vec<_>>().join(" oder ")).unwrap_or_default();
+    let size = rd.map(|d| d.sizes.iter().map(|s| vc_i18n::t!("media-s-byte", s = &s)).collect::<Vec<_>>().join(&format!(" {} ", vc_i18n::t!("media-oder")))).unwrap_or_default();
     let dir = store.env.install_dir().map(|d| d.join(&r.system).display().to_string()).unwrap_or_else(|| format!("roms/{}", r.system));
-    let what = match &r.rev { Some(v) => format!(" in der Revision {v}"), None => String::new() };
-    RomError::Missing(format!("Zeichensatz-ROM {}/{}{what} fehlt (erwartet {size}); Datei nach {dir} legen oder ROMs einrichten", r.system, r.role))
+    let what = match &r.rev { Some(v) => format!(" {}", vc_i18n::t!("media-in-der-revision-v", v = &v)), None => String::new() };
+    RomError::Missing(vc_i18n::t!("media-zeichensatz-rom-p1-p2-what-fehlt", p1 = &r.system, p2 = &r.role, what = &what, size = &size, dir = &dir))
 }
 
 /// Satz aus dem ROM-Verzeichnis lesen
@@ -123,9 +123,9 @@ pub fn read_set(store: &RomStore, r: &RomRef) -> Result<SetData, RomError> {
         };
         let found = found.unwrap();
         let sets = match store.known_entry(&found) { Some(k) => k.char_sets(&r.system, &role), None => systems::default_sets(&r.system, &role) };
-        let Some(set) = sets.into_iter().find(|s| s.name == r.set) else { last = Some(RomError::NoSet(format!("{}/{} enthält keinen Zeichensatz '{}'", r.system, role, r.set))); continue; };
+        let Some(set) = sets.into_iter().find(|s| s.name == r.set) else { last = Some(RomError::NoSet(vc_i18n::t!("media-p1-role-enthaelt-keinen-zeichensatz-p3", p1 = &r.system, role = &role, p3 = &r.set))); continue; };
         let rom = std::fs::read(&found.path).map_err(|e| RomError::Missing(format!("{}: {e}", found.path.display())))?;
-        let Some(bytes) = rom.get(set.offset..set.offset + set.size) else { last = Some(RomError::NoSet(format!("{}: Zeichensatz '{}' liegt hinter dem Dateiende", found.path.display(), set.name))); continue; };
+        let Some(bytes) = rom.get(set.offset..set.offset + set.size) else { last = Some(RomError::NoSet(vc_i18n::t!("media-p1-zeichensatz-p2-liegt-hinter-dem", p1 = found.path.display(), p2 = &set.name))); continue; };
         let bytes = set.expand(bytes.to_vec());
         let set = SetDef { size: bytes.len(), ..set };
         return Ok(SetData { bytes, set, rom, status, label, path: found.path.clone() });
@@ -181,14 +181,14 @@ fn blank_frames(h: usize, count: usize, fcm: bool) -> Vec<Value> { frames_from_b
 /// Zeichensatzdatei im Format 2 auflösen: `base` einlesen, `overrides` darüberlegen. Das Ergebnis trägt die vollständigen `frames` (für Studios und Export)
 /// und behält `base`. Fehlt das ROM, kommt ein leeres Raster passender Größe und `rom_missing` (Text für das Banner im Studio); sonst `rom_status`.
 pub fn resolve_media(v: &Value) -> Result<Value, String> {
-    let base = v["base"].as_str().ok_or("Format 2: base fehlt")?;
+    let base = v["base"].as_str().ok_or(vc_i18n::t!("media-format-2-base-fehlt"))?;
     let r = RomRef::parse(base)?;
-    let profile = v["profile"].as_str().ok_or("profile fehlt")?;
+    let profile = v["profile"].as_str().ok_or(vc_i18n::t!("media-profile-fehlt"))?;
     let fcm = profile.ends_with(".fcm");
     let (frames, extra) = match with_store(|s| read_set(s, &r)) {
         Ok(d) => {
             if !fcm && d.set.profile != profile && !(profile.starts_with("c128.char.hires") && d.set.profile.ends_with(".hires")) {
-                return Err(format!("Zeichensatz-ROM '{base}' (Profil {}) passt nicht zum Profil {profile}", d.set.profile));
+                return Err(vc_i18n::t!("media-zeichensatz-rom-base-profil-p2-passt", base = &base, p2 = &d.set.profile, profile = &profile));
             }
             let (h, _) = geometry(&d.set);
             let mut x = Map::new();
@@ -208,13 +208,13 @@ pub fn resolve_media(v: &Value) -> Result<Value, String> {
     let mut frames = frames;
     if let Some(o) = v["overrides"].as_object() {
         for (k, rows) in o {
-            let i: usize = k.parse().map_err(|_| format!("overrides: '{k}' ist keine Zeichennummer"))?;
+            let i: usize = k.parse().map_err(|_| vc_i18n::t!("media-overrides-k-ist-keine-zeichennummer", k = &k))?;
             let n = frames.len();
-            let f = frames.get_mut(i).ok_or_else(|| format!("overrides: Zeichen {i} gibt es nicht (Satz hat {n})"))?;
+            let f = frames.get_mut(i).ok_or_else(|| vc_i18n::t!("media-overrides-zeichen-i-gibt-es-nicht", i = &i, n = &n))?;
             *f = json!({ "rows": rows });
         }
     }
-    let mut out = v.as_object().cloned().ok_or("Datei ist kein Objekt")?;
+    let mut out = v.as_object().cloned().ok_or(vc_i18n::t!("media-datei-ist-kein-objekt"))?;
     out.remove("overrides");
     out.insert("frames".into(), Value::Array(frames));
     out.extend(extra);
@@ -271,7 +271,7 @@ pub fn choices(store: &RomStore, profile_id: &str) -> Vec<Choice> {
             let is_best = best.path.as_ref() == Some(&f.path);
             let rev = k.map(|k| revision_of(&k.id).to_string());
             let reference = RomRef { system: system.clone(), role: role.clone(), rev: if is_best { None } else { rev.clone().or_else(|| Some(f.file_name())) }, set: set.name.clone() }.to_text();
-            let label = format!("{}: {}", k.map(|k| k.label.clone()).unwrap_or_else(|| format!("{} {} (unbekannte Revision)", systems::system(&system).map(|s| s.label).unwrap_or(""), systems::role(&system, &role).map(|r| r.label).unwrap_or(""))), set.label);
+            let label = format!("{}: {}", k.map(|k| k.label.clone()).unwrap_or_else(|| vc_i18n::t!("media-rom-unbekannte-revision", system = systems::system(&system).map(|s| s.label).unwrap_or(""), role = systems::role(&system, &role).map(|r| r.label).unwrap_or(""))), set.label);
             push(Choice { reference, label, system: system.clone(), status, source: f.file_name() });
         }
     }
@@ -284,7 +284,7 @@ pub fn choices(store: &RomStore, profile_id: &str) -> Vec<Choice> {
                 if seen_missing.contains(&reference) { continue; }
                 seen_missing.push(reference.clone());
                 let builtin = vc_roms::fallback::bytes_for(set).is_some();
-                push(Choice { reference, label: format!("{} {}: {}{}", sd.label, rd.label, set.label, if builtin { " (Ersatzschrift)" } else { "" }), system: sd.id.into(), status: if builtin { Status::Replacement } else { Status::Missing }, source: if builtin { "Ersatz (eingebaut)".into() } else { "fehlt".into() } });
+                push(Choice { reference, label: format!("{} {}: {}{}", sd.label, rd.label, set.label, if builtin { format!(" {}", vc_i18n::t!("media-ersatzschrift")) } else { String::new() }), system: sd.id.into(), status: if builtin { Status::Replacement } else { Status::Missing }, source: if builtin { vc_i18n::t!("media-ersatz-eingebaut").into() } else { vc_i18n::t!("media-fehlt") } });
             }
         }
     }

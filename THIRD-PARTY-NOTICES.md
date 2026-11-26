@@ -8,7 +8,7 @@ Sie ist eine technische Zusammenstellung, keine Rechtsberatung.
 
 | Inhalt | Herkunft | Lizenz |
 |---|---|---|
-| `examples/atari/music_demo/lib/rmtplayr.asm`, `rmt.inc` sowie `examples/atari/jumprun/lib/rmtplayr.asm`, `rmt.inc` | RMT-Player (Raster Music Tracker 1.28, `rmtplayr.a65`), © Radek Štěrba / Raster / C.P.U. 2002–2009, http://raster.atari.org. In VintageCoder-Syntax übertragen | Lizenz laut Quell-Repository (VinsCool/RASTER-Music-Tracker, abgerufen 2026-11-18): **GNU GPL v3.0** (nur Version 3, kein „oder später“ vermerkt), SPDX `GPL-3.0-only`; Urheber Radek Štěrba / Raster / C.P.U. 2002–2009. Das Repository nennt sich „Unofficial version by VinsCool“ (Patch 16); unsere Dateien sind aus RMT 1.28 übertragen (siehe Dateikopf), nicht aus dieser Fassung. Die Dateien behalten ihren eigenen Vermerk |
+| `examples/atari/music_demo/lib/rmtplayr.asm`, `rmt.inc` sowie `examples/atari/jumprun/lib/rmtplayr.asm`, `rmt.inc` | RMT-Player (Raster Music Tracker 1.28, `rmtplayr.a65`), © Radek Štěrba / Raster / C.P.U. 2002–2009, http://raster.atari.org. In VintageCoder-Syntax übertragen | Lizenz laut Quell-Repository (VinsCool/RASTER-Music-Tracker, abgerufen 2026-11-18): **GNU GPL v3.0** (nur Version 3, kein „oder später“ vermerkt), SPDX `GPL-3.0-only`; Urheber Radek Štěrba / Raster / C.P.U. 2002–2009. Das Repository nennt sich „Unofficial version by VinsCool“ (Patch 16); unsere Dateien sind aus RMT 1.28 übertragen (siehe Dateikopf), nicht aus dieser Fassung. Die Dateien behalten ihren eigenen Vermerk Weitergeführt wird RMT seit 2026 im Repository https://github.com/raster-atari-org/RASTER-Music-Tracker (GPL v3; Credits: Radek Štěrba, Vin Samuel, Peter Dell); das oben genannte Repository von VinsCool ist archiviert. |
 
 ## 2. Aus fremden Quellen erzeugte Daten
 
@@ -59,13 +59,15 @@ Für die Weitergabe von Binärpaketen verlangen MIT, Apache-2.0 und verwandte Li
 | Inter (Regular, SemiBold) | 3.19 | github.com/rsms/inter, © The Inter Project Authors | SIL Open Font License 1.1 |
 | JetBrains Mono (Regular, Bold) | 2.304 | github.com/JetBrains/JetBrainsMono, © The JetBrains Mono Project Authors | SIL Open Font License 1.1 |
 
+Die neue Web-Oberfläche (`ui/`) bündelt dieselben Dateien JetBrains Mono Regular und Bold unverändert (`ui/src/assets/fonts/`, Lizenztext `JetBrainsMono-OFL.txt` liegt dabei); Ligaturen sind per CSS ausgeschaltet.
+
 Die Schriften sind unverändert eingebettet. Die OFL erlaubt Einbetten und Weitergabe zusammen mit Software, auch kommerziell, solange die Schrift nicht für sich allein verkauft wird und der Lizenztext beiliegt (`Inter-OFL.txt`, `JetBrainsMono-OFL.txt`). Weder Inter noch JetBrains Mono tragen einen reservierten Schriftnamen. Die Schriften sind ein eigenes, getrenntes Werk und werden nicht Teil des GPL-Programmcodes.
 
 <!-- GUI-PAKETE:BEGIN -->
 
-### Pakete der neuen Oberfläche (`vc-gui`, `vc-gui-ui`, `vc-gui-editor`)
+### Pakete der neuen Oberfläche (`vc-gui`, `vc-gui-ui`, `vc-gui-editor`, `vc-i18n`)
 
-Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows, Linux, ohne Dev-Abhängigkeiten): **473 Pakete** außer den eigenen. Direkte Abhängigkeiten der drei Crates: `accesskit`, `accesskit_macos`, `cpal`, `iced`, `muda`, `objc2`, `objc2-foundation`, `raw-window-handle`, `rfd`, `serde`, `serde_json`, `tokio`. Die Liste ist ein Auszug des Gesamtbestands oben und wird bei jeder Änderung der Abhängigkeiten neu erzeugt (Prüfung: `python3 -m unittest tools.test_gui_notices`).
+Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows, Linux, ohne Dev-Abhängigkeiten): **663 Pakete** außer den eigenen. Direkte Abhängigkeiten der drei Crates: `accesskit`, `accesskit_macos`, `cpal`, `fluent-bundle`, `iced`, `muda`, `objc2`, `objc2-foundation`, `raw-window-handle`, `rfd`, `serde`, `serde_json`, `tauri`, `tauri-build`, `tauri-plugin-dialog`, `tauri-plugin-single-instance`, `tokio`, `unic-langid`. Die Liste ist ein Auszug des Gesamtbestands oben und wird bei jeder Änderung der Abhängigkeiten neu erzeugt (Prüfung: `python3 -m unittest tools.test_gui_notices`).
 
 | Paket | Version | Lizenz | Quelle |
 |---|---|---|---|
@@ -76,8 +78,11 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `accesskit_macos` | 0.27.2 | MIT OR Apache-2.0 | https://github.com/AccessKit/accesskit |
 | `adler2` | 2.0.1 | 0BSD OR MIT OR Apache-2.0 | https://github.com/oyvindln/adler2 |
 | `ahash` | 0.8.12 | MIT OR Apache-2.0 | https://github.com/tkaitchuck/ahash |
+| `aho-corasick` | 1.1.5 | Unlicense OR MIT | https://github.com/BurntSushi/aho-corasick |
 | `aligned` | 0.4.3 | MIT OR Apache-2.0 | https://github.com/rust-embedded-community/aligned |
 | `aligned-vec` | 0.6.4 | MIT | https://github.com/sarah-ek/aligned-vec/ |
+| `alloc-no-stdlib` | 3.0.0 | BSD-3-Clause | https://github.com/dropbox/rust-alloc-no-stdlib |
+| `alloc-stdlib` | 0.3.0 | BSD-3-Clause | https://github.com/dropbox/rust-alloc-no-stdlib |
 | `alsa` | 0.11.0 | Apache-2.0/MIT | https://github.com/diwic/alsa-rs |
 | `alsa-sys` | 0.4.0 | MIT | https://github.com/diwic/alsa-sys |
 | `android-build` | 0.1.4 | MIT | https://github.com/project-robius/android-build |
@@ -105,6 +110,8 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `av-scenechange` | 0.14.1 | MIT | https://github.com/rust-av/av-scenechange |
 | `av1-grain` | 0.2.5 | BSD-2-Clause | https://github.com/rust-av/av1-grain |
 | `avif-serialize` | 0.8.9 | BSD-3-Clause | https://github.com/kornelski/avif-serialize |
+| `base64` | 0.21.7 | MIT OR Apache-2.0 | https://github.com/marshallpierce/rust-base64 |
+| `base64` | 0.23.1 | MIT OR Apache-2.0 | https://github.com/marshallpierce/rust-base64 |
 | `bit-set` | 0.8.0 | Apache-2.0 OR MIT | https://github.com/contain-rs/bit-set |
 | `bit-vec` | 0.8.0 | Apache-2.0 OR MIT | https://github.com/contain-rs/bit-vec |
 | `bit_field` | 0.10.4 | MIT OR Apache-2.0 | https://github.com/phil-opp/rust-bit-field |
@@ -112,13 +119,18 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `bitflags` | 2.13.2 | MIT OR Apache-2.0 | https://github.com/bitflags/bitflags |
 | `bitstream-io` | 4.10.0 | MIT/Apache-2.0 | https://github.com/tuffy/bitstream-io |
 | `block` | 0.1.6 | MIT | http://github.com/SSheldon/rust-block |
+| `block-buffer` | 0.12.1 | MIT OR Apache-2.0 | https://github.com/RustCrypto/utils |
 | `block2` | 0.5.1 | MIT | https://github.com/madsmtm/objc2 |
 | `block2` | 0.6.2 | MIT | https://github.com/madsmtm/objc2 |
 | `blocking` | 1.7.0 | Apache-2.0 OR MIT | https://github.com/smol-rs/blocking |
+| `brotli` | 9.1.3 | BSD-3-Clause AND MIT | https://github.com/dropbox/rust-brotli |
+| `brotli-decompressor` | 6.3.2 | BSD-3-Clause/MIT | https://github.com/dropbox/rust-brotli-decompressor |
+| `bs58` | 0.5.1 | MIT/Apache-2.0 | https://github.com/Nullus157/bs58-rs |
 | `built` | 0.8.1 | MIT | https://github.com/lukaslueg/built |
 | `bumpalo` | 3.20.4 | MIT OR Apache-2.0 | https://github.com/fitzgen/bumpalo |
 | `bytemuck` | 1.25.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/Lokathor/bytemuck |
 | `bytemuck_derive` | 1.12.1 | Zlib OR Apache-2.0 OR MIT | https://github.com/Lokathor/bytemuck |
+| `byteorder` | 1.5.0 | Unlicense OR MIT | https://github.com/BurntSushi/byteorder |
 | `byteorder-lite` | 0.1.0 | Unlicense OR MIT | https://github.com/image-rs/byteorder-lite |
 | `bytes` | 1.12.1 | MIT | https://github.com/tokio-rs/bytes |
 | `cairo-rs` | 0.18.5 | MIT | https://github.com/gtk-rs/gtk-rs-core |
@@ -127,10 +139,16 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `calloop` | 0.14.5 | MIT | https://github.com/Smithay/calloop |
 | `calloop-wayland-source` | 0.3.0 | MIT | https://github.com/smithay/calloop-wayland-source |
 | `calloop-wayland-source` | 0.4.1 | MIT | https://github.com/smithay/calloop-wayland-source |
+| `camino` | 1.2.6 | MIT OR Apache-2.0 | https://github.com/camino-rs/camino |
+| `cargo-platform` | 0.1.9 | MIT OR Apache-2.0 | https://github.com/rust-lang/cargo |
+| `cargo_metadata` | 0.19.2 | MIT | https://github.com/oli-obk/cargo_metadata |
+| `cargo_toml` | 1.0.1 | Apache-2.0 OR MIT | https://gitlab.com/lib.rs/cargo_toml |
 | `cc` | 1.11.2 | MIT OR Apache-2.0 | https://github.com/rust-lang/cc-rs |
+| `cfb` | 0.14.0 | MIT | https://github.com/mdsteele/rust-cfb |
 | `cfg-expr` | 0.15.8 | MIT OR Apache-2.0 | https://github.com/EmbarkStudios/cfg-expr |
 | `cfg-if` | 1.0.5 | MIT OR Apache-2.0 | https://github.com/rust-lang/cfg-if |
 | `cfg_aliases` | 0.2.2 | MIT | https://github.com/katharostech/cfg_aliases |
+| `chrono` | 0.4.45 | MIT OR Apache-2.0 | https://github.com/chronotope/chrono |
 | `clipboard-win` | 5.4.3 | BSL-1.0 | https://github.com/DoumanAsh/clipboard-win |
 | `clipboard_macos` | 0.1.1 | Apache-2.0 | https://github.com/hecrj/window_clipboard |
 | `clipboard_wayland` | 0.2.2 | Apache-2.0 | https://github.com/hecrj/window_clipboard |
@@ -138,39 +156,68 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `codespan-reporting` | 0.12.0 | Apache-2.0 | https://github.com/brendanzab/codespan |
 | `color_quant` | 1.1.0 | MIT | https://github.com/image-rs/color_quant.git |
 | `concurrent-queue` | 2.5.0 | Apache-2.0 OR MIT | https://github.com/smol-rs/concurrent-queue |
+| `const-oid` | 0.10.3 | Apache-2.0 OR MIT | https://github.com/RustCrypto/formats |
+| `cookie` | 0.18.3 | MIT OR Apache-2.0 | https://github.com/SergioBenitez/cookie-rs |
 | `core-foundation` | 0.10.1 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core-foundation` | 0.9.4 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core-foundation-sys` | 0.8.7 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core-graphics` | 0.23.2 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
+| `core-graphics` | 0.25.0 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core-graphics-types` | 0.1.3 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core-graphics-types` | 0.2.0 | MIT OR Apache-2.0 | https://github.com/servo/core-foundation-rs |
 | `core_maths` | 0.1.1 | MIT | https://github.com/robertbastian/core_maths |
 | `coreaudio-rs` | 0.14.2 | MIT/Apache-2.0 | https://github.com/RustAudio/coreaudio-rs.git |
 | `cosmic-text` | 0.15.0 | MIT OR Apache-2.0 | https://github.com/pop-os/cosmic-text |
 | `cpal` | 0.18.2 | Apache-2.0 | https://github.com/RustAudio/cpal |
+| `cpufeatures` | 0.3.1 | MIT OR Apache-2.0 | https://github.com/RustCrypto/utils |
 | `crc32fast` | 1.5.4 | MIT OR Apache-2.0 | https://github.com/srijs/rust-crc32fast |
 | `crossbeam-channel` | 0.5.17 | MIT OR Apache-2.0 | https://github.com/crossbeam-rs/crossbeam |
 | `crossbeam-deque` | 0.8.8 | MIT OR Apache-2.0 | https://github.com/crossbeam-rs/crossbeam |
 | `crossbeam-epoch` | 0.9.21 | MIT OR Apache-2.0 | https://github.com/crossbeam-rs/crossbeam |
 | `crossbeam-utils` | 0.8.23 | MIT OR Apache-2.0 | https://github.com/crossbeam-rs/crossbeam |
 | `cryoglyph` | 0.1.0 | MIT OR Apache-2.0 OR Zlib | https://github.com/iced-rs/cryoglyph |
+| `crypto-common` | 0.2.2 | MIT OR Apache-2.0 | https://github.com/RustCrypto/traits |
+| `cssparser` | 0.37.0 | MPL-2.0 | https://github.com/servo/rust-cssparser |
+| `cssparser-macros` | 0.7.1 | MPL-2.0 | https://github.com/servo/rust-cssparser |
 | `ctor` | 0.10.1 | Apache-2.0 OR MIT | https://github.com/mmastrac/rust-ctor |
+| `ctor` | 1.0.14 | Apache-2.0 OR MIT | https://github.com/mmastrac/linktime |
 | `cursor-icon` | 1.2.0 | MIT OR Apache-2.0 OR Zlib | https://github.com/rust-windowing/cursor-icon |
+| `darling` | 0.24.1 | MIT | https://github.com/TedDriggs/darling |
+| `darling_core` | 0.24.1 | MIT | https://github.com/TedDriggs/darling |
+| `darling_macro` | 0.24.1 | MIT | https://github.com/TedDriggs/darling |
 | `dasp_sample` | 0.11.0 | MIT OR Apache-2.0 | https://github.com/rustaudio/sample.git |
+| `dbus` | 0.9.12 | Apache-2.0/MIT | https://github.com/diwic/dbus-rs |
+| `deranged` | 0.5.9 | MIT OR Apache-2.0 | https://github.com/jhpratt/deranged |
+| `derive_more` | 2.1.1 | MIT | https://github.com/JelteF/derive_more |
+| `derive_more-impl` | 2.1.1 | MIT | https://github.com/JelteF/derive_more |
+| `digest` | 0.11.3 | MIT OR Apache-2.0 | https://github.com/RustCrypto/traits |
+| `dirs` | 7.0.0 | MIT OR Apache-2.0 | https://codeberg.org/dirs/dirs-rs |
+| `dirs-sys` | 0.5.0 | MIT OR Apache-2.0 | https://github.com/dirs-dev/dirs-sys-rs |
 | `dispatch` | 0.2.0 | MIT | http://github.com/SSheldon/rust-dispatch |
 | `dispatch2` | 0.3.1 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
+| `displaydoc` | 0.2.7 | MIT OR Apache-2.0 | https://github.com/yaahc/displaydoc |
 | `dlib` | 0.5.3 | MIT | https://github.com/elinorbgr/dlib |
+| `dlopen2` | 0.8.2 | MIT | https://github.com/OpenByteDev/dlopen2 |
+| `dlopen2_derive` | 0.4.3 | MIT | https://github.com/OpenByteDev/dlopen2 |
 | `document-features` | 0.2.12 | MIT OR Apache-2.0 | https://github.com/slint-ui/document-features |
+| `dom_query` | 0.28.0 | MIT | https://github.com/niklak/dom_query |
 | `downcast-rs` | 1.2.1 | MIT/Apache-2.0 | https://github.com/marcianx/downcast-rs |
 | `dpi` | 0.1.2 | Apache-2.0 AND MIT | https://github.com/rust-windowing/winit |
+| `dtoa` | 1.0.11 | MIT OR Apache-2.0 | https://github.com/dtolnay/dtoa |
+| `dtoa-short` | 0.3.5 | MPL-2.0 | https://github.com/upsuper/dtoa-short |
 | `dtor` | 0.8.1 | Apache-2.0 OR MIT | https://github.com/mmastrac/rust-ctor |
+| `dunce` | 1.0.5 | CC0-1.0 OR MIT-0 OR Apache-2.0 | https://gitlab.com/kornelski/dunce |
+| `dyn-clone` | 1.0.20 | MIT OR Apache-2.0 | https://github.com/dtolnay/dyn-clone |
 | `either` | 1.19.0 | MIT OR Apache-2.0 | https://github.com/rayon-rs/either |
+| `embed-resource` | 3.0.12 | MIT | https://github.com/nabijaczleweli/rust-embed-resource |
+| `embed_plist` | 1.2.2 | MIT OR Apache-2.0 | https://github.com/nvzqz/embed-plist-rs |
 | `endi` | 1.1.1 | MIT | https://github.com/zeenix/endi |
 | `enumflags2` | 0.7.12 | MIT OR Apache-2.0 | https://github.com/meithecatte/enumflags2 |
 | `enumflags2_derive` | 0.7.12 | MIT OR Apache-2.0 | https://github.com/meithecatte/enumflags2 |
 | `equator` | 0.4.2 | MIT | https://github.com/sarah-ek/equator/ |
 | `equator-macro` | 0.4.2 | MIT | https://github.com/sarah-ek/equator/ |
 | `equivalent` | 1.0.2 | Apache-2.0 OR MIT | https://github.com/indexmap-rs/equivalent |
+| `erased-serde` | 0.4.11 | MIT OR Apache-2.0 | https://github.com/dtolnay/erased-serde |
 | `errno` | 0.3.15 | MIT OR Apache-2.0 | https://github.com/lambda-fairy/rust-errno |
 | `error-code` | 3.4.0 | BSL-1.0 | https://github.com/DoumanAsh/error-code |
 | `etagere` | 0.2.15 | MIT/Apache-2.0 | https://github.com/nical/etagere |
@@ -185,6 +232,10 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `find-msvc-tools` | 0.1.15 | MIT OR Apache-2.0 | https://github.com/rust-lang/cc-rs |
 | `flate2` | 1.1.10 | MIT OR Apache-2.0 | https://github.com/rust-lang/flate2-rs |
 | `float_next_after` | 1.0.0 | MIT | https://gitlab.com/bronsonbdevost/next_afterf |
+| `fluent-bundle` | 0.16.0 | Apache-2.0 OR MIT | https://github.com/projectfluent/fluent-rs |
+| `fluent-langneg` | 0.13.1 | Apache-2.0 OR MIT | https://github.com/projectfluent/fluent-langneg-rs |
+| `fluent-syntax` | 0.12.0 | Apache-2.0 OR MIT | https://github.com/projectfluent/fluent-rs |
+| `fnv` | 1.0.7 | Apache-2.0 / MIT | https://github.com/servo/rust-fnv |
 | `foldhash` | 0.1.5 | Zlib | https://github.com/orlp/foldhash |
 | `foldhash` | 0.2.0 | Zlib | https://github.com/orlp/foldhash |
 | `font-types` | 0.10.1 | MIT OR Apache-2.0 | https://github.com/googlefonts/fontations |
@@ -194,6 +245,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `foreign-types` | 0.5.0 | MIT/Apache-2.0 | https://github.com/sfackler/foreign-types |
 | `foreign-types-macros` | 0.2.4 | MIT/Apache-2.0 | https://github.com/sfackler/foreign-types |
 | `foreign-types-shared` | 0.3.1 | MIT/Apache-2.0 | https://github.com/sfackler/foreign-types |
+| `form_urlencoded` | 1.2.3 | MIT OR Apache-2.0 | https://github.com/servo/rust-url |
 | `futures` | 0.3.34 | MIT OR Apache-2.0 | https://github.com/rust-lang/futures-rs |
 | `futures-channel` | 0.3.34 | MIT OR Apache-2.0 | https://github.com/rust-lang/futures-rs |
 | `futures-core` | 0.3.34 | MIT OR Apache-2.0 | https://github.com/rust-lang/futures-rs |
@@ -208,6 +260,9 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `gdk-pixbuf` | 0.18.5 | MIT | https://github.com/gtk-rs/gtk-rs-core |
 | `gdk-pixbuf-sys` | 0.18.0 | MIT | https://github.com/gtk-rs/gtk-rs-core |
 | `gdk-sys` | 0.18.2 | MIT | https://github.com/gtk-rs/gtk3-rs |
+| `gdkwayland-sys` | 0.18.2 | MIT | https://github.com/gtk-rs/gtk3-rs |
+| `gdkx11` | 0.18.2 | MIT | https://github.com/gtk-rs/gtk3-rs |
+| `gdkx11-sys` | 0.18.2 | MIT | https://github.com/gtk-rs/gtk3-rs |
 | `gethostname` | 1.1.0 | Apache-2.0 | https://codeberg.org/swsnr/gethostname.rs.git |
 | `getrandom` | 0.3.4 | MIT OR Apache-2.0 | https://github.com/rust-random/getrandom |
 | `getrandom` | 0.4.3 | MIT OR Apache-2.0 | https://github.com/rust-random/getrandom |
@@ -219,6 +274,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `glib` | 0.18.5 | MIT | https://github.com/gtk-rs/gtk-rs-core |
 | `glib-macros` | 0.18.5 | MIT | https://github.com/gtk-rs/gtk-rs-core |
 | `glib-sys` | 0.18.1 | MIT | https://github.com/gtk-rs/gtk-rs-core |
+| `glob` | 0.3.4 | MIT OR Apache-2.0 | https://github.com/rust-lang/glob |
 | `glow` | 0.16.0 | MIT OR Apache-2.0 OR Zlib | https://github.com/grovesNL/glow |
 | `glutin_wgl_sys` | 0.6.1 | Apache-2.0 | https://github.com/rust-windowing/glutin |
 | `gobject-sys` | 0.18.0 | MIT | https://github.com/gtk-rs/gtk-rs-core |
@@ -233,6 +289,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `guillotiere` | 0.6.2 | MIT/Apache-2.0 | https://github.com/nical/guillotiere |
 | `half` | 2.7.1 | MIT OR Apache-2.0 | https://github.com/VoidStarKat/half-rs |
 | `harfrust` | 0.3.2 | MIT | https://github.com/harfbuzz/harfrust |
+| `hashbrown` | 0.12.3 | MIT OR Apache-2.0 | https://github.com/rust-lang/hashbrown |
 | `hashbrown` | 0.15.5 | MIT OR Apache-2.0 | https://github.com/rust-lang/hashbrown |
 | `hashbrown` | 0.16.1 | MIT OR Apache-2.0 | https://github.com/rust-lang/hashbrown |
 | `hashbrown` | 0.17.1 | MIT OR Apache-2.0 | https://github.com/rust-lang/hashbrown |
@@ -240,6 +297,10 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `heck` | 0.5.0 | MIT OR Apache-2.0 | https://github.com/withoutboats/heck |
 | `hex` | 0.4.3 | MIT OR Apache-2.0 | https://github.com/KokaKiwi/rust-hex |
 | `hexf-parse` | 0.2.1 | CC0-1.0 | https://github.com/lifthrasiir/hexf |
+| `html5ever` | 0.39.0 | MIT OR Apache-2.0 | https://github.com/servo/html5ever |
+| `http` | 1.5.0 | MIT OR Apache-2.0 | https://github.com/hyperium/http |
+| `hybrid-array` | 0.4.15 | MIT OR Apache-2.0 | https://github.com/RustCrypto/hybrid-array |
+| `iana-time-zone` | 0.1.65 | MIT OR Apache-2.0 | https://github.com/strawlab/iana-time-zone |
 | `iced` | 0.14.0 | MIT | https://github.com/iced-rs/iced |
 | `iced_core` | 0.14.0 | MIT | https://github.com/iced-rs/iced |
 | `iced_debug` | 0.14.0 | MIT | https://github.com/iced-rs/iced |
@@ -252,20 +313,52 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `iced_wgpu` | 0.14.0 | MIT | https://github.com/iced-rs/iced |
 | `iced_widget` | 0.14.2 | MIT | https://github.com/iced-rs/iced |
 | `iced_winit` | 0.14.1 | MIT | https://github.com/iced-rs/iced |
+| `ico` | 0.6.0 | MIT | https://github.com/mdsteele/rust-ico |
+| `icu_collections` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_locale_core` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_normalizer` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_normalizer_data` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_properties` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_properties_data` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `icu_provider` | 2.4.0 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `ident_case` | 1.0.1 | MIT/Apache-2.0 | https://github.com/TedDriggs/ident_case |
+| `idna` | 1.1.0 | MIT OR Apache-2.0 | https://github.com/servo/rust-url/ |
+| `idna_adapter` | 1.2.2 | Apache-2.0 OR MIT | https://github.com/hsivonen/idna_adapter |
 | `image` | 0.25.10 | MIT OR Apache-2.0 | https://github.com/image-rs/image |
 | `image-webp` | 0.2.4 | MIT OR Apache-2.0 | https://github.com/image-rs/image-webp |
 | `imgref` | 1.12.3 | CC0-1.0 OR Apache-2.0 | https://github.com/kornelski/imgref |
+| `indexmap` | 1.9.3 | Apache-2.0 OR MIT | https://github.com/bluss/indexmap |
 | `indexmap` | 2.14.2 | Apache-2.0 OR MIT | https://github.com/indexmap-rs/indexmap |
+| `infer` | 0.22.0 | MIT | https://github.com/bojand/infer |
+| `intl-memoizer` | 0.5.3 | Apache-2.0 OR MIT | https://github.com/projectfluent/fluent-rs |
+| `intl_pluralrules` | 7.0.2 | Apache-2.0/MIT | https://github.com/zbraniecki/pluralrules |
 | `itertools` | 0.14.0 | MIT OR Apache-2.0 | https://github.com/rust-itertools/itertools |
 | `itoa` | 1.0.18 | MIT OR Apache-2.0 | https://github.com/dtolnay/itoa |
+| `javascriptcore-rs` | 1.1.2 | MIT | https://github.com/tauri-apps/javascriptcore-rs |
+| `javascriptcore-rs-sys` | 1.1.1 | MIT | https://github.com/tauri-apps/javascriptcore-rs |
+| `jiff` | 0.2.46 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff` | 1.0.1 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-core` | 0.1.8 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-core` | 1.0.1 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-tzdb` | 0.1.10 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-tzdb` | 1.0.0 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-tzdb-platform` | 0.1.3 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
+| `jiff-tzdb-platform` | 1.0.0 | Unlicense OR MIT | https://github.com/BurntSushi/jiff |
 | `jobserver` | 0.1.35 | MIT OR Apache-2.0 | https://github.com/rust-lang/jobserver-rs |
+| `json-patch` | 4.2.0 | MIT/Apache-2.0 | https://github.com/idubrov/json-patch |
+| `jsonptr` | 0.7.1 | MIT OR Apache-2.0 | https://github.com/chanced/jsonptr |
 | `kamadak-exif` | 0.6.2 | BSD-2-Clause | https://github.com/kamadak/exif-rs |
 | `keyboard-types` | 0.7.0 | MIT OR Apache-2.0 | https://github.com/pyfisch/keyboard-types |
+| `keyboard-types` | 0.8.3 | MIT OR Apache-2.0 | https://github.com/rust-windowing/keyboard-types |
 | `khronos-egl` | 6.0.0 | MIT/Apache-2.0 | https://github.com/timothee-haudebourg/khronos-egl |
 | `khronos_api` | 3.1.0 | Apache-2.0 | https://github.com/brendanzab/gl-rs/ |
 | `kurbo` | 0.10.4 | MIT OR Apache-2.0 | https://github.com/linebender/kurbo |
 | `lebe` | 0.5.3 | BSD-3-Clause | https://github.com/johannesvollmer/lebe |
+| `libappindicator` | 0.9.0 | Apache-2.0 OR MIT | https://crates.io/crates/libappindicator |
+| `libappindicator-sys` | 0.9.0 | Apache-2.0 OR MIT | https://crates.io/crates/libappindicator-sys |
 | `libc` | 0.2.191 | MIT OR Apache-2.0 | https://github.com/rust-lang/libc |
+| `libdbus-sys` | 0.2.7 | Apache-2.0/MIT | https://github.com/diwic/dbus-rs |
+| `libloading` | 0.7.4 | ISC | https://github.com/nagisa/rust_libloading/ |
 | `libloading` | 0.8.9 | ISC | https://github.com/nagisa/rust_libloading/ |
 | `libm` | 0.2.16 | MIT | https://github.com/rust-lang/compiler-builtins |
 | `libxdo` | 0.6.0 | MIT | https://github.com/crumblingstatue/rust-libxdo |
@@ -274,6 +367,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `linebender_resource_handle` | 0.1.1 | Apache-2.0 OR MIT | https://github.com/linebender/raw_resource_handle |
 | `linux-raw-sys` | 0.12.1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | https://github.com/sunfishcode/linux-raw-sys |
 | `linux-raw-sys` | 0.4.15 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | https://github.com/sunfishcode/linux-raw-sys |
+| `litemap` | 0.8.3 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
 | `litrs` | 1.0.1 | MIT OR Apache-2.0 | https://github.com/LukasKalbertodt/litrs |
 | `lock_api` | 0.4.14 | MIT OR Apache-2.0 | https://github.com/Amanieu/parking_lot |
 | `log` | 0.4.35 | MIT OR Apache-2.0 | https://github.com/rust-lang/log |
@@ -286,15 +380,19 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `lyon_tessellation` | 1.0.23 | MIT OR Apache-2.0 | https://github.com/nical/lyon |
 | `mach2` | 0.6.0 | BSD-2-Clause OR MIT OR Apache-2.0 | https://github.com/JohnTitor/mach2 |
 | `malloc_buf` | 0.0.6 | MIT | https://github.com/SSheldon/malloc_buf |
+| `markup5ever` | 0.39.0 | MIT OR Apache-2.0 | https://github.com/servo/html5ever |
 | `maybe-rayon` | 0.1.1 | MIT | https://github.com/shssoichiro/maybe-rayon |
 | `memchr` | 2.8.3 | Unlicense OR MIT | https://github.com/BurntSushi/memchr |
 | `memmap2` | 0.9.12 | MIT OR Apache-2.0 | https://github.com/RazrFalcon/memmap2-rs |
 | `memoffset` | 0.9.1 | MIT | https://github.com/Gilnaa/memoffset |
 | `metal` | 0.32.0 | MIT OR Apache-2.0 | https://github.com/gfx-rs/metal-rs |
+| `mime` | 0.3.18 | MIT OR Apache-2.0 | https://github.com/hyperium/mime |
 | `miniz_oxide` | 0.8.9 | MIT OR Zlib OR Apache-2.0 | https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide |
 | `miniz_oxide` | 0.9.1 | MIT OR Zlib OR Apache-2.0 | https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide |
+| `mio` | 1.2.5 | MIT | https://github.com/tokio-rs/mio |
 | `moxcms` | 0.8.1 | BSD-3-Clause OR Apache-2.0 | https://github.com/awxkee/moxcms.git |
 | `muda` | 0.17.2 | Apache-2.0 OR MIT | https://github.com/tauri-apps/muda |
+| `muda` | 0.20.0 | Apache-2.0 OR MIT | https://github.com/tauri-apps/muda |
 | `multiversion` | 0.8.1 | MIT OR Apache-2.0 | https://github.com/calebzulawski/multiversion |
 | `multiversion-macros` | 0.8.1 | MIT OR Apache-2.0 | https://github.com/calebzulawski/multiversion |
 | `mundy` | 0.2.3 | Apache-2.0 | https://github.com/tautropfli/mundy |
@@ -305,6 +403,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `nom` | 8.0.0 | MIT | https://github.com/rust-bakery/nom |
 | `noop_proc_macro` | 0.3.0 | MIT | https://github.com/lu-zero/noop_proc_macro |
 | `num-bigint` | 0.4.8 | MIT OR Apache-2.0 | https://github.com/rust-num/num-bigint |
+| `num-conv` | 0.2.2 | MIT OR Apache-2.0 | https://github.com/jhpratt/num-conv |
 | `num-derive` | 0.4.2 | MIT OR Apache-2.0 | https://github.com/rust-num/num-derive |
 | `num-integer` | 0.1.47 | MIT OR Apache-2.0 | https://github.com/rust-num/num-integer |
 | `num-rational` | 0.4.2 | MIT OR Apache-2.0 | https://github.com/rust-num/num-rational |
@@ -328,13 +427,16 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `objc2-core-text` | 0.3.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
 | `objc2-core-video` | 0.3.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
 | `objc2-encode` | 4.1.0 | MIT | https://github.com/madsmtm/objc2 |
+| `objc2-exception-helper` | 0.1.1 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
 | `objc2-foundation` | 0.2.2 | MIT | https://github.com/madsmtm/objc2 |
 | `objc2-foundation` | 0.3.2 | MIT | https://github.com/madsmtm/objc2 |
 | `objc2-io-surface` | 0.3.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
 | `objc2-metal` | 0.2.2 | MIT | https://github.com/madsmtm/objc2 |
 | `objc2-quartz-core` | 0.2.2 | MIT | https://github.com/madsmtm/objc2 |
 | `objc2-quartz-core` | 0.3.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
+| `objc2-web-kit` | 0.3.2 | Zlib OR Apache-2.0 OR MIT | https://github.com/madsmtm/objc2 |
 | `once_cell` | 1.21.4 | MIT OR Apache-2.0 | https://github.com/matklad/once_cell |
+| `option-ext` | 0.2.0 | MPL-2.0 | https://github.com/soc/option-ext.git |
 | `ordered-float` | 5.5.1 | MIT | https://github.com/reem/rust-ordered-float |
 | `ordered-stream` | 0.2.0 | MIT OR Apache-2.0 | https://github.com/danieldg/ordered-stream |
 | `owned_ttf_parser` | 0.25.1 | Apache-2.0 | https://github.com/alexheretic/owned-ttf-parser |
@@ -346,13 +448,22 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `paste` | 1.0.15 | MIT OR Apache-2.0 | https://github.com/dtolnay/paste |
 | `pastey` | 0.1.1 | MIT OR Apache-2.0 | https://github.com/as1100k/pastey |
 | `percent-encoding` | 2.3.2 | MIT OR Apache-2.0 | https://github.com/servo/rust-url/ |
+| `phf` | 0.13.1 | MIT | https://github.com/rust-phf/rust-phf |
+| `phf_codegen` | 0.13.1 | MIT | https://github.com/rust-phf/rust-phf |
+| `phf_generator` | 0.13.1 | MIT | https://github.com/rust-phf/rust-phf |
+| `phf_macros` | 0.13.1 | MIT | https://github.com/rust-phf/rust-phf |
+| `phf_shared` | 0.13.1 | MIT | https://github.com/rust-phf/rust-phf |
 | `pin-project-lite` | 0.2.17 | Apache-2.0 OR MIT | https://github.com/taiki-e/pin-project-lite |
 | `piper` | 0.2.5 | MIT OR Apache-2.0 | https://github.com/smol-rs/piper |
 | `pkg-config` | 0.3.34 | MIT OR Apache-2.0 | https://github.com/rust-lang/pkg-config-rs |
+| `plist` | 1.10.4 | MIT | https://github.com/ebarnard/rust-plist/ |
 | `png` | 0.17.16 | MIT OR Apache-2.0 | https://github.com/image-rs/image-png |
 | `png` | 0.18.1 | MIT OR Apache-2.0 | https://github.com/image-rs/image-png |
 | `polling` | 3.11.0 | Apache-2.0 OR MIT | https://github.com/smol-rs/polling |
 | `pollster` | 0.4.0 | Apache-2.0/MIT | https://github.com/zesterer/pollster |
+| `potential_utf` | 0.1.6 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `powerfmt` | 0.2.1 | MIT OR Apache-2.0 | https://github.com/jhpratt/powerfmt |
+| `precomputed-hash` | 0.1.1 | MIT | https://github.com/emilio/precomputed-hash |
 | `presser` | 0.3.1 | MIT OR Apache-2.0 | https://github.com/EmbarkStudios/presser |
 | `proc-macro-crate` | 1.3.1 | MIT OR Apache-2.0 | https://github.com/bkchr/proc-macro-crate |
 | `proc-macro-crate` | 2.0.2 | MIT OR Apache-2.0 | https://github.com/bkchr/proc-macro-crate |
@@ -367,6 +478,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `qoi` | 0.4.1 | MIT/Apache-2.0 | https://github.com/aldanor/qoi-rust |
 | `quick-error` | 2.0.1 | MIT/Apache-2.0 | http://github.com/tailhook/quick-error |
 | `quick-xml` | 0.41.0 | MIT | https://github.com/tafia/quick-xml |
+| `quick-xml` | 0.42.0 | MIT | https://github.com/tafia/quick-xml |
 | `quote` | 1.0.47 | MIT OR Apache-2.0 | https://github.com/dtolnay/quote |
 | `range-alloc` | 0.1.5 | MIT OR Apache-2.0 | https://github.com/gfx-rs/range-alloc |
 | `rangemap` | 1.8.0 | MIT/Apache-2.0 | https://github.com/jeffparsons/rangemap |
@@ -377,6 +489,11 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `rayon-core` | 1.13.0 | MIT OR Apache-2.0 | https://github.com/rayon-rs/rayon |
 | `read-fonts` | 0.35.0 | MIT OR Apache-2.0 | https://github.com/googlefonts/fontations |
 | `read-fonts` | 0.41.0 | MIT OR Apache-2.0 | https://github.com/googlefonts/fontations |
+| `ref-cast` | 1.0.27 | MIT OR Apache-2.0 | https://github.com/dtolnay/ref-cast |
+| `ref-cast-impl` | 1.0.27 | MIT OR Apache-2.0 | https://github.com/dtolnay/ref-cast |
+| `regex` | 1.13.2 | MIT OR Apache-2.0 | https://github.com/rust-lang/regex |
+| `regex-automata` | 0.4.19 | MIT OR Apache-2.0 | https://github.com/rust-lang/regex |
+| `regex-syntax` | 0.8.12 | MIT OR Apache-2.0 | https://github.com/rust-lang/regex |
 | `renderdoc-sys` | 1.1.0 | MIT OR Apache-2.0 | https://github.com/ebkalderon/renderdoc-rs |
 | `rfd` | 0.17.2 | MIT | https://github.com/PolyMeilex/rfd |
 | `rgb` | 0.8.53 | MIT | https://github.com/kornelski/rust-rgb |
@@ -387,21 +504,37 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `rustix` | 0.38.44 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | https://github.com/bytecodealliance/rustix |
 | `rustix` | 1.1.6 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | https://github.com/bytecodealliance/rustix |
 | `rustversion` | 1.0.23 | MIT OR Apache-2.0 | https://github.com/dtolnay/rustversion |
+| `same-file` | 1.0.6 | Unlicense/MIT | https://github.com/BurntSushi/same-file |
+| `schemars` | 0.8.22 | MIT | https://github.com/GREsau/schemars |
+| `schemars` | 0.9.0 | MIT | https://github.com/GREsau/schemars |
+| `schemars` | 1.2.3 | MIT | https://github.com/GREsau/schemars |
+| `schemars_derive` | 0.8.22 | MIT | https://github.com/GREsau/schemars |
 | `scoped-tls` | 1.0.1 | MIT/Apache-2.0 | https://github.com/alexcrichton/scoped-tls |
 | `scopeguard` | 1.2.0 | MIT OR Apache-2.0 | https://github.com/bluss/scopeguard |
 | `sctk-adwaita` | 0.10.1 | MIT | https://github.com/PolyMeilex/sctk-adwaita |
+| `selectors` | 0.38.0 | MPL-2.0 | https://github.com/servo/stylo |
 | `self_cell` | 1.3.0 | Apache-2.0 OR GPL-2.0-only | https://github.com/Voultapher/self_cell |
 | `semver` | 1.0.28 | MIT OR Apache-2.0 | https://github.com/dtolnay/semver |
 | `serde` | 1.0.229 | MIT OR Apache-2.0 | https://github.com/serde-rs/serde |
+| `serde-untagged` | 0.1.9 | MIT OR Apache-2.0 | https://github.com/dtolnay/serde-untagged |
 | `serde_core` | 1.0.229 | MIT OR Apache-2.0 | https://github.com/serde-rs/serde |
 | `serde_derive` | 1.0.229 | MIT OR Apache-2.0 | https://github.com/serde-rs/serde |
+| `serde_derive_internals` | 0.29.1 | MIT OR Apache-2.0 | https://github.com/serde-rs/serde |
 | `serde_json` | 1.0.154 | MIT OR Apache-2.0 | https://github.com/serde-rs/json |
 | `serde_repr` | 0.1.21 | MIT OR Apache-2.0 | https://github.com/dtolnay/serde-repr |
 | `serde_spanned` | 0.6.9 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
+| `serde_spanned` | 1.1.3 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
+| `serde_with` | 3.25.0 | MIT OR Apache-2.0 | https://github.com/jonasbb/serde_with/ |
+| `serde_with_macros` | 3.25.0 | MIT OR Apache-2.0 | https://github.com/jonasbb/serde_with/ |
+| `serialize-to-javascript` | 0.1.2 | MIT OR Apache-2.0 | https://github.com/chippers/serialize-to-javascript |
+| `serialize-to-javascript-impl` | 0.1.2 | MIT OR Apache-2.0 | https://github.com/chippers/serialize-to-javascript |
+| `servo_arc` | 0.4.3 | MIT OR Apache-2.0 | https://github.com/servo/stylo |
+| `sha2` | 0.11.1 | MIT OR Apache-2.0 | https://github.com/RustCrypto/hashes |
 | `shlex` | 2.0.1 | MIT OR Apache-2.0 | https://github.com/comex/rust-shlex |
 | `signal-hook-registry` | 1.4.8 | MIT OR Apache-2.0 | https://github.com/vorner/signal-hook |
 | `simd-adler32` | 0.3.10 | MIT | https://github.com/mcountryman/simd-adler32 |
 | `simd_helpers` | 0.1.0 | MIT | https://github.com/lu-zero/simd_helpers |
+| `siphasher` | 1.0.4 | MIT OR Apache-2.0 | https://github.com/jedisct1/rust-siphash |
 | `skrifa` | 0.37.0 | MIT OR Apache-2.0 | https://github.com/googlefonts/fontations |
 | `skrifa` | 0.44.0 | MIT OR Apache-2.0 | https://github.com/googlefonts/fontations |
 | `slab` | 0.4.12 | MIT | https://github.com/tokio-rs/slab |
@@ -413,43 +546,77 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `smol_str` | 0.2.2 | MIT OR Apache-2.0 | https://github.com/rust-analyzer/smol_str |
 | `socket2` | 0.6.5 | MIT OR Apache-2.0 | https://github.com/rust-lang/socket2 |
 | `softbuffer` | 0.4.8 | MIT OR Apache-2.0 | https://github.com/rust-windowing/softbuffer |
+| `soup3` | 0.5.0 | MIT | https://gitlab.gnome.org/World/Rust/soup3-rs |
+| `soup3-sys` | 0.5.0 | MIT | https://gitlab.gnome.org/World/Rust/soup3-rs |
 | `spirv` | 0.3.0+sdk-1.3.268.0 | Apache-2.0 | https://github.com/gfx-rs/rspirv |
 | `stable_deref_trait` | 1.2.1 | MIT OR Apache-2.0 | https://github.com/storyyeller/stable_deref_trait |
 | `static_assertions` | 1.1.0 | MIT OR Apache-2.0 | https://github.com/nvzqz/static-assertions-rs |
+| `static_vcruntime` | 3.0.0 | MIT OR Apache-2.0 OR Zlib | https://github.com/ChrisDenton/static_vcruntime |
 | `strict-num` | 0.1.1 | MIT | https://github.com/RazrFalcon/strict-num |
+| `string_cache` | 0.9.0 | MIT OR Apache-2.0 | https://github.com/servo/string-cache |
+| `string_cache_codegen` | 0.6.1 | MIT OR Apache-2.0 | https://github.com/servo/string-cache |
+| `strsim` | 0.11.1 | MIT | https://github.com/rapidfuzz/strsim-rs |
 | `svg_fmt` | 0.4.5 | MIT/Apache-2.0 | https://github.com/nical/rust_debug |
 | `swash` | 0.2.10 | Apache-2.0 OR MIT | https://github.com/dfrg/swash |
+| `swift-rs` | 1.0.9 | MIT OR Apache-2.0 | https://github.com/Brendonovich/swift-rs |
 | `syn` | 1.0.109 | MIT OR Apache-2.0 | https://github.com/dtolnay/syn |
 | `syn` | 2.0.119 | MIT OR Apache-2.0 | https://github.com/dtolnay/syn |
 | `syn` | 3.0.9 | MIT OR Apache-2.0 | https://github.com/dtolnay/syn |
+| `synstructure` | 0.14.0 | MIT | https://github.com/mystor/synstructure |
 | `sys-locale` | 0.3.2 | MIT OR Apache-2.0 | https://github.com/1Password/sys-locale |
 | `system-deps` | 6.2.2 | MIT OR Apache-2.0 | https://github.com/gdesmott/system-deps |
+| `tao` | 0.37.3 | Apache-2.0 | https://github.com/tauri-apps/tao |
 | `target-features` | 0.1.6 | MIT OR Apache-2.0 | https://github.com/calebzulawski/target-features |
 | `target-lexicon` | 0.12.16 | Apache-2.0 WITH LLVM-exception | https://github.com/bytecodealliance/target-lexicon |
+| `tauri` | 2.12.7 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-build` | 2.7.6 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-codegen` | 2.7.6 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-macros` | 2.7.6 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-plugin` | 2.7.4 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-plugin-dialog` | 2.8.4 | Apache-2.0 OR MIT | https://github.com/tauri-apps/plugins-workspace |
+| `tauri-plugin-fs` | 2.7.1 | Apache-2.0 OR MIT | https://github.com/tauri-apps/plugins-workspace |
+| `tauri-plugin-single-instance` | 2.5.5 | Apache-2.0 OR MIT | https://github.com/tauri-apps/plugins-workspace |
+| `tauri-runtime` | 2.12.4 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-runtime-wry` | 2.12.5 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-utils` | 2.10.4 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri |
+| `tauri-winres` | 0.3.7 | MIT | https://github.com/tauri-apps/winres |
 | `tempfile` | 3.27.0 | MIT OR Apache-2.0 | https://github.com/Stebalien/tempfile |
+| `tendril` | 0.5.1 | MIT OR Apache-2.0 | https://github.com/servo/html5ever |
 | `termcolor` | 1.4.1 | Unlicense OR MIT | https://github.com/BurntSushi/termcolor |
 | `thiserror` | 1.0.69 | MIT OR Apache-2.0 | https://github.com/dtolnay/thiserror |
 | `thiserror` | 2.0.21 | MIT OR Apache-2.0 | https://github.com/dtolnay/thiserror |
 | `thiserror-impl` | 1.0.69 | MIT OR Apache-2.0 | https://github.com/dtolnay/thiserror |
 | `thiserror-impl` | 2.0.21 | MIT OR Apache-2.0 | https://github.com/dtolnay/thiserror |
 | `tiff` | 0.11.3 | MIT | https://github.com/image-rs/image-tiff |
+| `time` | 0.3.55 | MIT OR Apache-2.0 | https://github.com/time-rs/time |
+| `time-core` | 0.1.9 | MIT OR Apache-2.0 | https://github.com/time-rs/time |
+| `time-macros` | 0.2.32 | MIT OR Apache-2.0 | https://github.com/time-rs/time |
 | `tiny-skia` | 0.11.4 | BSD-3-Clause | https://github.com/RazrFalcon/tiny-skia |
 | `tiny-skia-path` | 0.11.4 | BSD-3-Clause | https://github.com/RazrFalcon/tiny-skia/tree/master/path |
 | `tiny-xlib` | 0.2.5 | MIT OR Apache-2.0 OR Zlib | https://github.com/rust-windowing/tiny-xlib |
+| `tinystr` | 0.8.5 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
 | `tinyvec` | 1.13.3 | Zlib OR Apache-2.0 OR MIT | https://github.com/Lokathor/tinyvec |
 | `tokio` | 1.54.1 | MIT | https://github.com/tokio-rs/tokio |
 | `toml` | 0.8.2 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
+| `toml` | 1.2.1+spec-1.1.0 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_datetime` | 0.6.3 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_datetime` | 1.1.3+spec-1.1.0 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_edit` | 0.19.15 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_edit` | 0.20.2 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_edit` | 0.25.19+spec-1.1.0 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `toml_parser` | 1.1.5+spec-1.1.0 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
+| `toml_writer` | 1.2.0+spec-1.1.0 | MIT OR Apache-2.0 | https://github.com/toml-rs/toml |
 | `tracing` | 0.1.44 | MIT | https://github.com/tokio-rs/tracing |
 | `tracing-attributes` | 0.1.31 | MIT | https://github.com/tokio-rs/tracing |
 | `tracing-core` | 0.1.36 | MIT | https://github.com/tokio-rs/tracing |
+| `tray-icon` | 0.25.1 | MIT OR Apache-2.0 | https://github.com/tauri-apps/tray-icon |
 | `ttf-parser` | 0.25.1 | MIT OR Apache-2.0 | https://github.com/harfbuzz/ttf-parser |
+| `type-map` | 0.5.1 | MIT/Apache-2.0 | https://github.com/kardeiz/type-map |
+| `typeid` | 1.0.3 | MIT OR Apache-2.0 | https://github.com/dtolnay/typeid |
+| `typenum` | 1.20.1 | MIT OR Apache-2.0 | https://github.com/paholg/typenum |
 | `uds_windows` | 1.2.1 | MIT | https://github.com/haraldh/rust_uds_windows |
+| `unic-langid` | 0.9.6 | MIT OR Apache-2.0 | https://github.com/zbraniecki/unic-locale |
+| `unic-langid-impl` | 0.9.6 | MIT OR Apache-2.0 | https://github.com/zbraniecki/unic-locale |
 | `unicase` | 2.10.0 | MIT OR Apache-2.0 | https://github.com/seanmonstar/unicase |
 | `unicode-bidi` | 0.3.18 | MIT OR Apache-2.0 | https://github.com/servo/unicode-bidi |
 | `unicode-ident` | 1.0.27 | (MIT OR Apache-2.0) AND Unicode-3.0 | https://github.com/dtolnay/unicode-ident |
@@ -457,10 +624,17 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `unicode-script` | 0.5.9 | MIT OR Apache-2.0 | https://github.com/unicode-rs/unicode-script |
 | `unicode-segmentation` | 1.13.3 | MIT OR Apache-2.0 | https://github.com/unicode-rs/unicode-segmentation |
 | `unicode-width` | 0.2.3 | MIT OR Apache-2.0 | https://github.com/unicode-rs/unicode-width |
+| `url` | 2.5.9 | MIT OR Apache-2.0 | https://github.com/servo/rust-url |
+| `urlpattern` | 0.6.0 | MIT | https://github.com/denoland/rust-urlpattern |
+| `utf8_iter` | 1.1.0 | Apache-2.0 OR MIT | https://github.com/hsivonen/utf8_iter |
+| `utf_types` | 1.0.0 | Apache-2.0 OR MIT | https://github.com/hsivonen/utf_types |
 | `uuid` | 1.29.2 | Apache-2.0 OR MIT | https://github.com/uuid-rs/uuid |
 | `v_frame` | 0.3.9 | BSD-2-Clause | https://github.com/rust-av/v_frame |
 | `version-compare` | 0.2.1 | MIT | https://gitlab.com/timvisee/version-compare |
 | `version_check` | 0.9.5 | MIT/Apache-2.0 | https://github.com/SergioBenitez/version_check |
+| `vswhom` | 0.1.0 | MIT | https://github.com/nabijaczleweli/vswhom.rs |
+| `vswhom-sys` | 0.1.3 | MIT | https://github.com/nabijaczleweli/vswhom-sys.rs |
+| `walkdir` | 2.5.0 | Unlicense/MIT | https://github.com/BurntSushi/walkdir |
 | `wasm-bindgen` | 0.2.130 | MIT OR Apache-2.0 | https://github.com/wasm-bindgen/wasm-bindgen |
 | `wasm-bindgen-macro` | 0.2.130 | MIT OR Apache-2.0 | https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/macro |
 | `wasm-bindgen-macro-support` | 0.2.130 | MIT OR Apache-2.0 | https://github.com/wasm-bindgen/wasm-bindgen/tree/main/crates/macro-support |
@@ -477,6 +651,12 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `wayland-scanner` | 0.31.11 | MIT | https://github.com/smithay/wayland-rs |
 | `wayland-sys` | 0.31.11 | MIT | https://github.com/smithay/wayland-rs |
 | `web-time` | 1.1.0 | MIT OR Apache-2.0 | https://github.com/daxpedda/web-time |
+| `web_atoms` | 0.2.6 | MIT OR Apache-2.0 | https://github.com/servo/html5ever |
+| `webkit2gtk` | 2.0.2 | MIT | https://github.com/tauri-apps/webkit2gtk-rs |
+| `webkit2gtk-sys` | 2.0.2 | MIT | https://github.com/tauri-apps/webkit2gtk-rs |
+| `webview2-com` | 0.39.1 | MIT | https://github.com/wravery/webview2-rs |
+| `webview2-com-macros` | 0.8.1 | MIT | https://github.com/wravery/webview2-rs |
+| `webview2-com-sys` | 0.39.1 | MIT | https://github.com/wravery/webview2-rs |
 | `weezl` | 0.1.12 | MIT OR Apache-2.0 | https://github.com/image-rs/weezl |
 | `wgpu` | 27.0.1 | MIT OR Apache-2.0 | https://github.com/gfx-rs/wgpu |
 | `wgpu-core` | 27.0.3 | MIT OR Apache-2.0 | https://github.com/gfx-rs/wgpu |
@@ -486,6 +666,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `wgpu-types` | 27.0.1 | MIT OR Apache-2.0 | https://github.com/gfx-rs/wgpu |
 | `winapi` | 0.3.9 | MIT/Apache-2.0 | https://github.com/retep998/winapi-rs |
 | `winapi-util` | 0.1.11 | Unlicense OR MIT | https://github.com/BurntSushi/winapi-util |
+| `window-vibrancy` | 0.8.1 | Apache-2.0 OR MIT | https://github.com/tauri-apps/tauri-plugin-vibrancy |
 | `window_clipboard` | 0.5.1 | MIT | https://github.com/hecrj/window_clipboard |
 | `windows` | 0.58.0 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows` | 0.62.2 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
@@ -510,6 +691,7 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `windows-targets` | 0.52.6 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows-targets` | 0.53.5 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows-threading` | 0.2.1 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
+| `windows-version` | 0.1.7 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows_x86_64_gnu` | 0.52.6 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows_x86_64_gnu` | 0.53.1 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
 | `windows_x86_64_msvc` | 0.52.6 | MIT OR Apache-2.0 | https://github.com/microsoft/windows-rs |
@@ -517,6 +699,9 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `winit` | 0.30.13 | Apache-2.0 | https://github.com/rust-windowing/winit |
 | `winnow` | 0.5.40 | MIT | https://github.com/winnow-rs/winnow |
 | `winnow` | 1.0.5 | MIT | https://github.com/winnow-rs/winnow |
+| `winreg` | 0.56.0 | MIT | https://github.com/gentoo90/winreg-rs |
+| `writeable` | 0.6.4 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `wry` | 0.57.3 | Apache-2.0 OR MIT | https://github.com/tauri-apps/wry |
 | `x11` | 2.21.0 | MIT | https://github.com/AltF02/x11-rs.git |
 | `x11-dl` | 2.21.0 | MIT | https://github.com/AltF02/x11-rs.git |
 | `x11rb` | 0.13.2 | MIT OR Apache-2.0 | https://github.com/psychon/x11rb |
@@ -527,6 +712,8 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `xml-rs` | 0.8.29 | MIT | https://github.com/kornelski/xml-rs |
 | `y4m` | 0.8.0 | MIT | https://github.com/image-rs/y4m.git |
 | `yazi` | 0.2.2 | Apache-2.0 OR MIT | https://github.com/dfrg/yazi |
+| `yoke` | 0.8.4 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `yoke-derive` | 0.8.4 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
 | `zbus` | 5.19.0 | MIT | https://github.com/z-galaxy/zbus/ |
 | `zbus_macros` | 5.19.0 | MIT | https://github.com/z-galaxy/zbus/ |
 | `zbus_names` | 4.3.5 | MIT | https://github.com/z-galaxy/zbus/ |
@@ -534,6 +721,11 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 | `zeno` | 0.3.3 | Apache-2.0 OR MIT | https://github.com/dfrg/zeno |
 | `zerocopy` | 0.8.63 | BSD-2-Clause OR Apache-2.0 OR MIT | https://github.com/google/zerocopy |
 | `zerocopy-derive` | 0.8.63 | BSD-2-Clause OR Apache-2.0 OR MIT | https://github.com/google/zerocopy |
+| `zerofrom` | 0.1.8 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `zerofrom-derive` | 0.1.8 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `zerotrie` | 0.2.5 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `zerovec` | 0.11.9 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
+| `zerovec-derive` | 0.11.7 | Unicode-3.0 | https://github.com/unicode-org/icu4x |
 | `zlib-rs` | 0.6.8 | Zlib | https://github.com/trifectatechfoundation/zlib-rs |
 | `zmij` | 1.0.23 | MIT | https://github.com/dtolnay/zmij |
 | `zune-core` | 0.5.3 | MIT OR Apache-2.0 OR Zlib | https://github.com/etemesi254/zune-image |
@@ -545,10 +737,145 @@ Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows,
 
 <!-- GUI-PAKETE:END -->
 
+<!-- UI-PAKETE:BEGIN -->
+
+### Pakete der Web-Oberfläche (`ui/`, npm)
+
+Erzeugt mit `python3 tools/ui_notices.py` aus `ui/package-lock.json`: **124 Einträge** (alle Plattformen; davon 17 im ausgelieferten Frontend bzw. zur Laufzeit, der Rest nur zur Bauzeit und zum Prüfen). Installation mit `npm ci --ignore-scripts`. Das gebaute Frontend enthält nur den Code von `svelte`, `@fluent/bundle` und `@tauri-apps/api` (und deren Laufzeitabhängigkeiten); MPL-2.0-Pakete (`lightningcss*`) sind Werkzeuge der Bauzeit und gelangen nicht in das Programm. Die Bauwerkzeuge laden bei der Installation keine Skripte aus (`--ignore-scripts`). Nach der Wahl der Festbreitenschrift (Folgefrage F2) kommt deren Lizenz hinzu.
+
+| Paket | Version | Lizenz | Verwendung |
+|---|---|---|---|
+| `@codemirror/autocomplete` | 6.20.4 | MIT | Laufzeit |
+| `@codemirror/commands` | 6.11.1 | MIT | Laufzeit |
+| `@codemirror/language` | 6.13.1 | MIT | Laufzeit |
+| `@codemirror/lint` | 6.9.8 | MIT | Laufzeit |
+| `@codemirror/search` | 6.7.2 | MIT | Laufzeit |
+| `@codemirror/state` | 6.7.6 | MIT | Laufzeit |
+| `@codemirror/streamparser` | 6.0.0 | MIT | Laufzeit |
+| `@codemirror/view` | 6.43.15 | MIT | Laufzeit |
+| `@emnapi/core` | 2.0.0-beta.2 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@emnapi/runtime` | 2.0.0-beta.2 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@emnapi/wasi-threads` | 2.2.0 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@fluent/bundle` | 0.19.1 | Apache-2.0 | Laufzeit |
+| `@jridgewell/gen-mapping` | 0.3.13 | MIT | Bauzeit/Prüfung |
+| `@jridgewell/remapping` | 2.3.5 | MIT | Bauzeit/Prüfung |
+| `@jridgewell/resolve-uri` | 3.1.3 | MIT | Bauzeit/Prüfung |
+| `@jridgewell/sourcemap-codec` | 1.6.0 | MIT | Bauzeit/Prüfung |
+| `@jridgewell/trace-mapping` | 0.3.31 | MIT | Bauzeit/Prüfung |
+| `@lezer/common` | 1.5.6 | MIT | Laufzeit |
+| `@lezer/highlight` | 1.2.5 | MIT | Laufzeit |
+| `@lezer/lr` | 1.4.12 | MIT | Laufzeit |
+| `@marijn/find-cluster-break` | 1.0.4 | MIT | Laufzeit |
+| `@napi-rs/wasm-runtime` | 1.2.6 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@oxc-project/types` | 0.156.0 | MIT | Bauzeit/Prüfung |
+| `@rolldown/binding-android-arm-eabi` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-android-arm64` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-darwin-arm64` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-darwin-x64` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-freebsd-x64` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-arm-gnueabihf` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-arm64-gnu` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-arm64-musl` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-ppc64-gnu` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-s390x-gnu` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-x64-gnu` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-linux-x64-musl` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-openharmony-arm64` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-wasm32-wasi` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-win32-arm64-msvc` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/binding-win32-x64-msvc` | 1.2.19 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@rolldown/pluginutils` | 1.1.1 | MIT | Bauzeit/Prüfung |
+| `@sveltejs/acorn-typescript` | 1.0.13 | MIT | Bauzeit/Prüfung |
+| `@sveltejs/load-config` | 0.2.3 | MIT | Bauzeit/Prüfung |
+| `@sveltejs/vite-plugin-svelte` | 7.3.1 | MIT | Bauzeit/Prüfung |
+| `@tauri-apps/api` | 2.12.4 | Apache-2.0 OR MIT | Laufzeit |
+| `@tauri-apps/cli` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung |
+| `@tauri-apps/cli-darwin-arm64` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-darwin-x64` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-arm-gnueabihf` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-arm64-gnu` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-arm64-musl` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-riscv64-gnu` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-x64-gnu` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-linux-x64-musl` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-win32-arm64-msvc` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-win32-ia32-msvc` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tauri-apps/cli-win32-x64-msvc` | 2.12.4 | Apache-2.0 OR MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@tybys/wasm-util` | 0.10.5 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `@types/chai` | 5.2.3 | MIT | Bauzeit/Prüfung |
+| `@types/deep-eql` | 4.0.2 | MIT | Bauzeit/Prüfung |
+| `@types/estree` | 1.0.10 | MIT | Bauzeit/Prüfung |
+| `@vitest/mocker` | 5.1.0 | MIT | Bauzeit/Prüfung |
+| `@vitest/spy` | 5.1.0 | MIT | Bauzeit/Prüfung |
+| `acorn` | 8.19.0 | MIT | Bauzeit/Prüfung |
+| `aria-query` | 5.3.1 | Apache-2.0 | Bauzeit/Prüfung |
+| `assertion-error` | 2.0.1 | MIT | Bauzeit/Prüfung |
+| `axobject-query` | 4.1.0 | Apache-2.0 | Bauzeit/Prüfung |
+| `chai` | 6.3.0 | MIT | Bauzeit/Prüfung |
+| `chokidar` | 4.0.3 | MIT | Bauzeit/Prüfung |
+| `clsx` | 2.1.1 | MIT | Bauzeit/Prüfung |
+| `crelt` | 1.0.7 | MIT | Laufzeit |
+| `deepmerge` | 4.3.1 | MIT | Bauzeit/Prüfung |
+| `detect-libc` | 2.1.2 | Apache-2.0 | Bauzeit/Prüfung |
+| `devalue` | 5.9.4 | MIT | Bauzeit/Prüfung |
+| `es-module-lexer` | 2.3.2 | MIT | Bauzeit/Prüfung |
+| `esm-env` | 1.2.2 | MIT | Bauzeit/Prüfung |
+| `esrap` | 2.4.2 | MIT | Bauzeit/Prüfung |
+| `estree-walker` | 3.0.3 | MIT | Bauzeit/Prüfung |
+| `expect-type` | 1.4.0 | Apache-2.0 | Bauzeit/Prüfung |
+| `fdir` | 6.5.0 | MIT | Bauzeit/Prüfung |
+| `fsevents` | 2.3.3 | MIT | Bauzeit/Prüfung (Plattformpaket) |
+| `is-reference` | 3.0.3 | MIT | Bauzeit/Prüfung |
+| `lightningcss` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung |
+| `lightningcss-android-arm64` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-darwin-arm64` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-darwin-x64` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-freebsd-x64` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-linux-arm-gnueabihf` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-linux-arm64-gnu` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-linux-arm64-musl` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-linux-x64-gnu` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-linux-x64-musl` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-win32-arm64-msvc` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `lightningcss-win32-x64-msvc` | 1.33.0 | MPL-2.0 | Bauzeit/Prüfung (Plattformpaket) |
+| `locate-character` | 3.0.0 | MIT | Bauzeit/Prüfung |
+| `magic-string` | 1.4.5 | MIT | Bauzeit/Prüfung |
+| `mri` | 1.2.0 | MIT | Bauzeit/Prüfung |
+| `nanoid` | 3.3.20 | MIT | Bauzeit/Prüfung |
+| `obug` | 2.2.1 | MIT | Bauzeit/Prüfung |
+| `picocolors` | 1.1.1 | ISC | Bauzeit/Prüfung |
+| `picomatch` | 4.0.7 | MIT | Bauzeit/Prüfung |
+| `playwright` | 1.65.0 | Apache-2.0 | Bauzeit/Prüfung |
+| `playwright-core` | 1.65.0 | Apache-2.0 | Bauzeit/Prüfung |
+| `postcss` | 8.5.33 | MIT | Bauzeit/Prüfung |
+| `readdirp` | 4.1.2 | MIT | Bauzeit/Prüfung |
+| `rolldown` | 1.2.19 | MIT | Bauzeit/Prüfung |
+| `sade` | 1.8.1 | MIT | Bauzeit/Prüfung |
+| `source-map-js` | 1.2.4 | BSD-3-Clause | Bauzeit/Prüfung |
+| `std-env` | 4.3.0 | MIT | Bauzeit/Prüfung |
+| `style-mod` | 4.1.5 | MIT | Laufzeit |
+| `svelte` | 5.57.3 | MIT | Bauzeit/Prüfung |
+| `svelte-check` | 4.7.8 | MIT | Bauzeit/Prüfung |
+| `magic-string` | 0.30.21 | MIT | Bauzeit/Prüfung |
+| `tinybench` | 6.2.4 | MIT | Bauzeit/Prüfung |
+| `tinyexec` | 1.3.1 | MIT | Bauzeit/Prüfung |
+| `tinyglobby` | 0.2.17 | MIT | Bauzeit/Prüfung |
+| `tslib` | 2.9.1 | 0BSD | Bauzeit/Prüfung (Plattformpaket) |
+| `typescript` | 6.0.3 | Apache-2.0 | Bauzeit/Prüfung |
+| `vite` | 8.3.6 | MIT | Bauzeit/Prüfung |
+| `vitefu` | 1.1.4 | MIT | Bauzeit/Prüfung |
+| `vitest` | 5.1.0 | MIT | Bauzeit/Prüfung |
+| `obug` | 3.0.0 | MIT | Bauzeit/Prüfung |
+| `w3c-keyname` | 2.2.8 | MIT | Laufzeit |
+| `why-is-node-running` | 3.2.1 | MIT | Bauzeit/Prüfung |
+| `zimmerframe` | 1.1.5 | MIT | Bauzeit/Prüfung |
+
+<!-- UI-PAKETE:END -->
+
 ## 4a. Logo, Symbole und Namen
 
-- `branding/` (Icon „VC.“ und Wortmarke „VintageCoder.“ in allen Varianten, erzeugt von `tools/gen_logo.py`): Eigenwerk des Projektinhabers (Christian Drüeke), in der Seite „Über VintageCoder“ und in den Paketen verwendet. Es liegt im Repository, damit sich das Programm bauen lässt; das **Logo** und der **Name „VintageCoder“** sind von der GPL **ausgenommen**: Sie dürfen nicht frei verwendet werden (die GPL gilt für den Programmcode, nicht für Logo und Namen). Fragen dazu an vintagecoder@drueeke.de.
-- Das Programmsymbol (`installer/macos/VintageCoder.icns`, `VintageCoder-1024.png`, `installer/windows/VintageCoder.ico`, das Linux-Symbol) wird von `tools/gen_icon.py` erzeugt und ist ein Eigenwerk (Standardbibliothek, keine Vorlage).
+- `branding/` (Icon „VC.“ und Wortmarke „VintageCoder.“ in allen Varianten, erzeugt von `tools/gen_logo.py`; die Buchstaben sind als Umrisse (Pfade) aus JetBrains Mono Bold übernommen, die Schrift selbst ist nicht enthalten und steht unter der SIL Open Font License 1.1, siehe oben): Eigenwerk des Projektinhabers (Christian Drüeke), in der Seite „Über VintageCoder“ und in den Paketen verwendet. Es liegt im Repository, damit sich das Programm bauen lässt; das **Logo** und der **Name „VintageCoder“** sind von der GPL **ausgenommen**: Der Name darf nur als wahrheitsgemäße Herkunftsangabe genannt werden; das Logo darf als Referenz verwendet werden (Verweis auf VintageCoder, auch skaliert oder einfarbig), nicht aber verändert, als Zeichen eines anderen Produkts oder mit dem Eindruck einer Zugehörigkeit oder Billigung (die GPL gilt für den Programmcode, nicht für Logo und Namen). Fragen dazu an vintagecoder@drueeke.de.
+- Das Programmsymbol (`installer/macos/VintageCoder.icns`, `VintageCoder-1024.png`, `installer/windows/VintageCoder.ico`, das Linux-Symbol) wird von `tools/gen_icon.py` aus dem Icon unter `branding/` erzeugt und ist ein Eigenwerk (Standardbibliothek).
 - „VintageCoder“ ist der Name des Projekts (siehe oben); „vcc“ und „vc-lsp“ sind Namen der zugehörigen Programme.
 
 ## 4b. Beispiele und Testdaten

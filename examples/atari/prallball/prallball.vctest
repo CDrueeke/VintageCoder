@@ -116,6 +116,42 @@
    }
   },
   {
+   "name": "zone_jitter: Zone 0 bleibt in [0, 1]",
+   "setup": {
+    "mem": {},
+    "x": 0
+   },
+   "call": "zone_jitter",
+   "expect": [
+    "x >= 0",
+    "x <= 1"
+   ]
+  },
+  {
+   "name": "zone_jitter: Zone 4 bleibt in [3, 4, 5]",
+   "setup": {
+    "mem": {},
+    "x": 4
+   },
+   "call": "zone_jitter",
+   "expect": [
+    "x >= 3",
+    "x <= 5"
+   ]
+  },
+  {
+   "name": "zone_jitter: Zone 7 bleibt in [6, 7]",
+   "setup": {
+    "mem": {},
+    "x": 7
+   },
+   "call": "zone_jitter",
+   "expect": [
+    "x >= 6",
+    "x <= 7"
+   ]
+  },
+  {
    "name": "paddle_hit: Treffer in der Mitte -> Zone 4 und Abprall nach oben",
    "setup": {
     "mem": {
@@ -142,9 +178,7 @@
    "call": "paddle_hit",
    "expect": [
     "fc",
-    "[vxl] == $10",
-    "[vyl] == $9b",
-    "[vyh] == $ff",
+    "([vxl] == $f0 || [vxl] == $10 || [vxl] == $2d)",
     "[hits] == 1"
    ]
   },
@@ -205,8 +239,7 @@
    "call": "paddle_hit",
    "expect": [
     "fc",
-    "[vxl] == $f0",
-    "[vxh] == $ff"
+    "([vxl] == $d3 || [vxl] == $f0 || [vxl] == $10)"
    ]
   },
   {
@@ -236,8 +269,7 @@
    "call": "paddle_hit",
    "expect": [
     "fc",
-    "[vxl] == $2d",
-    "[vxh] == $00"
+    "([vxl] == $10 || [vxl] == $2d || [vxl] == $46)"
    ]
   },
   {
@@ -267,8 +299,7 @@
    "call": "paddle_hit",
    "expect": [
     "fc",
-    "[vxl] == $10",
-    "[vxh] == $00"
+    "([vxl] == $f0 || [vxl] == $10 || [vxl] == $2d)"
    ]
   },
   {

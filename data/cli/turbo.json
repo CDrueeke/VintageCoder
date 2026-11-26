@@ -1,0 +1,265 @@
+{
+  "command": "turbo",
+  "group": "projekte",
+  "summary": "Turbo BASIC XL: Diskette bereitstellen, prüfen, starten",
+  "description": [
+    "Turbo BASIC XL läuft auf dem Atari von einer Diskette, die du selbst besitzen musst; VintageCoder liefert keine aus. Das Projekt bekommt eine Kopie davon (turbo/), beim Bauen entsteht daraus build/<name>.atr mit dem Programm als AUTORUN.BAS (vcc build), und vcc turbo run startet sie im Emulator."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "check",
+      "usage": "vcc turbo check <image.atr> [--json]",
+      "summary": "Diskette prüfen: ist das Turbo BASIC XL?",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "ATR-Abbild der Diskette (90 KB, Atari DOS 2)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "allgemein",
+          "help": "Ausgabe als JSON auf der Standardausgabe.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Diskette prüfen",
+          "cmd": "vcc turbo check Turbo_Basic_XL.atr"
+        }
+      ],
+      "notes": [
+        "Die Prüfung liest nur Bytes (kein Emulator): Dateisystem, AUTORUN.SYS mit der Kennung TURBO-BASIC XL, Version, freie Sektoren, Verzeichnis und SHA-256 gegen die Liste bekannter Abbilder. Hinweise auf Altlasten (z. B. nie abgeschlossene Einträge) sind keine Fehler."
+      ],
+      "exit": {
+        "0": "sieht nach Turbo BASIC XL aus, keine Fehler",
+        "1": "nicht erkannt, Fehler im Dateisystem oder Datei nicht lesbar",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "build",
+        "disk"
+      ]
+    },
+    {
+      "id": "provide",
+      "usage": "vcc turbo provide <image.atr> [projekt] [--reduce] [--yes] [--anyway] [--replace]",
+      "summary": "Diskette des Anwenders ins Projekt kopieren",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "ATR-Abbild der eigenen Turbo-BASIC-XL-Diskette (wird nur gelesen)."
+        },
+        {
+          "name": "projekt",
+          "required": false,
+          "repeat": false,
+          "help": "Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "bereit",
+          "label": "Bereitstellen"
+        },
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--reduce",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Die Kopie auf DOS.SYS, DUP.SYS und AUTORUN.SYS verkleinern (mehr freier Platz). Fragt vorher nach; das Original bleibt unverändert.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Rückfrage von --reduce überspringen.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--anyway",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Auch ein Abbild verwenden, das nicht nach Turbo BASIC XL aussieht oder Fehler hat (auf eigene Verantwortung).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--replace",
+          "short": "",
+          "value": "",
+          "group": "bereit",
+          "help": "Eine vorhandene Kopie gleichen Namens überschreiben.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Diskette bereitstellen",
+          "cmd": "vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt"
+        },
+        {
+          "title": "bereitstellen und verkleinern",
+          "cmd": "vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt --reduce"
+        }
+      ],
+      "notes": [
+        "Turbo BASIC XL gehört nicht zum Lieferumfang von VintageCoder: Die Diskette musst du selbst besitzen. Die Kopie liegt in turbo/ unter dem Namen des Originals; die Projektdatei bekommt den Abschnitt turbo, die .gitignore die Zeile turbo/*.atr."
+      ],
+      "exit": {
+        "0": "fehlerfrei",
+        "1": "Abbild nicht verwendbar, Kopie vorhanden oder abgebrochen",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "build",
+        "turbo"
+      ]
+    },
+    {
+      "id": "reduce",
+      "usage": "vcc turbo reduce [projekt] [--yes]",
+      "summary": "Kopie im Projekt auf die Systemdateien verkleinern",
+      "args": [
+        {
+          "name": "projekt",
+          "required": false,
+          "repeat": false,
+          "help": "Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "allgemein",
+          "help": "Rückfrage überspringen.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Platz schaffen",
+          "cmd": "vcc turbo reduce"
+        }
+      ],
+      "notes": [
+        "Entfernt in der Projektkopie alles außer DOS.SYS, DUP.SYS und AUTORUN.SYS (dann sind rund 480 statt 103 Sektoren frei; COMPILER.COM, RUNTIME.COM und die Beispielprogramme fallen weg). Dein Original bleibt unverändert."
+      ],
+      "exit": {
+        "0": "fehlerfrei",
+        "1": "keine Diskette im Projekt, nicht verkleinerbar oder abgebrochen",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "turbo",
+        "build"
+      ]
+    },
+    {
+      "id": "run",
+      "usage": "vcc turbo run [projekt] [--data-dir <ordner>]",
+      "summary": "bauen und im Atari-Emulator starten",
+      "args": [
+        {
+          "name": "projekt",
+          "required": false,
+          "repeat": false,
+          "help": "Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "Allgemein"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "ordner",
+          "group": "allgemein",
+          "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Turbo-BASIC-Projekt starten",
+          "cmd": "vcc turbo run examples/atari/turbo_basic"
+        }
+      ],
+      "notes": [
+        "Baut das Hauptprogramm, schreibt es als AUTORUN.BAS auf eine Kopie der Diskette (build/<name>.atr) und bootet sie im Standard-Emulator des Atari (atari800; unter Windows auf Wunsch Altirra) in Laufwerk 1 ohne eingebautes BASIC. Nach dem Programmende (READY) wartet Turbo BASIC XL auf Eingaben. Altirra mit einer Turbo-BASIC-Diskette ist noch nicht geprüft."
+      ],
+      "exit": {
+        "0": "Emulator gestartet",
+        "1": "Fehler beim Bauen, Diskette fehlt oder Emulator nicht gefunden",
+        "2": "falscher Aufruf"
+      },
+      "see_also": [
+        "build",
+        "turbo"
+      ]
+    }
+  ]
+}

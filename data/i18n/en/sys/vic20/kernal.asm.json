@@ -1,0 +1,510 @@
+{
+ "source": "sys/vic20/kernal.asm",
+ "entries": {
+  "/L6": {
+   "de": "Offizielle KERNAL-Sprungtabelle (beim VC-20 erst ab RESTOR; CINT, IOINIT und RAMTAS fehlen dort, siehe KERNAL-ROM-Routinen)",
+   "en": "Official KERNAL jump table (on the VIC-20 only from RESTOR; CINT, IOINIT and RAMTAS are missing there, see KERNAL ROM routines)",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Vektoren auf Standard",
+   "en": "Reset vectors to default",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Vektoren lesen/setzen",
+   "en": "Read/set vectors",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Systemmeldungen steuern",
+   "en": "Control system messages",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Sekundäradresse nach LISTEN",
+   "en": "Secondary address after LISTEN",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Sekundäradresse nach TALK",
+   "en": "Secondary address after TALK",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Speicherobergrenze lesen/setzen",
+   "en": "Read/set top of memory",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Speicheruntergrenze lesen/setzen",
+   "en": "Read/set bottom of memory",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Tastatur abtasten",
+   "en": "Scan keyboard",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "IEEE-Timeout",
+   "en": "IEEE timeout",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Byte vom IEC-Bus holen",
+   "en": "Read byte from IEC bus",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Byte auf IEC-Bus senden",
+   "en": "Send byte to IEC bus",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "UNTALK senden",
+   "en": "Send UNTALK",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "UNLISTEN senden",
+   "en": "Send UNLISTEN",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Gerät als Hörer aufrufen",
+   "en": "Command device to listen",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Gerät als Sprecher aufrufen",
+   "en": "Command device to talk",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Statuswort lesen",
+   "en": "Read status word",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Logische Datei, Gerät, Sekundäradresse setzen",
+   "en": "Set logical file, device, secondary address",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Dateinamen setzen",
+   "en": "Set file name",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Datei öffnen",
+   "en": "Open file",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Datei schließen",
+   "en": "Close file",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Eingabekanal setzen",
+   "en": "Set input channel",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Ausgabekanal setzen",
+   "en": "Set output channel",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Kanäle zurücksetzen",
+   "en": "Reset channels",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "Zeichen holen",
+   "en": "Get character",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Zeichen ausgeben",
+   "en": "Output character",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Datei laden",
+   "en": "Load file",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Speicher sichern",
+   "en": "Save memory",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Systemuhr setzen",
+   "en": "Set system clock",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Systemuhr lesen",
+   "en": "Read system clock",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "STOP-Taste prüfen",
+   "en": "Check STOP key",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Taste aus Puffer holen",
+   "en": "Get key from buffer",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Alle Dateien schließen",
+   "en": "Close all files",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "Systemuhr weiterzählen",
+   "en": "Advance system clock",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Bildschirmgröße holen",
+   "en": "Get screen size",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Cursorposition lesen/setzen",
+   "en": "Read/set cursor position",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "Adresse der E/A-Bausteine (VIA 1)",
+   "en": "Address of the I/O chips (VIA 1)",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Hardwarevektoren",
+   "en": "Hardware vectors",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "NMI-Vektor",
+   "en": "NMI vector",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "RESET-Vektor",
+   "en": "RESET vector",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "IRQ/BRK-Vektor",
+   "en": "IRQ/BRK vector",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "KERNAL-Zeropage",
+   "en": "KERNAL zero page",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "Statuswort (ST)",
+   "en": "Status word (ST)",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "STOP-Taste (Flag)",
+   "en": "STOP key (flag)",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "Anzahl offener Dateien",
+   "en": "Number of open files",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Eingabegerät",
+   "en": "Input device",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Ausgabegerät",
+   "en": "Output device",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "Systemuhr (3 Byte, 1/60 s)",
+   "en": "System clock (3 bytes, 1/60 s)",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Länge des Dateinamens",
+   "en": "Length of file name",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Aktuelle logische Dateinummer",
+   "en": "Current logical file number",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Aktuelle Sekundäradresse",
+   "en": "Current secondary address",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "Aktuelle Gerätenummer",
+   "en": "Current device number",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "Zeiger auf Dateinamen",
+   "en": "Pointer to file name",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "Zuletzt gedrückte Taste",
+   "en": "Last key pressed",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "Anzahl Zeichen im Tastaturpuffer",
+   "en": "Number of characters in keyboard buffer",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "Revers-Flag",
+   "en": "Reverse flag",
+   "status": "maschinell"
+  },
+  "/L64": {
+   "de": "Aktuell gedrückte Taste",
+   "en": "Key currently pressed",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "Cursorblinken aus (0 = blinkt)",
+   "en": "Cursor blink off (0 = blinking)",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "Zeiger auf aktuelle Bildschirmzeile",
+   "en": "Pointer to current screen line",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "Cursor-Spalte",
+   "en": "Cursor column",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "Anführungszeichen-Modus",
+   "en": "Quote mode",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "Cursor-Zeile",
+   "en": "Cursor row",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "Zeiger auf aktuelle Farb-RAM-Zeile",
+   "en": "Pointer to current color RAM line",
+   "status": "maschinell"
+  },
+  "/L72": {
+   "de": "KERNAL-RAM",
+   "en": "KERNAL RAM",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "BASIC-Eingabepuffer (89 Byte)",
+   "en": "BASIC input buffer (89 bytes)",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "Tastaturpuffer (10 Byte)",
+   "en": "Keyboard buffer (10 bytes)",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Start des RAM für das Betriebssystem",
+   "en": "Start of RAM for the operating system",
+   "status": "maschinell"
+  },
+  "/L76": {
+   "de": "Ende des RAM für das Betriebssystem",
+   "en": "End of RAM for the operating system",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "Aktuelle Zeichenfarbe",
+   "en": "Current character color",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "Farbe unter dem Cursor",
+   "en": "Color under the cursor",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "Bildschirmspeicher (High-Byte)",
+   "en": "Screen memory (high byte)",
+   "status": "maschinell"
+  },
+  "/L80": {
+   "de": "Größe des Tastaturpuffers",
+   "en": "Size of keyboard buffer",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "Tastenwiederholung",
+   "en": "Key repeat",
+   "status": "maschinell"
+  },
+  "/L82": {
+   "de": "SHIFT/CTRL/C=-Flags",
+   "en": "SHIFT/CTRL/C= flags",
+   "status": "maschinell"
+  },
+  "/L83": {
+   "de": "Zeichensatzumschaltung erlaubt",
+   "en": "Character set switching allowed",
+   "status": "maschinell"
+  },
+  "/L84": {
+   "de": "Kassettenpuffer (192 Byte)",
+   "en": "Cassette buffer (192 bytes)",
+   "status": "maschinell"
+  },
+  "/L86": {
+   "de": "RAM-Vektoren (umlenkbar)",
+   "en": "RAM vectors (redirectable)",
+   "status": "maschinell"
+  },
+  "/L87": {
+   "de": "IRQ-Vektor",
+   "en": "IRQ vector",
+   "status": "maschinell"
+  },
+  "/L88": {
+   "de": "BRK-Vektor",
+   "en": "BRK vector",
+   "status": "maschinell"
+  },
+  "/L89": {
+   "de": "NMI-Vektor",
+   "en": "NMI vector",
+   "status": "maschinell"
+  },
+  "/L90": {
+   "de": "OPEN",
+   "en": "OPEN",
+   "status": "unverändert"
+  },
+  "/L91": {
+   "de": "CLOSE",
+   "en": "CLOSE",
+   "status": "unverändert"
+  },
+  "/L92": {
+   "de": "CHKIN",
+   "en": "CHKIN",
+   "status": "unverändert"
+  },
+  "/L93": {
+   "de": "CHKOUT",
+   "en": "CHKOUT",
+   "status": "unverändert"
+  },
+  "/L94": {
+   "de": "CLRCHN",
+   "en": "CLRCHN",
+   "status": "unverändert"
+  },
+  "/L95": {
+   "de": "CHRIN",
+   "en": "CHRIN",
+   "status": "unverändert"
+  },
+  "/L96": {
+   "de": "CHROUT",
+   "en": "CHROUT",
+   "status": "unverändert"
+  },
+  "/L97": {
+   "de": "STOP",
+   "en": "STOP",
+   "status": "unverändert"
+  },
+  "/L98": {
+   "de": "GETIN",
+   "en": "GETIN",
+   "status": "unverändert"
+  },
+  "/L99": {
+   "de": "CLALL",
+   "en": "CLALL",
+   "status": "unverändert"
+  },
+  "/L100": {
+   "de": "LOAD",
+   "en": "LOAD",
+   "status": "unverändert"
+  },
+  "/L101": {
+   "de": "SAVE",
+   "en": "SAVE",
+   "status": "unverändert"
+  },
+  "/L103": {
+   "de": "KERNAL-ROM-Routinen (Adressen der KERNAL-Versionen 901486-06 und -07)",
+   "en": "KERNAL ROM routines (addresses of KERNAL versions 901486-06 and -07)",
+   "status": "maschinell"
+  },
+  "/L104": {
+   "de": "RAM prüfen, Zeiger und Zeropage setzen (nicht in der Sprungtabelle)",
+   "en": "Test RAM, set pointers and zero page (not in the jump table)",
+   "status": "maschinell"
+  },
+  "/L105": {
+   "de": "VIC-I und VIA initialisieren (nicht in der Sprungtabelle)",
+   "en": "Initialize VIC-I and VIA (not in the jump table)",
+   "status": "maschinell"
+  },
+  "/L106": {
+   "de": "Bildschirm-Editor initialisieren (nicht in der Sprungtabelle)",
+   "en": "Initialize screen editor (not in the jump table)",
+   "status": "maschinell"
+  },
+  "/L107": {
+   "de": "Bildschirm löschen",
+   "en": "Clear screen",
+   "status": "maschinell"
+  },
+  "/L108": {
+   "de": "Cursor links oben",
+   "en": "Cursor to top left",
+   "status": "maschinell"
+  },
+  "/L109": {
+   "de": "Standard-IRQ-Routine",
+   "en": "Default IRQ routine",
+   "status": "maschinell"
+  },
+  "/L110": {
+   "de": "IRQ beenden (VIA-2-Timer quittieren, Register zurück, RTI)",
+   "en": "End IRQ (acknowledge VIA 2 timer, restore registers, RTI)",
+   "status": "maschinell"
+  },
+  "/L111": {
+   "de": "IRQ beenden (Register zurück, RTI)",
+   "en": "End IRQ (restore registers, RTI)",
+   "status": "maschinell"
+  }
+ }
+}

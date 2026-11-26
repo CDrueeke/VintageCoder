@@ -8,8 +8,13 @@ license.workspace = true
 name = "vc_ide"
 path = "src/lib.rs"
 
+[features]
+# Entwicklerschalter: Erweiterungsordner aus VC_EXTENSIONS_DEV lesen (Registry). Nie im Auslieferungsbau.
+dev-extensions = []
+
 [dependencies]
 vc-core = { path = "../vc-core" }
+vc-i18n = { path = "../vc-i18n" }
 vc-target = { path = "../vc-target" }
 vc-asm = { path = "../vc-asm" }
 vc-basic = { path = "../vc-basic" }
@@ -21,3 +26,6 @@ vc-roms = { path = "../vc-roms" }
 serde_json.workspace = true
 serde.workspace = true
 image = { version = "0.25", default-features = false, features = ["png"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

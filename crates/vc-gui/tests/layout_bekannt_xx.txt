@@ -1,0 +1,331 @@
+assistent-willkommen | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+assistent-willkommen | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+assistent-willkommen | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+assistent-willkommen | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+assistent-zusammenfassung | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+assistent-zusammenfassung | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+assistent-zusammenfassung | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+assistent-zusammenfassung | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+baum-markierungen | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+baum-markierungen | 720x800 | unsichtbar (Breite 0): „+“
+baum-markierungen | 720x800 | unsichtbar (Breite 0): „[Éíñþáššéñ~~~~]“
+baum-markierungen | 720x800 | unsichtbar (Breite 0): „↶“
+baum-markierungen | 720x800 | unsichtbar (Breite 0): „↷“
+baum-markierungen | 720x800 | unsichtbar (Breite 0): „−“
+baum-markierungen | 900x700 | unsichtbar (Breite 0): „↶“
+baum-markierungen | 900x700 | unsichtbar (Breite 0): „↷“
+baum-markierungen | 900x700 | unsichtbar (Breite 0): „⋯“
+baum-menue | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+befehlspalette | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+debug-panel | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+debug-panel | 1280x800 | kurzer Text bricht um: „[exec $0803 [· a.asm:4]]“
+debug-panel | 720x800 | kurzer Text bricht um: „[exec $0803 [· a.asm:4]]“
+debug-panel | 900x700 | kurzer Text bricht um: „[exec $0803 [· a.asm:4]]“
+dialog-beenden | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-export | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-export | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-export | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-export | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-export | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-export | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-export | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-export | 1280x800 | unsichtbar (Breite 0): „[Áƀƀŕéçĥéñ~~~~]“
+dialog-export | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-export | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-export | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-export | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-export | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-export | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-export | 720x800 | unsichtbar (Breite 0): „[Áƀƀŕéçĥéñ~~~~]“
+dialog-export | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+dialog-export | 900x700 | unsichtbar (Breite 0): „[Áƀƀŕéçĥéñ~~~~]“
+dialog-feedback | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-feedback | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-feedback | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-feedback | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+dialog-import | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-neue-datei | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-neue-datei | 1280x800 | kurzer Text bricht um: „[Ðíšķéţţé ÁŢŔ~~~~~]“
+dialog-neue-datei | 1280x800 | kurzer Text bricht um: „[Ðíšķéţţé Ð64~~~~]“
+dialog-neue-datei | 1280x800 | unsichtbar (Breite 0): „[Ķáçĥéļñ~~~]“
+dialog-neue-datei | 720x800 | kurzer Text bricht um: „[Ðíšķéţţé ÁŢŔ~~~~~]“
+dialog-neue-datei | 720x800 | kurzer Text bricht um: „[Ðíšķéţţé Ð64~~~~]“
+dialog-neue-datei | 720x800 | unsichtbar (Breite 0): „[Ķáçĥéļñ~~~]“
+dialog-neue-datei | 900x700 | kurzer Text bricht um: „[Ðíšķéţţé ÁŢŔ~~~~~]“
+dialog-neue-datei | 900x700 | kurzer Text bricht um: „[Ðíšķéţţé Ð64~~~~]“
+dialog-neue-datei | 900x700 | unsichtbar (Breite 0): „[Ķáçĥéļñ~~~]“
+dialog-neues-projekt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-neues-projekt | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-neues-projekt | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-neues-projekt | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+dialog-projekt-kopieren | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-projekt-kopieren | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-projekt-kopieren | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-projekt-kopieren | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+dialog-song-import | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-song-import | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+dialog-song-import | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+dialog-song-import | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+dialog-song-import | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+dialog-song-import | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+dialog-song-import | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+dialog-song-import | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+dialog-song-import | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+dialog-speichern-unter | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-ueber | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-ueber | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-ueber | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-ueber | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+dialog-wiederherstellung | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-wiederherstellung | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+dialog-wiederherstellung | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+dialog-wiederherstellung | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+editor | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+editor-crlf-latin1 | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+editor-suche | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen | 1280x800 | kurzer Text bricht um: „[Ñáçĥ Úþðáţéš šúçĥéñ~~~~~~~]“
+einstellungen | 720x800 | kurzer Text bricht um: „[Ñáçĥ Úþðáţéš šúçĥéñ~~~~~~~]“
+einstellungen | 900x700 | kurzer Text bricht um: „[Ñáçĥ Úþðáţéš šúçĥéñ~~~~~~~]“
+einstellungen-editor | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen-editor | 1280x800 | kurzer Text bricht um: „[Ṁéñůļéíšţé áñžéíĝéñ~~~~~~~~“
+einstellungen-editor | 720x800 | kurzer Text bricht um: „[Ṁéñůļéíšţé áñžéíĝéñ~~~~~~~~“
+einstellungen-editor | 900x700 | kurzer Text bricht um: „[Ṁéñůļéíšţé áñžéíĝéñ~~~~~~~~“
+einstellungen-kuerzel | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen-roms | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen-roms | 1280x800 | kurzer Text bricht um: „[Ƒéĥļţ (óþţíóñáļ)~~~~~~]“
+einstellungen-roms | 720x800 | kurzer Text bricht um: „[Ƒéĥļţ (óþţíóñáļ)~~~~~~]“
+einstellungen-roms | 900x700 | kurzer Text bricht um: „[Ƒéĥļţ (óþţíóñáļ)~~~~~~]“
+einstellungen-toolchain | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+einstellungen-toolchain | 1280x800 | kurzer Text bricht um: „[Çóɱɱóðóŕé Þļúš/4~~~~~~]“
+einstellungen-toolchain | 720x800 | kurzer Text bricht um: „[Çóɱɱóðóŕé Þļúš/4~~~~~~]“
+einstellungen-toolchain | 900x700 | kurzer Text bricht um: „[Çóɱɱóðóŕé Þļúš/4~~~~~~]“
+einstellungen-ziele | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+geteilt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+geteilt | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+geteilt | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+geteilt | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+geteilt | 900x700 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+geteilt | 900x700 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+geteilt | 900x700 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+geteilt | 900x700 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+hilfe-panel | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+karte | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+leer | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+menueleiste | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+menueleiste-schmal | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+projekt-einstellungen | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+projekt-einstellungen | 900x700 | unsichtbar (Breite 0): „[áúš~~]“
+projekt-einstellungen-diskette | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+projekt-einstellungen-diskette | 1280x800 | kurzer Text bricht um: „d64 · [áļļé Þŕóĝŕáɱɱé~~~~~~]“
+projekt-einstellungen-diskette | 720x800 | kurzer Text bricht um: „d64 · [áļļé Þŕóĝŕáɱɱé~~~~~~]“
+projekt-einstellungen-diskette | 900x700 | unsichtbar (Breite 0): „d64 · [áļļé Þŕóĝŕáɱɱé~~~~~~]“
+startseite | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+startseite-leer | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+startseite-ordner-fehlt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+startseite-zuletzt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-bank | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-bank | 1280x800 | kurzer Text bricht um: „[Ĥœĥé 24~~]“
+studio-bank | 1280x800 | kurzer Text bricht um: „[Ɓŕéíţé 40~~~]“
+studio-bank | 720x800 | kurzer Text bricht um: „[Ĥœĥé 24~~]“
+studio-bank | 720x800 | kurzer Text bricht um: „[Ɓŕéíţé 40~~~]“
+studio-bank | 900x700 | kurzer Text bricht um: „[Ĥœĥé 24~~]“
+studio-bank | 900x700 | kurzer Text bricht um: „[Ɓŕéíţé 40~~~]“
+studio-bildschirm | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-bildschirm | 720x800 | unsichtbar (Breite 0): „+“
+studio-bildschirm | 720x800 | unsichtbar (Breite 0): „[Éíñþáššéñ~~~~]“
+studio-bildschirm | 720x800 | unsichtbar (Breite 0): „↶“
+studio-bildschirm | 720x800 | unsichtbar (Breite 0): „↷“
+studio-bildschirm | 720x800 | unsichtbar (Breite 0): „−“
+studio-bildschirm | 900x700 | unsichtbar (Breite 0): „↶“
+studio-bildschirm | 900x700 | unsichtbar (Breite 0): „↷“
+studio-bildschirm | 900x700 | unsichtbar (Breite 0): „⋯“
+studio-disk | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-disk | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+studio-disk-kette | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-disk-kette | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+studio-kachelsatz | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-kachelsatz | 1280x800 | unsichtbar (Breite 0): „[ķéíñé~~]“
+studio-kachelsatz | 720x800 | unsichtbar (Breite 0): „[ķéíñé~~]“
+studio-palette | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-play | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-play | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-play | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+studio-play | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-pmg | 1280x800 | kurzer Text bricht um: „[2 Spielerfarbe]“
+studio-pmg | 720x800 | kurzer Text bricht um: „[2 Spielerfarbe]“
+studio-pmg | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+studio-pmg | 720x800 | unsichtbar (Breite 0): „[Ṽóŕšçĥáú ×1~~~~]“
+studio-sprite | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-sprite | 1280x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+studio-sprite | 1280x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+studio-sprite | 1280x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+studio-sprite | 1280x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+studio-sprite | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+studio-sprite | 1280x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[2 Multicolor 1]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[3 Sprite-Farbe]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[4 Multicolor 2]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[Šþŕíţé-Ƒáŕƀé~~~~~]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 1~~~~]“
+studio-sprite | 720x800 | kurzer Text bricht um: „[Ṁúļţíçóļóŕ 2~~~~]“
+studio-sprite | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+studio-tracker | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-tracker | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 10~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 11~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 12~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 7~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 8~~]“
+studio-tracker-12-kanaele | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 9~~]“
+studio-tracker-12-kanaele | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 10~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 11~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 12~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 7~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 8~~]“
+studio-tracker-12-kanaele | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 9~~]“
+studio-tracker-12-kanaele | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 10~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 11~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 12~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 7~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 8~~]“
+studio-tracker-12-kanaele-ausgeblendet | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 9~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 10~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 11~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 12~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 4~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 5~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 6~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 7~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 8~~]“
+studio-tracker-12-kanaele-ausgeblendet | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 9~~]“
+studio-tracker-12-kanaele-ausgeblendet | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-klaviatur-spielt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-tracker-klaviatur-spielt | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-klaviatur-spielt | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-klaviatur-spielt | 1280x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-klaviatur-spielt | 720x800 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-tracker-klaviatur-spielt | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 1~~]“
+studio-tracker-klaviatur-spielt | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 2~~]“
+studio-tracker-klaviatur-spielt | 720x800 | unsichtbar (Breite 0): „[Ķáñáļ 3~~]“
+studio-tracker-klaviatur-spielt | 900x700 | kurzer Text bricht um: „[Óķţáṽé 3~~~]“
+studio-zeichensatz | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+studio-zeichensatz | 1280x800 | kurzer Text bricht um: „[1 Hintergrund]“
+studio-zeichensatz | 1280x800 | kurzer Text bricht um: „[2 Vordergrund]“
+studio-zeichensatz | 720x800 | kurzer Text bricht um: „[1 Hintergrund]“
+studio-zeichensatz | 720x800 | kurzer Text bricht um: „[2 Vordergrund]“
+studio-zeichensatz | 720x800 | unsichtbar (Breite 0): „[Šþéíçĥéŕñ~~~~]“
+takt | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)
+zen | 1280x800 | Kopfzeilenknöpfe gequetscht (Starten, Debuggen, Bauen, Suchfeld)

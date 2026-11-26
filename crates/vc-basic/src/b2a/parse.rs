@@ -5,7 +5,7 @@
 //! Regeln für Schlüsselwörter ohne Leerzeichen (`FORI=1TO10`, `TO` in `TOTAL`) wie im Interpreter. Der Parser liest dann die Tokenbytes.
 use super::ast::*;
 use crate::dialect::Dialect;
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 
 #[derive(Debug, Clone, PartialEq)]
 enum T { Kw(String), Id(String), Num(String), Str(Vec<u8>), Sym(char), Data(Vec<u8>), Rem(Vec<u8>) }
@@ -43,7 +43,7 @@ fn protect_atari(text: &str) -> (String, Vec<Vec<u8>>) {
     (out, tab)
 }
 
-fn lex(bytes: &[u8], d: &Dialect, atari: Option<&[Vec<u8>]>) -> Result<Vec<T>, String> {
+fn lex(bytes: &[u8], d: &Dialect, atari: Option<&[Vec<u8>]>) -> Result<Vec<T>, Msg> {
     let ph = |b: &[u8]| -> Vec<u8> {   // Platzhalter "#n" -> roher Text
         match atari { Some(t) => std::str::from_utf8(b).ok().and_then(|s| s.trim().strip_prefix('#')?.parse::<usize>().ok()).and_then(|n| t.get(n).cloned()).unwrap_or_else(|| b.to_vec()), None => b.to_vec() }
     };
@@ -75,7 +75,7 @@ fn lex(bytes: &[u8], d: &Dialect, atari: Option<&[Vec<u8>]>) -> Result<Vec<T>, S
                 }
                 continue;
             }
-            return Err(format!("unbekanntes Token ${b:02X}"));
+            return Err(msg!("diag-basic-e101-unknown-token", b = format!("{b:02X}")));
         }
         if b.is_ascii_uppercase() {
             let mut j = i;
@@ -105,7 +105,7 @@ fn lex(bytes: &[u8], d: &Dialect, atari: Option<&[Vec<u8>]>) -> Result<Vec<T>, S
             continue;
         }
         if matches!(b, b'(' | b')' | b',' | b';' | b':' | b'#') { out.push(T::Sym(b as char)); i += 1; continue; }
-        return Err(format!("unerwartetes Zeichen ${b:02X}"));
+        return Err(msg!("diag-basic-e101-unexpected-byte", b = format!("{b:02X}")));
     }
     Ok(out)
 }
@@ -114,7 +114,7 @@ const FUNCS: &[&str] = &["SGN", "INT", "ABS", "USR", "FRE", "POS", "SQR", "RND",
 /// Anweisungen, die der Parser als solche erkennt und als `Unsupported` weitergibt
 const OTHER_STMTS: &[&str] = &["LOAD", "SAVE", "VERIFY", "OPEN", "CLOSE", "CMD", "PRINT#", "INPUT#", "LIST", "NEW", "CONT"];
 
-type R<X> = Result<X, String>;
+type R<X> = Result<X, Msg>;
 
 struct P { t: Vec<T>, i: usize, atari: bool, turbo: bool }
 
@@ -131,13 +131,13 @@ impl P {
     fn is_sym(&self, c: char) -> bool { matches!(self.peek(), Some(T::Sym(x)) if *x == c) }
     fn eat_kw(&mut self, k: &str) -> bool { if self.is_kw(k) { self.i += 1; true } else { false } }
     fn eat_sym(&mut self, c: char) -> bool { if self.is_sym(c) { self.i += 1; true } else { false } }
-    fn want_sym(&mut self, c: char) -> R<()> { if self.eat_sym(c) { Ok(()) } else { Err(format!("'{c}' erwartet")) } }
+    fn want_sym(&mut self, c: char) -> R<()> { if self.eat_sym(c) { Ok(()) } else { Err(msg!("diag-basic-e103-sym-expected", c = c)) } }
     fn stmt_end(&self) -> bool { self.at_end() || self.is_sym(':') }
 
     fn line_no(&mut self) -> R<u32> {
         match self.next() {
-            Some(T::Num(s)) if s.chars().all(|c| c.is_ascii_digit()) => s.parse::<u32>().ok().filter(|n| *n <= 63999).ok_or_else(|| format!("Zeilennummer {s} ungültig")),
-            _ => Err("Zeilennummer erwartet".into()),
+            Some(T::Num(s)) if s.chars().all(|c| c.is_ascii_digit()) => s.parse::<u32>().ok().filter(|n| *n <= 63999).ok_or_else(|| msg!("diag-basic-e103-line-no-invalid", s = s)),
+            _ => Err(msg!("diag-basic-e103-line-no-expected")),
         }
     }
 
@@ -218,7 +218,7 @@ impl P {
         if self.eat_kw("-") { if self.is_kw("-") || self.is_kw("+") { return self.aunary(); } let e = self.aunary()?; return Ok(Expr::Un(UnOp::Neg, Box::new(e))); }
         if self.eat_kw("+") { return self.aunary(); }
         if self.eat_kw("NOT") {
-            if self.is_kw("-") || self.is_kw("+") { return Err("NOT mit einem Vorzeichen davor (NOT -1) ist in Atari-BASIC Fehler 11; Klammern setzen: NOT (-1)".into()); }
+            if self.is_kw("-") || self.is_kw("+") { return Err(msg!("diag-basic-e103-not-sign")); }
             let e = self.aunary()?; return Ok(Expr::Un(UnOp::Not, Box::new(e)));
         }
         self.primary()
@@ -248,28 +248,28 @@ impl P {
                 if self.is_sym('(') { Ok(Expr::Elem(v, self.args()?)) } else { Ok(Expr::Var(v)) }
             }
             Some(T::Kw(k)) if k == "FN" => {
-                let name = match self.next() { Some(T::Id(n)) => n, _ => return Err("Name nach FN erwartet".into()) };
+                let name = match self.next() { Some(T::Id(n)) => n, _ => return Err(msg!("diag-basic-e103-fn-name-expected")) };
                 let mut a = self.args()?;
-                if a.len() != 1 { return Err("FN erwartet genau ein Argument".into()); }
+                if a.len() != 1 { return Err(msg!("diag-basic-e103-fn-one-arg")); }
                 Ok(Expr::Fn(name, Box::new(a.remove(0))))
             }
             Some(T::Kw(k)) if self.turbo && (k == "INKEY$" || k == "TIME$") => Ok(Expr::Call(k, vec![])),
             // RAND(n) = INT(RND(0)*n)
             Some(T::Kw(k)) if self.turbo && k == "RAND" => {
                 let mut a = self.args()?;
-                if a.len() != 1 { return Err("RAND erwartet genau ein Argument".into()); }
+                if a.len() != 1 { return Err(msg!("diag-basic-e103-rand-one-arg")); }
                 Ok(Expr::Call("INT".into(), vec![Expr::Bin(BinOp::Mul, Box::new(Expr::Call("RND".into(), vec![Expr::Num(0)])), Box::new(a.remove(0)))]))
             }
             Some(T::Kw(k)) if FUNCS.contains(&k.as_str()) => Ok(Expr::Call(k, self.args()?)),
-            Some(T::Kw(k)) => Err(format!("{k} ist hier nicht erlaubt")),
-            Some(t) => Err(format!("Ausdruck erwartet, gefunden {t:?}")),
-            None => Err("Ausdruck erwartet".into()),
+            Some(T::Kw(k)) => Err(msg!("diag-basic-e103-kw-not-allowed", k = k)),
+            Some(t) => Err(msg!("diag-basic-e103-expr-expected-found", found = format!("{t:?}"))),
+            None => Err(msg!("diag-basic-e103-expr-expected")),
         }
     }
     fn lvalue(&mut self) -> R<LValue> {
         match self.next() {
             Some(T::Id(n)) => { let v = var_of(&n); if self.is_sym('(') { Ok(LValue::Elem(v, self.args()?)) } else { Ok(LValue::Var(v)) } }
-            _ => Err("Variable erwartet".into()),
+            _ => Err(msg!("diag-basic-e103-variable-expected")),
         }
     }
 
@@ -280,7 +280,7 @@ impl P {
             while self.eat_sym(':') {}
             if self.at_end() { return Ok(v); }
             v.push(self.stmt()?);
-            if !self.at_end() && !self.is_sym(':') { return Err(format!("unerwartet: {:?}", self.peek().unwrap())); }
+            if !self.at_end() && !self.is_sym(':') { return Err(msg!("diag-basic-e103-unexpected", found = format!("{:?}", self.peek().unwrap()))); }
         }
     }
     /// Anweisungen bis zum Zeilenende (für `THEN`)
@@ -298,19 +298,19 @@ impl P {
                 self.i -= 1;
                 let _ = n;
                 let target = self.lvalue()?;
-                if !self.eat_kw("=") { return Err("'=' erwartet".into()); }
+                if !self.eat_kw("=") { return Err(msg!("diag-basic-e103-equals-expected")); }
                 Ok(Stmt::Let { target, expr: self.expr()? })
             }
             Some(T::Rem(b)) => Ok(Stmt::Rem(b)),
             Some(T::Kw(k)) => self.keyword(&k),
-            Some(t) => Err(format!("Anweisung erwartet, gefunden {t:?}")),
-            None => Err("Anweisung erwartet".into()),
+            Some(t) => Err(msg!("diag-basic-e103-stmt-expected-found", found = format!("{t:?}"))),
+            None => Err(msg!("diag-basic-e103-stmt-expected")),
         }
     }
 
     fn keyword(&mut self, k: &str) -> R<Stmt> {
         Ok(match k {
-            "LET" => { let target = self.lvalue()?; if !self.eat_kw("=") { return Err("'=' erwartet".into()); } Stmt::Let { target, expr: self.expr()? } }
+            "LET" => { let target = self.lvalue()?; if !self.eat_kw("=") { return Err(msg!("diag-basic-e103-equals-expected")); } Stmt::Let { target, expr: self.expr()? } }
             "WHILE" => Stmt::Turbo(Struct::While(self.expr()?)),
             "UNTIL" => Stmt::Turbo(Struct::Until(self.expr()?)),
             "WEND" => Stmt::Turbo(Struct::Wend),
@@ -322,7 +322,7 @@ impl P {
             "ENDIF" => Stmt::Turbo(Struct::Endif),
             "ENDPROC" => Stmt::Turbo(Struct::Endproc),
             "PROC" | "EXEC" => {
-                let n = match self.next() { Some(T::Id(n)) => n, _ => return Err(format!("Name nach {k} erwartet")) };
+                let n = match self.next() { Some(T::Id(n)) => n, _ => return Err(msg!("diag-basic-e103-name-after-expected", k = k)) };
                 Stmt::Turbo(if k == "PROC" { Struct::Proc(n) } else { Struct::Exec(n) })
             }
             // Kanäle (CIO): OPEN #n,aux1,aux2,"name"; CLOSE #n; PUT #n,b; Turbo BASIC XL: BPUT/BGET #n,adresse,länge
@@ -349,28 +349,28 @@ impl P {
                 self.i += 1;
                 let mut args = vec![self.expr()?];
                 while self.eat_sym(',') { args.push(self.expr()?); }
-                if args.len() != 3 { return Err("-MOVE erwartet 3 Zahlen".into()); }
+                if args.len() != 3 { return Err(msg!("diag-basic-e103-move-three")); }
                 Stmt::Atari { op: "-MOVE".into(), args }
             }
             "DPOKE" | "PAUSE" | "MOVE" => {
                 let mut args = vec![self.expr()?];
                 while self.eat_sym(',') { args.push(self.expr()?); }
                 let want = match k { "PAUSE" => 1, "DPOKE" => 2, _ => 3 };
-                if args.len() != want { return Err(format!("{k} erwartet {want} Zahlen")); }
+                if args.len() != want { return Err(msg!("diag-basic-e103-numbers-expected", k = k, want = want)); }
                 Stmt::Atari { op: k.to_string(), args }
             }
             "FCOLOR" | "FILLTO" if self.turbo => {
                 let mut args = vec![self.expr()?];
                 while self.eat_sym(',') { args.push(self.expr()?); }
                 let want = if k == "FCOLOR" { 1 } else { 2 };
-                if args.len() != want { return Err(format!("{k} erwartet {want} Zahlen")); }
+                if args.len() != want { return Err(msg!("diag-basic-e103-numbers-expected", k = k, want = want)); }
                 Stmt::Atari { op: k.to_string(), args }
             }
             "GRAPHICS" | "COLOR" | "PLOT" | "DRAWTO" | "POSITION" | "SETCOLOR" | "SOUND" => {
                 let mut args = vec![self.expr()?];
                 while self.eat_sym(',') { args.push(self.expr()?); }
                 let want = match k { "GRAPHICS" | "COLOR" => 1, "PLOT" | "DRAWTO" | "POSITION" => 2, "SETCOLOR" => 3, _ => 4 };
-                if args.len() != want { return Err(format!("{k} erwartet {want} Zahlen")); }
+                if args.len() != want { return Err(msg!("diag-basic-e103-numbers-expected", k = k, want = want)); }
                 Stmt::Atari { op: k.to_string(), args }
             }
             "LOCATE" => {
@@ -380,7 +380,7 @@ impl P {
             "PRINT" | "PRINT#" if self.is_sym('#') || k == "PRINT#" => {
                 self.eat_sym('#');
                 let chan = self.expr()?;
-                if !self.eat_sym(';') && !self.eat_sym(',') { return Err("';' nach der Kanalnummer erwartet".into()); }
+                if !self.eat_sym(';') && !self.eat_sym(',') { return Err(msg!("diag-basic-e103-semicolon-channel")); }
                 let mut items = vec![];
                 while !self.stmt_end() {
                     if self.eat_sym(';') { items.push(PrintItem::Semi); }
@@ -401,7 +401,7 @@ impl P {
                 Stmt::Print { items }
             }
             "INPUT" => {
-                let prompt = if let Some(T::Str(b)) = self.peek().cloned() { self.i += 1; if !self.eat_sym(';') && !self.eat_sym(',') { return Err("';' nach dem Eingabetext erwartet".into()); } Some(b) } else { None };
+                let prompt = if let Some(T::Str(b)) = self.peek().cloned() { self.i += 1; if !self.eat_sym(';') && !self.eat_sym(',') { return Err(msg!("diag-basic-e103-semicolon-prompt")); } Some(b) } else { None };
                 let mut vars = vec![self.lvalue()?];
                 while self.eat_sym(',') { vars.push(self.lvalue()?); }
                 Stmt::Input { prompt, vars }
@@ -414,17 +414,17 @@ impl P {
             }
             "GET" => Stmt::Get(self.lvalue()?),
             "GOTO" => Stmt::Goto(self.line_no()?),
-            "GO" => { if !self.eat_kw("TO") { return Err("TO nach GO erwartet".into()); } Stmt::Goto(self.line_no()?) }
+            "GO" => { if !self.eat_kw("TO") { return Err(msg!("diag-basic-e103-to-after-go")); } Stmt::Goto(self.line_no()?) }
             "GOSUB" => Stmt::Gosub(self.line_no()?),
             "RETURN" => Stmt::Return,
             "ON" => {
                 let sel = self.expr()?;
                 if self.turbo && self.eat_kw("EXEC") {
                     let mut names = vec![];
-                    loop { match self.next() { Some(T::Id(n)) => names.push(n), _ => return Err("Prozedurname nach ON … EXEC erwartet".into()) } if !self.eat_sym(',') { break; } }
+                    loop { match self.next() { Some(T::Id(n)) => names.push(n), _ => return Err(msg!("diag-basic-e103-proc-name-on-exec")) } if !self.eat_sym(',') { break; } }
                     return Ok(Stmt::Turbo(Struct::OnExec(sel, names)));
                 }
-                let gosub = if self.eat_kw("GOSUB") { true } else if self.eat_kw("GOTO") { false } else if self.eat_kw("GO") { if !self.eat_kw("TO") { return Err("TO erwartet".into()); } false } else { return Err("GOTO oder GOSUB nach ON erwartet".into()); };
+                let gosub = if self.eat_kw("GOSUB") { true } else if self.eat_kw("GOTO") { false } else if self.eat_kw("GO") { if !self.eat_kw("TO") { return Err(msg!("diag-basic-e103-to-expected")); } false } else { return Err(msg!("diag-basic-e103-goto-gosub-after-on")); };
                 let targets = self.target_list()?;
                 if gosub { Stmt::OnGosub { sel, targets } } else { Stmt::OnGoto { sel, targets } }
             }
@@ -434,14 +434,14 @@ impl P {
                     if matches!(self.peek(), Some(T::Num(_))) { let n = self.line_no()?; let mut v = vec![Stmt::Goto(n)]; v.extend(self.rest()?); v } else { self.rest()? }
                 } else if self.eat_kw("GOTO") { let n = self.line_no()?; let mut v = vec![Stmt::Goto(n)]; v.extend(self.rest()?); v }
                 else if self.turbo && self.stmt_end() { return Ok(Stmt::Turbo(Struct::If(cond))); }   // Turbo BASIC XL: IF ohne THEN beginnt einen Block
-                else { return Err("THEN oder GOTO nach IF erwartet".into()) };
+                else { return Err(msg!("diag-basic-e103-then-or-goto")) };
                 Stmt::If { cond, then }
             }
             "FOR" => {
-                let var = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err("Schleifenvariable erwartet".into()) };
-                if !self.eat_kw("=") { return Err("'=' erwartet".into()); }
+                let var = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err(msg!("diag-basic-e103-loop-var-expected")) };
+                if !self.eat_kw("=") { return Err(msg!("diag-basic-e103-equals-expected")); }
                 let from = self.expr()?;
-                if !self.eat_kw("TO") { return Err("TO erwartet".into()); }
+                if !self.eat_kw("TO") { return Err(msg!("diag-basic-e103-to-expected")); }
                 let to = self.expr()?;
                 let step = if self.eat_kw("STEP") { Some(self.expr()?) } else { None };
                 Stmt::For { var, from, to, step }
@@ -454,7 +454,7 @@ impl P {
             "DIM" => {
                 let mut v = vec![];
                 loop {
-                    let n = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err("Feldname erwartet".into()) };
+                    let n = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err(msg!("diag-basic-e103-array-name-expected")) };
                     v.push((n, self.args()?));
                     if !self.eat_sym(',') { break; }
                 }
@@ -470,12 +470,12 @@ impl P {
             "SYS" => Stmt::Sys(self.expr()?),
             "WAIT" => { let a = self.expr()?; self.want_sym(',')?; let m = self.expr()?; let x = if self.eat_sym(',') { Some(self.expr()?) } else { None }; Stmt::Wait(a, m, x) }
             "DEF" => {
-                if !self.eat_kw("FN") { return Err("FN nach DEF erwartet".into()); }
-                let name = match self.next() { Some(T::Id(n)) => n, _ => return Err("Funktionsname nach FN erwartet".into()) };
+                if !self.eat_kw("FN") { return Err(msg!("diag-basic-e103-fn-after-def")); }
+                let name = match self.next() { Some(T::Id(n)) => n, _ => return Err(msg!("diag-basic-e103-fn-name-after-fn")) };
                 self.want_sym('(')?;
-                let param = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err("Parametername erwartet".into()) };
+                let param = match self.next() { Some(T::Id(n)) => var_of(&n), _ => return Err(msg!("diag-basic-e103-param-name-expected")) };
                 self.want_sym(')')?;
-                if !self.eat_kw("=") { return Err("'=' erwartet".into()); }
+                if !self.eat_kw("=") { return Err(msg!("diag-basic-e103-equals-expected")); }
                 Stmt::DefFn { name, param, body: self.expr()? }
             }
             "END" => Stmt::End,
@@ -483,7 +483,7 @@ impl P {
             "CLR" => Stmt::Clr,
             "RUN" => Stmt::Run(if matches!(self.peek(), Some(T::Num(_))) { Some(self.line_no()?) } else { None }),
             k if OTHER_STMTS.contains(&k) => { self.i = self.t.len().min(self.stmt_rest_end()); Stmt::Unsupported(k.to_string()) }
-            k => return Err(format!("{k} ist hier keine Anweisung")),
+            k => return Err(msg!("diag-basic-e103-not-a-statement", k = k)),
         })
     }
 
@@ -534,7 +534,7 @@ pub fn parse_numbered_with(numbered: &str, d: &Dialect, file: &str, atari: bool,
         let t = l.trim_start();
         if t.is_empty() || t.starts_with(';') { continue; }
         let digits: String = t.chars().take_while(char::is_ascii_digit).collect();
-        let Ok(num) = digits.parse::<u32>() else { errs.push(Diagnostic::error("E100", file, n + 1, "Zeile beginnt nicht mit einer Zeilennummer")); continue };
+        let Ok(num) = digits.parse::<u32>() else { errs.push(Diagnostic::error("E100", file, n + 1, msg!("diag-basic-e100-no-line-number"))); continue };
         let text = t[digits.len()..].trim_start().to_string();
         let (text_t, table) = if atari { protect_atari(&text) } else { (text.clone(), vec![]) };
         let bytes = match crate::tokenize_line(&text_t, d) { Ok(b) => b, Err(e) => { errs.push(Diagnostic::error("E100", file, n + 1, e)); continue } };
@@ -542,10 +542,10 @@ pub fn parse_numbered_with(numbered: &str, d: &Dialect, file: &str, atari: bool,
         let mut p = P { t: toks, i: 0, atari, turbo };
         match p.stmts() {
             Ok(stmts) => {
-                if lines.iter().any(|x| x.number == num) { errs.push(Diagnostic::error("E102", file, n + 1, format!("Zeilennummer {num} doppelt"))); continue; }
+                if lines.iter().any(|x| x.number == num) { errs.push(Diagnostic::error("E102", file, n + 1, msg!("diag-basic-e102-line-twice", num = num))); continue; }
                 lines.push(Line { number: num, src_line: n + 1, text, stmts });
             }
-            Err(e) => errs.push(Diagnostic::error("E103", file, n + 1, format!("Zeile {num}: {e}"))),
+            Err(e) => errs.push(Diagnostic::error("E103", file, n + 1, msg!("diag-basic-e103-line", num = num, e = e))),
         }
     }
     lines.sort_by_key(|l| l.number);

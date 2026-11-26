@@ -46,7 +46,7 @@ pub fn png_bytes(f: &Frame) -> Result<Vec<u8>, String> {
 
 pub fn save_png(f: &Frame, path: &Path) -> Result<(), String> {
     if let Some(d) = path.parent() { std::fs::create_dir_all(d).map_err(|e| format!("{}: {e}", d.display()))?; }
-    std::fs::write(path, png_bytes(f)?).map_err(|e| format!("{}: {e}", path.display()))
+    vc_core::atomar::schreiben(path, png_bytes(f)?).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// Schneidet den gezeichneten Bereich aus einem Emulatorbild: der Rahmen aus nicht schwarzen Punkten. Ist er kleiner als 40 % der Fläche
@@ -128,7 +128,7 @@ pub fn grab_frame(host: &str, password: Option<&str>, opts: StreamOptions, wait:
         svc.poll();
         if let Some(f) = feed.pump(10_000) { break Ok(f); }
         if let StreamState::Error(e) = svc.state(StreamKind::Video) { break Err(e.clone()); }
-        if t0.elapsed() > wait { break Err("Kein vollständiges Bild innerhalb der Wartezeit empfangen.".into()); }
+        if t0.elapsed() > wait { break Err(vc_i18n::t!("rest-livebild-wartezeit").to_string()); }
     };
     svc.stop_all();
     r

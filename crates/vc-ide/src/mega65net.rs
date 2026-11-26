@@ -17,7 +17,8 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 /// Kennzeichnung für Oberfläche, Hilfe und Meldungen
-pub const UNCHECKED: &str = "ungeprüft: noch nicht an einem MEGA65 getestet";
+/// Hinweis hinter den Meldungen der Ethernet-Anbindung, die noch nicht an einem echten MEGA65 geprüft ist
+pub fn unchecked() -> String { vc_i18n::t!("mega65net-ungeprueft-noch-nicht-an-einem-mega65-getestet") }
 
 /// Verbindung zum Gerät
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -30,7 +31,7 @@ pub enum Action { Start, Copy, Debug }
 impl Link {
     pub fn parse(s: &str) -> Option<Link> { match s.trim() { "usb" => Some(Link::Usb), "eth" => Some(Link::Eth), _ => None } }
     pub fn id(self) -> &'static str { match self { Link::Usb => "usb", Link::Eth => "eth" } }
-    pub fn label(self) -> &'static str { match self { Link::Usb => "USB", Link::Eth => "Ethernet" } }
+    pub fn label(self) -> String { match self { Link::Usb => "USB".to_string(), Link::Eth => vc_i18n::t!("mega65net-ethernet") } }
 }
 
 impl Machine {
@@ -57,7 +58,11 @@ pub struct Tools { pub etherload: Etherload, pub mega65_ftp: Ftp, pub hinweise: 
 const BUILTIN: &str = include_str!("../../../data/mega65/tools.json");
 
 impl Tools {
-    pub fn builtin() -> Tools { serde_json::from_str(BUILTIN).expect("data/mega65/tools.json") }
+    pub fn builtin() -> Tools {
+        let mut v: serde_json::Value = serde_json::from_str(BUILTIN).expect("data/mega65/tools.json");
+        vc_i18n::localize_json(&mut v, "mega65/tools.json");
+        serde_json::from_value(v).expect("data/mega65/tools.json")
+    }
     /// Ersatzdatei `mega65-tools.json` im Konfigurationsordner, sonst die eingebauten Vorlagen
     pub fn load() -> Tools {
         vc_core::userdirs::config_dir().map(|d| d.join("mega65-tools.json")).and_then(|p| std::fs::read_to_string(p).ok())
@@ -91,17 +96,17 @@ fn find_tool(configured: &str, exe: &str) -> Result<String, String> {
     let c = configured.trim();
     if !c.is_empty() {
         let p = expand_home(c);
-        return if Path::new(&p).is_file() { Ok(p) } else { Err(format!("{p}: nicht gefunden (Pfad unter Einstellungen → Hardware prüfen)")) };
+        return if Path::new(&p).is_file() { Ok(p) } else { Err(vc_i18n::t!("mega65net-p-nicht-gefunden-pfad-unter-einstellungen", p = &p)) };
     }
     vc_emu::find_program(exe, &["/opt/homebrew/bin", "/usr/local/bin"])
-        .ok_or_else(|| format!("{exe} nicht gefunden – Pfad unter Einstellungen → Hardware eintragen (Werkzeug aus dem Paket mega65-tools, Quelle: github.com/MEGA65/mega65-tools; die IDE liefert es nicht mit)"))
+        .ok_or_else(|| vc_i18n::t!("mega65net-exe-nicht-gefunden-pfad-unter-einstellungen", exe = &exe))
 }
 
 struct Out { code: Option<i32>, text: String }
 
 /// Startet ein Werkzeug und sammelt Ausgabe (stdout und stderr); nach `limit` wird es beendet
 fn run_tool(exe: &str, args: &[String], limit: Duration) -> Result<Out, String> {
-    let mut child = Command::new(exe).args(args).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| format!("{exe}: {e}"))?;
+    let mut child = Command::new(exe).args(args).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| vc_i18n::t!("mega65net-exe-e", exe = &exe, e = &e))?;
     let (tx, rx) = std::sync::mpsc::channel::<String>();
     let n = [child.stdout.take().map(|s| Box::new(s) as Box<dyn Read + Send>), child.stderr.take().map(|s| Box::new(s) as Box<dyn Read + Send>)].into_iter().flatten()
         .map(|mut r| { let tx = tx.clone(); std::thread::spawn(move || { let mut b = vec![]; let _ = r.read_to_end(&mut b); let _ = tx.send(String::from_utf8_lossy(&b).into_owned()); }); }).count();
@@ -115,7 +120,7 @@ fn run_tool(exe: &str, args: &[String], limit: Duration) -> Result<Out, String> 
     // Nach einem Abbruch kann ein Kindprozess die Pipes noch offen halten: nur kurz auf die Ausgabe warten
     let wait = if status.is_some() { Duration::from_secs(5) } else { Duration::from_millis(300) };
     let text = (0..n).filter_map(|_| rx.recv_timeout(wait).ok()).collect::<Vec<_>>().join("\n");
-    match status { Some(s) => Ok(Out { code: s.code(), text }), None => Err(format!("keine Antwort innerhalb von {} s; Ausgabe: {}", limit.as_secs(), tail(&text))) }
+    match status { Some(s) => Ok(Out { code: s.code(), text }), None => Err(vc_i18n::t!("mega65net-keine-antwort-innerhalb-von-p1-s", p1 = limit.as_secs(), p2 = tail(&text))) }
 }
 
 fn tail(t: &str) -> String {
@@ -133,16 +138,16 @@ fn hint(tools: &Tools, text: &str) -> String {
 fn check(tools: &Tools, what: &str, r: Result<Out, String>) -> Result<String, String> {
     match r {
         Ok(o) if o.code == Some(0) => Ok(tail(&o.text)),
-        Ok(o) => Err(format!("{what} endete mit {} ({}) [{UNCHECKED}]\n{}", o.code.map_or("Signal".to_string(), |c| format!("Code {c}")), tail(&o.text), hint(tools, &o.text))),
-        Err(e) => Err(format!("{what}: {e}\n{} [{UNCHECKED}]", tools.hinweise.nicht_erreichbar)),
+        Ok(o) => Err(vc_i18n::t!("mega65net-what-endete-mit-p2-p3-unchecked", what = &what, p2 = o.code.map_or(vc_i18n::t!("mega65net-signal").to_string(), |c| vc_i18n::t!("mega65net-code-c", c = &c)), p3 = tail(&o.text), UNCHECKED = unchecked(), p5 = hint(tools, &o.text))),
+        Err(e) => Err(vc_i18n::t!("mega65net-what-e-p3-unchecked", what = &what, e = &e, p3 = &tools.hinweise.nicht_erreichbar, UNCHECKED = unchecked())),
     }
 }
 
-fn is_mega65(m: &Machine) -> Result<(), String> { if m.kind == "mega65" { Ok(()) } else { Err("Ethernet-Übertragung gibt es nur für den MEGA65".into()) } }
+fn is_mega65(m: &Machine) -> Result<(), String> { if m.kind == "mega65" { Ok(()) } else { Err(vc_i18n::t!("mega65net-ethernet-uebertragung-gibt-es-nur-fuer").into()) } }
 
 fn plain_name(p: &Path) -> Result<String, String> {
-    let n = p.file_name().map(|n| n.to_string_lossy().into_owned()).ok_or_else(|| format!("{}: kein Dateiname", p.display()))?;
-    if n.contains(char::is_whitespace) || n.contains('"') { return Err(format!("{n}: Dateiname mit Leerzeichen oder Anführungszeichen lässt sich nicht an mega65_ftp übergeben – bitte umbenennen")); }
+    let n = p.file_name().map(|n| n.to_string_lossy().into_owned()).ok_or_else(|| vc_i18n::t!("mega65net-p1-kein-dateiname", p1 = p.display()))?;
+    if n.contains(char::is_whitespace) || n.contains('"') { return Err(vc_i18n::t!("mega65net-n-dateiname-mit-leerzeichen-oder-anfuehrungszeichen", n = &n)); }
     Ok(n)
 }
 
@@ -162,7 +167,7 @@ pub fn start_with(tools: &Tools, m: &Machine, prg: &Path) -> Result<String, Stri
     let tpl = if m.run_after { &tools.etherload.run } else { &tools.etherload.load };
     let args = expand(tpl, &[("file", &prg.to_string_lossy())], &iface_args(&tools.etherload.iface_args, m));
     let out = check(tools, "etherload", run_tool(&exe, &args, Duration::from_secs(tools.etherload.timeout_s)))?;
-    Ok(format!("{}: Programm über Ethernet {} ({UNCHECKED})\n{exe} {}{}", who(m), if m.run_after { "gestartet" } else { "geladen" }, args.join(" "), if out.is_empty() { String::new() } else { format!("\n{out}") }))
+    Ok(vc_i18n::t!("mega65net-p1-programm-ueber-ethernet-p2-unchecked", p1 = who(m), p2 = if m.run_after { vc_i18n::t!("mega65net-gestartet") } else { vc_i18n::t!("mega65net-geladen") }, UNCHECKED = unchecked(), exe = &exe, p5 = args.join(" "), p6 = if out.is_empty() { String::new() } else { format!("\n{out}") }))
 }
 
 /// Diskimage per `mega65_ftp` auf die SD-Karte kopieren; liefert den Pfad auf der Karte. UNGEPRÜFT.
@@ -170,15 +175,15 @@ pub fn copy(m: &Machine, image: &Path) -> Result<String, String> { copy_with(&To
 pub fn copy_with(tools: &Tools, m: &Machine, image: &Path) -> Result<String, String> {
     is_mega65(m)?;
     if m.link_for(Action::Copy) != Link::Eth {
-        return Err("Kopieren auf die SD-Karte geht nur über Ethernet (eine eigene USB-Übertragung ist zurückgestellt). Unter Einstellungen → Hardware die Verbindung „Kopieren“ auf Ethernet stellen.".into());
+        return Err(vc_i18n::t!("mega65net-kopieren-auf-die-sd-karte-geht").into());
     }
-    if !image.is_file() { return Err(format!("{}: Datei nicht gefunden (erst bauen)", image.display())); }
+    if !image.is_file() { return Err(vc_i18n::t!("mega65net-p1-datei-nicht-gefunden-erst-bauen", p1 = image.display())); }
     let name = plain_name(image)?;
     let local = image.parent().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|| ".".into());
     let exe = find_tool(&m.ftp_tool, &tools.mega65_ftp.exe)?;
     let ia = iface_args(&tools.mega65_ftp.iface_args, m);
     let dir = sd_folder(m);
-    if dir.contains(char::is_whitespace) { return Err(format!("SD-Ordner „{dir}“ enthält Leerzeichen – bitte ändern")); }
+    if dir.contains(char::is_whitespace) { return Err(vc_i18n::t!("mega65net-sd-ordner-dir-enthaelt-leerzeichen-bitte", dir = &dir)); }
     let call = |cmds: &[String], vars: &[(&str, &str)]| -> Vec<String> {
         let mut a = expand(&tools.mega65_ftp.base, vars, &ia);
         for c in cmds { a.push("-c".into()); a.push(fill(c, vars)); }
@@ -203,7 +208,7 @@ pub fn mount_with(tools: &Tools, m: &Machine, sd_image: &str) -> Result<String, 
     let exe = find_tool(&m.etherload, &tools.etherload.exe)?;
     let args = expand(&tools.etherload.mount, &[("image", sd_image)], &iface_args(&tools.etherload.iface_args, m));
     check(tools, "etherload", run_tool(&exe, &args, Duration::from_secs(tools.etherload.timeout_s)))?;
-    Ok(format!("{}: {sd_image} eingebunden ({UNCHECKED})", who(m)))
+    Ok(vc_i18n::t!("mega65net-p1-sd-image-eingebunden-unchecked", p1 = who(m), sd_image = &sd_image, UNCHECKED = unchecked()))
 }
 
 /// Diskette kopieren und einbinden. UNGEPRÜFT.
@@ -211,7 +216,7 @@ pub fn copy_and_mount(m: &Machine, image: &Path) -> Result<String, String> { cop
 pub fn copy_and_mount_with(tools: &Tools, m: &Machine, image: &Path) -> Result<String, String> {
     let sd = copy_with(tools, m, image)?;
     let r = mount_with(tools, m, &sd)?;
-    Ok(format!("{}: {} kopiert nach {sd}; {r}", who(m), image.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()))
+    Ok(vc_i18n::t!("mega65net-p1-p2-kopiert-nach-sd-r", p1 = who(m), p2 = image.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default(), sd = &sd, r = &r))
 }
 
 /// Diskette kopieren, einbinden und das Programm `prg` starten. UNGEPRÜFT.
@@ -221,7 +226,7 @@ pub fn start_disk_with(tools: &Tools, m: &Machine, image: &Path, prg: &Path) -> 
     let exe = find_tool(&m.etherload, &tools.etherload.exe)?;
     let args = expand(&tools.etherload.mount_run, &[("image", &sd), ("file", &prg.to_string_lossy())], &iface_args(&tools.etherload.iface_args, m));
     check(tools, "etherload", run_tool(&exe, &args, Duration::from_secs(tools.etherload.timeout_s)))?;
-    Ok(format!("{}: Diskette nach {sd} kopiert, eingebunden und Programm gestartet ({UNCHECKED})", who(m)))
+    Ok(vc_i18n::t!("mega65net-p1-diskette-nach-sd-kopiert-eingebunden", p1 = who(m), sd = &sd, UNCHECKED = unchecked()))
 }
 
 /// Verbindungstest über Ethernet: beide Werkzeuge vorhanden, `mega65_ftp dir` antwortet. UNGEPRÜFT.
@@ -233,5 +238,5 @@ pub fn test_with(tools: &Tools, m: &Machine) -> Result<String, String> {
     let mut args = expand(&tools.mega65_ftp.base, &[], &iface_args(&tools.mega65_ftp.iface_args, m));
     for c in &tools.mega65_ftp.dir { args.push("-c".into()); args.push(c.clone()); }
     check(tools, "mega65_ftp", run_tool(&ftp, &args, Duration::from_secs(tools.mega65_ftp.test_timeout_s)))?;
-    Ok(format!("Ethernet: Werkzeuge gefunden ({el}, {ftp}), MEGA65 antwortet ({UNCHECKED})"))
+    Ok(vc_i18n::t!("mega65net-ethernet-werkzeuge-gefunden-el-ftp-mega65", el = &el, ftp = &ftp, UNCHECKED = unchecked()))
 }

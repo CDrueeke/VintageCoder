@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: tests_demo",
+    "description": "Tests with vcc test: static checks (size, zero page, overlap, cycle range), tests in the emulator and mailbox self-test"
+  },
+  "targets": [ { "id": "c64", "system": "c64", "variant": "pal", "cpu": "6510", "illegals": "deny", "emulator": "vice" } ],
+  "sources": [ { "targets": [ "c64" ], "kind": "asm", "files": [ "tests_demo.asm", "tests_mailbox.asm" ] } ],
+  "main": "tests_demo.asm"
+}

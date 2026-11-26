@@ -287,17 +287,17 @@ pub fn calc(expr: &str) -> Result<i64, String> {
         if c == '>' && ch.get(i + 1) == Some(&'>') { t.push(T::Op(">>")); i += 2; continue; }
         if c.is_ascii_alphabetic() {
             let w: String = ch[i..].iter().take_while(|x| x.is_ascii_alphabetic()).collect::<String>().to_ascii_uppercase();
-            match w.as_str() { "AND" => t.push(T::Op("&")), "OR" => t.push(T::Op("|")), "XOR" => t.push(T::Op("^")), _ => return Err(format!("unbekanntes Wort {w}")) }
+            match w.as_str() { "AND" => t.push(T::Op("&")), "OR" => t.push(T::Op("|")), "XOR" => t.push(T::Op("^")), _ => return Err(vc_i18n::t!("basic-calc-unknown-word", w = w.as_str())) }
             i += w.len(); continue;
         }
         if c == '$' || c == '%' || c.is_ascii_digit() {
             let st = i; i += 1;
             while i < ch.len() && (ch[i].is_ascii_alphanumeric() || ch[i] == '_') { i += 1; }
             let s: String = ch[st..i].iter().collect();
-            t.push(T::N(parse_number(&s).ok_or(format!("ungültige Zahl {s}"))?));
+            t.push(T::N(parse_number(&s).ok_or_else(|| vc_i18n::t!("basic-calc-bad-number", s = s.as_str()))?));
             continue;
         }
-        return Err(format!("unerwartetes Zeichen '{c}'"));
+        return Err(vc_i18n::t!("basic-calc-unexpected-char", c = c));
     }
     struct P { t: Vec<T>, i: usize }
     impl P {
@@ -307,8 +307,8 @@ pub fn calc(expr: &str) -> Result<i64, String> {
                 Some(T::Op("-")) => { self.i += 1; Ok(-self.unary()?) }
                 Some(T::Op("+")) => { self.i += 1; self.unary() }
                 Some(T::N(v)) => { self.i += 1; Ok(v) }
-                Some(T::L) => { self.i += 1; let v = self.expr(0)?; if self.t.get(self.i) != Some(&T::R) { return Err("')' fehlt".into()); } self.i += 1; Ok(v) }
-                _ => Err("Zahl erwartet".into()),
+                Some(T::L) => { self.i += 1; let v = self.expr(0)?; if self.t.get(self.i) != Some(&T::R) { return Err(vc_i18n::t!("basic-calc-rparen-missing")); } self.i += 1; Ok(v) }
+                _ => Err(vc_i18n::t!("basic-calc-number-expected")),
             }
         }
         fn expr(&mut self, min: u8) -> Result<i64, String> {
@@ -319,19 +319,19 @@ pub fn calc(expr: &str) -> Result<i64, String> {
                 self.i += 1;
                 let r = self.expr(p + 1)?;
                 l = match op {
-                    "+" => l.checked_add(r).ok_or("Überlauf")?, "-" => l.checked_sub(r).ok_or("Überlauf")?, "*" => l.checked_mul(r).ok_or("Überlauf")?,
-                    "/" => { if r == 0 { return Err("Division durch 0".into()); } l / r }
-                    "<<" => { if !(0..64).contains(&r) { return Err("Schiebeweite 0–63".into()); } l.checked_shl(r as u32).ok_or("Überlauf")? }
-                    ">>" => { if !(0..64).contains(&r) { return Err("Schiebeweite 0–63".into()); } l >> r }
+                    "+" => l.checked_add(r).ok_or_else(|| vc_i18n::t!("basic-calc-overflow"))?, "-" => l.checked_sub(r).ok_or_else(|| vc_i18n::t!("basic-calc-overflow"))?, "*" => l.checked_mul(r).ok_or_else(|| vc_i18n::t!("basic-calc-overflow"))?,
+                    "/" => { if r == 0 { return Err(vc_i18n::t!("basic-calc-div-zero")); } l / r }
+                    "<<" => { if !(0..64).contains(&r) { return Err(vc_i18n::t!("basic-calc-shift-range")); } l.checked_shl(r as u32).ok_or_else(|| vc_i18n::t!("basic-calc-overflow"))? }
+                    ">>" => { if !(0..64).contains(&r) { return Err(vc_i18n::t!("basic-calc-shift-range")); } l >> r }
                     "&" => l & r, "|" => l | r, _ => l ^ r,
                 };
             }
             Ok(l)
         }
     }
-    if t.is_empty() { return Err("leer".into()); }
+    if t.is_empty() { return Err(vc_i18n::t!("basic-calc-empty")); }
     let mut p = P { t, i: 0 };
     let v = p.expr(0)?;
-    if p.i != p.t.len() { return Err("Rest nach dem Ausdruck".into()); }
+    if p.i != p.t.len() { return Err(vc_i18n::t!("basic-calc-trailing")); }
     Ok(v)
 }

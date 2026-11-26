@@ -6,7 +6,11 @@ use vc_target::load_cpu;
 
 fn data() -> PathBuf { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data") }
 fn build(cpu: &str, src: &str) -> Result<Output, String> {
-    assemble(src, &load_cpu(&data(), cpu).unwrap(), &Options::new("t.asm", Policy::Allow)).map_err(|e| format!("{} {}", e[0].code, e[0].message))
+    assemble(src, &load_cpu(&data(), cpu).unwrap(), &Options::new("t.asm", Policy::Allow)).map_err(|e| format!("{} {}", e[0].code, e[0].key))
+}
+/// Erste Meldung eines fehlgeschlagenen Baus (Code, Schlüssel und Parameter statt Wortlaut prüfen)
+fn first_diag(cpu: &str, src: &str) -> vc_core::Diagnostic {
+    assemble(src, &load_cpu(&data(), cpu).unwrap(), &Options::new("t.asm", Policy::Allow)).unwrap_err().remove(0)
 }
 fn be32(b: &[u8], o: usize) -> u32 { u32::from_be_bytes([b[o], b[o + 1], b[o + 2], b[o + 3]]) }
 
@@ -17,7 +21,7 @@ fn banks_have_separate_address_spaces() {
     let b = |n: u32| o.segments.iter().filter(|s| s.bank == n).flat_map(|s| s.bytes.clone()).collect::<Vec<u8>>();
     assert_eq!((b(0), b(1)), (vec![1, 2, 9], vec![3]), "Bank 0 setzt hinter der letzten Position fort");
     assert!(build("6510", ".bank 0\n.org $8000\n.byte 1,2\n.org $8001\n.byte 5\n").unwrap_err().starts_with("E301"));
-    assert!(to_prg(&o).unwrap_err().contains("Bänke") && to_bin(&o).is_err() && to_xex(&o).is_err());
+    assert!(to_prg(&o).unwrap_err().key == "asm-out-banks" && to_bin(&o).is_err() && to_xex(&o).is_err());
     assert!(build("6510", ".bank 2000\n").unwrap_err().starts_with("E203"));
 }
 
@@ -25,7 +29,8 @@ fn banks_have_separate_address_spaces() {
 fn named_segments_check_their_range() {
     let ok = build("6510", ".segment \"CODE\", $8000, $8003\n.org $8000\n.byte 1,2,3,4\n").unwrap();
     assert_eq!(ok.segments[0].name, "CODE");
-    assert!(build("6510", ".segment \"CODE\", $8000, $8003\n.org $8000\n.byte 1,2,3,4,5\n").unwrap_err().contains("CODE"));
+    let d = first_diag("6510", ".segment \"CODE\", $8000, $8003\n.org $8000\n.byte 1,2,3,4,5\n");
+    assert_eq!((d.code, d.key, d.arg_text("name").as_str()), ("E301", "diag-asm-e301-segment-range", "CODE"));
     assert!(build("6510", ".segment \"DATA\", $9000, $9fff\n.org $8000\n.byte 1\n").unwrap_err().starts_with("E301"));
     // unter .pseudopc zählt die echte Adresse
     assert!(build("6510", ".segment \"ROM\", $8000, $8fff\n.org $8000\n.pseudopc $c000\n nop\n.endpseudopc\n").is_ok());
@@ -72,7 +77,7 @@ fn atari_car_and_xegs() {
     assert_eq!(&rom[0x1FF9..], &[0x60, 0x00, 0xA0, 0x00, 0x04, 0xF9, 0xBF], "RTS, Run, Flag, Option, Init");
     assert_eq!(to_rom(&o, None).unwrap(), rom);
     assert_eq!(be32(&to_car(&build("sally", ".org $8000\n nop\n.org $a000\n nop\n.run $a000\n").unwrap(), None).unwrap(), 4), 2, "16K");
-    assert!(to_car(&build("sally", ".org $a000\n nop\n").unwrap(), None).unwrap_err().contains("Startadresse"));
+    assert!(to_car(&build("sally", ".org $a000\n nop\n").unwrap(), None).unwrap_err().key == "asm-cart-atari-run");
     // eigene Vektoren werden nicht überschrieben
     let own = build("sally", ".org $a000\n nop\n.org $bffa\n.word $a000\n.byte 0,0\n.word $a000\n").unwrap();
     assert_eq!(&to_rom(&own, None).unwrap()[0x1FFA..0x1FFC], &[0x00, 0xA0]);
@@ -97,7 +102,7 @@ fn easyflash_actionreplay_and_ultimax() {
     let second = 0x40 + 16 + 0x2000;
     assert_eq!(&ef[second + 0x0C..second + 0x10], &[0xA0, 0, 0x20, 0], "ROMH im CRT bei $A000");
     assert_eq!(ef[second + 0x10], 0x4C, "jmp reset ($E000)");
-    assert!(to_crt(&build("6510", ".bank 0\n.org $8000\n.byte 1\n").unwrap(), Some("easyflash")).unwrap_err().contains("ROMH"));
+    assert!(to_crt(&build("6510", ".bank 0\n.org $8000\n.byte 1\n").unwrap(), Some("easyflash")).unwrap_err().key == "asm-cart-easyflash-bank0-romh");
     // Action Replay: immer vier Bänke, EXROM 0 / GAME 1
     let ar = to_crt(&build("6510", ".bank 2\n.org $8000\n.byte 7\n").unwrap(), Some("actionreplay")).unwrap();
     assert_eq!((ar[0x16], ar[0x17], ar[0x18], ar[0x19]), (0, 1, 0, 1)); assert_eq!(ar.len(), 0x40 + 4 * (16 + 0x2000));
@@ -130,7 +135,7 @@ fn vic20_cartridge_images() {
     assert_eq!(&img[..11], &[0x09, 0xA0, 0x09, 0xA0, 0x41, 0x30, 0xC3, 0xC2, 0xCD, 0x60, 0xFF], "Vektoren, Kennung A0CBM, Code, danach $FF");
     // Kennung fehlt: Fehler (sonst startet das System das Modul nicht)
     let bad = build("nmos6502", ".org $A000\n.word 0,0\n.byte 1,2,3,4,5\n").unwrap();
-    assert!(to_vic20_cart(&bad, None).unwrap_err().contains("A0CBM"));
+    assert!(to_vic20_cart(&bad, None).unwrap_err().key == "asm-cart-vic20-id");
     // andere Blöcke: keine Kennung nötig, Endung = Block
     for (kind, org) in [("20", 0x2000), ("40", 0x4000), ("60", 0x6000)] {
         let o = build("nmos6502", &format!(".org ${org:04X}\nrts\n")).unwrap();
@@ -139,7 +144,7 @@ fn vic20_cartridge_images() {
     }
     // Code im falschen Block, unbekannter Typ, Bänke
     let o = build("nmos6502", ".org $4000\nrts\n").unwrap();
-    assert!(to_vic20_cart(&o, Some("20")).is_err() && to_vic20_cart(&o, Some("77")).unwrap_err().contains("unbekannter"));
+    assert!(to_vic20_cart(&o, Some("20")).is_err() && { let e = to_vic20_cart(&o, Some("77")).unwrap_err(); (e.key, e.arg_text("kind")) == ("asm-cart-unknown-type-vic20", "77".to_string()) });
     let o = build("nmos6502", ".bank 1\n.org $A000\nrts\n").unwrap();
-    assert!(to_vic20_cart(&o, Some("a0")).unwrap_err().contains("Bänke"));
+    assert!(to_vic20_cart(&o, Some("a0")).unwrap_err().key == "asm-cart-vic20-banks");
 }

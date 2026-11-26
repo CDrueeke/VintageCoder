@@ -1,0 +1,25 @@
+{
+ "source": "charsets/ausnahmen.json",
+ "entries": {
+  "/klassen/block": {
+   "de": "Viertel- und Halbblöcke: Vereinigung der vier 4×4-Ecken",
+   "en": "Quarter and half blocks: union of the four 4x4 corners",
+   "status": "maschinell"
+  },
+  "/klassen/balken": {
+   "de": "Balken: volle Zeilen oder Spalten, die an einem Rand oder in der Mitte durchgehen",
+   "en": "Bars: full rows or columns that run along an edge or through the middle",
+   "status": "maschinell"
+  },
+  "/klassen/muster": {
+   "de": "Raster 25 %, 50 %, 75 %, Raster in einer Hälfte, Schrägschraffur; auch als Negativ",
+   "en": "Dither patterns 25%, 50%, 75%, patterns in one half, diagonal hatching; also as negative",
+   "status": "maschinell"
+  },
+  "/klassen/geometrisch": {
+   "de": "geometrisch erzwungen (Nachbarzellen müssen nahtlos anschließen): Linien, Rahmen, Ecken, T-Stücke, Kreuze, Dreiecke, Diagonalen; auch als Negativ",
+   "en": "geometrically forced (neighboring cells must join seamlessly): lines, frames, corners, T pieces, crosses, triangles, diagonals; also as negative",
+   "status": "maschinell"
+  }
+ }
+}

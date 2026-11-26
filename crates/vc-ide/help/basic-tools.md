@@ -2,19 +2,20 @@
 
 Diese Seite zeigt, was der Editor für BASIC tut, wie du Programme tokenisierst und zurücklesen kannst, wie `basic2asm` ein BASIC-Programm in Assembler umwandelt und wie du Fehler findest. Sie gehört zum [BASIC-Handbuch](help:basic).
 
-## Hilfe zu einem Wort: F1
+## Hilfe zu einem Wort
 
-Setze den Cursor auf ein BASIC-Wort (`poke`, `for`, `restore` …) und drücke **F1** (oder wähle im Rechtsklick-Menü „Hilfe zum Wort“). Es erscheint eine kurze Erklärung mit einem Beispiel. Die Texte stammen aus der Datenbank `data/help/basic_keywords.json`; sie umfasst die häufigsten Wörter von BASIC V2 und Atari BASIC. Zu Wörtern ohne Eintrag (viele Befehle von BASIC 7.0 oder 65) zeigt die Hilfe die Suche über alle Seiten.
+Zeige mit der Maus auf ein BASIC-Wort (`poke`, `for`, `restore` …) und warte einen Moment: Es erscheint eine Karte mit einer kurzen Erklärung, soweit es zu dem Wort eine gibt. Liegt an der Stelle ein Problem, steht seine Meldung auf derselben Karte, bei Bedarf mit einem Vorschlag zum Korrigieren. Die Texte stammen aus der Datenbank `data/help/basic_keywords.json`; sie umfasst die häufigsten Wörter von BASIC V2 und Atari BASIC. Ein Tastenkürzel „Hilfe zum Wort“ (früher F1) gibt es in dieser Oberfläche noch nicht.
 
-Die Suche im Hilfefenster findet Befehle, Seiten und Fehlercodes: Tippe `B110` oder `longnames` und du landest auf der passenden Seite.
+Die Suche in der Hilfe findet Befehle, Seiten und Fehlercodes: Tippe `B110` oder `longnames` und du landest auf der passenden Seite.
 
 ## Der Editor
 
 - **Zeilennummern:** Die Nummer, die eine Zeile ohne eigene Nummer beim Bauen bekommt (10, 20, …), zeigt der Editor in dieser Version noch nicht an; sie steht in `build/<name>.classic.txt`. Der Rand zeigt die Zeilennummern der Quelldatei. Siehe [Sprungmarken](help:basic-labels).
 - **Hover:** Hältst du die Maus über eine Zahl, zeigt ein Hinweis ihren Wert in den üblichen Schreibweisen (bei Adressen auch das Chipregister). Über einem **langen Variablennamen** zeigt er den Kurznamen, den der Bau daraus macht (siehe [Lange Namen](help:basic-names)).
-- **Zeile beim Verlassen formatieren:** Eine bearbeitete Zeile wird beim Verlassen aufgeräumt: ein Leerzeichen hinter der Zeilennummer, Mehrfachleerzeichen außerhalb von Zeichenketten werden zu einem. Der Text hinter `REM` bleibt, wie er ist. Abschalten: **Einstellungen ▸ Editor ▸ Zeile beim Verlassen formatieren**; auf Befehl: **Bearbeiten ▸ Formatieren ▸ Zeile formatieren** und **Datei formatieren**.
+- **Zeile beim Verlassen formatieren:** Eine bearbeitete Zeile wird beim Verlassen aufgeräumt: ein Leerzeichen hinter der Zeilennummer, Mehrfachleerzeichen außerhalb von Zeichenketten werden zu einem. Der Text hinter `REM` bleibt, wie er ist. Auf Befehl: **Bearbeiten ▸ Formatieren ▸ Zeile formatieren** und **Datei formatieren**.
 - **`#include`-Zeilen:** Die eingebundene Datei öffnest du im Projektbaum. Einen Menüeintrag „Datei öffnen“ oder einen Doppelklick auf den Dateinamen gibt es in dieser Version nicht; ein Auskommentieren ganzer Zeilen per Menü ebenfalls nicht.
-- **Fehler:** Meldungen des Baus erscheinen im Reiter **Probleme** der Schublade und als Markierung an der Zeile. Bei eingebundenen Dateien zeigt die Meldung auf die richtige Datei und Zeile (siehe [Direktiven](help:basic-directives)).
+- **Umwandeln:** Das Menü **Bearbeiten ▸ Zahlen und BASIC** und das Rechtsklick-Menü einer BASIC-Datei bieten **In Labels umwandeln …**, **In Nummern umwandeln …** und **Neu nummerieren …** (siehe [Sprungmarken](help:basic-labels)).
+- **Fehler:** Meldungen des Baus und der Syntaxprüfung erscheinen im Reiter **Probleme** in der Ablage unter dem Editor und als Markierung an der Zeile. Bei eingebundenen Dateien zeigt die Meldung auf die richtige Datei und Zeile (siehe [Direktiven](help:basic-directives)).
 
 ## Was beim Bauen entsteht
 
@@ -24,7 +25,8 @@ Die Suche im Hilfefenster findet Befehle, Seiten und Fehlercodes: Tippe `B110` o
 | `<name>.classic.txt` | das fertige Programm als Text mit Zeilennummern, aus dem Programm zurückgelesen |
 | `<name>.labels.txt` | Marke ↔ Zeilennummer (nur, wenn es Marken gibt) |
 | `<name>.vars.txt` | lange Namen ↔ Kurznamen (nur mit `#longnames`) |
-| `export/<name>.data.bas` | Assets als DATA-Zeilen (nur, wenn ein `#include` sie verlangt) |
+
+Eingebundene Medien (Sprites, Zeichensätze, Songs) werden im Ordner `build/.media-cache/` zwischengespeichert; er darf jederzeit gelöscht werden (siehe [Direktiven](help:basic-directives)).
 
 `<name>.classic.txt` ist das beste Werkzeug zum Prüfen: So sieht das Gerät dein Programm. Die Schlüsselwörter erscheinen dort klein geschrieben (Commodore) bzw. groß (Atari).
 
@@ -39,7 +41,9 @@ vcc basic --tokenize liste.lst --target c64 -o liste.prg
 ```
 
 - `vcc basic datei.bas` (auch `.lst`) baut ein Programm im nativen Dialekt des Ziels mit allem, was auf diesen Seiten steht (Marken, Direktiven, lange Namen). Es druckt `@name = Zeile n` für jede Marke und, mit `#longnames`, die Zuordnungstabelle.
-- `--target c64|c128|plus4|mega65|vic20|atari8` wählt das System, `--dialect ID` den Dialekt (z. B. `turbo_basic_xl`), `--memory 8k` den VC-20-Speicherausbau, `--start` und `--step` Startnummer und Schrittweite.
+- `--target c64|c128|plus4|mega65|vic20|atari8` wählt das System, `--dialect ID` den Dialekt (z. B. `turbo_basic_xl`), `--memory 8k` den VC-20-Speicherausbau, `--start` und `--step` Startnummer und Schrittweite, `-D NAME=wert` setzt eine Konstante wie `#define`, `--compact` entfernt überflüssige Leerzeichen (nur Commodore). `vcc basic` löst `#include` auf, auch Mediendateien (Projektordner ist der nächste Ordner mit einer Projektdatei).
+- `--check` prüft nur und gibt die Warnungen der Syntaxprüfung aus (B150 bis B159 und B167), ohne eine Datei zu schreiben; `--no-check` schaltet die Prüfung beim Übersetzen aus, `--disable B152,B154` einzelne Warnungen. Fehler lassen sich nicht abschalten.
+- `--to-labels`, `--to-numbers` und `--renumber` wandeln Nummern und Labels um (siehe [Sprungmarken](help:basic-labels)).
 - `--detokenize` liest ein Programm (PRG oder Atari-SAVE-Datei) und druckt das Listing. Für Atari-Dateien gibst du `--target atari8` an.
 - `--tokenize` übersetzt ein **klassisch nummeriertes** Listing, ohne Marken und ohne Direktiven. Zeilen ohne Nummer sind dort Fehler (**B100**, `Zeile beginnt nicht mit einer Zeilennummer`). Dieser Weg wandelt keine Hex- und Binärzahlen um (das macht nur das native BASIC); steht `$FF` oder `%1010` in einem Dialekt ohne solche Zahlen, warnt er (**B140**).
 - `--suggest-hex` listet Dezimaladressen, die ein Chipregister des Zielsystems sind und als Hex lesbarer wären (nur Argumente von `POKE`, `PEEK`, `SYS`, `WAIT`, `USR`). Mit `--apply 1,3 -o neu.bas` schreibt es die gewählten Vorschläge in eine neue Datei; ohne `--apply` ändert es nichts.
@@ -48,9 +52,9 @@ Beim Zurücklesen erscheinen die Schlüsselwörter klein (Commodore) bzw. groß 
 
 ## BASIC in Assembler umwandeln: basic2asm
 
-`basic2asm` übersetzt ein BASIC-Programm in lesbaren **Assembler-Quelltext**. Das Programm läuft danach nicht mehr im BASIC-Interpreter, sondern als Maschinenprogramm: schneller, und du kannst jede Zeile ansehen, anpassen und im Debugger durchlaufen. Jede BASIC-Zeile wird ein Abschnitt mit dem Original als Kommentar und einem eigenen Label `L<Zeile>`.
+`basic2asm` übersetzt ein BASIC-Programm in lesbaren **Assembler-Quelltext**. Das Programm läuft danach nicht mehr im BASIC-Interpreter, sondern als Maschinenprogramm: schneller, und du kannst jede Zeile ansehen und anpassen. Jede BASIC-Zeile wird ein Abschnitt mit dem Original als Kommentar und einem eigenen Label `L<Zeile>`.
 
-In der Oberfläche: Öffne die `.bas`-Datei und wähle **Datei ▸ BASIC in Assembler umwandeln** (siehe [BASIC in Assembler umwandeln](help:basic2asm)). Es gibt keinen Dialog: Die Ausgabe heißt `<name>_asm.asm` (bei Konflikt `<name>_asm-2.asm`), das Ziel ist das erste Ziel des Projekts. Die Schalter der Kommandozeile (Zielsystem, `--turbo` und weitere) stehen in der Oberfläche nicht zur Wahl. Auf der Kommandozeile:
+In der Oberfläche steht der Befehl **Datei ▸ BASIC in Assembler umwandeln** in der Befehlsliste, ist aber noch nicht umgesetzt (siehe [BASIC in Assembler umwandeln](help:basic2asm)). Auf der Kommandozeile geht es schon:
 
 ```bash
 vcc basic2asm programm.bas --target c64 -o programm.asm
@@ -76,7 +80,7 @@ programm.bas: in Ordnung (Stufe 1, 5 Zeilen)
 | `--no-rem` | `REM`-Zeilen und `;`-Kommentarzeilen nicht übernehmen |
 | `--check` | nur prüfen, keine Dateien schreiben |
 
-Der Syntaxbaum lässt sich prüfen und ausgeben: `vcc basic ast datei.bas` zeigt ihn, `--json` schreibt ihn als JSON (Zeilen, Anweisungen, Ausdrücke; Zeichenketten als Bytelisten des Zielzeichensatzes), `--roundtrip` schreibt ihn als kanonischen Text zurück (Klammern nur, wo der Rang sie braucht), liest diesen Text noch einmal und meldet **E191**, wenn nicht derselbe Baum herauskommt. Anweisungen, die der Konverter nicht übersetzt (`OPEN`, `LOAD` …), lassen sich nicht zurückschreiben (**E190**). Beide Einstellungen (`inline`, `embed`) gibt es auch im Dialog „BASIC → Assembler“ und in der Projektdatei (`convert`).
+Der Syntaxbaum lässt sich prüfen und ausgeben: `vcc basic ast datei.bas` zeigt ihn, `--json` schreibt ihn als JSON (Zeilen, Anweisungen, Ausdrücke; Zeichenketten als Bytelisten des Zielzeichensatzes), `--roundtrip` schreibt ihn als kanonischen Text zurück (Klammern nur, wo der Rang sie braucht), liest diesen Text noch einmal und meldet **E191**, wenn nicht derselbe Baum herauskommt. Anweisungen, die der Konverter nicht übersetzt (`OPEN`, `LOAD` …), lassen sich nicht zurückschreiben (**E190**). Beide Einstellungen (`inline`, `embed`) gibt es auch in der Projektdatei (`convert`).
 
 ### Atari (`--target atari8`)
 
@@ -133,7 +137,7 @@ Die Fehler beginnen mit **E**. Die wichtigsten:
 | E320 | Typen passen nicht (`TYPE MISMATCH`: Zeichenkette und Zahl vermischt) |
 | E330, E331 | Ziel oder Fließkomma für das Ziel nicht umgesetzt |
 
-Befehle, die ein Dialekt zusätzlich hat (Grafik, Sprites), übersetzt der Konverter nicht. Er meldet dann E103 oder E311. MEGA65 ist noch kein Ziel.
+Befehle, die ein Dialekt zusätzlich hat (Grafik, Sprites), übersetzt der Konverter nicht. Er meldet dann E103 oder E311.
 
 ```basic fehler nocheck
 sprite 1, 1
@@ -145,13 +149,13 @@ error[E103]: Zeile 10: '=' erwartet
 
 ### Debuggen mit der Zeilenkarte
 
-Ist das Ergebnis als Assembler-Quelle in die Projektdatei eingetragen (von Hand oder mit dem Häkchen „Beim Bauen nach Assembler konvertieren“ in den Projekt-Einstellungen ▸ Quellen), liest die IDE im Debugger die Zeilenkarte: Haltepunkte in der `.bas`-Datei gelten für den Code der BASIC-Zeile, und die Ausführungsmarke und die Statuszeile zeigen die BASIC-Zeile an (`angehalten bei $… – BASIC-Zeile 30`). Siehe [Debugger](help:debugger).
+Zu jeder Umwandlung gehört eine Zeilenkarte, die jede BASIC-Zeile dem Assembler-Code zuordnet. Das Debuggen mit ihr (Haltepunkte in der `.bas`-Datei, Anzeige der BASIC-Zeile beim Anhalten) steht in dieser Version noch nicht zur Verfügung.
 
 ## Fehler finden
 
 1. **Meldungen des Baus lesen.** Sie beginnen mit `main.bas:ZEILE:` und einem Code. Die Tabellen der Seiten [Sprungmarken](help:basic-labels), [Namen](help:basic-names), [Direktiven](help:basic-directives) und der [Spickzettel](help:basic-index) erklären jeden Code.
-2. **Das Programm auf dem Gerät testen.** Der Bau prüft keine Syntax (außer beim Atari). Meldet das Gerät `?SYNTAX ERROR IN 40`, ist 40 die **erzeugte** Zeilennummer. In `build/<name>.classic.txt` steht Zeile 40 so, wie das Gerät sie sieht; die Quellzeile findest du über die Zeilenkarte oder über `.classic.txt`.
+2. **Das Programm auf dem Gerät testen.** Der Bau warnt vor verdächtigen Stellen (Syntaxprüfung, B150 bis B159), prüft die Syntax aber nur beim Atari wirklich. Meldet das Gerät `?SYNTAX ERROR IN 40`, ist 40 die **erzeugte** Zeilennummer. In `build/<name>.classic.txt` steht Zeile 40 so, wie das Gerät sie sieht; die Quellzeile findest du über die Zeilenkarte oder über `.classic.txt`.
 3. **Den richtigen Dialekt prüfen.** Ein Befehl, den der Dialekt nicht kennt, wird zu Buchstaben und löst auf dem Gerät `?SYNTAX ERROR` aus. Die Liste in `.classic.txt` zeigt es nicht. Prüfe daher die Befehlsliste auf der Seite [Dialekte](help:basic-dialects).
 4. **Verdächtige Namen.** Seltsame Fehler bei Namen wie `total` oder `score` kommen von Schlüsselwörtern im Namen. Schalte `#longnames` ein.
 5. **Verfolgen, was passiert.** Auf C128, Plus/4 und MEGA65 schaltet `tron` die Zeilen-Verfolgung ein (`troff` aus); `trap @marke` fängt Fehler ab, `print er, el, err$(er)` meldet sie. Auf dem C64 gibt es nur `print`-Ausgaben und `stop`/`cont`. Beim Atari fängt `trap @marke` Fehler, `? err` meldet den Code.
-6. **Ein Assembler-Teil läuft nicht?** Siehe [Debugger](help:debugger) und die Seite [Assembler](help:assembler).
+6. **Ein Assembler-Teil läuft nicht?** Zum Assembler siehe die Seite [Assembler](help:assembler).

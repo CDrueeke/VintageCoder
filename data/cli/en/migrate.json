@@ -1,0 +1,89 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "d7c1f95a5174" },
+  "command": "migrate",
+  "group": "projekte",
+  "summary": "Convert a project from the old file scheme to the new one",
+  "description": [
+    "Renames files in the old scheme (*.asset.json) to <name>.vc<kind>, moves assets/ to graphics/ or music/, and build/assets/ to build/export/. References in sources, includes and assets are updated too. Every rename is printed. build/export/ is created again at the next build."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc migrate [project-folder]",
+      "summary": "Convert a project from the old file scheme to the new one",
+      "args": [
+        {
+          "name": "project-folder",
+          "required": false,
+          "repeat": false,
+          "help": "Root of the project. The default is the working folder."
+        }
+      ],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "Convert the project in the working folder",
+          "cmd": "vcc migrate"
+        },
+        {
+          "title": "convert a specific project",
+          "cmd": "vcc migrate examples/c64/tests_demo"
+        }
+      ],
+      "notes": [
+        "If there is nothing to convert, the output is: nothing to convert.",
+        "The command has no options. The first argument is taken as the folder."
+      ],
+      "see_also": [
+        "build"
+      ]
+    },
+    {
+      "id": "includes",
+      "usage": "vcc migrate includes [projectfolder] [--apply]",
+      "args": [
+        {
+          "name": "projectfolder",
+          "required": false,
+          "repeat": false,
+          "help": "Project root; default is the working folder."
+        }
+      ],
+      "option_groups": [],
+      "options": [
+        {
+          "flag": "--apply",
+          "short": "",
+          "value": "",
+          "group": "",
+          "help": "Actually write the conversion; without this option it only shows what would change.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Show what would change",
+          "cmd": "vcc migrate includes"
+        },
+        {
+          "title": "Write the conversion",
+          "cmd": "vcc migrate includes examples/c64/jumprun --apply"
+        }
+      ],
+      "notes": [
+        "Turns .include \"build/export/hero.asm\" into .include \"graphics/hero.vcsprite\" (BASIC: #include). A line with hero.anim.asm directly after it is removed: including the media file delivers data and tables together.",
+        "If a name matches no media file or several in the project, the line stays unchanged and is reported."
+      ],
+      "see_also": [
+        "build"
+      ],
+      "summary": "Convert old include paths build/export/… to the media file"
+    }
+  ]
+}

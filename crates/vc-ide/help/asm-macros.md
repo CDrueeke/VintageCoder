@@ -247,6 +247,7 @@ loop:   jsr init            ; main.loop – kein Konflikt mit init.loop
 - **Sichtbarkeit:** Innen sind alle Namen der umgebenden Scopes sichtbar (der innerste gewinnt). Von außen erreichst du ein Symbol nur über `scope.name`, bei Verschachtelung `a.b.name`.
 - **Anonym:** `{` ohne Label öffnet einen Scope, dessen Namen man von außen nicht ansprechen kann – praktisch für Hilfsroutinen und für Labels in `.repeat`.
 - **`.namespace name {`** macht dasselbe, ohne dass `name` selbst ein Label (eine Adresse) wird – zum Beispiel für Konstanten-Gruppen.
+- **`.scope` … `.endscope`** ist die Wortform von `{` … `}` (`.endscope` schließt auch einen `.namespace`).
 - **Lokale Labels** (`.name`) gelten je Scope getrennt.
 - **Variablen** folgen den Scopes: eine gleichnamige `.var` im Block verdeckt die äußere.
 - Ein Scope-Name darf keinen Punkt enthalten, `}` ohne `{` und ein nicht geschlossener Scope sind **E213**.

@@ -1,0 +1,25 @@
+{
+ "source": "targets/mega65.target.json",
+ "entries": {
+  "/regions/0/note": {
+   "de": "Bank 0 (64 KB), je nach Speicherzuordnung durch ROM/E/A überlagert",
+   "en": "Bank 0 (64 KB), overlaid by ROM/I/O depending on the memory mapping",
+   "status": "maschinell"
+  },
+  "/regions/1/note": {
+   "de": "Zeropage = Seite B (Register B), Standard $00",
+   "en": "Zero page = page B (register B), default $00",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "BASIC-65-Programme beginnen bei $2001",
+   "en": "BASIC 65 programs start at $2001",
+   "status": "maschinell"
+  },
+  "/regions/3/note": {
+   "de": "VIC-II/III/IV, SID, CIA, DMAgic, Hypervisor; Umschalten per $D02F (KEY)",
+   "en": "VIC-II/III/IV, SID, CIA, DMAgic, hypervisor; switch via $D02F (KEY)",
+   "status": "maschinell"
+  }
+ }
+}

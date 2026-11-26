@@ -76,8 +76,25 @@ class BuildPfadeTests(unittest.TestCase):
 
 class BuildPaketeTests(unittest.TestCase):
     def test_stage_build_baut_die_oberflaeche_nur_mit_ide_app(self):
-        self.assertEqual(release.build_pakete(True), ["-p", "vc-cli", "-p", "vc-lsp", "-p", "vc-gui"])
+        self.assertEqual(release.build_pakete(True, "egui"), ["-p", "vc-cli", "-p", "vc-lsp", "-p", "vc-gui"])
+        self.assertEqual(release.build_pakete(True), ["-p", "vc-cli", "-p", "vc-lsp"])   # Standard: tauri (vc-shell folgt in bau_tauri)
         self.assertEqual(release.build_pakete(False), ["-p", "vc-cli", "-p", "vc-lsp"])
+
+    def test_tauri_oberflaeche_wird_nicht_ueber_vc_gui_gebaut(self):
+        """Beide Oberflaechen heissen `vintagecoder`: bei tauri baut der erste Aufruf nur vc-cli und vc-lsp, vc-shell folgt in `bau_tauri`."""
+        self.assertEqual(release.build_pakete(True, "tauri"), ["-p", "vc-cli", "-p", "vc-lsp"])
+        self.assertEqual(release.build_pakete(True, "egui"), ["-p", "vc-cli", "-p", "vc-lsp", "-p", "vc-gui"])
+
+    def test_tauri_binaer_braucht_eingebettetes_frontend(self):
+        with tempfile.TemporaryDirectory() as t:
+            ohne, mit = os.path.join(t, "ohne"), os.path.join(t, "mit")
+            with open(ohne, "wb") as f:
+                f.write(b"\x7fELF http://localhost:1420 ")
+            with open(mit, "wb") as f:
+                f.write(b"\x7fELF /assets/index-AbC123.js ")
+            self.assertIn("kein eingebettetes Frontend", release.pruefe_tauri_binaer(ohne))
+            self.assertIsNone(release.pruefe_tauri_binaer(mit))
+            self.assertIn("nicht lesbar", release.pruefe_tauri_binaer(os.path.join(t, "fehlt")))
 
     def test_oberflaeche_ist_ein_workspace_paket_mit_programm_vintagecoder(self):
         """`vintagecoder` kommt aus crates/vc-gui (kein vc-app mehr); sonst baut `stage --build` die IDE nie."""
@@ -293,18 +310,52 @@ class StageTests(unittest.TestCase):
     def files(self, out):
         return {os.path.relpath(os.path.join(d, f), out).replace(os.sep, "/") for d, _, fs in os.walk(out) for f in fs}
 
+    def test_staging_030_ohne_troxx_mit_prallball(self):
+        """Zuschnitt 0.3.0: Troxx (alle Fassungen, auch der englische Spiegel) kommt erst 0.3.1; Prallball und die uebrigen Beispiele bleiben."""
+        out = os.path.join(self.tmp, "echt-030")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = release.main(["stage", "--os", "macos", "--out", out, "--no-bin", "--force", "--features", os.path.join(release.ROOT, "FEATURES.md")])
+        self.assertEqual(rc, 0, buf.getvalue())
+        fs = self.files(out)
+        self.assertFalse([f for f in fs if "troxx" in f.lower()], "Troxx darf nicht im Paket sein")
+        for rest in ("examples/c64/prallball/", "examples/en/c64/prallball/", "examples/c64/jumprun/"):
+            self.assertTrue([f for f in fs if f.startswith(rest)], rest)
+
     def test_nur_kommandozeile_nur_c64(self):
         rc, out, log = self.stage("nur-cli-c64")
         self.assertEqual(rc, 0, log)
         files = self.files(out)
         self.assertFalse([f for f in files if "vintagecoder" in f.lower().replace("data/", "") and f.startswith(("bin/", "vintagecoder"))])
         self.assertEqual(sorted(f for f in files if f.startswith("data/targets/")), ["data/targets/c64.target.json"])
-        self.assertEqual({f.split("/")[1] for f in files if f.startswith("examples/")}, {"c64"})
+        self.assertEqual({f.split("/")[1] for f in files if f.startswith("examples/")}, {"c64", "en"})
+        self.assertEqual({f.split("/")[2] for f in files if f.startswith("examples/en/")}, {"c64"}, "der englische Spiegel enthält nur ausgelieferte Systeme")
         self.assertFalse([f for f in files if f.startswith(("macos/Info", "data/sys/atari8bit", "data/sys/mega65", "data/sys/vcs2600"))])
         rj = json.load(open(os.path.join(out, "data", "release.json"), encoding="utf-8"))
         self.assertEqual((rj["ide"], rj["studios"], rj["links"], rj["targets"], rj["examples"]), (False, [], [], ["c64"], ["EX-HELLO"]))
         self.assertIn("data/cli/build.json", files)
         self.assertIn("release-report.md", files)
+
+    def test_englischer_beispielspiegel_folgt_den_ausgelieferten_projekten(self):
+        rc, out, log = self.stage("nur-cli-c64")
+        self.assertEqual(rc, 0, log)
+        files = self.files(out)
+        projekte = {"/".join(f.split("/")[1:3]) for f in files if f.startswith("examples/") and not f.startswith("examples/en/") and f.count("/") >= 3}
+        spiegel = {"/".join(f.split("/")[2:4]) for f in files if f.startswith("examples/en/")}
+        self.assertTrue(spiegel, "kein englischer Spiegel im Staging")
+        self.assertLessEqual(spiegel, projekte, "Spiegel ohne ausgeliefertes Projekt")
+        self.assertIn("examples/en/c64/border/border.asm", files)
+
+    def test_standard_oberflaeche_ist_tauri(self):
+        """Ohne --oberflaeche gilt tauri: ein Programm ohne eingebettetes Frontend wird abgelehnt, egui nur mit --oberflaeche egui."""
+        bindir = os.path.join(self.tmp, "bin-std"); os.makedirs(bindir, exist_ok=True)
+        for n in ("vcc", "vc-lsp", "vintagecoder"):
+            with open(os.path.join(bindir, n), "w") as f:
+                f.write("x")
+        out = os.path.join(self.tmp, "std-out"); buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = release.main(["stage", "--os", "macos", "--out", out, "--bin-dir", bindir, "--force", "--features", os.path.join(TESTDATA, "nur-ide-c64-ohne-emulator.md")])
+        self.assertEqual(rc, 1); self.assertIn("eingebettetes Frontend", buf.getvalue())
 
     def test_programme_vcc_und_lsp_immer_ide_nur_mit_ide(self):
         bindir = os.path.join(self.tmp, "fakebin")
@@ -316,7 +367,7 @@ class StageTests(unittest.TestCase):
             out = os.path.join(self.tmp, "bin-" + name)
             buf = io.StringIO()
             with redirect_stdout(buf):
-                rc = release.main(["stage", "--os", "macos", "--out", out, "--bin-dir", bindir, "--force", "--features", os.path.join(TESTDATA, name + ".md")])
+                rc = release.main(["stage", "--os", "macos", "--out", out, "--bin-dir", bindir, "--force", "--oberflaeche", "egui", "--features", os.path.join(TESTDATA, name + ".md")])
             self.assertEqual(rc, 0, buf.getvalue())
             self.assertEqual(sorted(os.listdir(os.path.join(out, "bin"))), ["vc-lsp", "vcc"] + (["vintagecoder"] if ide else []))
 
@@ -335,8 +386,9 @@ class StageTests(unittest.TestCase):
         self.assertEqual(sorted(os.path.basename(f) for f in files if f.startswith("data/targets/")), ["atari8.target.json"])
         self.assertTrue(any(f.startswith("data/sys/atari8bit/") for f in files))
         self.assertFalse([f for f in files if f.startswith(("data/sys/c64", "data/sys/mega65", "data/sys/plus4"))])
-        self.assertIn("examples/common/jumprun/core.asm", files)
-        self.assertTrue(all(f.split("/")[1] in ("atari", "common") for f in files if f.startswith("examples/")))
+        self.assertIn("examples/atari/jumprun/lib/core.asm", files)
+        self.assertTrue(all(f.split("/")[1] == "atari" for f in files if f.startswith("examples/") and not f.startswith("examples/en/")))
+        self.assertTrue(all(f.split("/")[2] == "atari" for f in files if f.startswith("examples/en/")), "englischer Spiegel nur für ausgelieferte Systeme")
         self.assertIn("data/args/atari800.json", files)
         self.assertNotIn("data/args/altirra.json", files)
 
@@ -353,16 +405,21 @@ class StageTests(unittest.TestCase):
         iss = open(os.path.join(release.ROOT, "installer", "vintagecoder.iss"), encoding="utf-8-sig").read()
         self.assertIn("LICENSING.md", iss)
         self.assertIn("LICENSES\\*", iss)
-        self.assertIn("InfoBeforeFile=lizenzhinweis.txt", iss)
+        self.assertIn("InfoBeforeFile: \"lizenzhinweis.txt\"", iss)
+        self.assertIn("InfoBeforeFile: \"lizenzhinweis-en.txt\"", iss)
         mac = open(os.path.join(release.ROOT, "installer", "build-macos.sh"), encoding="utf-8").read()
         self.assertEqual(mac.count("LICENSING.md"), 3, "App (Resources), Abbild und Kommandozeilen-Archiv")
         self.assertIn('"$APP/Contents/Resources/LICENSES"', mac)
 
     def test_lizenzhinweis_des_installers_gleicht_dem_programmtext(self):
-        src = open(os.path.join(release.ROOT, "crates", "vc-ide", "src", "license.rs"), encoding="utf-8").read()
-        m = re.search(r'NOTICE_SHORT: &str = "(.*?)";', src)
+        src = open(os.path.join(release.ROOT, "crates", "vc-i18n", "catalog", "de", "license.ftl"), encoding="utf-8").read()
+        m = re.search(r'^license-notice-short = (.*)$', src, re.M)
         txt = open(os.path.join(release.ROOT, "installer", "lizenzhinweis.txt"), encoding="utf-8-sig").read().strip()
         self.assertEqual(txt, m.group(1))
+        src_en = open(os.path.join(release.ROOT, "crates", "vc-i18n", "catalog", "en", "license.ftl"), encoding="utf-8").read()
+        m_en = re.search(r'^license-notice-short = (.*)$', src_en, re.M)
+        txt_en = open(os.path.join(release.ROOT, "installer", "lizenzhinweis-en.txt"), encoding="utf-8-sig").read().strip()
+        self.assertEqual(txt_en, m_en.group(1))
 
     def test_voll_und_betriebssysteme(self):
         for os_name, marker in (("windows", "installer.inc"), ("macos", "macos/Kommandozeile installieren.command"), ("linux", "usr/share/man/man1/vcc.1")):

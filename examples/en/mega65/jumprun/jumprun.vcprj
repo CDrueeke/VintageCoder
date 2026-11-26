@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "project": {
+    "name": "MEGA65: jumprun",
+    "description": "Hugo & Gumbo: self-playing jump-and-run demo (assembler, VIC-II mode of the MEGA65, two SIDs)"
+  },
+  "targets": [
+    {
+      "id": "mega65",
+      "system": "mega65",
+      "cpu": "45gs02",
+      "illegals": "deny",
+      "emulator": "xemu"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "mega65"
+      ],
+      "kind": "asm",
+      "files": [
+        "jumprun.asm"
+      ]
+    }
+  ],
+  "main": "jumprun.asm"
+}

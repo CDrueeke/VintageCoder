@@ -90,7 +90,7 @@ kalt:   inc $d020
 | `actionreplay` | genau vier Bänke zu 8 KB bei `$8000`–`$9FFF` |
 | `ultimax` | nur Bank 0: ROML `$8000`–`$9FFF` (freiwillig) und ROMH `$E000`–`$FFFF` mit Reset-Vektor bei `$FFFC` |
 
-Bankumschaltung zur Laufzeit (aus `lib/cart.inc`): bei Ocean `lda #$80 | n` / `sta $de00`, bei Magic Desk `lda #n` / `sta $de00`. Der umschaltende Code muss in jeder Bank gleich liegen oder im RAM laufen; dazu dient oft [`.pseudopc`](help:asm-directives):
+Bankumschaltung zur Laufzeit (aus `lib/cart.inc`): bei Ocean `lda #$80 | n` / `sta $de00`, bei Magic Desk `lda #n` / `sta $de00`. Der umschaltende Code muss in jeder Bank gleich liegen oder im RAM laufen; dazu dient oft [`.relocate`](help:asm-directives):
 
 ```asm fmt=crt
 .cartridge "magicdesk", "BANKEN"
@@ -108,7 +108,7 @@ copy:   lda image,x             ; Umschaltcode ins RAM kopieren
         jsr $c000
         jmp *
 image:
-        .pseudopc $c000        ; läuft im RAM bei $C000
+        .relocate $c000        ; läuft im RAM bei $C000
         lda #1                  ; Bank 1 einschalten
         sta $de00
         lda $8100               ; Kennung dort lesen
@@ -116,7 +116,7 @@ image:
         lda #0                  ; zurück zu Bank 0
         sta $de00
         rts
-        .endpseudopc
+        .endrelocate
 image_end:
 .segment "BANK1", $8000, $9fff
 .bank 1
@@ -153,4 +153,4 @@ Rohe 8-KB-Abbilder für einen Speicherblock: `a0` (`$A000`–`$BFFF`), `20`, `40
 | „ultimax: ROMH-Code im Fenster $E000-$FFFF mit Reset-Vektor bei $FFFC fehlt“ | Reset-Vektor vergessen |
 | „mehrere Bänke (.bank) gibt es nur in den Modulformaten crt/car/rom“ | `.bank` in einem normalen Programm |
 
-Siehe auch: [Direktiven](help:asm-directives) (`.org`, `.pseudopc`), [Bauen und Starten](help:build). Beispiele: `examples/c64/cart_demo/cart_demo.asm`, `examples/atari/cart_demo/cart_demo.asm`.
+Siehe auch: [Direktiven](help:asm-directives) (`.org`, `.relocate`), [Bauen und Starten](help:build). Beispiele: `examples/c64/cart_demo/cart_demo.asm`, `examples/atari/cart_demo/cart_demo.asm`.

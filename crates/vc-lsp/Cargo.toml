@@ -14,6 +14,8 @@ path = "src/main.rs"
 
 [dependencies]
 vc-core = { path = "../vc-core" }
+vc-i18n = { path = "../vc-i18n" }
 vc-target = { path = "../vc-target" }
 vc-asm = { path = "../vc-asm" }
+vc-media = { path = "../vc-media" }
 serde_json.workspace = true

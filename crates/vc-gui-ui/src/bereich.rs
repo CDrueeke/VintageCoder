@@ -17,7 +17,7 @@ pub fn knopfnamen(bereich: &str, anzeige: Anzeige) -> (String, String) {
     (texte::knopfname(bereich, "minimieren"), texte::knopfname(bereich, if anzeige == Anzeige::Maximiert { "wiederherstellen" } else { "maximieren" }))
 }
 /// Zustandstext für Bildschirmleser
-pub fn zustandstext(anzeige: Anzeige) -> &'static str { match anzeige { Anzeige::Normal => texte::NORMAL, Anzeige::Minimiert => texte::MINIMIERT, Anzeige::Maximiert => texte::MAXIMIERT } }
+pub fn zustandstext(anzeige: Anzeige) -> String { match anzeige { Anzeige::Normal => texte::normal(), Anzeige::Minimiert => texte::minimiert(), Anzeige::Maximiert => texte::maximiert() } }
 
 fn rahmen(pal: Pal, breite: f32, hoehe: f32, gefuellt: bool) -> Element<'static, ()> {
     container(space::horizontal()).width(breite).height(hoehe).style(move |_| container::Style { background: gefuellt.then(|| pal.text.into()), border: Border { color: pal.text, width: if gefuellt { 0.0 } else { 1.4 }, radius: 1.0.into() }, ..Default::default() }).into()
@@ -59,7 +59,7 @@ mod tests {
     #[test] fn namen_nennen_bereich_und_aktion() {
         assert_eq!(knopfnamen("Schublade", Anzeige::Normal), ("Schublade minimieren".into(), "Schublade maximieren".into()));
         assert_eq!(knopfnamen("Panel", Anzeige::Maximiert).1, "Panel wiederherstellen");
-        assert_eq!((zustandstext(Anzeige::Minimiert), zustandstext(Anzeige::Maximiert)), ("minimiert", "maximiert"));
+        assert_eq!((zustandstext(Anzeige::Minimiert), zustandstext(Anzeige::Maximiert)), ("minimiert".to_string(), "maximiert".to_string()));
     }
     #[test] fn kopfzeile_laesst_sich_bauen() {
         let _e: Element<'_, u8> = kopfzeile(Pal::dark(), "Schublade", Anzeige::Normal, text("x").into(), true, "Cmd+J", "Cmd+Umschalt+Enter", Aktionen { minimieren: 1, maximieren: 2, wiederherstellen: 3 });

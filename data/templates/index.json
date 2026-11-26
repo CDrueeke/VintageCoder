@@ -53,8 +53,8 @@
     },
     {
       "id": "basic-hello",
-      "name": "BASIC (ohne Zeilennummern)",
-      "description": "Natives BASIC des Systems ohne Zeilennummern, mit Sprungmarken (@name)",
+      "name": "BASIC",
+      "description": "Natives BASIC des Systems mit Sprungmarken (@name)",
       "systems": [
         "c64",
         "c128",
@@ -63,8 +63,7 @@
         "vic20",
         "atari8",
         "mega65",
-        "pet",
-        "cbm2"
+        "pet"
       ],
       "files": [
         {

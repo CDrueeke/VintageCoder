@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Zahlenwerte für den Hover: Konstanten und Zahlenliterale in mehreren Schreibweisen (dezimal, hexadezimal, binär, mit Vorzeichen, Zeichen, Low-/High-Byte).
+use vc_core::{msg, Msg};
+use vc_i18n::Lang;
 
 fn hex(v: i64) -> String {
     if v < 0 { return if v >= -32768 { format!("${:04X}", v as u16) } else { format!("${:08X}", v as u32) }; }
@@ -13,15 +15,23 @@ fn bin(v: i64) -> String {
     format!("%{}", groups.join(" "))
 }
 
-/// Markdown für den Hover über einem Wert: Überschrift und Tabelle der Schreibweisen
-pub fn value_hover(label: &str, v: i64) -> String {
-    let mut s = format!("**{label}** = `{}`\n\n| Format | Wert |\n|---|---|\n| Dezimal | {v} |\n| Hex | `{}` |\n| Binär | `{}` |\n", hex(v), hex(v), bin(v));
-    if (128..=255).contains(&v) { s.push_str(&format!("| Mit Vorzeichen (8 Bit) | {} |\n", v - 256)); }
-    else if (32768..=65535).contains(&v) { s.push_str(&format!("| Mit Vorzeichen (16 Bit) | {} |\n", v - 65536)); }
-    else if (-128..0).contains(&v) { s.push_str(&format!("| 8 Bit ohne Vorzeichen | {} (`{}`) |\n", v + 256, hex(v + 256))); }
-    else if (-32768..-128).contains(&v) { s.push_str(&format!("| 16 Bit ohne Vorzeichen | {} |\n", v + 65536)); }
-    if (32..=126).contains(&v) { s.push_str(&format!("| Zeichen (ASCII) | `'{}'` |\n", v as u8 as char)); }
-    if (256..=65535).contains(&v) { s.push_str(&format!("| Low-Byte (`<`) | `{}` = {} |\n| High-Byte (`>`) | `{}` = {} |\n", hex(v & 0xFF), v & 0xFF, hex(v >> 8), v >> 8)); }
+/// Markdown für den Hover über einem Wert in der aktuellen Sprache: Überschrift und Tabelle der Schreibweisen
+pub fn value_hover(label: &str, v: i64) -> String { value_hover_in(vc_i18n::language(), label, v) }
+
+/// Wie [`value_hover`], aber in der Sprache `lang`
+pub fn value_hover_in(lang: Lang, label: &str, v: i64) -> String {
+    let t = |m: Msg| m.text_in(lang);
+    let mut s = format!("**{label}** = `{}`\n\n{}\n{}\n{}\n{}\n", hex(v), t(msg!("lsp-value-table-head")),
+        t(msg!("lsp-value-row-dec", v = v.to_string())), t(msg!("lsp-value-row-hex", v = hex(v))), t(msg!("lsp-value-row-bin", v = bin(v))));
+    if (128..=255).contains(&v) { s.push_str(&t(msg!("lsp-value-row-signed8", v = (v - 256).to_string()))); s.push('\n'); }
+    else if (32768..=65535).contains(&v) { s.push_str(&t(msg!("lsp-value-row-signed16", v = (v - 65536).to_string()))); s.push('\n'); }
+    else if (-128..0).contains(&v) { s.push_str(&t(msg!("lsp-value-row-unsigned8", v = (v + 256).to_string(), hex = hex(v + 256)))); s.push('\n'); }
+    else if (-32768..-128).contains(&v) { s.push_str(&t(msg!("lsp-value-row-unsigned16", v = (v + 65536).to_string()))); s.push('\n'); }
+    if (32..=126).contains(&v) { s.push_str(&t(msg!("lsp-value-row-ascii", v = (v as u8 as char).to_string()))); s.push('\n'); }
+    if (256..=65535).contains(&v) {
+        s.push_str(&t(msg!("lsp-value-row-lowbyte", hex = hex(v & 0xFF), dec = (v & 0xFF).to_string()))); s.push('\n');
+        s.push_str(&t(msg!("lsp-value-row-highbyte", hex = hex(v >> 8), dec = (v >> 8).to_string()))); s.push('\n');
+    }
     s
 }
 
@@ -56,17 +66,24 @@ mod tests {
 
     #[test]
     fn value_formats() {
-        let h = value_hover("VIC", 0xD020);
+        let h = value_hover_in(Lang::De, "VIC", 0xD020);
         assert!(h.starts_with("**VIC** = `$D020`") && h.contains("| Dezimal | 53280 |") && h.contains("`%1101 0000 0010 0000`") && h.contains("Low-Byte (`<`) | `$20` = 32") && h.contains("High-Byte (`>`) | `$D0` = 208"), "{h}");
-        let h = value_hover("X", 200);
+        let h = value_hover_in(Lang::De, "X", 200);
         assert!(h.contains("`$C8`") && h.contains("`%1100 1000`") && h.contains("Mit Vorzeichen (8 Bit) | -56"), "{h}");
-        let h = value_hover("A", 65);
+        let h = value_hover_in(Lang::De, "A", 65);
         assert!(h.contains("Zeichen (ASCII) | `'A'`") && h.contains("`%0100 0001`"), "{h}");
-        let h = value_hover("N", -1);
+        let h = value_hover_in(Lang::De, "N", -1);
         assert!(h.contains("`$FFFF`") && h.contains("255 (`$FF`)"), "{h}");
-        let h = value_hover("P", 70000);
+        let h = value_hover_in(Lang::De, "P", 70000);
         assert!(h.contains("`$011170`") && h.contains("`%0000 0001 0001 0001 0111 0000`"), "{h}");
-        assert!(!value_hover("Z", 0).contains("Zeichen"));
+        assert!(!value_hover_in(Lang::De, "Z", 0).contains("Zeichen"));
+    }
+
+    #[test]
+    fn value_formats_english() {
+        let h = value_hover_in(Lang::En, "A", 65);
+        assert!(h.contains("| Decimal | 65 |") && h.contains("| Character (ASCII) | `'A'` |"), "{h}");
+        assert!(!h.contains("Dezimal"));
     }
 
     #[test]

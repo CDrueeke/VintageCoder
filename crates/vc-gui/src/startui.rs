@@ -34,7 +34,7 @@ fn s(a: StartAkt) -> Msg { Msg::StartSeite(a) }
 fn chip<'a>(c: Color, t: impl Into<String>) -> Element<'a, Msg> { let t = t.into(); container(text(t).size(11.5).color(c)).padding([2, 8]).style(move |_| container::Style { border: Border { color: c, width: 1.0, radius: 10.0.into() }, background: Some(Color { a: 0.12, ..c }.into()), ..Default::default() }).into() }
 fn tafel<'a>(pal: Pal, inhalt: Element<'a, Msg>) -> Element<'a, Msg> { container(inhalt).padding(14).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line)).into() }
 fn klein<'a>(pal: Pal, t: impl Into<String>) -> Element<'a, Msg> { text(t.into()).size(11.5).color(pal.mute).into() }
-fn titel<'a>(pal: Pal, t: &str) -> Element<'a, Msg> { text(t.to_string()).size(15).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into() }
+fn titel<'a>(pal: Pal, t: impl AsRef<str>) -> Element<'a, Msg> { text(t.as_ref().to_string()).size(15).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into() }
 
 impl App {
     /// Zuletzt geöffnete Projekte einlesen (nie im Testlauf; dort bleibt die Liste leer, bis ein Test sie füllt)
@@ -98,25 +98,25 @@ impl App {
         // Kopf mit Hauptaktionen
         let beispiele = self.beispiele();
         let kopf = tafel(pal, column![
-            row![image(self.logos[2].clone()).height(54), column![row![text("VintageCoder").size(20).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), chip(pal.accent, concat!("v", env!("CARGO_PKG_VERSION")))].spacing(10).align_y(Alignment::Center).wrap(), klein(pal, "Entwicklungsumgebung für die 6502-Familie: Commodore und Atari, Assembler und BASIC, Emulator und echte Hardware.")].spacing(4)].spacing(14).align_y(Alignment::Center),
-            row![knopf(pal, "Neues Projekt", Some(s(StartAkt::Neu)), pal.text, true), knopf(pal, "Projekt öffnen", Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::ProjektOeffnen)), pal.text, false), knopf(pal, "Beispiel öffnen", (!beispiele.is_empty()).then(|| s(StartAkt::Beispiele)), pal.text, false), knopf(pal, "Einrichten", Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::Einstellungen)), pal.text, false)].spacing(8).wrap().vertical_spacing(8),
+            row![image(self.logos[2].clone()).height(54), column![row![text(vc_i18n::t!("startui-vintagecoder")).size(20).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), chip(pal.accent, concat!("v", env!("CARGO_PKG_VERSION")))].spacing(10).align_y(Alignment::Center).wrap(), klein(pal, vc_i18n::t!("startui-entwicklungsumgebung-fuer-die-6502-familie-commodore"))].spacing(4)].spacing(14).align_y(Alignment::Center),
+            row![knopf(pal, vc_i18n::t!("startui-neues-projekt"), Some(s(StartAkt::Neu)), pal.text, true), knopf(pal, vc_i18n::t!("startui-projekt-oeffnen"), Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::ProjektOeffnen)), pal.text, false), knopf(pal, vc_i18n::t!("startui-beispiel-oeffnen"), (!beispiele.is_empty()).then(|| s(StartAkt::Beispiele)), pal.text, false), knopf(pal, vc_i18n::t!("startui-einrichten"), Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::Einstellungen)), pal.text, false)].spacing(8).wrap().vertical_spacing(8),
         ].spacing(12).into());
         let mut links = column![].spacing(12);
-        if let Some(h) = &st.banner { let (t, b) = match h { Hinweis::Unvollstaendig => ("Einrichtung unvollständig: ein paar Schritte sind noch offen.", "Fertig einrichten"), Hinweis::Angebot => ("Neu: Konfigurationsassistent. Er prüft deine Einrichtung und ändert nur, was du bestätigst.", "Assistent öffnen") }; links = links.push(tafel(pal, row![text(t).size(13).color(pal.text), iced::widget::space::horizontal(), knopf(pal, b, Some(s(StartAkt::Assistent)), pal.text, true), knopf(pal, "✕", Some(s(StartAkt::BannerWeg)), pal.text, false)].spacing(8).align_y(Alignment::Center).wrap().into())) }
+        if let Some(h) = &st.banner { let (t, b) = match h { Hinweis::Unvollstaendig => (vc_i18n::t!("startui-einrichtung-unvollstaendig-ein-paar-schritte-sind"), vc_i18n::t!("startui-fertig-einrichten")), Hinweis::Angebot => (vc_i18n::t!("startui-neu-konfigurationsassistent-er-prueft-deine-einrichtung"), vc_i18n::t!("startui-assistent-oeffnen")) }; links = links.push(tafel(pal, row![text(t).size(13).color(pal.text), iced::widget::space::horizontal(), knopf(pal, b, Some(s(StartAkt::Assistent)), pal.text, true), knopf(pal, "✕", Some(s(StartAkt::BannerWeg)), pal.text, false)].spacing(8).align_y(Alignment::Center).wrap().into())) }
         links = links.push(kopf);
-        if st.beispiele_offen { links = links.push(tafel(pal, column![titel(pal, "Beispielprojekte"), column(beispiele.into_iter().map(|(n, p)| button(text(n).size(13).color(pal.text)).width(Length::Fill).padding([5, 8]).on_press(Msg::Geoeffnet(Some(p))).style(move |_, h| button::Style { background: matches!(h, button::Status::Hovered).then(|| pal.sel.into()), border: Border { radius: 5.0.into(), ..Default::default() }, text_color: pal.text, ..Default::default() }).into()).collect::<Vec<_>>()).spacing(2)].spacing(6).into())) }
+        if st.beispiele_offen { links = links.push(tafel(pal, column![titel(pal, vc_i18n::t!("startui-beispielprojekte")), column(beispiele.into_iter().map(|(n, p)| button(text(n).size(13).color(pal.text)).width(Length::Fill).padding([5, 8]).on_press(Msg::Geoeffnet(Some(p))).style(move |_, h| button::Style { background: matches!(h, button::Status::Hovered).then(|| pal.sel.into()), border: Border { radius: 5.0.into(), ..Default::default() }, text_color: pal.text, ..Default::default() }).into()).collect::<Vec<_>>()).spacing(2)].spacing(6).into())) }
         // Zuletzt geöffnet
         let jetzt = recent::now();
-        let mut liste = column![row![titel(pal, "Zuletzt geöffnete Projekte"), chip(pal.mute, st.recent.len().to_string())].spacing(8).align_y(Alignment::Center)].spacing(8);
-        if st.recent.is_empty() { liste = liste.push(klein(pal, "Noch kein Projekt geöffnet. „Neues Projekt“ legt eines an, „Beispiel öffnen“ zeigt fertige Programme.")) }
+        let mut liste = column![row![titel(pal, vc_i18n::t!("startui-zuletzt-geoeffnete-projekte")), chip(pal.mute, st.recent.len().to_string())].spacing(8).align_y(Alignment::Center)].spacing(8);
+        if st.recent.is_empty() { liste = liste.push(klein(pal, vc_i18n::t!("startui-noch-kein-projekt-geoeffnet-neues-projekt"))) }
         for (i, r) in st.recent.iter().enumerate() {
             let mut marken = row![].spacing(6);
-            if r.missing { marken = marken.push(chip(pal.err, "Ordner fehlt")) }
+            if r.missing { marken = marken.push(chip(pal.err, vc_i18n::t!("startui-ordner-fehlt"))) }
             for (sy, v) in &r.info.systems { marken = marken.push(chip(pal.accent, if v.is_empty() { recent::short_name(sy).to_string() } else { format!("{} {}", recent::short_name(sy), v.to_uppercase()) })) }
             for l in &r.info.langs { marken = marken.push(chip(pal.warn, l.clone())) }
             if let Some(e) = &r.info.emulator { marken = marken.push(chip(pal.mute, e.clone())) }
             let name = button(text(r.name.clone()).size(14).font(vc_gui_ui::fonts::UI_FETT).color(if r.missing { pal.mute } else { pal.text })).padding([0, 0]).on_press_maybe((!r.missing).then(|| Msg::Geoeffnet(Some(r.path.clone())))).style(|_, _| button::Style::default());
-            let aktion = row![text(recent::ago(r.last, jetzt)).size(11.5).color(pal.mute), knopf(pal, if r.pinned { "★" } else { "☆" }, Some(s(StartAkt::Pin(i))), pal.text, false), knopf(pal, "×", Some(s(StartAkt::Weg(i))), pal.text, false), knopf(pal, "Kopieren …", (!r.missing).then(|| s(StartAkt::Kopieren(r.path.clone()))), pal.text, false), knopf(pal, "Öffnen", (!r.missing).then(|| Msg::Geoeffnet(Some(r.path.clone()))), pal.text, false)].spacing(6).align_y(Alignment::Center).wrap();
+            let aktion = row![text(recent::ago(r.last, jetzt)).size(11.5).color(pal.mute), knopf(pal, if r.pinned { "★" } else { "☆" }, Some(s(StartAkt::Pin(i))), pal.text, false), knopf(pal, "×", Some(s(StartAkt::Weg(i))), pal.text, false), knopf(pal, vc_i18n::t!("startui-kopieren"), (!r.missing).then(|| s(StartAkt::Kopieren(r.path.clone()))), pal.text, false), knopf(pal, vc_i18n::t!("startui-oeffnen"), (!r.missing).then(|| Msg::Geoeffnet(Some(r.path.clone()))), pal.text, false)].spacing(6).align_y(Alignment::Center).wrap();
             let bild: Option<Element<Msg>> = (!r.missing && !r.info.no_preview && r.path.join("projektbild.png").is_file()).then(|| image(image::Handle::from_path(r.path.join("projektbild.png"))).height(72).into());
             let kopf_zeile: Element<Msg> = row![name, iced::widget::space::horizontal(), aktion].spacing(8).align_y(Alignment::Center).wrap().into();
             let text_spalte = column![kopf_zeile, marken.wrap().vertical_spacing(4), text(recent::pretty(&r.path)).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.mute)].spacing(5).width(Length::Fill);
@@ -126,26 +126,26 @@ impl App {
         // Studios
         let arten = self.studio_arten();
         if !arten.is_empty() {
-            links = links.push(titel(pal, "Studios")).push(klein(pal, if hat_projekt { "Legt eine neue Datei im geöffneten Projekt an." } else { "Studios arbeiten auf Dateien eines Projekts. Zuerst ein Projekt öffnen." }));
-            links = links.push(row(arten.into_iter().map(|a| { let n = crate::NeuArt::Studio(a); knopf(pal, n.name(), hat_projekt.then(|| s(StartAkt::StudioNeu(n))), pal.text, false) }).collect::<Vec<_>>()).spacing(8).wrap().vertical_spacing(8));
+            links = links.push(titel(pal, vc_i18n::t!("startui-studios"))).push(klein(pal, if hat_projekt { vc_i18n::t!("startui-legt-eine-neue-datei-im-geoeffneten") } else { vc_i18n::t!("startui-studios-arbeiten-auf-dateien-eines-projekts") }));
+            links = links.push(row(arten.into_iter().map(|a| { let n = crate::NeuArt::Studio(a); knopf(pal, &n.name(), hat_projekt.then(|| s(StartAkt::StudioNeu(n))), pal.text, false) }).collect::<Vec<_>>()).spacing(8).wrap().vertical_spacing(8));
         }
         // rechts: Toolchain und Hardware, Referenz
-        let mut tc = column![titel(pal, "Toolchain und Hardware"), text("ERKANNTE EMULATOREN").size(10.5).color(pal.mute)].spacing(5);
+        let mut tc = column![titel(pal, vc_i18n::t!("startui-toolchain-und-hardware")), text(vc_i18n::t!("startui-erkannte-emulatoren")).size(10.5).color(pal.mute)].spacing(5);
         for (k, p) in self.werkzeuge() {
-            tc = tc.push(row![text("●").size(11).color(if p.found { pal.ok } else { pal.mute }), text(kind_label(k)).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text), iced::widget::space::horizontal(), if p.found { chip(pal.ok, "bereit") } else if k == "altirra" && !cfg!(windows) { chip(pal.mute, "nur Windows") } else { chip(pal.mute, "nicht gefunden") }].spacing(6).align_y(Alignment::Center));
+            tc = tc.push(row![text("●").size(11).color(if p.found { pal.ok } else { pal.mute }), text(kind_label(k)).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text), iced::widget::space::horizontal(), if p.found { chip(pal.ok, vc_i18n::t!("startui-bereit")) } else if k == "altirra" && !cfg!(windows) { chip(pal.mute, vc_i18n::t!("startui-nur-windows")) } else { chip(pal.mute, vc_i18n::t!("startui-nicht-gefunden")) }].spacing(6).align_y(Alignment::Center));
         }
-        tc = tc.push(text("ECHTE HARDWARE").size(10.5).color(pal.mute));
+        tc = tc.push(text(vc_i18n::t!("startui-echte-hardware")).size(10.5).color(pal.mute));
         let ms = &self.satz.gespeichert.machines;
-        if ms.is_empty() { tc = tc.push(klein(pal, "Keine Hardware eingetragen")) }
+        if ms.is_empty() { tc = tc.push(klein(pal, vc_i18n::t!("startui-keine-hardware-eingetragen"))) }
         for m in ms {
             let p = st.proben.get(&m.id); let adr = if m.kind == "ultimate64" { m.host.clone() } else { m.device.clone() };
-            let (farbe, c) = match p { Some(Probe::Ok) => (pal.ok, chip(pal.ok, "online")), Some(Probe::Fehler(_)) => (pal.err, chip(pal.err, "nicht erreichbar")), Some(Probe::Laeuft) => (pal.warn, chip(pal.warn, "prüfe …")), None => (pal.mute, chip(pal.mute, "ungeprüft")) };
-            tc = tc.push(row![text("●").size(11).color(farbe), text(format!("{} · {}", m.display_name(), if adr.is_empty() { "–".into() } else { adr })).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text), iced::widget::space::horizontal(), c, knopf(pal, "Testen", (p != Some(&Probe::Laeuft)).then(|| s(StartAkt::Testen(m.id.clone()))), pal.text, false)].spacing(6).align_y(Alignment::Center).wrap());
+            let (farbe, c) = match p { Some(Probe::Ok) => (pal.ok, chip(pal.ok, "online")), Some(Probe::Fehler(_)) => (pal.err, chip(pal.err, vc_i18n::t!("startui-nicht-erreichbar"))), Some(Probe::Laeuft) => (pal.warn, chip(pal.warn, vc_i18n::t!("startui-pruefe"))), None => (pal.mute, chip(pal.mute, vc_i18n::t!("startui-ungeprueft"))) };
+            tc = tc.push(row![text("●").size(11).color(farbe), text(format!("{} · {}", m.display_name(), if adr.is_empty() { "–".into() } else { adr })).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text), iced::widget::space::horizontal(), c, knopf(pal, vc_i18n::t!("startui-testen"), (p != Some(&Probe::Laeuft)).then(|| s(StartAkt::Testen(m.id.clone()))), pal.text, false)].spacing(6).align_y(Alignment::Center).wrap());
             if let Some(Probe::Fehler(e)) = p { tc = tc.push(text(e.clone()).size(11.5).color(pal.err)) }
         }
-        tc = tc.push(row![knopf(pal, "Einstellungen öffnen", Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::Einstellungen)), pal.text, false), knopf(pal, "Konfigurationsassistent", Some(s(StartAkt::Assistent)), pal.text, false), knopf(pal, "Feedback senden …", Some(s(StartAkt::Feedback)), pal.text, false)].spacing(6).wrap().vertical_spacing(6));
-        let mut ref_ = column![titel(pal, "Schnellreferenz")].spacing(4);
-        for (id, t) in [("start", "Überblick"), ("settings", "Einstellungen"), ("assembler", "Assembler"), ("basic", "BASIC"), ("debugger", "Debugger"), ("disks", "Disk-Studio"), ("shortcuts", "Tastenkürzel")] {
+        tc = tc.push(row![knopf(pal, vc_i18n::t!("startui-einstellungen-oeffnen"), Some(Msg::Befehl(vc_gui_ui::befehle::Cmd::Einstellungen)), pal.text, false), knopf(pal, vc_i18n::t!("startui-konfigurationsassistent"), Some(s(StartAkt::Assistent)), pal.text, false), knopf(pal, vc_i18n::t!("startui-feedback-senden"), Some(s(StartAkt::Feedback)), pal.text, false)].spacing(6).wrap().vertical_spacing(6));
+        let mut ref_ = column![titel(pal, vc_i18n::t!("startui-schnellreferenz"))].spacing(4);
+        for (id, t) in [("start", vc_i18n::t!("startui-ueberblick")), ("settings", vc_i18n::t!("startui-einstellungen")), ("assembler", vc_i18n::t!("startui-assembler")), ("basic", "BASIC".to_string()), ("debugger", vc_i18n::t!("startui-debugger")), ("disks", vc_i18n::t!("startui-disk-studio")), ("shortcuts", vc_i18n::t!("startui-tastenkuerzel"))] {
             if !vc_ide::help::visible(id) { continue }
             ref_ = ref_.push(button(text(t).size(13).color(pal.accent)).padding([1, 0]).on_press(s(StartAkt::Hilfe(id))).style(|_, _| button::Style::default()));
         }

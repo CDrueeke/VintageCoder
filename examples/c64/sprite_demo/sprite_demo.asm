@@ -3,8 +3,8 @@
 ; Zweck: zeigt, wie ein exportiertes Sprite (graphics/hero.vcsprite) in ein Programm kommt und wie man Sprite 0 des VIC-II einschaltet,
 ;   in den Multicolor-Modus versetzt, positioniert und einfärbt.
 ;
-; Vorbereitung und Bedienung: `vcc build examples/c64/sprite_demo` exportiert das Sprite selbst (oder im Editor als ASM exportieren,
-;   bzw. `vcc media export graphics/hero.vcsprite`) und erzeugt build/export/hero.asm mit dem Label `hero` und den Konstanten
+; Vorbereitung und Bedienung: `vcc build examples/c64/sprite_demo` wandelt das Sprite beim Einbinden selbst um (oder im Editor als ASM exportieren,
+;   bzw. `vcc media export graphics/hero.vcsprite`) und liefert den Text mit dem Label `hero` und den Konstanten
 ;   hero_len (128 Bytes = 2 Frames je 64 Bytes), hero_sprite (7), hero_mc1 (2), hero_mc2 (6) und hero_count (2). PRG laden, RUN: Sprite 0
 ;   erscheint als kleine Figur bei Bildschirmposition X = 100, Y = 100 (Koordinaten der Sprite-Register, nicht des Textrasters). Das
 ;   Programm bleibt in einer Endlosschleife (SEI ohne CLI); beenden mit RESET. Das Sprite hat zwei Frames; angezeigt wird nur Frame 0,
@@ -47,4 +47,4 @@ start:  sei
 loop:   jmp loop
 
 .org $2000                      ; Sprite-Daten auf 64-Byte-Raster: Zeigerwert $80 = $2000 / 64
-.include "build/export/hero.asm"
+.include "graphics/hero.vcsprite"

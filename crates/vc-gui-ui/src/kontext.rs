@@ -28,14 +28,14 @@ pub fn eintraege(art: Art) -> &'static [Option<Cmd>] {
     }
 }
 /// Menüname für Bildschirmleser
-pub fn menuename(art: Art) -> &'static str { match art { Art::Menue => "Menü", Art::Problem => "Kontextmenü Problem", Art::Protokoll => "Kontextmenü Protokoll", Art::Baum => "Kontextmenü Datei", Art::BaumFlaeche => "Kontextmenü Dateibaum", Art::Reiter => "Kontextmenü Reiter", Art::Editor => "Kontextmenü Editor", Art::Flaeche => "Kontextmenü Zeichenfläche", Art::FlaecheStudio => "Kontextmenü Studio" } }
+pub fn menuename(art: Art) -> String { match art { Art::Menue => vc_i18n::t!("kontext-menue"), Art::Problem => vc_i18n::t!("kontext-kontextmenue-problem"), Art::Protokoll => vc_i18n::t!("kontext-kontextmenue-protokoll"), Art::Baum => vc_i18n::t!("kontext-kontextmenue-datei"), Art::BaumFlaeche => vc_i18n::t!("kontext-kontextmenue-dateibaum"), Art::Reiter => vc_i18n::t!("kontext-kontextmenue-reiter"), Art::Editor => vc_i18n::t!("kontext-kontextmenue-editor"), Art::Flaeche => vc_i18n::t!("kontext-kontextmenue-zeichenflaeche"), Art::FlaecheStudio => vc_i18n::t!("kontext-kontextmenue-studio") } }
 /// Kürzel, das im Menü steht: aus der Tabelle, bei den Textbearbeitungen die des Editors (sie sind in der Tabelle bewusst frei)
 pub fn kuerzel(c: Cmd, mac: bool) -> String {
     let t = match c { Cmd::Ausschneiden => "Cmd+X", Cmd::Kopieren => "Cmd+C", Cmd::Einfuegen => "Cmd+V", Cmd::AlleAuswaehlen => "Cmd+A", _ => befehle::info(c).tasten };
     if t.is_empty() { String::new() } else { befehle::fuer_anzeige(t, mac) }
 }
 /// Name im Menü; „Hilfe“ heißt im Editor „Hilfe zum Wort“
-pub fn eintragsname(c: Cmd) -> &'static str { if c == Cmd::Hilfe { "Hilfe zum Wort" } else { befehle::info(c).name } }
+pub fn eintragsname(c: Cmd) -> String { if c == Cmd::Hilfe { vc_i18n::t!("kontext-hilfe-zum-wort") } else { befehle::info(c).name() } }
 
 /// Eine Menüzeile (Name, Kürzel, ob wählbar, was sie auslöst)
 #[derive(Clone, Debug)]

@@ -1,0 +1,67 @@
+{
+  "i18n": { "status": "geprüft", "source_hash": "bebd317b9ec5" },
+  "command": "new",
+  "group": "projekte",
+  "summary": "Create a new project from a template",
+  "description": [
+    "Creates the folder (if needed) and writes the project file <name>.vcprj and the sources of the template, per target system under src/<system>/. The folder must not contain a .vcprj yet.",
+    "With --structure, the folders and layout of a project structure are added. vcc new --list shows templates, variants and project structures with the possible target systems."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc new <folder> [options]",
+      "args": [
+        { "name": "folder", "required": true, "repeat": false, "help": "Project folder. Its name is the project name if --name is missing. Not needed with --list." }
+      ],
+      "option_groups": [
+        { "id": "projekt", "label": "Project" },
+        { "id": "sonst", "label": "More" }
+      ],
+      "options": [
+        { "flag": "--target", "short": "", "value": "system[,system...]", "group": "projekt",
+          "help": "Target systems, separated by commas. Each gets its own sources under src/<system>/. The template must support the system.",
+          "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--template", "short": "", "value": "template", "group": "projekt",
+          "help": "File template: assembler program, BASIC or only the project file with src/.",
+          "choices": ["asm-hello", "basic-hello", "empty"],
+          "default": "asm-hello", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--variant", "short": "", "value": "variant", "group": "projekt",
+          "help": "Variant of the template. cartridge creates an 8 KB cartridge instead of a program (asm-hello only; c64, atari8, vic20).",
+          "choices": ["cartridge"],
+          "default": "", "default_text": "none", "repeat": false, "required": false },
+        { "flag": "--structure", "short": "", "value": "structure", "group": "projekt",
+          "help": "Project structure: creates folders and enters the layout in the project file. Your own templates from structures.json are also possible. The earlier German names (einfach, gross, mehrsystem, bibliothek, spiel) are still accepted.",
+          "choices": ["simple", "standard", "large", "multisystem", "library", "game"],
+          "default": "", "default_text": "none", "repeat": false, "required": false },
+        { "flag": "--charset", "short": "", "value": "choice", "group": "projekt",
+          "help": "Character set of the project: auto = your ROM as a reference, otherwise the own default set as a copy; own = always the own default set (can be passed on, with HERKUNFT.txt); none = none.",
+          "choices": ["auto", "own", "none"],
+          "default": "auto", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--name", "short": "", "value": "name", "group": "projekt",
+          "help": "Project name (letters, digits, _ and -, at most 48 characters). Sets the name of the .vcprj.",
+          "default": "", "default_text": "name of the folder", "repeat": false, "required": false },
+        { "flag": "--list", "short": "", "value": "", "group": "sonst",
+          "help": "List project structures, templates and variants with their target systems. Creates nothing.",
+          "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "folder", "group": "sonst",
+          "help": "Folder of the hardware database (data).",
+          "default": "", "default_text": "VC_DATA, otherwise next to the program or in the working folder", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "simple C64 project", "cmd": "vcc new game --target c64" },
+        { "title": "one project for several targets", "cmd": "vcc new multi --target c64,atari8" },
+        { "title": "BASIC project with a project structure", "cmd": "vcc new demo --target c64,vic20 --template basic-hello --structure multisystem" },
+        { "title": "cartridge for the VIC-20", "cmd": "vcc new cart --target vic20 --variant cartridge" },
+        { "title": "list templates and structures", "cmd": "vcc new --list" }
+      ],
+      "notes": [
+        "The template empty exists for c64, c128, plus4, vic20, atari8 and mega65. asm-hello also exists for pet, and basic-hello for pet.",
+        "Without your own ROM, auto puts the own set VC-Standard (CC0) in graphics/vc-standard/. Systems without an own set (PET) get nothing.",
+        "The folders and files that were created are printed."
+      ],
+      "see_also": ["add", "organize", "build"]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! ASCII ↔ PETSCII (C64, Großschrift-/Grafikmodus) und `{...}`-Steuercodes.
 use crate::dialect::Dialect;
+use vc_core::{msg, Msg};
 
 /// ASCII-Zeichen → PETSCII-Byte (Kleinbuchstaben werden zu PETSCII-Großbuchstaben, Großbuchstaben zu den umgeschalteten Zeichen).
 pub fn from_ascii(c: char) -> Option<u8> {
@@ -24,19 +25,19 @@ pub fn to_text(b: u8, d: &Dialect) -> String {
 }
 
 /// Wandelt den Inhalt einer Zeichenkette (mit `{name}`, `{name*n}`, `{$xx}`) in PETSCII-Bytes.
-pub fn from_text(s: &str, d: &Dialect) -> Result<Vec<u8>, String> {
+pub fn from_text(s: &str, d: &Dialect) -> Result<Vec<u8>, Msg> {
     let c: Vec<char> = s.chars().collect();
     let (mut out, mut i) = (vec![], 0);
     while i < c.len() {
         if c[i] == '{' {
-            let end = c[i..].iter().position(|x| *x == '}').ok_or("'}' fehlt")? + i;
+            let end = c[i..].iter().position(|x| *x == '}').ok_or_else(|| msg!("diag-basic-b100-brace-missing"))? + i;
             let body: String = c[i + 1..end].iter().collect();
             // Name des Dialekts zuerst, dann die gemeinsame Tabelle (`data/chars/`: alle Schreibweisen, `{147}`, `{$93}`, `{down*3}`)
-            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Petscii, &body, &|n| d.control_code(n))?;
+            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Petscii, &body, &|n| d.control_code(n)).map_err(crate::char_ref)?;
             out.extend(std::iter::repeat(code).take(count));
             i = end + 1;
         } else {
-            out.push(from_ascii(c[i]).ok_or(format!("Zeichen '{}' hat keine PETSCII-Entsprechung (nutze {{$xx}})", c[i]))?);
+            out.push(from_ascii(c[i]).ok_or_else(|| msg!("diag-basic-b100-petscii-char-hint", c = c[i]))?);
             i += 1;
         }
     }
@@ -59,7 +60,9 @@ mod tests {
         // Zahlen: dezimal und hexadezimal
         assert_eq!(from_text("{147}{$93}{$c1*2}", &d).unwrap(), vec![147, 0x93, 0xC1, 0xC1]);
         assert!(from_text("{300}", &d).is_err());
-        assert!(from_text("{nix}", &d).unwrap_err().contains("unbekannter Steuercode"));
+        let e = from_text("{nix}", &d).unwrap_err();
+        assert_eq!(e.key, "diag-basic-b100-char-ref");
+        assert!(e.arg_text("text").contains("nix"));
         assert!(from_text("{down*0}", &d).is_err());
     }
 

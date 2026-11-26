@@ -101,8 +101,8 @@
 .const ISAVE                 = $0332   // SAVE
 
 // ---- KERNAL-ROM-Routinen
-.const CLRSCR                = $E544   // Bildschirm löschen
-.const HOME                  = $E566   // Cursor links oben
+.const CLRSCR                = $E544   // Bildschirm löschen (nur Standard-KERNAL; skandinavische Fassung anders, portabel: CHROUT mit $93)
+.const HOME                  = $E566   // Cursor links oben (nur Standard-KERNAL, portabel: CHROUT mit $13)
 .const IRQ_STD               = $EA31   // Standard-IRQ-Routine
 .const IRQ_ACK               = $EA7E   // IRQ beenden (CIA-Flag lesen, Register zurück)
 .const IRQ_EXIT              = $EA81   // IRQ beenden (Register zurück, RTI)

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Zeilenparser: Label, Zuweisung, Direktive oder Instruktion.
 use std::rc::Rc;
+use vc_core::{msg, Msg};
 
 #[derive(Debug, Clone)]
 pub enum Body {
@@ -52,7 +53,7 @@ pub fn strip_comment(s: &str) -> &str {
 
 fn is_ident_char(c: char) -> bool { c.is_alphanumeric() || c == '_' || c == '.' }
 
-pub fn parse_line(line_no: usize, raw: &str) -> Result<Stmt, String> {
+pub fn parse_line(line_no: usize, raw: &str) -> Result<Stmt, Msg> {
     let mut s = strip_comment(raw).trim();
     let mut label = None;
     // anonymes Label: einzelnes `+` oder `-` am Zeilenanfang (danach Leerraum oder Zeilenende)
@@ -86,7 +87,8 @@ pub fn parse_line(line_no: usize, raw: &str) -> Result<Stmt, String> {
     if let Some(r) = s.strip_prefix('}') { return Ok(Stmt { file: Rc::from(""), line: line_no, label, body: Body::Dir(".endscope".into(), r.trim().to_string()) }); }
     let wend = s.find(|c: char| c.is_whitespace() || c == '(').unwrap_or(s.len());
     let (word, args) = (&s[..wend], s[wend..].trim());
-    let body = if word.starts_with('.') { Body::Dir(word.to_ascii_lowercase(), args.to_string()) }
+    // Direktiven werden schon hier auf den kanonischen Namen aufgelöst (Alias, alte Namen; Tabelle `data/asm/directives.json`)
+    let body = if word.starts_with('.') { let (n, a) = crate::directives::normalize(&word.to_ascii_lowercase(), args); Body::Dir(n, a) }
                else { Body::Ins(word.to_ascii_uppercase(), args.to_string()) };
     Ok(Stmt { file: Rc::from(""), line: line_no, label, body })
 }
@@ -118,7 +120,7 @@ fn match_paren(s: &str) -> Option<usize> {
     None
 }
 
-pub fn parse_operand(s: &str) -> Result<Operand, String> {
+pub fn parse_operand(s: &str) -> Result<Operand, Msg> {
     let s = s.trim();
     if s.is_empty() { return Ok(Operand::None); }
     if s.eq_ignore_ascii_case("a") || s.eq_ignore_ascii_case("q") { return Ok(Operand::Acc); }
@@ -127,7 +129,7 @@ pub fn parse_operand(s: &str) -> Result<Operand, String> {
             let rest: String = s[close + 1..].chars().filter(|c| !c.is_whitespace()).collect();
             if rest.is_empty() || rest.eq_ignore_ascii_case(",z") { return Ok(Operand::Ind32(s[1..close].trim().to_string())); }
         }
-        return Err("ungültiger 32-Bit-Zeiger".into());
+        return Err(msg!("diag-asm-e206-ptr32"));
     }
     if let Some(r) = s.strip_prefix('#') { return Ok(Operand::Imm(r.trim().to_string())); }
     if s.starts_with('(') {
@@ -137,9 +139,9 @@ pub fn parse_operand(s: &str) -> Result<Operand, String> {
             if rest.is_empty() {
                 let parts = split_top(inner, ',');
                 if parts.len() == 2 && parts[1].eq_ignore_ascii_case("x") { return Ok(Operand::IndX(parts[0].clone())); }
-                if parts.len() == 2 && parts[1].eq_ignore_ascii_case("sp") { return Err("($nn,sp) braucht ,y dahinter".into()); }
+                if parts.len() == 2 && parts[1].eq_ignore_ascii_case("sp") { return Err(msg!("diag-asm-e206-sp-needs-y")); }
                 if parts.len() == 1 { return Ok(Operand::Ind(inner.to_string())); }
-                return Err("ungültiger indirekter Operand".into());
+                return Err(msg!("diag-asm-e206-indirect"));
             }
             let r2: String = rest.chars().filter(|c| !c.is_whitespace()).collect();
             if r2.eq_ignore_ascii_case(",y") {
@@ -156,6 +158,6 @@ pub fn parse_operand(s: &str) -> Result<Operand, String> {
         2 if parts[1].eq_ignore_ascii_case("x") => Ok(Operand::Direct(parts[0].clone(), Some('x'))),
         2 if parts[1].eq_ignore_ascii_case("y") => Ok(Operand::Direct(parts[0].clone(), Some('y'))),
         2 => Ok(Operand::Pair(parts[0].clone(), parts[1].clone())),
-        _ => Err("ungültiger Operand".into()),
+        _ => Err(msg!("diag-asm-e206-operand")),
     }
 }

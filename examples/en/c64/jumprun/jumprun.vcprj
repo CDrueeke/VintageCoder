@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: jumprun",
+    "description": "Hugo & Gumbo: self-playing jump-and-run demo (assembler, SID, sprites)"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "jumprun.asm"
+      ]
+    }
+  ],
+  "main": "jumprun.asm"
+}

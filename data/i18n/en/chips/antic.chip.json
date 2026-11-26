@@ -1,0 +1,115 @@
+{
+ "source": "chips/antic.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "DMA-Steuerung",
+   "en": "DMA control",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/0/doc": {
+   "de": "Playfield-Breite (0=aus, 1=schmal, 2=normal, 3=breit)",
+   "en": "Playfield width (0=off, 1=narrow, 2=normal, 3=wide)",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/1/doc": {
+   "de": "Missile-DMA",
+   "en": "Missile DMA",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/2/doc": {
+   "de": "Spieler-DMA",
+   "en": "Player DMA",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/3/doc": {
+   "de": "Einzeilige PM-Auflösung",
+   "en": "Single-line PM resolution",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/4/doc": {
+   "de": "Display-List-DMA",
+   "en": "Display list DMA",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Zeichensatz-Steuerung",
+   "en": "Character set control",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Display-List-Adresse (Low)",
+   "en": "Display list address (low)",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Display-List-Adresse (High)",
+   "en": "Display list address (high)",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Horizontales Scrollen",
+   "en": "Horizontal scrolling",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Vertikales Scrollen",
+   "en": "Vertical scrolling",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "PMG-Basisadresse (High-Byte)",
+   "en": "PMG base address (high byte)",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Zeichensatz-Basisadresse (High-Byte)",
+   "en": "Character set base address (high byte)",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Auf Zeilenende warten",
+   "en": "Wait for end of line",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "NMI-Freigabe",
+   "en": "NMI enable",
+   "status": "maschinell"
+  },
+  "/regs/9/bits/0/doc": {
+   "de": "Vertical-Blank-NMI",
+   "en": "Vertical blank NMI",
+   "status": "maschinell"
+  },
+  "/regs/9/bits/1/doc": {
+   "de": "Display-List-NMI",
+   "en": "Display list NMI",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "NMI-Status löschen",
+   "en": "Clear NMI status",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Vertikaler Zeilenzähler (Zeile / 2)",
+   "en": "Vertical line counter (line / 2)",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Lichtgriffel horizontal",
+   "en": "Light pen horizontal",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Lichtgriffel vertikal",
+   "en": "Light pen vertical",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "NMI-Status",
+   "en": "NMI status",
+   "status": "maschinell"
+  }
+ }
+}

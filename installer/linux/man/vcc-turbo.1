@@ -1,0 +1,124 @@
+.\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
+.\" -*- coding: UTF-8 -*-
+.TH VCC\-TURBO 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
+.SH NAME
+vcc\-turbo \- Turbo BASIC XL: Diskette bereitstellen, prüfen, starten
+.SH ÜBERSICHT
+.B vcc turbo check <image.atr> [\-\-json]
+.br
+.B vcc turbo provide <image.atr> [projekt] [\-\-reduce] [\-\-yes] [\-\-anyway] [\-\-replace]
+.br
+.B vcc turbo reduce [projekt] [\-\-yes]
+.br
+.B vcc turbo run [projekt] [\-\-data\-dir <ordner>]
+.br
+.SH BESCHREIBUNG
+Turbo BASIC XL: Diskette bereitstellen, prüfen, starten
+.PP
+Turbo BASIC XL läuft auf dem Atari von einer Diskette, die du selbst besitzen musst; VintageCoder liefert keine aus. Das Projekt bekommt eine Kopie davon (turbo/), beim Bauen entsteht daraus build/<name>.atr mit dem Programm als AUTORUN.BAS (vcc build), und vcc turbo run startet sie im Emulator.
+.SH OPTIONEN
+.SS Form check
+Diskette prüfen: ist das Turbo BASIC XL?
+.PP
+.TP
+\fIimage\fR
+ATR\-Abbild der Diskette (90 KB, Atari DOS 2).
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-json\fR
+Ausgabe als JSON auf der Standardausgabe.
+.SS Form provide
+Diskette des Anwenders ins Projekt kopieren
+.PP
+.TP
+\fIimage\fR
+ATR\-Abbild der eigenen Turbo\-BASIC\-XL\-Diskette (wird nur gelesen).
+.TP
+\fIprojekt\fR
+Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional)
+.PP
+\fBBereitstellen\fR
+.TP
+\fB\-\-reduce\fR
+Die Kopie auf DOS.SYS, DUP.SYS und AUTORUN.SYS verkleinern (mehr freier Platz). Fragt vorher nach; das Original bleibt unverändert.
+.TP
+\fB\-\-yes\fR
+Rückfrage von \-\-reduce überspringen.
+.TP
+\fB\-\-anyway\fR
+Auch ein Abbild verwenden, das nicht nach Turbo BASIC XL aussieht oder Fehler hat (auf eigene Verantwortung).
+.TP
+\fB\-\-replace\fR
+Eine vorhandene Kopie gleichen Namens überschreiben.
+.SS Form reduce
+Kopie im Projekt auf die Systemdateien verkleinern
+.PP
+.TP
+\fIprojekt\fR
+Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional)
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-yes\fR
+Rückfrage überspringen.
+.SS Form run
+bauen und im Atari\-Emulator starten
+.PP
+.TP
+\fIprojekt\fR
+Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional)
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-data\-dir\fR \fIordner\fR
+Ordner der Hardware\-Datenbank (data); ersetzt VC_DATA und die automatische Suche.
+.SH BEISPIELE
+Diskette prüfen:
+.PP
+.RS 8
+.nf
+vcc turbo check Turbo_Basic_XL.atr
+.fi
+.RE
+Diskette bereitstellen:
+.PP
+.RS 8
+.nf
+vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt
+.fi
+.RE
+bereitstellen und verkleinern:
+.PP
+.RS 8
+.nf
+vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt \-\-reduce
+.fi
+.RE
+Platz schaffen:
+.PP
+.RS 8
+.nf
+vcc turbo reduce
+.fi
+.RE
+Turbo\-BASIC\-Projekt starten:
+.PP
+.RS 8
+.nf
+vcc turbo run examples/atari/turbo_basic
+.fi
+.RE
+.SH HINWEISE
+Die Prüfung liest nur Bytes (kein Emulator): Dateisystem, AUTORUN.SYS mit der Kennung TURBO\-BASIC XL, Version, freie Sektoren, Verzeichnis und SHA\-256 gegen die Liste bekannter Abbilder. Hinweise auf Altlasten (z. B. nie abgeschlossene Einträge) sind keine Fehler.
+.PP
+Turbo BASIC XL gehört nicht zum Lieferumfang von VintageCoder: Die Diskette musst du selbst besitzen. Die Kopie liegt in turbo/ unter dem Namen des Originals; die Projektdatei bekommt den Abschnitt turbo, die .gitignore die Zeile turbo/*.atr.
+.PP
+Entfernt in der Projektkopie alles außer DOS.SYS, DUP.SYS und AUTORUN.SYS (dann sind rund 480 statt 103 Sektoren frei; COMPILER.COM, RUNTIME.COM und die Beispielprogramme fallen weg). Dein Original bleibt unverändert.
+.PP
+Baut das Hauptprogramm, schreibt es als AUTORUN.BAS auf eine Kopie der Diskette (build/<name>.atr) und bootet sie im Standard\-Emulator des Atari (atari800; unter Windows auf Wunsch Altirra) in Laufwerk 1 ohne eingebautes BASIC. Nach dem Programmende (READY) wartet Turbo BASIC XL auf Eingaben. Altirra mit einer Turbo\-BASIC\-Diskette ist noch nicht geprüft.
+.PP
+.SH RÜCKGABEWERT
+0 = sieht nach Turbo BASIC XL aus, keine Fehler, 1 = nicht erkannt, Fehler im Dateisystem oder Datei nicht lesbar, 2 = falscher Aufruf
+.SH SIEHE AUCH
+vcc(1), vcc\-build(1), vcc\-disk(1), vcc\-turbo(1)

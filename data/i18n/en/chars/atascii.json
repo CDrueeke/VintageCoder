@@ -1,0 +1,85 @@
+{
+ "source": "chars/atascii.json",
+ "entries": {
+  "/entries/0/desc": {
+   "de": "Escape (nächstes Zeichen wird nur dargestellt)",
+   "en": "Escape (next character is only displayed)",
+   "status": "maschinell"
+  },
+  "/entries/1/desc": {
+   "de": "Cursor hoch",
+   "en": "Cursor up",
+   "status": "maschinell"
+  },
+  "/entries/2/desc": {
+   "de": "Cursor runter",
+   "en": "Cursor down",
+   "status": "maschinell"
+  },
+  "/entries/3/desc": {
+   "de": "Cursor links",
+   "en": "Cursor left",
+   "status": "maschinell"
+  },
+  "/entries/4/desc": {
+   "de": "Cursor rechts",
+   "en": "Cursor right",
+   "status": "maschinell"
+  },
+  "/entries/5/desc": {
+   "de": "Bildschirm löschen",
+   "en": "Clear screen",
+   "status": "maschinell"
+  },
+  "/entries/6/desc": {
+   "de": "Rückschritt",
+   "en": "Backspace",
+   "status": "maschinell"
+  },
+  "/entries/7/desc": {
+   "de": "Tabulator",
+   "en": "Tab",
+   "status": "maschinell"
+  },
+  "/entries/8/desc": {
+   "de": "Zeilenende",
+   "en": "End of line",
+   "status": "maschinell"
+  },
+  "/entries/9/desc": {
+   "de": "Zeile löschen",
+   "en": "Delete line",
+   "status": "maschinell"
+  },
+  "/entries/10/desc": {
+   "de": "Zeile einfügen",
+   "en": "Insert line",
+   "status": "maschinell"
+  },
+  "/entries/11/desc": {
+   "de": "Tabulator löschen",
+   "en": "Clear tab",
+   "status": "maschinell"
+  },
+  "/entries/12/desc": {
+   "de": "Tabulator setzen",
+   "en": "Set tab",
+   "status": "maschinell"
+  },
+  "/entries/13/desc": {
+   "de": "Klingel",
+   "en": "Bell",
+   "status": "maschinell"
+  },
+  "/entries/14/desc": {
+   "de": "Zeichen löschen",
+   "en": "Delete character",
+   "status": "maschinell"
+  },
+  "/entries/15/desc": {
+   "de": "Zeichen einfügen",
+   "en": "Insert character",
+   "status": "maschinell"
+  }
+ }
+}

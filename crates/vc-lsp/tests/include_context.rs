@@ -19,7 +19,7 @@ impl Proj {
             std::fs::write(p, t).unwrap();
         }
         let mut srv = Server::new();
-        srv.handle(json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "rootUri": uri(&dir), "capabilities": {}, "initializationOptions": { "dataDir": data_dir() } } }));
+        srv.handle(json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "rootUri": uri(&dir), "locale": "de", "capabilities": {}, "initializationOptions": { "dataDir": data_dir() } } }));
         Proj { dir, srv }
     }
     fn uri(&self, rel: &str) -> String { uri(&self.dir.join(rel)) }

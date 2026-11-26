@@ -1,0 +1,305 @@
+{
+ "source": "chips/gtia.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Horizontale Position Spieler 0",
+   "en": "Horizontal position player 0",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Horizontale Position Spieler 1",
+   "en": "Horizontal position player 1",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Horizontale Position Spieler 2",
+   "en": "Horizontal position player 2",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Horizontale Position Spieler 3",
+   "en": "Horizontal position player 3",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Horizontale Position Missile 0",
+   "en": "Horizontal position missile 0",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Horizontale Position Missile 1",
+   "en": "Horizontal position missile 1",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Horizontale Position Missile 2",
+   "en": "Horizontal position missile 2",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Horizontale Position Missile 3",
+   "en": "Horizontal position missile 3",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Breite Spieler 0 (0=1x, 1=2x, 3=4x)",
+   "en": "Width player 0 (0=1x, 1=2x, 3=4x)",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Breite Spieler 1 (0=1x, 1=2x, 3=4x)",
+   "en": "Width player 1 (0=1x, 1=2x, 3=4x)",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "Breite Spieler 2 (0=1x, 1=2x, 3=4x)",
+   "en": "Width player 2 (0=1x, 1=2x, 3=4x)",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Breite Spieler 3 (0=1x, 1=2x, 3=4x)",
+   "en": "Width player 3 (0=1x, 1=2x, 3=4x)",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Breite der Missiles",
+   "en": "Width of the missiles",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Grafikdaten Spieler 0",
+   "en": "Graphics data player 0",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Grafikdaten Spieler 1",
+   "en": "Graphics data player 1",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Grafikdaten Spieler 2",
+   "en": "Graphics data player 2",
+   "status": "maschinell"
+  },
+  "/regs/16/doc": {
+   "de": "Grafikdaten Spieler 3",
+   "en": "Graphics data player 3",
+   "status": "maschinell"
+  },
+  "/regs/17/doc": {
+   "de": "Grafikdaten der Missiles",
+   "en": "Graphics data of the missiles",
+   "status": "maschinell"
+  },
+  "/regs/18/doc": {
+   "de": "Farbe Spieler/Missile 0",
+   "en": "Color player/missile 0",
+   "status": "maschinell"
+  },
+  "/regs/19/doc": {
+   "de": "Farbe Spieler/Missile 1",
+   "en": "Color player/missile 1",
+   "status": "maschinell"
+  },
+  "/regs/20/doc": {
+   "de": "Farbe Spieler/Missile 2",
+   "en": "Color player/missile 2",
+   "status": "maschinell"
+  },
+  "/regs/21/doc": {
+   "de": "Farbe Spieler/Missile 3",
+   "en": "Color player/missile 3",
+   "status": "maschinell"
+  },
+  "/regs/22/doc": {
+   "de": "Farbe Playfield 0",
+   "en": "Color playfield 0",
+   "status": "maschinell"
+  },
+  "/regs/23/doc": {
+   "de": "Farbe Playfield 1",
+   "en": "Color playfield 1",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Farbe Playfield 2",
+   "en": "Color playfield 2",
+   "status": "maschinell"
+  },
+  "/regs/25/doc": {
+   "de": "Farbe Playfield 3",
+   "en": "Color playfield 3",
+   "status": "maschinell"
+  },
+  "/regs/26/doc": {
+   "de": "Hintergrundfarbe/Rahmen",
+   "en": "Background color/border",
+   "status": "maschinell"
+  },
+  "/regs/27/doc": {
+   "de": "Prioritäten und GTIA-Modi",
+   "en": "Priorities and GTIA modes",
+   "status": "maschinell"
+  },
+  "/regs/27/bits/0/doc": {
+   "de": "Prioritätstabelle",
+   "en": "Priority table",
+   "status": "maschinell"
+  },
+  "/regs/27/bits/1/doc": {
+   "de": "Missiles = 5. Spieler",
+   "en": "Missiles = 5th player",
+   "status": "maschinell"
+  },
+  "/regs/27/bits/2/doc": {
+   "de": "Multicolor-Spieler",
+   "en": "Multicolor players",
+   "status": "maschinell"
+  },
+  "/regs/27/bits/3/doc": {
+   "de": "GTIA-Modus 9/10/11",
+   "en": "GTIA mode 9/10/11",
+   "status": "maschinell"
+  },
+  "/regs/28/doc": {
+   "de": "Vertikale Verzögerung",
+   "en": "Vertical delay",
+   "status": "maschinell"
+  },
+  "/regs/29/doc": {
+   "de": "Grafik-Steuerung",
+   "en": "Graphics control",
+   "status": "maschinell"
+  },
+  "/regs/29/bits/0/doc": {
+   "de": "Missile-DMA-Daten übernehmen",
+   "en": "Latch missile DMA data",
+   "status": "maschinell"
+  },
+  "/regs/29/bits/1/doc": {
+   "de": "Spieler-DMA-Daten übernehmen",
+   "en": "Latch player DMA data",
+   "status": "maschinell"
+  },
+  "/regs/29/bits/2/doc": {
+   "de": "Trigger-Eingänge zwischenspeichern",
+   "en": "Latch trigger inputs",
+   "status": "maschinell"
+  },
+  "/regs/30/doc": {
+   "de": "Kollisionsregister löschen",
+   "en": "Clear collision registers",
+   "status": "maschinell"
+  },
+  "/regs/31/doc": {
+   "de": "Konsolentasten / Lautsprecher",
+   "en": "Console keys / speaker",
+   "status": "maschinell"
+  },
+  "/regs/32/doc": {
+   "de": "Kollision Missile 0 mit Playfield",
+   "en": "Collision missile 0 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/33/doc": {
+   "de": "Kollision Missile 1 mit Playfield",
+   "en": "Collision missile 1 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/34/doc": {
+   "de": "Kollision Missile 2 mit Playfield",
+   "en": "Collision missile 2 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/35/doc": {
+   "de": "Kollision Missile 3 mit Playfield",
+   "en": "Collision missile 3 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/36/doc": {
+   "de": "Kollision Spieler 0 mit Playfield",
+   "en": "Collision player 0 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/37/doc": {
+   "de": "Kollision Spieler 1 mit Playfield",
+   "en": "Collision player 1 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/38/doc": {
+   "de": "Kollision Spieler 2 mit Playfield",
+   "en": "Collision player 2 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/39/doc": {
+   "de": "Kollision Spieler 3 mit Playfield",
+   "en": "Collision player 3 with playfield",
+   "status": "maschinell"
+  },
+  "/regs/40/doc": {
+   "de": "Kollision Missile 0 mit Spielern",
+   "en": "Collision missile 0 with players",
+   "status": "maschinell"
+  },
+  "/regs/41/doc": {
+   "de": "Kollision Missile 1 mit Spielern",
+   "en": "Collision missile 1 with players",
+   "status": "maschinell"
+  },
+  "/regs/42/doc": {
+   "de": "Kollision Missile 2 mit Spielern",
+   "en": "Collision missile 2 with players",
+   "status": "maschinell"
+  },
+  "/regs/43/doc": {
+   "de": "Kollision Missile 3 mit Spielern",
+   "en": "Collision missile 3 with players",
+   "status": "maschinell"
+  },
+  "/regs/44/doc": {
+   "de": "Kollision Spieler 0 mit Spielern",
+   "en": "Collision player 0 with players",
+   "status": "maschinell"
+  },
+  "/regs/45/doc": {
+   "de": "Kollision Spieler 1 mit Spielern",
+   "en": "Collision player 1 with players",
+   "status": "maschinell"
+  },
+  "/regs/46/doc": {
+   "de": "Kollision Spieler 2 mit Spielern",
+   "en": "Collision player 2 with players",
+   "status": "maschinell"
+  },
+  "/regs/47/doc": {
+   "de": "Kollision Spieler 3 mit Spielern",
+   "en": "Collision player 3 with players",
+   "status": "maschinell"
+  },
+  "/regs/48/doc": {
+   "de": "Joystick-Feuerknopf 0",
+   "en": "Joystick fire button 0",
+   "status": "maschinell"
+  },
+  "/regs/49/doc": {
+   "de": "Joystick-Feuerknopf 1",
+   "en": "Joystick fire button 1",
+   "status": "maschinell"
+  },
+  "/regs/50/doc": {
+   "de": "Joystick-Feuerknopf 2",
+   "en": "Joystick fire button 2",
+   "status": "maschinell"
+  },
+  "/regs/51/doc": {
+   "de": "Joystick-Feuerknopf 3",
+   "en": "Joystick fire button 3",
+   "status": "maschinell"
+  },
+  "/regs/52/doc": {
+   "de": "PAL-/NTSC-Kennung (Bits 1-3: 1=PAL, 15=NTSC)",
+   "en": "PAL/NTSC flag (bits 1-3: 1=PAL, 15=NTSC)",
+   "status": "maschinell"
+  }
+ }
+}

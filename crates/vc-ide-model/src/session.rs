@@ -8,7 +8,17 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
-pub struct ProjSession { pub open: Vec<String>, pub active: Option<String>, /** Markdown: Anzeigeform je Datei („split“, „preview“) */ pub md_view: BTreeMap<String, String> }
+pub struct ProjSession { pub open: Vec<String>, pub active: Option<String>, /** Markdown: Anzeigeform je Datei („split“, „preview“) */ pub md_view: BTreeMap<String, String>,
+    /** Haltepunkte und Lesezeichen je Datei (bleiben auch über einen Neustart): Zeile samt Zeilentext, damit sie bei geändertem Text wiedergefunden werden */ pub marks: BTreeMap<String, FileMarks> }
+
+/// Eine Marke: Zeile (ab 1) und der Text der Zeile (ohne Rand), zum Wiederfinden nach Änderungen
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct MarkEntry { pub line: u32, pub text: String }
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct FileMarks { pub breakpoints: Vec<MarkEntry>, pub bookmarks: Vec<MarkEntry> }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -32,7 +42,7 @@ pub fn save_to(path: &Path, root: &Path, s: &ProjSession) -> bool {
     let mut f = std::fs::read_to_string(path).map(|t| SessionFile::parse(&t)).unwrap_or_default();
     f.projects.insert(key(root), s.clone());
     if let Some(d) = path.parent() { let _ = std::fs::create_dir_all(d); }
-    std::fs::write(path, format!("{}\n", f.to_json())).is_ok()
+    vc_core::atomar::schreiben(path, format!("{}\n", f.to_json())).is_ok()
 }
 
 /// Reihenfolge zum Wiederöffnen: fehlende und doppelte Dateien entfallen; die aktive Datei kommt zuletzt, damit sie vorn liegt.

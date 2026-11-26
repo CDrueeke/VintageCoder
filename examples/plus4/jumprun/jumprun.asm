@@ -10,10 +10,10 @@
 ; AUFBAU DER QUELLEN
 ;   jumprun.asm              dieses Hauptprogramm (Ablaufsteuerung, Titelbild)
 ;   hal_plus4.asm            Hardware-Schicht: TED (Bild, Zeichen-Sprites, Klang), Rasterinterrupt
-;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
+;   lib/core.asm             Spiellogik (plattformneutral; eigene Kopie dieses Projekts, unabhaengig von den anderen Systemen)
 ;   lib/levels.inc           Tabellen, Figurenbilder, Musik (ERZEUGT von tools/gen_jumprun_plus4.py)
 ;   graphics/*               Projektdateien der Editoren: Zeichensatz chars.vcchar, Kachelsatz hg.vctiles, Screen-Bank levels.vcscreen, Titelbild title.vcscreen
-;                            (beim Bauen nach build/export/*.asm exportiert und unten eingebunden)
+;                            (beim Bauen beim Einbinden unten umgewandelt)
 ;
 ; SPEICHERKARTE
 ;   $1001-$3FFF  Programm (BASIC-Starter + Code)   $4000-$47FF  Zeichensatz   $4800-...  Tabellen, Figurenbilder, Musik
@@ -216,19 +216,19 @@ play_level:
 ; Quellen einbinden: die HAL (TED) und die gemeinsame Spiellogik.  Beide liegen im Programmbereich unterhalb von $4000
 ; (Stand dieser Fassung: Programm $1001-$1DD6, Zeichensatz $4000-$47FF, Tabellen $4800-$5EEC, Bilddaten $6800-$7123).
 .include "hal_plus4.asm"
-.include "../../common/jumprun/core.asm"
+.include "lib/core.asm"
 
 ; Kacheleigenschaften der Spiellogik (core.asm liest tile_attr,x): 0 leer, 1 tragend (hg_p_solid), 2 Leiter (hg_p_ladder) - aus dem Kachelsatz
 .const tile_attr = hg_props
 .assert hg_p_solid == 1 && hg_p_ladder == 2, "core.asm erwartet 1 = tragend, 2 = Leiter"
 
-; ---- Daten an festen Adressen (die IDE exportiert die Dateien aus graphics/ beim Bauen nach build/export/)
+; ---- Daten an festen Adressen (die Dateien aus graphics/ werden beim Einbinden umgewandelt)
 .org $4000 - 105                       ; Zeichensatz: 256 Zeichen * 8 Byte; der TED holt ihn von hier (Register $FF13 = $42);
-.include "build/export/hg.asm"          ;   der Export des Kachelsatzes legt vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte);
+.include "graphics/hg.vctiles"          ;   der Export des Kachelsatzes legt vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte);
 .assert hg_chars == $4000, "Zeichensatz muss bei $4000 liegen (Tabellen des Kachelsatzes davor, siehe .org)"
                                         ;   hg_chars ist chars.vcchar (alle 256 Zeichen angepinnt); die Zeichen $E0-$F4 sind der Pool der Zeichen-Sprites
 .org $4800                              ; Tabellen und Figurenbilder (vom Generator erzeugt), Musik
 .include "lib/levels.inc"
 .org $6800                              ; Titelbild (title_chars) und die Karten der Screen-Bank levels (levels_map0..3, levels_screens_lo/hi)
-.include "build/export/title.asm"
-.include "build/export/levels.asm"
+.include "graphics/title.vcscreen"
+.include "graphics/levels.vcscreen"

@@ -48,12 +48,12 @@ loop:   lda text,x          ; ein Zeichen holen ...
         bne loop            ; nein: weiter
         rts                 ; zurück zu BASIC
 
-text:   .screen "hallo"     ; Text als Bildschirmcodes
+text:   .screencode "hallo"     ; Text als Bildschirmcodes
 ```
 
 2. Drücke **F5** (Startprogramm starten; bei der Vorlage ist `main.asm` das Startprogramm). Der Emulator startet, der Rahmen wird rot, und oben links steht „HALLO“.
 
-![Der Quelltext main.asm eines neuen Projekts im Editor, links der Projektbaum.](bild:asm-erstes-programm "Der Editor mit dem Quelltext einer Projektvorlage")
+*[Bild folgt in E13: asm-erstes-programm]*
 
 Zeile für Zeile:
 
@@ -72,9 +72,9 @@ Zeile für Zeile:
 | `cpx #5` | vergleiche X mit 5. |
 | `bne loop` | wenn X ungleich 5 ist, springe zurück zu `loop`. |
 | `rts` | beende das Programm und kehre zu BASIC zurück. |
-| `.screen "hallo"` | legt die fünf Buchstaben als **Bildschirmcodes** ab. Das sind die Zahlen, die der Bildschirmspeicher erwartet. |
+| `.screencode "hallo"` | legt die fünf Buchstaben als **Bildschirmcodes** ab. Das sind die Zahlen, die der Bildschirmspeicher erwartet. |
 
-> **Info:** `.screen` und `.petscii` wandeln Text in die passenden Zeichencodes um. Der Bildschirm des C64 kennt andere Codes als die Tastatur (PETSCII). Näheres steht in der Hilfeseite [Texte und Zeichensätze](hilfe:asm-text).
+> **Info:** `.screencode` und `.petscii` wandeln Text in die passenden Zeichencodes um. Der Bildschirm des C64 kennt andere Codes als die Tastatur (PETSCII). Näheres steht in der Hilfeseite [Texte und Zeichensätze](hilfe:asm-text).
 
 ### Das Listing lesen
 
@@ -109,7 +109,7 @@ start:  lda #$00        ; Label mit Doppelpunkt
 - **Direktive:** beginnt mit einem Punkt und ist eine Anweisung **an den Assembler**, kein Befehl für den Prozessor (zum Beispiel `.target`, `.org`, `.byte`).
 - **Kommentar:** `;` oder `//` bis zum Zeilenende.
 - Auf einer Zeile steht nur **ein** Befehl.
-- Chip-Register stehen als `chip.register` zur Verfügung, zum Beispiel `vic2.border` statt `$d020`. Mit **F1** auf dem Wort bekommst du die Beschreibung (siehe [Der Code-Editor](kapitel:editor)).
+- Chip-Register stehen als `chip.register` zur Verfügung, zum Beispiel `vic2.border` statt `$d020`. Lässt du die Maus kurz über dem Wort ruhen, erscheint die Beschreibung (siehe [Der Code-Editor](kapitel:editor)).
 
 ### Labels
 
@@ -191,16 +191,46 @@ Die wichtigsten Direktiven auf einen Blick:
 | `.const NAME = wert` | benennt eine Zahl |
 | `.byte a, b, c` | legt einzelne Bytes ab |
 | `.word a, b` | legt 16-Bit-Zahlen ab (niedriges Byte zuerst) |
-| `.screen "text"` | Text als Bildschirmcodes |
+| `.screencode "text"` | Text als Bildschirmcodes |
 | `.petscii "text"` | Text als PETSCII (mit Steuerzeichen wie `{clr}`) |
 | `.include "datei.asm"` | bindet eine Quelldatei ein |
+| `.include "graphics/hero.vcsprite"` | bindet ein Medium (Sprite, Zeichensatz, Song …) ein, siehe unten |
 | `.incbin "datei.bin"` | bindet eine Binärdatei ein |
 
-> **Tipp:** Die Zeile musst du nicht tippen: Ziehe die Datei aus dem Projektbaum in den Quelltext oder wähle im Projektbaum **Als Include einfügen**. VintageCoder wählt `.include` oder `.incbin` und den Pfad (siehe [Der Code-Editor](kapitel:editor)).
+> **Tipp:** Pfade in `.include` und `.incbin` gelten relativ zur Datei, in der die Zeile steht, und werden mit `/` geschrieben. Welche Zeilen du schreiben kannst, fasst [Der Code-Editor](kapitel:editor) zusammen.
 
 > **Eingebundene Dateien:** Eine Datei, die ein anderer Quelltext einbindet, prüft der Editor im Kontext dieser Datei (bevorzugt des Startprogramms) und mit dem noch nicht gespeicherten Text. Marken, Konstanten und Makros der einbindenden Datei gelten dort also als bekannt, und die Adressspalte stimmt auch in der eingebundenen Datei. Fehler der einbindenden Datei erscheinen in deren eigener Datei. Eine Bibliotheksdatei, die niemand einbindet, zeigt fehlende Symbole nur als Hinweis.
 
 Alle Direktiven stehen in den Hilfeseiten [Direktiven](hilfe:asm-directives) und [Spickzettel und Fehlercodes](hilfe:asm-index).
+
+## Medien einbinden: Sprites, Zeichensätze und Songs
+
+Grafiken und Songs zeichnest und komponierst du in den Editoren (siehe [Grafik und Klang im Überblick](kapitel:grafik-ueberblick)); sie liegen im Projekt als **Mediendatei**, zum Beispiel `graphics/hero.vcsprite`. In deinen Quelltext bindest du sie mit dem Namen der Mediendatei ein, genau wie eine Quelldatei:
+
+```asm
+.target c64
+.basicstub start
+
+.include "graphics/hero.vcsprite"   ; das Sprite aus dem Projekt
+
+start:  rts
+```
+
+Der Assembler behandelt das Medium wie eine **virtuelle Datei**: Er wandelt es beim Einbinden selbst in Assembler-Text um (Daten, Marken und Konstanten; bei Sprites mit Animationen folgen die Tabellen im selben Text). Du musst nichts vorher exportieren, und im Quelltext steht kein Pfad in den Ordner `build/`. Es gelten die Dateiendungen der Editoren: `.vcsprite`, `.vcpmg`, `.vcchar`, `.vcscreen`, `.vctiles`, `.vcpal`, `.vcsong` und `.vcplay`.
+
+- **Auch mit `#include`.** `#include "graphics/hero.vcsprite"` bindet das Medium ebenfalls ein, aber nur einmal. Mit `as name` (`.include "graphics/hero.vcsprite" as hero`) liegen die Namen des Mediums in einem eigenen Namensraum, auf den du mit `hero.name` zugreifst.
+- **Immer aktuell.** Ändert sich die Mediendatei, entsteht der Text beim nächsten Bauen neu. Auch die Prüfung im Editor kennt die Namen des Mediums; dabei legt sie nichts in deinem Projektordner ab.
+- **Lesbare Kopie.** Den erzeugten Text findest du nach dem Bauen zum Nachlesen unter `build/.media-cache/` (`<name>.asm`). Du kannst den Ordner jederzeit löschen; er beschleunigt nur den Bau.
+- **Passendes Zielsystem.** Ein Medium gehört zu einem Zielsystem. Passt es nicht zum Ziel des Baus, meldet der Assembler den Fehler **E219** mit dem Grund, zum Beispiel „Medium graphics/hero.vcsprite ist für c64, das Ziel des Baus ist atari8“.
+- **Alte Pfade.** Frühere Projekte binden `build/export/hero.asm` ein. Das läuft weiter, der Assembler warnt aber (**W208**) und nennt die Zeile, die du stattdessen schreibst. Auf der Kommandozeile stellt `vcc migrate includes` ein ganzes Projekt um (ohne `--apply` zeigt der Befehl nur, was sich ändern würde).
+
+*[Bild folgt in E13: include-eingefuegt]*
+
+> **Info:** Aus BASIC bindest du Medien mit `#include` als `DATA`-Zeilen ein (siehe [BASIC in der IDE](kapitel:basic)). Brauchst du ein anderes Format oder eine feste Adresse, exportierst du das Medium im Editor von Hand (siehe [Grafik und Klang im Überblick](kapitel:grafik-ueberblick)).
+
+## Assembler im BASIC-Programm: `#asm`
+
+Der umgekehrte Weg geht auch: Ein BASIC-Programm bindet mit der Zeile `#asm "datei.asm"` Maschinencode ein, den der Assembler dabei übersetzt (optional mit `with "song.asm"` für einen Song dazu). Im BASIC rufst du den Code über seine Marken auf, geschrieben als `asm.name`, zum Beispiel `SYS asm.start`. Die ausführliche Beschreibung steht im Kapitel [BASIC in der IDE](kapitel:basic). Die frühere Schreibweise `#blob` gibt es nicht mehr; der Übersetzer meldet dann den Fehler B177 mit dem Hinweis auf `#asm`.
 
 ## Makros: Abkürzungen für mehrere Zeilen
 
@@ -223,8 +253,6 @@ start:  farbe(0)
 ```
 
 Das Makro heißt `farbe` und hat einen **Parameter** `c`. Beim Aufruf `farbe(6)` wird überall `c` durch `6` ersetzt. Das Listing zeigt, was daraus wird: bei jedem Aufruf stehen die drei Befehle neu im Programm.
-
-![Der Quelltext mit dem Makro music_init, das bei jedem Aufruf als Befehlsfolge eingesetzt wird.](bild:asm-makro "Ein Makro wird bei jedem Aufruf eingesetzt")
 
 > **Achtung:** Ein Makro ist **kein Unterprogramm**. Es gibt weder `jsr` noch `rts` dafür: Der Code steht bei jedem Aufruf neu im Programm. Das ist schnell, kostet aber Speicher. Mehr über Makros, Scopes und Strukturen steht in der Hilfeseite [Labels, Makros, Scopes, Strukturen](hilfe:asm-macros).
 
@@ -249,16 +277,16 @@ start:  lda #COL_GREEN
         bne .next
 .done:  rts
 
-text:   .null "{clr}hallo welt{ret}"
+text:   .textnull "{clr}hallo welt{ret}"
 ```
 
-Hier stammen `COL_GREEN` und `VIC_BORDERCOLOR` aus `c64/hardware.asm`. `CHROUT` ist eine Routine des C64-Betriebssystems (**KERNAL**), die ein Zeichen auf dem Bildschirm ausgibt; ihr Name kommt aus `c64/kernal.asm`. `jsr` ruft ein Unterprogramm auf. `.null` legt einen Text ab und hängt ein Null-Byte als Endmarke an. Die Schleife liest den Text, bis sie auf diese Null trifft.
+Hier stammen `COL_GREEN` und `VIC_BORDERCOLOR` aus `c64/hardware.asm`. `CHROUT` ist eine Routine des C64-Betriebssystems (**KERNAL**), die ein Zeichen auf dem Bildschirm ausgibt; ihr Name kommt aus `c64/kernal.asm`. `jsr` ruft ein Unterprogramm auf. `.textnull` legt einen Text ab und hängt ein Null-Byte als Endmarke an. Die Schleife liest den Text, bis sie auf diese Null trifft.
 
 Für andere Systeme gibt es entsprechende Dateien, zum Beispiel `atari8bit/antic.asm` oder `mega65/hardware.asm`. Die Liste aller Dateien steht in der Hilfeseite [Systembibliothek](hilfe:asm-library).
 
 ## Fehlermeldungen lesen
 
-Der Assembler meldet Fehler im Reiter **Probleme** und im Editor als rot unterstrichene Zeile (siehe [Der Code-Editor](kapitel:editor)). Eine Meldung hat immer die gleiche Form: Fehlercode, Beschreibung, Datei und Zeile, dazu die betroffene Zeile. Drei häufige:
+Der Assembler meldet Fehler auf der Seite **Probleme** der Ablage unter dem Editor und im Editor als unterstrichene Stelle (siehe [Der Code-Editor](kapitel:editor)). Eine Meldung hat immer die gleiche Form: Fehlercode, Beschreibung, Datei und Zeile, dazu die betroffene Zeile. Drei häufige:
 
 **Unbekanntes Symbol** (E202): Du benutzt ein Label, das es nicht gibt.
 
@@ -293,9 +321,9 @@ start:  lda #300
 error[E203]: Wert 300 außerhalb -128..255
 ```
 
-![Der Editor mit der rot unterlegten Zeile „jmp ende“; darunter der Reiter Probleme mit der Meldung „E202: unbekanntes Symbol „ende““.](bild:asm-fehler "Eine Fehlermeldung lesen: Code, Beschreibung und Zeile")
+![Der Code-Bereich mit dem Quelltext jumprun.asm. Unter dem Editor zeigt die Ablage die Seite Probleme mit zwei roten Fehlern (E202 ungültige Hex-Zahl, E205 unbekannter Befehl) samt Zeilennummern und darunter zwei Hinweisen.](bild:asm-fehler "Die Seite Probleme listet Fehler mit Code, Beschreibung und Zeile.")
 
-Ein Klick auf die Meldung im Reiter **Probleme** springt zur Zeile. Alle Fehlercodes erklärt der [Spickzettel](hilfe:asm-index).
+Ein Klick auf die Meldung auf der Seite **Probleme** springt zur Zeile. Alle Fehlercodes erklärt der [Spickzettel](hilfe:asm-index).
 
 ## Häufige Stolpersteine
 
@@ -304,7 +332,8 @@ Ein Klick auf die Meldung im Reiter **Probleme** springt zur Zeile. Alle Fehlerc
 - **Groß-/Kleinschreibung bei Labels.** `Start` und `start` sind verschiedene Namen. Befehle und Direktiven sind davon frei.
 - **Mehrere Befehle in einer Zeile.** Das geht nicht; jede Zeile hat genau einen Befehl.
 - **Das Programm kehrt nicht zurück.** Ohne `rts` am Ende läuft der Prozessor in den nächsten Speicher und stürzt ab. Eine Endlosschleife wie `ende: jmp ende` hält das Programm kontrolliert an.
-- **Text erscheint als Kauderwelsch.** Der Bildschirmspeicher erwartet Bildschirmcodes (`.screen`), die Ausgabe über `CHROUT` erwartet PETSCII (`.petscii` oder `.null`).
+- **Text erscheint als Kauderwelsch.** Der Bildschirmspeicher erwartet Bildschirmcodes (`.screencode`), die Ausgabe über `CHROUT` erwartet PETSCII (`.petscii` oder `.textnull`).
+- **Alte Namen in fremden Quelltexten.** Frühere Schreibweisen wie `.screen`, `.pseudopc`, `.rta` oder `.next` gelten weiter und liefern dieselben Bytes; im Editor ersetzt ein Quick-Fix sie durch den neuen Namen. Zwei Fallen: `.long` legt hier **vier** Byte ab (in anderen Assemblern oft drei), und `.align n` füllt auf, während `.align n, skip` springt (früher `.page`). `.petscii` und `.atascii` laufen auf jedem Ziel, auch dort, wo das Betriebssystem die Kodierung nicht kennt; der Assembler meldet das nicht.
 - **Der Rahmen bleibt unverändert.** Prüfe, ob das Programm wirklich läuft: Tippe im Emulator `RUN`, falls der C64 bei „READY.“ steht.
 
 ## Wie geht es weiter?

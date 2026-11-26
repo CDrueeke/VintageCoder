@@ -26,7 +26,7 @@ impl ImageEntry {
 
 pub struct Image {
     /// z. B. "D64", "ATR (DOS 2)"
-    pub format: &'static str,
+    pub format: String,
     /// Disketten-Name (nur Commodore)
     pub title: String,
     pub free: String,
@@ -52,17 +52,17 @@ impl Image {
             let a = Atr::from_bytes(b)?;
             let entries = a.dos2_entries().into_iter().map(|e| ImageEntry {
                 data: a.dos2_read(&e.name), name: e.name, kind: "DOS".into(), blocks: e.sectors, locked: e.locked }).collect();
-            Ok(Image { format: "ATR (DOS 2)", title: String::new(), free: format!("{} Sektoren frei", a.free_sectors()), atari: true, entries })
+            Ok(Image { format: vc_i18n::t!("diskimage-atr-dos-2"), title: String::new(), free: vc_i18n::t!("diskimage-p1-sektoren-frei", p1 = a.free_sectors()), atari: true, entries })
         } else if n.ends_with(".d64") {
             let d = D64::from_bytes(b)?;
             let entries = d.entries().into_iter().map(|e| ImageEntry { data: d.read(&e.name), name: e.name, kind: e.kind.into(), blocks: e.blocks, locked: false }).collect();
-            Ok(Image { format: "D64", title: d.disk_name(), free: format!("{} Blöcke frei", d.free_blocks()), atari: false, entries })
+            Ok(Image { format: "D64".to_string(), title: d.disk_name(), free: vc_i18n::t!("diskimage-p1-bloecke-frei", p1 = d.free_blocks()), atari: false, entries })
         } else if let Some(kind) = Kind::from_extension(&n) {
             let d = Disk::from_bytes(kind, b)?;
             let entries = d.entries().into_iter().map(|e| ImageEntry { data: d.read(&e.name), name: e.name, kind: e.kind.into(), blocks: e.blocks, locked: false }).collect();
-            Ok(Image { format: if kind == Kind::D71 { "D71" } else { "D81" }, title: d.disk_name(), free: format!("{} Blöcke frei", d.free_blocks()), atari: false, entries })
+            Ok(Image { format: if kind == Kind::D71 { "D71".to_string() } else { "D81".to_string() }, title: d.disk_name(), free: vc_i18n::t!("diskimage-p1-bloecke-frei", p1 = d.free_blocks()), atari: false, entries })
         } else {
-            Err(format!("{name}: unbekanntes Imageformat (erwartet .d64, .d71, .d81 oder .atr)"))
+            Err(vc_i18n::t!("diskimage-name-unbekanntes-imageformat-erwartet-d64-d71", name = &name))
         }
     }
 
@@ -80,7 +80,7 @@ impl Image {
 
     /// Schreibt eine Datei des Images nach `root/dir/<name>` (siehe [`write_unique`]).
     pub fn extract(&self, idx: usize, root: &Path, dir: &str, name: &str) -> Result<String, String> {
-        let e = self.entries.get(idx).ok_or("Eintrag nicht vorhanden")?;
+        let e = self.entries.get(idx).ok_or(vc_i18n::t!("diskimage-eintrag-nicht-vorhanden"))?;
         let data = e.data.as_ref().map_err(|m| format!("{}: {m}", e.name))?;
         write_unique(root, dir, name, data)
     }
@@ -89,14 +89,14 @@ impl Image {
 /// Schreibt `data` nach `root/dir/<name>`; gibt es den Namen schon, wird `_2`, `_3` … vor die Endung gesetzt (nichts wird überschrieben).
 /// Rückgabe: relativer Pfad. `dir` und `name` dürfen den Projektordner nicht verlassen.
 pub fn write_unique(root: &Path, dir: &str, name: &str, data: &[u8]) -> Result<String, String> {
-    if name.is_empty() || name.contains('/') || name.contains('\\') || name.starts_with('.') { return Err(format!("ungültiger Dateiname »{name}«")); }
-    if dir.split('/').any(|p| p == "..") || dir.starts_with('/') || dir.contains('\\') { return Err(format!("ungültiger Zielordner »{dir}«")); }
+    if name.is_empty() || name.contains('/') || name.contains('\\') || name.starts_with('.') { return Err(vc_i18n::t!("diskimage-ungueltiger-dateiname-name", name = &name)); }
+    if dir.split('/').any(|p| p == "..") || dir.starts_with('/') || dir.contains('\\') { return Err(vc_i18n::t!("diskimage-ungueltiger-zielordner-dir", dir = &dir)); }
     let folder = if dir.is_empty() { root.to_path_buf() } else { root.join(dir) };
     std::fs::create_dir_all(&folder).map_err(|e| format!("{}: {e}", folder.display()))?;
     let (stem, ext) = match name.rfind('.') { Some(i) => (&name[..i], &name[i..]), None => (name, "") };
     let mut final_name = name.to_string(); let mut n = 2;
     while folder.join(&final_name).exists() { final_name = format!("{stem}_{n}{ext}"); n += 1; }
-    std::fs::write(folder.join(&final_name), data).map_err(|e| format!("{final_name}: {e}"))?;
+    vc_core::atomar::schreiben(folder.join(&final_name), data).map_err(|e| vc_i18n::t!("diskimage-final-name-e", final_name = &final_name, e = &e))?;
     Ok(if dir.is_empty() { final_name } else { format!("{dir}/{final_name}") })
 }
 
@@ -158,9 +158,9 @@ pub fn basic_listing(data_dir: &Path, bytes: &[u8], info: &BasicInfo) -> Result<
 
 /// Assembler-Quelltext aus einer PRG- oder XEX-Datei: `.org` je Block, darunter die Disassemblierung (Daten werden dabei als Befehle gedeutet).
 pub fn asm_source(cpu: &vc_target::Cpu, name: &str, bytes: &[u8]) -> Result<String, String> {
-    let mut out = format!("; aus {name} disassembliert (Daten können als Befehle erscheinen – bitte prüfen)\n");
+    let mut out = format!("{}\n", vc_i18n::t!("diskimage-aus-name-disassembliert-daten-koennen-als", name = &name));
     let blocks: Vec<(u16, Vec<u8>)> = if is_xex(name, bytes) { vc_disk::xex_blocks(bytes)?.into_iter().map(|(a, d)| (a, d.to_vec())).collect() }
-        else if bytes.len() > 2 { vec![(bytes[0] as u16 | (bytes[1] as u16) << 8, bytes[2..].to_vec())] } else { return Err("Datei zu kurz".into()) };
+        else if bytes.len() > 2 { vec![(bytes[0] as u16 | (bytes[1] as u16) << 8, bytes[2..].to_vec())] } else { return Err(vc_i18n::t!("diskimage-datei-zu-kurz").into()) };
     for (addr, data) in blocks {
         out.push_str(&format!(".org ${addr:04x}\n"));
         for l in vc_asm::disassemble(cpu, &data, addr) { out.push_str(&format!("    {}\n", l.text)); }
@@ -197,13 +197,13 @@ pub fn import_data(root: &Path, file_name: &str, data: &[u8], is_program: bool, 
     if let (Some(b), Some(dd)) = (&info, data_dir) {
         let text = basic_listing(dd, data, b)?;
         let rel = write_unique(root, &o.dir, &format!("{}.bas", stem_of(file_name)), text.as_bytes())?;
-        out.notes.push(format!("BASIC ({}, {} Zeilen) als Quelltext übernommen", b.dialect, b.lines));
+        out.notes.push(vc_i18n::t!("diskimage-basic-p1-p2-zeilen-als-quelltext", p1 = &b.dialect, p2 = &b.lines));
         // Hex-Vorschläge nur als Hinweis: der Text bleibt dezimal, der Anwender wählt im Editor (Bearbeiten ▸ Hex-Vorschläge) Zeile für Zeile
         if let Ok(s) = crate::hexhint::suggestions(dd, &b.dialect, b.system, &text) {
-            if !s.is_empty() { out.notes.push(format!("{} Adresse(n) in POKE/PEEK/SYS/WAIT sind Chipregister und lassen sich als Hex schreiben (Editor: Bearbeiten ▸ Hex-Vorschläge …; nichts wurde geändert)", s.len())); }
+            if !s.is_empty() { out.notes.push(vc_i18n::t!("diskimage-p1-adresse-n-in-poke-peek", p1 = s.len())); }
         }
         out.files.push(rel);
-        if b.tail > 0 { out.notes.push(format!("Hinter dem BASIC-Programm folgen {} Bytes (Maschinencode?): Original bleibt erhalten", b.tail)); }
+        if b.tail > 0 { out.notes.push(vc_i18n::t!("diskimage-hinter-dem-basic-programm-folgen-p1", p1 = &b.tail)); }
         if o.raw || b.tail > 0 {
             let raw_name = if b.atari { format!("{}.tok", stem_of(file_name)) } else { file_name.to_string() };
             out.files.push(write_unique(root, &o.dir, &raw_name, data)?);
@@ -212,13 +212,13 @@ pub fn import_data(root: &Path, file_name: &str, data: &[u8], is_program: bool, 
     }
     out.files.push(write_unique(root, &o.dir, file_name, data)?);
     if o.asm && is_program {
-        let dd = data_dir.ok_or("Hardware-Datenbank (data/) nicht gefunden")?;
+        let dd = data_dir.ok_or(vc_i18n::t!("diskimage-hardware-datenbank-data-nicht-gefunden"))?;
         let cpu = vc_target::load_cpu(dd, o.cpu.as_deref().unwrap_or(if atari { "sally" } else { "6510" }))?;
         let text = asm_source(&cpu, file_name, data)?;
         let first = out.files[0].clone();
         let (dir, f) = first.rsplit_once('/').unwrap_or(("", &first));
         out.files.push(write_unique(root, dir, &format!("{}.asm", stem_of(f)), text.as_bytes())?);
-        out.notes.push("Quelltext durch Disassemblieren erzeugt (Daten können als Befehle erscheinen)".into());
+        out.notes.push(vc_i18n::t!("diskimage-quelltext-durch-disassemblieren-erzeugt-daten-koennen").into());
     }
     Ok(out)
 }

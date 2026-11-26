@@ -12,7 +12,7 @@ fn vcc(tag: &str, release: Option<&str>, args: &[&str]) -> Output {
     std::fs::create_dir_all(&dir).unwrap();
     let sel = match release { Some(t) => { let p = dir.join("release.json"); std::fs::write(&p, t).unwrap(); p.to_string_lossy().into_owned() } None => "all".into() };
     // eigene Konfiguration und Datenordner: keine installierten Emulatoren, keine Einstellungen des Benutzers
-    Command::new(env!("CARGO_BIN_EXE_vcc")).args(args).env("VC_DATA", data()).env("VC_RELEASE", sel).env("VC_SETTINGS", dir.join("settings.json")).env("HOME", &dir).env("XDG_CONFIG_HOME", dir.join("cfg")).env("XDG_DATA_HOME", dir.join("data")).current_dir(&dir).output().unwrap()
+    Command::new(env!("CARGO_BIN_EXE_vcc")).args(args).env("VC_LANG", "de").env("VC_DATA", data()).env("VC_RELEASE", sel).env("VC_SETTINGS", dir.join("settings.json")).env("HOME", &dir).env("XDG_CONFIG_HOME", dir.join("cfg")).env("XDG_DATA_HOME", dir.join("data")).current_dir(&dir).output().unwrap()
 }
 
 const NUR_VICE: &str = r#"{"format":1,"ide":false,"links":["vice"]}"#;

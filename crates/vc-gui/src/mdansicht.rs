@@ -25,7 +25,7 @@ fn spannen(pal: Pal, k: &[Inline], groesse: f32, farbe: Color, fett: bool, out: 
             Inline::Emph(x) => spannen(pal, x, groesse, pal.text, fett, out),
             Inline::Strike(x) => { let mut v = vec![]; spannen(pal, x, groesse, pal.mute, fett, &mut v); out.extend(v.into_iter().map(|s| s.strikethrough(true))) }
             Inline::Link { kids, url, .. } => { let mut v = vec![]; spannen(pal, kids, groesse, pal.accent, fett, &mut v); let u = url.clone(); out.extend(v.into_iter().map(move |s| s.underline(true).link(u.clone()))) }
-            Inline::Image { alt, .. } => out.push(span(format!("[Bild: {}]", if alt.is_empty() { "ohne Beschreibung" } else { alt })).size(groesse).color(pal.mute)),
+            Inline::Image { alt, .. } => out.push(span(format!("[{}: {}]", vc_i18n::t!("mdansicht-bild"), if alt.is_empty() { vc_i18n::t!("mdansicht-ohne-beschreibung") } else { alt.clone() })).size(groesse).color(pal.mute)),
             Inline::SoftBreak => out.push(span(" ").size(groesse)),
             Inline::HardBreak => out.push(span("\n").size(groesse)),
         }
@@ -77,7 +77,7 @@ fn block<'a>(pal: Pal, n: &Node, tiefe: usize) -> Element<'a, Msg> {
 pub fn ansicht<'a>(pal: Pal, doc: &Doc, grenze: usize, mehr: Option<Msg>) -> Element<'a, Msg> {
     let n = doc.nodes.len(); let mut c = column![].spacing(10).width(Length::Fill);
     for x in doc.nodes.iter().take(grenze) { c = c.push(block(pal, x, 0)) }
-    if n > grenze { if let Some(m) = mehr { c = c.push(vc_gui_ui::muster::knopf(pal, &format!("Weitere Blöcke anzeigen ({} von {n} sichtbar)", grenze.min(n)), "", Some(m), false, false)) } }
+    if n > grenze { if let Some(m) = mehr { c = c.push(vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("mdansicht-weitere-bloecke-anzeigen-p1-von-n", p1 = grenze.min(n), n = &n), "", Some(m), false, false)) } }
     c.into()
 }
 

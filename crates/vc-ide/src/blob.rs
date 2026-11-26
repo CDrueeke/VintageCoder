@@ -17,20 +17,20 @@ fn find(req: &BlobReq, name: &str, root: &Path) -> Option<PathBuf> {
     [base, root.to_path_buf()].iter().map(|d| d.join(name)).find(|p| p.is_file())
 }
 
-fn diag(req: &BlobReq, msg: impl Into<String>) -> Vec<Diagnostic> { vec![Diagnostic::error("B114", &req.src.0, req.src.1, msg)] }
+fn diag(req: &BlobReq, msg: impl Into<vc_core::Msg>) -> Vec<Diagnostic> { vec![Diagnostic::error("B114", &req.src.0, req.src.1, msg)] }
 
 /// Übersetzt alle Blobs ab `addr`; Ergebnis: Bytes, Konstanten (Symbole) und Angaben je Blob.
-type Assembled = (Vec<u8>, Vec<(String, i64)>, Vec<BlobInfo>, Vec<(u16, Vec<u8>)>);
+pub type Assembled = (Vec<u8>, Vec<(String, i64)>, Vec<BlobInfo>, Vec<(u16, Vec<u8>)>);
 
 /// `strict`: der Code muss mit `.org blob` beginnen (Commodore); sonst darf er hinter `blob` liegen (Atari, Tabellen vor dem Player)
-fn assemble_blobs(reqs: &[BlobReq], mut addr: usize, system: &str, root: &Path, data: &Path, tgt: &vc_target::Target, strict: bool) -> Result<Assembled, Vec<Diagnostic>> {
-    let cpu = vc_target::load_cpu(data, &tgt.cpu).map_err(|e| diag(&reqs[0], e))?;
-    let chips = vc_target::chip_symbols(data, tgt).map_err(|e| diag(&reqs[0], e))?;
+pub fn assemble_blobs(reqs: &[BlobReq], mut addr: usize, system: &str, root: &Path, data: &Path, tgt: &vc_target::Target, strict: bool) -> Result<Assembled, Vec<Diagnostic>> {
+    let cpu = vc_target::load_cpu(data, &tgt.cpu).map_err(|e| diag(&reqs[0], vc_core::Msg::raw(e)))?;
+    let chips = vc_target::chip_symbols(data, tgt).map_err(|e| diag(&reqs[0], vc_core::Msg::raw(e)))?;
     let (mut all, mut consts, mut infos, mut chunks) = (vec![], vec![], vec![], vec![]);
     for r in reqs {
         let name = r.file.replace("{system}", system);
-        let path = find(r, &name, root).ok_or_else(|| diag(r, format!("blob: Datei '{name}' nicht gefunden")))?;
-        let mut text = vc_core::textfile::read_source(&path).map_err(|e| diag(r, format!("{}: {e}", path.display())))?;
+        let path = find(r, &name, root).ok_or_else(|| diag(r, vc_core::msg!("diag-ide-b114-file-not-found", name = &name)))?;
+        let mut text = vc_core::textfile::read_source(&path).map_err(|e| diag(r, vc_core::msg!("diag-ide-b114-read-error", path = path.display().to_string(), error = e.to_string())))?;
         if let Some(w) = r.with.first() {
             let w = w.replace("{system}", system);
             let stem = Path::new(&w).file_stem().and_then(|s| s.to_str()).unwrap_or("song");
@@ -39,25 +39,27 @@ fn assemble_blobs(reqs: &[BlobReq], mut addr: usize, system: &str, root: &Path, 
         let mut o = AsmOptions::new(path.to_string_lossy(), Policy::Warn);
         o.include_dirs.push(root.to_path_buf());
         o.include_dirs.push(data.join("sys"));
+        let hooks = vc_media::include::asm_hooks(root, data, system);
+        (o.include_provider, o.legacy_hint) = (Some(hooks.provider), Some(hooks.legacy));
         o.atari_text = tgt.text_encoding == "atari";
         o.basic_start = tgt.basic_load_addr;
         o.predefined = chips.clone();
-        o.predefined.push(("blob".into(), addr as i64));
+        o.predefined.push(("asm_base".into(), addr as i64));
         let out = assemble(&text, &cpu, &o)?;
         let mut segs: Vec<_> = out.segments.iter().filter(|s| !s.bytes.is_empty()).collect();
         segs.sort_by_key(|s| s.start);
-        let Some(first) = segs.first() else { return Err(diag(r, format!("blob '{name}' erzeugt keinen Code"))) };
-        if (strict && first.start as usize != addr) || (first.start as usize) < addr { return Err(diag(r, format!("blob '{name}' muss mit `.org blob` beginnen (beginnt bei ${:04X}, erwartet ${addr:04X})", first.start))); }
+        let Some(first) = segs.first() else { return Err(diag(r, vc_core::msg!("diag-ide-b114-no-code", name = &name))) };
+        if (strict && first.start as usize != addr) || (first.start as usize) < addr { return Err(diag(r, vc_core::msg!("diag-ide-b114-org-mismatch", name = &name, start = format!("{:04X}", first.start), expected = format!("{addr:04X}")))); }
         let mut bytes: Vec<u8> = vec![];
         for s in &segs {
             chunks.push((s.start, s.bytes.clone()));
             let at = s.start as usize - addr;
-            if at < bytes.len() { return Err(diag(r, format!("blob '{name}': überlappende Segmente"))); }
+            if at < bytes.len() { return Err(diag(r, vc_core::msg!("diag-ide-b114-overlap", name = &name))); }
             bytes.resize(at, 0);
             bytes.extend_from_slice(&s.bytes);
         }
         let n = out.symbols.iter().filter(|(k, _)| !k.contains('.') && !k.starts_with('@') && !k.starts_with('_')).count();
-        let mine: Vec<(String, i64)> = out.symbols.iter().filter(|(k, _)| !k.contains('.') && !k.starts_with('@') && !k.starts_with('_') && k.as_str() != "blob").map(|(k, v)| (k.to_ascii_lowercase(), *v)).collect();
+        let mine: Vec<(String, i64)> = out.symbols.iter().filter(|(k, _)| !k.contains('.') && !k.starts_with('@') && !k.starts_with('_') && k.as_str() != "asm_base").map(|(k, v)| (k.to_ascii_lowercase(), *v)).collect();
         consts.extend(mine.iter().cloned());
         infos.push(BlobInfo { file: name, addr: addr as u16, size: bytes.len(), symbols: n, syms: mine });
         addr += bytes.len();
@@ -102,14 +104,14 @@ pub fn compile_with_blobs(src: &str, d: &Dialect, o: &Options, root: &Path, data
         let c = compile(src, d, &o2)?;
         let end = load + c.prg.len() - 2;
         if end == addr {
-            if end + bytes.len() > 0xFFFF { return Err(diag(&first.blobs[0], format!("Programm samt Maschinencode zu groß (endet bei ${:05X})", end + bytes.len()))); }
+            if end + bytes.len() > 0xFFFF { return Err(diag(&first.blobs[0], vc_core::msg!("diag-ide-b114-program-too-large", end = format!("{:05X}", end + bytes.len())))); }
             let mut prg = c.prg.clone();
             prg.extend_from_slice(&bytes);
             return Ok(Built { compiled: c, prg, blobs: infos });
         }
         addr = end;
     }
-    Err(diag(&first.blobs[0], "Adresse des Maschinencodes wird nicht stabil"))
+    Err(diag(&first.blobs[0], vc_core::msg!("diag-ide-b114-address-unstable")))
 }
 
 pub struct BuiltAtari { pub compiled: AtariCompiled, pub blobs: Vec<BlobInfo> }
@@ -125,7 +127,7 @@ pub fn compile_atari_with_blobs(src: &str, d: &AtariDialect, o: &AtariOptions, r
     // Größe messen (der Code hängt nicht von der Adresse ab), dann die Basisadresse so wählen, dass der Code unter $A000 endet
     let (probe, ..) = assemble_blobs(&first.blobs, 0x6000, &system, root, data, tgt, false)?;
     let base = (0xA000usize.saturating_sub(probe.len())) & 0xFF00;
-    if base < 0x4000 { return Err(diag(&first.blobs[0], format!("Maschinencode zu groß ({} Bytes)", probe.len()))); }
+    if base < 0x4000 { return Err(diag(&first.blobs[0], vc_core::msg!("diag-ide-b114-code-too-large", bytes = probe.len()))); }
     let (_bytes, mut consts, infos, chunks) = assemble_blobs(&first.blobs, base, &system, root, data, tgt, false)?;
     consts.push(("blob_addr".into(), base as i64));
     consts.push(("blob_page".into(), (base >> 8) as i64));

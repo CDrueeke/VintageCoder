@@ -1,5 +1,5 @@
 ; Abspielprogramm für Tracker-Lieder (C64, SID, 3 Stimmen) – wird von „Auf Hardware hören“ zusammengesetzt.
-; Das Lied kommt als build/export-Datei „song.asm“ (Label song_*), die Spielroutine steht in music.inc.
+; Das Lied kommt als Text aus der Mediendatei (Label song_*), die Spielroutine steht in music.inc.
 .target c64
 .cpu 6510 { illegals = deny }
 

@@ -9,12 +9,14 @@ Die Seite gehört zum [Assembler-Handbuch](help:assembler). Zeilen der Form `;= 
 | Ich möchte … | Nimm | Ergebnis für „A“ |
 |---|---|---|
 | Text, der mit `jsr $ffd2` (CHROUT) ausgegeben wird | `.petscii "…"` | `$C1` |
-| Text, den ich **direkt in den Bildschirmspeicher** (`$0400`) schreibe | `.screen "…"` | `$41` |
+| Text, den ich **direkt in den Bildschirmspeicher** (`$0400`) schreibe | `.screencode "…"` | `$41` |
 | Text für das Atari-Betriebssystem (CIO) | `.atascii "…"` | `$41` |
 | Text unverändert als ASCII (Dateien, Protokolle, Fremdformate) | `.byte "…"` oder `.text "…"` | `$41` |
 | viele Texte in der **gleichen** Kodierung | `.encoding "name"` und dann `.text "…"` | je nach Kodierung |
-| Text mit **Nullbyte** am Ende, **Längenbyte** davor oder **gesetztem Bit 7** im letzten Zeichen | `.null`, `.ptext`, `.shift` | siehe unten |
+| Text mit **Nullbyte** am Ende, **Längenbyte** davor oder **gesetztem Bit 7** im letzten Zeichen | `.textnull`, `.textlen`, `.textshift` | siehe unten |
 | eine ganz eigene Kodierung | `.encoding "tabelle.tbl"` | siehe unten |
+
+Frühere Namen gelten weiter und liefern dieselben Bytes: `.screen` = `.screencode`, `.null` = `.textnull`, `.ptext` = `.textlen`, `.shift` = `.textshift` (Tabelle aller alten Namen unter [Direktiven](help:asm-directives)). Sie bleiben gleichwertig; wer viel Text setzt, darf bei den kurzen bleiben.
 
 Alle Textdirektiven nehmen eine oder mehrere Zeichenketten in Anführungszeichen. Ein Anführungszeichen **in** der Kette gibt es nicht (keine Fluchtfolgen wie `\"`); schreibe es als Zahl: `.byte "sag ", 34, "hallo", 34`. Kommas und Zahlen mischen kannst du nur mit `.byte` (zum Beispiel `.byte "ABC", 13`), nicht mit `.text` & Co. Zeichen außerhalb von ASCII (`ä`, `ß`, `€`) liegen als UTF-8 in der Quelldatei und werden als **mehrere** Bytes abgelegt (`ä` ergibt `$C3 $A4`); setze sie bei Bedarf über Zahlen (`{$..}`, siehe unten) oder eine eigene Tabelle.
 
@@ -41,13 +43,13 @@ Wenn dein Programm im **Standardmodus** startet (so schaltet der C64 ein), schre
 ;= c8 49
 ```
 
-## `.screen` – für den Bildschirmspeicher
+## `.screencode` – für den Bildschirmspeicher
 
 ```
-.screen "text", …
+.screencode "text", …
 ```
 
-Das Betriebssystem übersetzt PETSCII beim Ausgeben in **Bildschirmcodes**, die der Video-Chip kennt. Schreibst du selbst in den Bildschirmspeicher (`sta $0400,x`), musst du direkt Bildschirmcodes ablegen – dafür ist `.screen`.
+Das Betriebssystem übersetzt PETSCII beim Ausgeben in **Bildschirmcodes**, die der Video-Chip kennt. Schreibst du selbst in den Bildschirmspeicher (`sta $0400,x`), musst du direkt Bildschirmcodes ablegen – dafür ist `.screencode`.
 
 | Quelltext | Bildschirmcode |
 |---|---|
@@ -56,10 +58,10 @@ Das Betriebssystem übersetzt PETSCII beim Ausgeben in **Bildschirmcodes**, die 
 | `A`–`Z` | `$41`–`$5A` |
 | Ziffern, Satzzeichen, Leerzeichen | wie ASCII (`$20`–`$3F`) |
 
-Auf Zielsystemen mit ANTIC (Atari) wandelt `.screen` in den Atari-Bildschirmcode (`A` wird `$21`, Leerzeichen `$00`).
+Auf Zielsystemen mit ANTIC (Atari) wandelt `.screencode` in den Atari-Bildschirmcode (`A` wird `$21`, Leerzeichen `$00`).
 
 ```asm
-.screen "abc @"
+.screencode "abc @"
 ;= 01 02 03 20 00
 ```
 
@@ -75,7 +77,7 @@ loop:   lda meldung,x
         bne loop
         rts
 meldung:
-        .screen "hallo welt"
+        .screencode "hallo welt"
 meldung_ende:
 ;=* a2 00 bd 0e c0
 ```
@@ -109,7 +111,7 @@ meldung_ende:
 |---|---|
 | `ascii` (Vorgabe, auch `text`) | unverändert |
 | `petscii` | wie `.petscii` |
-| `screen` (auch `screencode`) | wie `.screen`; auf Atari-Zielsystemen der Atari-Bildschirmcode |
+| `screen` (auch `screencode`) | wie `.screencode`; auf Atari-Zielsystemen der Atari-Bildschirmcode |
 | `atascii` | wie `.atascii` |
 | `"datei.tbl"` | eigene Tabelle: genau 256 Byte; Byte *n* der Datei ist der Code für das Zeichen *n* |
 
@@ -157,25 +159,25 @@ Beispiel mit einer Tabelle `zeichen.tbl`, in der jedes Byte um 1 größer ist (`
 
 Nicht-ASCII-Zeichen kommen als UTF-8-Bytes bei der Tabelle an. In Tabellen und mit `screen` kannst du Codes auch direkt als `{$hh}` oder `{nnn}` angeben (siehe unten).
 
-## `.null`, `.ptext`, `.shift` – Textende markieren
+## `.textnull`, `.textlen`, `.textshift` – Textende markieren
 
 Wie hört eine Ausgaberoutine auf? Es gibt drei übliche Arten, das Ende zu markieren. Die Direktiven nehmen **eine oder mehrere** Zeichenketten und wandeln sie in der aktuellen Kodierung (`.encoding`) um; jede Kette bekommt ihre eigene Markierung.
 
 | Direktive | Ergebnis für `"AB"` | Wann |
 |---|---|---|
-| `.null "AB"` | `41 42 00` | Ausgaberoutine liest bis zum Nullbyte (`lda text,x` / `beq fertig`) – die gebräuchlichste Form |
-| `.ptext "AB"` | `02 41 42` | Länge steht **vorn**; die Routine kennt die Länge vorab, kann also bequem zählen. Höchstens 255 Zeichen, sonst **E203** |
-| `.shift "AB"` | `41 C2` | Bit 7 des **letzten** Zeichens ist gesetzt; spart ein Byte je Text, z. B. bei Befehlslisten. Leerer Text ist **E203** |
+| `.textnull "AB"` | `41 42 00` | Ausgaberoutine liest bis zum Nullbyte (`lda text,x` / `beq fertig`) – die gebräuchlichste Form |
+| `.textlen "AB"` | `02 41 42` | Länge steht **vorn**; die Routine kennt die Länge vorab, kann also bequem zählen. Höchstens 255 Zeichen, sonst **E203** |
+| `.textshift "AB"` | `41 C2` | Bit 7 des **letzten** Zeichens ist gesetzt; spart ein Byte je Text, z. B. bei Befehlslisten. Leerer Text ist **E203** |
 
 ```asm
 .encoding "petscii"
-.null "hi"
-.ptext "hi"
-.shift "hi"
+.textnull "hi"
+.textlen "hi"
+.textshift "hi"
 ;= 48 49 00 02 48 49 48 c9
 ```
 
-Eine Ausgaberoutine für einen `.null`-Text:
+Eine Ausgaberoutine für einen `.textnull`-Text:
 
 ```asm
 *= $c000
@@ -187,18 +189,18 @@ loop:   lda text,x
         bne loop
 fertig: rts
         .encoding "petscii"
-text:   .null "{clr}hallo welt{ret}"
+text:   .textnull "{clr}hallo welt{ret}"
 ;=* a2 00 bd 0e c0 f0 06 20 d2 ff e8 d0 f5 60
 ```
 
 ## Sonderzeichen in Zeichenketten: `{name}`
 
-Steuerzeichen wie „Bildschirm löschen“ lassen sich nicht tippen. Bei `.petscii`, `.atascii`, `.screen` und bei `.text` mit gesetzter Kodierung (alles außer `ascii`) steht in **geschweiften Klammern** das fertige Byte:
+Steuerzeichen wie „Bildschirm löschen“ lassen sich nicht tippen. Bei `.petscii`, `.atascii`, `.screencode` und bei `.text` mit gesetzter Kodierung (alles außer `ascii`) steht in **geschweiften Klammern** das fertige Byte:
 
 | Schreibweise | Bedeutung |
 |---|---|
 | `{name}` | Steuerzeichen mit Namen (nur bei PETSCII und ATASCII), z. B. `{clr}`, `{down}`, `{rvs on}` |
-| `{$hh}` | beliebiger Code hexadezimal, z. B. `{$c1}` – auch für Grafikzeichen; bei `.screen` die einzige Form |
+| `{$hh}` | beliebiger Code hexadezimal, z. B. `{$c1}` – auch für Grafikzeichen; bei `.screencode` die einzige Form |
 | `{nnn}` | beliebiger Code dezimal, z. B. `{147}` |
 | `{name*3}` | Wiederholung (1 bis 255): `{down*3}`, `{$20*40}` |
 | `{{` | ein einzelnes `{` |
@@ -206,7 +208,7 @@ Steuerzeichen wie „Bildschirm löschen“ lassen sich nicht tippen. Bei `.pets
 - Der Wert in der Klammer ist das **fertige Byte** und wird nicht noch einmal umgewandelt.
 - Groß-/Kleinschreibung und `_` oder `-` statt Leerzeichen sind egal: `{RVS_ON}` = `{rvs on}`.
 - Die Namen stehen in einer Tabelle für Assembler und BASIC (`data/chars/`). Jede Sprache hat ihre **Hauptnamen** (hier `{orange}`, `{ret}`, `{right}`; im BASIC `{orng}`, `{return}`, `{rght}`), und **alle Namen gelten in beiden Sprachen**.
-- Im Editor erscheinen die Angaben in eigener Farbe, Farbcodes als Farbfeld und unbekannte Namen rot unterschlängelt; ein Hover zeigt Code und Wirkung, und nach `{` bietet der Editor die Namen an. Das Panel „Zeichen“ (Symbol Ω im rechten Panel) listet alle.
+- Im Editor erscheinen die Angaben in eigener Farbe, Farbcodes als Farbfeld und unbekannte Namen rot unterschlängelt; ein Hover zeigt Code und Wirkung, und nach `{` bietet der Editor die Namen an. Ein Panel, das alle Zeichen auflistet, steht noch nicht zur Verfügung.
 - Bei `.text` ohne Kodierung (`ascii`) sind Klammern gewöhnliche Zeichen.
 - Ein unbekannter Name, eine offene Klammer oder eine falsche Zahl melden **E208**.
 
@@ -225,10 +227,10 @@ Steuerzeichen wie „Bildschirm löschen“ lassen sich nicht tippen. Bei `.pets
 error[E208]: unbekanntes Sonderzeichen {nix}
 ```
 
-Bei `.screen` gibt es keine Namen (der Bildschirmcode kennt keine Steuerzeichen), nur `{$hh}` und `{nnn}`:
+Bei `.screencode` gibt es keine Namen (der Bildschirmcode kennt keine Steuerzeichen), nur `{$hh}` und `{nnn}`:
 
 ```asm fehler
-.screen "{clr}"
+.screencode "{clr}"
 ```
 
 ```text

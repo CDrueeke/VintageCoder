@@ -41,6 +41,7 @@ pub const SNOOZE_SECS: u64 = 3 * 24 * 3600;
 /// `MAJOR.MINOR.PATCH`, genau drei Zahlen
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Version(pub u32, pub u32, pub u32);
+impl From<Version> for vc_i18n::Arg { fn from(v: Version) -> vc_i18n::Arg { vc_i18n::Arg::Text(v.to_string()) } }
 
 impl Version {
     /// Streng: drei Zahlen mit je 1–4 Ziffern, keine führenden Nullen (außer `0`), sonst nichts (kein `v`, keine Vorabkennung, keine Leerzeichen)
@@ -91,7 +92,7 @@ pub enum ParseError {
 
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self { ParseError::TooNew(n) => write!(f, "Die Versionsliste hat das Format {n}; diese Version von VintageCoder kennt höchstens {MANIFEST_FORMAT}"), ParseError::Invalid(m) => write!(f, "Die Versionsliste ist ungültig: {m}") }
+        match self { ParseError::TooNew(n) => write!(f, "{}", vc_i18n::t!("update-die-versionsliste-hat-das-format-n", n = n, max = MANIFEST_FORMAT)), ParseError::Invalid(m) => write!(f, "{}", vc_i18n::t!("update-die-versionsliste-ist-ungueltig-m", m = m)) }
     }
 }
 
@@ -103,37 +104,37 @@ fn clean(s: &str) -> String { s.replace("\r\n", "\n").chars().filter(|c| *c == '
 impl Manifest {
     /// Liest und prüft die Liste streng. Unbekannte Felder (z. B. eine spätere Signatur) werden ignoriert; Adressen werden nie gelesen.
     pub fn parse(text: &str) -> Result<Manifest, ParseError> {
-        let v: serde_json::Value = serde_json::from_str(text).map_err(|e| ParseError::Invalid(format!("kein gültiges JSON ({e})")))?;
-        let Some(o) = v.as_object() else { return bad("kein Objekt") };
-        let format = o.get("format").and_then(|x| x.as_u64()).ok_or_else(|| ParseError::Invalid("format fehlt".into()))?;
+        let v: serde_json::Value = serde_json::from_str(text).map_err(|e| ParseError::Invalid(vc_i18n::t!("update-kein-gueltiges-json-e", e = e.to_string())))?;
+        let Some(o) = v.as_object() else { return bad(vc_i18n::t!("update-kein-objekt")) };
+        let format = o.get("format").and_then(|x| x.as_u64()).ok_or_else(|| ParseError::Invalid(vc_i18n::t!("update-format-fehlt").into()))?;
         if format > MANIFEST_FORMAT { return Err(ParseError::TooNew(format)); }
-        if format == 0 { return bad("format 0"); }
-        if o.get("channel").and_then(|x| x.as_str()) != Some("stable") { return bad("channel ist nicht „stable“"); }
+        if format == 0 { return bad(vc_i18n::t!("update-format-0")); }
+        if o.get("channel").and_then(|x| x.as_str()) != Some("stable") { return bad(vc_i18n::t!("update-channel-ist-nicht-stable")); }
         let sequence = o.get("sequence").and_then(|x| x.as_u64()).unwrap_or(0);
         let published = clean(o.get("published").and_then(|x| x.as_str()).unwrap_or("")).chars().take(40).collect::<String>();
-        let latest = o.get("latest").and_then(|x| x.as_str()).and_then(Version::parse).ok_or_else(|| ParseError::Invalid("latest fehlt oder ist keine Version MAJOR.MINOR.PATCH".into()))?;
+        let latest = o.get("latest").and_then(|x| x.as_str()).and_then(Version::parse).ok_or_else(|| ParseError::Invalid(vc_i18n::t!("update-latest-fehlt-oder-ist-keine-version").into()))?;
         let project_format = match o.get("project_format") { None | Some(serde_json::Value::Null) => None, Some(x) => match x.as_u64() { Some(n) if n <= 1000 => Some(n as u32), _ => return bad("project_format") } };
         let mut yanked = vec![];
         if let Some(a) = o.get("yanked") {
-            let Some(a) = a.as_array() else { return bad("yanked ist keine Liste") };
-            if a.len() > MAX_YANKED { return bad("yanked ist zu lang"); }
-            for x in a { yanked.push(x.as_str().and_then(Version::parse).ok_or_else(|| ParseError::Invalid("yanked: ungültige Version".into()))?); }
+            let Some(a) = a.as_array() else { return bad(vc_i18n::t!("update-yanked-ist-keine-liste")) };
+            if a.len() > MAX_YANKED { return bad(vc_i18n::t!("update-yanked-ist-zu-lang")); }
+            for x in a { yanked.push(x.as_str().and_then(Version::parse).ok_or_else(|| ParseError::Invalid(vc_i18n::t!("update-yanked-ungueltige-version").into()))?); }
         }
-        let Some(arr) = o.get("releases").and_then(|x| x.as_array()) else { return bad("releases fehlt") };
-        if arr.is_empty() || arr.len() > MAX_RELEASES { return bad(format!("releases: 1 bis {MAX_RELEASES} Einträge erwartet")); }
+        let Some(arr) = o.get("releases").and_then(|x| x.as_array()) else { return bad(vc_i18n::t!("update-releases-fehlt")) };
+        if arr.is_empty() || arr.len() > MAX_RELEASES { return bad(vc_i18n::t!("update-releases-1-bis-max-releases-eintraege", MAX_RELEASES = MAX_RELEASES)); }
         let mut releases = vec![]; let mut total = 0usize;
         for r in arr {
-            let Some(r) = r.as_object() else { return bad("releases: Eintrag ist kein Objekt") };
-            let version = r.get("version").and_then(|x| x.as_str()).and_then(Version::parse).ok_or_else(|| ParseError::Invalid("releases: ungültige Version".into()))?;
+            let Some(r) = r.as_object() else { return bad(vc_i18n::t!("update-releases-eintrag-ist-kein-objekt")) };
+            let version = r.get("version").and_then(|x| x.as_str()).and_then(Version::parse).ok_or_else(|| ParseError::Invalid(vc_i18n::t!("update-releases-ungueltige-version").into()))?;
             let notes = clean(r.get("notes").and_then(|x| x.as_str()).unwrap_or(""));
-            if notes.len() > MAX_NOTES { return bad(format!("Text zu {version} ist zu lang")); }
+            if notes.len() > MAX_NOTES { return bad(vc_i18n::t!("update-text-zu-version-ist-zu-lang", version = &version)); }
             total += notes.len();
-            if total > MAX_NOTES_TOTAL { return bad("Texte insgesamt zu lang"); }
+            if total > MAX_NOTES_TOTAL { return bad(vc_i18n::t!("update-texte-insgesamt-zu-lang")); }
             let title: String = clean(r.get("title").and_then(|x| x.as_str()).unwrap_or("")).lines().next().unwrap_or("").chars().take(MAX_TITLE).collect();
-            if releases.iter().any(|x: &Release| x.version == version) { return bad(format!("Version {version} kommt doppelt vor")); }
+            if releases.iter().any(|x: &Release| x.version == version) { return bad(vc_i18n::t!("update-version-version-kommt-doppelt-vor", version = &version)); }
             releases.push(Release { version, title, notes });
         }
-        if !releases.iter().any(|r| r.version == latest) { return bad("latest steht nicht in releases"); }
+        if !releases.iter().any(|r| r.version == latest) { return bad(vc_i18n::t!("update-latest-steht-nicht-in-releases")); }
         releases.sort_by(|a, b| b.version.cmp(&a.version));
         Ok(Manifest { sequence, published, latest, project_format, yanked, releases })
     }
@@ -171,7 +172,7 @@ pub fn evaluate(m: &Manifest, installed: Version) -> Evaluation {
         let mut notes = String::new();
         for r in m.releases.iter().filter(|r| r.version > installed && r.version <= c) {
             let rest = r.title.strip_prefix(&r.version.to_string()).unwrap_or(&r.title).trim();
-            notes.push_str(&format!("## Version {}{}\n\n{}\n\n", r.version, if rest.is_empty() { String::new() } else { format!(" {rest}") }, plain_notes(&r.notes)));
+            notes.push_str(&format!("## {}\n\n{}\n\n", vc_i18n::t!("update-notes-kopf", p1 = &r.version, p2 = if rest.is_empty() { String::new() } else { format!(" {rest}") }), plain_notes(&r.notes)));
         }
         Update { version: c, url: release_url(Some(c)), notes: notes.trim_end().to_string(), project_format_warning: m.project_format.map_or(false, |f| f > PROJECT_FORMAT), published: m.published.clone() }
     });
@@ -212,7 +213,7 @@ fn strip_links(s: &str) -> String {
                     let url: String = b[c + 2..e].iter().collect::<String>().trim().to_string();
                     let shown = url.split_whitespace().next().unwrap_or("").to_string();
                     out.push_str(&text);
-                    if !img && (shown.starts_with("http://") || shown.starts_with("https://")) { out.push_str(&format!(" ({shown})")); }
+                    if !img && (shown.starts_with("http://") || shown.starts_with("https://")) { out.push_str(&format!(" {}", vc_i18n::t!("update-shown", shown = &shown))); }
                     i = e + 1;
                     continue;
                 }
@@ -283,7 +284,7 @@ pub fn dir() -> Option<PathBuf> {
 impl State {
     pub fn load() -> State { dir().and_then(|d| std::fs::read_to_string(d.join("state.json")).ok()).and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default() }
     pub fn save(&self) -> Result<(), String> {
-        let d = dir().ok_or("Kein Ordner für die Update-Prüfung")?;
+        let d = dir().ok_or(vc_i18n::t!("update-kein-ordner-fuer-die-update-pruefung"))?;
         std::fs::create_dir_all(&d).map_err(|e| format!("{}: {e}", d.display()))?;
         let mut t = serde_json::to_string_pretty(self).map_err(|e| e.to_string())?; t.push('\n');
         crate::settings::write_atomic(&d.join("state.json"), t.as_bytes())
@@ -301,7 +302,7 @@ pub fn format_time(secs: u64) -> String {
     let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
     let mp = (5 * doy + 2) / 153; let d = doy - (153 * mp + 2) / 5 + 1; let m = if mp < 10 { mp + 3 } else { mp - 9 };
     let y = yoe + era * 400 + if m <= 2 { 1 } else { 0 };
-    format!("{y:04}-{m:02}-{d:02} {:02}:{:02}", rem / 3600, (rem % 3600) / 60)
+    vc_i18n::t!("update-y-m-d-p4-p5", y = format!("{:04}", y), m = format!("{:02}", m), d = format!("{:02}", d), p4 = format!("{:02}", rem / 3600), p5 = format!("{:02}", (rem % 3600) / 60))
 }
 
 // ---------------------------------------------------------------- Abruf
@@ -314,15 +315,15 @@ impl FetchError {
     /// Kurzer Text für Anwender
     pub fn message(&self) -> String {
         match self {
-            FetchError::Offline => "keine Verbindung (kein Netz, DNS oder Proxy)".into(),
-            FetchError::Timeout => "Zeitüberschreitung".into(),
-            FetchError::Http(404) => "keine Versionsliste unter dieser Adresse (404)".into(),
-            FetchError::Http(403) | FetchError::Http(429) => format!("GitHub lehnt die Anfrage vorübergehend ab ({})", match self { FetchError::Http(c) => *c, _ => 0 }),
-            FetchError::Http(c) => format!("Der Server antwortet mit Fehler {c}"),
-            FetchError::Tls => "sichere Verbindung nicht möglich (Zertifikat oder TLS)".into(),
-            FetchError::NoCurl => "das Programm curl fehlt".into(),
-            FetchError::Insecure => "nur https:// ist erlaubt".into(),
-            FetchError::TooBig => "die Versionsliste ist zu groß".into(),
+            FetchError::Offline => vc_i18n::t!("update-keine-verbindung-kein-netz-dns-oder").into(),
+            FetchError::Timeout => vc_i18n::t!("update-zeitueberschreitung").into(),
+            FetchError::Http(404) => vc_i18n::t!("update-keine-versionsliste-unter-dieser-adresse-404").into(),
+            FetchError::Http(403) | FetchError::Http(429) => vc_i18n::t!("update-github-lehnt-die-anfrage-voruebergehend-ab", p1 = match self { FetchError::Http(c) => *c, _ => 0 }),
+            FetchError::Http(c) => vc_i18n::t!("update-der-server-antwortet-mit-fehler-c", c = &c),
+            FetchError::Tls => vc_i18n::t!("update-sichere-verbindung-nicht-moeglich-zertifikat-oder").into(),
+            FetchError::NoCurl => vc_i18n::t!("update-das-programm-curl-fehlt").into(),
+            FetchError::Insecure => vc_i18n::t!("update-nur-https-ist-erlaubt").into(),
+            FetchError::TooBig => vc_i18n::t!("update-die-versionsliste-ist-zu-gross").into(),
             FetchError::Other(m) => m.clone(),
         }
     }
@@ -343,7 +344,7 @@ fn read_local(src: &str) -> Result<String, FetchError> {
     let f = if p.is_dir() { p.join("update.json") } else { p.to_path_buf() };
     let d = std::fs::read(&f).map_err(|e| FetchError::Other(format!("{}: {e}", f.display())))?;
     if d.len() > MAX_FEED_BYTES { return Err(FetchError::TooBig); }
-    String::from_utf8(d).map_err(|_| FetchError::Other("keine gültige UTF-8-Datei".into()))
+    String::from_utf8(d).map_err(|_| FetchError::Other(vc_i18n::t!("update-keine-gueltige-utf-8-datei").into()))
 }
 
 /// Liest die Liste: Ordner oder Datei lokal, Webadresse mit `curl`. `curl -q` ignoriert eine eigene `.curlrc`; nur `https` (auch bei Weiterleitungen),
@@ -354,10 +355,10 @@ pub fn fetch_text(src: &str) -> Result<String, FetchError> {
     let out = Command::new(crate::help_images::curl())
         .args(["-q", "--fail", "--location", "--silent", "--show-error", "--proto", "=https", "--proto-redir", "=https", "--max-filesize", &MAX_FEED_BYTES.to_string(),
                "--max-time", "15", "--connect-timeout", "8", "--user-agent", USER_AGENT, "--output", "-", "--", src])
-        .stdin(Stdio::null()).output().map_err(|e| if e.kind() == std::io::ErrorKind::NotFound { FetchError::NoCurl } else { FetchError::Other(format!("curl nicht ausführbar: {e}")) })?;
+        .stdin(Stdio::null()).output().map_err(|e| if e.kind() == std::io::ErrorKind::NotFound { FetchError::NoCurl } else { FetchError::Other(vc_i18n::t!("update-curl-nicht-ausfuehrbar-e", e = &e)) })?;
     if !out.status.success() { return Err(curl_error(out.status.code(), &String::from_utf8_lossy(&out.stderr))); }
     if out.stdout.len() > MAX_FEED_BYTES { return Err(FetchError::TooBig); }
-    String::from_utf8(out.stdout).map_err(|_| FetchError::Other("keine gültige UTF-8-Datei".into()))
+    String::from_utf8(out.stdout).map_err(|_| FetchError::Other(vc_i18n::t!("update-keine-gueltige-utf-8-datei").into()))
 }
 
 /// Abbildung der Rückgabewerte von `curl` auf [`FetchError`]
@@ -367,8 +368,8 @@ pub fn curl_error(code: Option<i32>, stderr: &str) -> FetchError {
         Some(28) => FetchError::Timeout,
         Some(35) | Some(51) | Some(58) | Some(59) | Some(60) | Some(77) | Some(83) | Some(91) => FetchError::Tls,
         Some(63) => FetchError::TooBig,
-        Some(22) => match stderr.rsplit("error: ").next().and_then(|t| t.trim().split(|c: char| !c.is_ascii_digit()).next()).and_then(|n| n.parse::<u16>().ok()) { Some(c) => FetchError::Http(c), None => FetchError::Other("HTTP-Fehler".into()) },
-        _ => FetchError::Other(stderr.lines().last().map(|l| l.trim().to_string()).filter(|l| !l.is_empty()).unwrap_or_else(|| "Abruf fehlgeschlagen".into())),
+        Some(22) => match stderr.rsplit("error: ").next().and_then(|t| t.trim().split(|c: char| !c.is_ascii_digit()).next()).and_then(|n| n.parse::<u16>().ok()) { Some(c) => FetchError::Http(c), None => FetchError::Other(vc_i18n::t!("update-http-fehler").into()) },
+        _ => FetchError::Other(stderr.lines().last().map(|l| l.trim().to_string()).filter(|l| !l.is_empty()).unwrap_or_else(|| vc_i18n::t!("update-abruf-fehlgeschlagen").into())),
     }
 }
 
@@ -401,10 +402,10 @@ pub fn record(report: &Report, st: &mut State) {
     match &report.result {
         Ok(ev) => {
             st.last_check = report.at; st.fails = 0; st.last_seen = ev.latest.to_string();
-            st.last_result = match &ev.update { Some(u) => format!("Version {} verfügbar", u.version), None => "aktuell".into() };
+            st.last_result = match &ev.update { Some(u) => vc_i18n::t!("update-version-p1-verfuegbar", p1 = &u.version), None => vc_i18n::t!("update-aktuell") };
             if let (Some(d), Some(raw)) = (dir(), &report.raw) { let _ = std::fs::create_dir_all(&d); let _ = crate::settings::write_atomic(&d.join("last-manifest.json"), raw.as_bytes()); }
         }
-        Err(e) => { st.fails = st.fails.saturating_add(1); st.last_result = format!("Fehler: {e}"); }
+        Err(e) => { st.fails = st.fails.saturating_add(1); st.last_result = vc_i18n::t!("update-fehler-e", e = &e); }
     }
     let _ = st.save();
     log_line(report.at, &report.source, &st.last_result);
@@ -428,7 +429,7 @@ pub fn log_line(at: u64, source: &str, result: &str) {
     let Some(d) = dir() else { return };
     let f = d.join("log.txt");
     let mut lines: Vec<String> = std::fs::read_to_string(&f).map(|t| t.lines().map(String::from).collect()).unwrap_or_default();
-    lines.push(format!("{} UTC  {}  {}", format_time(at), source, result.replace('\n', " ")));
+    lines.push(vc_i18n::t!("update-p1-utc-source-p3", p1 = format_time(at), source = &source, p3 = result.replace('\n', " ")));
     let skip = lines.len().saturating_sub(LOG_LINES);
     let body = lines[skip..].join("\n") + "\n";
     let _ = std::fs::create_dir_all(&d);
@@ -442,10 +443,10 @@ pub fn log_text() -> String { dir().and_then(|d| std::fs::read_to_string(d.join(
 pub fn clear_log() { if let Some(d) = dir() { let _ = std::fs::remove_file(d.join("log.txt")); } }
 
 /// Hinweis zur Installationsart: Pakete der Paketverwaltung aktualisiert diese; die Releaseseite bleibt der Link
-pub fn package_hint(pkg: crate::feedback::Package) -> Option<&'static str> {
+pub fn package_hint(pkg: crate::feedback::Package) -> Option<String> {
     match pkg {
-        crate::feedback::Package::LinuxPackage => Some("Diese Installation stammt aus einem Linux-Paket. Neue Versionen installierst du mit deiner Paketverwaltung (beide Pakete, vintagecoder und vintagecoder-cli, in gleicher Version); die Pakete stehen auf der Releaseseite."),
-        crate::feedback::Package::Source => Some("Diese Installation wurde aus dem Quelltext gebaut. Hole den neuen Stand mit git und baue ihn neu."),
+        crate::feedback::Package::LinuxPackage => Some(vc_i18n::t!("update-diese-installation-stammt-aus-einem-linux")),
+        crate::feedback::Package::Source => Some(vc_i18n::t!("update-diese-installation-wurde-aus-dem-quelltext")),
         _ => None,
     }
 }

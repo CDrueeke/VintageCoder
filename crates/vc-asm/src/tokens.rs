@@ -2,6 +2,7 @@
 //! Sonderzeichen in Zeichenketten: `{down}`, `{clr}`, `{rvs on}`, `{$c1}`, `{147}`, `{down*3}`.
 //! Gilt für `.petscii`, `.atascii`, `.screen` und für `.text`/`.null`/`.ptext`/`.shift` bei gesetzter Kodierung (nicht `ascii`).
 //! Der Wert in den Klammern ist das fertige Byte (nicht noch einmal umgewandelt); `{{` ergibt ein einzelnes `{`.
+use vc_core::{msg, Msg};
 
 /// Welche Schreibweisen erlaubt sind
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -51,28 +52,28 @@ pub enum Piece {
 }
 
 /// Zerlegt eine Zeichenkette; Fehlertext, wenn eine Klammer nicht verstanden wird
-pub fn expand(s: &str, names: Names) -> Result<Vec<Piece>, String> {
+pub fn expand(s: &str, names: Names) -> Result<Vec<Piece>, Msg> {
     let b = s.as_bytes();
     let mut out = Vec::with_capacity(b.len());
     let mut i = 0;
     while i < b.len() {
         if names == Names::Off || b[i] != b'{' { out.push(Piece::Char(b[i])); i += 1; continue; }
         if b.get(i + 1) == Some(&b'{') { out.push(Piece::Char(b'{')); i += 2; continue; }
-        let Some(end) = b[i + 1..].iter().position(|c| *c == b'}') else { return Err("'{' ohne schließendes '}' (für ein einzelnes '{' schreibe '{{')".into()) };
+        let Some(end) = b[i + 1..].iter().position(|c| *c == b'}') else { return Err(msg!("diag-asm-e208-token-unclosed")) };
         let inner = &s[i + 1..i + 1 + end];
         let (base, count) = match inner.split_once('*') {
-            Some((a, n)) => (a, n.trim().parse::<usize>().ok().filter(|n| (1..=255).contains(n)).ok_or(format!("{{{inner}}}: Wiederholung 1 bis 255 erwartet"))?),
+            Some((a, n)) => (a, n.trim().parse::<usize>().ok().filter(|n| (1..=255).contains(n)).ok_or_else(|| msg!("diag-asm-e208-token-repeat", token = format!("{{{inner}}}")))?),
             None => (inner, 1),
         };
         let base = base.trim();
         let code = if let Some(h) = base.strip_prefix('$') {
-            u8::from_str_radix(h, 16).map_err(|_| format!("{{{inner}}}: ungültiger Hexwert (00 bis ff)"))?
+            u8::from_str_radix(h, 16).map_err(|_| msg!("diag-asm-e208-token-hex", token = format!("{{{inner}}}")))?
         } else if !base.is_empty() && base.bytes().all(|c| c.is_ascii_digit()) {
-            base.parse::<u8>().map_err(|_| format!("{{{inner}}}: Zahl 0 bis 255 erwartet"))?
+            base.parse::<u8>().map_err(|_| msg!("diag-asm-e208-token-number", token = format!("{{{inner}}}")))?
         } else if names == Names::Numeric {
-            return Err(format!("{{{inner}}}: Namen gibt es nur mit .petscii/.atascii oder .encoding \"petscii\"/\"atascii\" (hier nur {{$hh}} und {{nnn}})"));
+            return Err(msg!("diag-asm-e208-token-names", token = format!("{{{inner}}}")));
         } else {
-            lookup(names, base).ok_or_else(|| format!("unbekanntes Sonderzeichen {{{inner}}}"))?
+            lookup(names, base).ok_or_else(|| msg!("diag-asm-e208-token-unknown", token = format!("{{{inner}}}")))?
         };
         out.extend(std::iter::repeat(Piece::Raw(code)).take(count));
         i += end + 2;

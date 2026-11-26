@@ -17,7 +17,7 @@ referenz: [tracker, envelope, export]
 - ein Projekt für ein System mit Klangchip, hier vor allem **C64** (Chip **SID**, 3 Stimmen) oder **Atari** (Chip **POKEY**, 4 Stimmen),
 - Lautsprecher oder Kopfhörer. Das Anhören läuft in VintageCoder selbst, du brauchst dafür keinen Emulator.
 
-## Wofür ist das Studio gedacht?
+## Wofür ist der Editor gedacht?
 
 Im Tracker komponierst du die **Musik und die Klänge** deines Programms: Titelmelodie, Spielmusik, Soundeffekte (Schuss, Explosion, Sprung).
 
@@ -27,7 +27,7 @@ Typische Einsätze aus echten Retro-Projekten:
 - **Spielmusik in Schleife** aus wenigen Mustern, die sich wiederholen.
 - **Soundeffekte** als kurze Muster mit Rauschen oder schnellen Tonsprüngen.
 
-Im fertigen Programm landet der Song als **Datentabelle plus kleines Abspielprogramm**, das du bei jedem Bild (50- oder 60-mal pro Sekunde) aufrufst und das den Klangchip ansteuert. Das Studio erzeugt beides.
+Im fertigen Programm landet der Song als **Datentabelle plus kleines Abspielprogramm**, das du bei jedem Bild (50- oder 60-mal pro Sekunde) aufrufst und das den Klangchip ansteuert. Der Editor erzeugt beides.
 
 ## Grundbegriffe ohne Vorwissen
 
@@ -38,7 +38,7 @@ Im fertigen Programm landet der Song als **Datentabelle plus kleines Abspielprog
 - **Instrument:** Wellenform und Hüllkurve eines Klangs.
 - **Wellenform:** Dreieck (weich), Sägezahn (hell), Puls (kräftig, mit Pulsbreite), Rauschen (für Schlagwerk).
 - **Hüllkurve (ADSR):** Verlauf der Lautstärke eines Tons: Anschwellen (Attack), Abfallen (Decay), Halten (Sustain), Ausklingen (Release).
-- **Takt:** hier die Zahl der Bilder je Zeile (Tempo).
+- **Takt / Tempo:** hier die Zahl der Bilder je Zeile; das Feld in der Werkzeugleiste heißt **Tempo**.
 - **Bildrate:** 50 Hz (PAL) oder 60 Hz (NTSC); das Abspielprogramm läuft einmal je Bild.
 
 ## Was ist ein Tracker?
@@ -47,42 +47,45 @@ Ein **Tracker** ist ein Musikprogramm, in dem du Noten nicht auf Notenlinien, so
 
 Die wichtigsten Begriffe:
 
-- **Zelle:** ein Eintrag aus Note und Instrument, zum Beispiel `C-4 01` (Note C in Oktave 4, Instrument 01). `---` bedeutet „nichts“, `===` „Note aus“.
+- **Zelle:** ein Eintrag aus Note und Instrument, zum Beispiel `C-4 01` (Note C in Oktave 4, Instrument 01). `---` bedeutet „nichts“ (im Raster als Punkte gezeigt), `===` „Note aus“.
 - **Muster** (englisch *Pattern*): eine Tabelle mit einer festen Zahl von Zeilen, zum Beispiel 32. Ein Muster ist ein Baustein, etwa „vier Takte Bass“.
 - **Reihenfolge** (englisch *Order*): die Liste, in welcher Reihenfolge die Muster gespielt werden. Weil du Muster wiederverwenden kannst, bleiben Songs klein.
 - **Instrument:** die Klangfarbe. Ein Instrument bestimmt Wellenform und **Hüllkurve**, also wie ein Ton laut wird und wieder verklingt (siehe unten).
-- **Takt** (im Tracker die Geschwindigkeit): die Zahl der **Bilder** je Zeile. Ein Bild ist ein Bildschirmdurchlauf, bei PAL 1/50 Sekunde. Takt 6 heißt: Jede Zeile dauert sechs Bilder.
+- **Tempo** (auch Takt genannt): die Zahl der **Bilder** je Zeile. Ein Bild ist ein Bildschirmdurchlauf, bei PAL 1/50 Sekunde. Tempo 6 heißt: Jede Zeile dauert sechs Bilder.
 
 ## Mein erster Song (am Beispiel `music_demo`)
 
-1. **Beispiel öffnen:** Startseite ▸ Beispiele ▸ `examples/c64/music_demo`. *Erwartet:* Im Baum liegt `music/tune.vcsong`.
-2. **Song öffnen:** Doppelklick. *Erwartet:* Der Tracker öffnet im Modus **Noten**: Raster mit drei Stimmen, rechts Karten.
-3. **Anhören:** **Leertaste**. *Erwartet:* Der Song spielt (eingebauter Synthesizer), die laufende Zeile bewegt sich, die Pegel schlagen aus. Noch einmal **Leertaste** stoppt.
-4. **Eine Note setzen:** Zelle anklicken, die Taste links unten drücken (deutsche Tastatur: **Y**). *Erwartet:* In der Zelle steht eine Note, der Cursor rückt eine Zeile weiter, der Ton erklingt kurz.
-5. **Klang ändern:** **Cmd/Strg+2** (Modus **Instrumente**), anderes Instrument wählen, Wellenform wechseln; **Leertaste** spielt das Instrument probe. *Erwartet:* Der Klang ändert sich hörbar.
-6. **Zurück zu den Noten:** **Cmd/Strg+1**; **Speichern** mit **Cmd/Strg+S**.
+1. **Beispiel öffnen:** Öffne auf der Startseite aus den Beispielprojekten `examples/c64/music_demo` (zum Ändern nimmst du **Kopieren**, dann hast du eine eigene Fassung). *Erwartet:* Im Projektbaum liegt `music/tune.vcsong`.
+2. **Song öffnen:** Wähle oben den Hauptbereich **Musik**. Ist noch nichts offen, zeigt der Editor die **Songs** des Projekts als Knöpfe; klicke auf `music/tune.vcsong`. Ein Doppelklick auf die Datei im Projektbaum geht genauso. *Erwartet:* Links die Reihenfolge und die Instrumente, in der Mitte das Raster mit drei Stimmen, rechts das gewählte Instrument.
+3. **Anhören:** Klicke auf **Song abspielen** (Pfeil in der Werkzeugleiste) oder drücke die **Leertaste**, solange der Cursor im Raster steht. *Erwartet:* Der Song spielt über den eingebauten Synthesizer, die laufende Zeile ist markiert, in den Stimmenköpfen schlagen die Pegel aus. **Wiedergabe stoppen** (oder noch einmal die Leertaste) hält ihn an.
+4. **Eine Note setzen:** Zelle anklicken, die Taste links unten drücken (deutsche Tastatur: **Y**). *Erwartet:* In der Zelle steht eine Note, der Cursor rückt weiter, der Ton erklingt kurz.
+5. **Klang ändern:** Wähle in der Liste **Instrumente** ein anderes Instrument. Rechts wechselst du die Klangform oder verschiebst die Regler. Ein Klick auf eine Taste der **Klaviatur** spielt den Ton mit dem Instrument vor. *Erwartet:* Der Klang ändert sich hörbar.
+6. **Speichern:** **Cmd/Strg+S**. *Erwartet:* Das **●** („ungespeichert“) in der Fußzeile verschwindet.
 7. **Bauen und starten:** **F7**, **F5**. *Erwartet:* Das Programm spielt den Song im Emulator.
 
-Ein neuer Song: **＋** in der linken Spalte ▸ im Dialog **Neue Datei** die Art **Tracker**, Profil **C64 SID-Song (3 Stimmen)** oder **Atari POKEY-Song (4 Stimmen)**, Namen `tune`, **OK**.
+Einen neuen Song legt der Dialog **Neue Datei** in dieser Version noch nicht an. Beginne mit einem Beispielprojekt oder einem vorhandenen Song.
 
 ## Aufbau der Oberfläche
 
-Der Tracker hat drei **Modi** (Umschalter in der Leiste oder **Cmd/Strg+1/2/3**): **Noten**, **Instrumente**, **Ablauf**.
+Der Musik-Editor hat drei Bereiche nebeneinander. In schmalen Fenstern rutschen die Bereiche untereinander.
 
-| Zone | Inhalt |
+| Bereich | Inhalt |
 |---|---|
-| Kopfzeile | Art **TRK**, Name, **●**, Chip und Stimmen, aktuelles Muster, Rückgängig/Wiederholen, **Exportieren …**, **Speichern** |
-| Leiste | genau eine Reihe: Modus, Abspielen (**▶ Song**, **▶ Muster**), **Oktave**, **Schritt** (wie viele Zeilen der Cursor nach einer Note weiterrückt), **Mitscrollen** |
-| Liste | die **Muster** (Nummer, wie oft im Ablauf); Instrumente im Modus Instrumente |
-| Fläche | im Modus Noten das Raster: jede Spalte eine Stimme, jede Zeile ein Zeitschritt; die laufende Zeile ist markiert |
-| Karten | **Werkzeug**, **Klaviatur** (zeigt klingende Töne, Mausklick spielt), **Kanäle** (je Stimme **Stumm**, **Solo** und **Zeigen**), **Pegel**, **Block** (Auswahl transponieren, Instrument setzen, Kopieren/Einfügen), **Dokument** (Chip, Zeilenzahl, Takt) |
-| Fußzeile | Muster, Zeile, Kanal und Zellinhalt; rechts **? Tasten** |
+| Links: **Song** | Name des Songs mit **Neues Muster** (Plus), die **Reihenfolge** der Muster (Anhängen, Setzen, Entfernen, Pfeile, **Wiederholung ab Eintrag**), die Liste der **Instrumente** und, wenn das Projekt mehrere Songs hat, die **Songs** |
+| Mitte | Werkzeugleiste, Auswahl der sichtbaren **Stimmen**, die Muster als Knöpfe, das **Raster** (jede Spalte eine Stimme, jede Zeile ein Zeitschritt) und die Fußzeile |
+| Rechts: **Instrument** | Name, Klangform und Regler des gewählten Instruments, die **Klaviatur** und die **Lautstärke** |
 
-Im Modus **Ablauf** liegen die Muster als **Kartenkette** nebeneinander: Du hängst Muster an (**+**), schiebst Einträge nach vorn oder hinten (**←**, **→**), setzt den gewählten Eintrag auf das gewählte Muster (**Setzen**) oder entfernst ihn (**−**). PLAY-Dateien kennen keinen Ablauf: dort wird ein Muster einmal gespielt.
+Die Werkzeugleiste enthält von links nach rechts: **Rückgängig**, **Wiederholen**, **Song abspielen**, **Muster ▶**, **Wiedergabe stoppen**, den Schalter **Mitscrollen**, die Felder **Tempo**, **Zeilen**, **Oktave** und **Schritt** (wie viele Zeilen der Cursor nach einer Note weiterrückt), **Halbton ↑**, **Halbton ↓**, **Instrument anwenden**, **Übernehmen …**, bei POKEY **RMT-Modul importieren …**, **Exportieren …** und **Speichern**.
+
+![Der Reiter Musik mit der Datei tune.vcsong: links Reihenfolge (Muster 1, 2, 1, 2), Instrumente Puls, Bass und Snare, in der Mitte die Werkzeugleiste mit Mitscrollen, Tempo, Zeilen, Oktave und Schritt und das Raster mit drei Stimmen, rechts die Karten „Instrument 00 · Puls“, „Klaviatur“ und „Lautstärke“. Der Cursor steht auf Zeile 02, unten steht „ungespeichert“.](bild:tracker-ueberblick "Der Tracker mit Reihenfolge, Raster mit drei Stimmen und Instrumenten.")
+
+Die Fußzeile zeigt den Namen der Datei, das aktuelle Muster, die Reihe und die Stimme des Cursors sowie einen Tastenhinweis; **●** meldet ungespeicherte Änderungen, bei laufender Wiedergabe steht dort der Eintrag und die Zeile.
+
+Die Befehle **Tracker: Noten**, **Tracker: Instrumente** und **Tracker: Ablauf** (**Cmd/Strg+1**, **Cmd/Strg+2**, **Cmd/Strg+3**) setzen den Fokus auf das Raster, die Instrumentliste oder die Reihenfolge. Die Reihenfolge der Muster hat bei PLAY-Dateien keinen Platz: Dort steht links der Hinweis „PLAY-Dateien haben ein Muster und keine Reihenfolge.“
 
 ### Noten eingeben
 
-Klicke eine Zelle an oder bewege dich mit den **Pfeiltasten** (**Bild auf/ab** springt acht Zeilen, **Pos1/Ende** zur ersten/letzten Zeile). Dann spielst du mit dem Computer-Keyboard wie auf einem Klavier:
+Klicke eine Zelle an oder bewege dich mit den **Pfeiltasten** (**Bild auf/ab** springt acht Zeilen, **Pos1/Ende** zur ersten/letzten Zeile). Mit gedrückter Maustaste ziehst du eine Auswahl auf. Dann spielst du mit dem Computer-Keyboard wie auf einem Klavier:
 
 ```text
 obere Reihe:   Q  2  W  3  E  R  5  T  6  Z  7  U  I      (eine Oktave höher, deutsche Tastatur)
@@ -91,7 +94,7 @@ untere Reihe:  Y  S  X  D  C  V  G  B  H  N  J  M         (aktuelle Oktave)
 
 Die Tasten gelten nach der **Position**, nicht nach der Beschriftung: Auf einer amerikanischen oder französischen Tastatur liegen dieselben Töne an denselben Stellen. Das Tastaturlayout stellst du in den Einstellungen ein („Automatisch“ erkennt es).
 
-Nach jeder Note rückt der Cursor eine Zeile weiter. Weitere Tasten:
+Nach jeder Note rückt der Cursor um den **Schritt** weiter. Weitere Tasten, solange das Raster den Fokus hat:
 
 | Taste | Wirkung |
 |---|---|
@@ -99,54 +102,56 @@ Nach jeder Note rückt der Cursor eine Zeile weiter. Weitere Tasten:
 | **1** | „Note aus“ (`===`) setzen |
 | **[** und **]** | voriges/nächstes **Instrument** wählen |
 | **,** und **.** | Oktave tiefer/höher (Punkt = höher) |
-| Alt+↑ / Alt+↓ | Instrument der Zelle (oder der Auswahl) wechseln, die Note spielt zur Probe |
+| Alt+↑ / Alt+↓ | Instrument der Zelle (oder der Auswahl) wechseln |
 | Umschalt+Pfeile | mehrere Zellen auswählen |
 | Leertaste | Song abspielen/stoppen |
 | Umschalt+Leertaste | nur das gewählte Muster abspielen |
-| Cmd/Strg+C, X, V | Block kopieren, ausschneiden, einfügen |
-| Cmd/Strg+1, 2, 3 | Modus Noten, Instrumente, Ablauf |
-| Strg/Cmd+S | speichern |
-| Strg/Cmd+Z, Strg/Cmd+Umschalt+Z | rückgängig, wiederholen |
+| Cmd/Strg+C, X, V, A | Block kopieren, ausschneiden, einfügen, alles auswählen |
+| Cmd/Strg+S | speichern |
+| Cmd/Strg+Z, Cmd/Strg+Umschalt+Z | rückgängig, wiederholen |
 
-In der Karte **Klaviatur** zeigt eine Klaviertastatur, welche Töne gerade klingen. Ein Mausklick auf eine Taste trägt den Ton mit dem gewählten Instrument an der Cursorzelle ein und rückt den Cursor vor.
+Die Einzeltasten (Noten, **1**, **[**, **]**, **,**, **.**) lassen sich in den Einstellungen abschalten („Einzeltasten der Editoren“); dann bleiben Pfeile, Leertaste, Entf und alle Kürzel mit Cmd/Strg.
 
-![Tracker-Studio im Modus Noten: links die Muster, in der Mitte das Muster mit drei Stimmen, rechts die Karten Werkzeug (Instrumente), Klaviatur und Kanäle](bild:tracker-muster "Ein Muster mit Noten in drei Stimmen: jede Spalte eine Stimme, jede Zeile ein Zeitschritt")
+**Halbton ↑** und **Halbton ↓** verschieben die ausgewählten Noten um einen Halbton. **Instrument anwenden** setzt das gewählte Instrument auf alle Noten der Auswahl.
+
+In der **Klaviatur** rechts leuchten die Tasten der gerade klingenden Töne. Ein Klick auf eine Taste spielt den Ton mit dem gewählten Instrument vor, trägt aber nichts ein. Beschriftet ist die Computertaste, wenn die Tastenhinweise eingeschaltet sind.
+
+![Der Reiter „Musik“ mit tune.vcsong. Links Reihenfolge und Instrumente, in der Mitte die Werkzeugleiste, die Stimmen 1 bis 3 und das Muster-Raster mit Noten wie C-4 00 und C-2 01; der Cursor steht in Stimme 3, Reihe 01. Rechts das Instrument „Puls“ mit Klangform, Reglern und der Klaviatur mit Computertasten.](bild:tracker-muster "Das Muster-Raster mit drei Stimmen und rechts die Klaviatur.")
 
 ### Muster und Reihenfolge
 
-1. In der **Liste** links (Modus Noten) legt das **+** über der Liste ein leeres Muster an, **Dupl.** kopiert das gewählte, **Löschen** entfernt es. Ein Klick auf ein Muster schaltet das Raster um.
-2. Im Modus **Ablauf** (**Cmd/Strg+3**) stehen die Muster in der Abspielreihenfolge als Kartenkette. **+** hängt das gewählte Muster hinten an, **←** und **→** sortieren um, **Setzen** ersetzt einen Eintrag durch das gewählte Muster, **−** entfernt den gewählten Eintrag.
-3. Die Wiederholung (ab welcher Position der Song nach dem Ende wieder beginnt) stellst du im Modus **Ablauf** neben den Knöpfen ein (**Wiederholung ab**, mit **−** und **+**). In der Kette markiert **↺** die Stelle.
-4. Die **Zeilenzahl** des Musters (mit **−** und **+** in Achterschritten, höchstens 128) und der **Takt** stehen in der Karte **Dokument**.
+1. Das **Plus** neben dem Namen des Songs legt ein leeres **Neues Muster** an. Die Muster erscheinen über dem Raster als Knöpfe („Muster 1“, „Muster 2“ …); ein Klick schaltet das Raster um.
+2. Die **Reihenfolge** links ist die Liste, in der die Muster gespielt werden. **Anhängen** fügt das gewählte Muster hinten an, **Setzen** ersetzt den gewählten Eintrag durch das gewählte Muster, **Entfernen** löscht den Eintrag, die Pfeile **Eintrag nach oben** und **Eintrag nach unten** sortieren um.
+3. **Wiederholung ab Eintrag** nennt die Stelle, an der der Song nach dem Ende wieder beginnt. In der Liste markiert **↻** diese Stelle.
+4. **Duplizieren** kopiert das gewählte Muster, **Löschen** entfernt es.
+5. **Zeilen** (Zeilenzahl des Musters, 1 bis 128) und **Tempo** (1 bis 255) stehen in der Werkzeugleiste.
 
 ### Instrumente und Hüllkurve
 
-Im Modus **Instrumente** (**Cmd/Strg+2**) wählst du ein **Instrument** aus der Liste (Nummer und Name, Hexzahl wie in der Zelle). **Neu** legt ein Instrument an (beim PLAY-Tracker höchstens 10, sonst 32), **Dupl.** kopiert das gewählte; gelöscht werden kann nur das letzte, unbenutzte. Der Knopf **▶** in jeder Zeile spielt das Instrument vor (Vorhören), ebenso die **Leertaste**. Die Einstellungen des Instruments siehst du in der Mitte.
+Rechts siehst du das in der Liste **Instrumente** gewählte Instrument (Nummer und Name, Hexzahl wie in der Zelle). **Neues Instrument** legt eins an (beim PLAY-Tracker höchstens 10, sonst 32), **Duplizieren** kopiert das gewählte. Gelöscht werden kann nur das letzte, unbenutzte Instrument. Das Namensfeld über den Reglern benennt es um.
 
 **SID (C64):**
 
-- **Wellenform:** Dreieck (weich), Sägezahn (hell und schneidend), Rechteck/Puls (kräftig, die Breite stellst du mit **Pulsbreite** ein) und Rauschen (für Trommeln und Explosionen).
-- **Hüllkurve** aus vier Werten, **A**ttack, **D**ecay, **S**ustain, **R**elease (englisch ADSR). Sie beschreibt den Lautstärkeverlauf eines Tons: *Attack* ist die Zeit, in der er vom Nichts auf volle Lautstärke steigt; *Decay* die Zeit, in der er auf die Haltelautstärke *Sustain* fällt; *Release* die Zeit, in der er nach „Note aus“ verklingt. Jeder Wert läuft von 0 bis 15; für Sustain ist es der **Pegel**, kein Zeitwert.
+- **Klangform:** Dreieck (weich), Säge (hell und schneidend), Rechteck (kräftig, die Breite stellst du mit **Pulsbreite** ein) und Rauschen (für Trommeln und Explosionen).
+- **Hüllkurve** aus vier Reglern: **Anschlag** (Attack), **Abfall** (Decay), **Halten** (Sustain) und **Ausklang** (Release), zusammen ADSR. Sie beschreibt den Lautstärkeverlauf eines Tons: *Attack* ist die Zeit, in der er vom Nichts auf volle Lautstärke steigt; *Decay* die Zeit, in der er auf die Haltelautstärke *Sustain* fällt; *Release* die Zeit, in der er nach „Note aus“ verklingt. Jeder Wert läuft von 0 bis 15; für Sustain ist es der **Pegel**, kein Zeitwert.
 
-![Tracker-Studio im Modus Instrumente: links die Instrumentliste, in der Mitte die Hüllkurve, darunter Wellenform und Regler für Pulsbreite, Attack, Decay, Sustain und Release](bild:tracker-instrument "Ein SID-Instrument: Wellenform, Pulsbreite und die vier Hüllkurvenwerte")
+![Der Reiter „Musik“ mit tune.vcsong. Rechts die Spalte „Instrument 00 · Puls“ mit den Klangformen (Rechteck gewählt), den Reglern Anschlag, Abfall, Halten, Ausklang und Pulsbreite, der Klaviatur und der Lautstärke. Links Reihenfolge und Instrumente, in der Mitte das Muster mit drei Stimmen.](bild:tracker-instrument "Die rechte Spalte des Trackers mit Klangform, Hüllkurve, Pulsbreite und Klaviatur.")
 
-Über den Reglern zeichnet der Editor die **Hüllkurve** als Kurve. **▶** (Vorhören) spielt das Instrument einmal, und zwar die Note C der gewählten Oktave.
+**POKEY (Atari):** Hier gibt es keine ADSR-Hüllkurve, sondern eine **Verzerrung** (Reiner Ton, Bass, Buzz oder Gritty) und die **Hüllkurve je Bild**: 16 senkrechte Regler von 0 bis 15, ein Wert je Bild. Das Feld **Hüllkurve wiederholt ab Bild** sagt, ab welchem Bild sich die Kurve wiederholt.
 
-![Hüllkurve eines Instruments im Modus Instrumente: die Kurve mit Attack-Spitze, Decay und Release über den Reglern.](bild:tracker-huellkurve "Die Hüllkurve: ansteigend bis zur Spitze (Attack), fallend auf das Haltepegel (Decay), nach Note aus ausklingend (Release)")
+*[Bild folgt in E13: tracker-pokey]*
 
-**POKEY (Atari):** Hier gibt es keine ADSR-Hüllkurve, sondern eine **Verzerrung** (Reiner Ton, Rauschen, Buzz, Gritty oder Bass) und **Lautstärke je Bild**: 16 Werte von 0 bis 15, ein Wert je Bild. Das Feld **Wiederholung ab** sagt, ab welchem Schritt die Kurve sich wiederholt.
-
-![Ein POKEY-Instrument: die Verzerrung (Reiner Ton, Rauschen, Buzz, Gritty, Bass) und 16 Lautstärkewerte je Bild als Regler; der Strich „ab hier“ zeigt die Wiederholung.](bild:tracker-pokey "POKEY-Instrumente haben Verzerrung und eine 16-Schritte-Lautstärkekurve")
+Die **Lautstärke** (0 bis 15) unter der Klaviatur gilt für den ganzen Song.
 
 ### Hören
 
-- **▶ Song** spielt ab dem gewählten Eintrag der Reihenfolge, **▶ Muster** nur das aktuelle Muster. Der Knopf wird zu **■ Stopp**. Die Leertaste macht dasselbe.
+- **Song abspielen** spielt ab dem gewählten Eintrag der Reihenfolge, **Muster ▶** nur das aktuelle Muster. **Wiedergabe stoppen** hält an. Die Leertaste macht dasselbe (mit Umschalt für das Muster).
 - Das Anhören verwendet einen **eingebauten Synthesizer**, der die Chips nachahmt. Es klingt ähnlich, aber nicht identisch.
-- Ändert sich der Song im Raster, während er spielt, hörst du die Änderung sofort. **Mitscrollen** in der Leiste lässt das Raster mitlaufen; Handscrollen beendet das, ein Klick schaltet es wieder ein.
-- In der Karte **Kanäle** stehen je Stimme die Schalter **Stumm**, **Solo** und **Zeigen**; die Karte **Pegel** zeigt die Lautstärke je Stimme.
-- **Viele Stimmen** (beim MEGA65 zwölf): Das Raster hat dann eine waagerechte Bildlaufleiste, Kanalköpfe und Zeilennummern bleiben beim Scrollen stehen, und der Cursor scrollt von selbst ins Bild. Mit **Zeigen** blendest du Stimmen aus, die du gerade nicht brauchst: Sie verschwinden nur aus dem Raster, **spielen aber weiter** (wenn sie nicht stumm sind), und die Datei bleibt unverändert. Der Cursor springt über ausgeblendete Stimmen hinweg; eine Stimme bleibt immer sichtbar. **Alle Kanäle einblenden** (Befehlspalette und Rechtsklick auf die Fläche) holt sie zurück.
+- Änderungen im Raster hörst du sofort, auch während der Song spielt. **Mitscrollen** lässt das Raster und die Reihenfolge mitlaufen.
+- In jedem Stimmenkopf stehen **M** (stumm), **S** (solo) und ein Pegelbalken. Stumm und Solo wirken auch auf den Klang.
+- **Viele Stimmen** (beim MEGA65 zwölf): Das Raster hat dann eine waagerechte Bildlaufleiste. Über dem Raster stehen die Knöpfe der **Stimmen**; mit ihnen blendest du Stimmen aus, die du gerade nicht brauchst. Sie verschwinden nur aus dem Raster, **spielen aber weiter** (wenn sie nicht stumm sind), und die Datei bleibt unverändert. **Alle einblenden** holt sie zurück. Eine Stimme bleibt immer sichtbar.
 
-![Der Tracker im Modus Noten; in der Karte „Klaviatur“ sind die gerade klingenden Tasten hervorgehoben.](bild:tracker-hoerprobe "Die Karte „Klaviatur“ zeigt die gerade klingenden Töne (Beispielansicht)")
+![Der Reiter „Musik“ mit tune.vcsong. Über dem Muster-Raster stehen die Knöpfe der Stimmen 1, 2 und 3 und „Alle einblenden“. In Stimme 1 steht in Reihe 01 die Note C-3, der Cursor ist in Reihe 02; rechts ist die Karte „Klaviatur“ ohne hervorgehobene Taste.](bild:tracker-hoerprobe "Der Tracker mit der Stimmen-Leiste über dem Raster und der Klaviatur rechts.")
 
 ## Hardware-Besonderheiten und Grenzen
 
@@ -159,22 +164,21 @@ Im Modus **Instrumente** (**Cmd/Strg+2**) wählst du ein **Instrument** aus der 
 
 Das Anhören verwendet einen **eingebauten Synthesizer** und klingt ähnlich, aber nicht identisch zum echten Chip. Prüfe wichtige Klänge im Emulator oder auf der Hardware.
 
-## Nachbar-Studios und Glossar
+## Nachbar-Editoren und Glossar
 
-- Für Spielmusik und Effekte brauchst du die [Sprite-](kapitel:sprites) und [Bildschirm-Studios](kapitel:bildschirm-kacheln) für das, was man sieht. Den MEGA65-PLAY-Tracker beschreibt das Kapitel [PLAY-Tracker](kapitel:play-tracker).
+- Für Spielmusik und Effekte brauchst du die [Sprite-](kapitel:sprites) und [Bildschirm-Editoren](kapitel:bildschirm-kacheln) für das, was man sieht. Den MEGA65-PLAY-Tracker beschreibt das Kapitel [PLAY-Tracker](kapitel:play-tracker).
 - Begriffe: Glossar (Datei `GLOSSAR.md`): SID, POKEY, Hüllkurve, Muster, Tracker.
 
 ## Songs von anderswo holen
 
-- **Konvertieren von …** holt einen Song aus einem anderen System in dieses Projekt (**SID ↔ POKEY**), eine **GoatTracker-Datei** (`.sng`) oder eine **SID-Datei** (`.sid`). Bei SID-Dateien läuft das Abspielprogramm in einem eingebauten 6502-Kern; der Editor zeichnet die Registerwerte auf und baut daraus Noten und Instrumente (Dialog: **Subtune** und **Länge in Sekunden**). Das Ergebnis ist eine Annäherung; Vibrato, Filter und Ähnliches fallen weg. Die Ausgabe nennt, was nicht übernommen wurde.
-- **RMT importieren …** (nur POKEY) lädt ein Modul des **Raster Music Trackers**, des klassischen Atari-Trackers.
+- **Übernehmen …** (Werkzeugleiste) holt einen Song aus einem anderen System in dieses Projekt (**SID ↔ POKEY**), eine **GoatTracker-Datei** (`.sng`) oder eine **SID-Datei** (`.sid`). Du wählst die Datei und im Dialog **Song aus anderem System übernehmen** den **Namen der neuen Datei** und das **Zielsystem**. Bei SID-Dateien läuft das Abspielprogramm in einem eingebauten 6502-Kern; der Editor zeichnet die Registerwerte auf und baut daraus Noten und Instrumente (Felder **Subtune** und **Aufnahme in Sekunden**). Das Ergebnis ist eine Annäherung; Vibrato, Filter und Ähnliches fallen weg. Die Ausgabe nennt, was nicht übernommen wurde.
+- **RMT-Modul importieren …** (nur POKEY) lädt ein Modul des **Raster Music Trackers**, des klassischen Atari-Trackers.
 
-
-![Der Dialog „Song aus anderem System übernehmen“ mit Namensfeld, Quelle (POKEY (Atari) → SID (C64)) und den Knöpfen „OK“ und „Abbrechen“.](bild:tracker-sid-pokey "Ein Song aus einem anderen System wird für den Chip dieses Trackers umgewandelt")
+*[Bild folgt in E13: tracker-sid-pokey]*
 
 ## Einbinden im Programm
 
-Wie bei allen Studios entsteht der Export beim Bauen von selbst (Kopfzeile ▸ **Exportieren …** oder **Cmd/Strg+Umschalt+E** für den Dialog).
+Wie bei allen Editoren entsteht der Export beim Bauen von selbst (Werkzeugleiste ▸ **Exportieren …** oder **Cmd/Strg+Umschalt+E** für den Dialog).
 
 ### C64 (SID)
 
@@ -217,7 +221,7 @@ irq:    lda #$01
         jmp $ea81                   ; Register zurückholen, RTI
 
 music_runtime
-.include "build/export/tune.asm"
+.include "music/tune.vcsong"
 ```
 
 - `music_init` übergibt dem Spieler die Tabellen des Exports: Reihenfolge, Muster, Instrumente, Geschwindigkeit, Zeilenzahl und Mustergröße.
@@ -247,7 +251,7 @@ done:   jmp done
 rmt_vbi_code
 .include "lib/rmtplayr.asm"         ; Player: Tabellen ab $30E0, Code ab $3400
 .org $4000
-.include "build/export/atune.asm"
+.include "music/atune.vcsong"
 .run start
 ```
 
@@ -256,7 +260,7 @@ Der Export für POKEY ist ein **RMT-Modul**, das der Spieler direkt versteht. De
 ## Häufige Stolpersteine
 
 - **Der Song läuft zu schnell oder zu langsam:** Die Spielroutine muss einmal je Bild laufen, am besten per Raster-Interrupt (C64).
-- **Man hört nichts:** Im Tracker prüfen, ob eine Stimme auf **Stumm** steht und ob die Lautstärke deines Rechners nicht aus ist. Gibt es oben eine Fehlermeldung „Audio: …“, stimmt etwas mit der Audioausgabe nicht.
+- **Man hört nichts:** Im Tracker prüfen, ob eine Stimme auf **M** (stumm) steht und ob die Lautstärke deines Rechners nicht aus ist. Gibt es oben eine Fehlermeldung „Audio: …“, stimmt etwas mit der Audioausgabe nicht.
 - **Eine Note klingt endlos:** Setze mit **1** ein „Note aus“ (`===`).
 - **Der Klang weicht vom Emulator ab:** Das Anhören ist ein Synthesizer, nicht der echte Chip.
 

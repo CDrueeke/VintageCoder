@@ -72,7 +72,7 @@ pub struct Trap {
 pub fn trap_code(call: u16, base: u16, rti: bool, prologue: Option<&Regs>) -> Trap {
     let mut c: Vec<u8> = vec![];
     if rti {
-        let r = prologue.expect("rti braucht den Vorspann");
+        let r = prologue.expect("rti needs the prologue");
         let halt = base.wrapping_add(23);
         c.extend([0xA2, r.sp, 0x9A, 0xA9, (halt >> 8) as u8, 0x48, 0xA9, halt as u8, 0x48, 0xA9, r.flags, 0x48, 0x48, 0xA9, r.a, 0xA2, r.x, 0xA0, r.y, 0x28]);
         let call_off = c.len() as u16;
@@ -100,8 +100,11 @@ impl Ctx for DynCtx<'_> {
         Some(match name { "a" => r.a as i64, "x" => r.x as i64, "y" => r.y as i64, "sp" | "s" => r.sp as i64, "pc" => r.pc as i64, "p" | "flags" => r.flags as i64, "fb" => (r.flags >> 4 & 1) as i64,
             other => return r.extra.iter().find(|(n, _)| n.eq_ignore_ascii_case(other)).map(|(_, v)| *v as i64) })
     }
-    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| "Speicher nicht lesbar".to_string()) }
+    fn peek(&mut self, addr: u16) -> Result<u8, String> { self.backend.read_mem(addr, 1)?.first().copied().ok_or_else(|| vc_i18n::t!("testrun-mem-unreadable")) }
 }
+
+/// „20 Zyklen“ bzw. „20 Zyklen (Strahlzeit)“ als gemessener Wert
+fn measured_text(n: i64, beam: bool) -> String { if beam { vc_i18n::t!("testrun-measured-cycles-beam", n = n) } else { vc_i18n::t!("testrun-measured-cycles", n = n) } }
 
 fn reg_line(r: &Regs) -> String {
     let f: String = "NV-BDIZC".chars().enumerate().map(|(i, c)| if r.flags & (0x80 >> i) != 0 { c } else { c.to_ascii_lowercase() }).collect();
@@ -110,27 +113,27 @@ fn reg_line(r: &Regs) -> String {
 
 fn num(src: &str, syms: &HashMap<String, i64>) -> Result<i64, String> {
     struct NoCtx;
-    impl Ctx for NoCtx { fn reg(&self, _: &str) -> Option<i64> { None } fn peek(&mut self, _: u16) -> Result<u8, String> { Err("Speicher ist hier nicht lesbar".into()) } }
-    Expr::parse(src, syms).map_err(|e| format!("„{src}“: {e}"))?.eval(&mut NoCtx).map_err(|e| format!("„{src}“: {e}"))
+    impl Ctx for NoCtx { fn reg(&self, _: &str) -> Option<i64> { None } fn peek(&mut self, _: u16) -> Result<u8, String> { Err(vc_i18n::t!("testrun-mem-unreadable-here")) } }
+    Expr::parse(src, syms).map_err(|e| vc_i18n::t!("testrun-quoted-error", src = src, e = e))?.eval(&mut NoCtx).map_err(|e| vc_i18n::t!("testrun-quoted-error", src = src, e = e))
 }
 fn byte(src: &str, syms: &HashMap<String, i64>, what: &str) -> Result<u8, String> {
     let v = num(src, syms)?;
-    if !(-128..=255).contains(&v) { return Err(format!("{what}: {v} passt nicht in ein Byte")); }
+    if !(-128..=255).contains(&v) { return Err(vc_i18n::t!("testrun-byte-range", what = what, v = v)); }
     Ok(v as u8)
 }
 
 /// Adresse der Falle und Bereiche des Programmabbilds; `Err`: Grund, warum sich die Tests hier nicht ausführen lassen
 pub fn resolve_trap(tf: &TestFile, pre: &Prepared) -> Result<(u16, Vec<(u16, Vec<u8>)>), String> {
-    let image = pre.image.as_ref().map_err(|e| format!("Programmabbild nicht lesbar: {e}"))?;
+    let image = pre.image.as_ref().map_err(|e| vc_i18n::t!("testrun-image-unreadable", e = e))?;
     let syms = &pre.dbg.symbols;
     let trap = match tf.trap.as_deref() {
-        Some(src) => match num(src, syms) { Ok(v) if (0..=0xFFFF).contains(&v) => v as u16, Ok(v) => return Err(format!("trap: Adresse {v} außerhalb 0..65535")), Err(e) => return Err(format!("trap: {e}")) },
-        None => default_trap(&tf.target).ok_or_else(|| format!("für das Ziel „{}“ ist keine Trap-Adresse bekannt: im Test \"trap\" angeben", tf.target))?,
+        Some(src) => match num(src, syms) { Ok(v) if (0..=0xFFFF).contains(&v) => v as u16, Ok(v) => return Err(vc_i18n::t!("testrun-address-range", what = "trap", v = v)), Err(e) => return Err(format!("trap: {e}")) },
+        None => default_trap(&tf.target).ok_or_else(|| vc_i18n::t!("testrun-trap-unknown", target = &tf.target))?,
     };
     let runs = image.runs();
     // Die Falle (höchstens 27 Bytes) darf nicht im Programm liegen
     if runs.iter().any(|(s, v)| (*s as u32) < trap as u32 + 27 && trap as u32 <= *s as u32 + v.len() as u32) {
-        return Err(format!("die Falle bei ${trap:04X} liegt im Programm: im Test \"trap\" eine freie Adresse angeben"));
+        return Err(vc_i18n::t!("testrun-trap-in-program", trap = format!("${trap:04X}")));
     }
     Ok((trap, runs))
 }
@@ -149,13 +152,13 @@ pub fn run_tests(tf: &TestFile, pre: &Prepared, ro: &RunOptions, launch: &mut La
     let mut broken: Option<String> = None;
     let emit = |out: &mut Vec<Outcome>, o: Outcome| { if let Some(f) = &ro.on_outcome { f(&o); } out.push(o); };
     for c in &cases {
-        if ro.cancel.as_ref().map_or(false, |f| f.load(Ordering::SeqCst)) { emit(&mut out, Outcome::skipped(c.name.clone(), "abgebrochen")); continue; }
+        if ro.cancel.as_ref().map_or(false, |f| f.load(Ordering::SeqCst)) { emit(&mut out, Outcome::skipped(c.name.clone(), vc_i18n::t!("testrun-cancelled"))); continue; }
         if let Some(why) = &broken { emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); continue; }
         if tf.isolate { if let Some(mut e) = emu.take() { e.stop(); } }
         if emu.is_none() {
             match launch() {
                 Ok(e) => { emu = Some(e); std::thread::sleep(ro.boot_wait); }
-                Err(e) => { let why = format!("Emulator nicht startbar: {e}"); emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); broken = Some(why); continue; }
+                Err(e) => { let why = vc_i18n::t!("testrun-emulator-start-failed", e = e); emit(&mut out, Outcome::skipped(c.name.clone(), why.clone())); broken = Some(why); continue; }
             }
         }
         let e = emu.as_mut().unwrap();
@@ -172,7 +175,7 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
     let syms = &pre.dbg.symbols;
     let name = c.name.clone();
     let fail = |e: String| (Outcome::failed(name.clone(), Level::Error, e), false);
-    let target = match num(&c.call, syms) { Ok(v) if (0..=0xFFFF).contains(&v) => v as u16, Ok(v) => return fail(format!("call: Adresse {v} außerhalb 0..65535")), Err(e) => return fail(format!("call: {e}")) };
+    let target = match num(&c.call, syms) { Ok(v) if (0..=0xFFFF).contains(&v) => v as u16, Ok(v) => return fail(vc_i18n::t!("testrun-address-range", what = "call", v = v)), Err(e) => return fail(format!("call: {e}")) };
     let loc = pre.dbg.lines.iter().find(|l| l.addr == target && l.cycles.is_some()).map(|l| (l.file.clone(), l.line));
     let with_loc = |o: Outcome| match &loc { Some((f, l)) => o.at(f, *l), None => o };
     // Register vorbereiten; das I-Flag bleibt gesetzt
@@ -182,7 +185,7 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
     }
     for (k, on) in &c.flags {
         let bit = FLAG_BITS.iter().find(|(n, _)| n == k).map(|(_, b)| *b).unwrap_or(0);
-        if bit == 0x04 && !on { return (Outcome::skipped(name, "der Test verlangt ein gelöschtes I-Flag: im Trap-Modus laufen Tests mit gesetztem I-Flag (sonst erreicht VICE die Falle nicht zuverlässig)"), false); }
+        if bit == 0x04 && !on { return (Outcome::skipped(name, vc_i18n::t!("testrun-skip-iflag")), false); }
         if *on { r.flags |= bit } else { r.flags &= !bit }
     }
     let mut attempt = 0;
@@ -194,7 +197,7 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
             for (s, v) in runs { emu.write_mem(*s, v)?; }
             for (addr, vals) in &c.mem {
                 let a = num(addr, syms).map_err(|e| format!("setup.mem {e}"))?;
-                if !(0..=0xFFFF).contains(&a) { return Err(format!("setup.mem: Adresse {a} außerhalb 0..65535")); }
+                if !(0..=0xFFFF).contains(&a) { return Err(vc_i18n::t!("testrun-address-range", what = "setup.mem", v = a)); }
                 let bytes = vals.iter().map(|v| byte(v, syms, "setup.mem")).collect::<Result<Vec<_>, _>>()?;
                 emu.write_mem(a as u16, &bytes)?;
             }
@@ -207,12 +210,12 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
         let (code, call_at, jmp_at) = (&t.code, trap.wrapping_add(t.call_off), trap.wrapping_add(t.halt_off));
         let timeout = Duration::from_millis(c.timeout_ms);
         let want_cycles = c.cycles_max.is_some() || c.expect.iter().any(|e| e.contains("cycles"));
-        let hang = |what: &str| (with_loc(Outcome::timed_out(name.clone(), format!("{what} nach {} ms nicht erreicht: das Unterprogramm kehrt nicht zurück; der Emulator wird neu gestartet", c.timeout_ms))), true);
+        let hang = |what: &str| (with_loc(Outcome::timed_out(name.clone(), vc_i18n::t!("testrun-hang", what = what, ms = c.timeout_ms))), true);
         if let Err(e) = emu.write_mem(trap, code) { return fail(e); }
         let start_regs = if prologue { Regs { pc: trap, sp: 0xFF, flags: 0x24, ..Default::default() } } else { Regs { pc: trap, ..r.clone() } };
         if let Err(e) = emu.set_regs(&start_regs) { return fail(e); }
-        if prologue { match emu.run_until(call_at, timeout) { Ok(true) => {} Ok(false) => return hang("der Vorspann der Falle"), Err(e) => return fail(e) } }
-            let mut cycles: Result<i64, String> = Err("nicht angefordert".into());
+        if prologue { match emu.run_until(call_at, timeout) { Ok(true) => {} Ok(false) => return hang(&vc_i18n::t!("testrun-hang-what-prologue")), Err(e) => return fail(e) } }
+            let mut cycles: Result<i64, String> = Err(vc_i18n::t!("testrun-cycles-not-requested"));
         let sw = if want_cycles { stopwatch_base(&pre.target.id).filter(|_| caps.cycles) } else { None };
         let start_pos = match sw {
             Some(base) => {
@@ -227,38 +230,40 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
                 Some(go.and_then(|_| emu.cycles()))
             }
             None if want_cycles && caps.cycles => { strahl = true; Some(emu.cycles()) }
-            None if want_cycles => Some(Err("dieser Emulator misst keine Zyklen".to_string())),
+            None if want_cycles => Some(Err(vc_i18n::t!("testrun-cycles-no-support"))),
             None => None,
         };
-        match emu.run_until(jmp_at, timeout) { Ok(true) => {} Ok(false) => return hang("die Rückkehr"), Err(e) => return fail(e) }
+        match emu.run_until(jmp_at, timeout) { Ok(true) => {} Ok(false) => return hang(&vc_i18n::t!("testrun-hang-what-return")), Err(e) => return fail(e) }
+        // Zeitgeber und Strahlposition stimmen nicht überein: dann den Test wiederholen (Merkmal statt Meldungstext)
+        let mut mismatch = false;
         if let Some(start) = start_pos {
             cycles = match start.and_then(|s| emu.cycles().map(|e| (s, e))) {
-                Err(e) => Err(format!("nicht messbar: {e}")),
+                Err(e) => Err(vc_i18n::t!("testrun-cycles-unmeasurable", e = e)),
                 Ok((s, e)) if strahl => {
                     // Nur die Strahlposition: gültig, solange weniger als ein Bild vergeht (sie wiederholt sich je Bild)
                     let beam = e.since(&s);
-                    if beam * 4 >= e.frame() * 3 { Err(format!("nicht messbar: Strahlzeit {beam} liegt nahe an einem Bild ({} Zyklen), die Position wiederholt sich", e.frame())) }
-                    else if beam < t.call_cost as u64 { Err(format!("nicht messbar: {beam} Zyklen sind weniger als der Aufrufbefehl")) }
+                    if beam * 4 >= e.frame() * 3 { Err(vc_i18n::t!("testrun-cycles-beam-near-frame", beam = beam, frame = e.frame())) }
+                    else if beam < t.call_cost as u64 { Err(vc_i18n::t!("testrun-cycles-less-than-call", n = beam)) }
                     else { Ok(beam as i64 - t.call_cost as i64) }
                 }
                 Ok((s, e)) => {
                     let beam = e.since(&s);
                     match emu.read_mem(sw.unwrap() + 4, 4) {
-                        Err(er) => Err(format!("nicht messbar: {er}")),
+                        Err(er) => Err(vc_i18n::t!("testrun-cycles-unmeasurable", e = er)),
                         Ok(tm) if tm.len() == 4 => {
                             let timer = 0xFFFF_FFFFu64 - u32::from_le_bytes([tm[0], tm[1], tm[2], tm[3]]) as u64;
-                            if timer % e.frame() != beam { Err(format!("nicht messbar: Zeitgeber ({timer} Zyklen) und Strahlposition ({beam} mod {}) stimmen nicht überein (Strahlposition)", e.frame())) }
-                            else if timer < t.call_cost as u64 { Err(format!("nicht messbar: {timer} Zyklen sind weniger als der Aufrufbefehl")) }
+                            if timer % e.frame() != beam { mismatch = true; Err(vc_i18n::t!("testrun-cycles-mismatch", timer = timer, beam = beam, frame = e.frame())) }
+                            else if timer < t.call_cost as u64 { Err(vc_i18n::t!("testrun-cycles-less-than-call", n = timer)) }
                             else { Ok(timer as i64 - t.call_cost as i64) }
                         }
-                        Ok(_) => Err("nicht messbar: Zeitgeber nicht lesbar".into()),
+                        Ok(_) => Err(vc_i18n::t!("testrun-cycles-timer-unreadable")),
                     }
                 }
             };
         }
         // Die Wartezeit bis zum Halt schwankt (VICE bedient den Monitor bis zu ein Bild später): bei „zu lange“ denselben Test wiederholen,
             // die gemessene Differenz ist ja jedes Mal dieselbe, nur die Gültigkeitsprüfung kann beim nächsten Versuch bestehen
-            if matches!(&cycles, Err(e) if e.contains("Strahlposition")) && attempt < 4 { attempt += 1; continue; }
+            if mismatch && attempt < 4 { attempt += 1; continue; }
             break cycles;
         };
     let regs = match emu.registers() { Ok(x) => x, Err(e) => return fail(e) };
@@ -267,25 +272,25 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
     let mut first_fail: Option<String> = None;
     let mut unmeasurable: Option<String> = None;
     for src in &c.expect {
-        let expr = match Expr::parse(src, syms) { Ok(x) => x, Err(e) => return fail(format!("expect „{src}“: {e}")) };
+        let expr = match Expr::parse(src, syms) { Ok(x) => x, Err(e) => return fail(vc_i18n::t!("testrun-expect-parse", src = src, e = e)) };
         let mut ctx = DynCtx { regs: &regs, backend: emu, cycles: &cycles };
         match expr.holds(&mut ctx) {
             Ok(true) => {}
             Ok(false) => {
-                let mut d = format!("Erwartung „{src}“ ist nicht erfüllt");
+                let mut d = vc_i18n::t!("testrun-expect-failed", src = src);
                 if let Some((l, op, rr)) = expr.comparison() {
                     let (lv, rv) = (l.eval(&mut ctx), rr.eval(&mut ctx));
-                    if let (Ok(lv), Ok(rv)) = (lv, rv) { d.push_str(&format!(": linke Seite = {lv} (${:X}), rechte Seite = {rv} (${:X}), verlangt wurde {op}", lv & 0xFFFF_FFFF, rv & 0xFFFF_FFFF)); }
+                    if let (Ok(lv), Ok(rv)) = (lv, rv) { d.push_str(&vc_i18n::t!("testrun-expect-compare", lv = lv, lh = format!("${:X}", lv & 0xFFFF_FFFF), rv = rv, rh = format!("${:X}", rv & 0xFFFF_FFFF), op = op)); }
                 }
                 first_fail.get_or_insert(d);
             }
             Err(e) => match (&cycles, src.contains("cycles")) {
-                (Err(why), true) => { unmeasurable.get_or_insert(format!("„{src}“: Zyklen {why}")); }
-                _ => { first_fail.get_or_insert(format!("Erwartung „{src}“ nicht auswertbar: {e}")); }
+                (Err(why), true) => { unmeasurable.get_or_insert(vc_i18n::t!("testrun-expect-cycles-why", src = src, why = why)); }
+                _ => { first_fail.get_or_insert(vc_i18n::t!("testrun-expect-unevaluable", src = src, e = e)); }
             },
         }
     }
-    let state = format!("Zustand bei der Rückkehr: {}", reg_line(&regs));
+    let state = vc_i18n::t!("testrun-state-on-return", regs = reg_line(&regs));
     if let Some(d) = first_fail { return (with_loc(Outcome::failed(name, Level::Error, format!("{d}. {state}"))), false); }
     // Zyklenbudget
     let mut budget_note: Option<Outcome> = None;
@@ -294,16 +299,16 @@ fn run_one(emu: &mut dyn Backend, c: &TestCase, pre: &Prepared, runs: &[(u16, Ve
         match &cycles {
             Ok(n) if *n > limit => {
                 let lvl = if ro.strict { Level::Error } else { c.level.unwrap_or(Level::Hint) };
-                let sfx = if strahl { " (Strahlzeit: mit Speicherauffrischung und DMA, nie unter den CPU-Zyklen)" } else { "" };
-                budget_note = Some(with_loc(Outcome::failed(name.clone(), lvl, format!("{n} Zyklen gemessen{sfx}, erlaubt: höchstens {limit} – {} zu viel", n - limit)).with_measured(format!("{n} Zyklen{}", if strahl { " (Strahlzeit)" } else { "" }))));
+                let sfx = if strahl { format!(" {}", vc_i18n::t!("testrun-budget-beam-note")) } else { String::new() };
+                budget_note = Some(with_loc(Outcome::failed(name.clone(), lvl, vc_i18n::t!("testrun-budget-exceeded", n = *n, sfx = sfx, limit = limit, over = n - limit)).with_measured(measured_text(*n, strahl))));
             }
             Ok(_) => {}
-            Err(why) => { unmeasurable.get_or_insert(format!("Zyklenbudget: Zyklen {why}")); }
+            Err(why) => { unmeasurable.get_or_insert(vc_i18n::t!("testrun-budget-cycles-why", why = why)); }
         }
     }
     if let Some(o) = budget_note { return (o, false); }
     if let Some(why) = unmeasurable { return (with_loc(Outcome::skipped(name, why)), false); }
-    let mut ok = Outcome::passed(name, cycles.as_ref().ok().map(|n| format!("{n} Zyklen{}", if strahl { " (Strahlzeit)" } else { "" })));
+    let mut ok = Outcome::passed(name, cycles.as_ref().ok().map(|n| measured_text(*n, strahl)));
     ok.detail = String::new();
     (with_loc(ok), false)
 }
@@ -323,12 +328,12 @@ pub struct ArmInfo {
 /// Bereitet einen Test im (laufenden, angehaltenen) Emulator vor, ohne ihn auszuführen: Programm und Setup schreiben, Falle anlegen,
 /// PC auf die Falle setzen. Danach übernimmt der Debugger (Einzelschritt, Haltepunkt am `jmp *` der Falle).
 pub fn arm_test(emu: &mut dyn Backend, tf: &TestFile, pre: &Prepared, test: &str, ro: &RunOptions) -> Result<ArmInfo, String> {
-    let (i, raw) = tf.tests.iter().enumerate().find(|(_, t)| t.get("name").and_then(|n| n.as_str()) == Some(test)).ok_or_else(|| format!("Test „{test}“ nicht gefunden"))?;
+    let (i, raw) = tf.tests.iter().enumerate().find(|(_, t)| t.get("name").and_then(|n| n.as_str()) == Some(test)).ok_or_else(|| vc_i18n::t!("testrun-test-not-found", test = test))?;
     let c = TestCase::parse(i, raw)?;
     let (trap, runs) = resolve_trap(tf, pre)?;
     let syms = &pre.dbg.symbols;
     let target = num(&c.call, syms).map_err(|e| format!("call: {e}"))?;
-    if !(0..=0xFFFF).contains(&target) { return Err(format!("call: Adresse {target} außerhalb 0..65535")); }
+    if !(0..=0xFFFF).contains(&target) { return Err(vc_i18n::t!("testrun-address-range", what = "call", v = target)); }
     let mut r = Regs { sp: 0xFF, flags: 0x24, ..Default::default() };
     for (k, src) in &c.regs { let v = byte(src, syms, k)?; match k.as_str() { "a" => r.a = v, "x" => r.x = v, "y" => r.y = v, "sp" => r.sp = v, _ => r.flags = v | 0x24 } }
     for (k, on) in &c.flags {
@@ -338,7 +343,7 @@ pub fn arm_test(emu: &mut dyn Backend, tf: &TestFile, pre: &Prepared, test: &str
     for (s, v) in &runs { emu.write_mem(*s, v)?; }
     for (addr, vals) in &c.mem {
         let a = num(addr, syms).map_err(|e| format!("setup.mem {e}"))?;
-        if !(0..=0xFFFF).contains(&a) { return Err(format!("setup.mem: Adresse {a} außerhalb 0..65535")); }
+        if !(0..=0xFFFF).contains(&a) { return Err(vc_i18n::t!("testrun-address-range", what = "setup.mem", v = a)); }
         let bytes = vals.iter().map(|v| byte(v, syms, "setup.mem")).collect::<Result<Vec<_>, _>>()?;
         emu.write_mem(a as u16, &bytes)?;
     }
@@ -349,4 +354,26 @@ pub fn arm_test(emu: &mut dyn Backend, tf: &TestFile, pre: &Prepared, test: &str
     let start = if prologue { Regs { pc: trap, sp: 0xFF, flags: 0x24, ..Default::default() } } else { Regs { pc: trap, ..r } };
     emu.set_regs(&start)?;
     Ok(ArmInfo { trap, call: trap.wrapping_add(t.call_off), halt: trap.wrapping_add(t.halt_off), target: target as u16, prologue })
+}
+
+#[cfg(test)]
+mod i18n_tests {
+    use super::*;
+
+    #[test]
+    fn texts_in_both_languages() {
+        let syms = HashMap::new();
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert_eq!(measured_text(20, true), "20 Zyklen (Strahlzeit)");
+        assert_eq!(byte("300", &syms, "a").unwrap_err(), "a: 300 passt nicht in ein Byte");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        assert_eq!(measured_text(20, false), "20 cycles");
+        assert_eq!(measured_text(20, true), "20 cycles (beam time)");
+        assert_eq!(byte("300", &syms, "a").unwrap_err(), "a: 300 does not fit in a byte");
+        let m = vc_i18n::t!("testrun-budget-exceeded", n = 25, sfx = "", limit = 20, over = 5);
+        assert_eq!(m, "25 cycles measured, allowed: at most 20 - 5 too many");
+        let c = vc_i18n::t!("testrun-expect-compare", lv = 1, lh = "$1", rv = 2, rh = "$2", op = "==");
+        assert_eq!(c, ": left side = 1 ($1), right side = 2 ($2), required ==");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+    }
 }

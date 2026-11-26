@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VC-20: Troxx (Spike)",
+    "description": "Troxx, Referenzfassung fuer den unerweiterten VC-20: Gitterlinien abfahren, Rechtecke schliessen. Etappe 1 (Spike): Bild, Zeichensatz, Gitter, Bildtakt, Joystick, Ton"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "unexpanded",
+      "cpu": "nmos6502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm"
+}

@@ -36,7 +36,24 @@ pub struct Vice {
     /// Bildquelle beim C128: `true` = VIC-II (Standard), `false` = VDC (80 Spalten)
     vic_source: bool,
     frame_no: u16,
+    /// Wahrheit über den Zustand der Maschine: nur die Ereignisse 0x62 (angehalten) und 0x63 (fortgesetzt) des Monitors ändern es.
+    /// Nach dem Verbinden wartet VICE im Monitor (Startwert `true`).
+    vice_stopped: Arc<AtomicBool>,
+    /// Palette des Bildabrufs, gemerkt (Befehl 0x91 hält VICE jedes Mal an); wird alle `PALETTE_MAX_AGE` und bei Quellwechsel neu geholt
+    palette: Option<(bool, Instant, Vec<[u8; 3]>)>,
+    /// Mindest-Standzeit der Maschine je Bildabruf (siehe [`TEMPO_HOLD`])
+    hold: Duration,
 }
+
+/// Mindest-Standzeit je Bildabruf bei laufender Maschine. Gemessen (VICE 3.10, x64sc, macOS): jedes Anhalten und Fortsetzen über den
+/// Monitor lässt VICE das laufende Bild ohne Wartezeit zu Ende rechnen (der Tempobegrenzer setzt zurück), das bringt je Zyklus rund
+/// 11 bis 13 ms zusätzliche Emulationszeit: bei 50 Abrufen pro Sekunde liefe der Rechner mit etwa 160 % Tempo. Hält man die Maschine
+/// je Zyklus etwa 10 ms an, gleicht sich das aus (100 ± 3 %). Das Tempo bleibt damit richtig, und aufeinanderfolgende Bilder liegen
+/// im Mittel ein Rechnerbild auseinander. Einstellbar mit [`Vice::set_tempo_hold`] (null = keine Kompensation).
+pub const TEMPO_HOLD: Duration = Duration::from_millis(10);
+
+/// Wie lange die gemerkte Palette gilt (der Benutzer kann sie im Emulator ändern; ein Bildabruf holt sie dann nachträglich)
+const PALETTE_MAX_AGE: Duration = Duration::from_secs(2);
 
 const MON_SIZE: usize = 12;
 
@@ -44,13 +61,18 @@ impl Vice {
     /// Startet `x64sc` (oder `program`), verbindet sich und lädt `prg` per Autostart. Der Emulator läuft danach.
     pub fn launch(prg: &str, program: Option<&str>) -> Result<Vice, String> { Self::launch_system("x64sc", prg, program) }
 
+    /// Mindest-Standzeit je Bildabruf einstellen (Standard [`TEMPO_HOLD`]); `Duration::ZERO` schaltet den Tempoausgleich ab.
+    pub fn set_tempo_hold(&mut self, hold: Duration) { self.hold = hold; }
+    /// Aus der Umgebung (`VC_VICE_HOLD_MS`, nur Messungen): überschreibt die Mindest-Standzeit
+    pub fn tempo_hold_from_env(&mut self) { if let Some(ms) = std::env::var("VC_VICE_HOLD_MS").ok().and_then(|s| s.parse::<u64>().ok()) { self.hold = Duration::from_millis(ms); } }
+
     /// Wie `launch`, aber mit wählbarem VICE-Programm (`x64sc`, `x128`, `xplus4`).
     pub fn launch_system(name: &str, prg: &str, program: Option<&str>) -> Result<Vice, String> { Self::launch_with(name, prg, program, &[]) }
 
     /// Wie `launch_system`, mit zusätzlichen Kommandozeilenargumenten (Einstellungen des Benutzers).
     pub fn launch_with(name: &str, prg: &str, program: Option<&str>, extra: &[String]) -> Result<Vice, String> {
         let exe = program.map(String::from).or_else(|| find_program(name, &["/Applications/vice-arm64-gtk3-3.10/bin", "/Applications/vice-arm64-gtk3-3.9/bin", "/opt/homebrew/bin", "/usr/local/bin"]))
-            .ok_or(format!("{name} (VICE) nicht gefunden"))?;
+            .ok_or(vc_i18n::t!("emu-name-vice-nicht-gefunden", name = &name))?;
         let port = free_port();
         // Windows: Der Autostart-Befehl des Binär-Monitors lässt VICE 3.9 abstürzen (Zugriffsverletzung, Exitcode 0xC0000005), deshalb
         // wird das Programm dort über die Kommandozeile (`-autostart`) geladen; der Monitor ist schon vor dem Programmstart verbunden.
@@ -60,13 +82,14 @@ impl Vice {
             .stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().map_err(|e| format!("{exe}: {e}"))?;
         let mut stream = None;
         for _ in 0..80 { if let Ok(s) = TcpStream::connect(("127.0.0.1", port)) { stream = Some(s); break; } std::thread::sleep(Duration::from_millis(250)); }
-        let Some(stream) = stream else { let mut c = child; terminate(&mut c, &marker); return Err("VICE-Monitor nicht erreichbar".into()) };
+        let Some(stream) = stream else { let mut c = child; terminate(&mut c, &marker); return Err(vc_i18n::t!("emu-vice-monitor-nicht-erreichbar").into()) };
         let pending: Arc<Mutex<HashMap<u32, Sender<Reply>>>> = Arc::new(Mutex::new(HashMap::new()));
         let running = Arc::new(AtomicBool::new(true));
         let stop_pc = Arc::new(AtomicU32::new(0));
         let last_cp = Arc::new(AtomicU32::new(0));
+        let vice_stopped = Arc::new(AtomicBool::new(true));
         let mut rs = stream.try_clone().map_err(|e| e.to_string())?;
-        let (p2, r2, s2, c2) = (pending.clone(), running.clone(), stop_pc.clone(), last_cp.clone());
+        let (p2, r2, s2, c2, vs2) = (pending.clone(), running.clone(), stop_pc.clone(), last_cp.clone(), vice_stopped.clone());
         let trace = std::env::var("VC_VICE_TRACE").is_ok();   // Diagnose: alle Antworten und Ereignisse des Monitors auf stderr
         std::thread::spawn(move || {
             let mut h = [0u8; MON_SIZE];
@@ -77,14 +100,14 @@ impl Vice {
                 if rs.read_exact(&mut body).is_err() { break; }
                 if trace { eprintln!("VICE <- Typ 0x{rtype:02X} Fehler 0x{err:02X} Id {id:#X} ({len} Bytes)"); }
                 if id == 0xFFFF_FFFF {
-                    match rtype { 0x62 if body.len() >= 2 => { s2.store(u16::from_le_bytes([body[0], body[1]]) as u32, Ordering::SeqCst); r2.store(false, Ordering::SeqCst); } 0x63 => { c2.store(0, Ordering::SeqCst); r2.store(true, Ordering::SeqCst); }
+                    match rtype { 0x62 if body.len() >= 2 => { s2.store(u16::from_le_bytes([body[0], body[1]]) as u32, Ordering::SeqCst); r2.store(false, Ordering::SeqCst); vs2.store(true, Ordering::SeqCst); } 0x63 => { c2.store(0, Ordering::SeqCst); r2.store(true, Ordering::SeqCst); vs2.store(false, Ordering::SeqCst); }
                         0x11 if body.len() >= 5 && body[4] == 1 => c2.store(u32::from_le_bytes([body[0], body[1], body[2], body[3]]), Ordering::SeqCst),   // Haltepunkt getroffen
                         _ => {} }
                 } else if let Some(tx) = p2.lock().unwrap().remove(&id) { let _ = tx.send((rtype, err, body)); }
             }
             r2.store(false, Ordering::SeqCst);
         });
-        let mut v = Vice { child, marker, stream, pending, running, stop_pc, last_cp, watches: vec![], next_id: 1, reg_names: HashMap::new(), bps: vec![], banks: None, version: None, system: name.to_string(), video: None, vic_source: true, frame_no: 0 };
+        let mut v = Vice { child, marker, stream, pending, running, stop_pc, last_cp, watches: vec![], next_id: 1, reg_names: HashMap::new(), bps: vec![], banks: None, version: None, system: name.to_string(), video: None, vic_source: true, frame_no: 0, vice_stopped, palette: None, hold: TEMPO_HOLD };
         v.ping()?;
         // Version erfragen (VICE-Info 0x85: Länge, Versionsbytes Haupt/Neben/Bau/…); ohne Antwort bleibt sie unbekannt
         if let Ok(b) = v.cmd(0x85, &[], Duration::from_secs(5)) { if b.len() >= 3 && b[0] >= 2 { v.version = Some((b[1], b[2])); } }
@@ -95,6 +118,7 @@ impl Vice {
             let mut body = vec![1u8, 0, 0, prg.len() as u8];
             body.extend_from_slice(prg.as_bytes());
             v.cmd(0xDD, &body, Duration::from_secs(20))?;
+            v.await_autostart_resume()?;
         }
         Ok(v)
     }
@@ -111,7 +135,7 @@ impl Vice {
         msg.extend_from_slice(body);
         if std::env::var("VC_VICE_TRACE").is_ok() { eprintln!("VICE -> Befehl 0x{code:02X} Id {id} ({} Bytes)", body.len()); }
         self.stream.write_all(&msg).map_err(|e| e.to_string())?;
-        let (_, err, b) = rx.recv_timeout(timeout).map_err(|_| format!("Zeitüberschreitung bei VICE-Befehl 0x{code:02X}"))?;
+        let (_, err, b) = rx.recv_timeout(timeout).map_err(|_| vc_i18n::t!("emu-zeitueberschreitung-bei-vice-befehl-0x-code", code = format!("{:02X}", code)))?;
         if err != 0 { return Err(format!("VICE-Befehl 0x{code:02X}: Fehlercode 0x{err:02X}")); }
         Ok(b)
     }
@@ -138,21 +162,55 @@ impl Vice {
     pub fn resource_int(&mut self, name: &str) -> Result<i64, String> {
         let mut body = vec![name.len() as u8]; body.extend_from_slice(name.as_bytes());
         let b = self.cmd(0x51, &body, Duration::from_secs(5))?;
-        if b.len() < 2 || b[0] != 1 { return Err(format!("Ressource {name} ist keine Zahl")); }
+        if b.len() < 2 || b[0] != 1 { return Err(vc_i18n::t!("emu-ressource-name-ist-keine-zahl", name = &name)); }
         let n = (b[1] as usize).min(4);
-        if b.len() < 2 + n { return Err(format!("Ressource {name}: Antwort zu kurz")); }
+        if b.len() < 2 + n { return Err(vc_i18n::t!("emu-ressource-name-antwort-zu-kurz", name = &name)); }
         Ok(b[2..2 + n].iter().enumerate().fold(0i64, |acc, (i, x)| acc | (*x as i64) << (8 * i)))
     }
 
-    /// Rohbild (Befehl 0x84) und Palette (0x91) als RGBA. Der Aufrufer sorgt dafür, dass die Maschine danach wieder läuft (siehe `grab_frame`).
-    fn display_rgba(&mut self) -> Result<Frame, String> {
+    /// Rohbild (Befehl 0x84) und Palette (0x91, gemerkt). Der Aufrufer sorgt dafür, dass die Maschine danach wieder läuft (siehe `grab_frame`).
+    fn fetch_display(&mut self) -> Result<(Vec<u8>, Vec<[u8; 3]>), String> {
         let vic = self.vic_source as u8;
         let img = self.cmd(0x84, &[vic, 0], Duration::from_secs(5))?;
-        let pal = self.cmd(0x91, &[vic], Duration::from_secs(5))?;
-        let mut f = parse_display(&img, &parse_palette(&pal)?)?;
-        self.frame_no = self.frame_no.wrapping_add(1);
-        f.frame_no = self.frame_no;
-        Ok(f)
+        let fresh = matches!(&self.palette, Some((src, at, _)) if *src == self.vic_source && at.elapsed() < PALETTE_MAX_AGE);
+        if !fresh {
+            let pal = parse_palette(&self.cmd(0x91, &[vic], Duration::from_secs(5))?)?;
+            self.palette = Some((self.vic_source, Instant::now(), pal));
+        }
+        let pal = self.palette.as_ref().map(|p| p.2.clone()).unwrap_or_default();
+        Ok((img, pal))
+    }
+
+    /// Maschine fortsetzen (Monitorbefehl 0xAA) und das Fortsetzen **bestätigen lassen**: VICE meldet es mit dem Ereignis 0x63.
+    /// Ursache der früheren Anlaufstörung („das erste `cont` wird verschluckt“): `cont` setzte den Zustand sofort auf „läuft“, ohne
+    /// Bestätigung; ein Befehl, den VICE noch während des Anlaufs (Reset, Autostart) abarbeitete, ließ die Maschine im Monitor stehen,
+    /// und alle späteren Abfragen („lief schon“) übersprangen das Fortsetzen. Jetzt gilt nur, was VICE meldet; bleibt die Bestätigung
+    /// aus, wird 0xAA einmal wiederholt und danach ein Fehler gemeldet.
+    fn resume(&mut self) -> Result<(), String> {
+        let was_stopped = self.vice_stopped.load(Ordering::SeqCst);
+        for attempt in 0..2 {
+            self.cmd(0xAA, &[], Duration::from_secs(5))?;
+            if !was_stopped { return Ok(()); }                       // lief schon: es kommt kein Ereignis
+            if self.wait_event(false, Duration::from_millis(if attempt == 0 { 400 } else { 1500 })) { return Ok(()); }
+        }
+        Err(vc_i18n::t!("diag-emu-vice-resume-lost"))
+    }
+
+    /// Wartet, bis VICE gemeldet hat, dass die Maschine angehalten (`stopped`) oder fortgesetzt ist
+    fn wait_event(&self, stopped: bool, max: Duration) -> bool {
+        let end = Instant::now() + max;
+        loop {
+            if self.vice_stopped.load(Ordering::SeqCst) == stopped { return true; }
+            if Instant::now() >= end { return false; }
+            std::thread::sleep(Duration::from_micros(200));
+        }
+    }
+
+    /// Nach dem Autostart-Befehl (0xDD) setzt VICE die Maschine selbst fort (Ereignis 0x63, kurz nach der Antwort). Erst wenn das
+    /// gemeldet ist, stimmt `state()`; kommt es nicht, wird einmal selbst fortgesetzt.
+    fn await_autostart_resume(&mut self) -> Result<(), String> {
+        if self.wait_event(false, Duration::from_secs(3)) { return Ok(()); }
+        self.resume()
     }
 
     fn load_reg_names(&mut self) -> Result<(), String> {
@@ -226,7 +284,7 @@ impl Backend for Vice {
         if let Some(why) = self.step_blocked() { return Err(why); }
         self.cmd(0x71, &[0, 1, 0], Duration::from_secs(5)).map(|_| ())
     }
-    fn cont(&mut self) -> Result<(), String> { self.running.store(true, Ordering::SeqCst); self.cmd(0xAA, &[], Duration::from_secs(5)).map(|_| ()) }
+    fn cont(&mut self) -> Result<(), String> { self.resume() }
     fn can_pause(&self) -> bool { true }
     fn pause(&mut self) -> Result<(), String> {
         self.cmd(0x81, &[], Duration::from_secs(5))?;                        // jeder Befehl hält VICE an
@@ -256,23 +314,23 @@ impl Backend for Vice {
         let ids: HashMap<&str, u8> = self.reg_names.iter().map(|(id, (n, _))| (n.as_str(), *id)).collect();
         let items = [("PC", r.pc), ("A", r.a as u16), ("X", r.x as u16), ("Y", r.y as u16), ("SP", r.sp as u16), ("FL", r.flags as u16)];
         let mut body = vec![0u8]; body.extend((items.len() as u16).to_le_bytes());
-        for (n, v) in items { let id = *ids.get(n).ok_or_else(|| format!("VICE kennt das Register {n} nicht"))?; body.extend([3, id]); body.extend(v.to_le_bytes()); }
+        for (n, v) in items { let id = *ids.get(n).ok_or_else(|| vc_i18n::t!("emu-vice-kennt-das-register-n-nicht", n = &n))?; body.extend([3, id]); body.extend(v.to_le_bytes()); }
         self.cmd(0x32, &body, Duration::from_secs(5)).map(|_| ())
     }
     /// Zeile und Zyklus aus `LIN`/`CYC`; Maße nach Videonorm (PAL 63×312; andere Videonormen sind ungeprüft)
     fn cycles(&mut self) -> Result<Cycles, String> {
-        if self.system != "x64sc" { return Err(format!("Zyklenmessung ist nur für x64sc geprüft, nicht für {}", self.system)); }
+        if self.system != "x64sc" { return Err(vc_i18n::t!("emu-zyklenmessung-ist-nur-fuer-x64sc-geprueft", p1 = &self.system)); }
         let (per_line, lines) = match self.video {
             Some(v) => v,
             None => {
                 // VICE 3.10: 1 = PAL (gemessen). NTSC (2), altes NTSC (3) und PAL-N (4) sind nicht gemessen, deshalb keine Zahlen raten.
-                let v = match self.resource_int("MachineVideoStandard")? { 1 => (63, 312), x => return Err(format!("Zyklenmessung nur für PAL gemessen (Videonorm {x})")) };
+                let v = match self.resource_int("MachineVideoStandard")? { 1 => (63, 312), x => return Err(vc_i18n::t!("emu-zyklenmessung-nur-fuer-pal-gemessen-videonorm", x = &x)) };
                 self.video = Some(v); v
             }
         };
         let r = self.registers()?;
         let get = |n: &str| r.extra.iter().find(|(k, _)| k == n).map(|(_, v)| *v);
-        match (get("LIN"), get("CYC")) { (Some(line), Some(cycle)) => Ok(Cycles { line, cycle, per_line, lines }), _ => Err("VICE meldet LIN/CYC nicht".into()) }
+        match (get("LIN"), get("CYC")) { (Some(line), Some(cycle)) => Ok(Cycles { line, cycle, per_line, lines }), _ => Err(vc_i18n::t!("emu-vice-meldet-lin-cyc-nicht").into()) }
     }
     fn set_watch(&mut self, start: u16, end: u16, kind: WatchKind) -> Result<u32, String> {
         let op = match kind { WatchKind::Read => 1u8, WatchKind::Write => 2, WatchKind::Access => 3 };      // 1 = Laden, 2 = Speichern
@@ -294,11 +352,21 @@ impl Backend for Vice {
     fn frame_sources(&self) -> Vec<&'static str> { if self.system == "x128" { vec!["VIC-II (40 Spalten)", "VDC (80 Spalten)"] } else { vec![] } }
     fn set_frame_source(&mut self, index: usize) { self.vic_source = index == 0; }
     fn grab_frame(&mut self) -> Result<Frame, String> {
-        // Jeder Monitorbefehl hält VICE an: lief die Maschine, wird sie danach fortgesetzt (auch bei einem Fehler)
-        let was_running = self.running.load(Ordering::SeqCst);
-        let r = self.display_rgba();
-        if was_running { self.cont()?; }
-        r
+        // Jeder Monitorbefehl hält VICE an: lief die Maschine, wird sie danach fortgesetzt (auch bei einem Fehler). Die Maschine steht nur
+        // für Abruf (und selten die Palette); Farbumwandlung und Kopieren geschehen nach dem Fortsetzen.
+        let was_running = !self.vice_stopped.load(Ordering::SeqCst);
+        let raw = self.fetch_display();
+        let t_stop = Instant::now();      // ab hier steht die Maschine sicher
+        if was_running {
+            // Standzeit auf `hold` auffüllen (Tempoausgleich, siehe TEMPO_HOLD)
+            if let Some(left) = self.hold.checked_sub(t_stop.elapsed()) { std::thread::sleep(left); }
+            self.resume()?;
+        }
+        let (img, pal) = raw?;
+        let mut f = parse_display(&img, &pal)?;
+        self.frame_no = self.frame_no.wrapping_add(1);
+        f.frame_no = self.frame_no;
+        Ok(f)
     }
     fn can_type_text(&self) -> bool { true }
     fn type_text(&mut self, petscii: &[u8]) -> Result<(), String> {
@@ -315,12 +383,12 @@ impl Backend for Vice {
 
 /// Palette (Antwort auf 0x91): Anzahl (u16), je Eintrag Länge (3) und R, G, B
 fn parse_palette(b: &[u8]) -> Result<Vec<[u8; 3]>, String> {
-    if b.len() < 2 { return Err("VICE-Palette: Antwort zu kurz".into()); }
+    if b.len() < 2 { return Err(vc_i18n::t!("emu-vice-palette-antwort-zu-kurz").into()); }
     let n = u16::from_le_bytes([b[0], b[1]]) as usize;
     let mut out = Vec::with_capacity(n); let mut p = 2;
     for _ in 0..n {
         let sz = *b.get(p).ok_or("VICE-Palette: abgeschnitten")? as usize;
-        if sz < 3 || p + 1 + sz > b.len() { return Err("VICE-Palette: Eintrag unvollständig".into()); }
+        if sz < 3 || p + 1 + sz > b.len() { return Err(vc_i18n::t!("emu-vice-palette-eintrag-unvollstaendig").into()); }
         out.push([b[p + 1], b[p + 2], b[p + 3]]); p += 1 + sz;
     }
     Ok(out)
@@ -330,17 +398,17 @@ fn parse_palette(b: &[u8]) -> Result<Vec<[u8; 3]>, String> {
 /// X-/Y-Versatz und Breite/Höhe des Innenbereichs (je u16), Bits je Punkt (u8), Länge des Puffers (u32), dann die Punkte.
 /// VICE 3.10 liefert den Puffer um 4 Bytes kürzer als im Kopf angegeben: der Rest (die letzten Punkte der letzten Zeile) bleibt Index 0.
 fn parse_display(b: &[u8], pal: &[[u8; 3]]) -> Result<Frame, String> {
-    if b.len() < 21 { return Err("VICE-Bild: Antwort zu kurz".into()); }
+    if b.len() < 21 { return Err(vc_i18n::t!("emu-vice-bild-antwort-zu-kurz").into()); }
     let u16at = |o: usize| u16::from_le_bytes([b[o], b[o + 1]]) as usize;
     let info = u32::from_le_bytes([b[0], b[1], b[2], b[3]]) as usize;
     let (w, h, bpp) = (u16at(4), u16at(6), b[16]);
-    if info < 13 { return Err(format!("VICE-Bild: Kopflänge {info} unbekannt")); }
-    if bpp != 8 { return Err(format!("VICE-Bild: {bpp} Bit je Punkt werden nicht unterstützt")); }
-    if w == 0 || h == 0 || w > 4096 || h > 4096 { return Err(format!("VICE-Bild: Größe {w}×{h} unplausibel")); }
-    if pal.is_empty() { return Err("VICE-Palette ist leer".into()); }
+    if info < 13 { return Err(vc_i18n::t!("emu-vice-bild-kopflaenge-info-unbekannt", info = &info)); }
+    if bpp != 8 { return Err(vc_i18n::t!("emu-vice-bild-bpp-bit-je-punkt", bpp = &bpp)); }
+    if w == 0 || h == 0 || w > 4096 || h > 4096 { return Err(vc_i18n::t!("emu-vice-bild-groesse-w-h-unplausibel", w = &w, h = &h)); }
+    if pal.is_empty() { return Err(vc_i18n::t!("emu-vice-palette-ist-leer").into()); }
     let start = 4 + info + 4;
-    let data = b.get(start..).ok_or("VICE-Bild: Puffer fehlt")?;
-    if data.len() + 16 < w * h { return Err(format!("VICE-Bild: Puffer zu kurz ({} von {} Bytes)", data.len(), w * h)); }
+    let data = b.get(start..).ok_or(vc_i18n::t!("emu-vice-bild-puffer-fehlt"))?;
+    if data.len() + 16 < w * h { return Err(vc_i18n::t!("emu-vice-bild-puffer-zu-kurz-p1", p1 = data.len(), p2 = w * h)); }
     let mut rgba = Vec::with_capacity(w * h * 4);
     for i in 0..w * h {
         let c = pal[data.get(i).copied().unwrap_or(0) as usize % pal.len()];
@@ -387,7 +455,7 @@ mod tests {
 /// VICE 3.9 für Windows stürzt beim Einzelschritt über den Monitor ab (Zugriffsverletzung): der Schritt wird vorher abgefangen
 fn step_block_reason(windows: bool, version: Option<(u8, u8)>) -> Option<String> {
     let (a, b) = version?;
-    if windows && (a, b) < (3, 10) { Some(format!("VICE {a}.{b} stürzt unter Windows beim Einzelschritt ab – bitte VICE 3.10 oder neuer verwenden")) } else { None }
+    if windows && (a, b) < (3, 10) { Some(vc_i18n::t!("emu-vice-a-b-stuerzt-unter-windows", a = &a, b = &b)) } else { None }
 }
 
 #[cfg(test)]

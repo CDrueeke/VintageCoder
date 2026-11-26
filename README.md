@@ -1,8 +1,10 @@
 # VintageCoder
 
+Deutsch | [English](README.en.md)
+
 Entwicklungsumgebung für Retro-Rechner mit 6502-Prozessor: Programme in Assembler oder BASIC schreiben, bauen, im Emulator oder auf echter Hardware starten und debuggen – dazu Editoren für Sprites, Zeichensätze, Bildschirme, Paletten und Musik.
 
-> **Alpha-Stadium.** VintageCoder ist in Entwicklung und enthält mit Sicherheit noch Fehler. Sichere deine Arbeit regelmäßig. Es gibt keine Gewähr, auch nicht für Datenverlust (siehe [Lizenz](#lizenz)).
+> **Hinweis.** VintageCoder ist in Entwicklung und enthält mit Sicherheit noch Fehler. Sichere deine Arbeit regelmäßig. Es gibt keine Gewähr, auch nicht für Datenverlust (siehe [Lizenz](#lizenz)).
 
 ![VintageCoder im Debug-Modus](docs/handbuch/bilder/ui-modus-debug.png)
 
@@ -14,11 +16,11 @@ Entwicklungsumgebung für Retro-Rechner mit 6502-Prozessor: Programme in Assembl
 | Commodore 128 | Assembler, BASIC 7.0 | VICE |
 | Commodore 16 / Plus/4 | Assembler, BASIC 3.5 | VICE |
 | Commodore VC-20 | Assembler, BASIC V2 | VICE |
-| Commodore PET, CBM-II | Assembler (PET), BASIC | VICE |
+| Commodore PET | Assembler, BASIC | VICE |
 | Atari 8-Bit (800, XL, XE) | Assembler, Atari BASIC, Turbo BASIC XL | atari800, Altirra (Windows) |
 | MEGA65 | Assembler (45GS02), BASIC 65 | Xemu, MEGA65-Hardware |
 
-**In den Paketen des nächsten Releases sind C64, Plus/4 (und C16), Commodore 128, VC-20, Atari 8 Bit und MEGA65 enthalten.** PET und CBM-II (Stand Spike: erst Daten, Vorlagen und BASIC-Beispiele) sind im Quelltext vorhanden, aber in der Release-Auswahl ([FEATURES.md](FEATURES.md)) abgewählt und in den Paketen ausgeblendet. Der Anschluss echter MEGA65-Hardware ist ebenfalls abgewählt (Gerät bisher nicht geprüft). In einem Bau aus dem Quelltext ist alles sichtbar (es gibt keine `data/release.json`); die Auswahl steht in [docs/release-auswahl.md](docs/release-auswahl.md). Wie weit die Funktionen geprüft sind, steht in [STATUS.md](STATUS.md). Die Hardware-Beschreibungen (Prozessoren, Chips, Speicherkarten) liegen als JSON-Dateien in `data/`. Neue Systeme lassen sich damit ergänzen, ohne die Programme zu ändern.
+**In den Paketen des nächsten Releases sind C64, Plus/4 (und C16), Commodore 128, VC-20, Atari 8 Bit und MEGA65 enthalten.** PET (Stand Spike: erst Daten, Vorlagen und BASIC-Beispiele) ist im Quelltext vorhanden, aber in der Release-Auswahl ([FEATURES.md](FEATURES.md)) abgewählt und in den Paketen ausgeblendet. Der Anschluss echter MEGA65-Hardware ist ebenfalls abgewählt (Gerät bisher nicht geprüft). In einem Bau aus dem Quelltext ist alles sichtbar (es gibt keine `data/release.json`); die Auswahl steht in [docs/release-auswahl.md](docs/release-auswahl.md). Wie weit die Funktionen geprüft sind, steht in [STATUS.md](STATUS.md). Die Hardware-Beschreibungen (Prozessoren, Chips, Speicherkarten) liegen als JSON-Dateien in `data/`. Neue Systeme lassen sich damit ergänzen, ohne die Programme zu ändern.
 
 ## Was VintageCoder kann
 
@@ -28,7 +30,7 @@ Entwicklungsumgebung für Retro-Rechner mit 6502-Prozessor: Programme in Assembl
 - **Debugger** mit Haltepunkten (auch bedingt), Datenhaltepunkten, Registern, Speicher, Disassembler und Memory Map.
 - **Automatische Tests** für Assembler-Projekte: statische Prüfungen und Unterprogramm-Tests im Emulator.
 - **Grafik- und Musik-Editoren:** Sprites (auch Atari-PMG), Zeichensätze, Textbildschirme, Kachelkarten, Paletten, Tracker für SID und POKEY, PLAY-Tracker für den MEGA65. Export als Assembler, Konstanten, Binärdatei, PRG oder BASIC-DATA.
-- **Disk-Studio** für D64, D71, D81 und ATR, auch bootbare Atari-Disketten.
+- **Disk-Editor** für D64, D71, D81 und ATR, auch bootbare Atari-Disketten.
 - **Kommandozeile `vcc`** für Bauen, Tests, Disk-Images und Medien, geeignet für Skripte und CI.
 - **Language Server** (`vc-lsp`) für andere Editoren ([Anleitung](docs/sprachserver.md)).
 - **Projektassistent** mit Vorlagen und geführter Ersteinrichtung.
@@ -39,7 +41,7 @@ Eine bebilderte Anleitung steht im [Handbuch](docs/handbuch/kapitel/) (auch in d
 
 ### Fertige Pakete
 
-Die Pakete für Version 0.1.0 (Alpha) gibt es unter [GitHub ▸ Releases](https://github.com/CDrueeke/VintageCoder/releases) (Tag `v0.1.0`, als Vorabversion gekennzeichnet) und auf der [Webseite des Projekts](https://vintagecoder.drueeke.de/). Zu jedem Release gehört eine Datei `SHA256SUMS` zum Prüfen der Downloads.
+Die Pakete für Version 0.3.0 gibt es unter [GitHub ▸ Releases](https://github.com/CDrueeke/VintageCoder/releases) (Tag `v0.3.0`) und auf der [Webseite des Projekts](https://vintagecoder.drueeke.de/). Zu jedem Release gehört eine Datei `SHA256SUMS` zum Prüfen der Downloads.
 
 | System | Paket | Voraussetzung |
 |---|---|---|
@@ -80,7 +82,7 @@ Die Installationspakete selbst werden mit `python3 tools/release.py` zusammenges
 
 Zum Starten und Debuggen braucht man einen Emulator, der unter *Einstellungen ▸ Zielsysteme* eingetragen wird: [VICE](https://vice-emu.sourceforge.io) (für den Debugger unter Windows ab Version 3.10), [atari800](https://atari800.github.io), [Altirra](https://www.virtualdub.org/altirra.html) oder [Xemu](https://github.com/lgblgblgb/xemu). Die Pakete enthalten keine Emulatoren.
 
-**ROMs:** VintageCoder liefert keine Original-ROMs mit und lädt keine herunter. Wer sie braucht (zum Beispiel für Emulatoren oder Original-Zeichensätze), legt eigene Abbilder in den ROM-Ordner, ein Assistent hilft dabei. Ob ein Abbild benutzt werden darf, klärt jeder selbst.
+**ROMs:** VintageCoder liefert keine Original-ROMs mit und lädt keine herunter. Wer sie braucht (zum Beispiel für Emulatoren oder Original-Zeichensätze), legt eigene Abbilder in den ROM-Ordner, ein Assistent hilft dabei.
 
 ## Kommandozeile und Sprachserver
 
@@ -102,14 +104,16 @@ VintageCoder entsteht mit starker KI-Unterstützung: Der Quelltext wird weitgehe
 
 ## Lizenz
 
-VintageCoder steht unter der **GNU General Public License, Version 3 oder später** ([LICENSE](LICENSE)). Die Software wird ohne jede Gewährleistung bereitgestellt, insbesondere ohne Haftung für Datenverlust oder Schäden an Daten und Hardware. Herkunft und Lizenzen enthaltener Fremdinhalte: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+VintageCoder steht unter der **GNU General Public License, Version 3 oder später** ([LICENSE](LICENSE)), ohne Gewährleistung. Was du mit VintageCoder, mit der Sprache VCASM und mit den erzeugten Dateien tun darfst, steht in [LICENSING.md](LICENSING.md). Systemdateien (`data/sys/`), Vorlagen (`data/templates/`) und Beispielprojekte (`examples/`) stehen unter der **MIT-No-Attribution-Lizenz (MIT-0)** ([LICENSES/MIT-0.txt](LICENSES/MIT-0.txt)). Das Logo (`branding/`) und der Name „VintageCoder“ sind von der GPL ausgenommen (Einzelheiten in [LICENSING.md](LICENSING.md)).
 
-Was du mit VintageCoder, mit der Sprache VCASM und mit den erzeugten Dateien tun darfst, steht in [LICENSING.md](LICENSING.md).
+## Danksagungen
 
-**Unter der MIT-No-Attribution-Lizenz (MIT-0, ohne Pflicht zum Urheberhinweis; nicht unter der GPL)** stehen die **Systemdateien** (`data/sys/`), die **Vorlagen** (`data/templates/`) und die **Beispielprojekte** (`examples/`), damit sie frei in eigene Programme eingesetzt werden können (Lizenztext: [LICENSES/MIT-0.txt](LICENSES/MIT-0.txt), Vermerk in der Datei `LICENSE` des jeweiligen Ordners; Fremdanteile wie der RMT-Player behalten ihren eigenen Vermerk).
+VintageCoder enthält Teile anderer Projekte, unter anderem:
 
-**Ausgenommen von der GPL** sind das Logo (die Dateien unter `branding/`) und der Name „VintageCoder“: Ihre Verwendung ist nicht frei.
+- **Raster Music Tracker (RMT-Player)** in den Atari-Beispielen: Radek Štěrba / Raster / C.P.U. 2002–2009, weitergeführt von Vin Samuel und Peter Dell, GPL v3, [Quelle](https://github.com/raster-atari-org/RASTER-Music-Tracker).
+- **JetBrains Mono** ([Schrift](https://github.com/JetBrains/JetBrainsMono)), **CodeMirror** ([Editor](https://codemirror.net)), **Project Fluent** ([Texte](https://projectfluent.org)), **Tauri** ([Anwendungsrahmen](https://tauri.app)) und die Rust-Bibliotheken.
+- Die Emulatoren, die VintageCoder startet und die der Anwender selbst installiert: [VICE](https://vice-emu.sourceforge.io), [atari800](https://atari800.github.io), [Altirra](https://www.virtualdub.org/altirra.html), [Fujisan](https://github.com/pedgarcia/fujisan) und [Xemu](https://github.com/lgblgblgb/xemu); dazu **MEGA65 core** als Quelle technischer Daten.
 
-Die Beispielprojekte unter `examples/` sind eigene Werke des Projekts (MIT-0); Fremdanteile (zum Beispiel der RMT-Player) sind in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) genannt.
+Die vollständige Liste mit Urhebern und Lizenzen steht in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 Website: <https://vintagecoder.drueeke.de>

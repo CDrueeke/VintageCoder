@@ -1,19 +1,33 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-MIGRATE 1 "" "VintageCoder 0.2.1" "VintageCoder Handbuch"
+.TH VCC\-MIGRATE 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-migrate \- Projekt vom alten Dateischema auf das neue umstellen
 .SH ÜBERSICHT
 .B vcc migrate [projektordner]
+.br
+.B vcc migrate includes [projektordner] [\-\-apply]
 .br
 .SH BESCHREIBUNG
 Projekt vom alten Dateischema auf das neue umstellen
 .PP
 Benennt Dateien im alten Schema (*.asset.json) in <name>.vc<art> um, verschiebt assets/ nach graphics/ bzw. music/ und build/assets/ nach build/export/. Verweise in Quelltexten, Includes und Assets werden mitgezogen. Ausgegeben wird jede Umbenennung; build/export/ entsteht beim nächsten Bauen neu.
 .SH OPTIONEN
+.SS Grundform
+Projekt vom alten Dateischema auf das neue umstellen
+.PP
 .TP
 \fIprojektordner\fR
 Wurzel des Projekts; Standard ist der Arbeitsordner. (optional)
+.SS Form includes
+Alte Include\-Pfade build/export/… auf die Mediendatei umstellen
+.PP
+.TP
+\fIprojektordner\fR
+Wurzel des Projekts; Standard ist der Arbeitsordner. (optional)
+.TP
+\fB\-\-apply\fR
+Umstellung wirklich schreiben; ohne diese Option wird nur angezeigt, was sich ändern würde.
 .SH BEISPIELE
 Projekt im Arbeitsordner umstellen:
 .PP
@@ -29,10 +43,28 @@ bestimmtes Projekt umstellen:
 vcc migrate examples/c64/tests_demo
 .fi
 .RE
+Anzeigen, was sich ändern würde:
+.PP
+.RS 8
+.nf
+vcc migrate includes
+.fi
+.RE
+Umstellung schreiben:
+.PP
+.RS 8
+.nf
+vcc migrate includes examples/c64/jumprun \-\-apply
+.fi
+.RE
 .SH HINWEISE
 Gibt es nichts umzustellen, lautet die Ausgabe: nichts umzustellen.
 .PP
 Der Befehl kennt keine Optionen; das erste Argument gilt als Ordner.
+.PP
+Aus .include "build/export/hero.asm" wird .include "graphics/hero.vcsprite" (BASIC: #include). Eine Zeile mit hero.anim.asm direkt dahinter entfällt: der Include der Mediendatei liefert Daten und Tabellen zusammen.
+.PP
+Gibt es zu einem Namen kein oder mehrere Medien im Projekt, bleibt die Zeile unverändert und wird gemeldet.
 .PP
 .SH RÜCKGABEWERT
 0 = fehlerfrei, 1 = Fehler (im Quelltext, in einer Prüfung oder bei der Ausführung), 2 = falscher Aufruf (unbekannter Befehl oder unbekannte Option)

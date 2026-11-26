@@ -47,8 +47,8 @@ pub fn long_name_hover(text: &str, word: &str) -> Option<String> {
     let d = NAME_DIALECT.lock().ok()?.as_ref()?.1.clone();
     let entries = match &*d { NameDialect::Cbm(d) => vc_basic::longnames::lookup(text, vc_basic::longnames::Target::Cbm(d), word), NameDialect::Atari(d) => vc_basic::longnames::lookup(text, vc_basic::longnames::Target::Atari(d), word) };
     if entries.is_empty() { return None; }
-    let mut md = format!("**{}** – langer Name, beim Bauen umgesetzt\n\n", word.trim_end_matches(['$', '%']));
-    for e in &entries { md.push_str(&format!("- `{}` → `{}`  ({}{})\n", e.long, e.short, e.kind, if e.array { if e.scalar { ", auch als Feld" } else { ", Feld" } } else { "" })); }
+    let mut md = format!("**{}** – {}\n\n", word.trim_end_matches(['$', '%']), vc_i18n::t!("editor-names-langer-name-beim-bauen-umgesetzt"));
+    for e in &entries { md.push_str(&format!("- `{}` → `{}`  ({}{})\n", e.long, e.short, e.kind, if e.array { if e.scalar { vc_i18n::t!("editor-names-auch-als-feld") } else { vc_i18n::t!("editor-names-feld") } } else { String::new() })); }
     Some(md)
 }
 

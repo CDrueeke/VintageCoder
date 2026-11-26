@@ -26,7 +26,7 @@ impl Huff {
             if code - count < first { return Ok(self.symbols[(index + (code - first)) as usize]); }
             index += count; first += count; first <<= 1; code <<= 1;
         }
-        Err("PNG: ungültiger Huffman-Code".into())
+        Err(vc_i18n::t!("media-png-ungueltiger-huffman-code").into())
     }
 }
 const LBASE: [u16; 29] = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
@@ -34,9 +34,18 @@ const LEXT: [u8; 29] = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3,
 const DBASE: [u16; 30] = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
 const DEXT: [u8; 30] = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
 
-/// zlib-Datenstrom (RFC 1950/1951) entpacken
-pub fn inflate(z: &[u8]) -> Result<Vec<u8>, String> {
-    if z.len() < 2 { return Err("PNG: zlib-Strom zu kurz".into()); }
+/// Obergrenze für entpackte Daten bei [`inflate`] ohne eigene Grenze (Schutz vor Dekompressionsbomben)
+pub const INFLATE_MAX: usize = 256 << 20;
+/// Größte zulässige Bildfläche in Pixeln (4096 × 4096)
+pub const MAX_PIXEL: usize = 4096 * 4096;
+
+/// zlib-Datenstrom (RFC 1950/1951) entpacken, höchstens [`INFLATE_MAX`] Bytes
+pub fn inflate(z: &[u8]) -> Result<Vec<u8>, String> { inflate_max(z, INFLATE_MAX) }
+
+/// zlib-Datenstrom entpacken; mehr als `max` Bytes Ausgabe ist ein Fehler (der Strom wird dann nicht weiter gelesen)
+pub fn inflate_max(z: &[u8], max: usize) -> Result<Vec<u8>, String> {
+    let zu_gross = || -> String { vc_i18n::t!("media-png-daten-zu-gross").into() };
+    if z.len() < 2 { return Err(vc_i18n::t!("media-png-zlib-strom-zu-kurz").into()); }
     let mut b = Bits { d: z, pos: 2, bit: 0, nbits: 0 }; let mut out: Vec<u8> = Vec::new();
     loop {
         let last = b.get(1)?; let kind = b.get(2)?;
@@ -44,6 +53,7 @@ pub fn inflate(z: &[u8]) -> Result<Vec<u8>, String> {
             0 => {
                 b.bit = 0; b.nbits = 0; let p = b.pos; if p + 4 > z.len() { return Err("PNG: Block abgeschnitten".into()); }
                 let len = z[p] as usize | (z[p + 1] as usize) << 8; b.pos = p + 4; if b.pos + len > z.len() { return Err("PNG: Block abgeschnitten".into()); }
+                if out.len() + len > max { return Err(zu_gross()); }
                 out.extend_from_slice(&z[b.pos..b.pos + len]); b.pos += len;
             }
             1 | 2 => {
@@ -58,53 +68,62 @@ pub fn inflate(z: &[u8]) -> Result<Vec<u8>, String> {
                     while i < nlen + ndist {
                         let s = ch.decode(&mut b)?;
                         if s < 16 { lens[i] = s as u8; i += 1; } else {
-                            let (v, rep) = match s { 16 => { if i == 0 { return Err("PNG: ungültige Längen".into()); } (lens[i - 1], 3 + b.get(2)?) } 17 => (0, 3 + b.get(3)?), _ => (0, 11 + b.get(7)?) };
-                            for _ in 0..rep { if i >= lens.len() { return Err("PNG: ungültige Längen".into()); } lens[i] = v; i += 1; }
+                            let (v, rep) = match s { 16 => { if i == 0 { return Err(vc_i18n::t!("media-png-ungueltige-laengen").into()); } (lens[i - 1], 3 + b.get(2)?) } 17 => (0, 3 + b.get(3)?), _ => (0, 11 + b.get(7)?) };
+                            for _ in 0..rep { if i >= lens.len() { return Err(vc_i18n::t!("media-png-ungueltige-laengen").into()); } lens[i] = v; i += 1; }
                         }
                     }
                     (Huff::new(&lens[..nlen]), Huff::new(&lens[nlen..]))
                 };
                 loop {
                     let s = lit.decode(&mut b)? as usize;
-                    if s < 256 { out.push(s as u8); } else if s == 256 { break; } else {
-                        let s = s - 257; if s >= 29 { return Err("PNG: ungültiges Symbol".into()); }
+                    if s < 256 { if out.len() >= max { return Err(zu_gross()); } out.push(s as u8); } else if s == 256 { break; } else {
+                        let s = s - 257; if s >= 29 { return Err(vc_i18n::t!("media-png-ungueltiges-symbol").into()); }
                         let len = LBASE[s] as usize + b.get(LEXT[s] as u32)? as usize;
-                        let ds = dist.decode(&mut b)? as usize; if ds >= 30 { return Err("PNG: ungültige Distanz".into()); }
-                        let d = DBASE[ds] as usize + b.get(DEXT[ds] as u32)? as usize; if d > out.len() { return Err("PNG: Distanz zu groß".into()); }
+                        let ds = dist.decode(&mut b)? as usize; if ds >= 30 { return Err(vc_i18n::t!("media-png-ungueltige-distanz").into()); }
+                        let d = DBASE[ds] as usize + b.get(DEXT[ds] as u32)? as usize; if d > out.len() { return Err(vc_i18n::t!("media-png-distanz-zu-gross").into()); }
+                        if out.len() + len > max { return Err(zu_gross()); }
                         for _ in 0..len { let c = out[out.len() - d]; out.push(c); }
                     }
                 }
             }
-            _ => return Err("PNG: ungültiger Block".into()),
+            _ => return Err(vc_i18n::t!("media-png-ungueltiger-block").into()),
         }
         if last == 1 { break; }
     }
     Ok(out)
 }
 
+fn crc32(d: &[u8]) -> u32 { let mut c = !0u32; for &b in d { c ^= b as u32; for _ in 0..8 { c = if c & 1 != 0 { 0xEDB8_8320 ^ (c >> 1) } else { c >> 1 }; } } !c }
+
 pub fn decode(data: &[u8]) -> Result<Image, String> {
-    if data.len() < 8 || &data[..8] != b"\x89PNG\r\n\x1a\n" { return Err("keine PNG-Datei".into()); }
+    if data.len() < 8 || &data[..8] != b"\x89PNG\r\n\x1a\n" { return Err(vc_i18n::t!("media-keine-png-datei").into()); }
     let (mut i, mut idat, mut pal, mut trns) = (8, Vec::new(), Vec::new(), Vec::new());
     let (mut w, mut h, mut depth, mut ct, mut inter) = (0usize, 0usize, 0u8, 0u8, 0u8);
     while i + 8 <= data.len() {
-        let n = u32::from_be_bytes(data[i..i + 4].try_into().unwrap()) as usize; let t = &data[i + 4..i + 8]; if i + 12 + n > data.len() { return Err("PNG abgeschnitten".into()); }
-        let c = &data[i + 8..i + 8 + n]; i += 12 + n;
-        match t { b"IHDR" => { w = u32::from_be_bytes(c[0..4].try_into().unwrap()) as usize; h = u32::from_be_bytes(c[4..8].try_into().unwrap()) as usize; depth = c[8]; ct = c[9]; inter = c[12]; }
+        let n = u32::from_be_bytes(data[i..i + 4].try_into().unwrap()) as usize; let t = &data[i + 4..i + 8];
+        if n > data.len() || i + 12 + n > data.len() { return Err(vc_i18n::t!("media-png-abgeschnitten").into()); }
+        let c = &data[i + 8..i + 8 + n];
+        // Prüfsumme der Blöcke, die das Bild bestimmen (Hilfsblöcke werden ignoriert, also auch nicht geprüft)
+        if matches!(t, b"IHDR" | b"PLTE" | b"IDAT" | b"tRNS") && crc32(&data[i + 4..i + 8 + n]) != u32::from_be_bytes(data[i + 8 + n..i + 12 + n].try_into().unwrap()) {
+            return Err(vc_i18n::t!("media-png-pruefsumme", block = String::from_utf8_lossy(t).to_string()).to_string());
+        }
+        i += 12 + n;
+        match t { b"IHDR" => { if n < 13 { return Err(vc_i18n::t!("media-png-ihdr-zu-kurz").into()); } w = u32::from_be_bytes(c[0..4].try_into().unwrap()) as usize; h = u32::from_be_bytes(c[4..8].try_into().unwrap()) as usize; depth = c[8]; ct = c[9]; inter = c[12]; }
                   b"PLTE" => pal = c.to_vec(), b"tRNS" => trns = c.to_vec(), b"IDAT" => idat.extend_from_slice(c), _ => {} }
     }
-    if w == 0 || h == 0 || w > 8192 || h > 8192 { return Err("PNG: ungültige Größe".into()); }
-    if inter != 0 { return Err("PNG: Interlace wird nicht unterstützt (bitte ohne Interlace speichern)".into()); }
-    let chans = match ct { 0 => 1, 2 => 3, 3 => 1, 4 => 2, 6 => 4, _ => return Err("PNG: Farbtyp nicht unterstützt".into()) };
-    if !matches!(depth, 1 | 2 | 4 | 8 | 16) || (depth < 8 && ct != 0 && ct != 3) || (depth == 16 && ct == 3) { return Err("PNG: Bittiefe nicht unterstützt".into()); }
+    if w == 0 || h == 0 || w > 8192 || h > 8192 || w * h > MAX_PIXEL { return Err(vc_i18n::t!("media-png-ungueltige-groesse").into()); }
+    if inter != 0 { return Err(vc_i18n::t!("media-png-interlace-wird-nicht-unterstuetzt-bitte").into()); }
+    let chans = match ct { 0 => 1, 2 => 3, 3 => 1, 4 => 2, 6 => 4, _ => return Err(vc_i18n::t!("media-png-farbtyp-nicht-unterstuetzt").into()) };
+    if !matches!(depth, 1 | 2 | 4 | 8 | 16) || (depth < 8 && ct != 0 && ct != 3) || (depth == 16 && ct == 3) { return Err(vc_i18n::t!("media-png-bittiefe-nicht-unterstuetzt").into()); }
     let bpp_bits = chans * depth as usize; let bpp = (bpp_bits + 7) / 8; let stride = (w * bpp_bits + 7) / 8;
-    let raw = inflate(&idat)?; if raw.len() < (stride + 1) * h { return Err("PNG: zu wenige Bilddaten".into()); }
+    let raw = inflate_max(&idat, (stride + 1) * h)?; if raw.len() < (stride + 1) * h { return Err(vc_i18n::t!("media-png-zu-wenige-bilddaten").into()); }
     let mut rows: Vec<u8> = vec![0; stride * h];
     for y in 0..h {
         let f = raw[y * (stride + 1)]; let src = &raw[y * (stride + 1) + 1..(y + 1) * (stride + 1)];
         for x in 0..stride {
             let a = if x >= bpp { rows[y * stride + x - bpp] as i32 } else { 0 }; let b = if y > 0 { rows[(y - 1) * stride + x] as i32 } else { 0 };
             let c = if x >= bpp && y > 0 { rows[(y - 1) * stride + x - bpp] as i32 } else { 0 };
-            let p = match f { 0 => 0, 1 => a, 2 => b, 3 => (a + b) / 2, 4 => { let pp = a + b - c; let (pa, pb, pc) = ((pp - a).abs(), (pp - b).abs(), (pp - c).abs()); if pa <= pb && pa <= pc { a } else if pb <= pc { b } else { c } } _ => return Err("PNG: ungültiger Filter".into()) };
+            let p = match f { 0 => 0, 1 => a, 2 => b, 3 => (a + b) / 2, 4 => { let pp = a + b - c; let (pa, pb, pc) = ((pp - a).abs(), (pp - b).abs(), (pp - c).abs()); if pa <= pb && pa <= pc { a } else if pb <= pc { b } else { c } } _ => return Err(vc_i18n::t!("media-png-ungueltiger-filter").into()) };
             rows[y * stride + x] = (src[x] as i32 + p) as u8;
         }
     }
@@ -118,7 +137,7 @@ pub fn decode(data: &[u8]) -> Result<Image, String> {
         let px = match ct {
             0 => { let g = scale(sample(y, x, 0)); [g, g, g, 255] }
             2 => [scale(sample(y, x, 0)), scale(sample(y, x, 1)), scale(sample(y, x, 2)), 255],
-            3 => { let k = sample(y, x, 0) as usize; if k * 3 + 2 >= pal.len() { return Err("PNG: Palettenindex ungültig".into()); } [pal[k * 3], pal[k * 3 + 1], pal[k * 3 + 2], *trns.get(k).unwrap_or(&255)] }
+            3 => { let k = sample(y, x, 0) as usize; if k * 3 + 2 >= pal.len() { return Err(vc_i18n::t!("media-png-palettenindex-ungueltig").into()); } [pal[k * 3], pal[k * 3 + 1], pal[k * 3 + 2], *trns.get(k).unwrap_or(&255)] }
             4 => { let g = scale(sample(y, x, 0)); [g, g, g, scale(sample(y, x, 1))] }
             _ => [scale(sample(y, x, 0)), scale(sample(y, x, 1)), scale(sample(y, x, 2)), scale(sample(y, x, 3))],
         };

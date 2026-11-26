@@ -1,0 +1,140 @@
+{
+ "source": "chips/os.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "DLI-Vektor",
+   "en": "DLI vector",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Immediate-VBI-Vektor",
+   "en": "Immediate VBI vector",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Deferred-VBI-Vektor",
+   "en": "Deferred VBI vector",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "IRQ-Vektor",
+   "en": "IRQ vector",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "DMACTL-Schatten",
+   "en": "DMACTL shadow",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Display-List-Schatten (Low)",
+   "en": "Display list shadow (low)",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Display-List-Schatten (High)",
+   "en": "Display list shadow (high)",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "PRIOR-Schatten",
+   "en": "PRIOR shadow",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "COLPM0-Schatten",
+   "en": "COLPM0 shadow",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "COLPM1-Schatten",
+   "en": "COLPM1 shadow",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "COLPM2-Schatten",
+   "en": "COLPM2 shadow",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "COLPM3-Schatten",
+   "en": "COLPM3 shadow",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "COLPF0-Schatten",
+   "en": "COLPF0 shadow",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "COLPF1-Schatten",
+   "en": "COLPF1 shadow",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "COLPF2-Schatten",
+   "en": "COLPF2 shadow",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "COLPF3-Schatten",
+   "en": "COLPF3 shadow",
+   "status": "maschinell"
+  },
+  "/regs/16/doc": {
+   "de": "COLBK-Schatten",
+   "en": "COLBK shadow",
+   "status": "maschinell"
+  },
+  "/regs/17/doc": {
+   "de": "Startadresse (XEX)",
+   "en": "Start address (XEX)",
+   "status": "maschinell"
+  },
+  "/regs/18/doc": {
+   "de": "Init-Adresse (XEX)",
+   "en": "Init address (XEX)",
+   "status": "maschinell"
+  },
+  "/regs/19/doc": {
+   "de": "Obergrenze des freien Speichers",
+   "en": "Upper limit of free memory",
+   "status": "maschinell"
+  },
+  "/regs/20/doc": {
+   "de": "CHACTL-Schatten (Zeichensatz-Steuerung)",
+   "en": "CHACTL shadow (character set control)",
+   "status": "maschinell"
+  },
+  "/regs/21/doc": {
+   "de": "CHBASE-Schatten (Zeichensatzbasis, High-Byte)",
+   "en": "CHBASE shadow (character set base, high byte)",
+   "status": "maschinell"
+  },
+  "/regs/22/doc": {
+   "de": "Letzter Tastencode",
+   "en": "Last key code",
+   "status": "maschinell"
+  },
+  "/regs/23/doc": {
+   "de": "Systemuhr (3 Byte, 50/60 Hz)",
+   "en": "System clock (3 bytes, 50/60 Hz)",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Attract-Modus-Zähler",
+   "en": "Attract mode counter",
+   "status": "maschinell"
+  },
+  "/regs/25/doc": {
+   "de": "Kaltstart-Flag",
+   "en": "Cold start flag",
+   "status": "maschinell"
+  },
+  "/regs/26/doc": {
+   "de": "Obergrenze RAM (Seiten)",
+   "en": "RAM upper limit (pages)",
+   "status": "maschinell"
+  }
+ }
+}

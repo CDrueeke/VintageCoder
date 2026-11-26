@@ -9,11 +9,11 @@
 ; AUFBAU DER QUELLEN
 ;   jumprun.asm              dieses Hauptprogramm (Ablaufsteuerung, Titelbild)
 ;   hal_atari.asm            Hardware-Schicht: ANTIC/GTIA (Bild, Spieler/Missiles), POKEY (Klang), Interrupts
-;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
+;   lib/core.asm             Spiellogik (plattformneutral; eigene Kopie dieses Projekts, unabhaengig von den anderen Systemen)
 ;   lib/rmt.inc, rmtplayr.asm  Musikspieler (Raster Music Tracker); rmtplayr.asm ist der unveraenderte Original-Player (fremde Bibliothek)
 ;   lib/levels.inc           Tabellen und Spielerdaten (ERZEUGT von tools/gen_jumprun_atari.py)
 ;   graphics/*, music/       Projektdateien der Editoren: Zeichensatz chars.vcchar, Titelbild title.vcscreen, Kachelsatz hg.vctiles, Screen-Bank levels.vcscreen,
-;                            Song tune.vcsong (beim Bauen nach build/export/*.asm exportiert und unten eingebunden)
+;                            Song tune.vcsong (beim Bauen beim Einbinden unten umgewandelt)
 ;
 ; ZEITTAKT: Das Hauptprogramm wartet in jedem Durchgang auf den naechsten Bildruecklauf (hal_wait_frame); so laeuft alles im
 ;   Bildtakt des Fernsehers, 50 Mal je Sekunde (PAL; bei NTSC 60 Mal, die Demo laeuft dort entsprechend schneller).
@@ -235,7 +235,7 @@ play_level:
 ; Reihenfolge im Speicher: HAL, Spiellogik und Tabellen folgen direkt auf das Hauptprogramm (unter $4000);
 ; der RMT-Player und die Editor-Exporte werden mit .org an feste Adressen gelegt (siehe Speicherkarte oben).
 .include "hal_atari.asm"
-.include "../../common/jumprun/core.asm"
+.include "lib/core.asm"
 .include "lib/levels.inc"
 
 ; Kacheleigenschaften der Spiellogik (core.asm liest tile_attr,x): 0 leer, 1 tragend (hg_p_solid), 2 Leiter (hg_p_ladder) - aus dem Kachelsatz
@@ -246,12 +246,12 @@ play_level:
 .include "lib/rmtplayr.asm"             ; Original-Spieler; seine Tabellen liegen unmittelbar vor $6000 ($5CE0-$5FFF)
 
 .org $3C00 - 105                        ; Zeichensatz: 128 Zeichen * 8 Byte = 1 KB, auf einer 1-KB-Grenze (Bedingung von ANTIC). Der Export des Kachelsatzes legt
-.include "build/export/hg.asm"          ; vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte); hg_chars ist der Zeichensatz chars.vcchar (alle Zeichen angepinnt)
+.include "graphics/hg.vctiles"          ; vor hg_chars die Tabellen (4 x 21 Zeichen, 21 Eigenschaften = 105 Byte); hg_chars ist der Zeichensatz chars.vcchar (alle Zeichen angepinnt)
 .assert hg_chars == $3C00, "Zeichensatz muss bei $3C00 liegen (Tabellen des Kachelsatzes davor, siehe .org)"
 .org $7000                              ; Titelbild, Karten und Musikmodul (title_chars, levels_map0..3, tune_rmt)
-.include "build/export/title.asm"
-.include "build/export/levels.asm"
-.include "build/export/tune.asm"
+.include "graphics/title.vcscreen"
+.include "graphics/levels.vcscreen"
+.include "music/tune.vcsong"
 
 ; Bindung der Bibliothek an Kachelsatz und Screen-Bank (kein Farbspeicher: Spalte col entfaellt), dann die Unterprogramme
         tiles_use hg_c0, 0, hg_props, hg_tw, hg_th, hg_count, levels_screens_lo, levels_screens_hi, levels_lv1_tiles_w, levels_lv1_tiles_h

@@ -2,25 +2,25 @@
 
 In VintageCoder schreibst du BASIC **im Originaldialekt des Zielsystems**: BASIC V2 auf dem C64 und VC-20, BASIC 7.0 auf dem C128, BASIC 3.5 auf dem Plus/4, BASIC 65 auf dem MEGA65, Atari BASIC (oder Turbo BASIC XL) auf dem Atari. Es gibt keine eigene Sprache und keine Erweiterung der Befehle: Was das System versteht, darfst du schreiben, und das gebaute Programm ist Byte für Byte das, was auch das System selbst aus deinem Text gemacht hätte.
 
-Die Erleichterungen betreffen nur das **Drumherum**. Du musst keine Zeilennummern vergeben, du springst mit Namen statt mit Nummern, du darfst lange Variablennamen benutzen, und du kannst Sprites, Zeichensätze und Songs aus den Studios als `DATA`-Zeilen einbinden.
+Die Erleichterungen betreffen nur das **Drumherum**. Du musst keine Zeilennummern vergeben, du springst mit Namen statt mit Nummern, du darfst lange Variablennamen benutzen, und du kannst Sprites, Zeichensätze und Songs aus den Editoren als `DATA`-Zeilen einbinden, indem du ihre Mediendatei mit `#include` nennst.
 
 Dieses Handbuch besteht aus mehreren Seiten:
 
 | Seite | Inhalt |
 |---|---|
 | BASIC (diese Seite) | Einstieg: dein erstes Programm Zeile für Zeile, Überblick, Grundregeln |
-| [Sprungmarken und Zeilennummern](help:basic-labels) | `@name:`, `GOTO @name`, wie die Zeilennummern entstehen |
+| [Sprungmarken und Zeilennummern](help:basic-labels) | `@name:`, `GOTO @name`, wie die Zeilennummern entstehen, Umwandeln und Neu nummerieren |
 | [Lange Variablennamen](help:basic-names) | `#longnames`, Kurznamen, Zuordnungstabelle, Fallen |
-| [Direktiven, Dateien und Assets](help:basic-directives) | `#include`, Sprites und Songs einbinden, Maschinencode |
+| [Direktiven, Dateien und Assets](help:basic-directives) | `#include` (auch für Medien), `#define`, `#if`, `#numbering`, `#dialect`, `#asm` |
 | [Dialekte und Zielsysteme](help:basic-dialects) | C64, VC-20, C128, Plus/4, MEGA65, Atari, Turbo BASIC XL |
-| [Werkzeuge](help:basic-tools) | F1-Hilfe, Editor, Tokenisieren, `basic2asm`, Fehlersuche |
+| [Werkzeuge](help:basic-tools) | Hilfe zu Wörtern, Editor, Tokenisieren, Umwandeln, `basic2asm`, Fehlersuche |
 | [Spickzettel und Fehlercodes](help:basic-index) | alles Wichtige zum Nachschlagen |
 
 Zeilen im Muster `main.bas:3: error B110: …` in den Beispielen sind die echten Meldungen des Übersetzers. Alle Beispiele auf diesen Seiten wurden mit dem Übersetzer gebaut; wo ein Beispiel „Liste“ heißt, ist die gezeigte Liste das, was beim Zurücklesen des gebauten Programms herauskommt.
 
 ## Mein erstes BASIC-Programm
 
-Lege im Projektbaum eine Datei `hallo.bas` an (oder starte ein neues Projekt mit der Vorlage „BASIC (ohne Zeilennummern)“) und schreibe:
+Lege im Projektbaum eine Datei `hallo.bas` an (oder starte ein neues Projekt mit der Vorlage „BASIC“) und schreibe:
 
 ```basic liste
 ; Mein erstes Programm
@@ -75,13 +75,14 @@ vcc basic hallo.bas --target c64 -o hallo.prg
 | Variablennamen | Nur die ersten 2 Zeichen zählen (Commodore) | Mit `#longnames` beliebig lang, der Bau setzt auf Kurznamen um |
 | Kommentare | `REM` | `REM` und, am Zeilenanfang, `;` |
 | Befehle | Die des Dialekts | Genau die des Dialekts, nichts dazu |
-| Dateien einbinden | nicht möglich | `#include "datei.bas"` |
-| Bedingte Übersetzung, Konstanten, Makros | nicht vorhanden | **nicht vorhanden** (siehe [Direktiven](help:basic-directives)) |
-| Syntaxprüfung | beim Eingeben auf dem Gerät | **keine**: Der Übersetzer macht aus dem Text Token, er prüft nicht, ob der Befehl sinnvoll ist (siehe unten) |
+| Dateien einbinden | nicht möglich | `#include "datei.bas"`, auch Mediendateien (Sprites, Zeichensätze, Songs) |
+| Bedingte Übersetzung, Konstanten | nicht vorhanden | `#if`, `#else`, `#endif` und `#define NAME wert` (siehe [Direktiven](help:basic-directives)); Makros mit Parametern gibt es nicht |
+| Maschinencode | nicht möglich | `#asm "datei.asm"` (siehe [Direktiven](help:basic-directives)) |
+| Syntaxprüfung | beim Eingeben auf dem Gerät | Der Übersetzer macht aus dem Text Token und **warnt** vor verdächtigen Stellen (siehe unten); beim Atari prüft er die Syntax und meldet Fehler |
 
-### Der Übersetzer prüft keine Syntax
+### Syntaxprüfung: Warnungen statt Fehler
 
-Das ist die wichtigste Eigenschaft, die man kennen muss. Der Übersetzer erkennt Schlüsselwörter, Zahlen, Zeichenketten und deine Marken, aber er versteht die Sätze nicht. Ein Programm mit Tippfehler baut ohne Meldung, und das Gerät meldet den Fehler erst beim Ausführen:
+Der Übersetzer erkennt Schlüsselwörter, Zahlen, Zeichenketten und deine Marken, aber er versteht die Sätze nicht ganz. Ein Programm mit Tippfehler baut deshalb meist ohne Meldung, und das Gerät meldet den Fehler erst beim Ausführen:
 
 ```basic liste
 x = 5 +
@@ -93,7 +94,26 @@ print x
 20 print x
 ```
 
-Auf dem C64 ergibt Zeile 10 beim Start `?SYNTAX ERROR IN 10`. Dasselbe gilt für Befehle eines anderen Dialekts: `graphic 1,1` baut im C64-Projekt ohne Meldung, weil `GRAPHIC` für den Übersetzer dort einfach drei Variablennamen und kein Befehl ist. Prüfe deshalb, ob die **Quellgruppe den richtigen Dialekt** hat (Seite [Dialekte](help:basic-dialects)), und probiere das Programm im Emulator aus. Nur dort, wo der Übersetzer eindeutig etwas nicht abbilden kann, meldet er einen Fehler: ein Zeichen ohne Entsprechung im Zeichensatz des Systems, eine unbekannte Marke, eine zu lange Zeile.
+Auf dem C64 ergibt Zeile 10 beim Start `?SYNTAX ERROR IN 10`. Dazu kommt eine **Syntaxprüfung**, die beim Bauen läuft und verdächtige Stellen als **Warnung** meldet. Sie bricht den Bau nie ab:
+
+| Code | Warnt vor |
+|---|---|
+| B150 | einem Schlüsselwort mitten in einem Namen (`score` enthält `or`) |
+| B151 | `FOR` ohne `NEXT` und umgekehrt |
+| B152 | `GOSUB` ohne irgendein `RETURN` und umgekehrt |
+| B153 | einem Sprungziel mit Nummer, die keine Programmzeile ist |
+| B154 | zwei Namen, die für das Gerät dieselbe Variable sind (nur die ersten 2 Zeichen zählen) |
+| B155 | einer Zeichenkette, die am Zeilenende nicht geschlossen ist (nur ein Hinweis, das ist erlaubt) |
+| B156 | einer falschen Zahl von Argumenten (`poke 53280`) |
+| B157 | einem Befehl, den der Dialekt nicht kennt (`graphic 1,1` im C64-Projekt) |
+| B159 | einer Funktion ohne Klammer (`rnd`) |
+| B167 | einem `'`, das in diesem Dialekt kein Kommentar ist |
+
+Die Meldungen erscheinen im Reiter **Probleme** in der Ablage unter dem Editor und als Markierung an der Zeile. Du schaltest die Prüfung oder einzelne Warnungen im Bereich **Projekt**, Seite **Quellen**, auf der Karte „BASIC“ ab („Syntaxprüfung beim Bauen“, „Abgeschaltete Meldungen“, zum Beispiel `B152, B154`). Auf der Kommandozeile prüft `vcc basic datei.bas --check`, ohne etwas zu schreiben; `--no-check` und `--disable B152,B154` schalten ab. Fehler lassen sich nicht abschalten.
+
+*[Bild folgt in E13: basic-karte-pruefung]*
+
+Prüfe außerdem, ob die **Quellgruppe den richtigen Dialekt** hat (Seite [Dialekte](help:basic-dialects)), und probiere das Programm im Emulator aus. Nur dort, wo der Übersetzer eindeutig etwas nicht abbilden kann, meldet er einen Fehler: ein Zeichen ohne Entsprechung im Zeichensatz des Systems, eine unbekannte Marke, eine zu lange Zeile.
 
 ```basic fehler
 print "größe"
@@ -132,14 +152,9 @@ Beim Bauen macht VintageCoder daraus die Zahlen, die der Dialekt versteht: `poke
 - **Fehler:** **B130** ungültige Hexziffer, **B131** ungültige Binärziffer, **B132** `$` oder `%` ohne Ziffern, **B133** über 32 Bit. **B136** warnt, wenn eine Hexzahl an ein Schlüsselwort stößt (`$ffand` – ein Leerzeichen davor), **B137**, wenn `a%=40000` nicht in eine Ganzzahlvariable passt, **B139**, wenn du `0xFF` geschrieben hast.
 - **Anzeigen:** Hex, Binär und Dezimal haben im Editor eigene Farben; über einer Zahl zeigt der Hover alle Schreibweisen, die erzeugte Zahl und bei Adressen in `poke`, `peek`, `sys`, `wait` das Chipregister (`vic2.border – Rahmenfarbe`). 
 
-### Zahlen im Editor bearbeiten
+### Zahlenwerkzeuge und Hex-Vorschläge
 
-Zwei Werkzeuge im Menü **Bearbeiten** (auch in der Befehlspalette, beide ohne Kürzel):
-
-- **Zahlenwerkzeuge …:** ein Dialog mit Umrechnung und Bit-Editor. Gib eine Zahl oder einen Ausdruck ein (`$D020`, `%1010`, `255`, `$D000+$20`), und der Dialog zeigt sie dezimal, hexadezimal und binär, als Lo-/Hi-Byte, als Zeichen und mit Vorzeichen. Der Bit-Editor schaltet einzelne Bits (8 oder 16 Bit) per Klick; **Kopieren** und **Einsetzen** bringen den Wert in die Zwischenablage bzw. an die Schreibmarke im Editor. Siehe [Zahlenwerkzeuge](help:numbers).
-- **BASIC: Hex-Vorschläge für Adressen …:** für importierte Programme. Dezimale Adressen, die ein Chipregister des Zielsystems sind, lassen sich als Hex schreiben. Nur vollständige Adressen in `poke`, `peek`, `sys`, `wait`, `usr` werden vorgeschlagen, jede Zeile ist einzeln wählbar (mit **Alle** und **Keine**), ohne deine Auswahl ändert sich nichts. Auf der Kommandozeile: `vcc basic --suggest-hex datei.bas` listet, `--apply 1,3 -o neu.bas` schreibt die gewählten.
-
-Noch nicht in der Oberfläche: das Umwandeln aller Zahlen einer Zeile oder Datei, ein Rechtsklick-Menü „Zahlen“, das Suchen nach dem Zahlenwert (`#` in der Suchleiste) und eine Eingabehilfe nach `$` und `%`.
+Die Befehle **Zahlenwerkzeuge …** (Umrechnung und Bit-Editor, siehe [Zahlenwerkzeuge](help:numbers)) und **BASIC: Hex-Vorschläge für Adressen …** stehen im Menü **Bearbeiten**; **Zahlenwerkzeuge …** gibt es in dieser Version, **BASIC: Hex-Vorschläge für Adressen …** noch nicht (der Befehl ist im Menü ausgeblendet). Die Hex-Vorschläge gibt es auf der Kommandozeile: `vcc basic --suggest-hex datei.bas` listet Dezimaladressen, die ein Chipregister des Zielsystems sind (nur vollständige Adressen in `poke`, `peek`, `sys`, `wait`, `usr`), und `--apply 1,3 -o neu.bas` schreibt die gewählten Vorschläge in eine neue Datei. Ohne `--apply` ändert sich nichts.
 
 ## Beispiele im Lieferumfang
 

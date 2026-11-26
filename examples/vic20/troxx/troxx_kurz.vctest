@@ -1,0 +1,471 @@
+{
+ "kind": "test",
+ "target": "vic20",
+ "program": "build/main.prg",
+ "trap": "$0340",
+ "static": [],
+ "tests": [
+  {
+   "name": "cell_type Knoten (Ecke) (0, 0) = 3",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 0
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Knoten (innen) (4, 5) = 3",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 5
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht (1, 0) = 1",
+   "setup": {
+    "mem": {
+     "$49": 1,
+     "$4a": 0
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht innen (13, 10) = 1",
+   "setup": {
+    "mem": {
+     "$49": 13,
+     "$4a": 10
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht (0, 3) = 2",
+   "setup": {
+    "mem": {
+     "$49": 0,
+     "$4a": 3
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht innen (12, 17) = 2",
+   "setup": {
+    "mem": {
+     "$49": 12,
+     "$4a": 17
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum (2, 3) = 0",
+   "setup": {
+    "mem": {
+     "$49": 2,
+     "$4a": 3
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum unten (11, 19) = 0",
+   "setup": {
+    "mem": {
+     "$49": 11,
+     "$4a": 19
+    }
+   },
+   "call": "grid.cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: dritte Kante fuellt nicht",
+   "setup": {
+    "x": 7,
+    "mem": {
+     "$3c": 2,
+     "$18": 0,
+     "$17": 0
+    }
+   },
+   "call": "grid.box_add",
+   "expect": [
+    "[$3c] == 3",
+    "[$18] == 0",
+    "[$17] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: vierte Kante fuellt genau einmal, 100 Punkte",
+   "setup": {
+    "x": 7,
+    "mem": {
+     "$3c": 3,
+     "$18": 0,
+     "$17": 0,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$0d": 0,
+     "$08": 3
+    }
+   },
+   "call": "grid.box_add",
+   "expect": [
+    "[$3c] == 4",
+    "[$18] == 1",
+    "[$17] == 1",
+    "[$59] == 7",
+    "[$0a] == 0",
+    "[$0b] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "paint: Knoten wird nicht gewertet",
+   "setup": {
+    "mem": {
+     "$49": 4,
+     "$4a": 5,
+     "$0a": [
+      0,
+      0,
+      0
+     ],
+     "$18": 0
+    }
+   },
+   "call": "grid.paint",
+   "expect": [
+    "[$0a] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: wichtigerer Effekt ersetzt, gleich wichtiger nicht",
+   "setup": {
+    "a": 3,
+    "mem": {
+     "$58": 2
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$58] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: laufender Effekt mit hoeherer Prioritaet bleibt",
+   "setup": {
+    "a": 2,
+    "mem": {
+     "$58": 5
+    }
+   },
+   "call": "sound.play",
+   "expect": [
+    "[$58] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "lfsr: 1 -> $b8",
+   "setup": {
+    "mem": {
+     "$09": 1
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $b8",
+    "[$09] == $b8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "lfsr: $b8 -> $5c",
+   "setup": {
+    "mem": {
+     "$09": 184
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == $5c"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "lfsr: 2 -> 1 (nie 0)",
+   "setup": {
+    "mem": {
+     "$09": 2
+    }
+   },
+   "call": "enemies.rnd",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "toward: Gegner (4, 5), Figur (12, 5): rechts",
+   "setup": {
+    "mem": {
+     "$4d": 4,
+     "$4e": 5,
+     "$11": 12,
+     "$12": 5
+    }
+   },
+   "call": "enemies.toward",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "toward: Gegner (8, 10), Figur (8, 0): hoch",
+   "setup": {
+    "mem": {
+     "$4d": 8,
+     "$4e": 10,
+     "$11": 8,
+     "$12": 0
+    }
+   },
+   "call": "enemies.toward",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "toward: Gegner (8, 10), Figur (20, 15): rechts und runter",
+   "setup": {
+    "mem": {
+     "$4d": 8,
+     "$4e": 10,
+     "$11": 20,
+     "$12": 15
+    }
+   },
+   "call": "enemies.toward",
+   "expect": [
+    "a == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "toward: Gegner (8, 10), Figur (2, 3): links und hoch",
+   "setup": {
+    "mem": {
+     "$4d": 8,
+     "$4e": 10,
+     "$11": 2,
+     "$12": 3
+    }
+   },
+   "call": "enemies.toward",
+   "expect": [
+    "a == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "toward: gleiche Zelle: keine Richtung",
+   "setup": {
+    "mem": {
+     "$4d": 8,
+     "$4e": 10,
+     "$11": 8,
+     "$12": 10
+    }
+   },
+   "call": "enemies.toward",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: waehlt nur aus der Maske",
+   "setup": {
+    "mem": {
+     "$09": 53,
+     "$50": 4
+    }
+   },
+   "call": "enemies.pick_random",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: angrenzendes Rechteck gefuellt = geschuetzt",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 0,
+     "$4b": 1,
+     "$36": 4
+    }
+   },
+   "call": "grid.seg_is_closed",
+   "expect": [
+    "fc"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: Rechteck nicht gefuellt = nicht geschuetzt",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 0,
+     "$4b": 1,
+     "$36": 3
+    }
+   },
+   "call": "grid.seg_is_closed",
+   "expect": [
+    "!fc"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: Segment mit zwei Rechtecken, nur das obere gefuellt",
+   "setup": {
+    "mem": {
+     "$49": 6,
+     "$4a": 5,
+     "$4b": 1,
+     "$3b": 3,
+     "$36": 4
+    }
+   },
+   "call": "grid.seg_is_closed",
+   "expect": [
+    "fc"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: 5 von 12",
+   "setup": {
+    "a": 5,
+    "mem": {
+     "$0a": [
+      18,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hud.bcd_sub",
+   "expect": [
+    "[$0a] == $07"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: Uebertrag ueber Stellen",
+   "setup": {
+    "a": 5,
+    "mem": {
+     "$0a": [
+      2,
+      1,
+      0
+     ]
+    }
+   },
+   "call": "hud.bcd_sub",
+   "expect": [
+    "[$0a] == $97",
+    "[$0b] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: unter 0 wird 0",
+   "setup": {
+    "a": 32,
+    "mem": {
+     "$0a": [
+      16,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "hud.bcd_sub",
+   "expect": [
+    "[$0a] == 0",
+    "[$0b] == 0",
+    "[$0c] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: $FF (kein Rechteck) tut nichts",
+   "setup": {
+    "x": 255,
+    "mem": {
+     "$18": 0,
+     "$17": 0
+    }
+   },
+   "call": "grid.box_add",
+   "expect": [
+    "[$18] == 0"
+   ],
+   "timeoutMs": 20000
+  }
+ ],
+ "comment": "Sehr kurze Routinen (unter etwa 40 Takten): der Testlaeufer meldet bei einzelnen dieser Aufrufe 'VICE hat das Fortsetzen nicht bestaetigt' (Laeuferfehler, nicht Programmfehler; erneuter Lauf mit --filter)."
+}

@@ -1,0 +1,83 @@
+# KOPIEN.txt - Liste der Routinen und Tabellen, die aus der Referenzfassung (VC-20) uebernommen wurden.
+# Aufbau und Pruefung: python3 tools/troxx_kopien.py examples/mega65/troxx   (im Repository-Ordner; siehe Kopf von tools/troxx_kopien.py)
+#   kopie      = Text (ohne Kommentare und Leerzeilen) muss mit dem Original uebereinstimmen.
+#   angepasst  = bewusst veraendert (MEGA65-Gitter 14 x 7 Rechtecke, Sprites, zwei Figuren, VIC-IV, ...); die Zahl ist die Pruefsumme des Originals zum Stand;
+#                aendert sich das Original, meldet das Werkzeug "REFERENZ GEAENDERT" und die Anpassung ist zu pruefen (danach --stand ausfuehren).
+# Regel: Aenderungen an der gemeinsamen Logik nur in der Referenzfassung, dann in alle Projekte kopieren.
+# Abgeleitet vom C64-Projekt (examples/c64/troxx): die Kopien sind dort und hier gleich; Anpassungen betreffen das groessere Gitter (Zeichen- und Gittermasse
+# in data.inc), die Gegner als Sprites mit fuenf Startknoten, zwei Figuren (Felder PX.. je Figur, Spieler WHO) und die Darstellung ueber VIC-IV (vic4.asm).
+# Hinweis: Die Referenzfassung hat aus Platzgruenden Zeilenarten, Gegnertabellen (PROB, START_X, START_Y, COUNT) und die Laeufer-Wahl (toward statt greedy) umgebaut.
+#   Das MEGA65-Projekt behaelt greedy und die eigenen Gegnertabellen; diese Eintraege stehen darum nicht in der Liste.
+Referenz: examples/vic20/troxx   Stand: 9fa111ad
+
+# ---- grid.asm
+grid.asm box_add angepasst 184032bda347
+grid.asm legal_mask kopie
+grid.asm fill_row_b kopie
+grid.asm seg_next kopie
+grid.asm box_filled kopie
+grid.asm seg_is_closed kopie
+grid.asm set_row angepasst 8344e2c61350
+grid.asm draw angepasst bca391229a1e
+grid.asm color_at angepasst 8d0dd408ad5e
+grid.asm state_at angepasst 330bb15c3186
+grid.asm cell_type angepasst 7d937055a365
+grid.asm seg_first angepasst 987344dbd297
+grid.asm seg_full angepasst aea4f31910cc
+grid.asm nb_boxes angepasst 6f5e123f160c
+grid.asm cell_op angepasst 724dab51a4d5
+grid.asm seg_destroy angepasst 5348ac16027a
+grid.asm paint angepasst 434263a5a640
+grid.asm fill_row angepasst 24006653eec6
+
+# ---- enemies.asm
+enemies.asm rnd kopie
+enemies.asm level_idx kopie
+enemies.asm nxt kopie
+enemies.asm find kopie
+enemies.asm pick_random kopie
+enemies.asm place_all angepasst 3921f4bf87a6
+enemies.asm choose angepasst c43a1133f543
+enemies.asm one angepasst ad25033d28f1
+enemies.asm step angepasst b9a9000536dd
+
+# ---- hud.asm
+hud.asm msg kopie
+hud.asm print angepasst 39262b6c81db
+hud.asm clrmsg angepasst 1df685773e75
+hud.asm draw angepasst bedd1a786ad0
+hud.asm bcd2 angepasst 0433cab22891
+hud.asm bcd3 angepasst e3c7f696ca3e
+hud.asm update angepasst c007c094bcbd
+hud.asm bcd_sub angepasst bac12020cbd6
+hud.asm bcd_add angepasst 2ffc8464f7e4
+
+# ---- player.asm
+player.asm init angepasst 4ee7f3adcd17
+player.asm auto angepasst c852c1720420
+player.asm step angepasst 05dcfbffd5a1
+
+# ---- main.asm
+main.asm dispatch kopie
+main.asm STATES kopie
+main.asm set_tempo kopie
+main.asm start angepasst 9abfef59e8b7
+main.asm delay angepasst 27a958ec01e2
+main.asm fire_wait angepasst 71b733dedb6f
+main.asm st_title angepasst 5b994ddc4a57
+main.asm st_levelinit angepasst b467db9c9785
+main.asm st_playing angepasst 3c1bd503023f
+main.asm st_fill angepasst 774c448024f0
+main.asm st_hit angepasst 7420601a6806
+main.asm st_levelclear angepasst f58d9d35ec1f
+main.asm st_gameover angepasst 39b927fd6722
+
+# ---- data.inc
+data.inc SEGBASE kopie
+data.inc DIR_BIT kopie
+data.inc DIR_DX kopie
+data.inc DIR_DY kopie
+data.inc BITMASK angepasst 884521193ae0
+data.inc TEMPO kopie
+data.inc ROW_LO angepasst 4c1b5f55e0af
+data.inc BOX_COLOR angepasst 28d3359a9c50

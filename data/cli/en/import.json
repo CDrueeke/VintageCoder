@@ -1,0 +1,338 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "09d09fb1e9ce" },
+  "command": "import",
+  "group": "daten",
+  "summary": "Bring programs and files from disks, or single files, into the project",
+  "description": [
+    "Takes files from disk images (D64, D71, D81, ATR), or single PRG, XEX and BASIC files, into a project folder. Without a name and without `--all`, the command only shows the directory."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "verzeichnis",
+      "usage": "vcc import <image.d64|d71|d81|atr> [--data-dir <path>]",
+      "summary": "Show the directory of an image",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "Disk image (extension d64, d71, d81 or atr)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "path",
+          "group": "allgemein",
+          "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Show the directory",
+          "cmd": "vcc import game.d64"
+        }
+      ],
+      "notes": [
+        "For each file, shows the name, type, size and load address. For detected BASIC programs, it also shows the dialect and line count (only with the hardware database). Nothing is written."
+      ],
+      "see_also": [
+        "disk"
+      ]
+    },
+    {
+      "id": "image",
+      "usage": "vcc import <image.d64|d71|d81|atr> (<NAME>... | --all) [--into <project-folder>] [--dir <folder>] [--asm [--cpu <id>]] [--raw] [--no-basic]",
+      "summary": "Import files from an image into the project",
+      "args": [
+        {
+          "name": "image",
+          "required": true,
+          "repeat": false,
+          "help": "Disk image (extension d64, d71, d81 or atr)."
+        },
+        {
+          "name": "NAME",
+          "required": false,
+          "repeat": true,
+          "help": "File name on the disk (case does not matter). Use --all instead."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Target"
+        },
+        {
+          "id": "umwandlung",
+          "label": "Conversion"
+        },
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--all",
+          "short": "",
+          "value": "",
+          "group": "ziel",
+          "help": "Imports all files of the image.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--into",
+          "short": "",
+          "value": "project-folder",
+          "group": "ziel",
+          "help": "Project folder that the files are imported into.",
+          "choices": [],
+          "default": ".",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "folder",
+          "group": "ziel",
+          "help": "Subfolder in the project that the files are written to.",
+          "choices": [],
+          "default": "import",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--asm",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Also creates a disassembled source file (.asm) for machine programs. This is purely mechanical: data appears as instructions.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "umwandlung",
+          "help": "Processor for disassembling with --asm (name of a file in data/cpus).",
+          "choices": [],
+          "default": "",
+          "default_text": "6510, or sally for Atari programs",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--raw",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Also keeps the unchanged original file when a BASIC program is imported as source text.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--no-basic",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Does not detect BASIC and copies the files unchanged.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "path",
+          "group": "allgemein",
+          "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Import one file",
+          "cmd": "vcc import game.d64 JUMPRUN --into myproject"
+        },
+        {
+          "title": "All files with source text",
+          "cmd": "vcc import game.atr --all --asm --dir sources"
+        }
+      ],
+      "notes": [
+        "BASIC programs are imported as readable .bas source text. Existing files in the target folder are kept (the new file name gets a suffix _2, _3 ...).",
+        "The exit code is 1 if a file could not be imported or a name is not on the disk."
+      ],
+      "see_also": [
+        "disk",
+        "dis",
+        "add"
+      ]
+    },
+    {
+      "id": "datei",
+      "usage": "vcc import <file.prg|file.xex|file.bas> [--into <project-folder>] [--dir <folder>] [--asm [--cpu <id>]] [--raw] [--no-basic]",
+      "summary": "Import a single program into the project",
+      "args": [
+        {
+          "name": "file",
+          "required": true,
+          "repeat": false,
+          "help": "PRG, XEX or BASIC file (not a disk image)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ziel",
+          "label": "Target"
+        },
+        {
+          "id": "umwandlung",
+          "label": "Conversion"
+        },
+        {
+          "id": "allgemein",
+          "label": "General"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--into",
+          "short": "",
+          "value": "project-folder",
+          "group": "ziel",
+          "help": "Project folder that the files are imported into.",
+          "choices": [],
+          "default": ".",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--dir",
+          "short": "",
+          "value": "folder",
+          "group": "ziel",
+          "help": "Subfolder in the project that the files are written to.",
+          "choices": [],
+          "default": "import",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--asm",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Also creates a disassembled source file (.asm) for machine programs. This is purely mechanical: data appears as instructions.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "id",
+          "group": "umwandlung",
+          "help": "Processor for disassembling with --asm (name of a file in data/cpus).",
+          "choices": [],
+          "default": "",
+          "default_text": "6510, or sally for Atari programs",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--raw",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Also keeps the unchanged original file when a BASIC program is imported as source text.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--no-basic",
+          "short": "",
+          "value": "",
+          "group": "umwandlung",
+          "help": "Does not detect BASIC and copies the files unchanged.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "path",
+          "group": "allgemein",
+          "help": "Folder of the hardware database. Otherwise VC_DATA or next to the program.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Atari program with source text",
+          "cmd": "vcc import jumprun.xex --asm --into myproject"
+        },
+        {
+          "title": "Import a BASIC program",
+          "cmd": "vcc import stars.prg --into myproject"
+        }
+      ],
+      "notes": [
+        "A file counts as an Atari program if it has an XEX signature or is a tokenized Atari BASIC file (.bas). It also counts as a program if it has the extension .prg."
+      ],
+      "see_also": [
+        "dis",
+        "basic",
+        "add"
+      ]
+    }
+  ]
+}

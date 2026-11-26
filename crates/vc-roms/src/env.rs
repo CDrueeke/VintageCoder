@@ -44,6 +44,13 @@ impl Stage {
             Stage::Legacy => "Alte Ablage", Stage::Foreign => "Anderes Programm", Stage::Bundled => "Mitgeliefert (Ersatz)",
         }
     }
+    /// Wie [`Stage::label`], in der aktuellen Sprache (Katalog)
+    pub fn label_l(self) -> String {
+        match self {
+            Stage::Explicit => vc_i18n::t!("roms-stage-explicit"), Stage::Project => vc_i18n::t!("roms-stage-project"), Stage::Portable => vc_i18n::t!("roms-stage-portable"), Stage::User => vc_i18n::t!("roms-stage-user"),
+            Stage::Legacy => vc_i18n::t!("roms-stage-legacy"), Stage::Foreign => vc_i18n::t!("roms-stage-foreign"), Stage::Bundled => vc_i18n::t!("roms-stage-bundled"),
+        }
+    }
 }
 
 /// Wie ein Ort aufgebaut ist
@@ -87,13 +94,13 @@ pub fn portable_base(exe: &Path, appimage: Option<&Path>) -> Result<PathBuf, Str
     // macOS-Bundle: …/<Name>.app/Contents/MacOS/<programm>
     if let Some(i) = comps.iter().position(|c| c.ends_with(".app")) {
         if comps.iter().any(|c| c == "AppTranslocation") {
-            return Err("App-Translocation: die App läuft aus einem schreibgeschützten Zufallspfad; zum Aktivieren in den Ordner „Programme“ verschieben und neu starten".into());
+            return Err(vc_i18n::t!("roms-portable-translocation"));
         }
         let mut base = PathBuf::new();
         for c in exe.components().take(i) { base.push(c.as_os_str()); }
-        return if base.as_os_str().is_empty() { Err("Bundle ohne übergeordneten Ordner".into()) } else { Ok(base) };
+        return if base.as_os_str().is_empty() { Err(vc_i18n::t!("roms-portable-bundle-no-parent")) } else { Ok(base) };
     }
-    exe.parent().map(Path::to_path_buf).ok_or_else(|| "kein Programmordner".to_string())
+    exe.parent().map(Path::to_path_buf).ok_or_else(|| vc_i18n::t!("roms-portable-no-program-dir"))
 }
 
 pub fn detect_portable(exe: Option<&Path>, appimage: Option<&Path>) -> Portable {
@@ -171,21 +178,21 @@ impl RomEnv {
     /// Die Suchorte in Rangfolge. Nur die Pfade; ob es sie gibt, prüft der Scan.
     pub fn places(&self) -> Vec<Place> {
         let mut v = vec![];
-        for (s, r, p) in &self.explicit { v.push(Place { stage: Stage::Explicit, label: format!("Einstellung {s}/{r}"), path: p.clone(), layout: Layout::File { system: s.clone(), role: r.clone() } }); }
-        if let Some(p) = &self.project_dir { v.push(Place { stage: Stage::Project, label: "Projekt".into(), path: p.join("roms"), layout: Layout::Tree }); }
-        if let Some(p) = self.portable_dir() { v.push(Place { stage: Stage::Portable, label: Stage::Portable.label().into(), path: p, layout: Layout::Tree }); }
+        for (s, r, p) in &self.explicit { v.push(Place { stage: Stage::Explicit, label: vc_i18n::t!("roms-place-setting", system = s, role = r), path: p.clone(), layout: Layout::File { system: s.clone(), role: r.clone() } }); }
+        if let Some(p) = &self.project_dir { v.push(Place { stage: Stage::Project, label: Stage::Project.label_l(), path: p.join("roms"), layout: Layout::Tree }); }
+        if let Some(p) = self.portable_dir() { v.push(Place { stage: Stage::Portable, label: Stage::Portable.label_l(), path: p, layout: Layout::Tree }); }
         if let Some(p) = self.user_dir() {
-            let label = if self.vc_roms.is_some() { "VC_ROMS".to_string() } else { Stage::User.label().to_string() };
+            let label = if self.vc_roms.is_some() { "VC_ROMS".to_string() } else { Stage::User.label_l() };
             v.push(Place { stage: Stage::User, label, path: p, layout: Layout::Tree });
         }
         if self.vc_roms.is_none() {
-            if let Some(c) = &self.config_dir { v.push(Place { stage: Stage::Legacy, label: "Alte Ablage (mega65)".into(), path: c.join("mega65"), layout: Layout::Dir("mega65".into()) }); }
+            if let Some(c) = &self.config_dir { v.push(Place { stage: Stage::Legacy, label: vc_i18n::t!("roms-place-legacy-mega65"), path: c.join("mega65"), layout: Layout::Dir("mega65".into()) }); }
             // Windows: Xemu legt `MEGA65.ROM` selbst unter %APPDATA%\xemu-lgb\mega65 ab; so wie bisher immer mitgesucht (frühere Fassungen fanden sie dort ohne Einstellung)
             #[cfg(windows)]
-            if let Some(a) = std::env::var_os("APPDATA") { v.push(Place { stage: Stage::Legacy, label: "Xemu (Programmdaten)".into(), path: PathBuf::from(a).join("xemu-lgb").join("mega65"), layout: Layout::Dir("mega65".into()) }); }
+            if let Some(a) = std::env::var_os("APPDATA") { v.push(Place { stage: Stage::Legacy, label: vc_i18n::t!("roms-place-xemu-appdata"), path: PathBuf::from(a).join("xemu-lgb").join("mega65"), layout: Layout::Dir("mega65".into()) }); }
         }
         if self.use_foreign { v.extend(self.extra_foreign.iter().cloned()); v.extend(foreign_places()); }
-        if let Some(d) = &self.data_dir { v.push(Place { stage: Stage::Bundled, label: Stage::Bundled.label().into(), path: d.join("roms-open"), layout: Layout::Tree }); }
+        if let Some(d) = &self.data_dir { v.push(Place { stage: Stage::Bundled, label: Stage::Bundled.label_l(), path: d.join("roms-open"), layout: Layout::Tree }); }
         v
     }
 }
@@ -197,7 +204,7 @@ pub fn vice_places_from_exe(exe: &Path) -> Vec<Place> {
     let mut v: Vec<Place> = vec![];
     for c in [dir.to_path_buf(), dir.join("../share/vice"), dir.join("../Resources/share/vice"), dir.join("../../Resources/share/vice")] {
         if c.join("C64").is_dir() && !v.iter().any(|p| p.path.canonicalize().ok() == c.canonicalize().ok()) {
-            v.push(Place { stage: Stage::Foreign, label: "VICE (eingestellt)".into(), path: c, layout: vice_map() });
+            v.push(Place { stage: Stage::Foreign, label: vc_i18n::t!("roms-place-vice-configured"), path: c, layout: vice_map() });
         }
     }
     v

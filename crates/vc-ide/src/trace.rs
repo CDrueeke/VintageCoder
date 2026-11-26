@@ -94,7 +94,7 @@ pub fn measure_cycles_with(host: &str, password: Option<&str>, opts: StreamOptio
     let t0 = Instant::now();
     let r = loop {
         std::thread::sleep(Duration::from_millis(50)); s.poll();
-        let m = s.an.lock().map_err(|_| "Auswertung abgestürzt".to_string())?.measure(id).ok_or("keine Messung")?;
+        let m = s.an.lock().map_err(|_| vc_i18n::t!("testrun-trace-analyzer-crashed"))?.measure(id).ok_or_else(|| vc_i18n::t!("testrun-trace-no-measure"))?;
         if m.completed > 0 || t0.elapsed() > timeout { break m; }
         if let crate::streams::StreamState::Error(e) = s.svc.state(StreamKind::Debug) { let e = e.clone(); s.svc.stop_all(); return Err(e); }
     };
@@ -111,12 +111,14 @@ impl TraceWriter {
         use std::io::Write;
         let f = std::fs::File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
         let (tx, rx) = std::sync::mpsc::sync_channel::<Vec<InsnRec>>(256);
+        let lang = vc_i18n::language();     // der Schreib-Thread schreibt in der Sprache des Aufrufers
         let handle = std::thread::Builder::new().name("vc-trace-writer".into()).spawn(move || {
+            vc_i18n::set_thread_language(Some(lang));
             let mut w = std::io::BufWriter::new(f); let mut n = 0u64; let mut epoch = 0u32;
-            writeln!(w, "# Zyklus  PC  Zyklen  Quelle (Zyklen zählen je Epoche; nach einem Paketverlust beginnt eine neue)").map_err(|e| e.to_string())?;
+            writeln!(w, "{}", vc_i18n::t!("testrun-trace-header")).map_err(|e| e.to_string())?;
             for batch in rx {
                 for r in batch {
-                    if r.epoch != epoch { epoch = r.epoch; writeln!(w, "# --- Paketverlust: neue Epoche {epoch} ---").map_err(|e| e.to_string())?; }
+                    if r.epoch != epoch { epoch = r.epoch; writeln!(w, "{}", vc_i18n::t!("testrun-trace-epoch", epoch = epoch)).map_err(|e| e.to_string())?; }
                     writeln!(w, "{}", format_record(&r, map.as_ref())).map_err(|e| e.to_string())?; n += 1;
                 }
             }
@@ -126,6 +128,6 @@ impl TraceWriter {
         Ok(TraceWriter { tx, handle })
     }
     /// Kanal schließen und warten; liefert die Zahl geschriebener Befehle
-    pub fn finish(self) -> Result<u64, String> { drop(self.tx); self.handle.join().map_err(|_| "Schreib-Thread abgestürzt".to_string())? }
+    pub fn finish(self) -> Result<u64, String> { drop(self.tx); self.handle.join().map_err(|_| vc_i18n::t!("testrun-trace-writer-crashed"))? }
 }
 

@@ -28,10 +28,10 @@ fn value_keys(p: &Profile, frame: usize) -> Vec<Option<String>> {
 
 /// Importiert `png_bytes` in Frame `frame` von `media`. `auto`: Farben des Media aus dem Bild bestimmen.
 pub fn import_png(png_bytes: &[u8], media: &mut Value, p: &Profile, data: &Path, frame: usize, auto: bool, sys: &str) -> Result<Value, String> {
-    if !matches!(p.kind.as_str(), "sprite" | "pmg" | "charset") { return Err(format!("PNG-Import: für '{}' nicht verfügbar", p.kind)); }
-    if p.bpp > 4 { return Err("PNG-Import: nur für Profile mit höchstens 16 Farben (4 Bit je Pixel)".into()); }
+    if !matches!(p.kind.as_str(), "sprite" | "pmg" | "charset") { return Err(vc_i18n::t!("media-png-import-fuer-p1-nicht-verfuegbar", p1 = &p.kind)); }
+    if p.bpp > 4 { return Err(vc_i18n::t!("media-png-import-nur-fuer-profile-mit").into()); }
     let img = png::decode(png_bytes)?;
-    let frames = media["frames"].as_array().ok_or("frames fehlt")?; if frame >= frames.len() { return Err(format!("Frame {frame} existiert nicht")); }
+    let frames = media["frames"].as_array().ok_or(vc_i18n::t!("media-frames-fehlt"))?; if frame >= frames.len() { return Err(vc_i18n::t!("media-frame-frame-existiert-nicht", frame = &frame)); }
     let (w, h) = (p.width, frames[frame]["rows"].as_array().map(|r| r.len()).unwrap_or(p.height));
     let pal = palette(data, &p.target, sys)?;
     // Skalieren (Flächenmittel), Transparenz < 50 % Deckkraft
@@ -50,7 +50,7 @@ pub fn import_png(png_bytes: &[u8], media: &mut Value, p: &Profile, data: &Path,
     let mut hist = vec![0usize; pal.len()];
     for c in cells.iter().flatten() { hist[nearest(*c, &pal)] += 1; }
     let distinct = hist.iter().filter(|&&n| n > 0).count();
-    let colors = media["colors"].as_object_mut().ok_or("colors fehlt")?;
+    let colors = media["colors"].as_object_mut().ok_or(vc_i18n::t!("media-colors-fehlt"))?;
     if auto {
         let mut order: Vec<usize> = (0..pal.len()).filter(|&i| hist[i] > 0).collect(); order.sort_by_key(|&i| std::cmp::Reverse(hist[i]));
         // Zeichensatz: Hintergrund = häufigste Farbe, Rest nach Häufigkeit; Sprites: Reihenfolge der Schlüssel
@@ -58,7 +58,7 @@ pub fn import_png(png_bytes: &[u8], media: &mut Value, p: &Profile, data: &Path,
         for &v in &want { if let (Some(k), Some(i)) = (&keys[v], it.next()) { colors.insert(k.clone(), json!(pal[i].0)); } }
     }
     let cand: Vec<(usize, (u32, Rgb))> = want.iter().filter_map(|&v| keys[v].as_ref().and_then(|k| colors.get(k)).and_then(|c| c.as_u64()).and_then(|c| pal.iter().find(|e| e.0 == c as u32).map(|e| (v, *e)))).collect();
-    if cand.is_empty() { return Err("keine Zielfarben in dieser Datei".into()); }
+    if cand.is_empty() { return Err(vc_i18n::t!("media-keine-zielfarben-in-dieser-datei").into()); }
     let cl: Vec<(u32, Rgb)> = cand.iter().map(|c| c.1).collect();
     let mut used_pixels = vec![0usize; cand.len()]; let mut dropped: Vec<usize> = vec![0; pal.len()];
     let mut rows = Vec::new();

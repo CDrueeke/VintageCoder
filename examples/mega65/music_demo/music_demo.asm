@@ -8,9 +8,9 @@
 ;   Gelernt wird: Song exportieren, Spielroutine einbinden, einmal pro Bild aufrufen.
 ;
 ; Bedienung / Ablauf
-;   * Der Song muss vor dem Assemblieren exportiert werden: `vcc media export music/tune4.vcsong` erzeugt build/export/tune4.asm
+;   * Der Song wird beim `.include "music/tune4.vcsong"` selbst umgewandelt (von Hand: `vcc media export music/tune4.vcsong`)
 ;     (Labels tune4_order, tune4_patterns, tune4_ins und die Konstanten tune4_speed, tune4_rows, tune4_patsize).  `vcc build` im
-;     Projektordner erledigt den Export selbst.
+;     Projektordner braucht dafür keinen Export.
 ;   * Bauen von Hand: vcc asm music_demo.asm --target mega65 --cpu 45gs02 -o music_demo.prg   (Ladeadresse $2000, kein BASIC-Starter:
 ;     im Emulator/Monitor laden und mit `g 2000` bzw. `SYS 8192` starten).  Für NTSC-Maschinen -D NTSC=1 angeben (andere Frequenztabelle).
 ;   * Hauptschleife: einmal je Bild (Rasterzeile $FF, also bei 50 Hz PAL / 60 Hz NTSC) ruft sie `music_play` auf.  Ein Aufruf ist ein
@@ -43,4 +43,4 @@ wait:   lda $d012                   ; Zeile verlassen, damit pro Bild nur einmal
         bra frame
 
 music_runtime                       ; Spielroutine einmal hinter dem Hauptprogramm ablegen (wird nicht "durchlaufen")
-.include "build/export/tune4.asm"   ; Songdaten aus dem Export (Reihenfolge, Muster, Instrumente)
+.include "music/tune4.vcsong"   ; Songdaten aus dem Export (Reihenfolge, Muster, Instrumente)

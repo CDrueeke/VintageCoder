@@ -8,7 +8,7 @@ Betriebssystem mit --verify-build (jedes auszuliefernde Beispiel wird gebaut, Ve
   * `vcc emulator list` zeigt genau die gewaehlten Emulatoren, abgewaehlte melden „nicht im Paket enthalten“ (Rueckgabewert 1),
   * `vcc new` + `vcc build` je gewaehltem Zielsystem gelingt, ein abgewaehltes Zielsystem wird mit Rueckgabewert 2 abgelehnt,
   * `vcc help` laeuft.
-Aufruf:  python3 tools/ci_staging.py [--bin-dir target/debug] [--only nur-cli-atari] [-v]
+Aufruf:  python3 tools/ci_staging.py [--bin-dir target/debug] [--oberflaeche egui|tauri] [--only nur-cli-atari] [-v]
 Kein Fenster, keine Emulatoren, kein Netz noetig. Rueckgabewert 0 = alles gut."""
 import argparse, glob, json, os, shutil, subprocess, sys, tempfile
 
@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import release  # noqa: E402  (stage_layout: Linux hat einen FHS-Baum, sonst liegen data/ und bin/ im Staging-Ordner)
 EMULATORS = ["vice", "atari800", "altirra", "fujisan", "xemu"]
-TARGETS = ["c64", "atari8", "mega65", "plus4", "c128", "vic20", "pet", "cbm2"]
+TARGETS = ["c64", "atari8", "mega65", "plus4", "c128", "vic20", "pet"]
 HOST = {"darwin": "macos", "win32": "windows"}.get(sys.platform, "linux")
 
 
@@ -24,13 +24,13 @@ def run(cmd, env, cwd, timeout=600):
     return subprocess.run(cmd, env=env, cwd=cwd, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL)
 
 
-def check_selection(path, bin_dir, verbose):
+def check_selection(path, bin_dir, verbose, oberflaeche="egui"):
     name = os.path.splitext(os.path.basename(path))[0]
     errs = []
     tmp = tempfile.mkdtemp(prefix="vc-ci-stage-")
     try:
         out = os.path.join(tmp, "stage")
-        r = run([sys.executable, os.path.join(ROOT, "tools", "release.py"), "stage", "--os", HOST, "--features", path, "--bin-dir", bin_dir, "--out", out, "--force", "--verify-build"], os.environ.copy(), ROOT, 1800)
+        r = run([sys.executable, os.path.join(ROOT, "tools", "release.py"), "stage", "--os", HOST, "--features", path, "--bin-dir", bin_dir, "--out", out, "--force", "--verify-build", "--oberflaeche", oberflaeche], os.environ.copy(), ROOT, 1800)
         if verbose or r.returncode:
             print(r.stdout + r.stderr)
         if r.returncode:
@@ -84,6 +84,7 @@ def check_selection(path, bin_dir, verbose):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--bin-dir", default=os.path.join(ROOT, "target", "debug"), help="Ordner mit vcc, vc-lsp (und vintagecoder fuer Auswahlen mit IDE)")
+    ap.add_argument("--oberflaeche", choices=["egui", "tauri"], default="egui", help="Oberflaeche des Programms in --bin-dir: egui (Standard; Entwicklungsbau ohne eingebettetes Frontend, die Frontend-Pruefung gilt nur dem Release-Bau) oder tauri (Binaer mit custom-protocol)")
     ap.add_argument("--only", help="nur diese Testauswahl (Dateiname ohne .md)")
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args(argv)
@@ -95,7 +96,7 @@ def main(argv=None):
         return 2
     errs = []
     for f in files:
-        errs += check_selection(f, os.path.abspath(a.bin_dir), a.verbose)
+        errs += check_selection(f, os.path.abspath(a.bin_dir), a.verbose, a.oberflaeche)
     for e in errs:
         print("FEHLER:  " + e)
     print("%d Testauswahl(en), %d Fehler" % (len(files), len(errs)))

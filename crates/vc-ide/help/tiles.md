@@ -5,30 +5,28 @@ Zeichen und den Zeichensatz, aus dem es stammt; ein Satz darf mehrere Zeichensä
 sondern in einer Screen-Bank (`.vcscreen`), die den Satz in `tilesets` nennt.
 
 ## Aufbau
-Das Studio folgt dem [gemeinsamen Aufbau](help:graphics).
+Der Editor hat drei Bereiche nebeneinander (in schmalen Fenstern rutscht der rechte nach unten).
 
-- **Links** die Kachelliste: Miniatur, Nummer, Name und wie oft die Kachel in den Screen-Bänken des Projekts benutzt wird („unbenutzt“, „gleich wie 3“ für Doppelte).
-  *Neu*, *Dupl.* und *Löschen*; gibt es Screen-Bänke, die den Satz benutzen, fragt der Editor vor dem Löschen. Dann werden die Bänke angepasst (Verweise auf die gelöschte Kachel werden zu Kachel 0, höhere Nummern rücken nach), der Satz wird gespeichert und Rückgängig geleert.
-Über der Liste filtert ein Suchfeld nach Name oder Nummer. Ist eine Kachel gleich einer früheren, bietet die rechte Spalte „Zusammenführen“ an: die Kachel entfällt, die Bänke zeigen danach auf die gleiche frühere Kachel.
-- **Mitte** die große Kachel. Linke Taste (auch ziehen) setzt das gewählte Zeichen in die Zelle, rechte Taste nimmt das Zeichen der Zelle als Pinsel auf, Pfeiltasten wandern.
-- **Werkzeugleiste** oben: Größe des ganzen Satzes (Schnellwahl 2×2, 3×3, 4×4, 3×2 oder frei; beim Verkleinern wird beschnitten, beim Vergrößern mit Zeichen 0 aufgefüllt),
-  Spiegeln (die Zellreihenfolge, nicht die Zeichenbilder), Drehen (nur quadratisch), Rollen, Leeren, Kopieren und Einfügen von Zellen.
-- **Rechts** Name, Farbe, Eigenschaften, Zeichensatz-Reiter mit Zeichenwähler, Füllstand und Hintergrundfarbe.
+![Der Kachel-Editor im Bereich Grafik mit der Datei level_tiles.vctiles: links der Kachelsatz mit den Kacheln leer, stein, gras und kiste, in der Mitte die große 2 mal 2 Kachel und der Zeichenwähler mit einem Raster, rechts die Karten Kachel, Farbe, Eigenschaften, Größe der Kacheln, Zielzeichensatz und Kachel.](bild:kachel-editor "Der Kachel-Editor mit Kachelsatz, Kachelfläche und Zeichenwähler.")
+
+- **Links** der **Kachelsatz**: Miniatur, Name und wie oft die Kachel in den Screen-Bänken des Projekts benutzt wird („0×“ heißt unbenutzt); ein **=** zeigt eine Kachel an, die gleich einer früheren ist. **Neue Kachel** (Plus) legt eine an. Bei mehreren Kachelsätzen im Projekt stehen darunter die **Kachelsätze**.
+- **In der Mitte** die Werkzeugleiste (Rückgängig, Wiederholen, Spiegeln waagerecht und senkrecht, **Kachel drehen** 90° nur bei quadratischen Kacheln, Zellen rollen in vier Richtungen, **Leeren**, **Kopieren**, **Einfügen**, **Exportieren …**, **Speichern**) und die große Kachel. Linke Taste (auch ziehen) setzt das gewählte Zeichen in die Zelle, rechte Taste oder Alt+Klick nimmt das Zeichen der Zelle als Pinsel auf, Pfeiltasten wandern, **Enter** setzt das Zeichen, **I** nimmt es auf. Daneben die **Zeichentafel** (bei mehreren Zeichensätzen mit Reitern).
+- **Rechts** der Abschnitt **Kachel**: Name, **Farbe**, **Hintergrundfarbe**, **Eigenschaften**, **Größe der Kacheln** (Breite und Höhe, 1 bis 16, dann **Übernehmen**; beim Verkleinern geht Belegtes verloren, der Editor fragt vorher), **Zielzeichensatz** und die Kachel-Aktionen **Duplizieren**, **Zusammenführen** (bei einer Kachel, die gleich einer früheren ist: die Kachel entfällt, die Bänke zeigen danach auf die frühere) und **Löschen**. Gibt es Screen-Bänke, die den Satz benutzen, fragt der Editor vor dem Löschen: Verweise auf die gelöschte Kachel werden zu Kachel 0, höhere Nummern rücken nach, der Satz wird gespeichert.
+
+Einen neuen Kachelsatz legt der Dialog **Neue Datei** in dieser Version noch nicht an.
 
 ## Farbe
-Die Farbart gilt für den ganzen Satz: *je Kachel* (ein Farbbyte je Kachel, am kompaktesten), *je Zelle* (jede Zelle hat eine eigene Farbe, sonst gilt die Kachelfarbe) oder *keine*.
-Beim Atari setzt „Farbwahl“ das Zeichenbit 7 (zweite Farbgruppe, Zielzeichensatz höchstens 128 Zeichen).
+Die Farbart gilt für den ganzen Satz (Abschnitt **Kachel**, **Farbe gilt**): *Je Kachel* (ein Farbbyte je Kachel, am kompaktesten), *Je Zelle* (jede Zelle hat eine eigene Farbe; über der Kachel wählst du, ob ein Klick Zeichen und Farbe, nur das Zeichen oder nur die Farbe setzt) oder *Ohne*.
+Beim Atari setzt der Schalter „Zeichenbit 7 setzen (Farbwahl des Zeichens)“ das Zeichenbit 7 (zweite Farbgruppe, Zielzeichensatz höchstens 128 Zeichen).
 
 ## Zeichensätze und Füllstand
-Die Reiter zeigen die Zeichensätze des Satzes (Kürzel A, B, …); „+ Zeichensatz“ fügt einen aus dem Projekt hinzu (nur mit gleichem Profil wie der erste), „Entfernen“
-nimmt einen unbenutzten wieder heraus. Beim Export entsteht aus allen benutzten Glyphen **ein** Zielzeichensatz; gleiche Bilder zählen einmal. Der Balken „Zielzeichensatz“
-zeigt, wie voll er wird (z. B. 187 von 256) und meldet einen Überlauf.
+Die Reiter über der Zeichentafel zeigen die Zeichensätze des Satzes. Unter **Zielzeichensatz** fügt **Hinzufügen** einen aus dem Projekt hinzu (nur mit gleichem Profil wie der erste), **<Name> entfernen** nimmt einen unbenutzten wieder heraus. Beim Export entsteht aus allen benutzten Glyphen **ein** Zielzeichensatz; gleiche Bilder zählen einmal. Der Balken zeigt, wie voll er wird (z. B. „187 von 256 Zeichen belegt“) und meldet einen Überlauf.
 
 ## Eigenschaften
-Frei benannte Merkmale wie „solide“ oder „Leiter“ (höchstens acht je Satz) mit einem Häkchen je Kachel. Der Export schreibt sie als Byte-Tabelle `<name>_props` und die Konstanten `<name>_p_<eigenschaft>`.
+Frei benannte Merkmale wie „solide“ oder „Leiter“ (höchstens acht je Satz): Name bei **Neue Eigenschaft** eintippen, **Hinzufügen**, dann je Kachel den Schalter setzen. Der Export schreibt sie als Byte-Tabelle `<name>_props` und die Konstanten `<name>_p_<eigenschaft>`.
 
 ## Export
-**Exportieren …** in der Kopfzeile öffnet den [Export-Dialog](help:export) wie in den anderen Studios. Ergebnis: je Zelle eine Tabelle `<name>_c0 …` (Index = Kachelnummer), `<name>_col` (je Kachel) oder `<name>_col0 …` (je Zelle),
+**Exportieren …** in der Werkzeugleiste öffnet den [Export-Dialog](help:export) wie in den anderen Editoren. Ergebnis: je Zelle eine Tabelle `<name>_c0 …` (Index = Kachelnummer), `<name>_col` (je Kachel) oder `<name>_col0 …` (je Zelle),
 `<name>_props`, der zusammengeführte Zeichensatz `<name>_chars` und die Konstanten `_tw`, `_th`, `_count`, `_glyphs`. Der Satz braucht mindestens einen Zeichensatz.
 
 ## Beispiele
@@ -37,5 +35,4 @@ Frei benannte Merkmale wie „solide“ oder „Leiter“ (höchstens acht je Sa
 - `examples/c64/tiles_demo`: alle Größen und Varianten der Bibliothek mit Tests.
 
 ## Alte Kachelkarten
-Dateien der früheren Art `tilemap` (Kacheln und Karte in einer Datei) öffnet der Editor mit einem Hinweis. „Umwandeln“ macht aus allen alten Karten des Projekts je Ordner einen Kachelsatz
-und eine Screen-Bank (ein Screen je Karte); auf Wunsch werden die alten Dateien entfernt. Dasselbe leistet `vcc` auf der Kommandozeile (`vcc media migrate-tiles`, mit `--keep` bleiben die alten Dateien).
+Dateien der früheren Art `tilemap` (Kacheln und Karte in einer Datei) wandelt `vcc` auf der Kommandozeile um: `vcc media migrate-tiles` macht aus allen alten Karten des Projekts je Ordner einen Kachelsatz und eine Screen-Bank (ein Screen je Karte); mit `--keep` bleiben die alten Dateien.

@@ -1,0 +1,48 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "9138dd643a69" },
+  "command": "update",
+  "group": "hilfe",
+  "summary": "Check whether there is a new version (display only)",
+  "description": [
+    "Requests the version list (a small file update.json in the release \"update-feed\" of the public repository, using curl over https), shows whether a newer version exists, and gives the link to the release page. vcc downloads and installs nothing. The call itself is your consent to the one request. The setting \"Check for updates\" of the user interface has no effect here.",
+    "Only the request for the list is sent: address, IP address and the neutral user agent \"VintageCoder-update\" (without a version number). No ID, no usage data. Other vcc commands never check for updates and do not mention them. If the package has no update check (selection IDE-UPDATE), the command ends with code 2."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc update [options]",
+      "args": [],
+      "option_groups": [
+        { "id": "ausgabe", "label": "Output" },
+        { "id": "quelle", "label": "Source" }
+      ],
+      "options": [
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Check and show the result (this is also the default without an option).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--notes", "short": "", "value": "", "group": "ausgabe", "help": "Also print the changes since the installed version (Markdown, links and images as plain text).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--json", "short": "", "value": "", "group": "ausgabe", "help": "Print the result as machine-readable JSON.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--offline", "short": "", "value": "", "group": "quelle", "help": "Request nothing: show the saved result of the last check.", "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "check", "cmd": "vcc update" },
+        { "title": "with the changes", "cmd": "vcc update --check --notes" },
+        { "title": "in a script (return value 10 = update available)", "cmd": "vcc update --check --json" },
+        { "title": "without network: the saved result", "cmd": "vcc update --offline" }
+      ],
+      "notes": [
+        "The link always points to the fixed address https://github.com/CDrueeke/VintageCoder/releases/tag/v<version>. An address from the version list is never used.",
+        "The command writes the check log and the result to the folder updates in the configuration folder (VC_UPDATE_DIR changes the location).",
+        "You can change the source with VC_UPDATE_URL (local folder or file, otherwise https only). This never changes the target of the link."
+      ],
+      "exit": [
+        { "code": "0", "help": "up to date (or --offline without a result)" },
+        { "code": "10", "help": "a newer version is available" },
+        { "code": "1", "help": "error (no network, list invalid or newer than known)" },
+        { "code": "2", "help": "wrong usage, or the package has no update check" }
+      ],
+      "see_also": [
+        "feedback"
+      ]
+    }
+  ]
+}

@@ -30,10 +30,10 @@ Ja. Die Sprache und die Dateiformate sind frei. Du darfst dazu aber keinen Quell
 Ja, unter der GPL: Du gibst den Quelltext deiner Fassung ebenfalls unter der GPL weiter und lässt die Lizenzhinweise stehen.
 
 **Was ist mit dem RMT-Player in den Atari-Beispielen?**
-Der RMT-Player (Raster Music Tracker, Dateien `rmtplayr.asm` und `rmt.inc` in den Beispielen `music_demo` und `jumprun` für den Atari) stammt von **Radek Štěrba / Raster / C.P.U.** und steht unter der **GNU General Public License, Version 3**. Er gehört **nicht** zu den freigegebenen Teilen. Ein Programm, das ihn enthält, darfst du nur nach den Bedingungen dieser Lizenz weitergeben (unter anderem mit dem Quelltext des gesamten Programms unter der GPL). Wenn du das nicht willst, verwende ihn nicht und nimm einen anderen Spieler.
+Der RMT-Player (Raster Music Tracker, Dateien `rmtplayr.asm` und `rmt.inc` in den Beispielen `music_demo` und `jumprun` für den Atari) stammt von **Radek Štěrba / Raster / C.P.U.** ([Raster Music Tracker](https://github.com/raster-atari-org/RASTER-Music-Tracker), weitergeführt von Vin Samuel und Peter Dell; GPL v3) und steht unter der **GNU General Public License, Version 3**. Er gehört **nicht** zu den freigegebenen Teilen. Ein Programm, das ihn enthält, darfst du nur nach den Bedingungen dieser Lizenz weitergeben (unter anderem mit dem Quelltext des gesamten Programms unter der GPL). Wenn du das nicht willst, verwende ihn nicht und nimm einen anderen Spieler.
 
 **Darf ich die Namen und das Logo „VintageCoder“ verwenden?**
-Nein, nicht frei. Der Name und das Logo (Dateien unter `branding/`) gehören nicht zu den freigegebenen Teilen. Du darfst aber wahrheitsgemäß sagen, dass ein Programm mit VintageCoder gebaut wurde.
+Der **Name** ist nicht frei; du darfst aber wahrheitsgemäß sagen, dass ein Programm mit VintageCoder gebaut wurde. Das **Logo** (Dateien unter `branding/`) gehört nicht zu den freigegebenen Teilen, darf aber als Referenz verwendet werden: Es darf als Verweis auf VintageCoder (Referenz) verwendet werden, zum Beispiel neben einem Link oder in einer Quellenangabe, auch skaliert oder einfarbig. Es darf nicht anderweitig verändert, nicht als Zeichen eines anderen Produkts verwendet und nicht so eingesetzt werden, dass der Eindruck einer Zugehörigkeit oder Billigung entsteht.
 
 **Was ist mit ROMs, Zeichensätzen, Musik und Bildern?**
 Für Inhalte, die du selbst einbindest, bist du verantwortlich: Rechte Dritter bleiben bestehen. VintageCoder liefert **keine ROMs** mit. Die mitgelieferten eigenen Zeichensätze („VC-Standard“, `data/charsets`) stehen unter **CC0-1.0**.
@@ -53,7 +53,7 @@ Für Inhalte, die du selbst einbindest, bist du verantwortlich: Rechte Dritter b
 **5. Was unberührt bleibt.**
 - (a) Der Quelltext von VintageCoder selbst bleibt unter der GPL; wer ihn ändert und weitergibt, beachtet die GPL.
 - (b) Rechte Dritter an Inhalten, die der Anwender einbindet (zum Beispiel ROMs, fremde Zeichensätze, Musik, Bilder, Disketten), bleiben unberührt; dafür ist der Anwender selbst verantwortlich.
-- (c) Namen und Marken (zum Beispiel „VintageCoder“) und das Logo bleiben geschützt, soweit sie es sind; die freie Nutzung der Syntax und der Ausgaben schließt die Nutzung des Namens als Herkunftsangabe nicht ein.
+- (c) Namen und Marken (zum Beispiel „VintageCoder“) und das Logo bleiben geschützt, soweit sie es sind; die freie Nutzung der Syntax und der Ausgaben schließt die Nutzung des Namens als Herkunftsangabe nicht ein. Der Name darf nur wahrheitsgemäß als Herkunftsangabe genannt werden („gebaut mit VintageCoder“). Das Logo darf als Verweis auf VintageCoder (Referenz) verwendet werden, zum Beispiel neben einem Link oder in einer Quellenangabe, auch skaliert oder einfarbig. Es darf nicht anderweitig verändert, nicht als Zeichen eines anderen Produkts verwendet und nicht so eingesetzt werden, dass der Eindruck einer Zugehörigkeit oder Billigung entsteht.
 
 **5a. Fremde Anteile, insbesondere der RMT-Player.** Diese Erklärung erfasst nicht Quelltext, der von Dritten stammt und unter einer eigenen Lizenz steht. Das gilt insbesondere für den RMT-Player (Raster Music Tracker, Dateien `rmtplayr.asm` und `rmt.inc` in den Atari-Beispielen `music_demo` und `jumprun`; © Radek Štěrba / Raster / C.P.U. 2002–2009, GNU General Public License Version 3). Wer ein Programm weitergibt, das solchen Quelltext enthält, muss die Bedingungen der jeweiligen Lizenz einhalten; für den RMT-Player heißt das, dass das Programm der GPL unterliegt. Der Rechteinhaber von VintageCoder erteilt für fremde Anteile keine zusätzlichen Erlaubnisse.
 
@@ -68,7 +68,8 @@ Für Inhalte, die du selbst einbindest, bist du verantwortlich: Rechte Dritter b
 | Vorlagen `data/templates/` | `MIT-0` | wie oben |
 | Beispiele `examples/` | `MIT-0` | **Ausnahme:** RMT-Player (`rmtplayr.asm`, `rmt.inc`): GPLv3, Radek Štěrba |
 | Zeichensätze `data/charsets/` | `CC0-1.0` | eigene Zeichensätze „VC-Standard“ |
-| Logo und Name (`branding/`) | nicht frei | siehe Abschnitt 3, Punkt 5(c) |
+| Logo (`branding/`) | nur als Referenz (Verweis), sonst nicht frei | siehe Abschnitt 3, Punkt 5(c) |
+| Name „VintageCoder“ | nicht frei; wahrheitsgemäße Herkunftsangabe erlaubt | siehe Abschnitt 3, Punkt 5(c) |
 | Abhängigkeiten (Bibliotheken) | jeweils eigene Lizenz | siehe [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) |
 
 Der Lizenztext der MIT-No-Attribution-Lizenz steht in [LICENSES/MIT-0.txt](LICENSES/MIT-0.txt), der der GPL in [LICENSE](LICENSE). In den Ordnern `data/sys`, `data/templates` und `examples` liegt je eine Datei `LICENSE` mit dem Vermerk.

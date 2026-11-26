@@ -1,0 +1,99 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "1df9457ca63c" },
+  "command": "dis",
+  "group": "daten",
+  "summary": "Disassemble a machine program",
+  "description": [
+    "Prints the disassembly on standard output: address, bytes and instruction per line. Undocumented instructions have the addition \"undocumented\".",
+    "For .prg, the start address is in the file header. Atari XEX files (extension .xex or .com, or header $FFFF) are printed segment by segment with their addresses. For other files, address 0 is used if --start is missing."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc dis <file> [options]",
+      "summary": "",
+      "args": [
+        {
+          "name": "file",
+          "required": true,
+          "repeat": false,
+          "help": "Program file (.prg, .xex, .bin)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "dis",
+          "label": "Disassemble"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--start",
+          "short": "",
+          "value": "address",
+          "group": "dis",
+          "help": "Start address of the image. The file is then read as raw bytes: for .prg the header counts too, and for XEX the segment split is skipped.",
+          "choices": [],
+          "default": "",
+          "default_text": "load address for .prg; segment addresses for XEX; otherwise 0",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--cpu",
+          "short": "",
+          "value": "cpu",
+          "group": "dis",
+          "help": "CPU instruction set.",
+          "choices": [
+            "45gs02",
+            "6510",
+            "7501",
+            "8502",
+            "nmos6502",
+            "sally"
+          ],
+          "default": "6510",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "dis",
+          "help": "Folder of the hardware database (data). Replaces VC_DATA and the automatic search.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Disassemble a C64 program",
+          "cmd": "vcc dis border.prg"
+        },
+        {
+          "title": "MEGA65 program with 45GS02",
+          "cmd": "vcc dis prallball.prg --cpu 45gs02"
+        },
+        {
+          "title": "raw image from an address",
+          "cmd": "vcc dis kernal.bin --start $e000"
+        }
+      ],
+      "notes": [
+        "Addresses are numbers like 49152, $c000, 0xc000 or %1100. An invalid number for --start is ignored.",
+        "The detection of .prg is case-sensitive for the extension."
+      ],
+      "see_also": [
+        "asm",
+        "import"
+      ]
+    }
+  ]
+}

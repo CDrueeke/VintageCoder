@@ -59,6 +59,13 @@ impl Status {
     pub fn label(self) -> &'static str {
         match self { Status::Recognized => "Erkannt", Status::UnknownRevision => "Unbekannte Revision", Status::Replacement => "Ersatz (frei)", Status::Missing => "Fehlt", Status::Unusable => "Nicht benutzbar" }
     }
+    /// Wie [`Status::label`], in der aktuellen Sprache (Katalog)
+    pub fn label_l(self) -> String {
+        match self {
+            Status::Recognized => vc_i18n::t!("roms-status-recognized"), Status::UnknownRevision => vc_i18n::t!("roms-status-unknown-revision"), Status::Replacement => vc_i18n::t!("roms-status-replacement"),
+            Status::Missing => vc_i18n::t!("roms-status-missing"), Status::Unusable => vc_i18n::t!("roms-status-unusable"),
+        }
+    }
     /// Benutzbar (Datei vorhanden und passend)
     pub fn usable(self) -> bool { matches!(self, Status::Recognized | Status::UnknownRevision | Status::Replacement) }
 }
@@ -89,10 +96,14 @@ impl Resolved {
 
     /// Kurze Zeile für Konsole/Protokoll: „c64/kernal: Erkannt – C64 KERNAL 901227-03 (Benutzerordner: /pfad)“
     pub fn describe(&self) -> String {
-        let mut s = format!("{}/{}: {}", self.system, self.role, self.status.label());
-        if let Some(l) = &self.label { s.push_str(&format!(" – {l}")); }
-        if let (Some(p), Some(st)) = (&self.path, self.stage) { s.push_str(&format!(" ({}: {})", st.label(), p.display())); }
-        if self.status == Status::Missing { s.push_str(&format!(" – erwartet {} Byte", self.expected.iter().map(|e| e.to_string()).collect::<Vec<_>>().join(" oder "))); }
+        let mut s = vc_i18n::t!("roms-describe", system = &self.system, role = &self.role, status = self.status.label_l());
+        if let Some(l) = &self.label { s.push(' '); s.push_str(&vc_i18n::t!("roms-describe-label", label = l)); }
+        if let (Some(p), Some(st)) = (&self.path, self.stage) { s.push(' '); s.push_str(&vc_i18n::t!("roms-describe-place", stage = st.label_l(), path = p.display().to_string())); }
+        if self.status == Status::Missing {
+            let or = format!(" {} ", vc_i18n::t!("roms-or"));
+            s.push(' ');
+            s.push_str(&vc_i18n::t!("roms-describe-expected", sizes = self.expected.iter().map(|e| e.to_string()).collect::<Vec<_>>().join(&or)));
+        }
         s
     }
 }
@@ -351,12 +362,12 @@ fn scan_file(known: &KnownTable, idx: usize, stage: Stage, path: &Path, hint: Op
     if !meta.is_file() { return; }
     let size = meta.len();
     let name = path.file_name().map(|n| n.to_string_lossy().to_lowercase()).unwrap_or_default();
-    let mut f = Found { path: path.to_path_buf(), stage, place: idx, size, crc32: None, sha1: None, hint: hint.map(str::to_string), ident: Ident::Unrecognized("keine ROM-Größe".into()), pinned };
-    if size > MAX_READ { f.ident = Ident::Unrecognized("zu groß für ein ROM-Abbild".into()); out.push(f); return; }
+    let mut f = Found { path: path.to_path_buf(), stage, place: idx, size, crc32: None, sha1: None, hint: hint.map(str::to_string), ident: Ident::Unrecognized(vc_i18n::t!("roms-ident-no-rom-size")), pinned };
+    if size > MAX_READ { f.ident = Ident::Unrecognized(vc_i18n::t!("roms-ident-too-large")); out.push(f); return; }
     let size_known = systems::all_sizes().contains(&(size as usize));
     let named = hint.is_some_and(|h| !role_by_name(h, &name).is_empty());
     if !size_known && !named { out.push(f); return; }
-    let Ok(data) = std::fs::read(path) else { f.ident = Ident::Unrecognized("nicht lesbar".into()); out.push(f); return; };
+    let Ok(data) = std::fs::read(path) else { f.ident = Ident::Unrecognized(vc_i18n::t!("roms-ident-unreadable")); out.push(f); return; };
     f.size = data.len() as u64;
     f.crc32 = Some(hash::crc32(&data));
     f.sha1 = Some(hash::sha1_hex(&data));
@@ -388,11 +399,11 @@ fn identify(known: &KnownTable, f: &Found, data: &[u8], hint: Option<&str>, name
                 many => return Ident::Ambiguous { system: h.into(), candidates: many.iter().map(|s| s.to_string()).collect() },
             }
         }
-        return Ident::Unrecognized(format!("passt zu keiner Rolle von {h} (Größe {size} Byte)"));
+        return Ident::Unrecognized(vc_i18n::t!("roms-ident-no-role", h = h, size = size));
     }
     // ohne Ordner: nur eindeutige Größe + Name über alle Systeme ist zu unsicher
     let cands: Vec<String> = systems::SYSTEMS.iter().filter(|s| s.roles.iter().any(|r| r.sizes.contains(&size))).map(|s| s.id.to_string()).collect();
-    if cands.is_empty() { Ident::Unrecognized("keine ROM-Größe".into()) } else { Ident::Ambiguous { system: String::new(), candidates: cands } }
+    if cands.is_empty() { Ident::Unrecognized(vc_i18n::t!("roms-ident-no-rom-size")) } else { Ident::Ambiguous { system: String::new(), candidates: cands } }
 }
 
 #[cfg(test)]
@@ -422,7 +433,7 @@ mod tests {
         let (k1, k2) = (fake(8192, 1), fake(8192, 2));
         t.put("c64/irgendwas.bin", &k1);
         t.put("c64/anders.rom", &k2);
-        let known = KnownTable { format: 1, roms: vec![entry("c64.kernal.a", &k1, "c64", "kernal", true, false), entry("c64.basic.b", &k2, "c64", "basic", true, false)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("c64.kernal.a", &k1, "c64", "kernal", true, false), entry("c64.basic.b", &k2, "c64", "basic", true, false)] };
         let s = RomStore::with_known(env_with(&t.0), known);
         let k = s.resolve("c64", "kernal");
         assert_eq!(k.status, Status::Recognized);
@@ -437,7 +448,7 @@ mod tests {
         let t = Tmp::new("unb");
         t.put("c64/kernal.bin", &fake(8192, 9));
         t.put("c64/basic.bin", &fake(8192, 8));
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![] });
         assert_eq!(s.resolve("c64", "kernal").status, Status::UnknownRevision);
         assert_eq!(s.resolve("c64", "basic").status, Status::UnknownRevision);
         // gleiche Größe, aber beliebiger Name: Rolle mehrdeutig, nicht benutzt
@@ -448,10 +459,30 @@ mod tests {
     }
 
     #[test]
+    fn pet_chips_werden_nach_pruefsumme_name_und_groesse_zugeordnet() {
+        let t = Tmp::new("pet");
+        let (ed, ch) = (fake(2048, 11), fake(2048, 12));
+        t.put("pet/e4.bin", &ed);
+        t.put("pet/beliebig.bin", &ch);
+        // unbekannte Revision: Name "edit..." + 2048 Byte = Editor; "kernal" in 2048 Byte ist falsche Größe; Text und kleine Dateien bleiben draußen
+        t.put("pet/edit-unbekannt.bin", &fake(2048, 13));
+        t.put("pet/kernal-x.bin", &fake(2048, 14));
+        t.put("pet/README.txt", b"hallo");
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("pet.editor.a", &ed, "pet", "editor", true, false), entry("pet.chargen.a", &ch, "pet", "chargen", true, false)] };
+        let s = RomStore::with_known(env_with(&t.0), known);
+        assert_eq!(s.resolve("pet", "editor").status, Status::Recognized);
+        assert_eq!(s.resolve("pet", "chargen").status, Status::Recognized);
+        assert_eq!(s.resolve("pet", "kernal").status, Status::Unusable);
+        let f = s.found().iter().find(|f| f.file_name() == "edit-unbekannt.bin").unwrap();
+        assert!(matches!(&f.ident, Ident::UnknownRevision { system, role } if system == "pet" && role == "editor"), "{:?}", f.ident);
+        assert!(s.found().iter().all(|f| f.file_name() != "README.txt"));
+    }
+
+    #[test]
     fn falsche_groesse_ist_unbrauchbar() {
         let t = Tmp::new("gr");
         t.put("c64/kernal.bin", &fake(4000, 1));
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![] });
         let r = s.resolve("c64", "kernal");
         assert_eq!(r.status, Status::Unusable);
         assert_eq!(r.expected, vec![8192]);
@@ -461,7 +492,7 @@ mod tests {
     fn mega65_rom_131072() {
         let t = Tmp::new("m65");
         t.put("mega65/mega65.rom", &fake(131072, 3));
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![] });
         let r = s.resolve("mega65", "rom");
         assert_eq!(r.status, Status::UnknownRevision);
         assert_eq!(r.size, Some(131072));
@@ -472,13 +503,13 @@ mod tests {
     fn atari_rolle_os_nimmt_die_erste_vorhandene() {
         let t = Tmp::new("atari");
         t.put("atari8/os-b.rom", &fake(10240, 5));
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![] });
         assert_eq!(s.resolve("atari8", "os").role, "os-b");
         assert!(s.missing_required("atari8").is_empty());
         t.put("atari8/os-xl.rom", &fake(16384, 6));
         let mut s = s; s.rescan();
         assert_eq!(s.resolve("atari8", "os").role, "os-xl");
-        let leer = RomStore::with_known(env_with(&t.0.join("nix")), KnownTable { format: 1, roms: vec![] });
+        let leer = RomStore::with_known(env_with(&t.0.join("nix")), KnownTable { format: 1, combined: vec![], roms: vec![] });
         assert_eq!(leer.missing_required("atari8"), vec!["os".to_string()]);
     }
 
@@ -489,7 +520,7 @@ mod tests {
         p.put("roms/c64/kernal.bin", &a);
         u.put("c64/kernal.bin", &b);
         d.put("roms-open/c64/kernal.bin", &c);
-        let known = KnownTable { format: 1, roms: vec![entry("p", &a, "c64", "kernal", false, false), entry("u", &b, "c64", "kernal", true, false), entry("o", &c, "c64", "kernal", false, true)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("p", &a, "c64", "kernal", false, false), entry("u", &b, "c64", "kernal", true, false), entry("o", &c, "c64", "kernal", false, true)] };
         let env = RomEnv { project_dir: Some(p.0.clone()), vc_roms: Some(u.0.clone()), data_dir: Some(d.0.clone()), ..Default::default() };
         let s = RomStore::with_known(env.clone(), known.clone());
         let r = s.resolve("c64", "kernal");
@@ -510,7 +541,7 @@ mod tests {
         let (a, b) = (fake(8192, 21), fake(8192, 22));
         t.put("c64/kernal-a.bin", &a);
         t.put("c64/kernal-b.bin", &b);
-        let known = KnownTable { format: 1, roms: vec![entry("a", &a, "c64", "kernal", false, false), entry("b", &b, "c64", "kernal", true, false)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("a", &a, "c64", "kernal", false, false), entry("b", &b, "c64", "kernal", true, false)] };
         let s = RomStore::with_known(env_with(&t.0), known.clone());
         assert_eq!(s.resolve("c64", "kernal").known_id.as_deref(), Some("b"));
         t.put("roms.json", br#"{"c64": {"kernal": "kernal-a.bin"}}"#);
@@ -527,13 +558,13 @@ mod tests {
         t.put("c128/kernal64.bin", &k);
         let mut e = entry("c64.kernal.x", &k, "c64", "kernal", true, false);
         e.uses.push(Use { system: "c128".into(), role: "kernal64".into() });
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![e] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![e] });
         assert_eq!(s.resolve("c128", "kernal64").status, Status::Recognized);
         // der Ordner entscheidet: im C128-Ordner gefunden zählt der Inhalt nur für den C128, nicht für den C64
         assert_eq!(s.resolve("c64", "kernal").status, Status::Missing);
         // lose Datei ohne Systemordner: erste Verwendung der Tabelle
         t.put("lose.bin", &k);
-        let s2 = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![entry("c64.kernal.x", &k, "c64", "kernal", true, false)] });
+        let s2 = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![entry("c64.kernal.x", &k, "c64", "kernal", true, false)] });
         assert_eq!(s2.resolve("c64", "kernal").status, Status::Recognized);
     }
 
@@ -541,7 +572,7 @@ mod tests {
     fn diagnose_zaehlt_orte_und_dateien() {
         let t = Tmp::new("diag");
         t.put("c64/kernal.bin", &fake(8192, 1));
-        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, roms: vec![] });
+        let s = RomStore::with_known(env_with(&t.0), KnownTable { format: 1, combined: vec![], roms: vec![] });
         let d = s.searched();
         assert_eq!(d.len(), 1);
         assert!(d[0].exists);
@@ -554,7 +585,7 @@ mod tests {
         let t = Tmp::new("pin");
         let (a, b) = (fake(8192, 41), fake(8192, 42));
         t.put("c64/kernal-a.bin", &a); t.put("c64/kernal-b.bin", &b);
-        let known = KnownTable { format: 1, roms: vec![entry("a", &a, "c64", "kernal", true, false), entry("b", &b, "c64", "kernal", false, false)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("a", &a, "c64", "kernal", true, false), entry("b", &b, "c64", "kernal", false, false)] };
         assert_eq!(RomStore::with_known(env_with(&t.0), known.clone()).resolve("c64", "kernal").known_id.as_deref(), Some("a"));
         pin(&t.0, "c64", "kernal", Some("kernal-b.bin")).unwrap();
         assert_eq!(RomStore::with_known(env_with(&t.0), known.clone()).resolve("c64", "kernal").known_id.as_deref(), Some("b"));
@@ -565,7 +596,7 @@ mod tests {
     #[test]
     fn bytes_im_speicher_werden_wie_dateien_erkannt() {
         let d = fake(8192, 51);
-        let known = KnownTable { format: 1, roms: vec![entry("k", &d, "c64", "kernal", true, false)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("k", &d, "c64", "kernal", true, false)] };
         let s = RomStore::with_known(RomEnv::default(), known);
         let f = s.identify_bytes("irgendwas.bin", &d, None).unwrap();
         assert_eq!(s.role_of(&f), Some(("c64".to_string(), "kernal".to_string())));
@@ -576,7 +607,7 @@ mod tests {
     fn scan_laesst_sich_abbrechen() {
         let t = Tmp::new("stop");
         for i in 0..20u8 { t.put(&format!("c64/kernal-{i}.bin"), &fake(8192, i)); }
-        let known = KnownTable { format: 1, roms: vec![] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![] };
         let places = RomEnv { vc_roms: Some(t.0.clone()), ..Default::default() }.places();
         assert_eq!(scan_places_until(&known, &places, &|| false).len(), 20);
         assert!(scan_places_until(&known, &places, &|| true).is_empty(), "sofort abgebrochen: nichts gelesen");
@@ -591,7 +622,7 @@ mod tests {
         let t = Tmp::new("m65dir");
         let chars = fake(4096, 61);
         t.put("CHARROM.M65", &chars);
-        let known = KnownTable { format: 1, roms: vec![entry("c64.chargen.x", &chars, "c64", "chargen", true, false)] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![entry("c64.chargen.x", &chars, "c64", "chargen", true, false)] };
         let env = RomEnv { config_dir: Some(t.0.clone()), ..Default::default() };   // Altablage `<config>/mega65` gibt es hier nicht: als eigene Stelle nachbilden
         let _ = env;
         let place = crate::env::Place { stage: Stage::Legacy, label: "Xemu".into(), path: t.0.clone(), layout: crate::env::Layout::Dir("mega65".into()) };

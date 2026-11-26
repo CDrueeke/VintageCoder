@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: music_demo",
+    "description": "POKEY music with the original RMT player (deferred VBI), song from the tracker panel"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "music_demo.asm"
+      ]
+    }
+  ],
+  "main": "music_demo.asm"
+}

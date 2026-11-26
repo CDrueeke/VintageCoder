@@ -46,16 +46,16 @@ pub fn known_targets(data: &Path) -> Vec<String> {
 /// Unbekannte Systeme bekommen die Palette aus `default` (C64).
 pub fn palette_for(data: &Path, target: &str, variant: &str) -> Result<TargetPalette, String> {
     let idx = read_json(data, "palettes/index.json")?;
-    let entry = idx["targets"].get(target).or_else(|| idx["targets"].get(idx["default"].as_str().unwrap_or("c64"))).ok_or_else(|| format!("palettes/index.json: kein Eintrag für '{target}'"))?;
+    let entry = idx["targets"].get(target).or_else(|| idx["targets"].get(idx["default"].as_str().unwrap_or("c64"))).ok_or_else(|| vc_i18n::t!("media-palettes-index-json-kein-eintrag-fuer", target = &target))?;
     let (mask, step) = (entry["mask"].as_u64().unwrap_or(15) as usize, entry["step"].as_u64().unwrap_or(1) as usize);
     if entry["builtin"].as_str() == Some("mega65") {
         return Ok(TargetPalette { colors: crate::default_palette().iter().filter_map(|h| parse_hex(h)).collect(), mask, step });
     }
-    let name = entry["palette"].as_str().ok_or_else(|| format!("palettes/index.json: '{target}' ohne palette/builtin"))?;
+    let name = entry["palette"].as_str().ok_or_else(|| vc_i18n::t!("media-palettes-index-json-target-ohne-palette", target = &target))?;
     let file = read_json(data, &format!("palettes/{name}.json"))?;
     let key = entry["variants"][variant].as_str().or_else(|| entry["variants"]["pal"].as_str()).unwrap_or("colors");
-    let list = file[key].as_array().ok_or_else(|| format!("palettes/{name}.json: '{key}' fehlt"))?;
-    let colors = list.iter().map(|c| parse_hex(c.as_str().unwrap_or("")).ok_or_else(|| format!("palettes/{name}.json: ungültige Farbe")))
+    let list = file[key].as_array().ok_or_else(|| vc_i18n::t!("media-palettes-name-json-key-fehlt", name = &name, key = &key))?;
+    let colors = list.iter().map(|c| parse_hex(c.as_str().unwrap_or("")).ok_or_else(|| vc_i18n::t!("media-palettes-name-json-ungueltige-farbe", name = &name)))
         .collect::<Result<Vec<_>, _>>()?;
     Ok(TargetPalette { colors, mask, step })
 }

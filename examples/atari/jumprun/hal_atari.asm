@@ -2,7 +2,7 @@
 ; hal_atari.asm - Hardware-Schicht (HAL) des Atari 8 Bit fuer "Hugo & Gumbo"
 ; =====================================================================================================================
 ;
-; Die Spiellogik (common/jumprun/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
+; Die Spiellogik (lib/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
 ; die Atari-Chips.  Die Logik rechnet in einem logischen Raster von 320 x 200 Punkten; die HAL macht daraus Farbtakte,
 ; Zeichenzellen und Spielerzeilen (1 Farbtakt = 2 logische Punkte, 1 Zeile = 1 logischer Punkt in der Hoehe).
 ;
@@ -264,7 +264,7 @@ clear_pm:
 .const hal_put_tile = tile_put
 
 ; hal_title: Titelbild, 960 Zeichencodes (24 Zeilen * 40), in den Bildschirmspeicher kopieren.  Aendert A, X, Y, sp, dp.
-;   Quelle ist title_chars (im Bildschirm-Editor gezeichnet, Export build/export/title.asm).  Kopiert werden 3 volle Seiten
+;   Quelle ist title_chars (im Bildschirm-Editor gezeichnet, Datei graphics/title.vcscreen).  Kopiert werden 3 volle Seiten
 ;   (3 * 256 = 768 Byte) und dann noch 192 Byte: zusammen 960.  sp = Quelle, dp = Ziel; beide Zeiger werden seitenweise erhoeht.
 hal_title:
         lda #<title_chars

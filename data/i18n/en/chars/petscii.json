@@ -1,0 +1,180 @@
+{
+ "source": "chars/petscii.json",
+ "entries": {
+  "/entries/0/desc": {
+   "de": "STOP-Taste",
+   "en": "STOP key",
+   "status": "maschinell"
+  },
+  "/entries/1/desc": {
+   "de": "Weiß",
+   "en": "White",
+   "status": "maschinell"
+  },
+  "/entries/2/desc": {
+   "de": "Wagenrücklauf (RETURN)",
+   "en": "Carriage return (RETURN)",
+   "status": "maschinell"
+  },
+  "/entries/3/desc": {
+   "de": "Klein-/Großschrift einschalten",
+   "en": "Switch to lower/upper case",
+   "status": "maschinell"
+  },
+  "/entries/4/desc": {
+   "de": "Cursor runter",
+   "en": "Cursor down",
+   "status": "maschinell"
+  },
+  "/entries/5/desc": {
+   "de": "Invers an",
+   "en": "Reverse on",
+   "status": "maschinell"
+  },
+  "/entries/6/desc": {
+   "de": "Cursor links oben",
+   "en": "Cursor home",
+   "status": "maschinell"
+  },
+  "/entries/7/desc": {
+   "de": "Zeichen links löschen",
+   "en": "Delete character to the left",
+   "status": "maschinell"
+  },
+  "/entries/8/desc": {
+   "de": "Rot",
+   "en": "Red",
+   "status": "maschinell"
+  },
+  "/entries/9/desc": {
+   "de": "Cursor rechts",
+   "en": "Cursor right",
+   "status": "maschinell"
+  },
+  "/entries/10/desc": {
+   "de": "Grün",
+   "en": "Green",
+   "status": "maschinell"
+  },
+  "/entries/11/desc": {
+   "de": "Blau",
+   "en": "Blue",
+   "status": "maschinell"
+  },
+  "/entries/12/desc": {
+   "de": "Leerzeichen",
+   "en": "Space",
+   "status": "maschinell"
+  },
+  "/entries/13/desc": {
+   "de": "Pfund-Zeichen (£)",
+   "en": "Pound sign",
+   "status": "maschinell"
+  },
+  "/entries/14/desc": {
+   "de": "Orange",
+   "en": "Orange",
+   "status": "unverändert"
+  },
+  "/entries/23/desc": {
+   "de": "Zeilenvorschub (Umschalt+RETURN)",
+   "en": "Line feed (Shift+RETURN)",
+   "status": "maschinell"
+  },
+  "/entries/24/desc": {
+   "de": "Groß-/Grafikschrift einschalten",
+   "en": "Switch to upper case/graphics",
+   "status": "maschinell"
+  },
+  "/entries/25/desc": {
+   "de": "Schwarz",
+   "en": "Black",
+   "status": "maschinell"
+  },
+  "/entries/26/desc": {
+   "de": "Cursor hoch",
+   "en": "Cursor up",
+   "status": "maschinell"
+  },
+  "/entries/27/desc": {
+   "de": "Invers aus",
+   "en": "Reverse off",
+   "status": "maschinell"
+  },
+  "/entries/28/desc": {
+   "de": "Bildschirm löschen",
+   "en": "Clear screen",
+   "status": "maschinell"
+  },
+  "/entries/29/desc": {
+   "de": "Zeichen einfügen",
+   "en": "Insert character",
+   "status": "maschinell"
+  },
+  "/entries/30/desc": {
+   "de": "Braun",
+   "en": "Brown",
+   "status": "maschinell"
+  },
+  "/entries/31/desc": {
+   "de": "Hellrot",
+   "en": "Light red",
+   "status": "maschinell"
+  },
+  "/entries/32/desc": {
+   "de": "Dunkelgrau",
+   "en": "Dark gray",
+   "status": "maschinell"
+  },
+  "/entries/33/desc": {
+   "de": "Mittelgrau",
+   "en": "Medium gray",
+   "status": "maschinell"
+  },
+  "/entries/34/desc": {
+   "de": "Hellgrün",
+   "en": "Light green",
+   "status": "maschinell"
+  },
+  "/entries/35/desc": {
+   "de": "Hellblau",
+   "en": "Light blue",
+   "status": "maschinell"
+  },
+  "/entries/36/desc": {
+   "de": "Hellgrau",
+   "en": "Light gray",
+   "status": "maschinell"
+  },
+  "/entries/37/desc": {
+   "de": "Violett",
+   "en": "Purple",
+   "status": "maschinell"
+  },
+  "/entries/38/desc": {
+   "de": "Cursor links",
+   "en": "Cursor left",
+   "status": "maschinell"
+  },
+  "/entries/39/desc": {
+   "de": "Gelb",
+   "en": "Yellow",
+   "status": "maschinell"
+  },
+  "/entries/40/desc": {
+   "de": "Türkis",
+   "en": "Cyan",
+   "status": "maschinell"
+  },
+  "/entries/41/desc": {
+   "de": "Umschalt+Leerzeichen",
+   "en": "Shift+Space",
+   "status": "maschinell"
+  },
+  "/entries/42/desc": {
+   "de": "Pi (π)",
+   "en": "Pi",
+   "status": "maschinell"
+  }
+ }
+}

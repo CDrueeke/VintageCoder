@@ -1,0 +1,190 @@
+{
+ "source": "chips/pokey.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Frequenz Kanal 1",
+   "en": "Frequency channel 1",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Verzerrung/Lautstärke Kanal 1",
+   "en": "Distortion/volume channel 1",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Frequenz Kanal 2",
+   "en": "Frequency channel 2",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Verzerrung/Lautstärke Kanal 2",
+   "en": "Distortion/volume channel 2",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Frequenz Kanal 3",
+   "en": "Frequency channel 3",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Verzerrung/Lautstärke Kanal 3",
+   "en": "Distortion/volume channel 3",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Frequenz Kanal 4",
+   "en": "Frequency channel 4",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Verzerrung/Lautstärke Kanal 4",
+   "en": "Distortion/volume channel 4",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Audio-Steuerung",
+   "en": "Audio control",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/0/doc": {
+   "de": "9-Bit statt 17-Bit-Polynom",
+   "en": "9-bit instead of 17-bit polynomial",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/1/doc": {
+   "de": "Kanal 1 mit 1,79 MHz",
+   "en": "Channel 1 at 1.79 MHz",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/2/doc": {
+   "de": "Kanal 3 mit 1,79 MHz",
+   "en": "Channel 3 at 1.79 MHz",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/3/doc": {
+   "de": "Kanäle 1+2 als 16 Bit",
+   "en": "Channels 1+2 as 16 bits",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/4/doc": {
+   "de": "Kanäle 3+4 als 16 Bit",
+   "en": "Channels 3+4 as 16 bits",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/5/doc": {
+   "de": "Hochpass Kanal 1 mit 3",
+   "en": "High-pass channel 1 with 3",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/6/doc": {
+   "de": "Hochpass Kanal 2 mit 4",
+   "en": "High-pass channel 2 with 4",
+   "status": "maschinell"
+  },
+  "/regs/8/bits/7/doc": {
+   "de": "15 kHz statt 64 kHz",
+   "en": "15 kHz instead of 64 kHz",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Timer starten",
+   "en": "Start timers",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "Serielle Statusbits löschen",
+   "en": "Clear serial status bits",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Paddle-Abtastung starten",
+   "en": "Start paddle scan",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Serielle Ausgabe",
+   "en": "Serial output",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "IRQ-Freigabe",
+   "en": "IRQ enable",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Serielle Steuerung",
+   "en": "Serial control",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Paddle 0",
+   "en": "Paddle 0",
+   "status": "unverändert"
+  },
+  "/regs/16/doc": {
+   "de": "Paddle 1",
+   "en": "Paddle 1",
+   "status": "unverändert"
+  },
+  "/regs/17/doc": {
+   "de": "Paddle 2",
+   "en": "Paddle 2",
+   "status": "unverändert"
+  },
+  "/regs/18/doc": {
+   "de": "Paddle 3",
+   "en": "Paddle 3",
+   "status": "unverändert"
+  },
+  "/regs/19/doc": {
+   "de": "Paddle 4",
+   "en": "Paddle 4",
+   "status": "unverändert"
+  },
+  "/regs/20/doc": {
+   "de": "Paddle 5",
+   "en": "Paddle 5",
+   "status": "unverändert"
+  },
+  "/regs/21/doc": {
+   "de": "Paddle 6",
+   "en": "Paddle 6",
+   "status": "unverändert"
+  },
+  "/regs/22/doc": {
+   "de": "Paddle 7",
+   "en": "Paddle 7",
+   "status": "unverändert"
+  },
+  "/regs/23/doc": {
+   "de": "Paddle-Status",
+   "en": "Paddle status",
+   "status": "maschinell"
+  },
+  "/regs/24/doc": {
+   "de": "Tastaturcode",
+   "en": "Key code",
+   "status": "maschinell"
+  },
+  "/regs/25/doc": {
+   "de": "Zufallszahl",
+   "en": "Random number",
+   "status": "maschinell"
+  },
+  "/regs/26/doc": {
+   "de": "Serielle Eingabe",
+   "en": "Serial input",
+   "status": "maschinell"
+  },
+  "/regs/27/doc": {
+   "de": "IRQ-Status",
+   "en": "IRQ status",
+   "status": "maschinell"
+  },
+  "/regs/28/doc": {
+   "de": "Serieller Status",
+   "en": "Serial status",
+   "status": "maschinell"
+  }
+ }
+}

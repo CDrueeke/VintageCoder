@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: Troxx",
+    "description": "Troxx fuer den C64: Gitterlinien abfahren, Rechtecke schliessen. Hardware-Sprites, Mehrfarben-Zeichensatz, SID, Bestenliste auf Diskette, zwei Spieler abwechselnd"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "cpu": "6510",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

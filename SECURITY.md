@@ -9,7 +9,7 @@ Bitte melde Sicherheitslücken **nicht öffentlich** (kein Issue, keine Pull Req
 
 Nenne bitte die Version (in der Anwendung unter *Hilfe ▸ Feedback senden …* oder mit `vcc --version`), das Betriebssystem, eine Beschreibung und, wenn möglich, eine Schritt-für-Schritt-Anleitung zum Nachstellen. Schicke keine Zugangsdaten oder fremde urheberrechtlich geschützte Dateien (zum Beispiel ROMs) mit.
 
-VintageCoder ist ein Projekt einer einzelnen Person im Alpha-Stadium. Es gibt **keine Zusage auf eine Antwortzeit** und keine Prämien für Meldungen. Ich lese jede Meldung und versuche, berechtigte Fehler in einer folgenden Version zu beheben; auf Wunsch nenne ich dich dann im Änderungsprotokoll.
+VintageCoder ist ein Projekt einer einzelnen Person. Es gibt **keine Zusage auf eine Antwortzeit** und keine Prämien für Meldungen. Ich lese jede Meldung und versuche, berechtigte Fehler in einer folgenden Version zu beheben; auf Wunsch nenne ich dich dann im Änderungsprotokoll.
 
 ## Unterstützte Versionen
 

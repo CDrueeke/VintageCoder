@@ -1,0 +1,45 @@
+{
+ "source": "templates/systems.json",
+ "entries": {
+  "/systems/c64/label": {
+   "de": "Commodore 64",
+   "en": "Commodore 64",
+   "status": "unverändert"
+  },
+  "/systems/c128/label": {
+   "de": "Commodore 128",
+   "en": "Commodore 128",
+   "status": "unverändert"
+  },
+  "/systems/plus4/label": {
+   "de": "Commodore Plus/4",
+   "en": "Commodore Plus/4",
+   "status": "unverändert"
+  },
+  "/systems/c16/label": {
+   "de": "Commodore 16 / 116",
+   "en": "Commodore 16 / 116",
+   "status": "unverändert"
+  },
+  "/systems/vic20/label": {
+   "de": "Commodore VC-20",
+   "en": "Commodore VIC-20",
+   "status": "maschinell"
+  },
+  "/systems/atari8/label": {
+   "de": "Atari 8-Bit",
+   "en": "Atari 8-bit",
+   "status": "maschinell"
+  },
+  "/systems/mega65/label": {
+   "de": "MEGA65",
+   "en": "MEGA65",
+   "status": "unverändert"
+  },
+  "/systems/pet/label": {
+   "de": "Commodore PET / CBM",
+   "en": "Commodore PET / CBM",
+   "status": "unverändert"
+  }
+ }
+}

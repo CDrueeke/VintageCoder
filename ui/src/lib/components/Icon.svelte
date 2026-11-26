@@ -1,0 +1,53 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<script lang="ts">
+  // Symbole (dekorativ; Beschriftung steht am Knopf). Formen im Stil der Mockups.
+  let { name, size = 16 }: { name: string; size?: number } = $props();
+  const P: Record<string, string> = {
+    code: '<path d="M9 7l-5 5 5 5M15 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+    sprite: '<path d="M7 4h6v3h3v3h3v6h-3v3h-3v-3H7zM10 10h2v2h-2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>',
+    music: '<path d="M9 18V6l10-2v12M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3zM19 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    memory: '<rect x="4" y="8" width="16" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 8v8M12 8v8M16 8v8" stroke="currentColor" stroke-width="1.2"/>',
+    bug: '<path d="M9 8a3 3 0 0 1 6 0v8a3 3 0 0 1-6 0zM4 9l3 2M20 9l-3 2M4 15l3-2M20 15l-3-2M9 6L7 4M15 6l2-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    search: '<circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    side: '<rect x="3.5" y="5" width="17" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 5v14" stroke="currentColor" stroke-width="1.5"/>',
+    play: '<path d="M7 5l12 7-12 7z" fill="currentColor"/>',
+    chevd: '<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    chevr: '<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    home: '<path d="M4 11.5 12 4l8 7.5M6 10v9h4.5v-5h3v5H18v-9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>',
+    folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    file: '<path d="M7 3h7l5 5v13H7zM14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    x: '<path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    globe: '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+    sun: '<circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+    more: '<circle cx="5.5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    newfolder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 10.5v5M9.5 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    plus: '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    build: '<path d="M14.5 5.5a4 4 0 0 0-4.8 5L4 16.2 7.8 20l5.7-5.7a4 4 0 0 0 5-4.8l-2.6 2.6-2.4-.5-.5-2.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    max: '<path d="M5 10V5h5M19 10V5h-5M5 14v5h5M19 14v5h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+    restore: '<path d="M10 5v5H5M14 5v5h5M10 19v-5H5M14 19v-5h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+    stop: '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
+    pen: '<path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    eraser: '<path d="M8 19h11M5.5 14.5l7-7a2 2 0 0 1 3 0l2 2a2 2 0 0 1 0 3l-6 6H9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    pipette: '<path d="M14 6l4 4M16 4l4 4-9 9H7v-4zM7 17l-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    undo: '<path d="M9 7L5 11l4 4M5 11h8a5 5 0 0 1 0 10h-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    redo: '<path d="M15 7l4 4-4 4M19 11h-8a5 5 0 0 0 0 10h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    grid: '<path d="M4 4h16v16H4zM4 12h16M12 4v16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    zoomin: '<circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 16l5 5M11 8.5v5M8.5 11h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    zoomout: '<circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 16l5 5M8.5 11h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    fill: '<path d="M5 11l6-6 8 8-6 6zM11 5L9 3M19 17c1 1.5 1.5 2.5 0 3.5s-2.5-1-0-3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    line: '<path d="M5 19L19 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    rect: '<rect x="5" y="6" width="14" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    select: '<path d="M5 5h3M11 5h3M17 5h2v3M19 11v3M19 17v2h-3M13 19h-3M7 19H5v-2M5 14v-3M5 8V5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    fliph: '<path d="M12 4v16M8 7L3 12l5 5zM16 7l5 5-5 5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    flipv: '<path d="M4 12h16M7 8L12 3l5 5zM7 16l5 5 5-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    gear: '<path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zM19.4 13.1a7.4 7.4 0 0 0 0-2.2l2-1.5-2-3.4-2.3.9a7.4 7.4 0 0 0-1.9-1.1L14.8 3.4h-4l-.4 2.4a7.4 7.4 0 0 0-1.9 1.1l-2.3-.9-2 3.4 2 1.5a7.4 7.4 0 0 0 0 2.2l-2 1.5 2 3.4 2.3-.9a7.4 7.4 0 0 0 1.9 1.1l.4 2.4h4l.4-2.4a7.4 7.4 0 0 0 1.9-1.1l2.3.9 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    pause: '<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',
+    arrl: '<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>', arrr: '<path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>', arru: '<path d="M5 15l7-7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>', arrd: '<path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    disk: '<path d="M5 4h11l3 3v13H5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 4v5h7V4M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>',
+    chip: '<rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
+  };
+</script>
+
+<svg viewBox="0 0 24 24" width={size} height={size} style="flex:none" aria-hidden="true" focusable="false">{@html P[name] ?? ""}</svg>

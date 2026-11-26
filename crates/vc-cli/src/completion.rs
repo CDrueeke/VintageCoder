@@ -26,8 +26,15 @@ fn cmd_names() -> Vec<(String, String)> {
     v
 }
 
-fn bash() -> String {
-    let mut o = String::from("# Vervollständigung für vcc (bash). Einmalig: eval \"$(vcc completion bash)\"\n_vcc() {\n  local cur prev cmd opts\n  COMPREPLY=()\n  cur=\"${COMP_WORDS[COMP_CWORD]}\"\n  prev=\"${COMP_WORDS[COMP_CWORD-1]}\"\n  cmd=\"${COMP_WORDS[1]}\"\n");
+/// Beschreibungen der eingebauten Befehle (help, man, completion, version) in der Sprache des Aufrufs; ohne Anführungszeichen und Sonderzeichen der Shells
+fn builtin_descriptions() -> [(&'static str, String); 4] {
+    [("help", q(&vc_i18n::t!("cli-completion-desc-help"))), ("man", q(&vc_i18n::t!("cli-completion-desc-man"))),
+     ("completion", q(&vc_i18n::t!("cli-completion-desc-completion"))), ("version", q(&vc_i18n::t!("cli-completion-desc-version")))]
+}
+
+pub(crate) fn bash() -> String {
+    let mut o = format!("{}\n", vc_i18n::t!("cli-completion-header-bash"));
+    o.push_str("_vcc() {\n  local cur prev cmd opts\n  COMPREPLY=()\n  cur=\"${COMP_WORDS[COMP_CWORD]}\"\n  prev=\"${COMP_WORDS[COMP_CWORD-1]}\"\n  cmd=\"${COMP_WORDS[1]}\"\n");
     let names: Vec<String> = cmd_names().into_iter().map(|c| c.0).chain(["help", "man", "completion", "version"].map(String::from)).collect();
     let _ = writeln!(o, "  if [ \"$COMP_CWORD\" -eq 1 ]; then COMPREPLY=( $(compgen -W \"{}\" -- \"$cur\") ); return; fi", names.join(" "));
     o.push_str("  case \"$cmd\" in\n");
@@ -53,10 +60,11 @@ fn bash() -> String {
     o
 }
 
-fn powershell() -> String {
-    let mut o = String::from("# Vervollständigung für vcc (PowerShell). Einmalig: vcc completion powershell | Out-String | Invoke-Expression\n$vccCommands = @{\n");
+pub(crate) fn powershell() -> String {
+    let mut o = format!("{}\n$vccCommands = @{{\n", vc_i18n::t!("cli-completion-header-powershell"));
     for (n, s) in cmd_names() { let _ = writeln!(o, "  '{n}' = '{}'", q(&s)); }
-    o.push_str("  'help' = 'Hilfe zu einem Befehl'\n  'man' = 'man-Seite ausgeben'\n  'completion' = 'Vervollstaendigung ausgeben'\n  'version' = 'Version anzeigen'\n}\n$vccOptions = @{\n");
+    for (n, d) in builtin_descriptions() { let _ = writeln!(o, "  '{n}' = '{d}'"); }
+    o.push_str("}\n$vccOptions = @{\n");
     for c in &help::prog().cmds {
         let mut words: Vec<String> = opts_of(c).iter().flat_map(|x| [x.flag.clone(), x.short.clone()]).filter(|x| !x.is_empty()).collect();
         words.extend(form_words(c));
@@ -73,10 +81,11 @@ fn powershell() -> String {
     o
 }
 
-fn zsh() -> String {
-    let mut o = String::from("#compdef vcc\n# Vervollständigung für vcc (zsh). Datei als _vcc in einen Ordner des fpath legen oder: eval \"$(vcc completion zsh)\"\n_vcc() {\n  local -a cmds\n  cmds=(\n");
+pub(crate) fn zsh() -> String {
+    let mut o = format!("#compdef vcc\n{}\n_vcc() {{\n  local -a cmds\n  cmds=(\n", vc_i18n::t!("cli-completion-header-zsh"));
     for (n, s) in cmd_names() { let _ = writeln!(o, "    '{n}:{}'", q(&s).replace(':', " ")); }
-    o.push_str("    'help:Hilfe zu einem Befehl'\n    'man:man-Seite ausgeben'\n    'completion:Vervollstaendigung ausgeben'\n    'version:Version anzeigen'\n  )\n  if (( CURRENT == 2 )); then _describe 'befehl' cmds; return; fi\n  case $words[2] in\n");
+    for (n, d) in builtin_descriptions() { let _ = writeln!(o, "    '{n}:{d}'"); }
+    let _ = write!(o, "  )\n  if (( CURRENT == 2 )); then _describe '{}' cmds; return; fi\n  case $words[2] in\n", q(&vc_i18n::t!("cli-completion-zsh-command")));
     for c in &help::prog().cmds {
         let mut pats = vec![c.name.clone()]; pats.extend(c.aliases.iter().cloned());
         let _ = writeln!(o, "    {})", pats.join("|"));
@@ -86,7 +95,7 @@ fn zsh() -> String {
             let action = if !x.choices.is_empty() { format!(":{}:({})", if x.value.is_empty() { "wert" } else { &x.value }, x.choices.join(" ")) } else if !x.value.is_empty() { format!(":{}:_files", x.value) } else { String::new() };
             for f in [x.flag.clone(), x.short.clone()].into_iter().filter(|f| !f.is_empty()) { args.push(format!("'{f}[{desc}]{action}'")); }
         }
-        args.push("'*:datei:_files'".into());
+        args.push(format!("'*:{}:_files'", q(&vc_i18n::t!("cli-completion-zsh-file"))));
         let _ = writeln!(o, "      _arguments {} ;;", args.join(" "));
     }
     o.push_str("    help) compadd -- ");
@@ -95,10 +104,10 @@ fn zsh() -> String {
     o
 }
 
-fn fish() -> String {
-    let mut o = String::from("# Vervollständigung für vcc (fish). Einmalig: vcc completion fish | source\ncomplete -c vcc -f\n");
+pub(crate) fn fish() -> String {
+    let mut o = format!("{}\ncomplete -c vcc -f\n", vc_i18n::t!("cli-completion-header-fish"));
     for (n, s) in cmd_names() { let _ = writeln!(o, "complete -c vcc -n '__fish_use_subcommand' -a '{n}' -d '{}'", q(&s)); }
-    for (n, d) in [("help", "Hilfe zu einem Befehl"), ("man", "man-Seite ausgeben"), ("completion", "Vervollstaendigung ausgeben"), ("version", "Version anzeigen")] { let _ = writeln!(o, "complete -c vcc -n '__fish_use_subcommand' -a '{n}' -d '{d}'"); }
+    for (n, d) in builtin_descriptions() { let _ = writeln!(o, "complete -c vcc -n '__fish_use_subcommand' -a '{n}' -d '{d}'"); }
     for c in &help::prog().cmds {
         let mut names = vec![c.name.clone()]; names.extend(c.aliases.iter().cloned());
         let cond = format!("__fish_seen_subcommand_from {}", names.join(" "));
@@ -109,7 +118,7 @@ fn fish() -> String {
             if !x.choices.is_empty() { let _ = write!(l, " -x -a '{}'", x.choices.join(" ")); } else if !x.value.is_empty() { l.push_str(" -r"); }
             let _ = writeln!(o, "{l} -d '{}'", q(&x.help));
         }
-        for w in form_words(c) { let _ = writeln!(o, "complete -c vcc -n '{cond}' -a '{w}' -d 'Form'"); }
+        for w in form_words(c) { let _ = writeln!(o, "complete -c vcc -n '{cond}' -a '{w}' -d '{}'", q(&vc_i18n::t!("cli-completion-fish-form"))); }
     }
     let _ = writeln!(o, "complete -c vcc -n '__fish_seen_subcommand_from completion' -a 'powershell bash zsh fish'");
     o
@@ -122,10 +131,10 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("zsh") => { print!("{}", zsh()); ExitCode::SUCCESS }
         Some("fish") => { print!("{}", fish()); ExitCode::SUCCESS }
         Some("--help") | Some("-h") => {
-            println!("vcc completion - Vervollständigung (Tab) für die Shell ausgeben\n\nAufruf:  vcc completion <shell>\n         shell: powershell | bash | zsh | fish\n\nBeispiele:\n  vcc completion powershell | Out-String | Invoke-Expression\n  eval \"$(vcc completion bash)\"\n  vcc completion fish | source");
+            println!("{}", vc_i18n::t!("cli-completion-help"));
             ExitCode::SUCCESS
         }
-        Some(other) => { eprintln!("vcc completion: unbekannte Shell „{other}“\nErlaubt: powershell, bash, zsh, fish"); ExitCode::from(2) }
-        None => { eprintln!("vcc completion: Shell fehlt\nAufruf:  vcc completion <powershell|bash|zsh|fish>"); ExitCode::from(2) }
+        Some(other) => { crate::err_msg(vc_core::msg!("cli-completion-unknown-shell", shell = other)); ExitCode::from(2) }
+        None => { crate::err_msg(vc_core::msg!("cli-completion-shell-missing")); ExitCode::from(2) }
     }
 }

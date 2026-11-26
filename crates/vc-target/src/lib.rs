@@ -49,6 +49,59 @@ impl Mode {
         }
     }
 
+    /// Wie `name`, aber als Katalogtext der aktuellen Sprache.
+    pub fn name_l(self) -> String {
+        match self {
+            Mode::Imp => vc_i18n::t!("target-mode-name-imp"),
+            Mode::Acc => vc_i18n::t!("target-mode-name-acc"),
+            Mode::Imm => vc_i18n::t!("target-mode-name-imm"),
+            Mode::Imw => vc_i18n::t!("target-mode-name-imw"),
+            Mode::Zp => vc_i18n::t!("target-mode-name-zp"),
+            Mode::Zpx => vc_i18n::t!("target-mode-name-zpx"),
+            Mode::Zpy => vc_i18n::t!("target-mode-name-zpy"),
+            Mode::Abs => vc_i18n::t!("target-mode-name-abs"),
+            Mode::Abx => vc_i18n::t!("target-mode-name-abx"),
+            Mode::Aby => vc_i18n::t!("target-mode-name-aby"),
+            Mode::Ind => vc_i18n::t!("target-mode-name-ind"),
+            Mode::Izx => vc_i18n::t!("target-mode-name-izx"),
+            Mode::Izy => vc_i18n::t!("target-mode-name-izy"),
+            Mode::Rel => vc_i18n::t!("target-mode-name-rel"),
+            Mode::Rl => vc_i18n::t!("target-mode-name-rl"),
+            Mode::Izz => vc_i18n::t!("target-mode-name-izz"),
+            Mode::Isy => vc_i18n::t!("target-mode-name-isy"),
+            Mode::Iax => vc_i18n::t!("target-mode-name-iax"),
+            Mode::Zpr => vc_i18n::t!("target-mode-name-zpr"),
+        }
+    }
+
+    /// Wie `erklaerung`, aber als Katalogtext der aktuellen Sprache.
+    pub fn erklaerung_l(self) -> String {
+        match self {
+            Mode::Imp => vc_i18n::t!("target-mode-explain-imp"),
+            Mode::Acc => vc_i18n::t!("target-mode-explain-acc"),
+            Mode::Imm => vc_i18n::t!("target-mode-explain-imm"),
+            Mode::Imw => vc_i18n::t!("target-mode-explain-imw"),
+            Mode::Zp => vc_i18n::t!("target-mode-explain-zp"),
+            Mode::Zpx => vc_i18n::t!("target-mode-explain-zpx"),
+            Mode::Zpy => vc_i18n::t!("target-mode-explain-zpy"),
+            Mode::Abs => vc_i18n::t!("target-mode-explain-abs"),
+            Mode::Abx => vc_i18n::t!("target-mode-explain-abx"),
+            Mode::Aby => vc_i18n::t!("target-mode-explain-aby"),
+            Mode::Ind => vc_i18n::t!("target-mode-explain-ind"),
+            Mode::Izx => vc_i18n::t!("target-mode-explain-izx"),
+            Mode::Izy => vc_i18n::t!("target-mode-explain-izy"),
+            Mode::Rel => vc_i18n::t!("target-mode-explain-rel"),
+            Mode::Rl => vc_i18n::t!("target-mode-explain-rl"),
+            Mode::Izz => vc_i18n::t!("target-mode-explain-izz"),
+            Mode::Isy => vc_i18n::t!("target-mode-explain-isy"),
+            Mode::Iax => vc_i18n::t!("target-mode-explain-iax"),
+            Mode::Zpr => vc_i18n::t!("target-mode-explain-zpr"),
+        }
+    }
+
+    /// Wie `label`, aber in der aktuellen Sprache.
+    pub fn label_l(self) -> String { format!("{} ({})", self.name_l(), self.kuerzel()) }
+
     /// Name mit Kuerzel in Klammern, z. B. „Zeropage, X-indiziert (zpx)“.
     pub fn label(self) -> String { format!("{} ({})", self.name(), self.kuerzel()) }
 
@@ -191,13 +244,13 @@ pub fn parse_num(s: &str) -> Option<i64> {
 }
 
 fn parse_row(row: &[Value]) -> Result<Op, String> {
-    let s = |i: usize| row.get(i).and_then(Value::as_str).ok_or_else(|| format!("Spalte {i} fehlt"));
-    let n = |i: usize| row.get(i).and_then(Value::as_u64).ok_or_else(|| format!("Spalte {i} fehlt"));
-    let mode = Mode::parse(s(1)?).ok_or_else(|| format!("unbekannter Modus {}", s(1).unwrap_or("?")))?;
+    let s = |i: usize| row.get(i).and_then(Value::as_str).ok_or_else(|| vc_i18n::t!("target-row-column-missing", i = i as i64));
+    let n = |i: usize| row.get(i).and_then(Value::as_u64).ok_or_else(|| vc_i18n::t!("target-row-column-missing", i = i as i64));
+    let mode = Mode::parse(s(1)?).ok_or_else(|| vc_i18n::t!("target-row-unknown-mode", mode = s(1).unwrap_or("?")))?;
     let flags = s(5)?;
     Ok(Op {
         mnemonic: s(0)?.to_string(), mode,
-        opcode: parse_num(s(2)?).ok_or("Opcode ungültig")? as u8,
+        opcode: parse_num(s(2)?).ok_or_else(|| vc_i18n::t!("target-row-opcode-invalid"))? as u8,
         bytes: n(3)? as u8, cycles: n(4)? as u8,
         page_cross: flags.contains('p'), branch: flags.contains('b'), affects: s(6)?.to_string(),
         group: s(7)?.to_string(),
@@ -276,7 +329,7 @@ impl Target {
         if self.memory.is_empty() { return Ok(()); }
         let want = id.filter(|i| !i.is_empty()).or(self.memory_default.as_deref()).unwrap_or(&self.memory[0].id).to_string();
         let c = self.memory.iter().find(|c| c.id == want)
-            .ok_or_else(|| format!("unbekannter Speicherausbau »{want}« (möglich: {})", self.memory.iter().map(|c| c.id.as_str()).collect::<Vec<_>>().join(", ")))?;
+            .ok_or_else(|| vc_i18n::t!("target-unknown-memory", want = want, options = self.memory.iter().map(|c| c.id.as_str()).collect::<Vec<_>>().join(", ")))?;
         if c.basic_load.is_some() { self.basic_load_addr = c.basic_load; }
         self.memory_sel = Some(c.id.clone());
         Ok(())
@@ -301,7 +354,11 @@ impl Target {
 }
 
 /// Meldung für ein Zielsystem, dessen Datei in diesem Release fehlt (kein Absturz, kein Dateipfad)
-pub fn missing_message(id: &str) -> String { format!("Zielsystem „{id}“ ist in diesem Release nicht enthalten") }
+pub fn missing_message(id: &str) -> String {
+    // CBM-II (Zielsystem `cbm2`) wurde entfernt: alte Projekte bekommen einen klaren Hinweis statt der allgemeinen Meldung
+    if id == "cbm2" { return vc_i18n::t!("target-cbm2-entfernt", id = id).to_string(); }
+    vc_i18n::t!("target-missing", id = id).to_string()
+}
 
 /// Ist die Target-Datei des Systems vorhanden (also im Release geliefert)?
 pub fn target_available(data_dir: &Path, id: &str) -> bool {
@@ -330,7 +387,8 @@ pub fn load_target(data_dir: &Path, id: &str) -> Result<Target, String> {
     let path = data_dir.join("targets").join(format!("{id}.target.json"));
     if !path.exists() { return Err(missing_message(id)); }
     let text = vc_core::read_static(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
+    vc_i18n::localize_json(&mut v, &format!("targets/{id}.target.json"));
     let t = &v["target"];
     let banking = match v.get("banking") {
         Some(b) => {
@@ -344,8 +402,8 @@ pub fn load_target(data_dir: &Path, id: &str) -> Result<Target, String> {
         banking,
         test_mailbox: t["testMailbox"].as_str().and_then(parse_num).filter(|a| (0..=0xFFF8).contains(a)).map(|a| a as u16),
         test_debug_reg: t["testDebugReg"].as_str().and_then(parse_num).filter(|a| (0..=0xFFFF).contains(a)).map(|a| a as u16),
-        id: t["id"].as_str().ok_or("target.id fehlt")?.into(),
-        cpu: t["cpu"].as_str().ok_or("target.cpu fehlt")?.into(),
+        id: t["id"].as_str().ok_or_else(|| vc_i18n::t!("target-json-id-missing"))?.into(),
+        cpu: t["cpu"].as_str().ok_or_else(|| vc_i18n::t!("target-json-cpu-missing"))?.into(),
         chips: t["chips"].as_array().map(|a| a.iter().filter_map(|c| c.as_str().map(String::from)).collect()).unwrap_or_default(),
         basic_load_addr: v["basic"]["loadAddr"].as_str().and_then(parse_num).map(|a| a as u16),
         basic_dialect: v["basic"]["dialect"].as_str().map(String::from),
@@ -378,11 +436,12 @@ pub struct Chip {
 pub fn load_chip(data_dir: &Path, id: &str) -> Result<Chip, String> {
     let path = data_dir.join("chips").join(format!("{id}.chip.json"));
     let text = vc_core::read_static(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-    let regs = v["regs"].as_array().ok_or("regs fehlt")?.iter().map(|r| {
+    let mut v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
+    vc_i18n::localize_json(&mut v, &format!("chips/{id}.chip.json"));
+    let regs = v["regs"].as_array().ok_or_else(|| vc_i18n::t!("target-chip-regs-missing"))?.iter().map(|r| {
         Ok(Reg {
-            name: r["name"].as_str().ok_or("reg.name fehlt")?.into(),
-            addr: r["addr"].as_str().and_then(parse_num).ok_or("reg.addr ungültig")? as u32,
+            name: r["name"].as_str().ok_or_else(|| vc_i18n::t!("target-chip-reg-name-missing"))?.into(),
+            addr: r["addr"].as_str().and_then(parse_num).ok_or_else(|| vc_i18n::t!("target-chip-reg-addr-invalid"))? as u32,
             access: r["access"].as_str().unwrap_or("rw").into(),
             doc: r["doc"].as_str().unwrap_or("").into(),
         })
@@ -411,7 +470,7 @@ pub fn chip_symbols(data_dir: &Path, target: &Target) -> Result<Vec<(String, i64
 
 /// Erzeugt eine Include-Datei (`.const chip.reg = $addr`) für alle Chips eines Targets.
 pub fn generate_include(data_dir: &Path, target: &Target) -> Result<String, String> {
-    let mut s = format!("; Automatisch erzeugt aus data/chips/ für Target '{}' – nicht von Hand ändern.\n", target.id);
+    let mut s = vc_i18n::t!("target-chip-inc-header", id = target.id.as_str()) + "\n";
     for c in &target.chips {
         let chip = load_chip(data_dir, c)?;
         s.push_str(&format!("\n; {} ({})\n", chip.name, chip.id));
@@ -572,5 +631,21 @@ mod tests {
                 for pr in &b.presets { assert_eq!(b.preset_for_value(pr.value).map(|q| q.value), Some(pr.value)); }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod i18n_tests {
+    use super::*;
+    #[test]
+    fn modus_texte_englisch_und_deutsch() {
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        assert_eq!(Mode::Zpx.label_l(), "Zero page, X-indexed (zpx)");
+        assert_eq!(Mode::Izx.erklaerung_l(), "pointer in the zero page, X is added to the pointer address first");
+        assert!(missing_message("x16").contains("not included"));
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        for m in Mode::ALL { assert_eq!(m.name_l(), m.name()); assert_eq!(m.erklaerung_l(), m.erklaerung()); }
+        assert_eq!(Mode::Zpx.label_l(), Mode::Zpx.label());
+        assert_eq!(missing_message("x16"), "Zielsystem „x16“ ist in diesem Release nicht enthalten");
     }
 }

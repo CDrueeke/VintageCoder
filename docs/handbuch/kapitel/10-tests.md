@@ -29,7 +29,7 @@ Wichtig: Die Tests prüfen das **gebaute** Programm. Baue also zuerst (F7). Die 
 
 ## Eine Testdatei anlegen
 
-1. Klicke in der linken Spalte auf **＋ Neue Datei im gewählten Ordner**. Wähle im Dialog **Neue Datei** die Art **Text** und gib als Name `farbwechsel.vctest` ein. Weil der Name einen Punkt enthält, hängt VintageCoder keine Endung an. Eine eigene Vorlage für Testdateien gibt es in der Oberfläche noch nicht.
+1. Klicke in der Seitenleiste (Überschrift **Projekt**) auf das Symbol **Neue Datei**. Im Dialog **Neue Datei** gib als Name `farbwechsel.vctest` ein und stelle bei **Art** den Eintrag **Ohne Endung** ein. Weil der Name schon eine Endung hat, soll VintageCoder keine zweite anhängen. Klicke auf **Anlegen**. Eine eigene Vorlage für Testdateien gibt es in der Oberfläche noch nicht.
 2. Die neue Datei öffnet sich im Editor. Trage diesen Text ein. Er prüft das Übungsprogramm aus dem Debugger-Kapitel:
 
 ```json
@@ -67,7 +67,7 @@ Was darin steht:
 | `expect` | Ausdrücke, die nach dem Aufruf **wahr** sein müssen |
 | `cycles` | Zyklenbudget: wie lange der Aufruf höchstens dauern darf |
 
-Die Sprache der Ausdrücke ist dieselbe wie bei „Beobachten“ im Debugger (Register `a x y`, Flags `fz fc` …, Speicher `[adresse]`, Namen aus deinem Programm). Das Flag-Kürzel allein heißt „gesetzt“, mit Ausrufezeichen davor „nicht gesetzt“ (`!fc`).
+In den Ausdrücken stehen die Register (`a x y`), die Flags (`fz fc` …), der Speicher (`[adresse]`) und die Namen aus deinem Programm. Das Flag-Kürzel allein heißt „gesetzt“, mit Ausrufezeichen davor „nicht gesetzt“ (`!fc`).
 
 > **Tipp:** Jeder Test muss alles selbst vorbereiten, was er braucht. Zwischen den Tests schreibt die IDE nur Programm und Daten neu, nicht aber Zeropage, Bildschirm oder Chip-Register. Das Hauptprogramm läuft nicht: Was es beim Start einstellt, gehört in das `setup`. Standard sind `sp=$FF` und gelöschte Flags (nur I gesetzt).
 
@@ -75,22 +75,22 @@ Die Sprache der Ausdrücke ist dieselbe wie bei „Beobachten“ im Debugger (Re
 
 ## Tests ausführen
 
-Die Tests laufen in der **Schublade** im Reiter **Tests**. Nach einem Lauf steht im Reiter die Zahl der bestandenen Tests, zum Beispiel **Tests 3/5**.
+Die Tests laufen in der **Ablage** unter dem Editor im Reiter **Tests**.
 
-![Die Schublade mit dem Reiter „Tests“ nach einem Lauf: „Alle ausführen“, „Fehlgeschlagene“, die Auswahl „Läuft auf:“, die Gruppe mit ihren Ergebnissen und rechts die Zähler.](bild:tests-panel "Der Reiter „Tests“ in der Schublade (Beispielansicht mit zwei Prüfungen)")
+![Der Code-Editor mit der Datei tests_demo.asm. Unter dem Editor ist die Ablage mit dem Reiter „Tests“ geöffnet: Knöpfe „Alle ausführen“ und „Fehlgeschlagene“, die Auswahl „Ziel“ mit „VICE x64sc“, ein Filterfeld, das Häkchen „nur Fehler“ und die Angabe „8 von 17 bestanden“. Darunter stehen die statischen Prüfungen mit grünen Punkten und dem Wort „bestanden“.](bild:tests-panel "Der Reiter „Tests“ in der Ablage mit der Liste der Prüfungen und ihren Ergebnissen.")
 
-1. Öffne die Schublade mit **Cmd/Strg+J** und klicke auf den Reiter **Tests**. Oder drücke **Alt+F8** (Menü **Projekt ▸ Tests ausführen**): Das führt alle Tests aus.
-2. Die Leiste oben im Reiter hat diese Knöpfe: **▶ Alle ausführen** (während des Laufs **■ Abbrechen**), **Fehlgeschlagene** (wiederholt nur die gescheiterten Tests), das Auswahlfeld **Läuft auf: … ▾**, das Feld **Filter** und das Häkchen **nur Fehler**. Rechts steht die Zusammenfassung: wie viele bestanden, fehlgeschlagen und übersprungen sind, und wie lange der Lauf dauerte.
+1. Öffne die Ablage mit **Cmd/Strg+J** und klicke auf den Reiter **Tests**. Oder drücke **Alt+F8** (Menü **Projekt ▸ Tests ausführen**): Das öffnet den Reiter und führt alle Tests aus.
+2. Die Leiste oben im Reiter hat diese Bedienelemente: den Knopf **Alle ausführen** (während des Laufs auch **Abbrechen**), den Knopf **Fehlgeschlagene** (wiederholt nur die gescheiterten Tests), die Auswahl **Ziel**, das Feld **Tests filtern …** und das Häkchen **nur Fehler**. Rechts daneben steht die Zusammenfassung, zum Beispiel „3 von 5 bestanden“.
 3. Links steht die Liste der Tests, gegliedert nach Testdateien. Rechts steht das Detail des gewählten Tests.
 
-Mit **Läuft auf:** bestimmst du, wo die Tests laufen. Ein Klick wechselt zur nächsten Möglichkeit:
+Mit **Ziel** bestimmst du, wo die Tests laufen. Die Auswahl bietet:
 
-- **nur statische Prüfungen**: nur die statischen Prüfungen, schnell und ohne Emulator.
+- **Nur statische Prüfungen**: nur die statischen Prüfungen, schnell und ohne Emulator.
 - **VICE …** (oder ein anderer gefundener Emulator): auch die Tests im Emulator.
 
 > **Info:** Tests auf echter Hardware (Ultimate 64) und die Zyklenmessung über die Ultimate gibt es in der Oberfläche noch nicht. Sie laufen auf der Kommandozeile (siehe unten).
 
-Die erste Prüfung kannst du sofort machen: Baue mit **F7**, stelle **Läuft auf:** auf *nur statische Prüfungen* und klicke **▶ Alle ausführen**. Es laufen die drei statischen Prüfungen, sie sind alle bestanden:
+Die erste Prüfung kannst du sofort machen: Baue mit **F7**, stelle **Ziel** auf *Nur statische Prüfungen* und klicke **Alle ausführen**. Es laufen die drei statischen Prüfungen, sie sind alle bestanden:
 
 ```
 OK  Größe alle Segmente ≤ 200  $20 (32 Bytes)
@@ -98,7 +98,7 @@ OK  Keine Segment-Überlappung  1 Segmente
 OK  Zyklen naechste_farbe ≤ 20  20  [farbwechsel.asm:18]
 ```
 
-Die Tests im Emulator werden dabei als „übersprungen“ gemeldet, mit dem Grund „braucht den Emulator“. Stelle **Läuft auf:** auf VICE, um sie auszuführen.
+Die Tests im Emulator werden dabei als „übersprungen“ gemeldet, mit dem Grund „braucht den Emulator“. Stelle **Ziel** auf VICE, um sie auszuführen.
 
 ### Ergebnisse lesen
 
@@ -109,18 +109,20 @@ Jeder Test hat einen Zustand:
 | **bestanden** | alle Erwartungen erfüllt, der Messwert (zum Beispiel die Zyklen) steht dabei |
 | **fehlgeschlagen** | eine Erwartung stimmt nicht; die Meldung nennt linke und rechte Seite des Vergleichs |
 | **Hinweis** | ein Zyklenbudget ist überschritten, gilt aber nicht als Fehler (`level: hint`) |
-| **Zeitüberschreitung** | die Falle wurde nicht rechtzeitig erreicht (`timeoutMs`) |
+| **Zeit überschritten** | die Falle wurde nicht rechtzeitig erreicht (`timeoutMs`) |
 | **übersprungen** | der Test lässt sich hier nicht ausführen; der Grund steht dabei |
 
-Klicke einen Test an: Rechts im Reiter siehst du den **Zustand**, die Meldung mit **Erwartung und Ist-Wert**, den **gemessenen Wert** (zum Beispiel die Zyklen), den **Zustand der Register bei der Rückkehr** und die Startwerte des Tests. Zwei Knöpfe gehören zum Test: **Zur Quelle** springt in den Quelltext, **Diesen Test debuggen** startet ihn im Debugger.
+Klicke einen Test an: Rechts im Reiter siehst du den **Zustand**, die Meldung mit **Erwartung und Ist-Wert**, den **gemessenen Wert** („Gemessen“, zum Beispiel die Zyklen) und den Zustand der Register bei der Rückkehr. Drei Knöpfe gehören zum Test: **Zur Quelle** springt in den Quelltext, **Testdatei öffnen** öffnet die Testdatei, und **Diesen Test debuggen** startet den Test im Debugger (siehe unten).
 
-![Ein fehlgeschlagener Test ist gewählt: rechts stehen Name, Zustand, die Meldung „erwartet ≤ $2000, ist $2310“ und der Knopf „Diesen Test debuggen“.](bild:tests-ergebnis "Ein fehlgeschlagener Test mit seiner Meldung (Beispielansicht)")
+![Der Bereich Code mit der Datei tests_demo.asm und unten der Seite „Tests“. Die Liste zeigt Prüfungen mit grünen Punkten („bestanden“), einen gelben Eintrag „fehlgeschlagen“ und zwei „übersprungen“; oben steht „8 von 17 bestanden“. Rechts daneben stehen Zustand, Meldung und gemessener Wert des gewählten Tests und die Knöpfe „Zur Quelle“, „Testdatei öffnen“ und „Diesen Test debuggen“.](bild:tests-ergebnis "Die Seite „Tests“ mit der Liste der Prüfungen und dem Ergebnis des gewählten Tests.")
 
 Typisch sieht eine Fehlermeldung so aus: *Erwartung „peekw($0200) == 90000“ ist nicht erfüllt: linke Seite = 24464 ($5F90), rechte Seite = 90000 ($15F90).* So erkennst du sofort, dass etwa ein Übertrag fehlt.
 
 ### Einen Test im Debugger untersuchen
 
-Ein Test schlägt fehl, und du weißt nicht, warum? Wähle ihn aus und klicke **Diesen Test debuggen**. VintageCoder startet VICE, schreibt die Startwerte und hält **an der Falle** an. Von dort steuerst du wie im Kapitel [Der Debugger](kapitel:debugger) mit Schritt und Haltepunkten.
+Schlägt ein Test fehl und du siehst nicht, warum, wähle ihn aus und klicke auf **Diesen Test debuggen**. VintageCoder startet eine Debug-Sitzung mit der „Falle“ des Tests und öffnet den Bereich **Debug**. Dort steht neben dem Status der Hinweis **Test-Sitzung**. Das Programm hält gleich am Anfang des Aufrufs an, mit den Startwerten aus dem `setup`. Von dort gehst du Schritt für Schritt weiter und siehst Register, Flags und Speicher (siehe [Der Debugger](kapitel:debugger)). Dieser Knopf baut nicht neu: Baue vorher mit **F7**, damit das Programm zum Test passt. Nicht für jedes Zielsystem gibt es das Debuggen im Trap-Modus; dann meldet VintageCoder das.
+
+*[Bild folgt in E13: debug-test-sitzung]*
 
 ## Zyklen zählen
 
@@ -165,7 +167,7 @@ Mit `"level": "error"` wird aus einem Hinweis ein Fehler; auf der Kommandozeile 
 
 ## Das Programm prüft sich selbst: der Postfach-Modus
 
-> **Info:** Der Postfach-Modus ist in der Oberfläche noch nicht ausgebaut: Die Hardware-Abfrage und die Läufe auf einer Ultimate gibt es nur auf der Kommandozeile (siehe unten). Auch ob und wie die Oberfläche Postfach-Tests im Emulator ausführt, ist noch nicht geprüft. Verlasse dich für diesen Modus auf die Kommandozeile.
+> **Info:** Der Postfach-Modus ist in der Oberfläche noch nicht ausgebaut: Die Hardware-Abfrage und die Läufe auf einer Ultimate gibt es nur auf der Kommandozeile (siehe unten). Auch ob und wie die Oberfläche Postfach-Tests im Emulator ausführt, ist noch nicht geprüft. Verlasse dich für diesen Modus auf die Kommandozeile. Im Postfach-Modus gibt es keine Falle: Das Programm lässt sich wie jedes andere mit **F6** debuggen.
 
 Manchmal ist es einfacher, die Prüfungen *im* Programm zu schreiben. Dafür gibt es den **Postfach-Modus**: Dein Testprogramm bindet die Testbibliothek des Zielsystems ein, führt Prüfbefehle aus und schreibt das Ergebnis in ein kleines Postfach im RAM. Die IDE startet das Programm, wartet auf das Ende und liest nur das Postfach. Das Beispiel `examples/c64/tests_demo/tests_mailbox.asm`:
 
@@ -217,7 +219,7 @@ Die zugehörige Testdatei hat nur den Namen des Programms und `"mode": "mailbox"
 
 Die Prüfbefehle: `test_begin` am Anfang, dann `assert_a_eq`, `assert_x_eq`, `assert_y_eq` und `assert_mem_eq adresse, wert`, am Ende `test_end`. Die Register bleiben bei den Prüfbefehlen erhalten.
 
-Das Postfach liegt beim C64 bei `$033C`, beim C128 bei `$0B00` und beim Atari 8-Bit bei `$0600` (die Bibliotheken heißen `c64/test.inc`, `c128/test.inc`, `atari8bit/test.inc`). Das Programm darf diese Stelle nicht überschreiben. Plus/4, VC-20 und MEGA65 haben kein Postfach; dort wird der Test übersprungen. Geprüft ist der Modus mit VICE (C64) und atari800 (Atari 8-Bit). Ein Postfach-Test lässt sich nicht mit „Diesen Test debuggen“ untersuchen (es gibt keine Falle); starte das Programm stattdessen normal mit F6.
+Das Postfach liegt beim C64 bei `$033C`, beim C128 bei `$0B00` und beim Atari 8-Bit bei `$0600` (die Bibliotheken heißen `c64/test.inc`, `c128/test.inc`, `atari8bit/test.inc`). Das Programm darf diese Stelle nicht überschreiben. Plus/4, VC-20 und MEGA65 haben kein Postfach; dort wird der Test übersprungen. Geprüft ist der Modus mit VICE (C64) und atari800 (Atari 8-Bit).
 
 Postfach-Tests laufen auch auf einer echten **Ultimate 64**, aber nur auf der Kommandozeile (siehe unten). Weil das Gerät dabei zurückgesetzt und sein Speicher überschrieben wird, fragt `vcc test` bei **jedem** Lauf auf Hardware nach. Diese Abfrage lässt sich nur mit `--yes` überspringen.
 
@@ -252,7 +254,7 @@ tests_demo/tests_demo.vctest  (c64, build/tests_demo.prg)
 
 | Problem | Ursache und Lösung |
 |---|---|
-| Alle Tests „übersprungen“ | In **Läuft auf:** ist „nur statische Prüfungen“ gewählt, oder VICE ist nicht gefunden. Wähle VICE; den Pfad stellst du in den Einstellungen ein. |
+| Alle Tests „übersprungen“ | In **Ziel** ist „Nur statische Prüfungen“ gewählt, oder VICE ist nicht gefunden. Wähle VICE im Feld **Ziel**; steht VICE dort nicht, hat VintageCoder ihn nicht gefunden (die Startseite zeigt die erkannten Emulatoren). |
 | Die Prüfungen finden das Programm nicht | Du hast nicht gebaut, oder `program` zeigt auf die falsche Datei. Baue mit F7 und prüfe den Pfad (relativ zur Testdatei oder zu einem übergeordneten Ordner). |
 | Namen aus dem Programm werden nicht erkannt | Die `.vcdbg`-Datei neben dem Programm ist veraltet: neu bauen. |
 | Test schlägt fehl, obwohl das Programm richtig scheint | Der Test hat etwas im `setup` vergessen. Das Hauptprogramm läuft nicht, und Zeropage und Chips behalten ihre Werte aus dem vorigen Test. |
@@ -263,6 +265,6 @@ tests_demo/tests_demo.vctest  (c64, build/tests_demo.prg)
 
 ## Wie geht es weiter?
 
-- Untersuche einen fehlgeschlagenen Test im Debugger: [Der Debugger](kapitel:debugger).
+- Das Übungsprogramm `farbwechsel` stammt aus dem Kapitel [Der Debugger](kapitel:debugger).
 - Die Besonderheiten der Zielsysteme (Postfach, Emulatoren): [Zielsysteme im Vergleich](kapitel:systeme).
 - Zum Nachschlagen aller Felder: [Tests mit vcc test](hilfe:tests).

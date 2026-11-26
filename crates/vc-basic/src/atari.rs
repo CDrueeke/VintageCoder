@@ -4,7 +4,7 @@
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 use vc_target::parse_num;
 
 #[derive(Debug, Clone)]
@@ -23,14 +23,13 @@ pub struct AtariDialect {
 impl AtariDialect {
     pub fn load(data_dir: &Path, id: &str) -> Result<AtariDialect, String> {
         let path = data_dir.join("basic").join(format!("{id}.dialect.json"));
-        let text = vc_core::read_static(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-        if v["family"] != "atari" { return Err(format!("{}: kein Atari-Dialekt", path.display())); }
+        let v: Value = crate::dialects::load_json(data_dir, id)?;
+        if v["family"] != "atari" { return Err(vc_i18n::t!("basic-dialect-not-atari", path = path.display().to_string())); }
         let rows = |key: &str| -> Result<Vec<(String, u8)>, String> {
-            v[key].as_array().ok_or(format!("{key} fehlt"))?.iter()
-                .map(|r| Ok((r[0].as_str().ok_or("Name fehlt")?.to_string(), r[1].as_str().and_then(parse_num).ok_or("Code ungültig")? as u8))).collect()
+            v[key].as_array().ok_or_else(|| vc_i18n::t!("basic-dialect-key-missing", key = key))?.iter()
+                .map(|r| Ok((r[0].as_str().ok_or_else(|| vc_i18n::t!("basic-dialect-name-missing"))?.to_string(), r[1].as_str().and_then(parse_num).ok_or_else(|| vc_i18n::t!("basic-dialect-code-invalid"))? as u8))).collect()
         };
-        let ops = v["ops"].as_object().ok_or("ops fehlt")?.iter().map(|(k, c)| (k.clone(), c.as_str().and_then(parse_num).unwrap_or(0) as u8)).collect();
+        let ops = v["ops"].as_object().ok_or_else(|| vc_i18n::t!("basic-dialect-ops-missing"))?.iter().map(|(k, c)| (k.clone(), c.as_str().and_then(parse_num).unwrap_or(0) as u8)).collect();
         Ok(AtariDialect { id: id.into(), statements: rows("statements")?, functions: rows("functions")?, ops,
                           lomem_offset: v["lomemOffset"].as_str().and_then(parse_num).unwrap_or(0x100) as u16, turbo: v["turbo"].as_bool().unwrap_or(false), number_literals: crate::numbers::NumberRules::from_json(&v) })
     }
@@ -44,18 +43,18 @@ impl AtariDialect {
 // ------------------------------------------------------------------ BCD-Zahlen (6 Byte)
 
 /// Wandelt ein Dezimalliteral (`12`, `3.5`, `.5`, `1E3`) in das 6-Byte-BCD-Format des Atari.
-pub fn bcd_encode(lit: &str) -> Result<[u8; 6], String> {
+pub fn bcd_encode(lit: &str) -> Result<[u8; 6], Msg> {
     let s = lit.trim().to_ascii_uppercase();
-    let (mant, exp) = match s.split_once('E') { Some((m, e)) => (m.to_string(), e.parse::<i32>().map_err(|_| format!("ungültiger Exponent in '{lit}'"))?), None => (s.clone(), 0) };
+    let (mant, exp) = match s.split_once('E') { Some((m, e)) => (m.to_string(), e.parse::<i32>().map_err(|_| msg!("diag-basic-b183-bad-exponent", lit = lit))?), None => (s.clone(), 0) };
     let (ip, fp) = mant.split_once('.').map(|(a, b)| (a.to_string(), b.to_string())).unwrap_or((mant.clone(), String::new()));
-    if !ip.chars().chain(fp.chars()).all(|c| c.is_ascii_digit()) || (ip.is_empty() && fp.is_empty()) { return Err(format!("ungültige Zahl '{lit}'")); }
+    if !ip.chars().chain(fp.chars()).all(|c| c.is_ascii_digit()) || (ip.is_empty() && fp.is_empty()) { return Err(msg!("diag-basic-b183-bad-number", lit = lit)); }
     let mut digits: String = format!("{ip}{fp}");
     let mut e10 = ip.len() as i32 + exp;
     let lead = digits.chars().take_while(|c| *c == '0').count();
     digits = digits[lead..].to_string();
     e10 -= lead as i32;
     if digits.is_empty() { return Ok([0; 6]); }
-    if !(-98..=98).contains(&e10) { return Err(format!("Zahl '{lit}' außerhalb des Bereichs (max. 9,99…E97)")); }
+    if !(-98..=98).contains(&e10) { return Err(msg!("diag-basic-b183-number-range-max", lit = lit)); }
     let (pairs, x) = if e10 % 2 == 0 { (digits.clone(), e10 / 2 - 1) } else { (format!("0{digits}"), (e10 - 1) / 2) };
     let mut p: Vec<u8> = pairs.as_bytes().chunks(2).map(|c| { let d = |b: u8| b - b'0'; d(c[0]) * 10 + c.get(1).map_or(0, |b| d(*b)) }).collect();
     if p.len() > 5 {                                     // auf 10 Stellen runden
@@ -64,7 +63,7 @@ pub fn bcd_encode(lit: &str) -> Result<[u8; 6], String> {
         if round_up { let mut i = 4; loop { p[i] += 1; if p[i] == 100 { p[i] = 0; if i == 0 { p.insert(0, 1); p.truncate(5); return Ok(bcd_from(x + 1, &p)); } i -= 1; } else { break; } } }
     }
     while p.len() < 5 { p.push(0); }
-    if !(-64..=62).contains(&x) { return Err(format!("Zahl '{lit}' außerhalb des Bereichs")); }
+    if !(-64..=62).contains(&x) { return Err(msg!("diag-basic-b183-number-range", lit = lit)); }
     Ok(bcd_from(x, &p))
 }
 
@@ -104,20 +103,20 @@ struct Parser<'a> { ch: Vec<char>, i: usize, d: &'a AtariDialect, vars: &'a mut 
 
 pub const CONTROL: &[(&str, u8)] = &[("clr", 0x7D), ("up", 0x1C), ("down", 0x1D), ("left", 0x1E), ("right", 0x1F), ("esc", 0x1B), ("tab", 0x7F), ("del", 0x7E), ("eol", 0x9B), ("bell", 0xFD)];
 
-fn atascii_string(inner: &str) -> Result<Vec<u8>, String> {
+fn atascii_string(inner: &str) -> Result<Vec<u8>, Msg> {
     let c: Vec<char> = inner.chars().collect();
     let (mut out, mut i) = (vec![], 0);
     while i < c.len() {
         if c[i] == '{' {
             if c.get(i + 1) == Some(&'{') { out.push(b'{'); i += 2; continue; }   // `{{` ergibt ein einzelnes `{`
-            let end = c[i..].iter().position(|x| *x == '}').ok_or("'}' fehlt")? + i;
+            let end = c[i..].iter().position(|x| *x == '}').ok_or_else(|| msg!("diag-basic-b100-brace-missing"))? + i;
             let body: String = c[i + 1..end].iter().collect();
             // Name des Dialekts (`CONTROL`) zuerst, dann die gemeinsame Tabelle (`data/chars/`: alle Schreibweisen, `{155}`, `{$9b}`, `{down*3}`)
-            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Atascii, &body, &|n| CONTROL.iter().find(|(k, _)| *k == n).map(|(_, v)| *v))?;
+            let (code, count) = vc_core::chars::parse_ref(vc_core::chars::Family::Atascii, &body, &|n| CONTROL.iter().find(|(k, _)| *k == n).map(|(_, v)| *v)).map_err(crate::char_ref)?;
             out.extend(std::iter::repeat(code).take(count));
             i = end + 1;
         } else if (c[i] as u32) < 0x7F && (c[i] as u32) >= 0x20 { out.push(c[i] as u8); i += 1; }
-        else { return Err(format!("Zeichen '{}' nicht im ATASCII-Bereich (nutze {{$xx}})", c[i])); }
+        else { return Err(msg!("diag-basic-b184-atascii-range", c = c[i])); }
     }
     Ok(out)
 }
@@ -146,7 +145,7 @@ impl Parser<'_> {
     }
 
     /// Variablen-Token: `$80 + Nummer`; Turbo BASIC XL kodiert die Nummern 128..255 als `$00, Nummer - 128`.
-    fn var_token(&mut self, name: &str) -> Result<Vec<u8>, String> {
+    fn var_token(&mut self, name: &str) -> Result<Vec<u8>, Msg> {
         // Namen vergleicht man ohne Rücksicht auf Groß-/Kleinschreibung; Turbo BASIC XL speichert die Schreibweise des ersten Vorkommens
         let idx = match self.vars.iter().position(|v| v.eq_ignore_ascii_case(name)) {
             Some(p) => p,
@@ -161,17 +160,17 @@ impl Parser<'_> {
         };
         if idx < 128 { Ok(vec![0x80 + idx as u8]) }
         else if self.d.turbo && idx < 256 { Ok(vec![0x00, (idx - 128) as u8]) }
-        else { Err(format!("mehr als {} Variablen", if self.d.turbo { 256 } else { 128 })) }
+        else { Err(msg!("diag-basic-b185-too-many-vars", n = if self.d.turbo { 256 } else { 128 })) }
     }
     /// Label (Turbo BASIC XL): eigene Namensklasse, im Namensverzeichnis mit `#` markiert
-    fn label_token(&mut self, out: &mut Vec<u8>) -> Result<(), String> {
-        let id = self.ident().ok_or("Label erwartet")?;
-        if id.ends_with('$') { return Err(format!("'{id}' ist kein gültiger Labelname")); }
+    fn label_token(&mut self, out: &mut Vec<u8>) -> Result<(), Msg> {
+        let id = self.ident().ok_or_else(|| msg!("diag-basic-b182-label-expected"))?;
+        if id.ends_with('$') { return Err(msg!("diag-basic-b182-label-name", id = id)); }
         out.extend(self.var_token(&format!("{id}#"))?);
         Ok(())
     }
 
-    fn number(&mut self, out: &mut Vec<u8>) -> Result<(), String> {
+    fn number(&mut self, out: &mut Vec<u8>) -> Result<(), Msg> {
         let st = self.i;
         while self.i < self.ch.len() && self.ch[self.i].is_ascii_digit() { self.i += 1; }
         if self.ch.get(self.i) == Some(&'.') { self.i += 1; while self.i < self.ch.len() && self.ch[self.i].is_ascii_digit() { self.i += 1; } }
@@ -186,16 +185,16 @@ impl Parser<'_> {
         Ok(())
     }
 
-    fn subscript(&mut self, out: &mut Vec<u8>, open: u8) -> Result<(), String> {
+    fn subscript(&mut self, out: &mut Vec<u8>, open: u8) -> Result<(), Msg> {
         out.push(open);
         self.expr(out)?;
         if self.eat(',') { out.push(self.d.op("subComma")); self.expr(out)?; }
-        if !self.eat(')') { return Err("')' fehlt".into()); }
+        if !self.eat(')') { return Err(msg!("diag-basic-b181-rparen-missing")); }
         out.push(self.d.op("rparen"));
         Ok(())
     }
 
-    fn variable(&mut self, out: &mut Vec<u8>, id: &str) -> Result<Ty, String> {
+    fn variable(&mut self, out: &mut Vec<u8>, id: &str) -> Result<Ty, Msg> {
         if id.ends_with('$') {
             let t = self.var_token(id)?;
             out.extend(t);
@@ -211,7 +210,7 @@ impl Parser<'_> {
     }
 
     /// Operand mit Zeichenkettenvergleich: `A$="x"` ist ein Operand (wie in der Grammatik von Turbo BASIC XL), egal wo er in einem Ausdruck steht
-    fn primary(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn primary(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let t = self.primary0(out)?;
         if t == Ty::Str {
             self.ws();
@@ -220,21 +219,21 @@ impl Parser<'_> {
             if let Some((len, name)) = found {
                 self.i += len;
                 out.push(self.d.op(name));
-                if self.primary0(out)? != Ty::Str { return Err("Zeichenkette nach dem Vergleichsoperator erwartet".into()); }
+                if self.primary0(out)? != Ty::Str { return Err(msg!("diag-basic-b180-string-compare-expected")); }
                 return Ok(Ty::Num);
             }
         }
         Ok(t)
     }
 
-    fn primary0(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
-        let c = self.peek().ok_or("Ausdruck unvollständig")?;
+    fn primary0(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
+        let c = self.peek().ok_or_else(|| msg!("diag-basic-b181-expr-incomplete"))?;
         if c.is_ascii_digit() || (c == '.' && self.ch.get(self.i + 1).map_or(false, char::is_ascii_digit)) { self.number(out)?; return Ok(Ty::Num); }
         if c == '$' && self.ch.get(self.i + 1).map_or(false, char::is_ascii_hexdigit) {
             let st = self.i + 1;
             let mut j = st;
             while j < self.ch.len() && self.ch[j].is_ascii_hexdigit() { j += 1; }
-            let v = u32::from_str_radix(&self.ch[st..j].iter().collect::<String>(), 16).map_err(|_| "Hexzahl zu groß")?;
+            let v = u32::from_str_radix(&self.ch[st..j].iter().collect::<String>(), 16).map_err(|_| msg!("diag-basic-b100-hex-too-big"))?;
             self.i = j;
             out.push(self.d.op(if self.d.turbo { "hexConst" } else { "numConst" }));
             out.extend(bcd_encode(&v.to_string())?);
@@ -251,7 +250,7 @@ impl Parser<'_> {
             let mut j = st;
             while j < self.ch.len() && self.ch[j] != '"' { j += 1; }
             let b = atascii_string(&self.ch[st..j].iter().collect::<String>())?;
-            if b.len() > 255 { return Err("Zeichenkette länger als 255 Zeichen".into()); }
+            if b.len() > 255 { return Err(msg!("diag-basic-b184-string-too-long")); }
             out.push(self.d.op("strConst"));
             out.push(b.len() as u8);
             out.extend(b);
@@ -262,11 +261,11 @@ impl Parser<'_> {
             self.i += 1;
             out.push(self.d.op("lparen"));
             let t = self.expr(out)?;
-            if !self.eat(')') { return Err("')' fehlt".into()); }
+            if !self.eat(')') { return Err(msg!("diag-basic-b181-rparen-missing")); }
             out.push(self.d.op("rparen"));
             return Ok(t);
         }
-        let id = self.ident().ok_or(format!("unerwartetes Zeichen '{c}'"))?;
+        let id = self.ident().ok_or_else(|| msg!("diag-basic-b100-unexpected-char", c = c))?;
         if let Some(code) = self.d.function(&id) {
             if self.peek() == Some('(') {
                 self.i += 1;
@@ -274,7 +273,7 @@ impl Parser<'_> {
                 out.push(self.d.op("fnLparen"));
                 self.expr(out)?;
                 while self.eat(',') { out.push(self.d.op("subComma")); self.expr(out)?; }
-                if !self.eat(')') { return Err("')' fehlt".into()); }
+                if !self.eat(')') { return Err(msg!("diag-basic-b181-rparen-missing")); }
                 out.push(self.d.op("rparen"));
                 return Ok(if matches!(id.as_str(), "STR$" | "CHR$" | "HEX$") { Ty::Str } else { Ty::Num });
             }
@@ -283,16 +282,16 @@ impl Parser<'_> {
                 match id.as_str() {
                     "INKEY$" | "TIME$" => { out.push(code); return Ok(Ty::Str); }
                     "TIME" | "ERR" | "ERL" => { out.push(code); return Ok(Ty::Num); }
-                    "RND" => { out.push(self.d.function("RND0").ok_or("RND0 fehlt")?); return Ok(Ty::Num); }
+                    "RND" => { out.push(self.d.function("RND0").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "RND0"))?); return Ok(Ty::Num); }
                     _ => {}
                 }
             }
         }
-        if self.d.statement(&id).is_some() || ["TO", "STEP", "THEN", "AND", "OR", "NOT"].contains(&id.as_str()) { return Err(format!("reserviertes Wort '{id}' an dieser Stelle")); }
+        if self.d.statement(&id).is_some() || ["TO", "STEP", "THEN", "AND", "OR", "NOT"].contains(&id.as_str()) { return Err(msg!("diag-basic-b182-reserved-word", id = id)); }
         self.variable(out, &id)
     }
 
-    fn unary(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn unary(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         // NOT darf auch hinter einem Vergleichsoperator stehen (`0<NOT A`); der Tokenizer gibt die Token in Quelltextreihenfolge aus
         if self.accept_word("NOT") { out.push(self.d.op("not")); self.unary(out)?; return Ok(Ty::Num); }
         match self.peek() {
@@ -301,12 +300,12 @@ impl Parser<'_> {
             _ => self.primary(out),
         }
     }
-    fn pow(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn pow(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.unary(out)?;
         while self.eat('^') { out.push(self.d.op("pow")); self.unary(out)?; t = Ty::Num; }
         Ok(t)
     }
-    fn mul(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn mul(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.pow(out)?;
         loop {
             let name = match self.peek() {
@@ -325,7 +324,7 @@ impl Parser<'_> {
         }
         Ok(t)
     }
-    fn add(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn add(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.mul(out)?;
         loop {
             let name = match self.peek() { Some('+') => "add", Some('-') => "sub", _ => break };
@@ -336,7 +335,7 @@ impl Parser<'_> {
         }
         Ok(t)
     }
-    fn rel(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn rel(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.add(out)?;
         loop {
             self.ws();
@@ -350,21 +349,21 @@ impl Parser<'_> {
         }
         Ok(t)
     }
-    fn not(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn not(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         if self.accept_word("NOT") { out.push(self.d.op("not")); self.not(out)?; Ok(Ty::Num) } else { self.rel(out) }
     }
-    fn and(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn and(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.not(out)?;
         while self.accept_word("AND") { out.push(self.d.op("and")); self.not(out)?; t = Ty::Num; }
         Ok(t)
     }
-    fn expr(&mut self, out: &mut Vec<u8>) -> Result<Ty, String> {
+    fn expr(&mut self, out: &mut Vec<u8>) -> Result<Ty, Msg> {
         let mut t = self.and(out)?;
         while self.accept_word("OR") { out.push(self.d.op("or")); self.and(out)?; t = Ty::Num; }
         Ok(t)
     }
 
-    fn list(&mut self, out: &mut Vec<u8>) -> Result<(), String> {
+    fn list(&mut self, out: &mut Vec<u8>) -> Result<(), Msg> {
         loop {
             match self.peek() {
                 None | Some(':') => return Ok(()),
@@ -376,18 +375,18 @@ impl Parser<'_> {
         }
     }
 
-    fn assignment(&mut self, out: &mut Vec<u8>) -> Result<(), String> {
-        let id = self.ident().ok_or("Variable erwartet")?;
+    fn assignment(&mut self, out: &mut Vec<u8>) -> Result<(), Msg> {
+        let id = self.ident().ok_or_else(|| msg!("diag-basic-b182-variable-expected"))?;
         let t = self.variable(out, &id)?;
-        if !self.eat('=') { return Err(format!("'=' nach '{id}' erwartet")); }
+        if !self.eat('=') { return Err(msg!("diag-basic-b180-assign-expected", id = id)); }
         out.push(self.d.op(if t == Ty::Str { "assignStr" } else { "assignNum" }));
         self.expr(out)?;
         Ok(())
     }
 
     /// Turbo BASIC XL: Anweisungen, die nicht mit einem Namen beginnen (`'`, `.`, `--`, `*F`, `-MOVE`, `#label`, `%PUT`, `%GET`)
-    fn turbo_special(&mut self) -> Result<Option<(Vec<u8>, End)>, String> {
-        let c = self.peek().ok_or("Anweisung erwartet")?;
+    fn turbo_special(&mut self) -> Result<Option<(Vec<u8>, End)>, Msg> {
+        let c = self.peek().ok_or_else(|| msg!("diag-basic-b180-statement-expected"))?;
         let next = self.ch.get(self.i + 1).copied().unwrap_or(' ');
         let word_follows = |p: &Self, off: usize, w: &str| -> bool {
             let s: String = p.ch[(p.i + off).min(p.ch.len())..].iter().take(w.len()).collect();
@@ -405,54 +404,54 @@ impl Parser<'_> {
         if c == '.' && !next.is_ascii_digit() { return Ok(Some(rem(self, 1))); }
         if c == '-' && next == '-' {
             self.i = self.ch.len();
-            return Ok(Some((vec![self.d.statement("--").ok_or("-- fehlt")?], End::Raw)));   // `--`-Kommentare werden nicht gespeichert
+            return Ok(Some((vec![self.d.statement("--").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "--"))?], End::Raw)));   // `--`-Kommentare werden nicht gespeichert
         }
         if c == '*' && matches!(next.to_ascii_uppercase(), 'F' | 'B' | 'L') && !self.ch.get(self.i + 2).map_or(false, |c| c.is_ascii_alphanumeric()) {
             let name = format!("*{}", next.to_ascii_uppercase());
             self.i += 2;
-            let mut out = vec![self.d.statement(&name).ok_or("Flag-Anweisung fehlt")?];
+            let mut out = vec![self.d.statement(&name).ok_or_else(|| msg!("diag-basic-b180-flag-statement-missing"))?];
             match self.peek() { Some('+') => { self.i += 1; out.push(self.d.op("add")); } Some('-') => { self.i += 1; out.push(self.d.op("sub")); } _ => {} }
             return Ok(Some((out, End::Normal)));
         }
         if c == '-' && word_follows(self, 1, "MOVE") {
             self.i += 5;
-            let mut out = vec![self.d.statement("-MOVE").ok_or("-MOVE fehlt")?];
+            let mut out = vec![self.d.statement("-MOVE").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "-MOVE"))?];
             self.list(&mut out)?;
             return Ok(Some((out, End::Normal)));
         }
         if c == '#' {
             self.i += 1;
-            let mut out = vec![self.d.statement("#").ok_or("# fehlt")?];
+            let mut out = vec![self.d.statement("#").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "#"))?];
             self.label_token(&mut out)?;
             return Ok(Some((out, End::Normal)));
         }
         if c == '%' && (word_follows(self, 1, "PUT") || word_follows(self, 1, "GET")) {
             let name = if word_follows(self, 1, "PUT") { "%PUT" } else { "%GET" };
             self.i += 4;
-            let mut out = vec![self.d.statement(name).ok_or("%PUT/%GET fehlt")?];
+            let mut out = vec![self.d.statement(name).ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "%PUT/%GET"))?];
             self.list(&mut out)?;
             return Ok(Some((out, End::Normal)));
         }
         Ok(None)
     }
 
-    fn statement(&mut self) -> Result<(Vec<u8>, End), String> {
+    fn statement(&mut self) -> Result<(Vec<u8>, End), Msg> {
         let mut out = vec![];
         self.ws();
         if self.eat('?') { out.push(self.d.statement("?").unwrap()); self.list(&mut out)?; return Ok((out, End::Normal)); }   // `?` hat ein eigenes Token ($28) und bleibt im Listing ein `?`
         if self.d.turbo { if let Some(r) = self.turbo_special()? { return Ok(r); } }
         let save = self.i;
-        let Some(id) = self.ident() else { return Err(format!("unerwartetes Zeichen '{}'", self.ch.get(self.i).copied().unwrap_or(' '))) };
+        let Some(id) = self.ident() else { return Err(msg!("diag-basic-b100-unexpected-char", c = self.ch.get(self.i).copied().unwrap_or(' '))) };
         // Turbo BASIC XL: GO# label, TIME$= text
         if self.d.turbo && id == "GO" && self.ch.get(self.i) == Some(&'#') {
             self.i += 1;
-            let mut out = vec![self.d.statement("GO#").ok_or("GO# fehlt")?];
+            let mut out = vec![self.d.statement("GO#").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "GO#"))?];
             self.label_token(&mut out)?;
             return Ok((out, End::Normal));
         }
         if self.d.turbo && id == "TIME$" && self.peek() == Some('=') {
             self.i += 1;
-            let mut out = vec![self.d.statement("TIME$=").ok_or("TIME$= fehlt")?];
+            let mut out = vec![self.d.statement("TIME$=").ok_or_else(|| msg!("diag-basic-b185-dialect-missing", name = "TIME$="))?];
             self.expr(&mut out)?;
             return Ok((out, End::Normal));
         }
@@ -485,26 +484,26 @@ impl Parser<'_> {
                 self.expr(&mut out)?;
                 if !self.accept_word("THEN") {
                     if self.d.turbo && matches!(self.peek(), None | Some(':')) { return Ok((out, End::Normal)); }   // mehrzeiliges IF … ELSE … ENDIF
-                    return Err("THEN erwartet".into());
+                    return Err(msg!("diag-basic-b180-then-expected"));
                 }
                 out.push(self.d.op("then"));
                 if self.peek().map_or(false, |c| c.is_ascii_digit() || c == '.') { self.number(&mut out)?; return Ok((out, End::Normal)); }
-                if matches!(self.peek(), None | Some(':')) { return Err("Anweisung oder Zeilennummer nach THEN erwartet".into()); }
+                if matches!(self.peek(), None | Some(':')) { return Err(msg!("diag-basic-b180-then-target-expected")); }
                 return Ok((out, End::Then));
             }
             "FOR" => {
-                let v = self.ident().ok_or("Laufvariable erwartet")?;
+                let v = self.ident().ok_or_else(|| msg!("diag-basic-b180-for-var-expected"))?;
                 let t = self.var_token(&v)?;
                 out.extend(t);
-                if !self.eat('=') { return Err("'=' erwartet".into()); }
+                if !self.eat('=') { return Err(msg!("diag-basic-b180-equals-expected")); }
                 out.push(self.d.op("assignNum"));
                 self.expr(&mut out)?;
-                if !self.accept_word("TO") { return Err("TO erwartet".into()); }
+                if !self.accept_word("TO") { return Err(msg!("diag-basic-b180-to-expected")); }
                 out.push(self.d.op("to"));
                 self.expr(&mut out)?;
                 if self.accept_word("STEP") { out.push(self.d.op("step")); self.expr(&mut out)?; }
             }
-            "NEXT" => { let v = self.ident().ok_or("Variable erwartet")?; let t = self.var_token(&v)?; out.extend(t); }
+            "NEXT" => { let v = self.ident().ok_or_else(|| msg!("diag-basic-b182-variable-expected"))?; let t = self.var_token(&v)?; out.extend(t); }
             "ON" => {
                 self.expr(&mut out)?;
                 let turbo_go = self.d.turbo && { let s = self.i; if self.accept_word("GO") && self.ch.get(self.i) == Some(&'#') { self.i += 1; true } else { self.i = s; false } };
@@ -513,14 +512,14 @@ impl Parser<'_> {
                     self.label_token(&mut out)?;
                     while self.eat(',') { out.push(self.d.op("comma")); self.label_token(&mut out)?; }
                 } else {
-                    out.push(if self.accept_word("GOTO") { self.d.op("goto") } else if self.accept_word("GOSUB") { self.d.op("gosub") } else { return Err("GOTO oder GOSUB erwartet".into()) });
+                    out.push(if self.accept_word("GOTO") { self.d.op("goto") } else if self.accept_word("GOSUB") { self.d.op("gosub") } else { return Err(msg!("diag-basic-b180-goto-gosub-expected")) });
                     self.expr(&mut out)?;
                     while self.eat(',') { out.push(self.d.op("comma")); self.expr(&mut out)?; }
                 }
             }
             "PROC" | "EXEC" if self.d.turbo => {
                 self.label_token(&mut out)?;
-                if self.peek() == Some(',') || self.peek() == Some(';') { return Err("Parameter bei PROC/EXEC sind in Turbo BASIC XL nicht vorgesehen (Variablen sind global)".into()); }
+                if self.peek() == Some(',') || self.peek() == Some(';') { return Err(msg!("diag-basic-b180-proc-params")); }
             }
             "TRAP" | "RESTORE" if self.d.turbo && self.peek() == Some('#') => {
                 self.i += 1;
@@ -528,16 +527,16 @@ impl Parser<'_> {
                 self.label_token(&mut out)?;
             }
             "DIM" => loop {
-                let v = self.ident().ok_or("Name erwartet")?;
+                let v = self.ident().ok_or_else(|| msg!("diag-basic-b182-name-expected"))?;
                 if v.ends_with('$') {
                     let t = self.var_token(&v)?;
                     out.extend(t);
-                    if !self.eat('(') { return Err("'(' erwartet".into()); }
+                    if !self.eat('(') { return Err(msg!("diag-basic-b181-lparen-expected")); }
                     self.subscript(&mut out, self.d.op("dimStrLparen"))?;
                 } else {
                     let t = self.var_token(&format!("{v}("))?;
                     out.extend(t);
-                    if !self.eat('(') { return Err("'(' erwartet".into()); }
+                    if !self.eat('(') { return Err(msg!("diag-basic-b181-lparen-expected")); }
                     self.subscript(&mut out, self.d.op("dimArrLparen"))?;
                 }
                 if !self.eat(',') { break; }
@@ -548,7 +547,7 @@ impl Parser<'_> {
         Ok((out, End::Normal))
     }
 
-    fn line(&mut self) -> Result<Vec<Vec<u8>>, String> {
+    fn line(&mut self) -> Result<Vec<Vec<u8>>, Msg> {
         let mut stmts: Vec<Vec<u8>> = vec![];
         loop {
             match self.peek() {
@@ -561,12 +560,12 @@ impl Parser<'_> {
                 match self.peek() {
                     Some(':') => { self.i += 1; body.push(self.d.op("colon")); }
                     None => body.push(self.d.op("eol")),
-                    Some(c) => return Err(format!("unerwartetes Zeichen '{c}'")),
+                    Some(c) => return Err(msg!("diag-basic-b100-unexpected-char", c = c)),
                 }
             }
             stmts.push(body);
         }
-        if stmts.is_empty() { return Err("leere Zeile".into()); }
+        if stmts.is_empty() { return Err(msg!("diag-basic-b185-empty-line")); }
         Ok(stmts)
     }
 }
@@ -581,11 +580,11 @@ pub struct AtariProgram {
     pub turbo: bool,
 }
 
-fn build_line(num: u16, stmts: &[Vec<u8>]) -> Result<Vec<u8>, String> {
+fn build_line(num: u16, stmts: &[Vec<u8>]) -> Result<Vec<u8>, Msg> {
     let mut v = vec![(num & 0xFF) as u8, (num >> 8) as u8, 0];
     for s in stmts {
         let end = v.len() + 1 + s.len();
-        if end > 255 { return Err("Zeile zu lang (mehr als 255 Bytes)".into()); }
+        if end > 255 { return Err(msg!("diag-basic-b185-line-too-long-atari")); }
         v.push(end as u8);
         v.extend_from_slice(s);
     }
@@ -600,12 +599,12 @@ pub fn tokenize_text(src: &str, d: &AtariDialect, file: &str) -> Result<AtariPro
         let t = l.trim();
         if t.is_empty() || t.starts_with(';') { continue; }
         let digits: String = t.chars().take_while(char::is_ascii_digit).collect();
-        let Ok(num) = digits.parse::<u32>() else { errs.push(Diagnostic::error("B100", file, n + 1, "Zeile beginnt nicht mit einer Zeilennummer")); continue };
-        if num > 32767 { errs.push(Diagnostic::error("B100", file, n + 1, format!("Zeilennummer {num} größer als 32767"))); continue; }
+        let Ok(num) = digits.parse::<u32>() else { errs.push(Diagnostic::error("B100", file, n + 1, msg!("diag-basic-b100-no-line-number"))); continue };
+        if num > 32767 { errs.push(Diagnostic::error("B185", file, n + 1, msg!("diag-basic-b185-line-number-max-atari", num = num))); continue; }
         let mut p = Parser { ch: t[digits.len()..].chars().collect(), i: 0, d, vars: &mut vars, raw: HashMap::new() };
         match p.line().and_then(|s| build_line(num as u16, &s)) {
             Ok(b) => match lines.iter().position(|(x, _)| *x == num as u16) { Some(i) => lines[i].1 = b, None => lines.push((num as u16, b)) },
-            Err(e) => errs.push(Diagnostic::error("B100", file, n + 1, e)),
+            Err(e) => errs.push(Diagnostic::error(code_of(e.key), file, n + 1, e)),
         }
     }
     lines.sort_by_key(|(n, _)| *n);
@@ -652,26 +651,26 @@ impl AtariProgram {
     }
 
     pub fn parse_save(data: &[u8], d: &AtariDialect) -> Result<AtariProgram, String> {
-        if data.len() < 14 { return Err("Datei zu kurz".into()); }
+        if data.len() < 14 { return Err(vc_i18n::t!("basic-prg-too-short")); }
         let w = |i: usize| data[i * 2] as usize | (data[i * 2 + 1] as usize) << 8;
         let (vntp, vntd, vvtp, stmtab, _cur, starp) = (w(1), w(2), w(3), w(4), w(5), w(6));
         let base = d.lomem_offset as usize;
-        if vntp != base { return Err(format!("unerwarteter VNTP-Offset ${vntp:04X}")); }
+        if vntp != base { return Err(vc_i18n::t!("basic-atari-vntp-offset", offset = format!("{vntp:04X}"))); }
         let img = &data[14..];
-        if img.len() != starp - vntp { return Err(format!("Länge stimmt nicht (Kopf: {}, Datei: {})", starp - vntp, img.len())); }
+        if img.len() != starp - vntp { return Err(vc_i18n::t!("basic-atari-length-mismatch", head = starp - vntp, file = img.len())); }
         let (vnt_end, vvt, stm) = (vntd - vntp, vvtp - vntp, stmtab - vntp);
-        if vnt_end > vvt || vvt > stm || stm > img.len() { return Err("Zeiger im Dateikopf ungültig".into()); }
+        if vnt_end > vvt || vvt > stm || stm > img.len() { return Err(vc_i18n::t!("basic-atari-pointers-invalid")); }
         let mut vars = vec![];
         let mut cur = String::new();
         for &b in &img[..vnt_end] { cur.push((b & 0x7F) as char); if b & 0x80 != 0 { vars.push(std::mem::take(&mut cur)); } }
-        if (stm - vvt) != vars.len() * 8 { return Err("Variablenwertetabelle passt nicht zur Namenstabelle".into()); }
+        if (stm - vvt) != vars.len() * 8 { return Err(vc_i18n::t!("basic-atari-vvt-mismatch")); }
         for (i, v) in vars.iter_mut().enumerate() { if img[vvt + i * 8] & 0xC0 == 0xC0 { v.push('#'); } }
         let (mut lines, mut off) = (vec![], stm);
         while off + 3 <= img.len() {
             let num = img[off] as u16 | (img[off + 1] as u16) << 8;
             let len = img[off + 2] as usize;
             if num == 0x8000 { break; }
-            if len < 4 || off + len > img.len() { return Err(format!("ungültige Zeilenlänge bei ${:04X}", off)); }
+            if len < 4 || off + len > img.len() { return Err(vc_i18n::t!("basic-atari-line-length", offset = format!("{off:04X}"))); }
             lines.push((num, img[off..off + len].to_vec()));
             off += len;
         }
@@ -747,4 +746,9 @@ mod char_tests {
         assert!(atascii_string("{wht}").is_err(), "PETSCII-Namen gelten nicht");
         assert!(atascii_string("{300}").is_err());
     }
+}
+
+/// Code eines Atari-Tokenizer-Fehlers aus dem Schlüssel (`diag-basic-b18x-…`); andere Schlüssel bleiben `B100`
+pub(crate) fn code_of(key: &'static str) -> &'static str {
+    ["B180", "B181", "B182", "B183", "B184", "B185"].into_iter().find(|c| key.starts_with(&format!("diag-basic-{}-", c.to_ascii_lowercase()))).unwrap_or("B100")
 }

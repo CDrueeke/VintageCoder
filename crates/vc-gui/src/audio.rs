@@ -26,7 +26,7 @@ impl Audio {
     const PUFFER: u32 = 2048;
     fn oeffnen(&self) -> Result<cpal::Stream, String> {
         let host = cpal::default_host();
-        let dev = host.default_output_device().ok_or("kein Audio-Ausgabegerät gefunden")?;
+        let dev = host.default_output_device().ok_or(vc_i18n::t!("audio-kein-audio-ausgabegeraet-gefunden"))?;
         let cfg = dev.default_output_config().map_err(|e| e.to_string())?;
         let mut config: cpal::StreamConfig = cfg.clone().into();
         if let cpal::SupportedBufferSize::Range { min, max } = cfg.buffer_size() {

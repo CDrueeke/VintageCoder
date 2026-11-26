@@ -51,7 +51,7 @@ impl App {
             Cmd::MdBild => {
                 // PNG im Projekt wählen (Dialog des Systems); das Ergebnis kommt als Nachricht zurück
                 let start = self.root.clone();
-                return Task::perform(async move { rfd::AsyncFileDialog::new().set_title("Bild einfügen (PNG im Projekt)").set_directory(start).add_filter("PNG", &["png"]).pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::MdBildGewaehlt);
+                return Task::perform(async move { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("mdhilfen-bild-einfuegen-png-im-projekt")).set_directory(start).add_filter("PNG", &["png"]).pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::MdBildGewaehlt);
             }
             _ => {}
         }

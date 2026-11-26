@@ -35,7 +35,7 @@ impl WavWriter {
         let mut buf = Vec::with_capacity(FRAMES_PER_PACKET * 4);
         for (l, r) in frames { buf.extend(l.to_le_bytes()); buf.extend(r.to_le_bytes()); }
         // Dateien über 4 GiB sind in einem WAV nicht darstellbar
-        if self.data_len + buf.len() as u64 > u32::MAX as u64 - 64 { return Err("WAV-Datei voll (4 GiB)".into()); }
+        if self.data_len + buf.len() as u64 > u32::MAX as u64 - 64 { return Err(vc_i18n::t!("emu-wav-datei-voll-4-gib").into()); }
         f.write_all(&buf).map_err(|e| e.to_string())?;
         self.data_len += buf.len() as u64;
         Ok(())
@@ -52,7 +52,7 @@ impl Drop for WavWriter { fn drop(&mut self) { let _ = self.finish(); } }
 
 /// WAV (PCM, 16 Bit, 1 oder 2 Kanäle) lesen: (Rate, Frames als f32; Mono wird verdoppelt)
 pub fn read_wav(b: &[u8]) -> Result<(u32, Vec<Frame>), String> {
-    if b.len() < 12 || &b[0..4] != b"RIFF" || &b[8..12] != b"WAVE" { return Err("keine WAV-Datei".into()); }
+    if b.len() < 12 || &b[0..4] != b"RIFF" || &b[8..12] != b"WAVE" { return Err(vc_i18n::t!("emu-keine-wav-datei").into()); }
     let (mut o, mut fmt, mut data) = (12usize, None, None);
     while o + 8 <= b.len() {
         let id = &b[o..o + 4]; let n = u32::from_le_bytes([b[o + 4], b[o + 5], b[o + 6], b[o + 7]]) as usize;
@@ -61,8 +61,8 @@ pub fn read_wav(b: &[u8]) -> Result<(u32, Vec<Frame>), String> {
         if id == b"data" { data = Some(body); break; }
         o += 8 + n + (n & 1);
     }
-    let (tag, ch, rate, bits) = fmt.ok_or("fmt-Block fehlt")?; let data = data.ok_or("data-Block fehlt")?;
-    if tag != 1 || bits != 16 || !(1..=2).contains(&ch) { return Err(format!("nur PCM mit 16 Bit und 1 oder 2 Kanälen (hier Format {tag}, {bits} Bit, {ch} Kanäle)")); }
+    let (tag, ch, rate, bits) = fmt.ok_or(vc_i18n::t!("emu-fmt-block-fehlt"))?; let data = data.ok_or(vc_i18n::t!("emu-data-block-fehlt"))?;
+    if tag != 1 || bits != 16 || !(1..=2).contains(&ch) { return Err(vc_i18n::t!("emu-nur-pcm-mit-16-bit-und", tag = &tag, bits = &bits, ch = &ch)); }
     if rate == 0 { return Err("Abtastrate 0".into()); }
     let s = |i: usize| i16::from_le_bytes([data[i], data[i + 1]]) as f32 / 32768.0;
     let frames = if ch == 2 { data.chunks_exact(4).enumerate().map(|(k, _)| (s(k * 4), s(k * 4 + 2))).collect() } else { data.chunks_exact(2).enumerate().map(|(k, _)| (s(k * 2), s(k * 2))).collect() };

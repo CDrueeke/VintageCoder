@@ -1,0 +1,185 @@
+{
+ "source": "emulators/catalog.json",
+ "entries": {
+  "/emulators/0/role": {
+   "de": "Starten und Debuggen (Binärmonitor)",
+   "en": "Run and debug (binary monitor)",
+   "status": "maschinell"
+  },
+  "/emulators/0/summary": {
+   "de": "Der Standard-Emulator der Commodore-8-Bit-Rechner. VintageCoder startet Programme damit und debuggt über den Binärmonitor: Haltepunkte, Einzelschritt, Datenhaltepunkte, Register, Speicher. Die Pakete bringen eigene ROM-Abbilder mit.",
+   "en": "The default emulator for the Commodore 8-bit computers. VintageCoder runs programs with it and debugs through the binary monitor: breakpoints, single step, data breakpoints, registers, memory. The packages include their own ROM images.",
+   "status": "maschinell"
+  },
+  "/emulators/0/notes/0": {
+   "de": "x64sc ist der taktgenaue C64, x64 der schnelle.",
+   "en": "x64sc is the cycle-exact C64, x64 is the fast one.",
+   "status": "maschinell"
+  },
+  "/emulators/0/notes/1": {
+   "de": "Die Windows-Pakete gibt es mit GTK3- und SDL2-Oberfläche; geladen wird die GTK3-Fassung.",
+   "en": "The Windows packages come with a GTK3 and an SDL2 interface; the GTK3 version is downloaded.",
+   "status": "maschinell"
+  },
+  "/emulators/0/manual/windows": {
+   "de": "Nur 64-Bit-Windows: GTK3VICE oder SDL2VICE als ZIP von der Download-Seite.",
+   "en": "64-bit Windows only: GTK3VICE or SDL2VICE as ZIP from the download page.",
+   "status": "maschinell"
+  },
+  "/emulators/0/manual/macos": {
+   "de": "DMG für Apple Silicon oder Intel von der Download-Seite laden und VICE in „Programme“ ziehen (oder mit Homebrew: brew install vice).",
+   "en": "Download the DMG for Apple Silicon or Intel from the download page and drag VICE to \"Applications\" (or with Homebrew: brew install vice).",
+   "status": "maschinell"
+  },
+  "/emulators/0/manual/linux": {
+   "de": "Kein portables Paket: über die Paketverwaltung der Distribution installieren (z. B. sudo apt install vice).",
+   "en": "No portable package: install it with the package manager of the distribution (e.g. sudo apt install vice).",
+   "status": "maschinell"
+  },
+  "/emulators/1/rom/label": {
+   "de": "OS-ROM (XL/XE)",
+   "en": "OS ROM (XL/XE)",
+   "status": "maschinell"
+  },
+  "/emulators/1/rom/hint": {
+   "de": "ROM-Datei (optional)",
+   "en": "ROM file (optional)",
+   "status": "maschinell"
+  },
+  "/emulators/1/role": {
+   "de": "Starten und Debuggen (Textmonitor)",
+   "en": "Run and debug (text monitor)",
+   "status": "maschinell"
+  },
+  "/emulators/1/summary": {
+   "de": "Klassischer Atari-8-Bit-Emulator. VintageCoder startet damit Atari-Programme und debuggt über den Textmonitor (ein Haltepunkt zugleich, Anhalten nur mit F8 im Fenster); die Tests im Trap-Modus laufen hier. Eigene Ersatz-ROMs sind eingebaut.",
+   "en": "Classic Atari 8-bit emulator. VintageCoder runs Atari programs with it and debugs through the text monitor (one breakpoint at a time, pausing only with F8 in the window); the tests in trap mode run here. Its own replacement ROMs are built in.",
+   "status": "maschinell"
+  },
+  "/emulators/1/notes/0": {
+   "de": "Messung der Strahlzeit (Zyklen) ist möglich.",
+   "en": "Measuring the beam time (cycles) is possible.",
+   "status": "maschinell"
+  },
+  "/emulators/1/manual/macos": {
+   "de": "Mit Homebrew: brew install atari800.",
+   "en": "With Homebrew: brew install atari800.",
+   "status": "geprüft"
+  },
+  "/emulators/1/manual/linux": {
+   "de": "Auf anderen Architekturen über die Paketverwaltung (z. B. sudo apt install atari800).",
+   "en": "On other architectures, use the package manager (e.g. sudo apt install atari800).",
+   "status": "geprüft"
+  },
+  "/emulators/2/role": {
+   "de": "Starten (nur Windows)",
+   "en": "Run (Windows only)",
+   "status": "maschinell"
+  },
+  "/emulators/2/summary": {
+   "de": "Sehr genauer Atari-8-Bit-Emulator von Avery Lee mit mächtigem eigenem Debugger und eingebauter Firmware. VintageCoder startet Atari-Programme damit; das Debuggen aus der IDE läuft über Fujisan oder atari800, Altirra hat keine Fernsteuerung. Läuft nur unter Windows.",
+   "en": "Very accurate Atari 8-bit emulator by Avery Lee with a powerful debugger of its own and built-in firmware. VintageCoder runs Atari programs with it; debugging from the IDE works through Fujisan or atari800, Altirra has no remote control. Runs on Windows only.",
+   "status": "maschinell"
+  },
+  "/emulators/2/notes/0": {
+   "de": "Das Programm braucht keine Installation; Einstellungen liegen neben der Datei, wenn eine Altirra.ini dort liegt (portabler Betrieb).",
+   "en": "The program needs no installation; settings are stored next to the file if an Altirra.ini is there (portable mode).",
+   "status": "geprüft"
+  },
+  "/emulators/2/manual/macos": {
+   "de": "Altirra gibt es nicht für macOS; atari800 oder Fujisan nehmen.",
+   "en": "Altirra is not available for macOS; use atari800 or Fujisan.",
+   "status": "maschinell"
+  },
+  "/emulators/2/manual/linux": {
+   "de": "Altirra gibt es nicht für Linux; atari800 oder Fujisan nehmen.",
+   "en": "Altirra is not available for Linux; use atari800 or Fujisan.",
+   "status": "maschinell"
+  },
+  "/emulators/3/rom/label": {
+   "de": "Ordner mit MEGA65.ROM",
+   "en": "Folder with MEGA65.ROM",
+   "status": "geprüft"
+  },
+  "/emulators/3/rom/hint": {
+   "de": "Ordner mit MEGA65.ROM",
+   "en": "Folder with MEGA65.ROM",
+   "status": "maschinell"
+  },
+  "/emulators/3/role": {
+   "de": "Starten und Debuggen (UART-Monitor)",
+   "en": "Run and debug (UART monitor)",
+   "status": "maschinell"
+  },
+  "/emulators/3/summary": {
+   "de": "Emulator des MEGA65 von Gábor Lénárt. VintageCoder startet Programme damit und debuggt über den UART-Monitor (ein Haltepunkt zugleich). Xemu braucht das MEGA65-ROM (Einstellungen, ROM-Ordner).",
+   "en": "MEGA65 emulator by Gábor Lénárt. VintageCoder runs programs with it and debugs through the UART monitor (one breakpoint at a time). Xemu needs the MEGA65 ROM (settings, ROM folder).",
+   "status": "maschinell"
+  },
+  "/emulators/3/notes/0": {
+   "de": "Xemu gibt nur Vorabversionen („next“, mit Datum im Namen) heraus; geladen wird die hier festgeschriebene.",
+   "en": "Xemu only releases preview versions (\"next\", with a date in the name); the version fixed here is downloaded.",
+   "status": "maschinell"
+  },
+  "/emulators/3/notes/1": {
+   "de": "Das MEGA65-ROM wird nicht mitgeliefert.",
+   "en": "The MEGA65 ROM is not included.",
+   "status": "maschinell"
+  },
+  "/emulators/3/manual/macos": {
+   "de": "Xemu-Installer.dmg oder xemu-binaries-osx.zip von der Download-Seite (nicht signiert: beim ersten Start in den Systemeinstellungen freigeben) oder mit Homebrew.",
+   "en": "Xemu-Installer.dmg or xemu-binaries-osx.zip from the download page (not signed: allow it in the system settings at the first start) or with Homebrew.",
+   "status": "maschinell"
+  },
+  "/emulators/3/manual/linux": {
+   "de": "Paket xemu_<Datum>_amd64.deb von der Download-Seite (sudo apt install ./xemu_….deb) oder selbst bauen.",
+   "en": "Package xemu_<date>_amd64.deb from the download page (sudo apt install ./xemu_....deb) or build it yourself.",
+   "status": "geprüft"
+  },
+  "/emulators/4/role": {
+   "de": "Debuggen (TCP, Standard für .xex)",
+   "en": "Debug (TCP, default for .xex)",
+   "status": "geprüft"
+  },
+  "/emulators/4/summary": {
+   "de": "Atari-8-Bit-Emulator mit Qt-Oberfläche und TCP-Fernsteuerung für Windows, macOS und Linux. Der Debugger der IDE nutzt ihn für .xex-Programme, wenn er gefunden wird (mehrere Haltepunkte, Anhalten per Knopf, Schritt über); sonst atari800. Eingebaute Ersatz-ROMs, keine ROM-Dateien nötig.",
+   "en": "Atari 8-bit emulator with a Qt interface and TCP remote control for Windows, macOS and Linux. The debugger of the IDE uses it for .xex programs if it is found (several breakpoints, pause by button, step over); otherwise atari800. Built-in replacement ROMs, no ROM files needed.",
+   "status": "maschinell"
+  },
+  "/emulators/4/notes/0": {
+   "de": "Fujisan setzt keine Register selbst; der Adapter hilft mit einem Vorspann.",
+   "en": "Fujisan does not set registers itself; the adapter helps with a preamble.",
+   "status": "maschinell"
+  },
+  "/emulators/4/notes/1": {
+   "de": "Das Windows-Paket enthält nur Windows-Dateien; macOS hat kein automatisches Paket.",
+   "en": "The Windows package contains only Windows files; macOS has no automatic package.",
+   "status": "maschinell"
+  },
+  "/emulators/4/manual/macos": {
+   "de": "Fujisan-2.0.5-macOS-Apple-Silicon.dmg oder -Intel.dmg von der Download-Seite laden und Fujisan in „Programme“ ziehen.",
+   "en": "Download Fujisan-2.0.5-macOS-Apple-Silicon.dmg or -Intel.dmg from the download page and drag Fujisan to \"Applications\".",
+   "status": "geprüft"
+  },
+  "/emulators/5/role": {
+   "de": "Starten, Testen (Postfach), Datenströme (Live-Bild, Hörprobe, Ablaufprotokoll)",
+   "en": "Run, test (mailbox), data streams (live image, audio preview, trace log)",
+   "status": "maschinell"
+  },
+  "/emulators/5/summary": {
+   "de": "Netzwerkgerät: VintageCoder lädt und startet Programme über die REST-Schnittstelle und zeigt die Datenströme (Live-Bild) an.",
+   "en": "Network device: VintageCoder loads and runs programs through the REST interface and shows the data streams (live image).",
+   "status": "maschinell"
+  },
+  "/emulators/6/role": {
+   "de": "Starten und Debuggen (serieller Monitor), Netz (Ethernet, ungeprüft)",
+   "en": "Run and debug (serial monitor), network (Ethernet, untested)",
+   "status": "geprüft"
+  },
+  "/emulators/6/summary": {
+   "de": "Echtes MEGA65: Programme laden und starten über den Monitor (USB) oder per Ethernet (etherload, mega65_ftp).",
+   "en": "Real MEGA65: load and run programs through the monitor (USB) or via Ethernet (etherload, mega65_ftp).",
+   "status": "maschinell"
+  }
+ }
+}

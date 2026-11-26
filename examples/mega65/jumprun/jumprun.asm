@@ -10,7 +10,7 @@
 ; AUFBAU DER QUELLEN
 ;   jumprun.asm              dieses Hauptprogramm (Ablaufsteuerung, Titelbild)
 ;   hal_mega65.asm           Hardware-Schicht: VIC-II-Modus des VIC-IV (Bild, Sprites), zwei SIDs (Klang), Interrupt
-;   ../../common/jumprun/    core.asm = Spiellogik, fuer alle Systeme gleich
+;   lib/core.asm             Spiellogik (plattformneutral; eigene Kopie dieses Projekts, unabhaengig von den anderen Systemen)
 ;   lib/music.inc            Spielroutine fuer die Tracker-Musik (SID 1 bei $D400, 3 Stimmen; die Klangeffekte laufen am
 ;                            MEGA65 auf dem zweiten SID, deshalb muss die Musik nie aussetzen)
 ;   lib/levels.inc           Tabellen: Kacheleigenschaften, Farben, Startpositionen, Autopilot-Skripte, Texte
@@ -18,7 +18,7 @@
 ;                            die des C64-Beispiels, nur Zielsystem und Profile sind MEGA65)
 ;   graphics/*, music/       Projektdateien der Editoren: Zeichensatz chars.vcchar, Kachelkarten lv1..lv4.vctiles, Titelbild title.vcscreen,
 ;                            Sprites (hero_*, enemy_*.vcsprite), Song tune.vcsong
-;                            (beim Bauen exportiert die IDE sie nach build/export/*.asm, die unten eingebunden werden)
+;                            (beim Bauen wandelt der Assembler sie beim Einbinden unten selbst um)
 ;   Anders als beim C64 gibt es hier keine Kachel-Bibliothek: hal_mega65.asm zeichnet die Kacheln selbst (hal_draw_level) und
 ;   kennt nur die Kachelliste lv1_tiles/lv1_colors; die Bildkarten lv1..lv4 liegen als 240-Byte-Karten vor (maps_lo/hi unten).
 ;
@@ -236,10 +236,10 @@ play_level:
 ; Die Reihenfolge ist egal (der Assembler loest Vorwaertsverweise auf); wichtig ist nur, dass der Code vor $4000 (VIC-Bank 1) endet,
 ; weil dort der Bildschirm ($4400) und die Sprite-Zeiger ($47F8) liegen; derzeit endet er bei $2F2E.
 .include "hal_mega65.asm"
-.include "../../common/jumprun/core.asm"
+.include "lib/core.asm"
 .include "lib/levels.inc"
 
-maps_lo: .byte <lv1_map, <lv2_map, <lv3_map, <lv4_map     ; Kachelkarte je Bild (240 Byte, aus build/export/lv?.asm); hal_load_level
+maps_lo: .byte <lv1_map, <lv2_map, <lv3_map, <lv4_map     ; Kachelkarte je Bild (240 Byte, aus graphics/lv?.vctiles); hal_load_level
 maps_hi: .byte >lv1_map, >lv2_map, >lv3_map, >lv4_map     ; kopiert die gewaehlte nach LMAP
 
 music_runtime                           ; Unterprogramme der Musik (music_play ...), einmal hinter dem Hauptprogramm
@@ -249,19 +249,19 @@ music_runtime                           ; Unterprogramme der Musik (music_play .
 ; steht bei $4400 (siehe hal_init, $D018). Die .assert-Zeilen pruefen, dass die
 ; exportierten Spritesaetze lueckenlos aneinanderschliessen (Held 14 Bilder = 896 Byte, Gegner 6 Bilder = 384 Byte).
 .org $6000
-.include "build/export/chars.asm"
+.include "graphics/chars.vcchar"
 .org $6800
-.include "build/export/hero_base.asm"
-.include "build/export/hero_over.asm"
-.include "build/export/enemy_base.asm"
-.include "build/export/enemy_over.asm"
+.include "graphics/hero_base.vcsprite"
+.include "graphics/hero_over.vcsprite"
+.include "graphics/enemy_base.vcsprite"
+.include "graphics/enemy_over.vcsprite"
 .assert hero_over == $6b80
 .assert enemy_base == $6f00
 .assert enemy_over == $7080
 .org $7200
-.include "build/export/title.asm"
-.include "build/export/lv1.asm"
-.include "build/export/lv2.asm"
-.include "build/export/lv3.asm"
-.include "build/export/lv4.asm"
-.include "build/export/tune.asm"
+.include "graphics/title.vcscreen"
+.include "graphics/lv1.vctiles"
+.include "graphics/lv2.vctiles"
+.include "graphics/lv3.vctiles"
+.include "graphics/lv4.vctiles"
+.include "music/tune.vcsong"

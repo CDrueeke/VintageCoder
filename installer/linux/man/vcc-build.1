@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-BUILD 1 "" "VintageCoder 0.2.1" "VintageCoder Handbuch"
+.TH VCC\-BUILD 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-build \- Projekt laut .vcprj bauen
 .SH ÜBERSICHT
@@ -9,7 +9,9 @@ vcc\-build \- Projekt laut .vcprj bauen
 .SH BESCHREIBUNG
 Projekt laut .vcprj bauen
 .PP
-Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und Export von Medien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.
+Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und von Mediendateien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.
+.PP
+Turbo\-BASIC\-XL\-Projekte (Dialekt turbo_basic_xl, Atari) mit einer Diskette im Projekt (Abschnitt turbo, siehe vcc turbo provide) bekommen build/<name>.atr: eine Kopie der Diskette mit dem übersetzten Programm als AUTORUN.BAS. Fehlt die Diskette, bleibt es bei einem Hinweis (Exit\-Code 0).
 .SH OPTIONEN
 .TP
 \fIprojekt\fR
@@ -22,6 +24,9 @@ Baut nur das Startprogramm (main der Projektdatei); die Diskette entsteht dann n
 .TP
 \fB\-\-data\-dir\fR \fIordner\fR
 Ordner der Hardware\-Datenbank (data); ersetzt VC_DATA und die automatische Suche.
+.TP
+\fB\-\-strict\fR
+Turbo BASIC XL: Fehlt die Diskette des Anwenders (Abschnitt turbo der Projektdatei), ist das ein Fehler (Exit\-Code 1) statt eines Hinweises.
 .TP
 \fB\-\-license\-report\fR
 Gibt die Lizenzen aller übersetzten Quelltexte aus (Datei, Lizenz, Urheber, Fundstelle) und schreibt sie nach build/LICENSES.txt.

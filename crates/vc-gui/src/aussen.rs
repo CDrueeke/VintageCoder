@@ -35,15 +35,15 @@ pub fn aufzeichnen(a: Aufruf) { if gesperrt() { AUFGEZEICHNET.with(|x| x.borrow_
 
 /// Diskette im Standard-Emulator des Systems einlegen (startet den Emulator); im Testlauf nur aufzeichnen
 pub fn disk_einlegen(image: &std::path::Path, target: &str, variant: &str) -> Result<String, String> {
-    if gesperrt() { AUFGEZEICHNET.with(|x| x.borrow_mut().push(Aufruf::DiskEinlegen(image.to_path_buf()))); return Ok("(Testlauf: nichts gestartet)".into()) }
+    if gesperrt() { AUFGEZEICHNET.with(|x| x.borrow_mut().push(Aufruf::DiskEinlegen(image.to_path_buf()))); return Ok(vc_i18n::t!("aussen-testlauf-nichts-gestartet").into()) }
     vc_ide::launch::insert_disk(image, target, variant)
 }
 
 /// Diskette per Ethernet auf einen MEGA65 kopieren und einbinden (kann dauern: nicht auf dem Oberflächenthread aufrufen); im Testlauf nur aufzeichnen
 pub fn mega65_kopieren(image: &std::path::Path) -> Result<String, String> {
-    if gesperrt() { AUFGEZEICHNET.with(|x| x.borrow_mut().push(Aufruf::Mega65Kopieren(image.to_path_buf()))); return Ok("(Testlauf: nichts übertragen)".into()) }
+    if gesperrt() { AUFGEZEICHNET.with(|x| x.borrow_mut().push(Aufruf::Mega65Kopieren(image.to_path_buf()))); return Ok(vc_i18n::t!("aussen-testlauf-nichts-uebertragen").into()) }
     let st = vc_ide::settings::effective();
-    let Some(m) = st.machines.iter().find(|m| m.kind == "mega65" && m.link_for(vc_ide::mega65net::Action::Copy) == vc_ide::mega65net::Link::Eth).cloned() else { return Err("Keine MEGA65 mit Ethernet eingetragen (Einstellungen → Hardware → Verbindung „Kopieren“)".into()) };
+    let Some(m) = st.machines.iter().find(|m| m.kind == "mega65" && m.link_for(vc_ide::mega65net::Action::Copy) == vc_ide::mega65net::Link::Eth).cloned() else { return Err(vc_i18n::t!("aussen-keine-mega65-mit-ethernet-eingetragen-einstellungen").into()) };
     vc_ide::mega65net::copy_and_mount(&m, image)
 }
 

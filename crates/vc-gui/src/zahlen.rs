@@ -25,14 +25,14 @@ impl<'a> P<'a> {
             else { (10, &|c: u8| c.is_ascii_digit() || c == b'_') };
         let von = self.i; while self.s.get(self.i).is_some_and(|c| ziffern(*c)) { self.i += 1 }
         let t: String = self.s[von..self.i].iter().filter(|c| **c != b'_').map(|c| *c as char).collect();
-        if t.is_empty() { return Err(format!("Zahl erwartet bei Zeichen {}", start + 1)) }
-        i64::from_str_radix(&t, basis).map_err(|_| "Zahl zu groß".to_string())
+        if t.is_empty() { return Err(vc_i18n::t!("zahlen-zahl-erwartet-bei-zeichen-p1", p1 = start + 1)) }
+        i64::from_str_radix(&t, basis).map_err(|_| vc_i18n::t!("zahlen-zahl-zu-gross").to_string())
     }
     fn atom(&mut self) -> Result<i64, String> {
         match self.peek() {
-            Some(b'(') => { self.i += 1; let v = self.ausdruck(0)?; if self.peek() == Some(b')') { self.i += 1; Ok(v) } else { Err("„)“ fehlt".into()) } }
+            Some(b'(') => { self.i += 1; let v = self.ausdruck(0)?; if self.peek() == Some(b')') { self.i += 1; Ok(v) } else { Err(vc_i18n::t!("zahlen-fehlt").into()) } }
             Some(b'-') => { self.i += 1; Ok(self.atom()?.wrapping_neg()) } Some(b'+') => { self.i += 1; self.atom() } Some(b'~') => { self.i += 1; Ok(!self.atom()?) }
-            Some(_) => self.zahl(), None => Err("Zahl erwartet".into()),
+            Some(_) => self.zahl(), None => Err(vc_i18n::t!("zahlen-zahl-erwartet").into()),
         }
     }
     /// Operatoren: `|` 1, `^` 2, `&` 3, `<<` `>>` 4, `+` `-` 5, `*` `/` `%` 6 (kleiner Rang bindet schwächer); `%` ist hier der Rest nur nach einem Wert mit Leerzeichen, sonst Binärpräfix
@@ -45,15 +45,15 @@ impl<'a> P<'a> {
             if rang < min { break }
             self.i += laenge; let r = self.ausdruck(rang + 1)?;
             l = match op { "|" => l | r, "^" => l ^ r, "&" => l & r, "+" => l.wrapping_add(r), "-" => l.wrapping_sub(r), "*" => l.wrapping_mul(r),
-                "/" => { if r == 0 { return Err("Teilung durch 0".into()) } l / r } "<<" => l.checked_shl(r as u32).unwrap_or(0), ">>" => l.checked_shr(r as u32).unwrap_or(0), _ => l };
+                "/" => { if r == 0 { return Err(vc_i18n::t!("zahlen-teilung-durch-0").into()) } l / r } "<<" => l.checked_shl(r as u32).unwrap_or(0), ">>" => l.checked_shr(r as u32).unwrap_or(0), _ => l };
         }
         Ok(l)
     }
 }
 /// Wert eines Ausdrucks (ganze Zahlen)
 pub fn werte(text: &str) -> Result<i64, String> {
-    let mut p = P { s: text.trim().as_bytes(), i: 0 }; if p.s.is_empty() { return Err("Zahl oder Ausdruck eingeben".into()) }
-    let v = p.ausdruck(0)?; if p.peek().is_some() { return Err(format!("Unerwartetes Zeichen bei {}", p.i + 1)) } Ok(v)
+    let mut p = P { s: text.trim().as_bytes(), i: 0 }; if p.s.is_empty() { return Err(vc_i18n::t!("zahlen-zahl-oder-ausdruck-eingeben").into()) }
+    let v = p.ausdruck(0)?; if p.peek().is_some() { return Err(vc_i18n::t!("zahlen-unerwartetes-zeichen-bei-p1", p1 = p.i + 1)) } Ok(v)
 }
 
 // ---------------------------------------------------------------------------------------------------- Schreibweisen
@@ -74,7 +74,7 @@ impl App {
             ZAkt::Kopieren(art) | ZAkt::Einsetzen(art) => {
                 let Ok(v) = werte(&d.text) else { return Task::none() }; let text = match art { "hex" => hex(v), "bin" => binaer(v), _ => format!("{v}") };
                 if matches!(a, ZAkt::Kopieren(_)) { return iced::clipboard::write(text) }
-                if let Some(n) = self.name() { if let Some(e) = self.editoren.get_mut(&n) { e.insert(&text); self.zahlen = None; self.editor_fokus(); return Task::none() } } self.log.push(t::BAUM_KEINE_DATEI.into());
+                if let Some(n) = self.name() { if let Some(e) = self.editoren.get_mut(&n) { e.insert(&text); self.zahlen = None; self.editor_fokus(); return Task::none() } } self.log.push(t::baum_keine_datei().into());
             }
         }
         Task::none()
@@ -82,21 +82,21 @@ impl App {
     pub(crate) fn zahlen_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let d = self.zahlen.as_ref()?; let z = |a: ZAkt| Msg::Zahl(a); let mono = vc_gui_ui::fonts::MONO;
         let wert = werte(&d.text);
-        let mut c = column![text("Zahlenwerkzeuge").size(16).color(pal.text), text("Zahl oder Ausdruck: $D020, 0xFF, %1010, 255, $D000+$20, 1<<5, -1").size(11.5).color(pal.mute),
+        let mut c = column![text(vc_i18n::t!("zahlen-zahlenwerkzeuge")).size(16).color(pal.text), text(vc_i18n::t!("zahlen-zahl-oder-ausdruck-d020-0xff-1010")).size(11.5).color(pal.mute),
             text_input("$D020", &d.text).id("zahl").on_input(move |t| z(ZAkt::Text(t))).size(14).padding(7).font(mono)].spacing(8);
         match &wert {
             Err(e) => c = c.push(text(e.clone()).size(12).color(pal.err)),
             Ok(v) => {
-                let v = *v; let b = d.breite; let zeile = |name: &str, w: String, art: Option<&'static str>| -> Element<Msg> { let mut r = row![text(name.to_string()).size(12).color(pal.mute).width(120), text(w).size(13).font(mono).color(pal.text).width(Length::Fill)].spacing(8).align_y(Alignment::Center); if let Some(a) = art { r = r.push(vc_gui_ui::muster::knopf(pal, "Kopieren", "In die Zwischenablage", Some(z(ZAkt::Kopieren(a))), false, false)).push(vc_gui_ui::muster::knopf(pal, "Einsetzen", "In den Editor an der Schreibmarke einsetzen", Some(z(ZAkt::Einsetzen(a))), false, false)) } r.into() };
-                c = c.push(zeile("Dezimal", format!("{v}"), Some("dez"))).push(zeile("Hexadezimal", hex(v), Some("hex"))).push(zeile("Binär", binaer(v), Some("bin")))
-                    .push(zeile(&format!("Mit Vorzeichen ({b} Bit)"), format!("{}", vorzeichen(v, b)), None)).push(zeile("Lo- / Hi-Byte", format!("{} / {}", hex(v & 0xFF), hex((v >> 8) & 0xFF)), None)).push(zeile("Zeichen (ASCII)", zeichen(v).map_or("–".to_string(), |c| format!("„{c}“")), None));
+                let v = *v; let b = d.breite; let zeile = |name: &str, w: String, art: Option<&'static str>| -> Element<Msg> { let mut r = row![text(name.to_string()).size(12).color(pal.mute).width(120), text(w).size(13).font(mono).color(pal.text).width(Length::Fill)].spacing(8).align_y(Alignment::Center); if let Some(a) = art { r = r.push(vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("zahlen-kopieren"), &vc_i18n::t!("zahlen-in-die-zwischenablage"), Some(z(ZAkt::Kopieren(a))), false, false)).push(vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("zahlen-einsetzen"), &vc_i18n::t!("zahlen-in-den-editor-an-der-schreibmarke"), Some(z(ZAkt::Einsetzen(a))), false, false)) } r.into() };
+                c = c.push(zeile(&vc_i18n::t!("zahlen-dezimal"), format!("{v}"), Some("dez"))).push(zeile(&vc_i18n::t!("zahlen-hexadezimal"), hex(v), Some("hex"))).push(zeile(&vc_i18n::t!("zahlen-binaer"), binaer(v), Some("bin")))
+                    .push(zeile(&vc_i18n::t!("zahlen-mit-vorzeichen-b-bit", b = &b), format!("{}", vorzeichen(v, b)), None)).push(zeile(&vc_i18n::t!("zahlen-lo-hi-byte"), format!("{} / {}", hex(v & 0xFF), hex((v >> 8) & 0xFF)), None)).push(zeile(&vc_i18n::t!("zahlen-zeichen-ascii"), zeichen(v).map_or("–".to_string(), |c| format!("„{c}“")), None));
                 // Bit-Editor
                 let mut bits = row![].spacing(3).align_y(Alignment::Center);
-                for n in (0..b).rev() { let an = (v >> n) & 1 == 1; bits = bits.push(iced::widget::column![text(format!("{n}")).size(9.5).color(pal.mute), vc_gui_ui::muster::knopf(pal, if an { "1" } else { "0" }, &format!("Bit {n} umschalten"), Some(z(ZAkt::Bit(n))), an, false)].spacing(2).align_x(Alignment::Center)); if n % 4 == 0 && n > 0 { bits = bits.push(space::horizontal().width(6)) } }
-                c = c.push(text("Bit-Editor").size(12).color(pal.mute)).push(bits.wrap().vertical_spacing(4)).push(row![text("Breite").size(12).color(pal.mute), vc_gui_ui::muster::knopf(pal, "8 Bit", "", Some(z(ZAkt::Breite(8))), b == 8, false), vc_gui_ui::muster::knopf(pal, "16 Bit", "", Some(z(ZAkt::Breite(16))), b == 16, false)].spacing(6).align_y(Alignment::Center));
+                for n in (0..b).rev() { let an = (v >> n) & 1 == 1; bits = bits.push(iced::widget::column![text(format!("{n}")).size(9.5).color(pal.mute), vc_gui_ui::muster::knopf(pal, if an { "1" } else { "0" }, &vc_i18n::t!("zahlen-bit-n-umschalten", n = &n), Some(z(ZAkt::Bit(n))), an, false)].spacing(2).align_x(Alignment::Center)); if n % 4 == 0 && n > 0 { bits = bits.push(space::horizontal().width(6)) } }
+                c = c.push(text(vc_i18n::t!("zahlen-bit-editor")).size(12).color(pal.mute)).push(bits.wrap().vertical_spacing(4)).push(row![text(vc_i18n::t!("zahlen-breite")).size(12).color(pal.mute), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("zahlen-8-bit"), "", Some(z(ZAkt::Breite(8))), b == 8, false), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("zahlen-16-bit"), "", Some(z(ZAkt::Breite(16))), b == 16, false)].spacing(6).align_y(Alignment::Center));
             }
         }
-        c = c.push(row![space::horizontal(), knopf(pal, "Schließen", Some(z(ZAkt::Zu)), pal.text, false)]);
+        c = c.push(row![space::horizontal(), knopf(pal, vc_i18n::t!("zahlen-schliessen"), Some(z(ZAkt::Zu)), pal.text, false)]);
         let karte = container(c).width(560).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hintergrund = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() })).on_press(Msg::Zahl(ZAkt::Zu));
         Some(stack![hintergrund, container(karte).center(Length::Fill)].into())

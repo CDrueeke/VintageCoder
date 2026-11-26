@@ -16,11 +16,11 @@ pub fn freier_name(root: &std::path::Path, ordner: &str, stamm: &str) -> String 
 impl App {
     /// Befehl „BASIC in Assembler umwandeln“ für die aktive Datei
     pub(crate) fn basic_nach_asm(&mut self) {
-        let Some(rel) = self.name().filter(|n| n.to_lowercase().ends_with(".bas") && self.editoren.contains_key(n)) else { self.log.push("BASIC in Assembler umwandeln: erst eine BASIC-Datei (.bas) öffnen.".into()); return };
+        let Some(rel) = self.name().filter(|n| n.to_lowercase().ends_with(".bas") && self.editoren.contains_key(n)) else { self.log.push(vc_i18n::t!("basic2asm-basic-in-assembler-umwandeln-erst-eine").into()); return };
         let system = self.proj.pf.as_ref().and_then(|pf| pf.targets.first()).map(|t| if t.system.is_empty() { t.id.clone() } else { t.system.clone() }).unwrap_or_else(|| "c64".into());
         let ziel = umsetzer_ziel(&system);
-        let Some(ti) = vc_basic::b2a::target_info(ziel) else { self.log.push(format!("BASIC in Assembler: Ziel „{ziel}“ ist noch nicht umgesetzt.")); return };
-        let d = match vc_basic::Dialect::load(&self.data, ti.dialect) { Ok(d) => d, Err(e) => { self.log.push(format!("BASIC in Assembler: {e}")); return } };
+        let Some(ti) = vc_basic::b2a::target_info(ziel) else { self.log.push(vc_i18n::t!("basic2asm-basic-in-assembler-ziel-ziel-ist", ziel = &ziel)); return };
+        let d = match vc_basic::Dialect::load(&self.data, ti.dialect) { Ok(d) => d, Err(e) => { self.log.push(vc_i18n::t!("basic2asm-basic-in-assembler-e", e = &e)); return } };
         let src = self.editoren[&rel].text();
         let mut o = vc_basic::b2a::B2aOptions::new(""); o.file = rel.clone(); o.target = ziel.to_string(); o.data_dir = Some(self.data.clone());
         match vc_basic::b2a::convert(&src, &d, &o) {
@@ -28,12 +28,12 @@ impl App {
                 for w in &c.warnings { self.probleme.push(Problem { datei: w.file.clone(), zeile: w.line, text: w.message.clone(), fehler: false }) }
                 let (ordner, name) = rel.rsplit_once('/').map_or(("", rel.as_str()), |(o, n)| (o, n)); let stamm = name.rsplit_once('.').map_or(name, |(s, _)| s);
                 let aus = freier_name(&self.root, ordner, stamm);
-                if let Err(e) = std::fs::write(project::pfad(&self.root, &aus), &c.asm) { self.log.push(format!("{aus}: {e}")); return }
+                if let Err(e) = std::fs::write(project::pfad(&self.root, &aus), &c.asm) { self.log.push(vc_i18n::t!("basic2asm-aus-e", aus = &aus, e = e.to_string())); return }
                 let karte = aus.trim_end_matches(".asm").to_string() + ".b2a.json"; let _ = std::fs::write(project::pfad(&self.root, &karte), c.map_json(&rel));
-                self.log.push(format!("{rel} → {aus}: Stufe {}, {} Zeilen, Module: {}{}", c.stage, c.map.len(), c.modules.join(", "), if c.warnings.is_empty() { String::new() } else { format!(" · {} Hinweis(e) in den Problemen", c.warnings.len()) }));
+                self.log.push(vc_i18n::t!("basic2asm-rel-aus-stufe-p3-p4-zeilen", rel = &rel, aus = &aus, p3 = &c.stage, p4 = c.map.len(), p5 = c.modules.join(", "), p6 = if c.warnings.is_empty() { String::new() } else { format!(" {}", vc_i18n::t!("basic2asm-p1-hinweis-e-in-den-problemen", p1 = c.warnings.len())) }));
                 self.projekt_neu_laden(); self.oeffne(&aus);
             }
-            Err(e) => { for x in &e { self.probleme.push(Problem { datei: x.file.clone(), zeile: x.line, text: x.message.clone(), fehler: true }) } self.log.push(format!("BASIC in Assembler: {} Fehler, siehe Probleme", e.len())); self.schublade_zeigen() }
+            Err(e) => { for x in &e { self.probleme.push(Problem { datei: x.file.clone(), zeile: x.line, text: x.message.clone(), fehler: true }) } self.log.push(vc_i18n::t!("basic2asm-basic-in-assembler-p1-fehler-siehe", p1 = e.len())); self.schublade_zeigen() }
         }
     }
 }

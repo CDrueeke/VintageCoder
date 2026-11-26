@@ -66,11 +66,11 @@ pub fn spans(line: &str, lang: Lang) -> Vec<Span> {
             let a = i + p;
             // `{{` ergibt ein einzelnes `{` (Assembler, Atari BASIC); im CBM-BASIC gibt es kein `{` im PETSCII
             if s[a + 1..].starts_with('{') {
-                if lang == Lang::Basic && fam == Family::Petscii { out.push(Span { a: sa + a, z: sa + a + 2, res: Err("{{ gibt es im PETSCII nicht".into()) }); }
+                if lang == Lang::Basic && fam == Family::Petscii { out.push(Span { a: sa + a, z: sa + a + 2, res: Err(vc_i18n::t!("charesc-gibt-es-im-petscii-nicht").into()) }); }
                 i = a + 2; continue;
             }
             match s[a + 1..].find('}') {
-                None => { out.push(Span { a: sa + a, z: sa + s.trim_end_matches('"').len().max(a + 1), res: Err("'}' fehlt".into()) }); break; }
+                None => { out.push(Span { a: sa + a, z: sa + s.trim_end_matches('"').len().max(a + 1), res: Err(vc_i18n::t!("charesc-fehlt").into()) }); break; }
                 Some(e) => {
                     let inner = &s[a + 1..a + 1 + e];
                     let res = chars::parse_ref(fam, inner, &|_| None).map(|(code, _)| chars::by_code(fam, code).and_then(|c| c.color));
@@ -97,17 +97,17 @@ pub fn hover(lang: Lang, line: &str, inner: &str) -> Option<String> {
     match chars::parse_ref(fam, inner, &|_| None) {
         Ok((code, count)) => {
             let e = chars::by_code(fam, code);
-            let title = match e { Some(c) => format!("**{{{}}}**  –  {}", c.main(l), c.desc), None => format!("**{{${code:02x}}}**  –  Code ohne Namen") };
-            let mut md = format!("{title}\n\n| | |\n|---|---|\n| Code | `${code:02X}` = {code} |\n");
-            if count > 1 { md.push_str(&format!("| Wiederholung | {count}× |\n")); }
+            let title = match e { Some(c) => format!("**{{{}}}**  –  {}", c.main(l), c.desc), None => format!("**{{${code:02x}}}**  –  {}", vc_i18n::t!("charesc-code-ohne-namen")) };
+            let mut md = format!("{}\n", vc_i18n::t!("charesc-title-code-code-code2", title = &title, code = format!("{:02X}", code), code2 = &code));
+            if count > 1 { md.push_str(&format!("{}\n", vc_i18n::t!("charesc-wiederholung-count", count = &count))); }
             if let Some(c) = e {
                 let all = c.names(l);
-                if all.len() > 1 { md.push_str(&format!("| Auch | {} |\n", all[1..].iter().map(|n| format!("`{{{n}}}`")).collect::<Vec<_>>().join(" "))); }
-                if let Some(n) = c.color { md.push_str(&format!("| Farbe | Nr. {n} |\n")); }
+                if all.len() > 1 { md.push_str(&format!("{}\n", vc_i18n::t!("charesc-auch-p1", p1 = all[1..].iter().map(|n| format!("`{{{n}}}`")).collect::<Vec<_>>().join(" ")))); }
+                if let Some(n) = c.color { md.push_str(&format!("{}\n", vc_i18n::t!("charesc-farbe-nr-n", n = &n))); }
             }
             Some(md)
         }
-        Err(m) => Some(format!("**Fehler:** {m}")),
+        Err(m) => Some(format!("**{}** {m}", vc_i18n::t!("charesc-fehler"))),
     }
 }
 

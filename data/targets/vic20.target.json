@@ -11,7 +11,7 @@
     "pal":  { "clockHz": 1108405, "linesPerFrame": 312, "cyclesPerLine": 71 },
     "ntsc": { "clockHz": 1022727, "linesPerFrame": 261, "cyclesPerLine": 65 }
   },
-  "basic": { "dialect": "cbm_v2", "loadAddr": "$1001" },
+  "basic": { "dialect": "vic_basic_2", "loadAddr": "$1001" },
   "memory": {
     "default": "unexpanded",
     "configs": {

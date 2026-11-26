@@ -1,0 +1,37 @@
+{
+  "i18n": { "status": "geprüft", "source_hash": "38b5046fdd5e" },
+  "program": "vcc",
+  "summary": "Assembler, BASIC, media and tests for retro systems",
+  "intro": "vcc is the command-line tool of VintageCoder. It translates assembler and BASIC for C64, C128, Plus/4, VIC-20, Atari 8-bit and MEGA65, creates projects, builds disks and runs tests.",
+  "groups": [
+    { "id": "bauen", "label": "Build programs" },
+    { "id": "projekte", "label": "Projects" },
+    { "id": "daten", "label": "Media and data" },
+    { "id": "testen", "label": "Test and measure" },
+    { "id": "hilfe", "label": "Help and feedback" }
+  ],
+  "overview_examples": [
+    { "title": "new C64 project", "cmd": "vcc new game --target c64" },
+    { "title": "assemble (the target is set in the source)", "cmd": "vcc asm prog.asm -o prog.prg" },
+    { "title": "emulator tests", "cmd": "vcc test --backend vice" }
+  ],
+  "env": [
+    { "name": "VC_DATA", "help": "Folder of the hardware database (data); otherwise next to the program or in the working folder." },
+    { "name": "VC_ROMS", "help": "The user's ROM folder (instead of roms/ in the configuration folder)." },
+    { "name": "VC_XEMU", "help": "Path to the Xemu program (MEGA65 emulator)." },
+    { "name": "VC_XEMU_SD", "help": "Folder with MEGA65.ROM for Xemu." },
+    { "name": "VC_XEMU_ARGS", "help": "Extra arguments when starting Xemu, separated by spaces." },
+    { "name": "VC_STRUCTURES", "help": "File with your own project templates (otherwise structures.json in the configuration folder)." },
+    { "name": "VC_UPDATE_URL", "help": "Source of the version list for vcc update (folder, file or https address; otherwise the fixed release update-feed). Never changes the target of the link." },
+    { "name": "VC_UPDATE_DIR", "help": "Folder for the result and check log of the update check (otherwise updates in the configuration folder)." },
+    { "name": "VC_DEBUG_LOG", "help": "Turn on the debug log: 1 (default file logs/vintagecoder.log in the configuration folder) or a file path; 0 turns it off. Applies to vintagecoder and vcc." },
+    { "name": "VC_WIN", "help": "Window size of the IDE, e.g. 1400x860 (vintagecoder only)." },
+    { "name": "COLUMNS", "help": "Width for line wrapping of the help (default: 100)." },
+    { "name": "NO_COLOR", "help": "No colors in the help output." }
+  ],
+  "exit": [
+    { "code": "0", "help": "no errors" },
+    { "code": "1", "help": "error (in the source, in a check or during execution)" },
+    { "code": "2", "help": "wrong usage (unknown command or unknown option)" }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 id: disk-studio
-titel: Disk-Studio, Segmente, ROMs
+titel: Disk-Editor, Segmente, ROMs
 reihenfolge: 18
 stufe: Fortgeschritten
 zeit: 30 Minuten
@@ -8,7 +8,7 @@ siehe_auch: [bauen-starten, assembler, debugger]
 referenz: [disks, cartridges, roms, memmap, asm-directives]
 ---
 
-# Disk-Studio, Segmente, ROMs
+# Disk-Editor, Segmente, ROMs
 
 **Ziel:** Du öffnest Diskettenabbilder, holst Dateien daraus in dein Projekt und lässt dein Programm auf eine Diskette schreiben. Du ordnest den Speicher deines Programms mit **Segmenten** und weißt, wo VintageCoder die **ROM-Dateien** deiner Systeme sucht.
 
@@ -16,19 +16,20 @@ Dieses Kapitel ist **fortgeschritten**: Es nimmt an, dass du schon Assemblerprog
 
 ## Das brauchst du
 
-- ein geöffnetes Projekt (das Disk-Studio öffnet nur in einem Projekt, weil Dateien aus dem Abbild dorthin übernommen werden),
+- ein Diskettenabbild zum Ansehen (`.d64`, `.d71`, `.d81` oder `.atr`) oder eine neue, leere Diskette, die du im Disk-Editor anlegst,
+- ein geöffnetes Projekt, wenn du Dateien aus dem Abbild ins Projekt übernehmen willst (zum Ansehen, Prüfen und Anlegen genügt der Disk-Editor allein),
 - für das Beispiel das Projekt `examples/c64/prallball`.
 
-## Wofür ist das Studio gedacht?
+## Wofür ist der Editor gedacht?
 
-Das Disk-Studio zeigt und bearbeitet **Diskettenabbilder**. Du brauchst es, wenn dein Programm von Diskette laden soll, wenn du Dateien aus einem alten Archiv holen willst oder wenn du prüfen möchtest, ob dein Abbild in Ordnung ist.
+Der Disk-Editor zeigt und bearbeitet **Diskettenabbilder**. Du brauchst ihn, wenn dein Programm von Diskette laden soll, wenn du Dateien aus einem alten Archiv holen willst oder wenn du prüfen möchtest, ob dein Abbild in Ordnung ist.
 
 Typische Einsätze aus echten Retro-Projekten:
 
 - **Ein Spiel auf Diskette ausliefern:** Hauptprogramm, Level, Musik und Titelbild als Dateien auf einem D64.
 - **Ein altes Archiv ansehen:** Was steht auf der Diskette, was davon kann ich in mein Projekt übernehmen (BASIC als lesbarer Text)?
-- **Fehler suchen:** Warum lädt das Programm nicht? Die Belegungskarte und **Validieren** zeigen kaputte Ketten.
-- **Eine Boot-Diskette** für Atari ohne Dateisystem prüfen.
+- **Fehler suchen:** Warum lädt das Programm nicht? Die Belegungskarte und **Prüfen** zeigen kaputte Ketten.
+- **Eine Boot-Diskette** für Atari ohne Dateisystem ansehen.
 
 Im fertigen Programm ist das ein **Abbild** (`.d64`, `.d71`, `.d81`, `.atr`), das ein Emulator oder ein Diskettenersatz (SD-Karte) wie eine echte Diskette einlegt.
 
@@ -42,11 +43,10 @@ Im fertigen Programm ist das ein **Abbild** (`.d64`, `.d71`, `.d81`, `.atr`), da
 - **PRG / SEQ:** Dateiarten bei Commodore (Programm / Textfolge).
 - **Interleave:** der Abstand, mit dem aufeinanderfolgende Sektoren einer Datei auf der Diskette liegen.
 - **Segment, Bank:** Abschnitte des Programmspeichers (Teil 2).
-- **Speicherkarte (Memory Map):** Übersicht, welcher Speicher belegt ist.
 
-## Teil 1: Das Disk-Studio
+## Teil 1: Der Disk-Editor
 
-Früher kamen Programme auf **Disketten**. Heute gibt es dafür **Diskettenabbilder** (englisch *Disk Images*), Dateien, die den Inhalt einer Diskette Sektor für Sektor enthalten. Emulatoren und viele Geräte lesen sie. Das Disk-Studio kennt vier Formate:
+Früher kamen Programme auf **Disketten**. Heute gibt es dafür **Diskettenabbilder** (englisch *Disk Images*), Dateien, die den Inhalt einer Diskette Sektor für Sektor enthalten. Emulatoren und viele Geräte lesen sie. Der Disk-Editor kennt vier Formate:
 
 | Format | Rechner/Laufwerk | Aufbau |
 |---|---|---|
@@ -59,59 +59,89 @@ Früher kamen Programme auf **Disketten**. Heute gibt es dafür **Diskettenabbil
 
 ### Ein Abbild öffnen
 
-Jede Image-Datei (`.d64`, `.d71`, `.d81`, `.atr`) öffnet im Disk-Studio. Es gibt mehrere Wege:
+Der Disk-Editor wohnt im Hauptbereich **Daten**, in der zweiten Reihe unter **Disk**. Solange keine Diskette offen ist, steht dort „Keine Diskette geöffnet“ mit den Knöpfen **Diskette öffnen …** und **Neue Diskette …**. Ein Abbild öffnest du auf diesen Wegen:
 
-- **Doppelklick** auf die Datei in der linken Spalte (oder Rechtsklick ▸ **Öffnen**),
-- **Cmd/Strg+K** und den Dateinamen eingeben,
-- **Datei ▸ Datei öffnen …** (du wählst eine beliebige Datei).
+- **Klick auf die Datei** (`.d64`, `.d71`, `.d81`, `.atr`) im Projektbaum: Der Disk-Editor öffnet sich von selbst,
+- der Knopf **Diskette öffnen …** im Disk-Editor (du wählst eine beliebige Abbild-Datei),
+- die Abbild-Datei aus Finder oder Explorer auf das Fenster ziehen,
+- **Baum ▸ Diskette öffnen …** (Mac-Menü; sonst über die Befehlspalette **Cmd/Strg+K**).
 
-![Das Disk-Studio mit einer D64-Datei: oben das Verzeichnis, darunter die Belegungskarte der Spuren mit der Kette der gewählten Datei, rechts die Karten Zustand, Sektor und „In das Projekt übernehmen“.](bild:disk-studio "Das Disk-Studio: Verzeichnis, Belegungskarte, Sektoranzeige und Übernahme in das Projekt")
+Es ist immer nur **eine** Diskette offen. Öffnest du eine zweite, wird die erste geschlossen; hat sie ungespeicherte Änderungen, fragt der Disk-Editor vorher nach: **Speichern**, **Verwerfen** oder **Abbrechen**.
 
-### Was du im Studio siehst
+![Der Bereich „Daten“ mit der Seite „Disk“ und dem Diskettenabbild beispiel.d64. Links die Karten „DISKETTE“, „BELEGUNG“ und „AKTIONEN“, in der Mitte das Verzeichnis mit den drei Dateien HUGO, GUMBO und MUSIK und die Belegungskarte, rechts die Sektoranzeige „SEKTOR 18/0“ als Hexdump.](bild:disk-studio "Der Disk-Editor mit Verzeichnis, Belegungskarte und Sektoranzeige.")
 
-- **Verzeichnis:** alle Dateien mit Name (bei Commodore in **PETSCII**, bei Atari in **ATASCII**, den Zeichensätzen dieser Rechner), Art (PRG, SEQ …) und Größe. Du kannst Dateien aus dem Dateimanager auf die Fläche **ziehen**, dann werden sie auf die Diskette geschrieben.
-- **Belegung:** eine Karte aus Spuren und Sektoren. Farben unterscheiden Boot oder VTOC, Kopf oder BAM, Verzeichnis, Sektoren einer Datei, belegte Sektoren ohne Datei und Sektoren, die von mehreren Ketten erreicht werden (ein Fehler). Ein Klick wählt den Sektor.
-- **Karte „Sektor“:** zeigt die Bytes des Sektors und was der Kettenzeiger sagt. **Folgen ▶** springt zum nächsten Sektor der Kette, **◀ Zurück** geht den Weg zurück.
+### Was du im Editor siehst
 
-### Aufbau der Oberfläche und die Knöpfe
+Der Disk-Editor hat drei Karten nebeneinander. In schmalen Fenstern rutscht die rechte Karte nach unten.
 
-Das Studio folgt den sechs Zonen. Die Aktionen stehen in der Kopfzeile, in der Leiste, im Kontextmenü der Fläche und in der Befehlspalette (**Cmd/Strg+K**, „Studio: …“):
+**Links: Diskette.**
+
+- das Format (D64, D71, D81 oder ATR; das aktuelle ist hervorgehoben),
+- der Dateiname des Abbilds und seine Größe; ein Punkt davor heißt „ungespeichert“; darunter steht der Aufbau (Spuren und Sektoren),
+- die **Belegung** als Balken mit der Zahl der belegten und freien Blöcke,
+- die **Aktionen** (siehe unten),
+- bei Bedarf das Feld **Übernahme** (Zielordner und Optionen) und darunter der **Prüfbericht** und das Ergebnis der Übernahme.
+
+**Mitte: Verzeichnis und Belegungskarte.**
+
+- **Verzeichnis:** alle Dateien mit Name (bei Commodore in **PETSCII**, bei Atari in **ATASCII**, den Zeichensätzen dieser Rechner), Typ, Blöcken, Größe und Startadresse. Ein Schloss zeigt eine geschützte Datei, **Autostart** die Datei, die beim Laden von selbst startet. Ein Klick (oder die Pfeiltasten und Enter) wählt eine Datei.
+- **Reihenfolge ändern:** Die Reihenfolge im Verzeichnis bestimmt, in welcher Folge ein Lader oder ein Verzeichnislisting die Dateien zeigt. Ziehe eine Zeile an eine andere Stelle; eine Linie zeigt, wo sie landet. Mit der Tastatur wählst du die Zeile und drückst **Alt+Pfeil hoch** oder **Alt+Pfeil runter**; die Knöpfe **Nach oben** und **Nach unten** über der Liste tun dasselbe. Jeder Zug ist ein Schritt für **Rückgängig** (Cmd/Strg+Z, auch der Knopf neben der Liste) und **Wiederholen**. Es wandern nur die Verzeichniseinträge, die Dateien selbst bleiben unverändert. Bei Atari geht das für Atari DOS 2 und 2.5 (128-Byte-Sektoren) und nur im Hauptverzeichnis; bei anderen Abbildern meldet die Seite, warum es nicht geht. Auch **Dateien ablegen** lässt sich zurücknehmen. Die Änderung steht erst nach **Speichern** in der Datei.
+- **Belegungskarte:** eine Zeile je Spur, ein Kästchen je Sektor; große Disketten (ab 41 Spuren) stehen in zwei Blöcken nebeneinander. Die Legende nennt vier Farben: **Gewählte Datei**, **Belegt**, **Verzeichnis** und **Kopf/BAM**. Sektoren mit einem Fehler (zum Beispiel von mehreren Ketten erreicht) sind rot. Mit **Kette zeigen** färbt die Karte alle Sektoren der gewählten Datei. Ein Klick wählt den Sektor; mit den Pfeiltasten wanderst du über die Karte.
+
+**Rechts: der Sektor.**
+
+- Der Kopf nennt Spur und Sektor. Darunter steht, zu welcher Datei der Sektor gehört („Block 2 von 5“).
+- Darunter siehst du die Bytes des Sektors in Hex und als Zeichen. Zeigerbytes (der Verweis auf den nächsten Sektor) sind farbig hervorgehoben.
+- **Folgen ▶** springt zum nächsten Sektor der Kette, am Ende steht dort „Kettenende“. **Zurück** geht den Weg zurück.
+- Unten stehen **Nächster Sektor** und **Bytes in diesem Sektor**.
+
+### Die Knöpfe
+
+Alle Aktionen stehen links in der Karte **Diskette**:
 
 | Aktion | Wirkung |
 |---|---|
-| **Speichern** (**Cmd/Strg+S**) | schreibt das Abbild |
-| **Speichern unter …** | speichert eine Kopie unter neuem Namen |
-| **Validieren** | prüft BAM/VTOC, Verzeichnis und Dateiketten und meldet die Befunde |
-| **Einlegen (Laufwerk 8)** / **Einlegen (D1:)** | startet den Standard-Emulator des Systems mit dieser Diskette |
-| **Datei hinzufügen …** | legt eine Datei auf die Diskette (oder du ziehst sie ins Fenster) |
-| **Folgen ▶** | folgt dem Kettenzeiger zum nächsten Sektor |
-| **Zurück** | zum zuvor besuchten Sektor |
-| **Kette anzeigen / ausblenden** | zeichnet die Kette der gewählten Datei in der Belegungskarte |
-| **In das Projekt übernehmen** | holt gewählte Dateien ins Projekt (siehe unten) |
+| **Im Emulator einlegen** | startet den Standard-Emulator des Systems mit dieser Diskette (Laufwerk 8). Das Abbild muss vorher gespeichert sein; sonst ist der Knopf gesperrt („Erst speichern, dann einlegen“). |
+| **Dateien ablegen …** | wählt Dateien aus und legt sie auf die Diskette. Bei einer Diskette ohne Dateisystem (Boot-Diskette) ist der Knopf gesperrt. |
+| **Prüfen** | prüft BAM bzw. VTOC, Verzeichnis und Dateiketten und schreibt das Ergebnis in den **Prüfbericht**. |
+| **Ins Projekt übernehmen** | holt die vorgemerkten Dateien ins Projekt (siehe unten); die Zahl der Vormerkungen steht dahinter. |
+| **Speichern** | schreibt das Abbild (nur aktiv bei Änderungen). |
+| **Speichern unter …** | speichert eine Kopie unter neuem Namen. |
+| **Diskette öffnen …** | öffnet ein anderes Abbild. |
+| **Neue Diskette …** | legt eine neue, leere Diskette an. |
+| **Diskette schließen** | schließt das Abbild; bei Änderungen kommt die Rückfrage. |
 
-Neue leere Diskette: **＋** in der linken Spalte ▸ im Dialog **Neue Datei** die Art **Diskette D64**, **D71**, **D81** oder **ATR**, Namen eingeben, **OK**.
+**Cmd/Strg+S** speichert im Disk-Editor nicht; nimm den Knopf **Speichern**.
 
-Das Abbild muss vor „Einlegen“ gespeichert sein. **Ungespeicherte Änderungen gehen beim Schließen verloren**, das Studio zeigt „Image ungespeichert“.
+Neue leere Diskette: **Neue Diskette …**, im Dialog das **Format** (D64, D71, D81 oder ATR), den **Namen der Diskette** (bis 16 Zeichen) und die **Kennung** (2 Zeichen) eingeben, **Anlegen**. Bei ATR gibt es weder Name noch Kennung. Die neue Diskette bleibt „ungespeichert“, bis du sie mit **Speichern** ablegst.
 
-![Das Disk-Studio nach „Validieren“: die Karte „Zustand“ meldet, dass BAM, Verzeichnis und Ketten übereinstimmen.](bild:disk-validieren "Validieren prüft BAM, Verzeichnis und Dateiketten und meldet die Befunde")
+*[Bild folgt in E13: disk-neu]*
 
-![Der Dialog „Neue Datei“ mit gewählter Art „Diskette D64“, dem Ordner und dem Feld Name.](bild:disk-neu "Neue Diskette: im Dialog „Neue Datei“ die Art Diskette wählen")
+**Ungespeicherte Änderungen gehen beim Schließen verloren**, der Editor zeigt „Image ungespeichert“ und fragt vorher nach.
+
+### Eine Diskette prüfen
+
+Klicke **Prüfen**. Im Feld **Prüfbericht** steht danach entweder „Keine Probleme gefunden.“ oder je Befund eine Zeile. Ist etwas auffällig, zeigt die Karte **Diskette** außerdem die Zahl der Probleme an.
+
+*[Bild folgt in E13: disk-validieren]*
 
 ### Dateien ins Projekt übernehmen
 
-Du hast eine alte Diskette (zum Beispiel aus einem Archiv) und möchtest Programme aus ihr in dein Projekt holen:
+Du hast eine alte Diskette (zum Beispiel aus einem Archiv) und möchtest Programme aus ihr in dein Projekt holen. Dazu muss ein Projekt geöffnet sein, sonst ist der Knopf gesperrt („Zum Übernehmen muss ein Projekt geöffnet sein.“).
 
-1. Setze links in der Liste ein **Häkchen** bei jeder Datei, die du übernehmen willst. Die Knöpfe **Alle**, **Keine**, **Nur Programme** und **Nur BASIC** wählen mehrere auf einmal.
-2. Gib den **Zielordner** an (er muss innerhalb des Projekts liegen, Vorgabe `import`).
+1. Setze in der Spalte **Vormerken** ein **Häkchen** bei jeder Datei, die du übernehmen willst. Die Knöpfe **Alle**, **Keine**, **Programme** und **BASIC** über dem Verzeichnis wählen mehrere auf einmal.
+2. Sobald etwas vorgemerkt ist, erscheint links das Feld **Übernahme**. Gib den **Zielordner im Projekt** an. Er muss innerhalb des Projekts liegen, sonst erscheint „Der Zielordner muss im Projekt liegen.“
 3. Optionen:
    - **BASIC als Quelltext:** ein BASIC-Programm (auf Diskette in einer Kurzform, den **Token**) wird in lesbaren, nummerierten Text zurückübersetzt.
-   - **Original behalten:** zusätzlich die unveränderte Datei.
-   - **zusätzlich als Assembler:** Maschinenprogramme als Quelltext. Das ist rein mechanisch, Daten erscheinen als Befehle und müssen von Hand geprüft werden.
-4. Klicke **n Datei(en) übernehmen**.
+   - **Originaldatei behalten:** zusätzlich die unveränderte Datei.
+   - **Auch als Assembler:** Maschinenprogramme als Quelltext. Das ist rein mechanisch, Daten erscheinen als Befehle und müssen von Hand geprüft werden.
+4. Klicke **Ins Projekt übernehmen**. Was geschrieben wurde, steht danach in der Liste **Übernahme**; der Projektbaum liest sich neu ein.
+
+*[Bild folgt in E13: disk-editor-uebernahme]*
 
 ### Diskette beim Bauen schreiben lassen
 
-Ein Projekt kann sein Abbild beim Bauen schreiben lassen. In der Projektdatei steht dann ein Abschnitt `disk`; im Projekt-Assistenten wählst du dafür „Diskette“. Das Beispielprojekt `examples/c64/prallball` hat zum Beispiel:
+Ein Projekt kann sein Abbild beim Bauen schreiben lassen. In der Projektdatei steht dann ein Abschnitt `disk`; im Dialog „Neues Projekt“ wählst du dafür bei **Diskette** ein Format. Das Beispielprojekt `examples/c64/prallball` hat zum Beispiel:
 
 ```json
 "disk": {
@@ -119,10 +149,12 @@ Ein Projekt kann sein Abbild beim Bauen schreiben lassen. In der Projektdatei st
 }
 ```
 
-1. Öffne `examples/c64/prallball`, baue mit **F7**. Neben dem Programm entsteht `build/disk.d64`.
-2. Öffne `build/disk.d64` im Disk-Studio (Doppelklick in der linken Spalte). Im Verzeichnis steht `PRALLBALL`.
-3. Drücke **Validieren**: Es sollte „keine Fehler“ erscheinen.
-4. Mit **Einlegen (Laufwerk 8)** startest du VICE mit der Diskette.
+Im Bereich **Projekt** zeigt die Übersicht in der Zeile zur Diskette, ob eine eingerichtet ist (zum Beispiel „Diskette D64, 1 Programme“).
+
+1. Öffne `examples/c64/prallball` (Startseite ▸ **Beispiel öffnen**), baue mit **F7**. Neben dem Programm entsteht `build/disk.d64`; das Protokoll nennt die Diskette.
+2. Öffne `build/disk.d64`: Klick auf die Datei im Projektbaum. Im Verzeichnis steht `PRALLBALL`.
+3. Klicke **Prüfen**: Es sollte „Keine Probleme gefunden.“ erscheinen.
+4. Mit **Im Emulator einlegen** startest du den Emulator mit der Diskette.
 
 Mit der Kommandozeile geht dasselbe: `vcc disk list build/disk.d64` zeigt das Verzeichnis, `vcc disk extract build/disk.d64 PRALLBALL -o datei.prg` holt eine Datei zurück.
 
@@ -146,9 +178,9 @@ start:  lda #5
 tabelle: .byte 1,2,3,4
 ```
 
-Die Namen erscheinen im Protokoll, im Debug-Info und in der **Memory Map** (Panel **Karte** im rechten Panel, nach einem Bau; siehe [Der Debugger](kapitel:debugger) und die Referenz [Memory Map](hilfe:memmap)). Die Memory Map zeigt den Adressraum als Raster aus 256 Seiten zu je 256 Byte, gefärbt nach Art des Speichers (RAM, ROM, E/A …) und überlagert mit deinen Segmenten. Ein Klick auf eine Seite nennt das Segment, das sie belegt.
+Nach einem Bau listet das rechte Panel **Maschine** unter **Letzter Bau** die Segmente als Tabelle: Nummer, Anfangsadresse (**von**), Endadresse (**bis**) und **Länge**. Daneben stehen Quelle, Programm, Größe und die Startadresse (SYS). Das Panel blendest du mit **Cmd/Strg+Alt+B** ein und aus. Den Adressraum als Raster siehst du in der **Speicherkarte** (Hauptbereich **Daten**, zweite Reihe **Speicher**): 256 Seiten zu je 256 Byte, das Programm aus dem letzten Bau darin eingezeichnet, mit **Filter** (Alle, Programm, RAM, ROM, E/A) und, wo das System es kennt, der **Bankumschaltung**. Die Karte entsteht erst nach einem Bau (**F7**). Die Einzelheiten stehen in der Referenz [Memory Map](hilfe:memmap).
 
-![Das rechte Panel mit der Karte neben Editor und Debug-Schublade (Beispielansicht).](bild:segmente-baenke "Beispielansicht, es läuft kein Emulator: die Memory Map zeigt, welche Segmente welche Speicherseiten belegen")
+*[Bild folgt in E13: segmente-baenke]*
 
 > **Achtung:** Beim C64-PRG-Format wird alles zu **einem** Block ab der niedrigsten Adresse; Lücken füllt der Assembler mit Nullbytes. Das obige Beispiel ergibt deshalb eine Datei von rund 47 KB, obwohl nur wenige Bytes Inhalt da sind. Beim Atari-XEX bleibt jedes Segment ein eigener Block.
 
@@ -166,17 +198,13 @@ Alle Direktiven, Modultypen und Beispiele stehen in der Referenz [Segmente, Bän
 
 Ein **ROM** (*Read-Only Memory*) ist ein Festspeicher, der ein Betriebssystem, BASIC oder einen Zeichensatz enthält. Emulatoren brauchen die **Abbilder** dieser ROMs, um den echten Rechner nachzubilden.
 
-> **Achtung:** VintageCoder liefert **keine Original-ROMs** mit und lädt auch keine aus dem Netz. Du legst deine **eigenen** Abbilder ab. Ob du ein Abbild benutzen darfst, klärst du selbst; hier steht keine Rechtsberatung.
+> **Achtung:** VintageCoder liefert **keine Original-ROMs** mit und lädt auch keine aus dem Netz. Du legst deine **eigenen** Abbilder ab.
 
 VintageCoder erkennt ROM-Dateien am **Inhalt** (Größe und Prüfsumme), der Dateiname ist egal.
 
 ### ROMs einrichten
 
-1. Wähle **Hilfe ▸ Konfigurationsassistent: nur ROMs …**. Der Assistent führt dich durch die Einrichtung.
-2. Alternativ: **Einstellungen ▸ ROMs**. Die Seite zeigt den ROM-Ordner und den **Status je Rolle**, dazu **Ordner öffnen**, **Neu prüfen** und **Auswählen …**. Du kannst ROM-Dateien oder **ZIP-Archive** auf die Ablagezone ziehen, die Vorschau bestätigen, fertig.
-3. **ROMs aus VICE importieren …** zeigt die in VICE gefundenen Abbilder und kopiert sie nach Bestätigung in den ROM-Ordner.
-
-![Einstellungen, Seite „ROMs“ (Ausschnitt): je System ein Reiter, je Rolle der Status, die erwartete Größe und der Knopf „Auswählen …“.](bild:rom-verzeichnis "Einstellungen ▸ ROMs: Status je Rolle und Knopf „Auswählen …“; ROM-Ordner und Ablagezone stehen darüber und darunter auf der Seite")
+Der einfachste Weg ist der Assistent: **Hilfe ▸ Konfigurationsassistent: nur ROMs …** führt dich durch die Einrichtung. Du kannst die Dateien auch selbst in einen der Ordner legen, die der nächste Abschnitt nennt. Dieselbe Arbeit erledigt die Seite **Einstellungen ▸ ROMs** (siehe unten).
 
 ### Wo sucht VintageCoder?
 
@@ -189,7 +217,7 @@ Die erste Fundstelle je Rolle gilt:
 5. die alte Ablage `~/.config/vintagecoder/mega65/MEGA65.ROM`,
 6. nur auf Wunsch (Schalter **ROMs anderer Programme mitbenutzen**, Standard aus): ROM-Ordner von VICE, Xemu und atari800, nur lesend.
 
-Die Unterordner heißen `c64`, `c128`, `vic20`, `plus4`, `atari8` und `mega65`. Üblich sind:
+Die Unterordner heißen `c64`, `c128`, `vic20`, `plus4`, `atari8` und `mega65`. Auf der Seite **Einstellungen ▸ ROMs** siehst du je System und Rolle, ob eine passende Datei gefunden wurde; **ROM-Datei oder Zip wählen …** übernimmt Dateien nach deiner Bestätigung in den ROM-Ordner, **ROM-Ordner öffnen** zeigt ihn und unten stehen die **Durchsuchten Orte**. Üblich sind:
 
 | System | Dateien (Größe in Byte) |
 |---|---|
@@ -199,18 +227,18 @@ Die Unterordner heißen `c64`, `c128`, `vic20`, `plus4`, `atari8` und `mega65`. 
 
 > **Info:** **Xemu** (der MEGA65-Emulator) braucht eine ROM-Datei von **genau 131072 Byte**. VICE und atari800 benutzen eigene Ersatz-ROMs, wenn keine da sind.
 
-Hast du mehrere Abbilder derselben Rolle, gewinnt die Standardrevision. In der ROM-Seite lässt sich eine Datei **festnageln**. Eine Datei mit passendem Namen und Größe, aber unbekannter Prüfsumme gilt als **Unbekannte Revision** und wird mit Warnung benutzt.
+Hast du mehrere Abbilder derselben Rolle, gewinnt die Standardrevision. Eine Datei mit passendem Namen und Größe, aber unbekannter Prüfsumme gilt als **Unbekannte Revision** und wird mit Warnung benutzt.
 
 Von der Kommandozeile gibt es `vcc roms list`, `check`, `path`, `where` und `import`.
 
 ## Mein erstes Disk-Image (am Beispiel `prallball`)
 
-1. **Beispiel öffnen:** Startseite ▸ Beispiele ▸ `examples/c64/prallball`. *Erwartet:* Das Projekt ist offen; in der Projektdatei ist eine D64-Diskette eingetragen.
+1. **Beispiel öffnen:** Startseite ▸ **Beispiel öffnen** ▸ `examples/c64/prallball`. *Erwartet:* Das Projekt ist offen; in der Projektdatei ist eine D64-Diskette eingetragen.
 2. **Bauen:** **F7**. *Erwartet:* Das Protokoll meldet, dass die Diskette geschrieben wurde.
-3. **Abbild öffnen:** Doppelklick auf die gebaute `.d64`-Datei (unter `build/`). *Erwartet:* Das Disk-Studio zeigt das Verzeichnis und die Belegungskarte.
-4. **Datei ansehen:** eine Datei im Verzeichnis wählen. *Erwartet:* Die Belegungskarte färbt ihre Sektoren, die Karte „Sektor“ zeigt die Bytes.
-5. **Validieren.** *Erwartet:* „Validierung: 0 Problem(e)“.
-6. **Einlegen (Laufwerk 8).** *Erwartet:* Der Emulator startet mit der Diskette.
+3. **Abbild öffnen:** Klick auf die gebaute `.d64`-Datei (unter `build/`) im Projektbaum. *Erwartet:* Der Bereich Daten ▸ Disk zeigt das Verzeichnis und die Belegungskarte.
+4. **Datei ansehen:** eine Datei im Verzeichnis wählen. *Erwartet:* Die Belegungskarte färbt ihre Sektoren (mit **Kette zeigen**), die Karte rechts zeigt die Bytes des Sektors.
+5. **Prüfen.** *Erwartet:* Im Prüfbericht steht „Keine Probleme gefunden.“
+6. **Im Emulator einlegen.** *Erwartet:* Der Emulator startet mit der Diskette.
 
 ## Hardware-Besonderheiten und Grenzen
 
@@ -219,20 +247,22 @@ Von der Kommandozeile gibt es `vcc roms list`, `check`, `path`, `where` und `imp
 - Eine **Boot-Diskette** (Atari) hat keine Dateien, nur Boot-Sektoren.
 - Beim echten Laufwerk bestimmt der **Interleave** die Ladezeit.
 
-## Nachbar-Studios und Glossar
+## Nachbar-Editoren und Glossar
 
-- Das Programm auf der Diskette entsteht mit dem [Assembler](kapitel:assembler) und den Studios für Grafik und Klang; die Daten kommen aus deren Exporten.
-- Die Speicherkarte (Panel „Karte“) zeigt, wo dein Programm im Speicher liegt, siehe Teil 2.
+- Das Programm auf der Diskette entsteht mit dem [Assembler](kapitel:assembler) und den Editoren für Grafik und Klang; die Daten kommen aus deren Exporten.
+- Das Panel **Maschine** zeigt nach einem Bau, wo dein Programm im Speicher liegt, siehe Teil 2.
 - Begriffe: Glossar (Datei `GLOSSAR.md`): Diskettenabbild, Sektor, BAM, Kette.
 
 ## Häufige Stolpersteine
 
-- **„ROM … nicht gefunden“ beim Start:** Lege die Datei ab (**Hilfe ▸ Konfigurationsassistent: nur ROMs …**). Die Meldung nennt Zielordner, erwartete Größe und alle gesuchten Orte.
-- **Ein Zeichensatz sieht „falsch“ aus:** Meist zeigt der Editor die eigenen Standardsatz von VintageCoder, weil das ROM fehlt. Ablegen und **Neu prüfen**.
+- **„ROM … nicht gefunden“ beim Start:** Lege die Datei ab (**Einstellungen ▸ ROMs** oder **Hilfe ▸ Konfigurationsassistent: nur ROMs …**). Die Meldung nennt Zielordner, erwartete Größe und alle gesuchten Orte.
+- **Ein Zeichensatz sieht „falsch“ aus:** Meist zeigt VintageCoder den eigenen Standardsatz, weil das ROM fehlt. Lege das ROM ab und öffne die Ansicht neu.
 - **E301 beim Bauen:** Ein Segment überschreitet seinen Bereich oder überlappt ein anderes. Das Protokoll nennt Segment und Adressen.
-- **Die Diskette im Emulator ist leer:** Das Abbild war nicht gespeichert, als du „Einlegen“ gedrückt hast.
+- **„Im Emulator einlegen“ ist grau:** Das Abbild ist nicht gespeichert (oder hat noch keinen Speicherort). Erst **Speichern**, dann einlegen.
+- **Die Diskette im Emulator ist leer:** Das gespeicherte Abbild enthielt keine Dateien. Prüfe das Verzeichnis im Disk-Editor.
 - **Eine Datei lässt sich nicht übernehmen:** Der Zielordner muss im Projekt liegen (keine absoluten Pfade, kein `..`).
+- **„Dateien ablegen …“ ist grau:** Die Diskette hat kein Dateisystem (Boot-Diskette).
 
 ## Wie geht es weiter?
 
-Mit den Systemunterschieden beschäftigt sich [Zielsysteme im Vergleich](kapitel:systeme). Nachschlagen: [Disk-Studio](hilfe:disks), [Segmente, Bänke, Module](hilfe:cartridges), [ROM-Dateien](hilfe:roms), [Memory Map](hilfe:memmap).
+Mit den Systemunterschieden beschäftigt sich [Zielsysteme im Vergleich](kapitel:systeme). Nachschlagen: [Disk-Editor](hilfe:disks), [Segmente, Bänke, Module](hilfe:cartridges), [ROM-Dateien](hilfe:roms), [Memory Map](hilfe:memmap). Zur Fehlersuche im Programm selbst gehört der Debugger, siehe [Der Debugger](kapitel:debugger).

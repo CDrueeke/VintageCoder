@@ -71,7 +71,7 @@ pub enum Hardware {
 
 impl Hardware {
     pub fn label(&self) -> String {
-        match self { Hardware::Ultimate { host, name, .. } => format!("Ultimate 64 {} ({host})", if name.is_empty() { String::new() } else { format!("„{name}“") }).replace("  ", " "), Hardware::Mega65 { spec, name } => format!("MEGA65 {} ({spec})", if name.is_empty() { String::new() } else { format!("„{name}“") }).replace("  ", " ") }
+        match self { Hardware::Ultimate { host, name, .. } => format!("Ultimate 64 {} ({host})", if name.is_empty() { String::new() } else { vc_i18n::t!("testrun-hw-quoted-name", name = name.as_str()) }).replace("  ", " "), Hardware::Mega65 { spec, name } => format!("MEGA65 {} ({spec})", if name.is_empty() { String::new() } else { vc_i18n::t!("testrun-hw-quoted-name", name = name.as_str()) }).replace("  ", " ") }
     }
 }
 
@@ -99,7 +99,11 @@ pub enum Event {
     Error(String),
 }
 
+/// Titel der Gruppe „Statische Prüfungen“ (deutsch; für die Anzeige in der aktuellen Sprache [`static_title`])
 pub const STATIC_TITLE: &str = "Statische Prüfungen";
+
+/// Titel der Gruppe der statischen Prüfungen in der aktuellen Sprache
+pub fn static_title() -> String { vc_i18n::t!("testrun-static-title") }
 
 /// Emulatoren, die der Läufer ansteuern kann und die installiert sind: (Kennung, Anzeigename)
 pub fn available_backends() -> Vec<(String, String)> {
@@ -119,14 +123,14 @@ pub fn launch_hardware(hw: &Hardware, target: &str, program: &Path) -> Result<Bo
     let prg = std::fs::read(program).map_err(|e| format!("{}: {e}", program.display()))?;
     match hw {
         Hardware::Ultimate { host, password, .. } => {
-            if target != "c64" { return Err("Die Ultimate-Hardware spielt nur C64-Programme".into()); }
-            if !program.extension().map_or(false, |e| e.eq_ignore_ascii_case("prg")) { return Err("Auf der Ultimate lassen sich nur .prg-Dateien starten".into()); }
+            if target != "c64" { return Err(vc_i18n::t!("testrun-hw-ultimate-c64-only")); }
+            if !program.extension().map_or(false, |e| e.eq_ignore_ascii_case("prg")) { return Err(vc_i18n::t!("testrun-hw-ultimate-prg-only")); }
             let mut u = vc_emu::Ultimate64::connect(host.trim(), password.as_deref())?;
             u.run_prg(&prg)?;
             Ok(Box::new(u))
         }
         Hardware::Mega65 { spec, .. } => {
-            if target != "mega65" { return Err("Die MEGA65-Hardware spielt nur MEGA65-Programme".into()); }
+            if target != "mega65" { return Err(vc_i18n::t!("testrun-hw-mega65-only")); }
             let mut m = vc_emu::Mega65::connect(spec)?;
             let load = prg.first().copied().unwrap_or(1) as u16 | (prg.get(1).copied().unwrap_or(0x20) as u16) << 8;
             let entry = crate::debug::sys_target(&prg).unwrap_or(load);
@@ -140,16 +144,16 @@ pub fn launch_program(backend: &str, target: &str, program: &Path) -> Result<Box
     let file = program.to_string_lossy().into_owned();
     crate::emulators::require(backend)?;
     match backend {
-        "vice" => { let p = vice_program(target).ok_or_else(|| format!("VICE kennt das Ziel {target} nicht"))?; let args: Vec<String> = if target == "c16" { vec!["-model".into(), "c16".into()] } else { vec![] }; crate::emulators::launch_backend(p, &vc_emu::Launch { kind: p, file: Some(&file), args: &args, ..Default::default() }) }
-        "atari800" => { if target != "atari8" { return Err(format!("atari800 kennt nur das Ziel atari8, nicht {target}")); } crate::emulators::launch_backend("atari800", &vc_emu::Launch { kind: "atari800", file: Some(&file), ..Default::default() }) }
+        "vice" => { let p = vice_program(target).ok_or_else(|| vc_i18n::t!("testrun-launch-vice-target", target = target))?; let args: Vec<String> = if target == "c16" { vec!["-model".into(), "c16".into()] } else { vec![] }; crate::emulators::launch_backend(p, &vc_emu::Launch { kind: p, file: Some(&file), args: &args, ..Default::default() }) }
+        "atari800" => { if target != "atari8" { return Err(vc_i18n::t!("testrun-launch-atari800-target", target = target)); } crate::emulators::launch_backend("atari800", &vc_emu::Launch { kind: "atari800", file: Some(&file), ..Default::default() }) }
         "fujisan" => {
-            if target != "atari8" { return Err(format!("Fujisan kennt nur das Ziel atari8, nicht {target}")); }
+            if target != "atari8" { return Err(vc_i18n::t!("testrun-launch-fujisan-target", target = target)); }
             let mut f = crate::emulators::launch_backend("fujisan", &vc_emu::Launch { kind: "fujisan", file: Some(&file), ..Default::default() })?;
             f.cont()?;
             Ok(f)
         }
-        "xemu" => Err("Xemu lädt Programme über den Monitor: der Postfach-Modus ist dafür noch nicht eingerichtet".into()),
-        x => Err(format!("Emulator „{x}“ ist unbekannt")),
+        "xemu" => Err(vc_i18n::t!("testrun-launch-xemu")),
+        x => Err(vc_i18n::t!("testrun-launch-unknown-emulator", x = x)),
     }
 }
 
@@ -255,10 +259,10 @@ fn mark_text(o: &Outcome) -> String {
     let m = o.measured.as_deref().map(|m| format!(" {m}")).unwrap_or_default();
     match (o.state, o.level) {
         (State::Passed, _) => format!("OK{m}"),
-        (State::Failed, Level::Hint) => format!("Hinweis{m}: {}", o.name),
-        (State::Failed, Level::Error) => format!("Fehler: {}{m}", o.name),
-        (State::TimedOut, _) => format!("Zeitüberschreitung: {}", o.name),
-        (State::Skipped, _) => format!("übersprungen: {}", o.name),
+        (State::Failed, Level::Hint) => vc_i18n::t!("testrun-mark-note", m = m, name = &o.name),
+        (State::Failed, Level::Error) => vc_i18n::t!("testrun-mark-error", name = &o.name, m = m),
+        (State::TimedOut, _) => vc_i18n::t!("testrun-mark-timeout", name = &o.name),
+        (State::Skipped, _) => vc_i18n::t!("testrun-mark-skipped", name = &o.name),
     }
 }
 
@@ -285,7 +289,7 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
         Only::All => {}
     }
     // Statische Prüfungen: immer alle Dateien (schnell), eine Gruppe
-    let mut stat = Group { title: STATIC_TITLE.into(), ..Default::default() };
+    let mut stat = Group { title: static_title(), ..Default::default() };
     let opts = Options { strict: req.strict, dynamic: true };
     let all_files = find_tests(&req.root);
     let many = all_files.len() > 1;
@@ -309,7 +313,7 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
         if cancel.load(Ordering::SeqCst) { break; }
         if tf.tests.is_empty() || !files.contains(&f) { continue; }
         let title = rel_title(&req.root, &f);
-        let suffix = match tf.mode { TestMode::Mailbox => " · Postfach", TestMode::Measure => " · Zyklen", TestMode::Trap => "" };
+        let suffix = match tf.mode { TestMode::Mailbox => format!(" {}", vc_i18n::t!("testrun-suffix-mailbox")), TestMode::Measure => format!(" {}", vc_i18n::t!("testrun-suffix-measure")), TestMode::Trap => String::new() };
         let label = match &req.hardware { Some(h) => Some(format!("{}{suffix}", h.label())), None => req.backend.as_deref().map(|b| format!("{}{suffix}", backend_label(b, &tf.target))) };
         let names: Option<Vec<String>> = match &req.only {
             Only::Test(_, n) => Some(vec![n.clone()]),
@@ -322,13 +326,13 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
         let file_t0 = Instant::now();
         let skip_all = |why: &str| {
             for (i, t) in tf.tests.iter().enumerate() {
-                let name = t.get("name").and_then(|n| n.as_str()).map(str::to_string).unwrap_or_else(|| format!("Test {}", i + 1));
+                let name = t.get("name").and_then(|n| n.as_str()).map(str::to_string).unwrap_or_else(|| vc_i18n::t!("cli-test-default-name", n = i + 1));
                 if names.as_ref().map_or(true, |n| n.contains(&name)) { send(Event::Outcome { file: f.clone(), outcome: Outcome::skipped(name, why) }); }
             }
         };
         if let Some(hw) = &req.hardware {
             match &pre {
-                None => skip_all("das Programm ist nicht gebaut oder nicht lesbar (Bauen, dann erneut ausführen)"),
+                None => skip_all(&vc_i18n::t!("testrun-skip-not-built")),
                 Some(pre) if tf.mode == TestMode::Measure => {
                     let tx2 = tx.clone(); let f2 = f.clone();
                     let ro = RunOptions {
@@ -339,7 +343,7 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
                     let mut m = cycles::hardware_measurer(hw.clone(), tf.target.clone(), pre.program.clone(), crate::streams::StreamOptions::from_settings(&crate::settings::effective()));
                     let _ = cycles::run_measure(&tf, pre, &ro, &mut m);
                 }
-                Some(_) if tf.mode == TestMode::Trap => skip_all("Trap-Modus nicht verfügbar: die Hardware liefert keine CPU-Register und keine Haltepunkte. Als Postfach-Test (\"mode\": \"mailbox\", test.inc) neu bauen"),
+                Some(_) if tf.mode == TestMode::Trap => skip_all(&vc_i18n::t!("testrun-skip-trap-on-hardware")),
                 Some(pre) => {
                     let tx2 = tx.clone(); let f2 = f.clone();
                     let ro = RunOptions {
@@ -356,13 +360,13 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
             continue;
         }
         if tf.mode == TestMode::Measure && req.hardware.is_none() {
-            skip_all("Zyklenmessung (mode measure) braucht die Ultimate 64: „Läuft auf“ auf das Gerät stellen bzw. vcc test --backend u64:HOST");
+            skip_all(&vc_i18n::t!("testrun-skip-measure-needs-u64"));
             send(Event::FileDone { file: f, millis: file_t0.elapsed().as_millis() as u64 });
             continue;
         }
         match (&req.backend, &pre) {
-            (None, _) => skip_all("kein Emulator gewählt: „Läuft auf“ in der Kopfleiste"),
-            (_, None) => skip_all("das Programm ist nicht gebaut oder nicht lesbar (Bauen, dann erneut ausführen)"),
+            (None, _) => skip_all(&vc_i18n::t!("testrun-skip-no-emulator")),
+            (_, None) => skip_all(&vc_i18n::t!("testrun-skip-not-built")),
             (Some(b), Some(pre)) if tf.mode == TestMode::Mailbox => {
                 let tx2 = tx.clone(); let f2 = f.clone();
                 let ro = RunOptions {
@@ -383,12 +387,12 @@ pub fn run(req: &RunRequest, cancel: Arc<AtomicBool>, tx: &Sender<Event>) {
                     ..Default::default()
                 };
                 let mut launch = || -> Result<Box<dyn Backend>, String> {
-                    let p = prog.ok_or_else(|| format!("VICE kennt das Ziel {} nicht", tf.target))?;
+                    let p = prog.ok_or_else(|| vc_i18n::t!("testrun-launch-vice-target", target = &tf.target))?;
                     vc_emu::Vice::launch_with(p, "", None, &[]).map(|v| Box::new(v) as Box<dyn Backend>)
                 };
                 let _ = runner::run_tests(&tf, pre, &ro, &mut launch);
             }
-            (Some(b), _) => skip_all(&format!("Emulator „{b}“ wird vom Läufer noch nicht unterstützt")),
+            (Some(b), _) => skip_all(&vc_i18n::t!("testrun-skip-emulator-unsupported", b = b)),
         }
         send(Event::FileDone { file: f, millis: file_t0.elapsed().as_millis() as u64 });
     }
@@ -400,11 +404,49 @@ pub struct DebugPlan { pub backend: Box<dyn Backend>, pub info: ArmInfo, pub tar
 
 pub fn prepare_debug(file: &Path, data: &Path, test: &str) -> Result<DebugPlan, String> {
     let tf = TestFile::load(file)?;
-    if tf.mode == TestMode::Mailbox { return Err("Im Postfach-Modus gibt es keine Falle: das Programm lässt sich normal debuggen (F6)".into()); }
+    if tf.mode == TestMode::Mailbox { return Err(vc_i18n::t!("testrun-debug-mailbox")); }
     let pre = Prepared::load(&tf, data)?;
-    let prog = vice_program(&tf.target).ok_or_else(|| format!("Debuggen im Trap-Modus gibt es für das Ziel {} noch nicht", tf.target))?;
+    let prog = vice_program(&tf.target).ok_or_else(|| vc_i18n::t!("testrun-debug-trap-target", target = &tf.target))?;
     let mut emu: Box<dyn Backend> = Box::new(vc_emu::Vice::launch_with(prog, "", None, &[])?);
     std::thread::sleep(RunOptions::default().boot_wait);
     let info = match arm_test(emu.as_mut(), &tf, &pre, test, &RunOptions::default()) { Ok(i) => i, Err(e) => { emu.stop(); return Err(e); } };
     Ok(DebugPlan { backend: emu, info, target: tf.target.clone(), cpu: pre.cpu.clone(), symbols: pre.dbg.symbols.clone() })
+}
+
+#[cfg(test)]
+mod i18n_tests {
+    use super::*;
+
+    fn in_lang<T>(l: vc_i18n::Lang, f: impl FnOnce() -> T) -> T {
+        vc_i18n::set_thread_language(Some(l));
+        let r = f();
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        r
+    }
+
+    #[test]
+    fn marks_and_titles_in_both_languages() {
+        let hint = Outcome::failed("Größe", Level::Hint, "x").with_measured("18 bis 19 Zyklen");
+        let err = Outcome::failed("Größe", Level::Error, "x");
+        let (to, sk) = (Outcome::timed_out("T", "x"), Outcome::skipped("S", "x"));
+        let (de_title, de_hint, de_err, de_to, de_sk) = in_lang(vc_i18n::Lang::De, || (static_title(), mark_text(&hint), mark_text(&err), mark_text(&to), mark_text(&sk)));
+        assert_eq!(de_title, STATIC_TITLE);
+        assert_eq!(de_hint, "Hinweis 18 bis 19 Zyklen: Größe");
+        assert_eq!(de_err, "Fehler: Größe");
+        assert_eq!(de_to, "Zeitüberschreitung: T");
+        assert_eq!(de_sk, "übersprungen: S");
+        let (en_title, en_hint, en_err, en_to, en_sk) = in_lang(vc_i18n::Lang::En, || (static_title(), mark_text(&hint), mark_text(&err), mark_text(&to), mark_text(&sk)));
+        assert_eq!(en_title, "Static checks");
+        assert_eq!(en_hint, "Note 18 bis 19 Zyklen: Größe");
+        assert_eq!(en_err, "Error: Größe");
+        assert_eq!(en_to, "Timeout: T");
+        assert_eq!(en_sk, "skipped: S");
+    }
+
+    #[test]
+    fn launch_errors_in_english() {
+        let t = |k: &str| { vc_i18n::set_thread_language(Some(vc_i18n::Lang::En)); let r = vc_i18n::translate(k, &[("target", vc_i18n::Arg::from("zx"))]); vc_i18n::set_thread_language(Some(vc_i18n::Lang::De)); r };
+        assert_eq!(t("testrun-launch-vice-target"), "VICE does not know the target zx");
+        assert_eq!(t("testrun-debug-trap-target"), "Debugging in trap mode does not exist for the target zx yet");
+    }
 }

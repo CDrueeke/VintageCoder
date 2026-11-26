@@ -14,7 +14,7 @@ pub trait Mem {
     /// E/A-Bereich (VIC, CIA, Farb-RAM) unabhängig von der Umschaltung
     fn io(&mut self, addr: u16, len: usize) -> Result<Vec<u8>, String>;
     /// Zeichen-ROM des C64 (nur für die Vorschau; wird nie gespeichert)
-    fn chargen(&mut self, _offset: u16, _len: usize) -> Result<Vec<u8>, String> { Err("nicht lesbar".into()) }
+    fn chargen(&mut self, _offset: u16, _len: usize) -> Result<Vec<u8>, String> { Err(vc_i18n::t!("snapshot-nicht-lesbar").into()) }
 }
 
 /// Über `Backend` des Emulators
@@ -52,7 +52,7 @@ fn io(m: &mut dyn Mem, a: u16, n: usize) -> Result<Vec<u8>, String> { m.io(a, n)
 fn ram(m: &mut dyn Mem, a: u16, n: usize) -> Result<Vec<u8>, String> { m.ram(a, n) }
 
 pub fn detect(system: &str, m: &mut dyn Mem) -> Result<Detected, String> {
-    match system { "c64" => detect_c64(m), "atari8" => detect_atari(m), s => Err(format!("Momentaufnahme: System '{s}' wird nicht unterstützt (C64 und Atari 8-Bit)")) }
+    match system { "c64" => detect_c64(m), "atari8" => detect_atari(m), s => Err(vc_i18n::t!("snapshot-momentaufnahme-system-s-wird-nicht-unterstuetzt", s = &s)) }
 }
 
 fn detect_c64(m: &mut dyn Mem) -> Result<Detected, String> {
@@ -65,10 +65,10 @@ fn detect_c64(m: &mut dyn Mem) -> Result<Detected, String> {
     let mut d = Detected { rom_off: if rom_cs { Some(off as u16 - 0x1000) } else { None }, view_cs: cs, system: "c64".into(), supported: true, screen, charset: if rom_cs { None } else { Some(cs) }, charset_multicolor: d016 & 0x10 != 0,
         border: regs[0x20] & 15, bg: [regs[0x21] & 15, regs[0x22] & 15, regs[0x23] & 15, regs[0x24] & 15], fg: 1, ..Default::default() };
     let (bmm, ecm) = (d011 & 0x20 != 0, d011 & 0x40 != 0);
-    d.mode = format!("{}{} · VIC-Bank {bank} (${:04X}–${:04X})", if bmm { "Bitmap" } else { "Text" }, if ecm { " (ECM)" } else if d.charset_multicolor { " (Multicolor)" } else { "" }, bank * 0x4000, bank * 0x4000 + 0x3FFF);
-    if bmm { d.supported = false; d.notes.push("Bitmap-Modus: kein Textbildschirm – Screen und Zeichensatz entfallen (Sprites sind trotzdem möglich).".into()); }
-    if ecm { d.notes.push("ECM-Modus: es werden nur 64 Zeichen dargestellt; der Bildschirm wird unverändert gelesen.".into()); }
-    if rom_cs { d.notes.push("Der Zeichensatz liegt im Zeichen-ROM (Standardschrift) und wird von dort gelesen.".into()); }
+    d.mode = vc_i18n::t!("snapshot-p1-p2-vic-bank-bank-p4", p1 = if bmm { vc_i18n::t!("snapshot-bitmap") } else { vc_i18n::t!("snapshot-text") }, p2 = if ecm { format!(" {}", vc_i18n::t!("snapshot-ecm")) } else if d.charset_multicolor { format!(" {}", vc_i18n::t!("snapshot-multicolor")) } else { String::new() }, bank = &bank, p4 = format!("{:04X}", bank * 0x4000), p5 = format!("{:04X}", bank * 0x4000 + 0x3FFF));
+    if bmm { d.supported = false; d.notes.push(vc_i18n::t!("snapshot-bitmap-modus-kein-textbildschirm-screen-und").into()); }
+    if ecm { d.notes.push(vc_i18n::t!("snapshot-ecm-modus-es-werden-nur-64").into()); }
+    if rom_cs { d.notes.push(vc_i18n::t!("snapshot-der-zeichensatz-liegt-im-zeichen-rom").into()); }
     let enabled = regs[0x15]; let mcmask = regs[0x1C];
     let ptrs = m.ram(screen.wrapping_add(0x3F8), 8)?;
     for i in 0..8 {
@@ -82,7 +82,7 @@ fn detect_atari(m: &mut dyn Mem) -> Result<Detected, String> {
     let sh = m.cpu(0x0230, 2)?; let dl = u16::from_le_bytes([sh[0], sh[1]]);
     let chbas = byte(m, cpu, 0x02F4)?; let col = m.cpu(0x02C4, 5)?;
     let mut d = Detected { view_cs: (chbas as u16) << 8, system: "atari8".into(), supported: true, border: col[4], bg: [col[2], 0, 0, 0], fg: (col[2] & 0xF0) | (col[1] & 0x0F), ..Default::default() };
-    d.notes.push("Atari: Die Farben und Zeiger stammen aus den Schattenregistern des Betriebssystems. Programme mit eigener Display-Liste oder eigenem Interrupt müssen Adressen und Farben ggf. von Hand anpassen.".into());
+    d.notes.push(vc_i18n::t!("snapshot-atari-die-farben-und-zeiger-stammen").into());
     // Display-Liste: erste Zeile mit LMS suchen
     let list = m.cpu(dl, 128.min(0x10000 - dl as usize))?; let mut i = 0; let mut mode = None; let mut screen = None;
     while i < list.len() {
@@ -91,12 +91,12 @@ fn detect_atari(m: &mut dyn Mem) -> Result<Detected, String> {
         if op == 1 { if b & 0x40 != 0 { break; } i += 3; continue; }
         if b & 0x40 != 0 && i + 2 < list.len() { if screen.is_none() { screen = Some(u16::from_le_bytes([list[i + 1], list[i + 2]])); mode = Some(op); } i += 3; } else { if mode.is_none() { mode = Some(op); } i += 1; }
     }
-    let Some(screen) = screen else { d.supported = false; d.mode = "keine Display-Liste mit LMS gefunden".into(); d.notes.push(format!("Display-Liste bei ${dl:04X} enthält keinen LMS-Befehl.")); return Ok(d); };
-    d.screen = screen; d.mode = format!("ANTIC-Modus {}, Display-Liste ${dl:04X}", mode.unwrap_or(0));
-    if mode != Some(2) { d.supported = false; d.notes.push(format!("ANTIC-Modus {} wird nicht unterstützt (nur Modus 2, 40×24 Textzeichen).", mode.unwrap_or(0))); }
+    let Some(screen) = screen else { d.supported = false; d.mode = vc_i18n::t!("snapshot-keine-display-liste-mit-lms-gefunden").into(); d.notes.push(vc_i18n::t!("snapshot-display-liste-bei-dl-enthaelt-keinen", dl = format!("{:04X}", dl))); return Ok(d); };
+    d.screen = screen; d.mode = vc_i18n::t!("snapshot-antic-modus-p1-display-liste-dl", p1 = mode.unwrap_or(0), dl = format!("{:04X}", dl));
+    if mode != Some(2) { d.supported = false; d.notes.push(vc_i18n::t!("snapshot-antic-modus-p1-wird-nicht-unterstuetzt", p1 = mode.unwrap_or(0))); }
     let cs = (chbas as u16) << 8;
     d.charset = Some(cs);
-    if chbas == 0xE0 { d.notes.push("Der Zeichensatz liegt im Betriebssystem-ROM ($E000) und wird von dort gelesen.".into()); }
+    if chbas == 0xE0 { d.notes.push(vc_i18n::t!("snapshot-der-zeichensatz-liegt-im-betriebssystem-rom").into()); }
     Ok(d)
 }
 
@@ -124,9 +124,9 @@ fn build_tiles(chars: &[u8], colors: Option<&[u8]>, rows: usize, empty: u8, mapw
         let i = *index.entry(key).or_insert_with(|| { tiles.push(json!({ "name": format!("t{}", tiles.len()), "chars": key.0, "color": key.1, "solid": false })); tiles.len() - 1 });
         map[ty][tx] = i;
     } }
-    if tiles.len() > 256 { return Err(format!("Zu viele verschiedene Kacheln ({}); der Bildschirm lässt sich nicht als Kachelkarte darstellen", tiles.len())); }
-    let mut note = format!("{} Kacheln, Raster ab Spalte {ox}, Zeile {oy}.", tiles.len());
-    if mixed > 0 { note += &format!(" {mixed} Kachelstellen hatten gemischte Farben (es gilt die Farbe der ersten sichtbaren Zelle)."); }
+    if tiles.len() > 256 { return Err(vc_i18n::t!("snapshot-zu-viele-verschiedene-kacheln-p1-der", p1 = tiles.len())); }
+    let mut note = vc_i18n::t!("snapshot-p1-kacheln-raster-ab-spalte-ox", p1 = tiles.len(), ox = &ox, oy = &oy);
+    if mixed > 0 { note += &format!(" {}", vc_i18n::t!("snapshot-mixed-kachelstellen-hatten-gemischte-farben-es", mixed = &mixed)); }
     Ok((tiles, map, note))
 }
 
@@ -141,7 +141,7 @@ fn tile_key(chars: &[u8], colors: Option<&[u8]>, x: usize, y: usize, empty: u8) 
 
 /// Liest die Daten und baut die Media: (relativer Pfad, Inhalt)
 pub fn build_media(d: &Detected, o: &Opts, m: &mut dyn Mem, profiles: &[Profile]) -> Result<Vec<(String, Value)>, String> {
-    let find = |id: &str| profiles.iter().find(|p| p.id == id).ok_or_else(|| format!("Profil '{id}' fehlt"));
+    let find = |id: &str| profiles.iter().find(|p| p.id == id).ok_or_else(|| vc_i18n::t!("snapshot-profil-id-fehlt", id = &id));
     let mut out = vec![]; let mut cs_rel: Option<String> = None;
     let cs_name = format!("{}_charset", o.name); let sc_name = format!("{}_screen", o.name);
     match d.system.as_str() {
@@ -154,7 +154,7 @@ pub fn build_media(d: &Detected, o: &Opts, m: &mut dyn Mem, profiles: &[Profile]
                 let rel = format!("graphics/snapshot/{cs_name}.vcchar"); cs_rel = Some(rel.clone()); out.push((rel, v));
             }
             if let Some(a) = o.screen {
-                if !d.supported { return Err("Der aktuelle Modus ist kein Textbildschirm.".into()); }
+                if !d.supported { return Err(vc_i18n::t!("snapshot-der-aktuelle-modus-ist-kein-textbildschirm").into()); }
                 let p = find("c64.screen.text")?; let chars = ram(m, a, 1000)?; let color = io(m, 0xD800, 1000)?;
                 let mut v = vc_media::new_media(p, &sc_name);
                 v["chars"] = json!((0..25).map(|r| chars[r * 40..r * 40 + 40].to_vec()).collect::<Vec<_>>());
@@ -190,7 +190,7 @@ pub fn build_media(d: &Detected, o: &Opts, m: &mut dyn Mem, profiles: &[Profile]
                 let rel = format!("graphics/snapshot/{cs_name}.vcchar"); cs_rel = Some(rel.clone()); out.push((rel, v));
             }
             if let Some(a) = o.screen {
-                if !d.supported { return Err("Der aktuelle ANTIC-Modus wird nicht unterstützt.".into()); }
+                if !d.supported { return Err(vc_i18n::t!("snapshot-der-aktuelle-antic-modus-wird-nicht").into()); }
                 let p = find("atari.screen.antic2")?; let chars = m.cpu(a, 960)?; let mut v = vc_media::new_media(p, &sc_name);
                 v["chars"] = json!((0..24).map(|r| chars[r * 40..r * 40 + 40].to_vec()).collect::<Vec<_>>());
                 v["colors"] = json!({ "bg": d.bg[0], "fg": d.fg, "border": d.border });
@@ -205,9 +205,9 @@ pub fn build_media(d: &Detected, o: &Opts, m: &mut dyn Mem, profiles: &[Profile]
                 }
             }
         }
-        s => return Err(format!("System '{s}' wird nicht unterstützt")),
+        s => return Err(vc_i18n::t!("snapshot-system-s-wird-nicht-unterstuetzt", s = &s)),
     }
-    if out.is_empty() { return Err("Nichts zu speichern: Adresse für Screen oder Zeichensatz fehlt (Zeichensatz im ROM?).".into()); }
+    if out.is_empty() { return Err(vc_i18n::t!("snapshot-nichts-zu-speichern-adresse-fuer-screen").into()); }
     Ok(out)
 }
 

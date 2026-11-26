@@ -4,7 +4,7 @@
 ;
 ; ZWECK
 ;   Das Beispiel zeigt den kürzesten Weg von einem Tracker-Song zu Musik auf dem VC-20: Der Song music/tune.vcsong (Profil vic20.vic.song) wird beim
-;   Bauen nach build/export/tune.asm exportiert (tune_order, tune_patterns, tune_ins und die Konstanten tune_speed, tune_rows, tune_patsize), die
+;   Einbinden umgewandelt (tune_order, tune_patterns, tune_ins und die Konstanten tune_speed, tune_rows, tune_patsize), die
 ;   Spielroutine lib/music.inc liest ihn, und ein IRQ-Einschub ruft sie einmal pro Bild auf. Man lernt daraus: wie ein Song-Export eingebunden wird,
 ;   wie man sich hinter den KERNAL-IRQ hängt und wie der VIC-I mit seinen vier Stimmen und der gemeinsamen Lautstärke angesprochen wird.
 ;
@@ -14,8 +14,8 @@
 ;   weiter, weil der KERNAL-IRQ weiterläuft.
 ;
 ; BAUEN UND STARTEN
-;   Projekt music_demo.vcprj (VC-20 PAL, Speicherausbau "unexpanded", CPU 6502): "vcc build examples/vic20/music_demo" exportiert zuerst den Song
-;   und baut dann build/music_demo.prg; ohne den Export fehlt build/export/tune.asm. Starten mit LOAD und RUN (die BASIC-Zeile "10 SYS" erzeugt
+;   Projekt music_demo.vcprj (VC-20 PAL, Speicherausbau "unexpanded", CPU 6502): "vcc build examples/vic20/music_demo" wandelt den Song beim Einbinden
+;   um und baut build/music_demo.prg. Starten mit LOAD und RUN (die BASIC-Zeile "10 SYS" erzeugt
 ;   .basicstub); beendet wird mit Reset. Für NTSC die Tabelle wählen: "-D NTSC=1" (oder .const NTSC = 1 vor dem Einbinden von lib/vic_freq.inc); das
 ;   Tempo hängt außerdem am Fernsehstandard (siehe unten).
 ;
@@ -67,4 +67,4 @@ old_irq: .word 0                    ; gemerkter alter IRQ-Vektor (von start gese
 
 music_runtime                       ; Spielroutine und Variablen des Players, hier EINMAL hinter dem Hauptprogramm (nicht ausgeführt)
 .include "lib/vic_freq.inc"         ; Frequenztabellen (Note 1..96 -> Registerwert) für Bass, Alt, Sopran und Rauschen, PAL oder mit NTSC=1 NTSC
-.include "build/export/tune.asm"    ; Songdaten aus dem Tracker-Export (entsteht beim Bauen aus music/tune.vcsong, nicht im Quellbaum)
+.include "music/tune.vcsong"    ; Songdaten aus dem Tracker-Export (entsteht beim Bauen aus music/tune.vcsong, nicht im Quellbaum)

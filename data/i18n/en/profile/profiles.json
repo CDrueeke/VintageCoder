@@ -1,0 +1,220 @@
+{
+ "source": "profile/profiles.json",
+ "entries": {
+  "/profiles/0/name": {
+   "de": "C64 Sprite hires 24×21",
+   "en": "C64 sprite hires 24x21",
+   "status": "maschinell"
+  },
+  "/profiles/0/modes/0/hint": {
+   "de": "24×21 Pixel, eine Farbe",
+   "en": "24x21 pixels, one color",
+   "status": "maschinell"
+  },
+  "/profiles/0/modes/1/hint": {
+   "de": "12×21 breite Pixel, vier Werte (Sprite-Farbe, Multicolor 1 und 2)",
+   "en": "12x21 wide pixels, four values (sprite color, multicolor 1 and 2)",
+   "status": "maschinell"
+  },
+  "/profiles/1/name": {
+   "de": "C64 Sprite multicolor 12×21",
+   "en": "C64 sprite multicolor 12x21",
+   "status": "maschinell"
+  },
+  "/profiles/2/name": {
+   "de": "Atari PMG Einzelzeile (8 Pixel breit)",
+   "en": "Atari PMG single line (8 pixels wide)",
+   "status": "maschinell"
+  },
+  "/profiles/3/name": {
+   "de": "C64 Zeichensatz hires 8×8",
+   "en": "C64 character set hires 8x8",
+   "status": "maschinell"
+  },
+  "/profiles/4/name": {
+   "de": "C128 Zeichensatz hires 8×8 (40 Spalten)",
+   "en": "C128 character set hires 8x8 (40 columns)",
+   "status": "maschinell"
+  },
+  "/profiles/5/name": {
+   "de": "C128 Zeichensatz VDC 8×16 (80 Spalten)",
+   "en": "C128 character set VDC 8x16 (80 columns)",
+   "status": "maschinell"
+  },
+  "/profiles/6/name": {
+   "de": "Plus/4 Zeichensatz hires 8×8",
+   "en": "Plus/4 character set hires 8x8",
+   "status": "maschinell"
+  },
+  "/profiles/7/name": {
+   "de": "PET/CBM Zeichensatz hires 8×8",
+   "en": "PET/CBM character set hires 8x8",
+   "status": "geprüft"
+  },
+  "/profiles/8/name": {
+   "de": "Plus/4 Zeichensatz multicolor 4×8 (TED, gilt für alle Zeichen)",
+   "en": "Plus/4 character set multicolor 4x8 (TED, applies to all characters)",
+   "status": "maschinell"
+  },
+  "/profiles/9/name": {
+   "de": "VC-20 Zeichensatz hires 8×8",
+   "en": "VIC-20 character set hires 8x8",
+   "status": "maschinell"
+  },
+  "/profiles/10/name": {
+   "de": "VC-20 Zeichensatz multicolor 4×8",
+   "en": "VIC-20 character set multicolor 4x8",
+   "status": "maschinell"
+  },
+  "/profiles/11/name": {
+   "de": "VC-20 Zeichensatz hires 8×16",
+   "en": "VIC-20 character set hires 8x16",
+   "status": "maschinell"
+  },
+  "/profiles/12/name": {
+   "de": "C64 Zeichensatz multicolor 4×8",
+   "en": "C64 character set multicolor 4x8",
+   "status": "geprüft"
+  },
+  "/profiles/13/name": {
+   "de": "Atari Zeichensatz ANTIC 2 (128 Zeichen)",
+   "en": "Atari character set ANTIC 2 (128 characters)",
+   "status": "maschinell"
+  },
+  "/profiles/14/name": {
+   "de": "Atari Zeichensatz ANTIC 4 (128 Zeichen, Mehrfarb 4×8)",
+   "en": "Atari character set ANTIC 4 (128 characters, multicolor 4x8)",
+   "status": "maschinell"
+  },
+  "/profiles/15/name": {
+   "de": "VC-20 Textbildschirm 22×23",
+   "en": "VIC-20 text screen 22x23",
+   "status": "maschinell"
+  },
+  "/profiles/16/name": {
+   "de": "C64 Textbildschirm 40×25",
+   "en": "C64 text screen 40x25",
+   "status": "maschinell"
+  },
+  "/profiles/17/name": {
+   "de": "Atari Textbildschirm ANTIC 2 (40×24)",
+   "en": "Atari text screen ANTIC 2 (40x24)",
+   "status": "maschinell"
+  },
+  "/profiles/18/name": {
+   "de": "Plus/4 Textbildschirm 40×25 (TED)",
+   "en": "Plus/4 text screen 40x25 (TED)",
+   "status": "maschinell"
+  },
+  "/profiles/19/name": {
+   "de": "C64 Kacheln 2×2 Zeichen",
+   "en": "C64 2x2 character tiles",
+   "status": "maschinell"
+  },
+  "/profiles/20/name": {
+   "de": "VC-20 Kacheln 2×2 Zeichen",
+   "en": "VIC-20 2x2 character tiles",
+   "status": "maschinell"
+  },
+  "/profiles/21/name": {
+   "de": "Atari Kacheln 2×2 Zeichen",
+   "en": "Atari 2x2 character tiles",
+   "status": "maschinell"
+  },
+  "/profiles/22/name": {
+   "de": "Plus/4 Kacheln 2×2 Zeichen",
+   "en": "Plus/4 2x2 character tiles",
+   "status": "maschinell"
+  },
+  "/profiles/23/name": {
+   "de": "C64 Kachelsatz (Größe B×H je Satz, Farb-RAM)",
+   "en": "C64 tile set (size WxH per set, color RAM)",
+   "status": "geprüft"
+  },
+  "/profiles/24/name": {
+   "de": "VC-20 Kachelsatz",
+   "en": "VIC-20 tile set",
+   "status": "maschinell"
+  },
+  "/profiles/25/name": {
+   "de": "Atari Kachelsatz (Farbwahl über Zeichenbit 7)",
+   "en": "Atari tile set (color selection via character bit 7)",
+   "status": "maschinell"
+  },
+  "/profiles/26/name": {
+   "de": "Plus/4 Kachelsatz",
+   "en": "Plus/4 tile set",
+   "status": "maschinell"
+  },
+  "/profiles/27/name": {
+   "de": "C64 SID-Song (3 Stimmen)",
+   "en": "C64 SID song (3 voices)",
+   "status": "maschinell"
+  },
+  "/profiles/28/name": {
+   "de": "Atari POKEY-Song (4 Stimmen)",
+   "en": "Atari POKEY song (4 voices)",
+   "status": "geprüft"
+  },
+  "/profiles/29/name": {
+   "de": "MEGA65 4×SID-Song (12 Stimmen)",
+   "en": "MEGA65 4x SID song (12 voices)",
+   "status": "maschinell"
+  },
+  "/profiles/30/name": {
+   "de": "Plus/4 TED-Song (2 Stimmen)",
+   "en": "Plus/4 TED song (2 voices)",
+   "status": "maschinell"
+  },
+  "/profiles/31/name": {
+   "de": "VC-20 VIC-Song (3 Töne + Rauschen)",
+   "en": "VIC-20 VIC song (3 tones + noise)",
+   "status": "maschinell"
+  },
+  "/profiles/32/name": {
+   "de": "MEGA65 Zeichensatz Vollfarbmodus 8×8, 256 Farben (VIC-IV FCM)",
+   "en": "MEGA65 character set full color mode 8x8, 256 colors (VIC-IV FCM)",
+   "status": "geprüft"
+  },
+  "/profiles/33/name": {
+   "de": "MEGA65 Zeichensatz multicolor 4×8 (VIC-II-Modus)",
+   "en": "MEGA65 character set multicolor 4x8 (VIC-II mode)",
+   "status": "geprüft"
+  },
+  "/profiles/34/name": {
+   "de": "MEGA65 Textbildschirm 40×25 (VIC-II-Modus)",
+   "en": "MEGA65 text screen 40x25 (VIC-II mode)",
+   "status": "maschinell"
+  },
+  "/profiles/35/name": {
+   "de": "MEGA65 Kacheln 2×2 Zeichen (VIC-II-Modus)",
+   "en": "MEGA65 2x2 character tiles (VIC-II mode)",
+   "status": "geprüft"
+  },
+  "/profiles/36/name": {
+   "de": "MEGA65 Kachelsatz (VIC-II-Modus)",
+   "en": "MEGA65 tile set (VIC-II mode)",
+   "status": "maschinell"
+  },
+  "/profiles/37/name": {
+   "de": "MEGA65 Sprite hires 24×21 (VIC-II-Modus)",
+   "en": "MEGA65 sprite hires 24x21 (VIC-II mode)",
+   "status": "maschinell"
+  },
+  "/profiles/38/name": {
+   "de": "MEGA65 Sprite multicolor 12×21 (VIC-II-Modus)",
+   "en": "MEGA65 sprite multicolor 12x21 (VIC-II mode)",
+   "status": "maschinell"
+  },
+  "/profiles/39/name": {
+   "de": "MEGA65 Palette (256 Farben, 8 Bit je Kanal)",
+   "en": "MEGA65 palette (256 colors, 8 bits per channel)",
+   "status": "maschinell"
+  },
+  "/profiles/40/name": {
+   "de": "MEGA65 PLAY-Tracker (BASIC-65-Befehl PLAY, 6 Stimmen)",
+   "en": "MEGA65 PLAY tracker (BASIC 65 command PLAY, 6 voices)",
+   "status": "geprüft"
+  }
+ }
+}

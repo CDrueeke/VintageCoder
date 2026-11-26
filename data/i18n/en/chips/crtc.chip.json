@@ -1,0 +1,15 @@
+{
+ "source": "chips/crtc.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Registernummer (0-17), die Zugriffe auf data meinen",
+   "en": "Register number (0-17) that accesses to data refer to",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Wert des gewählten CRTC-Registers (R12/R13 Startadresse, R14/R15 Cursor)",
+   "en": "Value of the selected CRTC register (R12/R13 start address, R14/R15 cursor)",
+   "status": "maschinell"
+  }
+ }
+}

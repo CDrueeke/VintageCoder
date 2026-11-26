@@ -4,6 +4,8 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 ## A
 
+**Ablage** – der Bereich unter dem Editor mit den Reitern Probleme, Ausgabe, Tests, Suche und Gliederung (Cmd/Strg+J). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+
 **Adresse** – Jede der 65536 Speicherzellen eines 8-Bit-Computers hat eine Nummer, die Adresse. Man schreibt sie meist hexadezimal, zum Beispiel `$d020`.
 
 **Akkumulator (A)** – das wichtigste Arbeitsregister des 6502-Prozessors. Fast alle Rechnungen und Kopiervorgänge laufen über A.
@@ -14,6 +16,10 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **ATASCII** – der Zeichencode der Atari-8-Bit-Computer, Gegenstück zu PETSCII beim Commodore.
 
+**ATR** – Dateiformat für Diskettenabbilder der Atari-8-Bit-Computer. → [Disk-Editor, Segmente, ROMs](kapitel:disk-studio)
+
+**AUTORUN** – Name einer Datei, die der Atari (`AUTORUN.SYS`) oder Turbo BASIC XL (`AUTORUN.BAS`) nach dem Start einer Diskette selbst lädt und ausführt. VintageCoder schreibt dein Turbo-BASIC-Programm als `AUTORUN.BAS` auf die Diskette. → [Turbo BASIC XL starten](kapitel:basic)
+
 ## B
 
 **BAM / VTOC** – Verwaltungstabelle einer Diskette, die merkt, welche Sektoren belegt sind (Commodore: BAM, Atari: VTOC).
@@ -22,9 +28,9 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Bauen** – aus dem Quelltext das fertige Programm für das Zielsystem erzeugen (Taste F7). Der Fachbegriff „kompilieren“ oder „assemblieren“ meint dasselbe.
 
-**Befehlspalette** – ein Suchfenster (Cmd/Strg+K), das Befehle, Dateien und Aktionen des offenen Studios findet. → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+**Befehlspalette** – ein Suchfenster (Cmd/Strg+K), das Befehle, Dateien, zuletzt geöffnete Projekte und die Bereiche der Navigation findet. → [Die Oberfläche im Überblick](kapitel:oberflaeche)
 
-**Bildschirmcode** – die Zahlen, die der Bildschirmspeicher von C64 und Verwandten erwartet. Sie unterscheiden sich von PETSCII. Im Assembler wandelt `.screen` Text in Bildschirmcodes um.
+**Bildschirmcode** – die Zahlen, die der Bildschirmspeicher von C64 und Verwandten erwartet. Sie unterscheiden sich von PETSCII. Im Assembler wandelt `.screencode` Text in Bildschirmcodes um.
 
 **Byte** – ein Speicherplatz für eine Zahl von 0 bis 255 (acht Bit).
 
@@ -36,9 +42,13 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Direktive** – eine Anweisung an den Assembler (oder den BASIC-Übersetzer), keine an den Prozessor. Im Assembler beginnt sie mit einem Punkt (`.org`), im BASIC mit `#` (`#include`).
 
-**Diskettenabbild (D64, D71, D81, ATR)** – Datei, die den Inhalt einer Diskette Sektor für Sektor enthält. → [Disk-Studio, Segmente, ROMs](kapitel:disk-studio)
+**Diskettenabbild (D64, D71, D81, ATR)** – Datei, die den Inhalt einer Diskette Sektor für Sektor enthält. → [Disk-Editor, Segmente, ROMs](kapitel:disk-studio)
+
+**DOS 2** – das Dateisystem der Atari-Disketten (Atari DOS 2, auch Turbo-BASIC-XL-Diskette). VintageCoder liest und schreibt es im ATR-Abbild.
 
 ## E
+
+**Editor** – ein Werkzeug in VintageCoder für eine Art von Datei: Code-Editor, Sprite-Editor, Zeichensatz-Editor, Kachel-Editor, Bildschirm-Editor, Palette-Editor, Disk-Editor und Tracker. Jeder Editor gehört zu einem Hauptbereich. → [Grafik und Klang im Überblick](kapitel:grafik-ueberblick)
 
 **Eigenschaft** (Kachel) – ein frei benanntes Merkmal einer Kachel, zum Beispiel „solide“; dein Programm kann es abfragen. → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
 
@@ -52,6 +62,8 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 ## H
 
+**Hauptbereich** – einer der sechs Bereiche, die in der Kopfzeile nebeneinander stehen: Projekt, Code, Grafik, Musik, Daten und Debug. Bei Projekt, Grafik und Daten gibt es darunter eine zweite Reihe mit Unterbereichen. → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+
 **Hexadezimal** – eine Schreibweise von Zahlen zur Basis 16 mit den Ziffern 0 bis 9 und a bis f. In Quelltexten steht ein `$` davor: `$ff` ist 255. Binär schreibt man mit `%`: `%1010` ist 10.
 
 **Hires / Multicolor** – Zwei Zeichenarten bei Zeichensätzen und Sprites: *Hires* hat feine Punkte mit einer Farbe, *Multicolor* hat doppelt breite Punkte, aber vier Farbwerte je Punkt. → [Zeichensatz-Editor](kapitel:zeichensatz), [Sprite- und PMG-Editor](kapitel:sprites)
@@ -64,7 +76,7 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Instrument / Hüllkurve (ADSR)** – Klangfarbe eines Tons; die Hüllkurve beschreibt den Lautstärkeverlauf: Attack (Anstieg), Decay (Abfall), Sustain (Haltepegel), Release (Ausklingen).
 
-**Interleave** – der Abstand, mit dem aufeinanderfolgende Sektoren einer Datei auf der Diskette liegen; er bestimmt die Ladezeit. → [Disk-Studio](kapitel:disk-studio)
+**Interleave** – der Abstand, mit dem aufeinanderfolgende Sektoren einer Datei auf der Diskette liegen; er bestimmt die Ladezeit. → [Disk-Editor](kapitel:disk-studio)
 
 ## K
 
@@ -72,7 +84,7 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **KERNAL** – das Betriebssystem der Commodore-Computer, fest im ROM. Es bietet Routinen wie `CHROUT` (ein Zeichen ausgeben), die man mit `jsr` aufruft.
 
-**Kette** (Diskette) – eine Datei besteht aus Sektoren; jeder Sektor verrät, wo der nächste liegt. → [Disk-Studio](kapitel:disk-studio)
+**Kette** (Diskette) – eine Datei besteht aus Sektoren; jeder Sektor verrät, wo der nächste liegt. → [Disk-Editor](kapitel:disk-studio)
 
 **Kommentar** – Text im Quelltext, den der Übersetzer überliest. Im Assembler beginnt er mit `;` (oder `//`), im BASIC am Zeilenanfang mit `;`.
 
@@ -106,7 +118,7 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Palette** – Tabelle, die Farbnummern Farben zuordnet. Der MEGA65 hat 256 frei änderbare Einträge. → [Paletten](kapitel:paletten)
 
-**Panel (rechtes Panel) und Schublade** – Bereiche des Fensters: das Panel rechts (Gliederung, Hilfe, Zeichen, Karte, Emulator), die Schublade unten (Probleme, Protokoll, Tests). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+**Panel Maschine** – das Panel rechts im Hauptbereich Code: Ziel, Zustand und Ergebnis des letzten Baus, in einer Debug-Sitzung auch Register, Flags und das Bild des Emulators (Cmd/Strg+Alt+B). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
 
 **PETSCII** – der Zeichencode der Commodore-Computer (Buchstaben, Grafikzeichen, Steuerzeichen wie „Bildschirm löschen“).
 
@@ -119,6 +131,8 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 **Profil** – legt fest, welches System und welche Art von Datei ein Zeichensatz, Sprite oder Bildschirm ist (zum Beispiel `c64.char.hires`). → [Zeichensatz-Editor](kapitel:zeichensatz)
 
 **Projekt** – ein Ordner mit einer Projektdatei (`.vcprj`), deinen Quelltexten und den gebauten Programmen.
+
+**Projekt-Bereich** – der Hauptbereich **Projekt** (Cmd/Strg+Alt+0) mit den Unterbereichen Übersicht, Allgemein, Ziele, Quellen, Bauen und Starten, Diskette und Weitergeben. Hier stellst du ein, was für das ganze Projekt gilt. → [Projekte und Dateien](kapitel:projekte)
 
 ## Q
 
@@ -138,19 +152,19 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Segment** – Zusammenhängender Block erzeugter Bytes an fester Adresse; `.segment` gibt ihm Namen und erlaubten Bereich (Fehler E301 bei Verletzung).
 
-**Sektor** – ein Stück einer Diskette (meist 256 Byte); Spur und Sektor geben seine Lage an. → [Disk-Studio](kapitel:disk-studio)
+**Seitenleiste** – die Spalte links im Hauptbereich Code mit dem Dateibaum des Projekts (Cmd/Strg+B). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+
+**Sektor** – ein Stück einer Diskette (meist 256 Byte); Spur und Sektor geben seine Lage an. → [Disk-Editor](kapitel:disk-studio)
 
 **SID / POKEY** – Klangchips des C64 (3 Stimmen) bzw. Atari (4 Stimmen).
 
 **Sprite-Zeiger** – Ein Byte (beim C64 `$07F8`+n), das dem Grafikchip sagt, in welchem 64-Byte-Block die Daten eines Sprites liegen (Adresse geteilt durch 64).
 
-**Startprogramm** – das Programm eines Projekts, das F5 startet. Im Projektbaum trägt es einen Stern (★).
+**Startprogramm** – das Programm eines Projekts, das F5 startet. Du legst es im Projekt-Bereich fest (Unterbereiche Allgemein und Quellen, dort trägt es einen Stern ★).
 
 **Steuerzeichen** – ein Zeichen, das etwas bewirkt statt etwas anzuzeigen, zum Beispiel „Bildschirm löschen“. In Quelltexten schreibt man sie in geschweiften Klammern: `{clr}`.
 
 **Stimme (Kanal)** – eine Tonspur, die ein Klangchip gleichzeitig spielen kann. → [Tracker](kapitel:tracker)
-
-**Studio** – ein Editor in VintageCoder für Grafik oder Klang: Sprites, Zeichensätze, Bildschirme, Kacheln, Paletten und Tracker.
 
 ## T
 
@@ -172,7 +186,7 @@ Kurze Erklärungen der Begriffe, die im Handbuch vorkommen. Alphabetisch, in ein
 
 **Zelle** – ein Platz auf dem Textbildschirm (ein Zeichen groß); im Tracker ein Eintrag aus Note und Instrument. → [Bildschirm und Kacheln](kapitel:bildschirm-kacheln)
 
-**Zen-Modus** – blendet Spalte, Schublade und Panel aus, damit nur die Arbeitsfläche bleibt (Cmd/Strg+Umschalt+B). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
+**Zen-Modus** – blendet Seitenleiste, Ablage, Panel und Statusleiste aus, damit nur der Editor bleibt (Cmd/Strg+Alt+Z). → [Die Oberfläche im Überblick](kapitel:oberflaeche)
 
 **Zeropage** – die ersten 256 Bytes des Speichers (Adressen `$00` bis `$ff`). Der Prozessor erreicht sie mit kürzeren und schnelleren Befehlen.
 

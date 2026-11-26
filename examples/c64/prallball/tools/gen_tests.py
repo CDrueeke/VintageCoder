@@ -66,6 +66,20 @@ test('set_vel: "langsamer" begrenzt auf Stufe 0', {'mem': {h(ZP['speed']): 2, h(
 # ---- paddle_hit: Schlaeger bei x = 100..131, Ball 6 px breit; Ballkante x = 116 -> d = 16 -> Zone (16 + 3) / 4 = 4
 base = {h(ZP['padl']): 100, h(ZP['padh']): 0, h(ZP['padw']): 32, h(ZP['zstep']): 4, h(ZP['speed']): 0, h(ZP['spdmod']): 0, h(ZP['hits']): 0,
         h(ZP['sticky']): 0, h(ZP['cb']): 0, h(ZP['byl']): 0x80, h(ZP['byh']): 0x2c, h(ZP['vyh']): 0, h(ZP['vyl']): 0x40}
+# ---- Winkelzufall (WINKEL_ZUFALL = 64 von 256): feste Zufallszustaende (Galois-LFSR, siehe oben): erste Zahl >= 64 (kein Zufall), < 64 mit Richtungsbit 0 (links) bzw. 1 (rechts)
+RS = ('$f6', '$f7')
+SEED_KEIN, SEED_LINKS, SEED_RECHTS = (1, 2), (1, 1), (1, 5)
+base[RS[0]], base[RS[1]] = SEED_KEIN       # alle Schlaegertests laufen ohne Winkelzufall (sonst waere die Zone zufaellig)
+def rs(seed): return {RS[0]: seed[0], RS[1]: seed[1]}
+for nm, seed, x, ex in (('kein Zufall (Zahl >= 64)', SEED_KEIN, 4, 4), ('links', SEED_LINKS, 4, 3), ('rechts', SEED_RECHTS, 4, 5),
+                        ('links am linken Rand bleibt Zone 0', SEED_LINKS, 0, 0), ('rechts am rechten Rand bleibt Zone 7', SEED_RECHTS, 7, 7)):
+    test('zone_jitter: Zone %d, %s -> Zone %d' % (x, nm, ex), {'mem': rs(seed), 'x': x}, 'zone_jitter', ['x == %d' % ex])
+dx, dy = vel(0, 3)
+s = dict(base); s.update({h(ZP['bxl']): 0x00, h(ZP['bxh']): 0x1d}); s.update(rs(SEED_LINKS))
+test('paddle_hit: Winkelzufall links -> Zone 3 statt 4', {'mem': s}, 'paddle_hit', ['fc', '[$14] == %s' % h(dx & 255), '[$15] == %s' % h(dx >> 8)])
+dx, dy = vel(0, 5)
+s = dict(base); s.update({h(ZP['bxl']): 0x00, h(ZP['bxh']): 0x1d}); s.update(rs(SEED_RECHTS))
+test('paddle_hit: Winkelzufall rechts -> Zone 5 statt 4', {'mem': s}, 'paddle_hit', ['fc', '[$14] == %s' % h(dx & 255), '[$15] == %s' % h(dx >> 8)])
 dx, dy = vel(0, 4)
 s = dict(base); s.update({h(ZP['bxl']): 0x00, h(ZP['bxh']): 0x1d})          # 116 * 64 = $1D00
 test('paddle_hit: Treffer in der Mitte -> Zone 4 und Abprall nach oben', {'mem': s}, 'paddle_hit',

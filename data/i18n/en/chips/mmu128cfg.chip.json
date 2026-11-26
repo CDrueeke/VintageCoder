@@ -1,0 +1,30 @@
+{
+ "source": "chips/mmu128cfg.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Konfigurationsregister (Spiegel von $D500)",
+   "en": "Configuration register (mirror of $D500)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Konfiguration A laden",
+   "en": "Load configuration A",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Konfiguration B laden",
+   "en": "Load configuration B",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Konfiguration C laden",
+   "en": "Load configuration C",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Konfiguration D laden",
+   "en": "Load configuration D",
+   "status": "maschinell"
+  }
+ }
+}

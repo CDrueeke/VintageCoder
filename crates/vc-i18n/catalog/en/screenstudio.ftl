@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Screen studio (English)
+
+screenstudio-a-b = { $a }×{ $b }
+screenstudio-abbrechen = Cancel
+screenstudio-ansicht = View
+screenstudio-bildschirm-n = Screen { $n }
+screenstudio-cursor-spalte-cx-zeile-cy-code = Cursor: column { $cx }, row { $cy } · code { $p3 }
+screenstudio-dialog-schliessen = Close dialog
+screenstudio-dokument = Document
+screenstudio-einpassen = Fit
+screenstudio-export-dialog-cmd-umschalt-e = Export dialog (Cmd+Shift+E)
+screenstudio-exportieren = Export ...
+screenstudio-farbe-fuer-neue-zeichen = Color for new characters
+screenstudio-flaeche-einpassen-0 = Fit canvas (0)
+screenstudio-fuellen = Fill
+screenstudio-fuer-p1-gibt-es-kein-kachelsatz = There is no tile set profile for { $p1 }
+screenstudio-fuers-zeichnen-nicht-in-der-datei = for drawing · not in the file
+screenstudio-gespeichert-rel = Saved: { $rel }
+screenstudio-gilt-fuer-den-ganzen-bildschirm-wird = applies to the whole screen · is saved
+screenstudio-gilt-fuer-zeichen-die-du-ab = applies to characters you place from now on; existing cells do not change
+screenstudio-gleiche-bloecke-werden-zu-kacheln-kachelsatz = Equal blocks become tiles. The tile set and bank are created next to the screen; the screen stays unchanged.
+screenstudio-gleiche-zeichen-fuellen-f = Fill equal characters (F)
+screenstudio-hintergrund = Background
+screenstudio-in-kacheln-zerlegen = Split into tiles
+screenstudio-in-kacheln-zerlegen-vorschau-kachelsatz-und = Split into tiles (preview; tile set and bank are created next to the screen)
+screenstudio-in-kacheln-zerlegt-tw-th-info = Split into tiles ({ $tw }×{ $th }): { $info }; new: { $satz }, { $bank }
+screenstudio-info = Info
+screenstudio-kachelgroesse = Tile size
+screenstudio-kachelsatz-und-bank-anlegen = Create tile set and bank
+screenstudio-kein-bildschirm = no screen
+screenstudio-linke-taste-setzt-rechte-loescht-d = left button sets, right button clears · D T F R I E tools · Text: type, arrows, Esc · + - zoom · 0 fit · Space+drag moves · Cmd+mouse wheel zooms · Esc cancels the frame
+screenstudio-loeschen = Clear
+screenstudio-p1-kacheln-p2-zellen-patches-p3 = { $p1 } tiles, { $p2 } cell patches, { $p3 } → { $p4 } bytes
+screenstudio-p1-p2-zeichen = { $p1 }×{ $p2 } characters
+screenstudio-pipette = Eyedropper
+screenstudio-rahmen = Frame
+screenstudio-rahmen-aufziehen-r-klick-ziehen-loslassen = Draw a frame (R): click, drag, release; Esc cancels
+screenstudio-rueckgaengig-cmd-z = Undo (Cmd+Z)
+screenstudio-spalte-cx-zeile-cy-code-p3 = Column { $cx }, row { $cy } · code { $p3 } · zoom { $p4 }{ $status }
+screenstudio-speichern = Save
+screenstudio-speichern-cmd-s = Save (Cmd+S)
+screenstudio-tasten = ? Keys
+screenstudio-text = Text
+screenstudio-text-tippen-t-pfeile-bewegen-den = Type text (T), arrows move the cursor, Esc ends
+screenstudio-vergroessern = Zoom in
+screenstudio-vergroessern-cmd-mausrad = Zoom in (+, Cmd+mouse wheel)
+screenstudio-verkleinern = Zoom out
+screenstudio-verkleinern-cmd-mausrad = Zoom out (-, Cmd+mouse wheel)
+screenstudio-vordergrund-helligkeit = Foreground (brightness)
+screenstudio-weitere-werkzeuge-und-ansicht-alle-aktionen = More tools and view · all actions: menu key or Shift+F10
+screenstudio-werkzeug = Tool
+screenstudio-werkzeuge = Tools
+screenstudio-wiederholen-cmd-umschalt-z = Redo (Cmd+Shift+Z)
+screenstudio-zeichen = Character
+screenstudio-zeichen-loeschen-e = Erase character (E)
+screenstudio-zeichen-p1-p2 = Character { $p1 } (${ $p2 })
+screenstudio-zeichen-setzen-d-rechte-taste-loescht = Place a character (D); right button erases
+screenstudio-zeichen-und-farbe-aufnehmen-i = Pick up character and color (I)
+screenstudio-zeichensatz = Character set
+screenstudio-zerlegen = Split ...
+screenstudio-zerlegen-2 = Split
+screenstudio-zerlegen-nicht-moeglich-e = Splitting not possible: { $e }
+
+screenstudio-beschreibung = { $w }×{ $h } characters, tool { $werkzeug }, character { $zeichen } (code { $code }), cursor column { $spalte } row { $zeile }, character set { $satz }
+
+screenstudio-keiner = none
+
+screenstudio-einpassen-2 = Fit ·

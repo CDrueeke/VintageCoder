@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
-members = ["crates/vc-core", "crates/vc-target", "crates/vc-asm", "crates/vc-cli", "crates/vc-lsp", "crates/vc-basic", "crates/vc-disk", "crates/vc-ide", "crates/vc-emu", "crates/vc-media", "crates/vc-roms", "crates/vc-md", "crates/vc-ide-model", "crates/vc-gui-ui", "crates/vc-gui-editor", "crates/vc-gui"]
+members = ["crates/vc-core", "crates/vc-target", "crates/vc-asm", "crates/vc-cli", "crates/vc-lsp", "crates/vc-basic", "crates/vc-disk", "crates/vc-ide", "crates/vc-emu", "crates/vc-media", "crates/vc-roms", "crates/vc-md", "crates/vc-ide-model", "crates/vc-gui-ui", "crates/vc-gui-editor", "crates/vc-gui", "crates/vc-i18n", "crates/vc-commands", "crates/vc-shell"]
 
 [workspace.package]
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
 

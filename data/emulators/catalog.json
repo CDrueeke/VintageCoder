@@ -46,9 +46,7 @@
         "x128": "vice-x128",
         "xplus4": "vice-xplus4",
         "xvic": "vice-xvic",
-        "xpet": "vice-xpet",
-        "xcbm2": "vice-xcbm2",
-        "xcbm5x0": "vice-xcbm5x0"
+        "xpet": "vice-xpet"
       },
       "backend": "vice-binmon",
       "caps": {

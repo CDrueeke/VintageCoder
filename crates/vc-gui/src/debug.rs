@@ -64,10 +64,10 @@ pub fn beobachten_fehler(eingabe: &str, roh: &str) -> String {
     let t = eingabe.trim();
     if roh.contains("weder Register noch Symbol") {
         let hex = t.len() >= 2 && t.chars().all(|c| c.is_ascii_hexdigit()) && t.chars().any(|c| c.is_ascii_alphabetic());
-        let rat = if hex { format!(" Meinst du ${t}?") } else { String::new() };
-        return format!("„{t}“ ist weder Register noch Symbol.{rat} Beispiele: $d020 (Byte an dieser Adresse), a, x, y, sp, pc, start (Symbol), [$d020] + 1.");
+        let rat = if hex { format!(" {}", vc_i18n::t!("debug-meinst-du-t", t = &t)) } else { String::new() };
+        return vc_i18n::t!("debug-t-ist-weder-register-noch-symbol", t = &t, rat = &rat);
     }
-    if roh.contains("nicht erlaubt") || roh.contains("Anführungszeichen") || roh.contains("erwartet") { return format!("„{t}“ ist kein gültiger Ausdruck ({roh}). Beispiele: $d020, a, sp, start, [$d020] + 1.") }
+    if roh.contains("nicht erlaubt") || roh.contains("Anführungszeichen") || roh.contains("erwartet") { return vc_i18n::t!("debug-t-ist-kein-gueltiger-ausdruck-roh", t = &t, roh = &roh) }
     roh.to_string()
 }
 /// Adresse aus dem Adressfeld des Speicher-Reiters: Hex mit oder ohne `$`/`0x` (`D020`, `$d020`, `0x0400`) oder ein Symbol der gebauten Datei.
@@ -77,7 +77,7 @@ pub fn speicher_adresse(eingabe: &str, symbole: &HashMap<String, i64>) -> Result
     let h = t.strip_prefix('$').or_else(|| t.strip_prefix("0x")).or_else(|| t.strip_prefix("0X")).unwrap_or(t);
     if let Ok(a) = u16::from_str_radix(h, 16) { return Ok(a) }
     if let Some(v) = symbole.get(t).filter(|v| (0..0x10000).contains(*v)) { return Ok(*v as u16) }
-    Err(format!("„{t}“ ist keine Adresse. Beispiele: D020, $d020, 0x0400 oder ein Symbol wie start."))
+    Err(vc_i18n::t!("debug-t-ist-keine-adresse-beispiele-d020", t = &t))
 }
 
 /// Meint der Fehlertext einen Verbindungsabbruch zum Emulator (er wurde beendet oder ist abgestürzt)?
@@ -88,9 +88,9 @@ pub fn verbindung_verloren(e: &str) -> bool {
 /// Verständliche Fassung eines Fehlertexts für die Anzeige; unbekannte Texte bleiben, rohe Systemmeldungen werden ersetzt
 pub fn freundlich(e: &str) -> String {
     let l = e.to_lowercase();
-    if verbindung_verloren(e) { "Die Verbindung zum Emulator ist verloren (er wurde beendet oder ist abgestürzt). Die Debug-Sitzung wird beendet.".into() }
-    else if l.contains("zeitüberschreitung") || l.contains("timed out") || l.contains("os error 60") { "Der Emulator antwortet nicht (Zeitüberschreitung). Versuche es noch einmal oder beende die Sitzung.".into() }
-    else if l.contains("os error") || l.contains("permission denied") || l.contains("no such file") { format!("Der Emulator meldet einen Systemfehler ({}).", e.split('(').next().unwrap_or("").trim()) }
+    if verbindung_verloren(e) { vc_i18n::t!("debug-die-verbindung-zum-emulator-ist-verloren").into() }
+    else if l.contains("zeitüberschreitung") || l.contains("timed out") || l.contains("os error 60") { vc_i18n::t!("debug-der-emulator-antwortet-nicht-zeitueberschreitung-versuche").into() }
+    else if l.contains("os error") || l.contains("permission denied") || l.contains("no such file") { vc_i18n::t!("debug-der-emulator-meldet-einen-systemfehler-p1", p1 = e.split('(').next().unwrap_or("").trim()) }
     else { e.to_string() }
 }
 
@@ -167,7 +167,7 @@ impl Debugger {
                                 }
                                 Ok(names)
                             })();
-                            publish(&|s| match &r { Ok(n) => for x in n { s.notes.push((true, format!("Momentaufnahme gespeichert: {x}"))) }, Err(e) => s.notes.push((false, format!("Momentaufnahme: {e}"))) });
+                            publish(&|s| match &r { Ok(n) => for x in n { s.notes.push((true, vc_i18n::t!("debug-momentaufnahme-gespeichert-x", x = &x))) }, Err(e) => s.notes.push((false, vc_i18n::t!("debug-momentaufnahme-e", e = &e))) });
                         }
                         Cmd::DelPoint(id) => { if let Err(e) = sess.clear_point(id) { meld(&e); } }
                         Cmd::Watches(w) => watches = w,

@@ -1,0 +1,139 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "672406407bef" },
+  "command": "build",
+  "group": "bauen",
+  "summary": "Build a project from its .vcprj",
+  "description": [
+    "Builds all sources of the project file in build order (assembler and BASIC, including conversion of BASIC to assembler and of media files). If the project file describes a disk, the command creates it afterwards. The results are in the build/ folder of the project.",
+    "Turbo BASIC XL projects (dialect turbo_basic_xl, Atari) with a disk in the project (section turbo, see vcc turbo provide) get build/<name>.atr: a copy of the disk with the translated program as AUTORUN.BAS. If the disk is missing, it stays a note (exit code 0)."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc build [project] [options]",
+      "summary": "",
+      "args": [
+        {
+          "name": "project",
+          "required": false,
+          "repeat": false,
+          "help": "Project folder (the first .vcprj in it) or project file. Without it, the current folder is used."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "bau",
+          "label": "Build"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--main",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Builds only the start program (main in the project file). The disk is then not created.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "bau",
+          "help": "Folder of the hardware database (data). Replaces VC_DATA and the automatic search.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--strict",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Turbo BASIC XL: a missing user disk (section turbo of the project file) is an error (exit code 1) instead of a note.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--license-report",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Prints the licenses of all assembled sources (file, license, author, location) and writes them to build/LICENSES.txt.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "With --license-report: the report as JSON on standard output (the OK/ERROR lines then go to the error output).",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--deny-license",
+          "short": "",
+          "value": "list",
+          "group": "bau",
+          "help": "The build fails (code L002) if an assembled source is under one of these SPDX licenses, e.g. GPL-3.0-only,GPL-3.0-or-later (a trailing * is a wildcard, e.g. GPL-*). To make it permanent, use \"licenses\": {\"deny\": [...]} in the project file.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Build the project in the current folder",
+          "cmd": "vcc build"
+        },
+        {
+          "title": "Build a project folder",
+          "cmd": "vcc build examples/c64/cart_demo"
+        },
+        {
+          "title": "List the licenses of the sources",
+          "cmd": "vcc build examples/atari/music_demo --license-report"
+        },
+        {
+          "title": "start program only",
+          "cmd": "vcc build examples/mega65/prallball/prallball.vcprj --main"
+        }
+      ],
+      "notes": [
+        "Each source gets a line OK or ERROR, and the start program is marked. Messages go to the error output.",
+        "Warnings about the project file (e.g. missing files from assets) come first. A project without sources is an error.",
+        "License note: If a program contains source under a copyleft license (GPL, LGPL, AGPL), a note (L001) appears on the error output. This is not an error. The line SPDX-License-Identifier at the top of the files is read. Files without it stay neutral. In the project file, \"licenses\": {\"allow\": [...]} allows a license (no note), and \"deny\" blocks it."
+      ],
+      "exit": {
+        "0": "everything built",
+        "1": "a source or the disk failed, or no project file found",
+        "2": "wrong usage"
+      },
+      "see_also": [
+        "asm",
+        "test",
+        "new"
+      ]
+    }
+  ]
+}

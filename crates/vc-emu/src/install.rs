@@ -40,9 +40,12 @@ impl Package {
     pub fn file_name(&self) -> String { self.url.rsplit('/').next().unwrap_or("paket").split('?').next().unwrap_or("paket").to_string() }
 }
 
+fn unter_cargo_test() -> bool { std::env::var_os("CARGO_MANIFEST_DIR").is_some() && std::env::current_exe().ok().is_some_and(|e| e.parent().and_then(|p| p.file_name()).is_some_and(|n| n == "deps")) }
+
 /// Wurzel aller eigenen Emulator-Installationen; `VC_EMU_DIR` überschreibt sie
 pub fn root() -> Option<PathBuf> {
     if let Some(d) = std::env::var_os("VC_EMU_DIR").filter(|d| !d.is_empty()) { return Some(d.into()); }
+    if unter_cargo_test() { return Some(std::env::temp_dir().join(format!("vc-test-emus-{}", std::process::id()))); }   // Tests nie in den echten Benutzerordner
     let base = if cfg!(windows) { std::env::var_os("APPDATA").map(PathBuf::from)? }
         else if cfg!(target_os = "macos") { PathBuf::from(std::env::var_os("HOME")?).join("Library/Application Support") }
         else { std::env::var_os("XDG_CONFIG_HOME").filter(|d| !d.is_empty()).map(PathBuf::from).or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))? };
@@ -56,7 +59,7 @@ pub fn dir_of(id: &str) -> Option<PathBuf> {
 }
 
 /// Zielordner der Version eines Pakets
-pub fn target_dir(p: &Package) -> Result<PathBuf, String> { Ok(dir_of(&p.id).ok_or("Konfigurationsordner nicht ermittelbar")?.join(&p.version)) }
+pub fn target_dir(p: &Package) -> Result<PathBuf, String> { Ok(dir_of(&p.id).ok_or(vc_i18n::t!("emu-konfigurationsordner-nicht-ermittelbar"))?.join(&p.version)) }
 
 /// Vergleicht Versionsangaben nach Zahlen statt nach Text: „3.10“ ist neuer als „3.9“, „20261104234052-next“ neuer als „20260928222910-next“.
 pub fn version_cmp(a: &str, b: &str) -> std::cmp::Ordering {
@@ -201,7 +204,7 @@ fn tool(name: &str) -> PathBuf {
 /// Prüft eine heruntergeladene Datei gegen die Prüfsumme des Pakets; bei Abweichung wird sie gelöscht
 pub fn verify(pkg: &Package, file: &Path) -> Result<(), String> {
     let got = sha256_file(file)?;
-    if !got.eq_ignore_ascii_case(&pkg.sha256) { let _ = std::fs::remove_file(file); return Err(format!("Prüfsumme stimmt nicht (erwartet {}, erhalten {got}); die Datei wurde gelöscht", pkg.sha256)); }
+    if !got.eq_ignore_ascii_case(&pkg.sha256) { let _ = std::fs::remove_file(file); return Err(vc_i18n::t!("emu-pruefsumme-stimmt-nicht-erwartet-p1-erhalten", p1 = &pkg.sha256, got = &got)); }
     Ok(())
 }
 
@@ -209,7 +212,7 @@ pub fn verify(pkg: &Package, file: &Path) -> Result<(), String> {
 pub fn unpack(pkg: &Package, file: &Path, dir: &Path) -> Result<(), String> {
     match pkg.format {
         Format::Zip | Format::TarGz => {
-            let st = Command::new(tool("tar")).arg("-xf").arg(file).arg("-C").arg(dir).status().map_err(|e| format!("tar nicht ausführbar: {e}"))?;
+            let st = Command::new(tool("tar")).arg("-xf").arg(file).arg("-C").arg(dir).status().map_err(|e| vc_i18n::t!("emu-tar-nicht-ausfuehrbar-e", e = &e))?;
             if !st.success() { return Err(format!("Auspacken fehlgeschlagen ({st})")); }
             Ok(())
         }
@@ -226,20 +229,20 @@ pub fn unpack(pkg: &Package, file: &Path, dir: &Path) -> Result<(), String> {
 /// Lädt das Paket, prüft die Prüfsumme und packt es unterhalb von VintageCoder aus. `say` erhält Fortschrittsmeldungen.
 /// `have` sagt, ob die Version schon installiert ist (dann geschieht nichts). Gibt den Ordner der Version zurück.
 pub fn install(pkg: &Package, have: &dyn Fn(&Path) -> bool, say: &mut dyn FnMut(&str)) -> Result<PathBuf, String> {
-    if pkg.sha256.len() != 64 { return Err("Für dieses Paket ist keine Prüfsumme hinterlegt; es wird nicht geladen".into()); }
+    if pkg.sha256.len() != 64 { return Err(vc_i18n::t!("emu-fuer-dieses-paket-ist-keine-pruefsumme").into()); }
     let dir = target_dir(pkg)?;
-    if have(&dir) { say(&format!("{} {} ist bereits installiert: {}", pkg.id, pkg.version, dir.display())); return Ok(dir); }
+    if have(&dir) { say(&vc_i18n::t!("emu-p1-p2-ist-bereits-installiert-p3", p1 = &pkg.id, p2 = &pkg.version, p3 = dir.display())); return Ok(dir); }
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let file = dir.join(pkg.file_name());
     say(&format!("Lade {}", pkg.url));
-    let st = Command::new(tool("curl")).args(["--fail", "--location", "--silent", "--show-error", "--output"]).arg(&file).arg(&pkg.url).status().map_err(|e| format!("curl nicht ausführbar: {e}"))?;
+    let st = Command::new(tool("curl")).args(["--fail", "--location", "--silent", "--show-error", "--output"]).arg(&file).arg(&pkg.url).status().map_err(|e| vc_i18n::t!("emu-curl-nicht-ausfuehrbar-e", e = &e))?;
     if !st.success() { let _ = std::fs::remove_file(&file); return Err(format!("Download fehlgeschlagen ({st})")); }
-    say("Prüfe SHA-256 …");
+    say(&vc_i18n::t!("emu-pruefe-sha-256"));
     verify(pkg, &file)?;
-    say("Packe aus …");
+    say(&vc_i18n::t!("emu-packe-aus"));
     unpack(pkg, &file, &dir)?;
     if pkg.format != Format::File { let _ = std::fs::remove_file(&file); }
-    say(&format!("Fertig: {}", dir.display()));
+    say(&vc_i18n::t!("emu-fertig-p1", p1 = dir.display()));
     Ok(dir)
 }
 

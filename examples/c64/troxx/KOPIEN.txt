@@ -1,0 +1,76 @@
+# KOPIEN.txt - Liste der Routinen und Tabellen, die aus der Referenzfassung (VC-20) uebernommen wurden.
+# Aufbau und Pruefung: python3 tools/troxx_kopien.py examples/c64/troxx   (im Repository-Ordner; siehe Kopf von tools/troxx_kopien.py)
+#   kopie      = Text (ohne Kommentare und Leerzeilen) muss mit dem Original uebereinstimmen.
+#   angepasst  = bewusst veraendert (C64-Gitter, Sprites, zwei Spieler, ...); die Zahl ist die Pruefsumme des Originals zum Stand; aendert sich das
+#                Original, meldet das Werkzeug "REFERENZ GEAENDERT" und die Anpassung ist zu pruefen (danach --stand ausfuehren).
+# Regel: Aenderungen an der gemeinsamen Logik nur in der Referenzfassung, dann in alle Projekte kopieren.
+Referenz: examples/vic20/troxx   Stand: f13ffd7e
+
+# Hinweis: Die Referenzfassung hat aus Platzgruenden Zeilenarten (ROWKIND, char_at), Gegnertabellen und die Laeufer-Wahl (toward statt greedy) umgebaut.
+#   Das C64-Projekt behaelt Schablonen (TPL), greedy und die eigenen Gegnertabellen (genauere Verfolgung, genug Platz); diese Eintraege stehen darum nicht in der Liste.
+
+# ---- grid.asm
+grid.asm draw angepasst bca391229a1e
+grid.asm color_at kopie
+grid.asm cell_type angepasst 7d937055a365
+grid.asm box_add kopie
+grid.asm paint kopie
+grid.asm legal_mask kopie
+grid.asm fill_row_b kopie
+grid.asm set_row angepasst 8344e2c61350
+grid.asm state_at angepasst 330bb15c3186
+grid.asm seg_full angepasst aea4f31910cc
+grid.asm fill_row angepasst 24006653eec6
+
+# ---- enemies.asm
+enemies.asm rnd kopie
+enemies.asm level_idx kopie
+enemies.asm nxt kopie
+enemies.asm find kopie
+enemies.asm pick_random kopie
+enemies.asm place_all angepasst 3921f4bf87a6
+enemies.asm choose angepasst c43a1133f543
+enemies.asm one angepasst ad25033d28f1
+enemies.asm step angepasst b9a9000536dd
+
+# ---- hud.asm
+hud.asm print_all kopie
+hud.asm bcd2 kopie
+hud.asm bcd3 kopie
+hud.asm bcd_add kopie
+hud.asm print angepasst 39262b6c81db
+hud.asm clrmsg angepasst 1df685773e75
+hud.asm msg angepasst b8589e6e907f
+hud.asm draw angepasst bedd1a786ad0
+hud.asm update angepasst c007c094bcbd
+
+# ---- player.asm
+player.asm auto kopie
+player.asm init angepasst 4ee7f3adcd17
+player.asm step angepasst 05dcfbffd5a1
+
+# ---- main.asm
+main.asm nmi_stub kopie
+main.asm dispatch kopie
+main.asm STATES kopie
+main.asm set_tempo kopie
+main.asm st_fill kopie
+main.asm start angepasst 9abfef59e8b7
+main.asm delay angepasst 27a958ec01e2
+main.asm fire_wait angepasst 71b733dedb6f
+main.asm st_title angepasst 5b994ddc4a57
+main.asm st_levelinit angepasst b467db9c9785
+main.asm st_playing angepasst 3c1bd503023f
+main.asm st_hit angepasst 7420601a6806
+main.asm st_levelclear angepasst f58d9d35ec1f
+main.asm st_gameover angepasst 39b927fd6722
+
+# ---- data.inc
+data.inc ROW_LO angepasst 4c1b5f55e0af
+data.inc DIR_BIT kopie
+data.inc DIR_DX kopie
+data.inc DIR_DY kopie
+data.inc BITMASK angepasst 884521193ae0
+data.inc SEGBASE kopie
+data.inc TEMPO kopie
+data.inc BOX_COLOR angepasst 28d3359a9c50

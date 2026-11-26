@@ -44,7 +44,7 @@ impl TestLauf {
         self.backend = match i { None => self.backends.first().map(|b| b.0.clone()), Some(i) => self.backends.get(i + 1).map(|b| b.0.clone()) };
     }
     pub fn backend_name(&self) -> String {
-        self.backend.as_ref().and_then(|b| self.backends.iter().find(|x| &x.0 == b)).map(|b| b.1.clone()).unwrap_or_else(|| "nur statische Prüfungen".into())
+        self.backend.as_ref().and_then(|b| self.backends.iter().find(|x| &x.0 == b)).map(|b| b.1.clone()).unwrap_or_else(|| vc_i18n::t!("testlauf-nur-statische-pruefungen").into())
     }
     /// Startet einen Lauf im Arbeits-Thread (ein laufender wird zuvor abgebrochen)
     pub fn start(&mut self, root: PathBuf, data: PathBuf, only: Only) {
@@ -76,7 +76,7 @@ impl TestLauf {
             match rx.try_recv() {
                 Ok(e) => { self.suite.apply(e); geaendert = true }
                 Err(TryRecvError::Empty) => break,
-                Err(TryRecvError::Disconnected) => { if self.suite.running { self.suite.apply(Event::Error("der Testlauf wurde unerwartet beendet".into())); geaendert = true } self.rx = None; break }
+                Err(TryRecvError::Disconnected) => { if self.suite.running { self.suite.apply(Event::Error(vc_i18n::t!("testlauf-der-testlauf-wurde-unerwartet-beendet").into())); geaendert = true } self.rx = None; break }
             }
         }
         if geaendert { self.version += 1 }
@@ -89,14 +89,14 @@ impl TestLauf {
         let mut teile: Vec<String> = c.mem.iter().map(|(a, v)| format!("[{a}]={}", v.join(","))).collect();
         teile.extend(c.regs.iter().map(|(r, v)| format!("{}={v}", r.to_uppercase())));
         teile.extend(c.flags.iter().map(|(f, an)| format!("{}={}", f.to_uppercase(), *an as u8)));
-        Some(format!("Setup: {} · Aufruf {}{}", if teile.is_empty() { "keines".to_string() } else { teile.join(" ") }, c.call, if c.rti { " (rti)" } else { "" }))
+        Some(vc_i18n::t!("testlauf-setup-p1-aufruf-p2-p3", p1 = if teile.is_empty() { vc_i18n::t!("testlauf-keines") } else { teile.join(" ") }, p2 = &c.call, p3 = if c.rti { format!(" {}", vc_i18n::t!("testlauf-rti")) } else { String::new() }))
     }
 }
 
 /// Anzeigetext des Zustands
-pub fn zustand_text(o: &Outcome) -> &'static str {
-    match (o.state, o.level) { (State::Passed, _) => "bestanden", (State::Failed, Level::Error) => "fehlgeschlagen", (State::Failed, Level::Hint) => "Hinweis", (State::TimedOut, _) => "Zeitüberschreitung", (State::Skipped, _) => "übersprungen" }
+pub fn zustand_text(o: &Outcome) -> String {
+    match (o.state, o.level) { (State::Passed, _) => vc_i18n::t!("testlauf-bestanden"), (State::Failed, Level::Error) => vc_i18n::t!("testlauf-fehlgeschlagen"), (State::Failed, Level::Hint) => vc_i18n::t!("testlauf-hinweis"), (State::TimedOut, _) => vc_i18n::t!("testlauf-zeitueberschreitung"), (State::Skipped, _) => vc_i18n::t!("testlauf-uebersprungen") }
 }
 /// Zeichen vor dem Namen: gefüllt (bestanden, fehlgeschlagen, Hinweis), Uhr (Zeitüberschreitung), Ring (übersprungen)
 pub fn zustand_zeichen(o: &Outcome) -> &'static str { match o.state { State::Skipped => "○", State::TimedOut => "◷", _ => "●" } }
-pub fn dauer(ms: u64) -> String { if ms < 1000 { format!("{ms} ms") } else { format!("{:.1} s", ms as f64 / 1000.0).replace('.', ",") } }
+pub fn dauer(ms: u64) -> String { if ms < 1000 { vc_i18n::t!("testlauf-ms-ms", ms = &ms) } else { format!("{:.1} s", ms as f64 / 1000.0).replace('.', ",") } }

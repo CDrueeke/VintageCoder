@@ -104,6 +104,27 @@
       "see_also": ["build"]
     },
     {
+      "id": "atr-edit",
+      "usage": "vcc disk atr -o <out.atr> --base <in.atr> [--put <datei[:NAME.EXT]>]... [--delete <NAME.EXT>]... [--add <datei[:NAME.EXT]>]... [--force]",
+      "summary": "bestehendes ATR-Image ändern (Dateien ersetzen, löschen, anlegen)",
+      "args": [],
+      "option_groups": [ { "id": "image", "label": "Image" }, { "id": "allgemein", "label": "Allgemein" } ],
+      "options": [
+        { "flag": "-o", "short": "", "value": "datei", "group": "image", "help": "Ausgabedatei des Images (nicht das Ausgangsabbild).", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--base", "short": "", "value": "in.atr", "group": "image", "help": "Ausgangsabbild (ATR, DOS 2); es bleibt unverändert, das Ergebnis geht in die Ausgabedatei.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": true },
+        { "flag": "--put", "short": "", "value": "datei[:NAME.EXT]", "group": "image", "help": "Datei anlegen oder ersetzen, optional unter anderem Namen.", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--delete", "short": "", "value": "NAME.EXT", "group": "image", "help": "Datei von der Diskette löschen (ihre Sektoren werden frei).", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--add", "short": "", "value": "datei[:NAME.EXT]", "group": "image", "help": "Datei anlegen; gibt es den Namen schon, ist das ein Fehler.", "choices": [], "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "--force", "short": "", "value": "", "group": "allgemein", "help": "Geschützte Dateien dürfen mit --delete gelöscht werden.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "pfad", "group": "allgemein", "help": "Wird angenommen und ignoriert.", "choices": [], "default": "", "default_text": "", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Ausgangsabbild verkleinern", "cmd": "vcc disk atr -o neu.atr --base turbo.atr --delete COMPILER.COM --delete RUNTIME.COM --force" }
+      ],
+      "notes": ["Schreibgeschützte Dateien (`*` bei vcc disk list) lassen sich nur mit --force löschen und werden von --put nie überschrieben. Danach wird das Image geprüft; bei Fehlern entsteht keine Ausgabedatei.", "Die Ausgabe nennt Größe und freie Sektoren. Für Turbo-BASIC-XL-Projekte siehe vcc turbo."],
+      "see_also": ["turbo", "build"]
+    },
+    {
       "id": "list",
       "usage": "vcc disk list <image.d64|d71|d81|atr>",
       "summary": "Verzeichnis eines Images zeigen und prüfen",

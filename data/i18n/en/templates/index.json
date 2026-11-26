@@ -1,0 +1,45 @@
+{
+ "source": "templates/index.json",
+ "entries": {
+  "/templates/0/name": {
+   "de": "Assembler-Programm",
+   "en": "Assembler program",
+   "status": "geprüft"
+  },
+  "/templates/0/description": {
+   "de": "Kleines Assemblerprogramm (Farbwechsel), startbar mit F5",
+   "en": "Small assembler program (color change), can be run with F5",
+   "status": "geprüft"
+  },
+  "/templates/0/variants/0/name": {
+   "de": "Steckmodul",
+   "en": "Cartridge",
+   "status": "geprüft"
+  },
+  "/templates/0/variants/0/description": {
+   "de": "8-KB-Modul statt Programm (C64: CBM80-Modul, Atari: 8k-Modul als .car, VC-20: Modul bei $A000 als .a0)",
+   "en": "8 KB cartridge instead of a program (C64: CBM80 cartridge, Atari: 8k cartridge as .car, VIC-20: cartridge at $A000 as .a0)",
+   "status": "geprüft"
+  },
+  "/templates/1/name": {
+   "de": "BASIC",
+   "en": "BASIC",
+   "status": "unverändert"
+  },
+  "/templates/1/description": {
+   "de": "Natives BASIC des Systems mit Sprungmarken (@name)",
+   "en": "Native BASIC of the system with labels (@name)",
+   "status": "geprüft"
+  },
+  "/templates/2/name": {
+   "de": "Leeres Projekt",
+   "en": "Empty project",
+   "status": "geprüft"
+  },
+  "/templates/2/description": {
+   "de": "Nur die Projektdatei und ein Ordner src/",
+   "en": "Only the project file and a src/ folder",
+   "status": "geprüft"
+  }
+ }
+}

@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "project": {
+    "name": "C64: BASIC-Test (#define, #if, #asm)",
+    "description": "Testprojekt für den Handtest (Rundgang 47 bis 49): #define, #if, #asm, Hochkomma, FOR ohne NEXT"
+  },
+  "targets": [
+    {
+      "id": "c64",
+      "system": "c64",
+      "variant": "pal",
+      "cpu": "6510",
+      "illegals": "warn",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "c64"
+      ],
+      "kind": "basic",
+      "files": [
+        "test.bas"
+      ]
+    }
+  ],
+  "main": "test.bas"
+}

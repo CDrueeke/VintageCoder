@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Emulator-Anbindung: einheitliche Schnittstelle (`Backend`) und Adapter für VICE (Binary Monitor) und atari800 (Text-Monitor).
 mod atari800;
+pub mod fake;
+pub mod framestream;
 pub mod fujisan;
 pub mod install;
 mod mega65;
@@ -47,11 +49,11 @@ pub fn backend_for(id: &str, l: &Launch) -> Result<Box<dyn Backend>, String> {
             match l.file { Some(f) => Fujisan::launch(f, l.exe, port), None => Fujisan::launch_bare(l.exe, port) }.map(|v| Box::new(v) as Box<dyn Backend>)
         }
         "xemu-monitor" => {
-            let rom = l.rom.ok_or("MEGA65-ROM nicht gefunden")?;
+            let rom = l.rom.ok_or(vc_i18n::t!("emu-mega65-rom-nicht-gefunden"))?;
             Mega65::launch_xemu_rom(l.exe, rom, l.args).map(|v| Box::new(v) as Box<dyn Backend>)
         }
-        "" => Err("Diese Anbindung hat keinen Debugger- und Test-Adapter".into()),
-        other => Err(format!("Adapter „{other}“ ist unbekannt")),
+        "" => Err(vc_i18n::t!("emu-diese-anbindung-hat-keinen-debugger-und").into()),
+        other => Err(vc_i18n::t!("emu-adapter-other-ist-unbekannt", other = &other)),
     }
 }
 
@@ -114,15 +116,15 @@ pub trait Backend: Send {
     /// Grund, warum der Einzelschritt mit diesem Emulator nicht geht (bekannte Einschränkung); `None`: erlaubt
     fn step_blocked(&self) -> Option<String> { None }
     /// Datenhaltepunkt auf `start..=end`; liefert eine Kennung zum Entfernen.
-    fn set_watch(&mut self, _start: u16, _end: u16, _kind: WatchKind) -> Result<u32, String> { Err("Datenhaltepunkte werden von diesem Adapter nicht unterstützt".into()) }
+    fn set_watch(&mut self, _start: u16, _end: u16, _kind: WatchKind) -> Result<u32, String> { Err(vc_i18n::t!("emu-datenhaltepunkte-werden-von-diesem-adapter-nicht").into()) }
     fn clear_watch(&mut self, _id: u32) -> Result<(), String> { Ok(()) }
     fn last_hit(&mut self) -> Option<Hit> { None }
     /// Fähigkeiten für den Trap-Modus (Standard: keine)
     fn trap_caps(&self) -> TrapCaps { TrapCaps::default() }
     /// Setzt alle Register (PC, A, X, Y, SP, Flags). Der Emulator muss angehalten sein.
-    fn set_regs(&mut self, _r: &Regs) -> Result<(), String> { Err("Register setzen wird von diesem Adapter nicht unterstützt".into()) }
+    fn set_regs(&mut self, _r: &Regs) -> Result<(), String> { Err(vc_i18n::t!("emu-register-setzen-wird-von-diesem-adapter").into()) }
     /// Strahlposition (Rasterzeile, Zyklus in der Zeile) für Zeitmessungen
-    fn cycles(&mut self) -> Result<Cycles, String> { Err("Zyklenmessung wird von diesem Adapter nicht unterstützt".into()) }
+    fn cycles(&mut self) -> Result<Cycles, String> { Err(vc_i18n::t!("emu-zyklenmessung-wird-von-diesem-adapter-nicht").into()) }
     /// Läuft bis `addr` erreicht ist (Ausführungs-Haltepunkt). `Ok(true)`: angehalten an `addr`; `Ok(false)`: Zeitlimit, der Zustand ist
     /// danach unbestimmt (Emulator neu starten). Der Haltepunkt wird danach wieder entfernt.
     fn run_until(&mut self, addr: u16, timeout: std::time::Duration) -> Result<bool, String> {
@@ -165,11 +167,11 @@ pub trait Backend: Send {
     /// Wählt die Bildquelle (Index in `frame_sources`)
     fn set_frame_source(&mut self, _index: usize) {}
     /// Holt das aktuelle Bild als RGBA. Ein laufender Emulator wird dafür kurz angehalten und danach fortgesetzt; ein stehender bleibt stehen.
-    fn grab_frame(&mut self) -> Result<streams::video::Frame, String> { Err("Das Bild des Emulators ist mit diesem Adapter nicht abrufbar".into()) }
+    fn grab_frame(&mut self) -> Result<streams::video::Frame, String> { Err(vc_i18n::t!("emu-das-bild-des-emulators-ist-mit").into()) }
     /// Kann der Adapter Text über den Tastaturpuffer eingeben (`type_text`)? Standard: nein.
     fn can_type_text(&self) -> bool { false }
     /// Speist Zeichen (PETSCII) in den Tastaturpuffer des Emulators. Sie werden verarbeitet, sobald die Maschine läuft.
-    fn type_text(&mut self, _petscii: &[u8]) -> Result<(), String> { Err("Texteingabe wird von diesem Adapter nicht unterstützt".into()) }
+    fn type_text(&mut self, _petscii: &[u8]) -> Result<(), String> { Err(vc_i18n::t!("emu-texteingabe-wird-von-diesem-adapter-nicht").into()) }
     /// Beendet den Emulator.
     fn stop(&mut self);
 }
@@ -243,7 +245,7 @@ fn login_shell_path() -> Vec<std::path::PathBuf> {
 /// Hinweis zur Installation eines Emulators für die Meldung „nicht gefunden“ (`pkg`: `vice`, `atari800`), je nach Betriebssystem
 pub fn install_hint(pkg: &str) -> String {
     if cfg!(target_os = "macos") { format!("brew install {pkg}") }
-    else if cfg!(target_os = "linux") { format!("Paket „{pkg}“ der Distribution installieren, z. B. sudo apt install {pkg} / sudo dnf install {pkg} / sudo zypper install {pkg}") }
+    else if cfg!(target_os = "linux") { vc_i18n::t!("emu-paket-pkg-der-distribution-installieren-z", pkg = &pkg) }
     else { format!("{pkg} installieren") }
 }
 

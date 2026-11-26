@@ -5,8 +5,9 @@
 //! Regeln (die der eigene Assembler und BASIC wirklich kennen):
 //! - Assembler: `.include "pfad"` für Quelltexte (`.asm`, `.inc`, `.s`), `.incbin "pfad"` für sonstige Dateien. Der Pfad wird
 //!   relativ zur Datei des Zieldokuments aufgelöst, die Zeichenkette kennt keine Escapes (ein `"` im Namen geht daher nicht).
-//! - Medien (Sprite, Zeichensatz, Bildschirm, Song …): über ihren Export `build/export/<name>.asm` bzw. `<name>.data.bas`;
-//!   der Build erzeugt ihn bei Bedarf neu.
+//! - Medien (Sprite, Zeichensatz, Bildschirm, Song …): im Assembler über die Mediendatei selbst (`.include "graphics/hero.vcsprite"`, der Assembler
+//!   wandelt sie beim Einbinden um); im BASIC ebenso `#include "pfad/name.vcsprite"` (der Bau erzeugt daraus DATA-Zeilen).
+//!   Eine Zeile mit dem alten Exportpfad gilt ebenfalls als „schon eingebunden“.
 //! - BASIC: nur `#include "x.bas"` (gleiche Endung) und exportierte DATA-Zeilen; kein `.incbin`.
 
 use std::path::{Component, Path};
@@ -32,12 +33,12 @@ pub enum Reject {
 impl std::fmt::Display for Reject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Reject::NotAFile => write!(f, "Ordner und nicht vorhandene Dateien lassen sich nicht einbinden"),
-            Reject::SelfDrop => write!(f, "Eine Datei lässt sich nicht in sich selbst einbinden"),
-            Reject::Outside => write!(f, "Die Datei liegt außerhalb des Projekts"),
-            Reject::TargetNotSource => write!(f, "Hier gibt es kein Einbinden: nur in Assembler- und BASIC-Quelltexte"),
+            Reject::NotAFile => write!(f, "{}", vc_i18n::t!("dropinc-ordner-und-nicht-vorhandene-dateien-lassen-sich")),
+            Reject::SelfDrop => write!(f, "{}", vc_i18n::t!("dropinc-eine-datei-laesst-sich-nicht-in-sich")),
+            Reject::Outside => write!(f, "{}", vc_i18n::t!("dropinc-die-datei-liegt-ausserhalb-des-projekts")),
+            Reject::TargetNotSource => write!(f, "{}", vc_i18n::t!("dropinc-hier-gibt-es-kein-einbinden-nur-in")),
             Reject::Unsupported(s) | Reject::BadName(s) => write!(f, "{s}"),
-            Reject::Already(l) => write!(f, "Diese Datei ist schon eingebunden (Zeile {}) – nichts eingefügt", l + 1),
+            Reject::Already(l) => write!(f, "{}", vc_i18n::t!("dropinc-diese-datei-ist-schon-eingebunden-zeile-n", n = l + 1)),
         }
     }
 }
@@ -89,8 +90,8 @@ fn resolve_from_doc(doc: &str, p: &str) -> Option<String> {
 }
 
 fn check_name(rel: &str) -> Result<(), Reject> {
-    if rel.contains('"') { return Err(Reject::BadName("Der Dateiname enthält ein Anführungszeichen – das kennt der Assembler in Include-Pfaden nicht. Bitte die Datei umbenennen.".into())); }
-    if rel.chars().any(|c| c.is_control()) { return Err(Reject::BadName("Der Dateiname enthält Steuerzeichen – bitte umbenennen.".into())); }
+    if rel.contains('"') { return Err(Reject::BadName(vc_i18n::t!("dropinc-der-dateiname-enthaelt-ein-anfuehrungszeichen-das").into())); }
+    if rel.chars().any(|c| c.is_control()) { return Err(Reject::BadName(vc_i18n::t!("dropinc-der-dateiname-enthaelt-steuerzeichen-bitte-umbenennen").into())); }
     Ok(())
 }
 
@@ -103,43 +104,44 @@ pub fn plan(doc: &str, text: &str, src: &str, root: Option<&Path>) -> Result<Pla
     if let Some(r) = root { if !r.join(&src).is_file() { return Err(Reject::NotAFile); } }
     let l = lower(&src);
     if l.ends_with(".vcprj") || vc_ide::diskimage::is_image_name(&l) {
-        return Err(Reject::Unsupported("Projektdatei und Diskettenimages lassen sich nicht in Quelltext einbinden".into()));
+        return Err(Reject::Unsupported(vc_i18n::t!("dropinc-projektdatei-und-diskettenimages-lassen-sich-nicht").into()));
     }
     let q = |p: &str| -> Result<String, Reject> { check_name(p)?; Ok(relative_from_doc(doc, p)) };
     // (Zeile, Alternative, aufgelöstes Ziel)
     let (line, alt, target): (String, Option<(String, String)>, String) = if vc_media::naming::is_data_file(&l) {
-        let stem = vc_media::naming::stem(&src);
         match kind {
-            Kind::Asm => { let t = format!("build/export/{stem}.asm"); (format!(".include \"{}\"", q(&t)?), None, t) }
-            Kind::Basic(_) => { let t = format!("build/export/{stem}.data.bas"); (format!("#include \"{}\"", q(&t)?), None, t) }
+            Kind::Asm => (format!(".include \"{}\"", q(&src)?), None, src.clone()),
+            Kind::Basic(_) => (format!("#include \"{}\"", q(&src)?), None, src.clone()),
         }
     } else if l.ends_with(".sbas") {
-        return Err(Reject::Unsupported("Strukturiertes BASIC (.sbas) wird nicht unterstützt – bitte nur .bas einbinden".into()));
+        return Err(Reject::Unsupported(vc_i18n::t!("dropinc-strukturiertes-basic-sbas-wird-nicht-unterstuetzt").into()));
     } else if ends(&l, &[".bas", ".lst", ".tur"]) {
         match kind {
-            Kind::Asm => return Err(Reject::Unsupported("BASIC-Quelltext lässt sich in Assembler nicht einbinden. Wandle ihn mit „Nach Assembler konvertieren …“ um oder binde ein Assembler-Programm ein.".into())),
+            Kind::Asm => return Err(Reject::Unsupported(vc_i18n::t!("dropinc-basic-quelltext-laesst-sich-in-assembler").into())),
             Kind::Basic(ext) if l.ends_with(ext) => (format!("#include \"{}\"", q(&src)?), None, src.clone()),
-            Kind::Basic(_) => return Err(Reject::Unsupported("Die Datei ist ein anderer BASIC-Dialekt (andere Endung) als das Ziel – das passt nicht zusammen".into())),
+            Kind::Basic(_) => return Err(Reject::Unsupported(vc_i18n::t!("dropinc-die-datei-ist-ein-anderer-basic").into())),
         }
     } else if ends(&l, &[".asm", ".inc", ".s"]) {
         match kind {
-            Kind::Asm => { let p = q(&src)?; (format!(".include \"{p}\""), Some(("#include (nur einmal)".into(), format!("#include \"{p}\""))), src.clone()) }
-            Kind::Basic(_) => return Err(Reject::Unsupported("Assembler-Quelltext lässt sich in BASIC nicht einbinden. Maschinencode gehört per .incbin in ein Assembler-Programm.".into())),
+            Kind::Asm => { let p = q(&src)?; (format!(".include \"{p}\""), Some((vc_i18n::t!("dropinc-include-nur-einmal"), format!("#include \"{p}\""))), src.clone()) }
+            Kind::Basic(_) => return Err(Reject::Unsupported(vc_i18n::t!("dropinc-assembler-quelltext-laesst-sich-in-basic").into())),
         }
     } else {
         match kind {
             Kind::Asm => {
                 let p = q(&src)?;
-                let alt = l.ends_with(".prg").then(|| ("ohne Ladeadresse (, 2)".to_string(), format!(".incbin \"{p}\", 2")));
+                let alt = l.ends_with(".prg").then(|| (vc_i18n::t!("dropinc-ohne-ladeadresse-2"), format!(".incbin \"{p}\", 2")));
                 (format!(".incbin \"{p}\""), alt, src.clone())
             }
-            Kind::Basic(_) => return Err(Reject::Unsupported("BASIC kennt kein .incbin. Binäre Daten lassen sich nur über einen Assembler-Quelltext oder als Medium (DATA-Zeilen) einbinden.".into())),
+            Kind::Basic(_) => return Err(Reject::Unsupported(vc_i18n::t!("dropinc-basic-kennt-kein-incbin-binaere-daten").into())),
         }
     };
-    // schon eingebunden? (gleiches Ziel in einer Include-Zeile, egal mit welchem Schlüsselwort)
+    // schon eingebunden? (gleiches Ziel in einer Include-Zeile, egal mit welchem Schlüsselwort; bei Medien auch der alte Exportpfad)
+    let legacy = vc_media::naming::is_data_file(&l).then(|| { let stem = vc_media::naming::stem(&src); [format!("build/export/{stem}.asm"), format!("build/export/{stem}.data.bas")] });
     for (i, ln) in text.split('\n').enumerate() {
         if let Some((p, _, _)) = crate::editor_names::include_span(ln) {
-            if resolve_from_doc(doc, &p).as_deref() == Some(target.as_str()) { return Err(Reject::Already(i)); }
+            let r = resolve_from_doc(doc, &p);
+            if r.as_deref() == Some(target.as_str()) || legacy.as_ref().map_or(false, |lg| lg.iter().any(|x| r.as_deref() == Some(x.as_str()))) { return Err(Reject::Already(i)); }
         }
     }
     Ok(Plan { line, alt, target })
@@ -171,10 +173,10 @@ mod tests {
 
     #[test]
     fn media_use_exports() {
-        assert_eq!(line("main.asm", "gfx/hero.vcsprite"), ".include \"build/export/hero.asm\"");
-        assert_eq!(line("src/main.asm", "hero.vcsprite"), ".include \"../build/export/hero.asm\"");
-        assert_eq!(line("main.bas", "gfx/hero.vcsprite"), "#include \"build/export/hero.data.bas\"");
-        assert_eq!(line("sub/main.bas", "hero.vcsprite"), "#include \"../build/export/hero.data.bas\"");
+        assert_eq!(line("main.asm", "gfx/hero.vcsprite"), ".include \"gfx/hero.vcsprite\"");
+        assert_eq!(line("src/main.asm", "hero.vcsprite"), ".include \"../hero.vcsprite\"");
+        assert_eq!(line("main.bas", "gfx/hero.vcsprite"), "#include \"gfx/hero.vcsprite\"");
+        assert_eq!(line("sub/main.bas", "hero.vcsprite"), "#include \"../hero.vcsprite\"");
     }
 
     #[test]
@@ -221,7 +223,8 @@ mod tests {
         assert_eq!(plan("src/main.asm", t, "d/x.bin", None), Err(Reject::Already(2)), "gleiche Datei, anderer Offset");
         assert_eq!(plan("main.asm", "#include \"lib/./m.asm\"", "lib/m.asm", None), Err(Reject::Already(0)));
         assert!(plan("main.asm", t, "c.asm", None).is_ok(), "auskommentierte Zeile zählt nicht");
-        assert_eq!(plan("main.asm", ".include \"build/export/hero.asm\"", "hero.vcsprite", None), Err(Reject::Already(0)));
+        assert_eq!(plan("main.asm", ".include \"build/export/hero.asm\"", "hero.vcsprite", None), Err(Reject::Already(0)), "alter Exportpfad gilt als eingebunden");
+        assert_eq!(plan("main.asm", ".include \"gfx/hero.vcsprite\"", "gfx/hero.vcsprite", None), Err(Reject::Already(0)));
         assert!(plan("main.asm", t, "other.bin", None).is_ok());
         assert_eq!(Reject::Already(1).to_string(), "Diese Datei ist schon eingebunden (Zeile 2) – nichts eingefügt");
     }

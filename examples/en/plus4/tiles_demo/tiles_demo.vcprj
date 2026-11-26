@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: tiles_demo",
+    "description": "Tile library #include <plus4/tiles.asm>: 3x2 and 2x2 tiles, pointer, SMC and RLE version, test with vcc test"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "variant": "pal",
+      "cpu": "7501",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "tiles_demo_3x2_ptr.asm",
+        "tiles_demo_3x2_smc.asm",
+        "tiles_demo_3x2_rle.asm",
+        "tiles_demo_2x2_ptr.asm",
+        "tiles_demo_2x2_smc.asm"
+      ]
+    }
+  ],
+  "main": "tiles_demo_3x2_ptr.asm"
+}

@@ -7,7 +7,7 @@ Hilfe im Programm: `vcc --help`, `vcc help <befehl>`, `vcc <befehl> --help`. Han
 
 **Programme bauen:** [`asm`](#vcc-asm), [`basic`](#vcc-basic), [`basic2asm`](#vcc-basic2asm), [`build`](#vcc-build)
 
-**Projekte:** [`add`](#vcc-add), [`migrate`](#vcc-migrate), [`new`](#vcc-new), [`organize`](#vcc-organize)
+**Projekte:** [`add`](#vcc-add), [`migrate`](#vcc-migrate), [`new`](#vcc-new), [`organize`](#vcc-organize), [`turbo`](#vcc-turbo)
 
 **Medien und Daten:** [`dis`](#vcc-dis), [`disk`](#vcc-disk), [`import`](#vcc-import), [`inc`](#vcc-inc), [`media`](#vcc-media), [`roms`](#vcc-roms)
 
@@ -86,7 +86,7 @@ vcc asm <datei.asm> [optionen]
 | Option | Bedeutung | Standard |
 |---|---|---|
 | `-o` `<datei>` | Ausgabedatei. | Quelltextname mit der Endung des Formats |
-| `--target` `<system>` | Zielsystem: bestimmt CPU, Chip-Symbole, Textcode und Standardformat. Werte: `atari8`, `c128`, `c64`, `cbm2`, `mega65`, `pet`, `plus4`, `vic20`. | `c64` |
+| `--target` `<system>` | Zielsystem: bestimmt CPU, Chip-Symbole, Textcode und Standardformat. Werte: `atari8`, `c128`, `c64`, `mega65`, `pet`, `plus4`, `vic20`. | `c64` |
 | `--cpu` `<cpu>` | CPU-Befehlssatz, wenn er vom Ziel abweicht. Werte: `45gs02`, `6510`, `7501`, `8502`, `nmos6502`, `sally`. | CPU des Zielsystems |
 | `--format` `<format>` | Ausgabeformat. d64, d71 und d81 packen das Programm als einzige Datei in ein neues Diskettenabbild; a0, 20, 40 und 60 erzeugen ein VC-20-Modul für den jeweiligen Speicherblock. Werte: `prg`, `bin`, `xex`, `crt`, `car`, `rom`, `d64`, `d71`, `d81`, `vic20cart`, `a0`, `20`, `40`, `60`. | Standardformat des Zielsystems; mit .cartridge im Quelltext ein Modul |
 | `--memory` `<ausbau>` | Speicherausbau des VC-20; bestimmt BASIC-Start, Bildschirm- und Farbspeicher. Bei anderen Zielen ohne Wirkung. Werte: `unexpanded`, `3k`, `8k`, `16k`, `24k`, `35k`. | unexpanded (nur VC-20) |
@@ -151,16 +151,20 @@ vcc basic <datei.bas|datei.lst|datei.tur> [optionen]
 
 | Option | Bedeutung | Standard |
 |---|---|---|
-| `--target` `<system>` | Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet, cbm2 oder atari8. | `c64` |
+| `--target` `<system>` | Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet oder atari8. | `c64` |
 | `--dialect` `<id>` | BASIC-Dialekt (Datei in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic oder turbo_basic_xl. | Dialekt des Zielsystems |
 | `--memory` `<ausbau>` | Speicherausbau des Ziels; bestimmt die BASIC-Startadresse. Gibt es nur beim VC-20 (unexpanded, 3k, 8k, 16k, 24k, 35k); andere Ziele ignorieren die Angabe. | Vorgabe des Ziels (VC-20: unexpanded) |
 | `--plain` | Quelltext als natives BASIC lesen, auch bei einer anderen Endung als .bas, .lst und .tur. |  |
 | `--data-dir` `<ordner>` | Ordner mit der Hardware-Datenbank (data). | VC_DATA oder neben dem Programm |
 | `-o` `<ausgabe>` | Ausgabedatei. Bei natives BASIC darf sie nicht die Quelldatei sein. | Quellname mit .prg (Commodore) bzw. .bas (Atari) |
-| `--start` `<n>` | Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. | `10` |
-| `--step` `<n>` | Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. | `10` |
+| `--start` `<n>` | Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. | `10` |
+| `--step` `<n>` | Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. | `10` |
+| `--check` | Nur prüfen: Warnungen (B150–B159, B167) ausgeben, keine Datei schreiben. |  |
+| `--compact` | Leerzeichen innerhalb der Anweisungen entfernen, wo es nichts ändert (nur Commodore; spart Speicher und Laufzeit). Zeichenketten, REM und DATA bleiben. |  |
+| `--no-check` | Die Syntaxprüfung beim Übersetzen auslassen. |  |
+| `--disable` `<codes>` | Einzelne Warnungen abschalten, Codes durch Komma getrennt (z. B. B150,B154). Fehler lassen sich nicht abschalten. |  |
 | `-I` `<ordner>` | Suchordner für eingebundene Dateien; der erste ist auch die Wurzel für Maschinencode-Einbindungen. Mehrfach möglich. | Arbeitsordner (Wurzel) |
-| `-D` `<NAME=zahl>` | Konstante für den Quelltext setzen. Mehrfach möglich. |  |
+| `-D` `<NAME=zahl>` | Konstante für den Quelltext setzen (natives BASIC: wirkt wie ein #define NAME zahl). Mehrfach möglich. |  |
 | `--pack` | Zeilen zusammenfassen (nur Commodore). |  |
 | `--map` `<datei>` | Zuordnung Quellname zu BASIC-Name und Marke zu Zeile in eine Textdatei schreiben (nur Commodore). |  |
 | `--labels` `<datei>` | VICE-Labeldatei lesen; ihre Adressen stehen im Quelltext als Konstanten asm.name (nur Commodore). |  |
@@ -187,9 +191,13 @@ vcc basic examples/atari/turbo_basic/balken.tur --target atari8 --dialect turbo_
 vcc basic examples/c64/basic_native/sterne.bas --target vic20 --memory 8k -o sterne.prg
 ```
 
+> **Hinweis:** #include bindet Dateien und Medien ein (z. B. #include "graphics/hero.vcsprite" als DATA, Projektordner = nächster Ordner mit Projektdatei); Medien werden bei der Umwandlung (--to-labels, --to-numbers, --renumber) mitgelesen, aber nie zurückgeschrieben.
+
+> **Hinweis:** Direktiven im nativen BASIC: #define NAME wert (Ersetzung vor der Nummerierung), #if SYSTEM_C64 / #else / #endif, #dialect <id> (Dialekt dieser Datei) und #asm "datei.asm" [with "song.asm"] (Maschinencode hinter dem BASIC-Text bzw. als DATA-Zeilen; die Marken stehen im Programm als asm.name).
+
 > **Hinweis:** Es werden die Marken (@name = Zeile n) und bei #longnames die Zuordnung der langen Namen ausgegeben. Eine .sbas-Datei wird abgelehnt.
 
-> **Hinweis:** Die Optionen -I, -D, --pack, --map und --labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne --plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt.
+> **Hinweis:** Die Optionen -I, --pack, --map und --labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne --plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt. Die Option -D wirkt auch beim nativen BASIC (wie ein #define).
 
 ### Form `tokenize`
 
@@ -291,6 +299,56 @@ vcc basic --suggest-hex spiel.bas --apply 1,3 -o spiel_hex.bas
 
 > **Hinweis:** Vorgeschlagen werden nur vollständige Dezimaladressen ab 256 als Argument von POKE, PEEK, SYS, WAIT und USR, die ein Chipregister des Zielsystems sind. Rechenausdrücke, DATA und Zeichenketten bleiben unberührt.
 
+### Form `convert`
+
+Zeilennummern in Labels umwandeln, Labels in Zeilennummern umwandeln oder neu nummerieren
+
+```
+vcc basic (--to-labels | --to-numbers | --renumber) <datei.bas|datei.lst|datei.tur> [optionen]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `datei.bas` | BASIC-Quelltext; eingebundene Dateien (#include) werden mitumgewandelt. |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--to-labels` | Zeilennummern in Labels umwandeln: nur angesprungene Zeilen bekommen ein Label, vorhandene Namen bleiben. Berechnete Sprungziele (GOTO A*10) brechen die Umwandlung ab (B162). |  |
+| `--to-numbers` | Labels in Zeilennummern umwandeln: immer neu nummeriert; die Namen bleiben als Markerzeilen ;@name erhalten. |  |
+| `--renumber` | Zeilen neu nummerieren und alle Sprungziele anpassen. |  |
+| `--range` `<a-b>` | Nur Zeilen mit alter Nummer von a bis b neu nummerieren (mit --renumber, nur im Nummernmodus). |  |
+| `--start` `<n>` | Erste Zeilennummer. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. | `10` |
+| `--step` `<n>` | Schritt der Zeilennummern. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor. | `10` |
+| `-o` `<datei>` | Ergebnis (nur die Hauptdatei) in diese Datei schreiben. | Standardausgabe |
+| `--write` | Alle geänderten Dateien an Ort und Stelle überschreiben. |  |
+| `--preview` | Nur die geänderten Zeilen (alt → neu) auflisten, nichts schreiben. |  |
+| `--target` `<system>` | Zielsystem (Datei in data/targets); bestimmt den Dialekt. | `c64` |
+| `--dialect` `<id>` | BASIC-Dialekt (Datei in data/basic); eine Zeile #dialect <id> in der Datei hat Vorrang. | Dialekt des Zielsystems |
+| `--data-dir` `<ordner>` | Ordner mit der Hardware-Datenbank (data). | VC_DATA oder neben dem Programm |
+
+Beispiele:
+
+```bash
+# Vorschau der Umwandlung in Labels
+vcc basic --to-labels spiel.bas --preview
+```
+
+```bash
+# In Zeilennummern umwandeln und die Datei überschreiben
+vcc basic --to-numbers spiel.bas --write
+```
+
+```bash
+# Neu nummerieren ab 100 in Fünferschritten
+vcc basic --renumber spiel.bas --start 100 --step 5 -o neu.bas
+```
+
+> **Hinweis:** Der Modus einer Datei ergibt sich aus ihrem Inhalt; eine Mischung aus Nummern und Labels (B160) lässt sich mit jeder der beiden Umwandlungen auflösen.
+
+> **Hinweis:** Die Namen manuell vergebener Labels bleiben als Zeile ;@name vor der Anweisung erhalten und werden bei der Rückumwandlung wiederverwendet.
+
+Rückgabe: `0` = Umwandlung erfolgreich · `1` = Umwandlung nicht möglich (Fehler B1xx)
+
 ### Form `ast`
 
 Syntaxbaum eines BASIC-Programms ausgeben
@@ -391,7 +449,9 @@ vcc basic2asm examples/c64/basic_native/sterne.bas --check
 
 Projekt laut .vcprj bauen
 
-Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und Export von Medien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.
+Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und von Mediendateien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.
+
+Turbo-BASIC-XL-Projekte (Dialekt turbo_basic_xl, Atari) mit einer Diskette im Projekt (Abschnitt turbo, siehe vcc turbo provide) bekommen build/<name>.atr: eine Kopie der Diskette mit dem übersetzten Programm als AUTORUN.BAS. Fehlt die Diskette, bleibt es bei einem Hinweis (Exit-Code 0).
 
 ```
 vcc build [projekt] [optionen]
@@ -405,6 +465,7 @@ vcc build [projekt] [optionen]
 |---|---|---|
 | `--main` | Baut nur das Startprogramm (main der Projektdatei); die Diskette entsteht dann nicht. |  |
 | `--data-dir` `<ordner>` | Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche. |  |
+| `--strict` | Turbo BASIC XL: Fehlt die Diskette des Anwenders (Abschnitt turbo der Projektdatei), ist das ein Fehler (Exit-Code 1) statt eines Hinweises. |  |
 | `--license-report` | Gibt die Lizenzen aller übersetzten Quelltexte aus (Datei, Lizenz, Urheber, Fundstelle) und schreibt sie nach build/LICENSES.txt. |  |
 | `--json` | Mit --license-report: den Bericht als JSON auf der Standardausgabe (die Zeilen OK/FEHLER gehen dann auf die Fehlerausgabe). |  |
 | `--deny-license` `<liste>` | Der Bau scheitert (Code L002), wenn ein übersetzter Quelltext unter einer dieser SPDX-Lizenzen steht, z. B. GPL-3.0-only,GPL-3.0-or-later (Endung * als Platzhalter, z. B. GPL-*). Dauerhaft: "licenses": {"deny": [...]} in der Projektdatei. |  |
@@ -657,6 +718,35 @@ vcc disk atr -o jumprun.atr --boot jumprun.xex
 > **Hinweis:** `--boot` lässt sich nicht mit `--add` verbinden: die Boot-Diskette hat kein Dateisystem. `vcc disk list` meldet das entsprechend.
 
 > **Hinweis:** Eine Datei ohne XEX-Kennung ($FFFF am Anfang) führt zu einem Fehler.
+
+### Form `atr-edit`
+
+bestehendes ATR-Image ändern (Dateien ersetzen, löschen, anlegen)
+
+```
+vcc disk atr -o <out.atr> --base <in.atr> [--put <datei[:NAME.EXT]>]... [--delete <NAME.EXT>]... [--add <datei[:NAME.EXT]>]... [--force]
+```
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `-o` `<datei>` | Ausgabedatei des Images (nicht das Ausgangsabbild). Erforderlich. |  |
+| `--base` `<in.atr>` | Ausgangsabbild (ATR, DOS 2); es bleibt unverändert, das Ergebnis geht in die Ausgabedatei. Erforderlich. |  |
+| `--put` `<datei[:NAME.EXT]>` | Datei anlegen oder ersetzen, optional unter anderem Namen. Mehrfach möglich. |  |
+| `--delete` `<NAME.EXT>` | Datei von der Diskette löschen (ihre Sektoren werden frei). Mehrfach möglich. |  |
+| `--add` `<datei[:NAME.EXT]>` | Datei anlegen; gibt es den Namen schon, ist das ein Fehler. Mehrfach möglich. |  |
+| `--force` | Geschützte Dateien dürfen mit --delete gelöscht werden. |  |
+| `--data-dir` `<pfad>` | Wird angenommen und ignoriert. |  |
+
+Beispiele:
+
+```bash
+# Ausgangsabbild verkleinern
+vcc disk atr -o neu.atr --base turbo.atr --delete COMPILER.COM --delete RUNTIME.COM --force
+```
+
+> **Hinweis:** Schreibgeschützte Dateien (`*` bei vcc disk list) lassen sich nur mit --force löschen und werden von --put nie überschrieben. Danach wird das Image geprüft; bei Fehlern entsteht keine Ausgabedatei.
+
+> **Hinweis:** Die Ausgabe nennt Größe und freie Sektoren. Für Turbo-BASIC-XL-Projekte siehe vcc turbo.
 
 ### Form `list`
 
@@ -965,7 +1055,7 @@ vcc inc --target <system> [optionen]
 
 | Option | Bedeutung | Standard |
 |---|---|---|
-| `--target` `<system>` | Zielsystem, dessen Chips ausgegeben werden. Werte: `atari8`, `c128`, `c64`, `cbm2`, `mega65`, `pet`, `plus4`, `vic20`. Erforderlich. |  |
+| `--target` `<system>` | Zielsystem, dessen Chips ausgegeben werden. Werte: `atari8`, `c128`, `c64`, `mega65`, `pet`, `plus4`, `vic20`. Erforderlich. |  |
 | `-o` `<datei.inc>` | Ausgabedatei; ohne die Option erscheint der Text auf dem Bildschirm. |  |
 | `--data-dir` `<ordner>` | Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche. |  |
 
@@ -1430,7 +1520,7 @@ vcc media export music/tune_pokey.vcsong --format rmt --address 0x4000
 
 > **Hinweis:** Die Dateien entstehen in build/export/; der Befehl gibt Pfad und Größe je Datei aus. Bei der Ausgabe in mehreren Teilen (Screens: chars/attrs, Kacheln: tiles/map/colors) gibt es je Teil eine Datei bzw. einen Abschnitt.
 
-> **Hinweis:** Beim Bauen werden veraltete Mediendateien ohnehin als asm und data nach build/export/ geschrieben.
+> **Hinweis:** Mediendateien lassen sich auch direkt mit #include einbinden; dafür ist dieser Export nicht nötig.
 
 > **Hinweis:** Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler).
 
@@ -1463,6 +1553,10 @@ Projekt vom alten Dateischema auf das neue umstellen
 
 Benennt Dateien im alten Schema (*.asset.json) in <name>.vc<art> um, verschiebt assets/ nach graphics/ bzw. music/ und build/assets/ nach build/export/. Verweise in Quelltexten, Includes und Assets werden mitgezogen. Ausgegeben wird jede Umbenennung; build/export/ entsteht beim nächsten Bauen neu.
 
+### Grundform
+
+Projekt vom alten Dateischema auf das neue umstellen
+
 ```
 vcc migrate [projektordner]
 ```
@@ -1487,6 +1581,38 @@ vcc migrate examples/c64/tests_demo
 
 > **Hinweis:** Der Befehl kennt keine Optionen; das erste Argument gilt als Ordner.
 
+### Form `includes`
+
+Alte Include-Pfade build/export/… auf die Mediendatei umstellen
+
+```
+vcc migrate includes [projektordner] [--apply]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `projektordner` | Wurzel des Projekts; Standard ist der Arbeitsordner. (optional) |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--apply` | Umstellung wirklich schreiben; ohne diese Option wird nur angezeigt, was sich ändern würde. |  |
+
+Beispiele:
+
+```bash
+# Anzeigen, was sich ändern würde
+vcc migrate includes
+```
+
+```bash
+# Umstellung schreiben
+vcc migrate includes examples/c64/jumprun --apply
+```
+
+> **Hinweis:** Aus .include "build/export/hero.asm" wird .include "graphics/hero.vcsprite" (BASIC: #include). Eine Zeile mit hero.anim.asm direkt dahinter entfällt: der Include der Mediendatei liefert Daten und Tabellen zusammen.
+
+> **Hinweis:** Gibt es zu einem Namen kein oder mehrere Medien im Projekt, bleibt die Zeile unverändert und wird gemeldet.
+
 ## `vcc new`
 
 Neues Projekt aus einer Vorlage anlegen
@@ -1506,9 +1632,9 @@ vcc new <ordner> [optionen]
 | Option | Bedeutung | Standard |
 |---|---|---|
 | `--target` `<system[,system…]>` | Zielsysteme, durch Komma getrennt. Jedes bekommt eigene Quellen unter src/<system>/. Die Vorlage muss das System kennen. | `c64` |
-| `--template` `<vorlage>` | Dateivorlage: Assemblerprogramm, BASIC ohne Zeilennummern oder nur Projektdatei mit src/. Werte: `asm-hello`, `basic-hello`, `empty`. | `asm-hello` |
+| `--template` `<vorlage>` | Dateivorlage: Assemblerprogramm, BASIC oder nur Projektdatei mit src/. Werte: `asm-hello`, `basic-hello`, `empty`. | `asm-hello` |
 | `--variant` `<variante>` | Variante der Vorlage. cartridge erzeugt ein 8-KB-Modul statt eines Programms (nur asm-hello; c64, atari8, vic20). Werte: `cartridge`. | keine |
-| `--structure` `<struktur>` | Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Werte: `einfach`, `standard`, `gross`, `mehrsystem`, `bibliothek`, `spiel`. | keine |
+| `--structure` `<struktur>` | Projektstruktur: legt Ordner an und trägt das layout in die Projektdatei ein. Auch eigene Vorlagen aus structures.json sind möglich. Die früheren deutschen Namen (einfach, gross, mehrsystem, bibliothek, spiel) gelten weiter. Werte: `simple`, `standard`, `large`, `multisystem`, `library`, `game`. | keine |
 | `--charset` `<wahl>` | Zeichensatz des Projekts: auto = dein ROM als Verweis, sonst der eigene Standardsatz als Kopie; own = immer der eigene Standardsatz (weitergebbar, mit HERKUNFT.txt); none = keiner. Werte: `auto`, `own`, `none`. | `auto` |
 | `--name` `<name>` | Projektname (Buchstaben, Ziffern, _ und -, höchstens 48 Zeichen); bestimmt den Namen der .vcprj. | Name des Ordners |
 | `--list` | Projektstrukturen, Vorlagen und Varianten mit ihren Zielsystemen auflisten; legt nichts an. |  |
@@ -1528,7 +1654,7 @@ vcc new multi --target c64,atari8
 
 ```bash
 # BASIC-Projekt mit Projektstruktur
-vcc new demo --target c64,vic20 --template basic-hello --structure mehrsystem
+vcc new demo --target c64,vic20 --template basic-hello --structure multisystem
 ```
 
 ```bash
@@ -1541,9 +1667,9 @@ vcc new modul --target vic20 --variant cartridge
 vcc new --list
 ```
 
-> **Hinweis:** Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet und cbm2.
+> **Hinweis:** Die Vorlage empty gibt es für c64, c128, plus4, vic20, atari8 und mega65; asm-hello zusätzlich für pet, basic-hello für pet.
 
-> **Hinweis:** Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET, CBM-II) bekommen nichts.
+> **Hinweis:** Ohne eigenes ROM legt auto den eigenen Satz VC-Standard (CC0) unter graphics/vc-standard/ ab; Systeme ohne eigenen Satz (PET) bekommen nichts.
 
 > **Hinweis:** Ausgegeben werden die angelegten Ordner und Dateien.
 
@@ -2009,6 +2135,129 @@ vcc test examples/mega65/prallball --junit ergebnis.xml
 > **Hinweis:** Ohne gefundene *.vctest endet der Befehl fehlerfrei.
 
 Rückgabe: `0` = alle bestanden (Hinweise und übersprungene Tests zählen nicht) · `1` = ein Test fehlgeschlagen, eine Testdatei fehlerhaft oder Zeitüberschreitung; auch Pfad oder Datenordner nicht gefunden, ungültiges --backend, Hardware-Abfrage abgelehnt · `2` = unbekannte Option
+
+## `vcc turbo`
+
+Turbo BASIC XL: Diskette bereitstellen, prüfen, starten
+
+Turbo BASIC XL läuft auf dem Atari von einer Diskette, die du selbst besitzen musst; VintageCoder liefert keine aus. Das Projekt bekommt eine Kopie davon (turbo/), beim Bauen entsteht daraus build/<name>.atr mit dem Programm als AUTORUN.BAS (vcc build), und vcc turbo run startet sie im Emulator.
+
+### Form `check`
+
+Diskette prüfen: ist das Turbo BASIC XL?
+
+```
+vcc turbo check <image.atr> [--json]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `image` | ATR-Abbild der Diskette (90 KB, Atari DOS 2). |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--json` | Ausgabe als JSON auf der Standardausgabe. |  |
+
+Beispiele:
+
+```bash
+# Diskette prüfen
+vcc turbo check Turbo_Basic_XL.atr
+```
+
+> **Hinweis:** Die Prüfung liest nur Bytes (kein Emulator): Dateisystem, AUTORUN.SYS mit der Kennung TURBO-BASIC XL, Version, freie Sektoren, Verzeichnis und SHA-256 gegen die Liste bekannter Abbilder. Hinweise auf Altlasten (z. B. nie abgeschlossene Einträge) sind keine Fehler.
+
+Rückgabe: `0` = sieht nach Turbo BASIC XL aus, keine Fehler · `1` = nicht erkannt, Fehler im Dateisystem oder Datei nicht lesbar · `2` = falscher Aufruf
+
+### Form `provide`
+
+Diskette des Anwenders ins Projekt kopieren
+
+```
+vcc turbo provide <image.atr> [projekt] [--reduce] [--yes] [--anyway] [--replace]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `image` | ATR-Abbild der eigenen Turbo-BASIC-XL-Diskette (wird nur gelesen). |
+| `projekt` | Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional) |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--reduce` | Die Kopie auf DOS.SYS, DUP.SYS und AUTORUN.SYS verkleinern (mehr freier Platz). Fragt vorher nach; das Original bleibt unverändert. |  |
+| `--yes` | Rückfrage von --reduce überspringen. |  |
+| `--anyway` | Auch ein Abbild verwenden, das nicht nach Turbo BASIC XL aussieht oder Fehler hat (auf eigene Verantwortung). |  |
+| `--replace` | Eine vorhandene Kopie gleichen Namens überschreiben. |  |
+
+Beispiele:
+
+```bash
+# Diskette bereitstellen
+vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt
+```
+
+```bash
+# bereitstellen und verkleinern
+vcc turbo provide ~/Turbo_Basic_XL.atr meinprojekt --reduce
+```
+
+> **Hinweis:** Turbo BASIC XL gehört nicht zum Lieferumfang von VintageCoder: Die Diskette musst du selbst besitzen. Die Kopie liegt in turbo/ unter dem Namen des Originals; die Projektdatei bekommt den Abschnitt turbo, die .gitignore die Zeile turbo/*.atr.
+
+Rückgabe: `0` = fehlerfrei · `1` = Abbild nicht verwendbar, Kopie vorhanden oder abgebrochen · `2` = falscher Aufruf
+
+### Form `reduce`
+
+Kopie im Projekt auf die Systemdateien verkleinern
+
+```
+vcc turbo reduce [projekt] [--yes]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `projekt` | Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional) |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--yes` | Rückfrage überspringen. |  |
+
+Beispiele:
+
+```bash
+# Platz schaffen
+vcc turbo reduce
+```
+
+> **Hinweis:** Entfernt in der Projektkopie alles außer DOS.SYS, DUP.SYS und AUTORUN.SYS (dann sind rund 480 statt 103 Sektoren frei; COMPILER.COM, RUNTIME.COM und die Beispielprogramme fallen weg). Dein Original bleibt unverändert.
+
+Rückgabe: `0` = fehlerfrei · `1` = keine Diskette im Projekt, nicht verkleinerbar oder abgebrochen · `2` = falscher Aufruf
+
+### Form `run`
+
+bauen und im Atari-Emulator starten
+
+```
+vcc turbo run [projekt] [--data-dir <ordner>]
+```
+
+| Argument | Bedeutung |
+|---|---|
+| `projekt` | Projektordner (mit .vcprj). Ohne Angabe gilt der aktuelle Ordner. (optional) |
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--data-dir` `<ordner>` | Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche. |  |
+
+Beispiele:
+
+```bash
+# Turbo-BASIC-Projekt starten
+vcc turbo run examples/atari/turbo_basic
+```
+
+> **Hinweis:** Baut das Hauptprogramm, schreibt es als AUTORUN.BAS auf eine Kopie der Diskette (build/<name>.atr) und bootet sie im Standard-Emulator des Atari (atari800; unter Windows auf Wunsch Altirra) in Laufwerk 1 ohne eingebautes BASIC. Nach dem Programmende (READY) wartet Turbo BASIC XL auf Eingaben. Altirra mit einer Turbo-BASIC-Diskette ist noch nicht geprüft.
+
+Rückgabe: `0` = Emulator gestartet · `1` = Fehler beim Bauen, Diskette fehlt oder Emulator nicht gefunden · `2` = falscher Aufruf
 
 ## `vcc update`
 

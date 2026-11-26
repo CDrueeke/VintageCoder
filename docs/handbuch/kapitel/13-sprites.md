@@ -12,9 +12,9 @@ referenz: [sprite, export, graphics]
 
 **Ziel:** Du zeichnest ein Sprite (C64) oder einen Player (Atari), lässt es sich bewegen, exportierst es und zeigst es in einem Programm an.
 
-## Wofür ist das Studio gedacht?
+## Wofür ist der Editor gedacht?
 
-Im Sprite-Studio malst du die **beweglichen Figuren** deines Programms: den Spieler, Gegner, Schüsse, einen Mauszeiger, ein Raumschiff. Alles, was sich über einen Hintergrund bewegen soll, ohne ihn zu zerstören, ist ein Kandidat für ein Sprite.
+Im Sprite-Editor malst du die **beweglichen Figuren** deines Programms: den Spieler, Gegner, Schüsse, einen Mauszeiger, ein Raumschiff. Alles, was sich über einen Hintergrund bewegen soll, ohne ihn zu zerstören, ist ein Kandidat für ein Sprite.
 
 Typische Einsätze aus echten Retro-Projekten:
 
@@ -23,11 +23,11 @@ Typische Einsätze aus echten Retro-Projekten:
 - **Eine Figur mit Gehanimation:** vier bis acht Frames, die der Reihe nach gezeigt werden.
 - **Große Figuren:** mehrere Sprites nebeneinander, zum Beispiel ein Endgegner aus 2×2 Sprites.
 
-Im fertigen Programm landet ein Sprite als **Datenblock** im Speicher (63 Bytes je Sprite beim C64). Dein Programm sagt dem Grafikchip, wo dieser Block liegt, und der Chip malt ihn. Das Studio erzeugt die Daten und die Farbkonstanten für dich; wie du sie einbindest, steht unten im Abschnitt „Vom Studio ins Programm“.
+Im fertigen Programm landet ein Sprite als **Datenblock** im Speicher (63 Bytes je Sprite beim C64). Dein Programm sagt dem Grafikchip, wo dieser Block liegt, und der Chip malt ihn. Der Editor erzeugt die Daten und die Farbkonstanten für dich; wie du sie einbindest, steht unten im Abschnitt „Vom Editor ins Programm“.
 
 ## Grundbegriffe ohne Vorwissen
 
-- **Pixel / Punkt:** der kleinste Bildpunkt. Im Sprite-Studio siehst du ihn als Kästchen.
+- **Pixel / Punkt:** der kleinste Bildpunkt. Im Sprite-Editor siehst du ihn als Kästchen.
 - **Sprite:** ein kleines Bild, das der Grafikchip **selbst** über den Bildschirm legt (C64: VIC-II, Atari: GTIA).
 - **Frame:** ein Einzelbild eines Sprites. Mehrere Frames hintereinander ergeben eine Animation, wie bei einem Daumenkino.
 - **Hires:** hochauflösend. Jeder Punkt ist an oder aus, das Sprite hat **eine** Farbe.
@@ -54,93 +54,110 @@ Ein **Sprite** ist ein kleines Bild, das der Grafikchip **selbst über den Bilds
 
 Du brauchst dafür kein eigenes Projekt: Das Beispiel `examples/c64/sprite_demo` bringt schon ein Sprite mit, das du ansehen und ändern kannst.
 
-1. **Beispiel öffnen:** Auf der Startseite „Beispiele“ ▸ `sprite_demo`. *Erwartet:* Links im Projektbaum erscheint der Ordner `graphics` mit `hero.vcsprite`.
-2. **Sprite öffnen:** Doppelklick auf `hero.vcsprite`. *Erwartet:* Das Sprite-Studio öffnet in einem neuen Reiter. In der Mitte siehst du das Sprite stark vergrößert, links die Liste der Frames, rechts Karten.
-3. **Malen:** Wähle den **Stift** (Taste **D**) und klicke in die Fläche. *Erwartet:* Ein breiter Punkt (Multicolor) erscheint in der gewählten Farbe, in der Kopfzeile erscheint ein **●** („ungespeichert“).
+1. **Beispiel öffnen:** Öffne auf der Startseite aus den Beispielprojekten `sprite_demo` (zum Ändern nimmst du **Kopieren**, dann hast du eine eigene Fassung). *Erwartet:* Das Projekt ist offen; im Projektbaum liegt der Ordner `graphics` mit `hero.vcsprite`.
+2. **Sprite öffnen:** Wähle oben den Hauptbereich **Grafik** und in der zweiten Reihe **Sprites**. Links steht die Liste der **Sprite-Dateien**; klicke auf `hero.vcsprite`. (Ein Doppelklick auf die Datei im Projektbaum öffnet sie auch im Sprite-Editor.) *Erwartet:* In der Mitte siehst du das Sprite stark vergrößert, links die Bilder (Frames), rechts die Karten **Farben**, **Sprite** und **Vorschau im Spiel**.
+3. **Malen:** Wähle den **Stift** (Taste **D**) und klicke in die Fläche. *Erwartet:* Ein breiter Punkt (Multicolor) erscheint in der gewählten Farbe, in der Fußzeile steht „● ungespeichert“.
 4. **Löschen:** Rechte Maustaste auf einen Punkt. *Erwartet:* Der Punkt wird durchsichtig.
-5. **Farbe wechseln:** In der Karte **Werkzeug** klickst du auf einen anderen Pixelwert (oder drückst **1** bis **4**) und malst weiter. *Erwartet:* Der Stift setzt jetzt den neuen Wert.
+5. **Farbe wechseln:** In der Karte **Farben** klickst du auf einen anderen Farbwert (oder drückst **1** bis **4**) und malst weiter. *Erwartet:* Der Stift setzt jetzt den neuen Wert.
 6. **Rückgängig:** **Cmd/Strg+Z**. *Erwartet:* Der letzte Strich verschwindet; **Cmd/Strg+Umschalt+Z** holt ihn zurück.
-7. **Speichern:** **Cmd/Strg+S**. *Erwartet:* Das **●** verschwindet.
+7. **Speichern:** **Cmd/Strg+S**. *Erwartet:* Der Hinweis „ungespeichert“ verschwindet.
 8. **Bauen und starten:** **F7**, dann **F5**. *Erwartet:* Der Emulator zeigt dein geändertes Sprite auf dem Bildschirm.
+
+Eine neue Sprite-Datei legst du mit **Neue Sprite-Datei …** an (links unter der Dateiliste, auch auf der leeren Seite des Editors). Im Dialog wählst du unter **Art und System** das Profil, gibst den **Namen** ein (Buchstaben, Ziffern, `_` und `-`), prüfst den **Ordner im Projekt** (Vorgabe `graphics`) und klickst auf **Anlegen**. **Sprite-Datei öffnen …** holt eine vorhandene Datei aus dem Projekt.
 
 ## Aufbau der Oberfläche
 
-Das Studio hat **sechs Zonen**, wie alle Studios in VintageCoder:
+Der Sprite-Editor hat drei Bereiche nebeneinander:
 
-| Zone | Was sie zeigt |
+| Bereich | Was er zeigt |
 |---|---|
-| Kopfzeile | Art der Datei (**SPR** für C64, **PMG** für Atari), Name, **●** bei ungespeicherten Änderungen, Maße; rechts die Dateiaktionen (**PNG laden …**, **Exportieren …**, **Speichern**). Bei wenig Platz stehen weniger Knöpfe da, der Rest steckt im **⋯**-Menü. |
-| Werkzeugleiste | genau eine Reihe: Stift, Radierer, Füllen, Linie, Rahmen, Auswahl, Pipette; Rückgängig/Wiederholen, **Transformieren ▾**, Zoom (− + Einpassen), Raster, Onion Skin. |
-| Liste | die **Frames** des Sprites (bei Atari die vier Player). Klick wählt, die Pfeiltasten links/rechts wechseln das Frame. |
-| Fläche | das gewählte Frame, stark vergrößert und immer eingepasst; Mausrad mit **Cmd/Strg** zoomt. |
-| Karten (Seitenspalte) | **Werkzeug** (die Zeichenfarbe, also die Pixelwerte), **Dokument** (Modus dieses Frames, Farben, Palette) und **Sprite** (Hardware-Flags und Animationen). In schmalen Fenstern steht auch die Liste der **Frames** als Karte hier. |
-| Fußzeile | Position der Maus (Zelle), Zoom und Meldungen; rechts der Hinweis **? Tasten**. Frame x von y und die Größe stehen in der Kopfzeile. |
+| Links | die **Sprite-Dateien** des Projekts, **Sprite-Datei öffnen …**, **Neue Sprite-Datei …** und darunter die Reiter **Bilder** und **Animationen** |
+| Mitte | die Werkzeugleiste, die **Zeichenfläche** mit dem gewählten Bild (stark vergrößert, eingepasst) und darunter die Zeitleiste der Animation; ganz unten die Fußzeile |
+| Rechts | die Karten **Farben**, **Palette**, bei Atari **Player/Missile**, **Sprite**, **Vorschau im Spiel** und **Verschieben** |
 
-**Werkzeuge und Tasten** (die Einzeltasten gelten, wenn der Mauszeiger über der Fläche steht; sie lassen sich unter **Einstellungen ▸ Editor** mit **Einzeltasten der Studios** abschalten):
+Die **Werkzeugleiste** enthält, von links nach rechts: **Stift** (D), **Radierer** (E), **Pipette** (I), **Füllen** (F), **Linie** (L), **Rechteck** (R), **Auswahl** (S), **Waagerecht spiegeln** (X), **Senkrecht spiegeln** (Y), Rückgängig und Wiederholen, **Onion Skin** (O), **Raster** (G), Zoom (**Verkleinern**, Anzeige in Prozent, **Vergrößern**, **Einpassen**) und rechts die Dateiknöpfe **PNG laden …**, **Exportieren …** und **Speichern**. Die Knöpfe zeigen beim Daraufzeigen ihre Taste. Die **Fußzeile** nennt Name, Größe und „Bild i von n“; ungespeicherte Änderungen markiert ein **●**, eine Auswahl nennt dort ihre Größe.
+
+![Der Reiter Grafik mit der Seite „Sprites“ und der Datei hero.vcsprite: links die Sprite-Dateien und zwei Bilder, in der Mitte das 12x21 Pixel große Multicolor-Sprite einer Figur in Gelb, Rotbraun und Blau, rechts die Karten „Farben“, „Sprite“ (Mehrfarbig an), „Vorschau im Spiel“ und „Verschieben“. Unter der Zeichenfläche steht der Hinweis „Keine Animation“.](bild:sprite-c64 "Der Sprite-Editor mit einem Multicolor-Sprite.")
+
+**Tasten** (die Einzeltasten gelten, wenn die Zeichenfläche den Fokus hat):
 
 | Taste | Wirkung |
 |---|---|
-| D / E / F | Stift / Radierer / Füllen |
-| L / R | Linie / Rahmen |
-| S / I | Auswahl / Pipette |
-| X / Y | horizontal / vertikal spiegeln |
-| 1 bis 4 | Pixelwert wählen |
-| 0 / + / − | Einpassen / Vergrößern / Verkleinern |
+| D / E / I | Stift / Radierer / Pipette |
+| F / L / R / S | Füllen / Linie / Rechteck / Auswahl |
+| X / Y | waagerecht / senkrecht spiegeln |
+| 1 bis 4 | Farbwert wählen (Ziffern bis 9, soweit das Sprite so viele Werte hat) |
+| O / G | Onion Skin / Raster |
+| 0 / + / − | Einpassen / Vergrößern / Verkleinern (auch **Cmd/Strg** und Mausrad) |
+| Pfeiltasten | Zellmarke bewegen; **Eingabe** oder **Leertaste** setzt einen Punkt, **Entf** oder Rücktaste löscht ihn |
+| Bild auf / Bild ab, Alt+Pfeil links/rechts | voriges / nächstes Bild |
 | Cmd/Strg+C / X / V | Auswahl kopieren / ausschneiden / einfügen |
-| Entf oder Rücktaste | Auswahl löschen |
+| Esc | Auswahl aufheben |
 | Cmd/Strg+Z | Rückgängig (Umschalt dazu: Wiederholen) |
 | Cmd/Strg+S | Speichern |
 | Cmd/Strg+Umschalt+E | Export-Dialog |
 
-Zoom, Raster und Onion Skin findest du auch in der **Befehlspalette** (Cmd/Strg+K, Einträge „Studio: …“). Das Kontextmenü der Fläche (Rechtsklick mit dem Auswahlwerkzeug, Menü-Taste oder Umschalt+F10) bietet Rückgängig, Wiederholen, Ausschneiden, Kopieren, Einfügen und Exportieren.
+Alle Werkzeuge, Zoom, Raster und Onion Skin erreichst du auch über die **Befehlspalette** (Cmd/Strg+K). Mit dem Werkzeug **Auswahl** öffnet ein Rechtsklick auf die Fläche ein Menü mit Kopieren, Ausschneiden, Einfügen, Alles auswählen, Auswahl löschen und Auswahl aufheben.
 
-### Hires oder Multicolor – je Frame
+### Hires oder Multicolor, je Bild
 
-Du kannst Frames eines Sprites mischen: Rechts unter **Modus dieses Frames** wählst du **Hires** oder **Multicolor** (oder drückst die Taste **C**, die zwischen beiden umschaltet). Beim Umschalten rechnet der Editor die Punkte um (bei Hires → Multicolor werden zwei Punkte zu einem). **Strg/Cmd+Z** macht den Wechsel rückgängig. Die zwei gemeinsamen Farben **Multicolor 1** und **2** gelten für alle Frames der Datei.
+Du kannst Bilder eines Sprites mischen: In der Karte **Sprite** schaltest du **Mehrfarbig** ein oder aus (der Schalter gilt für das gewählte Bild). Beim Umschalten rechnet der Editor die Punkte um (bei Hires zu Multicolor werden zwei Punkte zu einem). **Cmd/Strg+Z** macht den Wechsel rückgängig. Die zwei gemeinsamen Farben **Multicolor 1** und **Multicolor 2** gelten für alle Bilder der Datei.
 
-![Sprite-Studio mit einem Multicolor-Sprite: Frame-Liste links, Zeichenfläche in der Mitte, rechts die Karten Werkzeug, Dokument (Modus Hires/Multicolor und die drei Farben) und Sprite](bild:sprite-c64-multicolor "Das Sprite-Studio mit einem Multicolor-Sprite: vier Pixelwerte, davon teilen sich alle Sprites zwei Farben ($D025 und $D026)")")
+*[Bild folgt in E13: sprite-c64-multicolor]*
 
 ### Weitere Sprite-Eigenschaften (C64)
 
-In der Karte **Sprite** stehen bei C64-Sprites drei Schalter. Multicolor (`$D01C`) folgt dem Modus des Frames und hat deshalb keinen eigenen Schalter.
+In der Karte **Sprite** stehen bei C64-Sprites außer **Mehrfarbig** (`$D01C`) drei Schalter:
 
 | Schalter | Bedeutung | Register |
 |---|---|---|
-| Doppelt breit (X2) | doppelt breit | `$D01D` |
-| Doppelt hoch (Y2) | doppelt hoch | `$D017` |
-| Hinter dem Hintergrund (BG) | hinter dem Hintergrund | `$D01B` |
+| Doppelt breit | doppelt breit (der Editor nennt die Größe „Im Spiel auf n Punkte“) | `$D01D` |
+| Doppelt hoch | doppelt hoch | `$D017` |
+| Hinter dem Hintergrund | hinter dem Hintergrund | `$D01B` |
 
-Die drei Schalter gelten für die ganze Datei. Sie landen im Export als Konstanten (`<name>_expand_x`, `<name>_expand_y`, `<name>_behind`).
+Die Schalter gelten für die ganze Datei. Sie landen im Export als Konstanten (`<name>_expand_x`, `<name>_expand_y`, `<name>_behind`). Die **Vorschau im Spiel** zeigt das gewählte Bild vor einem festen Hintergrund aus Himmel und Wiese, in den Farben des Zielsystems und mit den gesetzten Schaltern, einmal vergrößert und einmal in Originalgröße. Darunter steht, wie viele Bytes ein Bild und die ganze Datei belegen.
+
+### Farben und Palette
+
+In der Karte **Farben** stehen die Farbwerte des Sprites als Liste (zum Beispiel durchsichtig, **Sprite-Farbe**, **Multicolor 1**, **Multicolor 2**). Du wählst einen Wert per Klick oder Zifferntaste; der Stift malt dann damit. Welche echte Farbe ein Wert bekommt, wählst du darunter im Farbraster: Klicke auf eine Farbe, dann gilt sie für den gewählten Wert. Die Überschrift **Palette** nennt die Videonorm. Wo es PAL- und NTSC-Farben gibt (Atari), stellst du die **Palettenansicht** zwischen **Projekt**, **PAL** und **NTSC** um. Ein durchsichtiger Wert hat keine Farbe.
 
 ## Schritt für Schritt: ein Atari-Player
 
-1. **＋** in der linken Spalte, im Dialog **Neue Datei** die Art **Sprites / PMG**, Profil **Atari PMG Einzelzeile (8 Pixel breit)**. Die Datei heißt `.vcpmg`.
-2. In der linken Liste stehen die **vier Player P0 bis P3**. Jeder ist 8 Punkte breit und standardmäßig 32 Zeilen hoch. Die Farbe jedes Players wählst du rechts in der Karte **Dokument**. Beim Atari gibt es dafür 128 Töne (Videonorm PAL oder NTSC umschaltbar).
+1. Lege mit **Neue Sprite-Datei …** eine Datei an und wähle unter **Art und System** das Profil **Atari PMG Einzelzeile (8 Pixel breit)**. Die Datei heißt `.vcpmg`.
+2. Links stehen unter **Bilder** die **vier Player P0 bis P3**. Jeder ist 8 Punkte breit und standardmäßig 32 Zeilen hoch. Die Farbe jedes Players wählst du rechts in der Karte **Farben**. Beim Atari gibt es dafür 128 Töne (Palettenansicht PAL oder NTSC umschaltbar).
 3. Mal wie beim C64.
 
-![Der PMG-Editor für Atari: links die vier Player P0 bis P3, in der Mitte das Frame mit 8×32 Punkten, rechts Werkzeug und Dokument mit der Atari-Palette (PAL, NTSC oder Projekt).](bild:sprite-atari-pmg "Der PMG-Editor: links die vier Player, rechts die Farben")
+*[Bild folgt in E13: sprite-atari-pmg]*
 
-> **Info:** Breite (`SIZEP0` bis `SIZEP3`) und Priorität der Player stellst du im Programm selbst ein (siehe das Beispiel unten). Dafür gibt es in der Oberfläche noch keine Schalter.
+Die Karte **Player/Missile** stellt zwei Dinge ein, die im Export als Konstanten landen:
+
+- **Breite Spieler 0 bis 3** (`SIZEP0` bis `SIZEP3`): **Normal**, **Doppelt** oder **Vierfach**.
+- **Priorität** (`PRIOR`, `$D01B`): **Nicht gesetzt**, **Spieler vor Spielfeld**, **P0/P1, Spielfeld, P2/P3**, **PF0/PF1, Spieler, PF2/PF3** oder **Spielfeld vor Spielern**. Eine nicht gesetzte Priorität wird mit „Spieler vor Spielfeld“ exportiert.
+
+> **Info:** Ein Player zeigt Zeile für Zeile den Speicher von oben nach unten. Die ersten etwa 32 Zeilen liegen über dem sichtbaren Bild: Zeichne das Motiv weiter unten, oder erhöhe die Höhe des Bildes.
 
 ## Frames, Animation und Onion Skin
 
-Eine **Animation** entsteht aus mehreren Frames, die kurz nacheinander gezeigt werden (wie ein Daumenkino).
+Eine **Animation** entsteht aus mehreren Frames (Bildern), die kurz nacheinander gezeigt werden (wie ein Daumenkino).
 
-1. Links unter **Frames** legst du mit **+** ein neues leeres Frame an, mit **Dupl.** eine Kopie des gewählten, mit **Löschen** entfernst du eines. Die Pfeiltasten links/rechts wechseln das Frame.
-2. Schalte **Onion Skin** ein (Werkzeugleiste): Das vorige Frame erscheint blass als Schatten unter deinem Bild. So triffst du die Abstände. Beim ersten Frame ist der Schalter ausgegraut, denn es gibt kein voriges.
-3. Für eine Folge benutzt du den Abschnitt **Animationen** in der Karte **Sprite**. Die Vorschau dort läuft in Echtzeit: **+ Neu** legt eine Animation an (mehrere Animationen wählst du über ihre Knöpfe), **Frame anhängen** fügt das gewählte Frame als Schritt hinzu. Jeder Schritt hat eine **Dauer** (in „B“ = Bildern; 1 Bild = 1/50 Sekunde), du kannst ihn mit den Pfeilen verschieben oder mit × entfernen. Der **Ablauf** ist **Schleife**, **Hin und zurück** oder **Einmal** (ein Klick auf den Knopf schaltet weiter). **Löschen** entfernt die ganze Animation.
+1. Links im Reiter **Bilder** legst du mit **Neu** ein neues leeres Bild an, mit **Duplizieren** eine Kopie des gewählten, mit **Löschen** entfernst du eines. Ein Klick auf ein Bild wählt es; **Bild auf/ab** oder **Alt+Pfeil links/rechts** wechseln das Bild.
+2. Schalte **Onion Skin** ein (Werkzeugleiste oder Taste **O**): Das vorige Bild erscheint blass als Schatten unter deinem Bild. So triffst du die Abstände. Beim ersten Bild ist der Schalter ausgegraut, denn es gibt kein voriges.
+3. Für eine Folge wechselst du links zum Reiter **Animationen**. **Neu** legt eine Animation mit dem gewählten Bild an; mehrere Animationen wählst du über ihre Knöpfe, im Feld **Name der Animation** benennst du sie, **Löschen** entfernt die ganze Animation. Der **Ablauf** ist **Schleife**, **Hin und zurück** oder **Einmal**. Die Schritte stehen als Filmstreifen: Jeder zeigt Miniatur, Nummer und **Dauer in Bildern** (1 Bild = 1/50 Sekunde). Du verschiebst einen Schritt mit den Pfeilknöpfen oder durch Ziehen, entfernst ihn oder hängst mit **Gewähltes Bild anhängen** das gewählte Bild als neuen Schritt an. Das Feld **Tempo (Bilder pro Sekunde)** setzt die Dauer aller Schritte auf einmal.
+4. **Abspielen:** Unter der Zeichenfläche zeigt die **Zeitleiste** die gewählte Animation. Der Knopf **Abspielen** startet sie in Echtzeit, **Anhalten** stoppt sie. Der Ablauf lässt sich dort per Klick weiterschalten, und **Vorschau vergrößern** öffnet die Animation in einem eigenen Fenster. Ein Klick auf einen Schritt wählt sein Bild zum Bearbeiten.
 
-![Das Sprite-Studio mit der Karte „Sprite“: unter „Animationen“ die Animation „laufen“ mit Vorschau, Schrittzahl, Schleife und den Schritten mit Dauer in Bildern.](bild:sprite-animation "Das Animationsfeld: Schritte mit Dauer in Bildern, darüber Ablauf und Name")
+![Der Sprite-Editor mit hero.vcsprite, Reiter „Animationen“. Links die Animation „laufen“ mit Schleife, Tempo 8,3 und zwei Bildern, in der Mitte die vergrößerte Figur, darunter die Zeitleiste mit der Animation und zwei Bildern, rechts Farben und die Vorschau im Spiel.](bild:sprite-animation "Der Reiter „Animationen“ mit der Animation „laufen“ und der Zeitleiste unter der Zeichenfläche.")
+
+Es geht auch umgekehrt: Markiere in der Bilderliste mit **Umschalt-** oder **Strg-Klick** mehrere Bilder (**Cmd/Strg+A** markiert alle) und klicke auf **Animation aus Auswahl**. Der Dialog **Animation aus n Bildern** fragt nach dem Namen, dem **Ablauf** und dem **Tempo (Bilder pro Sekunde)**; die Bilder laufen in der Reihenfolge der Liste. Das Menü per Rechtsklick auf ein Bild bietet dasselbe als **Animation aus Auswahl …**.
 
 Wenn es Animationen gibt, erzeugt der Export zusätzlich eine Datei `<name>.anim.asm` mit den Sprite-Zeigern (`_ptr`), den Dauern (`_delay`), der Länge (`_len`) und dem Modus (`_mode`). Ein Raster-Interrupt zählt die Dauer herunter und schreibt den nächsten Zeiger nach `$07F8` plus Sprite-Nummer.
 
-### Auswahl und Rahmen
+### Auswahl und Rechteck
 
-Mit dem Werkzeug **Auswahl** (Taste **S**) ziehst du einen Rahmen auf. Darin kannst du mit **Cmd/Strg+C**, **Cmd/Strg+X** und **Cmd/Strg+V** kopieren, ausschneiden und einfügen und mit **Entf** löschen. **Cmd/Strg+A** wählt das ganze Frame, **Esc** hebt die Auswahl auf. Das Werkzeug **Rahmen** (Taste **R**) zeichnet ein Rechteck als Umriss.
+Mit dem Werkzeug **Auswahl** (Taste **S**) ziehst du einen Rahmen auf. Darin kannst du mit **Cmd/Strg+C**, **Cmd/Strg+X** und **Cmd/Strg+V** kopieren, ausschneiden und einfügen und mit **Entf** löschen. **Cmd/Strg+A** wählt das ganze Bild, **Esc** hebt die Auswahl auf. Das Werkzeug **Rechteck** (Taste **R**) zeichnet ein Rechteck als Umriss. Unter **Verschieben** in der rechten Spalte schiebst du das ganze Bild mit vier Pfeilknöpfen um einen Punkt; **Bild leeren** löscht alle Punkte des gewählten Bildes.
 
 ## Sprites aus anderen Quellen
 
-**PNG laden …** lädt ein Bild und wandelt es in die Pixelwerte um. Das Übernehmen aus SPD-Dateien, aus Rohdaten und aus Sprites anderer Systeme ist in dieser Version noch nicht in der Oberfläche enthalten.
+**PNG laden …** (Werkzeugleiste) wählt eine Bilddatei und wandelt sie in die Pixelwerte des gewählten Bildes um; dabei speichert der Editor die Datei. Das Übernehmen aus SPD-Dateien, aus Rohdaten und aus Sprites anderer Systeme steht in dieser Version noch nicht zur Verfügung.
 
 ## Beispiel 1: Sprite auf dem C64
 
@@ -206,7 +223,7 @@ start:  lda #$40
 done:   jmp done
 
 .org $4400                      ; Player 0; Player 1 bis 3 folgen im Abstand von $100
-.include "build/export/ship.asm"
+.include "graphics/ship.vcpmg"
 .run start
 ```
 
@@ -231,13 +248,13 @@ So funktioniert es:
 
 Was das bedeutet: Mehr als acht Sprites gleichzeitig gehen nur mit Tricks (Raster-Interrupt). Ein Multicolor-Sprite sieht farbiger aus, ist aber grober. Zwei Sprites desselben Chips teilen sich bei Multicolor immer zwei Farben, ändern sich also zusammen.
 
-## Vom Studio ins Programm
+## Vom Editor ins Programm
 
-1. **Exportieren** (Kopfzeile oder **Cmd/Strg+Umschalt+E**). Der Export-Dialog zeigt Format, Name, Adresse und eine Vorschau. Beim Bauen (**F7**) entsteht die Datei auch automatisch unter `build/export/`.
-2. **Assembler:** `.include "build/export/hero.asm"` an die Stelle im Speicher, die du mit `.org` festlegst (C64: Vielfaches von 64). Der Export liefert Daten und die Farbkonstanten `hero_sprite`, `hero_mc1`, `hero_mc2`.
-3. **BASIC:** Format **BASIC DATA** exportieren und mit `#include` einbinden; die Zeilen mit `READ` und `POKE` in den Sprite-Speicher kopieren.
+1. **Exportieren …** (Werkzeugleiste oder **Cmd/Strg+Umschalt+E**) öffnet den Export-Dialog. Dort wählst du das **Format** (**Assembler**, **Konstanten**, **Binär**, **PRG** oder **BASIC DATA**), den **Namen** und je nach Format eine **Adresse**. Die **Vorschau** zeigt Text und Bytes. Mit **In Projekt speichern**, **Als Include einfügen**, **In Quelltext kopieren** oder **Im Emulator testen** bestimmst du, was mit dem Ergebnis geschieht. Zum Einbinden brauchst du den Export nicht: Beim Bauen (**F7**) wandelt VintageCoder das Sprite beim `.include` selbst um.
+2. **Assembler:** `.include "graphics/hero.vcsprite"` an die Stelle im Speicher, die du mit `.org` festlegst (C64: Vielfaches von 64). Der Export liefert Daten und die Farbkonstanten `hero_sprite`, `hero_mc1`, `hero_mc2`.
+3. **BASIC:** Format **BASIC DATA** exportieren (auf Wunsch mit **Einleseroutine mitliefern**) und mit `#include` einbinden; die Zeilen mit `READ` und `POKE` in den Sprite-Speicher kopieren.
 4. **Rohdaten:** Format **Binär** für `.incbin` oder zum Laden von Diskette.
-5. Im Programm setzt du **Zeiger, Farben, Position und „Sprite an“** (siehe die zwei Beispiele unten).
+5. Im Programm setzt du **Zeiger, Farben, Position und „Sprite an“** (siehe die zwei Beispiele oben).
 
 ## Häufige Stolpersteine
 
@@ -246,7 +263,7 @@ Was das bedeutet: Mehr als acht Sprites gleichzeitig gehen nur mit Tricks (Raste
 - **Das Sprite erscheint nicht:** `vic2.spena` hat das Bit nicht; oder die Position liegt außerhalb des sichtbaren Bereichs (links beginnt der sichtbare Bereich etwa bei X = 24, oben bei Y = 50).
 - **Multicolor wirkt zu breit:** Das ist so: Ein Multicolor-Punkt ist zwei Hires-Punkte breit.
 
-## Nachbar-Studios und Glossar
+## Nachbar-Editoren und Glossar
 
 - Der Hintergrund, vor dem sich dein Sprite bewegt, entsteht im [Bildschirm- und Kachel-Editor](kapitel:bildschirm-kacheln).
 - Die Farben wählst du aus der [Palette](kapitel:paletten) deines Systems.

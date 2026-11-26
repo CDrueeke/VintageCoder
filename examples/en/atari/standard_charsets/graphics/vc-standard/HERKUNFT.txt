@@ -1,0 +1,10 @@
+Origin of the character sets in this folder
+===========================================
+
+These files are VintageCoder's own standard character sets "VC-Standard".
+Author: the VintageCoder project. License: CC0-1.0 (public domain, free to pass on, also in your own programs).
+No original ROMs and no replicas of original characters were used.
+The design is a rule-based blank; the release of the character shapes is still pending.
+
+Sets:
+  vc-atari-standard (revision 1, license CC0-1.0): VC-Standard Atari

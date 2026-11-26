@@ -1,0 +1,1 @@
+﻿VintageCoder is released under the GNU General Public License, version 3 or later (file LICENSE). What you create with VintageCoder belongs to you and is free to use; the VCASM language and the file formats are free, and you may call vcc and vc-lsp from any software. System files, templates and examples are under MIT-0 (LICENSES/MIT-0.txt). The details are in LICENSING.md.

@@ -1,0 +1,760 @@
+{
+ "source": "args/vice-xplus4.json",
+ "entries": {
+  "/label": {
+   "de": "VICE xplus4 (Plus/4)",
+   "en": "VICE xplus4 (Plus/4)",
+   "status": "unverändert"
+  },
+  "/groups/0/label": {
+   "de": "Ablauf",
+   "en": "Run",
+   "status": "maschinell"
+  },
+  "/groups/1/label": {
+   "de": "Bild",
+   "en": "Video",
+   "status": "maschinell"
+  },
+  "/groups/2/label": {
+   "de": "Ton",
+   "en": "Sound",
+   "status": "maschinell"
+  },
+  "/groups/3/label": {
+   "de": "Laufwerk und Start von Datei",
+   "en": "Drive and file start",
+   "status": "maschinell"
+  },
+  "/groups/4/label": {
+   "de": "Eingabe",
+   "en": "Input",
+   "status": "maschinell"
+  },
+  "/groups/5/label": {
+   "de": "Monitor und Fehlersuche",
+   "en": "Monitor and debugging",
+   "status": "maschinell"
+  },
+  "/groups/6/label": {
+   "de": "Protokoll und Einstellungen",
+   "en": "Log and settings",
+   "status": "maschinell"
+  },
+  "/params/0/label": {
+   "de": "Darstellungsfilter",
+   "en": "Display filter",
+   "status": "maschinell"
+  },
+  "/params/0/hint": {
+   "de": "Wie das Bild skaliert wird: ohne Filter, mit CRT-Nachbildung oder Scale2x.",
+   "en": "How the image is scaled: no filter, CRT emulation or Scale2x.",
+   "status": "maschinell"
+  },
+  "/params/0/choices/0/label": {
+   "de": "keiner",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/0/choices/1/label": {
+   "de": "CRT-Emulation",
+   "en": "CRT emulation",
+   "status": "maschinell"
+  },
+  "/params/0/choices/2/label": {
+   "de": "Scale2x",
+   "en": "Scale2x",
+   "status": "unverändert"
+  },
+  "/params/1/label": {
+   "de": "Rahmen",
+   "en": "Border",
+   "status": "maschinell"
+  },
+  "/params/1/hint": {
+   "de": "Wie viel vom Bildschirmrand sichtbar ist.",
+   "en": "How much of the screen border is visible.",
+   "status": "maschinell"
+  },
+  "/params/1/choices/0/label": {
+   "de": "normal",
+   "en": "normal",
+   "status": "unverändert"
+  },
+  "/params/1/choices/1/label": {
+   "de": "voll",
+   "en": "full",
+   "status": "maschinell"
+  },
+  "/params/1/choices/2/label": {
+   "de": "Debug (Raster sichtbar)",
+   "en": "Debug (raster visible)",
+   "status": "maschinell"
+  },
+  "/params/1/choices/3/label": {
+   "de": "ohne Rahmen",
+   "en": "no border",
+   "status": "maschinell"
+  },
+  "/params/2/label": {
+   "de": "PAL-Takt",
+   "en": "PAL clock",
+   "status": "maschinell"
+  },
+  "/params/2/hint": {
+   "de": "Verwendet den PAL-Synchronfaktor.",
+   "en": "Uses the PAL sync factor.",
+   "status": "maschinell"
+  },
+  "/params/3/label": {
+   "de": "NTSC-Takt",
+   "en": "NTSC clock",
+   "status": "maschinell"
+  },
+  "/params/3/hint": {
+   "de": "Verwendet den NTSC-Synchronfaktor.",
+   "en": "Uses the NTSC sync factor.",
+   "status": "maschinell"
+  },
+  "/params/4/label": {
+   "de": "Laufwerkstyp (Unit 8)",
+   "en": "Drive type (unit 8)",
+   "status": "maschinell"
+  },
+  "/params/4/hint": {
+   "de": "Welches Diskettenlaufwerk als Unit 8 nachgebildet wird.",
+   "en": "Which disk drive is emulated as unit 8.",
+   "status": "maschinell"
+  },
+  "/params/4/choices/0/label": {
+   "de": "kein Laufwerk",
+   "en": "no drive",
+   "status": "maschinell"
+  },
+  "/params/4/choices/1/label": {
+   "de": "CBM 1540",
+   "en": "CBM 1540",
+   "status": "unverändert"
+  },
+  "/params/4/choices/2/label": {
+   "de": "CBM 1541",
+   "en": "CBM 1541",
+   "status": "unverändert"
+  },
+  "/params/4/choices/3/label": {
+   "de": "CBM 1541-II",
+   "en": "CBM 1541-II",
+   "status": "unverändert"
+  },
+  "/params/4/choices/4/label": {
+   "de": "CBM 1570",
+   "en": "CBM 1570",
+   "status": "unverändert"
+  },
+  "/params/4/choices/5/label": {
+   "de": "CBM 1571",
+   "en": "CBM 1571",
+   "status": "unverändert"
+  },
+  "/params/4/choices/6/label": {
+   "de": "CBM 1581",
+   "en": "CBM 1581",
+   "status": "unverändert"
+  },
+  "/params/5/label": {
+   "de": "Plus/4-Modell",
+   "en": "Plus/4 model",
+   "status": "maschinell"
+  },
+  "/params/5/hint": {
+   "de": "Welches Modell der 264er-Reihe nachgebildet wird.",
+   "en": "Which model of the 264 series is emulated.",
+   "status": "maschinell"
+  },
+  "/params/5/choices/1/label": {
+   "de": "C16 (PAL)",
+   "en": "C16 (PAL)",
+   "status": "unverändert"
+  },
+  "/params/5/choices/2/label": {
+   "de": "C16 (NTSC)",
+   "en": "C16 (NTSC)",
+   "status": "unverändert"
+  },
+  "/params/5/choices/3/label": {
+   "de": "Plus/4",
+   "en": "Plus/4",
+   "status": "unverändert"
+  },
+  "/params/5/choices/4/label": {
+   "de": "Plus/4 (PAL)",
+   "en": "Plus/4 (PAL)",
+   "status": "unverändert"
+  },
+  "/params/5/choices/5/label": {
+   "de": "Plus/4 (NTSC)",
+   "en": "Plus/4 (NTSC)",
+   "status": "unverändert"
+  },
+  "/params/5/choices/6/label": {
+   "de": "V364",
+   "en": "V364",
+   "status": "unverändert"
+  },
+  "/params/5/choices/7/label": {
+   "de": "CV364",
+   "en": "CV364",
+   "status": "unverändert"
+  },
+  "/params/6/label": {
+   "de": "Modul (CRT)",
+   "en": "Cartridge (CRT)",
+   "status": "maschinell"
+  },
+  "/params/6/hint": {
+   "de": "Steckt ein Modulabbild im CRT-Format ein.",
+   "en": "Inserts a cartridge image in CRT format.",
+   "status": "maschinell"
+  },
+  "/params/7/label": {
+   "de": "Geschwindigkeit in Prozent",
+   "en": "Speed in percent",
+   "status": "maschinell"
+  },
+  "/params/7/hint": {
+   "de": "Begrenzt die Emulation auf diesen Wert (100 = Originaltempo). Eine negative Zahl begrenzt auf so viele Bilder pro Sekunde.",
+   "en": "Limits the emulation to this value (100 = original speed). A negative number limits to that many frames per second.",
+   "status": "maschinell"
+  },
+  "/params/8/label": {
+   "de": "Warp-Modus beim Start",
+   "en": "Warp mode at start",
+   "status": "maschinell"
+  },
+  "/params/8/hint": {
+   "de": "Startet im Warp-Modus: die Emulation läuft so schnell wie möglich.",
+   "en": "Starts in warp mode: the emulation runs as fast as possible.",
+   "status": "maschinell"
+  },
+  "/params/9/label": {
+   "de": "Warp beim Autostart",
+   "en": "Warp during autostart",
+   "status": "maschinell"
+  },
+  "/params/9/hint": {
+   "de": "Schaltet den Warp-Modus nur während des Autostarts ein, bis das Programm geladen ist.",
+   "en": "Turns on warp mode only during autostart, until the program is loaded.",
+   "status": "maschinell"
+  },
+  "/params/10/label": {
+   "de": "Pause im Einstellungsdialog",
+   "en": "Pause in settings dialog",
+   "status": "maschinell"
+  },
+  "/params/10/hint": {
+   "de": "Hält die Emulation an, solange der Einstellungsdialog von VICE offen ist.",
+   "en": "Pauses the emulation while the VICE settings dialog is open.",
+   "status": "maschinell"
+  },
+  "/params/11/label": {
+   "de": "Beenden bestätigen",
+   "en": "Confirm exit",
+   "status": "maschinell"
+  },
+  "/params/11/hint": {
+   "de": "Fragt vor dem Beenden von VICE nach.",
+   "en": "Asks before VICE exits.",
+   "status": "maschinell"
+  },
+  "/params/12/label": {
+   "de": "Maximiert starten",
+   "en": "Start maximized",
+   "status": "maschinell"
+  },
+  "/params/12/hint": {
+   "de": "Öffnet das Fenster maximiert.",
+   "en": "Opens the window maximized.",
+   "status": "maschinell"
+  },
+  "/params/13/label": {
+   "de": "Minimiert starten",
+   "en": "Start minimized",
+   "status": "maschinell"
+  },
+  "/params/13/hint": {
+   "de": "Öffnet das Fenster minimiert.",
+   "en": "Opens the window minimized.",
+   "status": "maschinell"
+  },
+  "/params/14/label": {
+   "de": "Aktion bei CPU-JAM",
+   "en": "Action on CPU JAM",
+   "status": "maschinell"
+  },
+  "/params/14/hint": {
+   "de": "Was VICE tut, wenn die CPU an einem ungültigen Opcode hängen bleibt.",
+   "en": "What VICE does when the CPU hangs on an invalid opcode.",
+   "status": "maschinell"
+  },
+  "/params/14/choices/0/label": {
+   "de": "Nachfragen",
+   "en": "Ask",
+   "status": "maschinell"
+  },
+  "/params/14/choices/1/label": {
+   "de": "Weiterlaufen",
+   "en": "Continue",
+   "status": "maschinell"
+  },
+  "/params/14/choices/2/label": {
+   "de": "Monitor öffnen",
+   "en": "Open monitor",
+   "status": "maschinell"
+  },
+  "/params/14/choices/3/label": {
+   "de": "Reset",
+   "en": "Reset",
+   "status": "unverändert"
+  },
+  "/params/14/choices/4/label": {
+   "de": "Neustart (Power Cycle)",
+   "en": "Restart (power cycle)",
+   "status": "maschinell"
+  },
+  "/params/14/choices/5/label": {
+   "de": "Emulator beenden",
+   "en": "Quit emulator",
+   "status": "maschinell"
+  },
+  "/params/15/label": {
+   "de": "Zyklenlimit",
+   "en": "Cycle limit",
+   "status": "maschinell"
+  },
+  "/params/15/hint": {
+   "de": "Beendet VICE mit Fehler, wenn nach so vielen Zyklen noch nicht Schluss ist (für automatische Tests).",
+   "en": "Exits VICE with an error if it has not finished after this many cycles (for automated tests).",
+   "status": "maschinell"
+  },
+  "/params/16/label": {
+   "de": "Anfangswert des RAM",
+   "en": "Initial RAM value",
+   "status": "maschinell"
+  },
+  "/params/16/hint": {
+   "de": "Wert der allerersten RAM-Adresse nach dem Einschalten; der Rest folgt dem Muster von VICE.",
+   "en": "Value of the very first RAM address after power-on; the rest follows the VICE pattern.",
+   "status": "maschinell"
+  },
+  "/params/17/label": {
+   "de": "Zufallszahl-Startwert",
+   "en": "Random seed",
+   "status": "maschinell"
+  },
+  "/params/17/hint": {
+   "de": "Fester Startwert des Zufallsgenerators, damit Läufe reproduzierbar sind (zur Fehlersuche).",
+   "en": "Fixed seed of the random number generator so that runs are reproducible (for debugging).",
+   "status": "maschinell"
+  },
+  "/params/18/label": {
+   "de": "Einstellungen beim Beenden speichern",
+   "en": "Save settings on exit",
+   "status": "maschinell"
+  },
+  "/params/18/hint": {
+   "de": "VICE schreibt seine Einstellungen beim Beenden in die Datei vicerc.",
+   "en": "VICE writes its settings to the file vicerc on exit.",
+   "status": "maschinell"
+  },
+  "/params/19/label": {
+   "de": "Konfigurationsdatei",
+   "en": "Configuration file",
+   "status": "maschinell"
+  },
+  "/params/19/hint": {
+   "de": "Verwendet diese Konfigurationsdatei von VICE statt der Standarddatei.",
+   "en": "Uses this VICE configuration file instead of the default file.",
+   "status": "maschinell"
+  },
+  "/params/20/label": {
+   "de": "Zusatz-Konfiguration",
+   "en": "Extra configuration",
+   "status": "maschinell"
+  },
+  "/params/20/hint": {
+   "de": "Lädt diese Datei zusätzlich zur Konfiguration (nur Ressourcen, die dort stehen).",
+   "en": "Loads this file in addition to the configuration (only resources listed in it).",
+   "status": "maschinell"
+  },
+  "/params/21/label": {
+   "de": "Standardeinstellungen laden",
+   "en": "Load default settings",
+   "status": "maschinell"
+  },
+  "/params/21/hint": {
+   "de": "Setzt alle Einstellungen von VICE auf die Werkseinstellung zurück, bevor weitere Parameter wirken.",
+   "en": "Resets all VICE settings to the factory defaults before other parameters take effect.",
+   "status": "maschinell"
+  },
+  "/params/22/label": {
+   "de": "Keine Ausgabe",
+   "en": "No output",
+   "status": "maschinell"
+  },
+  "/params/22/hint": {
+   "de": "Unterdrückt alle Meldungen außer Fehlern.",
+   "en": "Suppresses all messages except errors.",
+   "status": "maschinell"
+  },
+  "/params/23/label": {
+   "de": "Ausführliche Ausgabe",
+   "en": "Verbose output",
+   "status": "maschinell"
+  },
+  "/params/23/hint": {
+   "de": "Gibt mehr Meldungen aus.",
+   "en": "Prints more messages.",
+   "status": "maschinell"
+  },
+  "/params/24/label": {
+   "de": "Debug-Ausgabe",
+   "en": "Debug output",
+   "status": "maschinell"
+  },
+  "/params/24/hint": {
+   "de": "Gibt ausführliche Fehlersuch-Meldungen aus.",
+   "en": "Prints detailed debug messages.",
+   "status": "maschinell"
+  },
+  "/params/25/label": {
+   "de": "Protokolldatei",
+   "en": "Log file",
+   "status": "maschinell"
+  },
+  "/params/25/hint": {
+   "de": "Name der Protokolldatei; mit „In Datei protokollieren“ wird sie geschrieben.",
+   "en": "Name of the log file; it is written when \"Log to file\" is on.",
+   "status": "maschinell"
+  },
+  "/params/26/label": {
+   "de": "In Datei protokollieren",
+   "en": "Log to file",
+   "status": "maschinell"
+  },
+  "/params/26/hint": {
+   "de": "Schreibt das Protokoll in die Protokolldatei.",
+   "en": "Writes the log to the log file.",
+   "status": "maschinell"
+  },
+  "/params/27/label": {
+   "de": "Protokoll auf die Standardausgabe",
+   "en": "Log to standard output",
+   "status": "maschinell"
+  },
+  "/params/27/hint": {
+   "de": "Gibt das Protokoll auf stdout aus.",
+   "en": "Prints the log to stdout.",
+   "status": "maschinell"
+  },
+  "/params/28/label": {
+   "de": "Bildschirmfoto beim Beenden",
+   "en": "Screenshot on exit",
+   "status": "maschinell"
+  },
+  "/params/28/hint": {
+   "de": "Speichert beim Beenden ein Bildschirmfoto unter diesem Namen (nützlich für automatische Tests).",
+   "en": "Saves a screenshot with this name on exit (useful for automated tests).",
+   "status": "maschinell"
+  },
+  "/params/29/label": {
+   "de": "Ton an",
+   "en": "Sound on",
+   "status": "maschinell"
+  },
+  "/params/29/hint": {
+   "de": "Schaltet die Tonausgabe ein oder aus.",
+   "en": "Turns the sound output on or off.",
+   "status": "maschinell"
+  },
+  "/params/30/label": {
+   "de": "Abtastrate (Hz)",
+   "en": "Sample rate (Hz)",
+   "status": "maschinell"
+  },
+  "/params/30/hint": {
+   "de": "Abtastrate der Tonausgabe in Hertz.",
+   "en": "Sample rate of the sound output in hertz.",
+   "status": "maschinell"
+  },
+  "/params/31/label": {
+   "de": "Tonpuffer (ms)",
+   "en": "Sound buffer (ms)",
+   "status": "maschinell"
+  },
+  "/params/31/hint": {
+   "de": "Größe des Tonpuffers in Millisekunden; größer vermeidet Knacken, kleiner verkürzt die Verzögerung.",
+   "en": "Size of the sound buffer in milliseconds; larger avoids crackling, smaller reduces latency.",
+   "status": "maschinell"
+  },
+  "/params/32/label": {
+   "de": "Ausgabeart",
+   "en": "Output mode",
+   "status": "maschinell"
+  },
+  "/params/32/hint": {
+   "de": "Mono oder Stereo.",
+   "en": "Mono or stereo.",
+   "status": "maschinell"
+  },
+  "/params/32/choices/0/label": {
+   "de": "System entscheidet",
+   "en": "System decides",
+   "status": "maschinell"
+  },
+  "/params/32/choices/1/label": {
+   "de": "immer Mono",
+   "en": "always mono",
+   "status": "maschinell"
+  },
+  "/params/32/choices/2/label": {
+   "de": "immer Stereo",
+   "en": "always stereo",
+   "status": "maschinell"
+  },
+  "/params/33/label": {
+   "de": "Laufwerksgeräusche",
+   "en": "Drive sounds",
+   "status": "maschinell"
+  },
+  "/params/33/hint": {
+   "de": "Spielt die Geräusche des Diskettenlaufwerks ab.",
+   "en": "Plays the sounds of the disk drive.",
+   "status": "maschinell"
+  },
+  "/params/34/label": {
+   "de": "Schnelles Laden (Traps)",
+   "en": "Fast loading (traps)",
+   "status": "maschinell"
+  },
+  "/params/34/hint": {
+   "de": "Beschleunigt Laden und Speichern, indem die Kernal-Routinen abgefangen werden (virtuelles Laufwerk).",
+   "en": "Speeds up loading and saving by intercepting the KERNAL routines (virtual drive).",
+   "status": "maschinell"
+  },
+  "/params/35/label": {
+   "de": "Autostart: an den BASIC-Anfang laden",
+   "en": "Autostart: load to BASIC start",
+   "status": "maschinell"
+  },
+  "/params/35/hint": {
+   "de": "Lädt Dateien von Diskette beim Autostart an den BASIC-Anfang (ohne „,1“).",
+   "en": "Loads files from disk to the start of BASIC during autostart (without \",1\").",
+   "status": "maschinell"
+  },
+  "/params/36/label": {
+   "de": "Autostart mit „RUN:“",
+   "en": "Autostart with \"RUN:\"",
+   "status": "maschinell"
+  },
+  "/params/36/hint": {
+   "de": "Verwendet beim Autostart „RUN:“ mit Doppelpunkt statt „RUN“.",
+   "en": "Uses \"RUN:\" with a colon instead of \"RUN\" during autostart.",
+   "status": "maschinell"
+  },
+  "/params/37/label": {
+   "de": "Autostart: Laufwerkemulation anpassen",
+   "en": "Autostart: adjust drive emulation",
+   "status": "maschinell"
+  },
+  "/params/37/hint": {
+   "de": "Schaltet beim Autostart die genaue Laufwerkemulation (True Drive Emulation) passend zum Programm.",
+   "en": "Switches the exact drive emulation (True Drive Emulation) on or off to suit the program during autostart.",
+   "status": "maschinell"
+  },
+  "/params/38/label": {
+   "de": "Autostart-Art für PRG",
+   "en": "Autostart mode for PRG",
+   "status": "maschinell"
+  },
+  "/params/38/hint": {
+   "de": "Wie ein PRG beim Autostart in den Speicher kommt.",
+   "en": "How a PRG gets into memory during autostart.",
+   "status": "maschinell"
+  },
+  "/params/38/choices/0/label": {
+   "de": "virtuelles Dateisystem",
+   "en": "virtual file system",
+   "status": "maschinell"
+  },
+  "/params/38/choices/1/label": {
+   "de": "direkt einspielen",
+   "en": "inject directly",
+   "status": "maschinell"
+  },
+  "/params/38/choices/2/label": {
+   "de": "Diskimage",
+   "en": "Disk image",
+   "status": "maschinell"
+  },
+  "/params/39/label": {
+   "de": "Autostart-Verzögerung (s)",
+   "en": "Autostart delay (s)",
+   "status": "maschinell"
+  },
+  "/params/39/hint": {
+   "de": "Wartezeit vor dem Autostart in Sekunden; 0 = Standard.",
+   "en": "Wait time before autostart in seconds; 0 = default.",
+   "status": "maschinell"
+  },
+  "/params/40/label": {
+   "de": "Diskimage in Laufwerk 9",
+   "en": "Disk image in drive 9",
+   "status": "maschinell"
+  },
+  "/params/40/hint": {
+   "de": "Legt dieses Image in Laufwerk 9 ein.",
+   "en": "Inserts this image into drive 9.",
+   "status": "maschinell"
+  },
+  "/params/41/label": {
+   "de": "Band (Datasette)",
+   "en": "Tape (Datasette)",
+   "status": "maschinell"
+  },
+  "/params/41/hint": {
+   "de": "Legt dieses Bandimage in die Datasette ein.",
+   "en": "Inserts this tape image into the Datasette.",
+   "status": "maschinell"
+  },
+  "/params/42/label": {
+   "de": "Joystick, Port 1",
+   "en": "Joystick, port 1",
+   "status": "maschinell"
+  },
+  "/params/42/hint": {
+   "de": "Welches Gerät den Joystickport bedient.",
+   "en": "Which device drives the joystick port.",
+   "status": "maschinell"
+  },
+  "/params/42/choices/0/label": {
+   "de": "keines",
+   "en": "none",
+   "status": "maschinell"
+  },
+  "/params/42/choices/1/label": {
+   "de": "Ziffernblock",
+   "en": "Numeric keypad",
+   "status": "maschinell"
+  },
+  "/params/42/choices/2/label": {
+   "de": "Tastensatz 1",
+   "en": "Key set 1",
+   "status": "maschinell"
+  },
+  "/params/42/choices/3/label": {
+   "de": "Tastensatz 2",
+   "en": "Key set 2",
+   "status": "maschinell"
+  },
+  "/params/43/label": {
+   "de": "Tastaturbelegung",
+   "en": "Keyboard mapping",
+   "status": "maschinell"
+  },
+  "/params/43/hint": {
+   "de": "Welche Tastaturtabelle VICE benutzt.",
+   "en": "Which keyboard table VICE uses.",
+   "status": "maschinell"
+  },
+  "/params/43/choices/0/label": {
+   "de": "symbolisch",
+   "en": "symbolic",
+   "status": "maschinell"
+  },
+  "/params/43/choices/1/label": {
+   "de": "positionsgetreu",
+   "en": "positional",
+   "status": "maschinell"
+  },
+  "/params/43/choices/2/label": {
+   "de": "symbolisch (eigene)",
+   "en": "symbolic (custom)",
+   "status": "maschinell"
+  },
+  "/params/43/choices/3/label": {
+   "de": "positionsgetreu (eigene)",
+   "en": "positional (custom)",
+   "status": "maschinell"
+  },
+  "/params/44/label": {
+   "de": "Maus einfangen",
+   "en": "Grab mouse",
+   "status": "maschinell"
+  },
+  "/params/44/hint": {
+   "de": "Fängt die Maus im Fenster ein.",
+   "en": "Captures the mouse in the window.",
+   "status": "maschinell"
+  },
+  "/params/45/label": {
+   "de": "Tastaturpuffer füllen",
+   "en": "Fill keyboard buffer",
+   "status": "maschinell"
+  },
+  "/params/45/hint": {
+   "de": "Schreibt diese Zeichen beim Start in den Tastaturpuffer, z. B. einen Befehl, der das Programm startet.",
+   "en": "Writes these characters into the keyboard buffer at start, e.g. a command that starts the program.",
+   "status": "maschinell"
+  },
+  "/params/46/label": {
+   "de": "Monitor-Befehle aus Datei",
+   "en": "Monitor commands from file",
+   "status": "maschinell"
+  },
+  "/params/46/hint": {
+   "de": "Führt beim Start die Befehle dieser Datei im VICE-Monitor aus (z. B. Haltepunkte oder geladene Labels).",
+   "en": "Runs the commands of this file in the VICE monitor at start (e.g. breakpoints or loaded labels).",
+   "status": "maschinell"
+  },
+  "/params/47/label": {
+   "de": "Anfänglicher Haltepunkt",
+   "en": "Initial breakpoint",
+   "status": "maschinell"
+  },
+  "/params/47/hint": {
+   "de": "Hält den Monitor an: bei einer Adresse, bei „ready“ (BASIC-Eingabe) oder bei „reset“.",
+   "en": "Stops in the monitor: at an address, at \"ready\" (BASIC prompt) or at \"reset\".",
+   "status": "maschinell"
+  },
+  "/params/48/label": {
+   "de": "Textmonitor im Netz",
+   "en": "Text monitor on network",
+   "status": "maschinell"
+  },
+  "/params/48/hint": {
+   "de": "Öffnet den Monitor von VICE als Netzwerkdienst (Standard 127.0.0.1:6510).",
+   "en": "Opens the VICE monitor as a network service (default 127.0.0.1:6510).",
+   "status": "maschinell"
+  },
+  "/params/49/label": {
+   "de": "Adresse des Textmonitors",
+   "en": "Text monitor address",
+   "status": "maschinell"
+  },
+  "/params/49/hint": {
+   "de": "Lokale Adresse, an die der Textmonitor gebunden wird.",
+   "en": "Local address the text monitor binds to.",
+   "status": "maschinell"
+  },
+  "/params/50/label": {
+   "de": "Monitor im Terminal",
+   "en": "Monitor in terminal",
+   "status": "maschinell"
+  },
+  "/params/50/hint": {
+   "de": "Verwendet den Monitor im Betriebssystem-Terminal statt im Fenster.",
+   "en": "Uses the monitor in the operating system terminal instead of in the window.",
+   "status": "maschinell"
+  }
+ }
+}

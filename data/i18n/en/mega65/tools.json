@@ -1,0 +1,15 @@
+{
+ "source": "mega65/tools.json",
+ "entries": {
+  "/hinweise/nicht_erreichbar": {
+   "de": "Keine Antwort vom MEGA65. Prüfen: Fernzugriff mit Shift+£ einschalten (gilt nur bis zum nächsten Reset), DIP-Schalter 2 auf ON, gültige MAC-Adresse (ALT beim Einschalten, 1, NETWORK), Core 0.96 oder neuer, PC und MEGA65 im selben Netz (am sichersten direktes Kabel; WLAN und Firmennetze blockieren IPv6 Link-Local oft).",
+   "en": "No answer from the MEGA65. Check: switch on remote access with Shift+pound (valid only until the next reset), DIP switch 2 set to ON, valid MAC address (ALT at power-on, 1, NETWORK), core 0.96 or newer, PC and MEGA65 in the same network (a direct cable is safest; Wi-Fi and company networks often block IPv6 link-local).",
+   "status": "maschinell"
+  },
+  "/hinweise/schnittstelle": {
+   "de": "Netzwerkschnittstelle des PCs prüfen (macOS z. B. en0, Linux eth0/enp3s0, Windows der Index); die Adresse fe80::… braucht die Schnittstelle.",
+   "en": "Check the network interface of the PC (macOS e.g. en0, Linux eth0/enp3s0, Windows the index); the address fe80::... needs the interface.",
+   "status": "maschinell"
+  }
+ }
+}

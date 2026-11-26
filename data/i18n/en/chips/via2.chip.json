@@ -1,0 +1,85 @@
+{
+ "source": "chips/via2.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Port B: Tastaturspalten, Joystick rechts",
+   "en": "Port B: keyboard columns, joystick right",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Port A: Tastaturzeilen",
+   "en": "Port A: keyboard rows",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Datenrichtung B",
+   "en": "Data direction B",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Datenrichtung A",
+   "en": "Data direction A",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Timer 1 Zähler Low",
+   "en": "Timer 1 counter low",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Timer 1 Zähler High",
+   "en": "Timer 1 counter high",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Timer 1 Latch Low",
+   "en": "Timer 1 latch low",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Timer 1 Latch High",
+   "en": "Timer 1 latch high",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Timer 2 Zähler Low",
+   "en": "Timer 2 counter low",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Timer 2 Zähler High",
+   "en": "Timer 2 counter high",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "Schieberegister",
+   "en": "Shift register",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Hilfssteuerregister",
+   "en": "Auxiliary control register",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Peripherie-Steuerregister",
+   "en": "Peripheral control register",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Interrupt-Flags",
+   "en": "Interrupt flags",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Interrupt-Freigabe",
+   "en": "Interrupt enable",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Port A (ohne Handshake)",
+   "en": "Port A (no handshake)",
+   "status": "maschinell"
+  }
+ }
+}

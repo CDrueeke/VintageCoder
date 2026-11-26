@@ -1,0 +1,220 @@
+{
+ "source": "sys/c64/basic.asm",
+ "entries": {
+  "/L4": {
+   "de": "Zeiger",
+   "en": "Pointers",
+   "status": "maschinell"
+  },
+  "/L5": {
+   "de": "Start des BASIC-Programms",
+   "en": "Start of the BASIC program",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Start der einfachen Variablen",
+   "en": "Start of the simple variables",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Start der Felder",
+   "en": "Start of the arrays",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Ende der Felder",
+   "en": "End of the arrays",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Untergrenze des Stringbereichs",
+   "en": "Lower limit of the string area",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Zeiger für neue Strings",
+   "en": "Pointer for new strings",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Obergrenze des BASIC-Speichers",
+   "en": "Upper limit of BASIC memory",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Aktuelle Zeilennummer",
+   "en": "Current line number",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Zeile bei STOP/END",
+   "en": "Line at STOP/END",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Textzeiger bei STOP/END",
+   "en": "Text pointer at STOP/END",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Zeile des aktuellen DATA",
+   "en": "Line of the current DATA",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Zeiger auf aktuelles DATA",
+   "en": "Pointer to the current DATA",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "BASIC-Textzeiger (CHRGET)",
+   "en": "BASIC text pointer (CHRGET)",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Gleitkomma-Akkumulatoren",
+   "en": "Floating-point accumulators",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "FAC1: Exponent",
+   "en": "FAC1: exponent",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "FAC1: Mantisse (4 Byte)",
+   "en": "FAC1: mantissa (4 bytes)",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "FAC1: Vorzeichen",
+   "en": "FAC1: sign",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "FAC2: Exponent",
+   "en": "FAC2: exponent",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "FAC2: Vorzeichen",
+   "en": "FAC2: sign",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Ganzzahl-Zwischenspeicher (Zeilennummer, 2 Byte)",
+   "en": "Integer buffer (line number, 2 bytes)",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Textzeiger-Routinen im RAM",
+   "en": "Text pointer routines in RAM",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Nächstes Zeichen holen",
+   "en": "Get next character",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Aktuelles Zeichen holen",
+   "en": "Get current character",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "BASIC-Vektoren",
+   "en": "BASIC vectors",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Fehlermeldung",
+   "en": "Error message",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Hauptschleife (Eingabe)",
+   "en": "Main loop (input)",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Tokenisieren",
+   "en": "Tokenize",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Zeilen auflisten",
+   "en": "List lines",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Befehl ausführen",
+   "en": "Execute command",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Ausdruck auswerten",
+   "en": "Evaluate expression",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "A-Register für SYS",
+   "en": "A register for SYS",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "X-Register für SYS",
+   "en": "X register for SYS",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Y-Register für SYS",
+   "en": "Y register for SYS",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Statusregister für SYS",
+   "en": "Status register for SYS",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "BASIC-ROM-Routinen",
+   "en": "BASIC ROM routines",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "String ausgeben (Adresse in A/Y, mit 0 beendet)",
+   "en": "Print string (address in A/Y, ended by 0)",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Ganzzahl in X/A ausgeben",
+   "en": "Print integer in X/A",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "Ganzzahl in Y/A nach FAC1",
+   "en": "Integer in Y/A to FAC1",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "FAC1 nach Ganzzahl in Y/A",
+   "en": "FAC1 to integer in Y/A",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "FAC1 nach (X/Y) speichern",
+   "en": "Store FAC1 at (X/Y)",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "FAC1 aus (A/Y) laden",
+   "en": "Load FAC1 from (A/Y)",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "FAC1 in Text wandeln",
+   "en": "Convert FAC1 to text",
+   "status": "maschinell"
+  }
+ }
+}

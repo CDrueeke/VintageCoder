@@ -25,7 +25,7 @@ pub fn new_play(p: &Profile, name: &str) -> Value {
 }
 
 fn wave_no(w: &str) -> Result<u8, String> {
-    Ok(match w { "triangle" => 0, "saw" => 1, "pulse" => 2, "noise" => 3, o => return Err(format!("Wellenform '{o}' unbekannt (triangle, saw, pulse, noise)")) })
+    Ok(match w { "triangle" => 0, "saw" => 1, "pulse" => 2, "noise" => 3, o => return Err(vc_i18n::t!("media-wellenform-unbekannt", o = &o)) })
 }
 
 enum Ev { Note(u8, u8, usize), Rest(usize) }
@@ -51,16 +51,16 @@ fn events(steps: &[Vec<(u8, u8)>], v: usize) -> Vec<Ev> {
 pub fn to_basic(root: &Value, name: &str) -> Result<String, String> {
     let voices = root["voices"].as_u64().unwrap_or(6) as usize;
     if voices == 0 || voices > 6 { return Err("PLAY kennt 1–6 Stimmen".into()); }
-    let ins = root["instruments"].as_array().ok_or("instruments fehlt")?;
-    if ins.len() > 10 { return Err(format!("PLAY kennt Hüllkurven 0–9, der Song hat {} Instrumente", ins.len())); }
-    let steps: Vec<Vec<(u8, u8)>> = root["steps"].as_array().ok_or("steps fehlt")?.iter().enumerate().map(|(r, row)| {
-        let cells = row.as_array().ok_or(format!("Zeile {r}: Array erwartet"))?;
-        if cells.len() != voices { return Err(format!("Zeile {r}: {} statt {voices} Zellen", cells.len())); }
-        cells.iter().enumerate().map(|(c, x)| parse_cell(x.as_str().unwrap_or("")).map_err(|e| format!("Zeile {r}, Stimme {}: {e}", c + 1))).collect::<Result<Vec<_>, _>>()
+    let ins = root["instruments"].as_array().ok_or(vc_i18n::t!("media-instruments-fehlt"))?;
+    if ins.len() > 10 { return Err(vc_i18n::t!("media-play-kennt-huellkurven-0-9-der", p1 = ins.len())); }
+    let steps: Vec<Vec<(u8, u8)>> = root["steps"].as_array().ok_or(vc_i18n::t!("media-steps-fehlt"))?.iter().enumerate().map(|(r, row)| {
+        let cells = row.as_array().ok_or(vc_i18n::t!("media-zeile-r-array-erwartet", r = &r))?;
+        if cells.len() != voices { return Err(vc_i18n::t!("media-zeile-r-p2-statt-voices-zellen", r = &r, p2 = cells.len(), voices = &voices)); }
+        cells.iter().enumerate().map(|(c, x)| parse_cell(x.as_str().unwrap_or("")).map_err(|e| vc_i18n::t!("media-zeile-r-stimme-p2-e", r = &r, p2 = c + 1, e = &e))).collect::<Result<Vec<_>, _>>()
     }).collect::<Result<_, _>>()?;
     let mut ln = 10u32; let mut s = String::new();
     let mut push = |t: String| { s.push_str(&format!("{ln} {t}\n")); ln += 10; };
-    push(format!("REM {} - erzeugt von VintageCoder", name.to_uppercase()));
+    push(vc_i18n::t!("media-rem-p1-erzeugt-von-vintagecoder", p1 = name.to_uppercase()));
     push(format!("VOL {}", root["volume"].as_u64().unwrap_or(8).min(15)));
     push(format!("TEMPO {}", root["tempo"].as_u64().unwrap_or(8).clamp(1, 255)));
     for (i, e) in ins.iter().enumerate() {
@@ -85,8 +85,8 @@ pub fn to_basic(root: &Value, name: &str) -> Result<String, String> {
                 let tok = match note {
                     Some((n, i)) => {
                         let k = (n - 1) as usize; let (oct, pc) = ((k / 12) as i32, LETTERS[k % 12]);
-                        if oct > 6 { return Err(format!("Stimme {}: Oktave {oct} - PLAY kennt nur 0–6", v + 1)); }
-                        if i as usize >= ins.len() { return Err(format!("Stimme {}: Instrument {i} existiert nicht", v + 1)); }
+                        if oct > 6 { return Err(vc_i18n::t!("media-stimme-p1-oktave-oct-play-kennt", p1 = v + 1, oct = &oct)); }
+                        if i as usize >= ins.len() { return Err(vc_i18n::t!("media-stimme-p1-instrument-i-existiert-nicht", p1 = v + 1, i = &i)); }
                         let mut t = String::new();
                         if t_cur != i as i32 { t.push_str(&format!("T{i}")); t_cur = i as i32; }
                         if o_cur != oct { t.push_str(&format!("O{oct}")); o_cur = oct; }

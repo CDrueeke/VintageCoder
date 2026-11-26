@@ -1,0 +1,115 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "08649c5216b6" },
+  "command": "emulator",
+  "group": "testen",
+  "summary": "Show, find and install emulators portably",
+  "description": [
+    "Shows the emulators that VintageCoder uses (VICE, atari800, Altirra, Xemu, Fujisan), with homepage, license and role. `install` downloads a fixed version from the project's site, only when you call it explicitly. It checks the SHA-256 sum and unpacks it below VintageCoder (`emulators/<Emulator>/<Version>` in the configuration folder). Nothing is shipped and nothing is downloaded without this call."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "list",
+      "usage": "vcc emulator list",
+      "summary": "show the emulators of the catalog with homepage and role",
+      "args": [],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "list all emulators",
+          "cmd": "vcc emulator list"
+        }
+      ],
+      "see_also": [
+        "test"
+      ]
+    },
+    {
+      "id": "status",
+      "usage": "vcc emulator status [emulator]",
+      "summary": "show what is found (all sources) and what can be installed",
+      "args": [
+        {
+          "name": "emulator",
+          "required": false,
+          "repeat": false,
+          "help": "ID (vice, atari800, altirra, xemu, fujisan) or variant (x64sc, x128 ...). Without it, all."
+        }
+      ],
+      "option_groups": [],
+      "options": [],
+      "examples": [
+        {
+          "title": "check all emulators",
+          "cmd": "vcc emulator status"
+        },
+        {
+          "title": "check one emulator",
+          "cmd": "vcc emulator status atari800"
+        }
+      ],
+      "notes": [
+        "The automatic order is: path from the settings, otherwise what PATH and the usual program folders offer, and last the newest portably installed version."
+      ],
+      "see_also": [
+        "test"
+      ]
+    },
+    {
+      "id": "install",
+      "usage": "vcc emulator install <emulator[@version]> [options]",
+      "summary": "download a fixed version, check it and install it portably",
+      "args": [
+        {
+          "name": "emulator[@version]",
+          "required": true,
+          "repeat": false,
+          "help": "ID (vice, atari800, altirra, xemu, fujisan) or variant (x64sc, x128 ...), optionally with a version (vice@3.9). Without a version, the default (the newest) is used."
+        }
+      ],
+      "option_groups": [],
+      "options": [
+        {
+          "flag": "--dry-run",
+          "short": "",
+          "value": "",
+          "group": "",
+          "help": "Only shows the package, address, checksum and target folder, without downloading anything.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "show what would be downloaded",
+          "cmd": "vcc emulator install atari800 --dry-run"
+        },
+        {
+          "title": "download and install Fujisan",
+          "cmd": "vcc emulator install fujisan"
+        },
+        {
+          "title": "install an older version alongside",
+          "cmd": "vcc emulator install vice@3.9"
+        }
+      ],
+      "notes": [
+        "Uses `curl` and `tar` of the system (Windows 10/11 and Linux include them). Where there is no portable package (e.g. macOS, VICE on Linux), the command names the download page.",
+        "If the version is already installed, nothing happens. If the checksum does not match, the file is deleted and nothing is unpacked.",
+        "In the automatic search, portably installed programs come after PATH and the usual program folders. A path in the settings and a version chosen with `@version` take priority.",
+        "Several versions of an emulator can exist side by side. `vcc emulator status` shows all sources found (portable and system) and the versions that can be downloaded. `vcc test --backend vice@3.9` uses a specific one."
+      ],
+      "exit": {
+        "0": "installed or already present",
+        "1": "error (network, checksum, unpacking, no package)",
+        "2": "unknown emulator"
+      },
+      "see_also": [
+        "test"
+      ]
+    }
+  ]
+}

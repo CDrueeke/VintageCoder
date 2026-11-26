@@ -1,8 +1,8 @@
 ; sterne.bas – Natives C64-BASIC V2 ohne Zeilennummern: Marken (Labels) statt GOTO-Nummern
 ;
 ; Zweck: Zeigt den "nativen" Quelltext: Die Zeilen werden beim Bauen nummeriert (10, 20, 30 …), "@name" wird durch die Zeilennummer
-;   ersetzt. Wer will, schreibt Zeilennummern wie gewohnt davor – beides lässt sich mischen. Das Ergebnis ist ein gewöhnliches BASIC-V2-
-;   Programm des C64 (siehe build/sterne.classic.txt und build/sterne.labels.txt für Listing und Zuordnung der Marken).
+;   ersetzt. Das Ergebnis ist ein gewöhnliches BASIC-V2-Programm
+;   des C64 (siehe build/sterne.classic.txt und build/sterne.labels.txt für Listing und Zuordnung der Marken).
 ;
 ; Ablauf: Mit `vcc build examples/c64/basic_native` bauen, build/sterne.prg laden und mit RUN starten. Das Programm setzt Rahmen und
 ;   Hintergrund auf Schwarz, löscht den Bildschirm und streut 200 Sterne ("*") in zufälligen Farben und an zufälligen Stellen

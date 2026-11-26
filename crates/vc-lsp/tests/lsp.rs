@@ -7,8 +7,11 @@ use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 struct Client { child: Child, stdin: ChildStdin, out: BufReader<ChildStdout>, next: u64 }
 
 impl Client {
-    fn start() -> Client {
-        let mut child = Command::new(env!("CARGO_BIN_EXE_vc-lsp")).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null()).spawn().unwrap();
+    /// `vc_lang`: Wert für `VC_LANG` des Serverprozesses (None: Variable entfernen, es gilt die Systemsprache)
+    fn start_with_lang(vc_lang: Option<&str>) -> Client {
+        let mut cmd = Command::new(env!("CARGO_BIN_EXE_vc-lsp"));
+        match vc_lang { Some(l) => { cmd.env("VC_LANG", l); } None => { cmd.env_remove("VC_LANG"); } }
+        let mut child = cmd.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null()).spawn().unwrap();
         let (stdin, out) = (child.stdin.take().unwrap(), BufReader::new(child.stdout.take().unwrap()));
         Client { child, stdin, out, next: 1 }
     }
@@ -50,9 +53,14 @@ impl Client {
 
 fn root() -> String { format!("{}/../..", env!("CARGO_MANIFEST_DIR")) }
 
-fn client() -> Client {
-    let mut c = Client::start();
-    let (r, _) = c.request("initialize", json!({ "rootUri": format!("file://{}", root()), "capabilities": {}, "initializationOptions": { "dataDir": format!("{}/data", root()) } }));
+fn client() -> Client { client_in(Some("de")) }
+
+/// Startet den Server; `locale` kommt wie von einem Editor in der Anfrage `initialize` (None: keine Angabe)
+fn client_in(locale: Option<&str>) -> Client {
+    let mut c = Client::start_with_lang(None);
+    let mut params = json!({ "rootUri": format!("file://{}", root()), "capabilities": {}, "initializationOptions": { "dataDir": format!("{}/data", root()) } });
+    if let Some(l) = locale { params["locale"] = json!(l); }
+    let (r, _) = c.request("initialize", params);
     assert_eq!(r["capabilities"]["hoverProvider"], json!(true));
     c.notify("initialized", json!({}));
     c
@@ -75,6 +83,7 @@ fn diagnostics_hover_definition_completion_symbols() {
     let items = d["params"]["diagnostics"].as_array().unwrap();
     assert_eq!(items.len(), 1);
     assert_eq!((items[0]["code"].as_str(), items[0]["severity"].as_i64(), items[0]["range"]["start"]["line"].as_i64()), (Some("W104"), Some(2), Some(4)));
+    assert_eq!((items[0]["data"]["key"].as_str(), items[0]["data"]["args"]["mn"].as_str()), (Some("diag-asm-w104"), Some("LAX")), "{}", items[0]);
     // Hover auf Mnemonic: Opcode-Tabelle mit Zyklen
     let h = hover(&mut c, uri, 2, 10);
     assert!(h.contains("**LDA**") && h.contains("Sofortwert (imm) | $A9 | 2 | 2 |") && h.contains("Absolut, X-indiziert (abx)") && h.contains("4+1"), "{h}");
@@ -115,13 +124,17 @@ fn diagnostics_hover_definition_completion_symbols() {
 fn atari_target_is_detected_from_the_file() {
     let mut c = client();
     let uri = "file:///tmp/vc_lsp_atari.asm";
-    let d = c.open(uri, ".target atari8\n.org $2000\nstart: sta gtia.colbk\n jmp start\n");
+    let d = c.open(uri, ".target atari8\n.org $2000\nstart: sta gtia.colbk\n jmp start\n.run start\n");
     assert!(d["params"]["diagnostics"].as_array().unwrap().is_empty(), "{d}");
     let h = hover(&mut c, uri, 2, 14);
     assert!(h.contains("gtia.colbk") && h.contains("$D01A") && h.contains("schreiben"), "{h}");
     let d = c.open("file:///tmp/vc_lsp_bad.asm", ".target nirgendwo\n nop\n");
-    let msg = d["params"]["diagnostics"][0]["message"].as_str().unwrap().to_string();
+    let first = &d["params"]["diagnostics"][0];
+    let msg = first["message"].as_str().unwrap().to_string();
     assert!(msg.contains("nirgendwo"), "{msg}");
+    // maschinenlesbar: Code und Schlüssel mit Parametern (`data`), unabhängig vom Wortlaut
+    assert_eq!((first["code"].as_str(), first["data"]["key"].as_str()), (Some("E000"), Some("diag-lsp-e000-load")), "{first}");
+    assert!(first["data"]["args"]["detail"].as_str().unwrap().contains("nirgendwo"), "{first}");
 }
 
 #[test]
@@ -176,4 +189,46 @@ fn hover_hebt_nichts_hervor_bei_fehler_oder_ohne_lauf() {
     assert!(!d["params"]["diagnostics"].as_array().unwrap().is_empty());
     let (md, m) = hover_modus(&mut c, uri, 2, 3);
     assert_eq!(m["state"], "open", "{md}"); assert!(!md.contains('▶') && md.contains("Modus noch offen"), "bei Fehlern wird nie geraten: {md}");
+}
+
+/// Diagnose und Hover in der Sprache der Anfrage `initialize` (`locale`); `code`, `data.key` und `data.args` bleiben in beiden Sprachen gleich
+#[test]
+fn language_follows_the_initialize_locale() {
+    let src = ".target c64\n.org $0801\n lda #$01\n lax $d012\n";
+    let uri = "file:///tmp/vc_lsp_lang.asm";
+    for (locale, hover_word, diag_word, diag_other) in [("en", "Load accumulator", "undocumented opcode", "undokumentierter"), ("en-US", "Load accumulator", "undocumented opcode", "undokumentierter"),
+                                                         ("de", "Akkumulator laden", "undokumentierter", "undocumented opcode"), ("de_DE.UTF-8", "Akkumulator laden", "undokumentierter", "undocumented opcode")] {
+        let mut c = client_in(Some(locale));
+        let d = c.open(uri, src);
+        let item = &d["params"]["diagnostics"][0];
+        assert_eq!((item["code"].as_str(), item["data"]["key"].as_str(), item["data"]["args"]["mn"].as_str()), (Some("W104"), Some("diag-asm-w104"), Some("LAX")), "{locale}: {item}");
+        let msg = item["message"].as_str().unwrap();
+        assert!(msg.contains(diag_word) && !msg.contains(diag_other), "{locale}: {msg}");
+        let h = hover(&mut c, uri, 2, 3);
+        assert!(h.contains(hover_word), "{locale}: {h}");
+        if locale.starts_with("en") { assert!(h.contains("| Mode | Opcode | Bytes | Cycles |"), "{locale}: {h}"); } else { assert!(h.contains("| Modus | Opcode | Bytes | Zyklen |"), "{locale}: {h}"); }
+        let (r, _) = c.request("shutdown", Value::Null);
+        assert!(r.is_null());
+        c.notify("exit", Value::Null);
+        let _ = c.child.wait();
+    }
+}
+
+/// Ohne `locale` gilt `VC_LANG` des Serverprozesses; eine unbekannte Sprache ergibt Englisch
+#[test]
+fn language_falls_back_to_vc_lang_and_unknown_means_english() {
+    for (vc_lang, locale, want, table) in [(Some("en"), None, "Load accumulator", "| Mode |"), (Some("de"), None, "Akkumulator laden", "| Modus |"), (None, Some("fr-FR"), "Load accumulator", "| Mode |"), (Some("de"), Some("en"), "Load accumulator", "| Mode |")] {
+        let mut c = Client::start_with_lang(vc_lang);
+        let mut params = json!({ "rootUri": format!("file://{}", root()), "capabilities": {}, "initializationOptions": { "dataDir": format!("{}/data", root()) } });
+        if let Some(l) = locale { params["locale"] = json!(l); }
+        c.request("initialize", params);
+        c.notify("initialized", json!({}));
+        let uri = "file:///tmp/vc_lsp_lang2.asm";
+        c.open(uri, ".target c64\n.org $0801\n lda #$01\n");
+        let h = hover(&mut c, uri, 2, 3);
+        assert!(h.contains(want) && h.contains(table), "VC_LANG={vc_lang:?} locale={locale:?}: {h}");
+        let (_, _) = c.request("shutdown", Value::Null);
+        c.notify("exit", Value::Null);
+        let _ = c.child.wait();
+    }
 }

@@ -85,6 +85,39 @@ class DistroTests(unittest.TestCase):
         self.assertEqual(cfg["distros"]["fedora"]["links"]["vice"]["level"], "suggests")       # VICE nur ueber RPM Fusion
 
 
+class TauriConfigTests(unittest.TestCase):
+    def test_jede_distribution_hat_tauri_abhaengigkeiten(self):
+        cfg = lp.load_config()
+        for d, c in cfg["distros"].items():
+            self.assertTrue(c["ide_tauri"]["depends"], d)
+        for d in ("debian", "ubuntu"):
+            dep = " ".join(cfg["distros"][d]["ide_tauri"]["depends"])
+            for name in ("libwebkit2gtk-4.1-0", "libgtk-3-0", "libsoup-3.0-0"):
+                self.assertIn(name, dep, d)
+            self.assertNotIn("libxkbcommon", dep, d)          # egui-Abhaengigkeiten gelten nicht fuer Tauri
+        for d in ("fedora", "opensuse"):
+            self.assertFalse([x for x in cfg["distros"][d]["ide_tauri"]["depends"] if "|" in x], d)
+
+    def test_oberflaeche_tauri_ersetzt_die_ide_abhaengigkeiten(self):
+        cfg = lp.load_config()
+        t = lp.cfg_fuer_oberflaeche(cfg, "tauri")
+        self.assertEqual(t["distros"]["ubuntu"]["ide"], cfg["distros"]["ubuntu"]["ide_tauri"])
+        self.assertIsNot(t, cfg)
+        self.assertNotEqual(cfg["distros"]["ubuntu"]["ide"], cfg["distros"]["ubuntu"]["ide_tauri"])   # Original bleibt unveraendert
+        self.assertIs(lp.cfg_fuer_oberflaeche(cfg, "egui"), cfg)
+        rel = lp.dependencies(t, "ubuntu", "ide", [], "0.3.0", "deb")
+        self.assertIn("libwebkit2gtk-4.1-0", rel["depends"])
+
+    def test_fehlender_tauri_eintrag_ist_ein_fehler(self):
+        cfg = lp.load_config()
+        del cfg["distros"]["fedora"]["ide_tauri"]
+        with self.assertRaises(lp.PackageError):
+            lp.cfg_fuer_oberflaeche(cfg, "tauri")
+
+    def test_mime_datei_gehoert_zum_ide_paket(self):
+        self.assertTrue(lp.is_ide_file("usr/share/mime/packages/vintagecoder.xml"))
+
+
 def make_fake_bins(tmp):
     d = os.path.join(tmp, "fakebin")
     os.makedirs(d, exist_ok=True)
@@ -115,7 +148,7 @@ class StagedTests(unittest.TestCase):
             out = os.path.join(cls.tmp, "st-" + name)
             buf = io.StringIO()
             with redirect_stdout(buf):
-                rc = release.main(["stage", "--os", "linux", "--out", out, "--bin-dir", cls.bins, "--force", "--reproducible", "--features", os.path.join(TESTDATA, name + ".md")])
+                rc = release.main(["stage", "--os", "linux", "--out", out, "--bin-dir", cls.bins, "--force", "--reproducible", "--oberflaeche", "egui", "--features", os.path.join(TESTDATA, name + ".md")])
             assert rc == 0, buf.getvalue()
             cls.stages[name] = out
         return cls.stages[name]
@@ -132,7 +165,7 @@ class StagedTests(unittest.TestCase):
         self.assertIn("usr/share/man/man1/vc-lsp.1", files)
         self.assertFalse([f for f in files if is_ide(f)], "IDE-Dateien ohne IDE-APP")
         self.assertFalse([f for f in files if not f.startswith("usr/")])
-        self.assertTrue(all(f.startswith("usr/share/vintagecoder/examples/c64/") or f.startswith("usr/share/vintagecoder/examples/common/") for f in files if "/examples/" in f))
+        self.assertTrue(all(f.startswith(("usr/share/vintagecoder/examples/c64/", "usr/share/vintagecoder/examples/common/", "usr/share/vintagecoder/examples/en/c64/")) for f in files if "/examples/" in f))
         self.assertEqual(lp.read_selection(st)[0], False)
 
     def test_fhs_baum_mit_ide(self):
@@ -351,7 +384,7 @@ class StagedTests(unittest.TestCase):
         sums = []
         for i in range(2):
             out = os.path.join(self.tmp, "pk-rep%d" % i)
-            lp.package(st, out, "tar", None, "0.1.0", machine="x86_64", cfg=self.cfg, reproducible=True)
+            lp.package(st, out, "tar", None, "0.1.0", machine="x86_64", cfg=self.cfg, oberflaeche="egui", reproducible=True)
             sums.append(lp.sha256_file(os.path.join(out, "vintagecoder-0.1.0-linux-x86_64.tar.gz")))
         self.assertEqual(sums[0], sums[1])
 
@@ -359,25 +392,27 @@ class StagedTests(unittest.TestCase):
         st = self.stage("nur-cli-c64")
         out = os.path.join(self.tmp, "pk-err")
         with self.assertRaises(lp.PackageError):                                  # deb ohne Distribution
-            lp.package(st, out, "deb", None, "0.1.0", cfg=self.cfg)
+            lp.package(st, out, "deb", None, "0.1.0", cfg=self.cfg, oberflaeche="egui")
         with self.assertRaises(lp.PackageError):                                  # Format passt nicht zur Distribution
-            lp.package(st, out, "rpm", "debian", "0.1.0", cfg=self.cfg)
+            lp.package(st, out, "rpm", "debian", "0.1.0", cfg=self.cfg, oberflaeche="egui")
         with self.assertRaises(lp.PackageError):                                  # kein Staging
-            lp.package(self.tmp, out, "tar", None, "0.1.0", cfg=self.cfg)
+            lp.package(self.tmp, out, "tar", None, "0.1.0", cfg=self.cfg, oberflaeche="egui")
         with self.assertRaises(lp.PackageError):                                  # keine SemVer-Version
-            lp.package(st, out, "tar", None, "0.1", cfg=self.cfg)
+            lp.package(st, out, "tar", None, "0.1", cfg=self.cfg, oberflaeche="egui")
         nobin = os.path.join(self.tmp, "st-nobin")
         buf = io.StringIO()
         with redirect_stdout(buf):
-            release.main(["stage", "--os", "linux", "--out", nobin, "--no-bin", "--force", "--features", os.path.join(TESTDATA, "nur-cli-c64.md")])
+            # leerer Programmordner: --no-bin allein stagt ein vorhandenes target/release/vcc trotzdem mit; der Test darf nicht davon abhängen, ob es einen Release-Bau gibt
+            leer = os.path.join(self.tmp, "leere-programme"); os.makedirs(leer, exist_ok=True)
+            release.main(["stage", "--os", "linux", "--out", nobin, "--no-bin", "--bin-dir", leer, "--force", "--features", os.path.join(TESTDATA, "nur-cli-c64.md")])
         with self.assertRaisesRegex(lp.PackageError, "usr/bin/vcc fehlt"):
-            lp.package(nobin, out, "tar", None, "0.1.0", cfg=self.cfg)
+            lp.package(nobin, out, "tar", None, "0.1.0", cfg=self.cfg, oberflaeche="egui")
 
     @unittest.skipUnless(shutil.which("dpkg-deb"), "dpkg-deb nicht vorhanden (Bau-Container Debian/Ubuntu)")
     def test_deb_bauen(self):
         st = self.stage("voll")
         out = os.path.join(self.tmp, "pk-deb")
-        res = lp.package(st, out, "deb", "debian", "0.1.0", arch="amd64", cfg=self.cfg, reproducible=True)
+        res = lp.package(st, out, "deb", "debian", "0.1.0", arch="amd64", cfg=self.cfg, oberflaeche="egui", reproducible=True)
         self.assertEqual(sorted(n for n, _ in res), ["vintagecoder-cli_0.1.0_amd64.deb", "vintagecoder_0.1.0_amd64.deb"])
         cli = lp.parse_dpkg_contents(lp.run(["dpkg-deb", "-c", os.path.join(out, "vintagecoder-cli_0.1.0_amd64.deb")]))
         with open(os.path.join(out, "vintagecoder-cli_0.1.0_amd64.deb.files"), encoding="utf-8") as f:
@@ -389,7 +424,7 @@ class StagedTests(unittest.TestCase):
     def test_rpm_bauen(self):
         st = self.stage("voll")
         out = os.path.join(self.tmp, "pk-rpm")
-        res = lp.package(st, out, "rpm", "fedora", "0.1.0", arch="x86_64", cfg=self.cfg, reproducible=True)
+        res = lp.package(st, out, "rpm", "fedora", "0.1.0", arch="x86_64", cfg=self.cfg, oberflaeche="egui", reproducible=True)
         names = sorted(n for n, k in res if k == "rpm")
         self.assertEqual(names, ["vintagecoder-0.1.0-1.x86_64.rpm", "vintagecoder-cli-0.1.0-1.x86_64.rpm"])
 

@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: PRALLBALL",
+    "description": "Ball-and-paddle game for the Atari 8 bit (display list colors per line, player-missile graphics, POKEY music)"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "prallball.asm"
+      ]
+    }
+  ],
+  "main": "prallball.asm"
+}

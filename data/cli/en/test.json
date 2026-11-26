@@ -1,0 +1,174 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "0a148cc41212" },
+  "command": "test",
+  "group": "testen",
+  "summary": "Check tests from *.vctest and run them in an emulator or on hardware",
+  "description": [
+    "Searches the path for all *.vctest files and first runs their static checks. With --backend, the entries under \"tests\" also run: in an emulator (vice, atari800, fujisan, xemu) or on real hardware (u64, m65). Without --backend, these tests appear as skipped.",
+    "Build first (vcc build): the runner loads the built program. Test files with \"mode\": \"mailbox\" check themselves and are read through the mailbox in RAM. Those with \"mode\": \"measure\" measure cycles (on the Ultimate 64 only).",
+    "Results per test: OK, FAIL, HINT, TIME (timeout), SKIPPED. A summary is printed at the end."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc test [folder|file.vctest] [options]",
+      "args": [
+        {
+          "name": "folder|file.vctest",
+          "required": false,
+          "repeat": false,
+          "help": "Folder (searched for *.vctest) or a single test file. The default is the working folder."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "lauf",
+          "label": "Execution"
+        },
+        {
+          "id": "hardware",
+          "label": "Hardware"
+        },
+        {
+          "id": "ausgabe",
+          "label": "Evaluation and output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--backend",
+          "short": "",
+          "value": "name",
+          "group": "lauf",
+          "help": "Also runs the tests dynamically: vice, atari800 and xemu as emulators, u64 and m65 on real hardware (with address or interface and a safety prompt).",
+          "default": "",
+          "default_text": "none (static checks only)",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--filter",
+          "short": "",
+          "value": "text",
+          "group": "lauf",
+          "help": "Runs only the dynamic tests that match the text.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--prologue",
+          "short": "",
+          "value": "",
+          "group": "lauf",
+          "help": "Forces the prologue in the trap even with VICE, to check the path of the adapters without flag access (trap mode).",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--poll",
+          "short": "",
+          "value": "",
+          "group": "lauf",
+          "help": "Mailbox tests: reads the mailbox every 100 ms instead of stopping at the endless loop of test_end.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--password",
+          "short": "",
+          "value": "pw",
+          "group": "hardware",
+          "help": "Network password of the Ultimate 64. Otherwise the password of the machine with the same address from the settings.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--yes",
+          "short": "",
+          "value": "",
+          "group": "hardware",
+          "help": "Answers the safety prompt before a run on hardware with yes. Without a terminal, --yes is required.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--strict",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Turns every hint into an error.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--junit",
+          "short": "",
+          "value": "file.xml",
+          "group": "ausgabe",
+          "help": "Also writes the result as JUnit XML.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--data-dir",
+          "short": "",
+          "value": "folder",
+          "group": "ausgabe",
+          "help": "Folder of the hardware database.",
+          "default": "",
+          "default_text": "VC_DATA, otherwise next to the program or in the working folder",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "static checks of a project",
+          "cmd": "vcc test examples/c64/tests_demo"
+        },
+        {
+          "title": "also run in VICE",
+          "cmd": "vcc test examples/c64/tests_demo --backend vice"
+        },
+        {
+          "title": "only matching tests in atari800",
+          "cmd": "vcc test examples/atari/prallball --backend atari800 --filter ball"
+        },
+        {
+          "title": "write the result as JUnit XML",
+          "cmd": "vcc test examples/mega65/prallball --junit ergebnis.xml"
+        }
+      ],
+      "notes": [
+        "--backend takes vice, atari800, fujisan, xemu (also with the version of a portably installed build, e.g. vice@3.9), u64:HOST[:PORT] or m65:INTERFACE[@BAUD]. Any other value is an error. u64 and m65 without an address are rejected.",
+        "atari800 knows only the target atari8, and Xemu only mega65. VICE runs for c64 (x64sc), c128 (x128), plus4 (xplus4) and vic20 (xvic).",
+        "On hardware, reset, loading a program and writing memory lose the running state of the device. Only mailbox tests (\"mode\": \"mailbox\") and cycle measurements run there. Trap tests are skipped. Cycle measurements need u64:HOST and the debug stream mode 6510 Only on the device.",
+        "If no *.vctest is found, the command ends without error."
+      ],
+      "exit": {
+        "0": "all passed (hints and skipped tests do not count)",
+        "1": "a test failed, a test file is faulty, or a timeout; also path or data folder not found, invalid --backend, hardware prompt declined",
+        "2": "unknown option"
+      },
+      "see_also": [
+        "build",
+        "streams"
+      ]
+    }
+  ]
+}

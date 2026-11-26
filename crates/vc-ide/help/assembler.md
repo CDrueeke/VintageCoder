@@ -2,7 +2,7 @@
 
 Ein **Assembler** übersetzt Programme, die du in lesbaren Kürzeln wie `lda #$00` schreibst, in die Zahlen, die der Prozessor wirklich ausführt (den **Maschinencode**). Der Assembler von VintageCoder beherrscht die 6502-Familie: 6502, 6510 (C64), 7501 (Plus/4), 8502 (C128), „Sally“ (Atari) und die 45GS02 des MEGA65 – also alle Zielsysteme der Entwicklungsumgebung. Er rechnet beim Übersetzen mit Ausdrücken, kennt Makros, Schleifen, Namensräume und Module.
 
-**Die Sprache VCASM ist frei.** Syntax und Bedeutung (Befehle, Direktiven, Ausdrücke, Makros) darf jeder in eigenen Werkzeugen umsetzen, unabhängig von der Lizenz von VintageCoder; was du übersetzt, gehört dir. Siehe [Lizenz und freie Nutzung](help:license).
+**Die Sprache VCASM ist frei.** Syntax und Bedeutung (Befehle, Direktiven, Ausdrücke, Makros) darf jeder in eigenen Werkzeugen umsetzen, unabhängig von der Lizenz von VintageCoder; was du übersetzt, gehört dir. Siehe [Lizenz und Danksagungen](help:license).
 
 ## Die Handbuchseiten
 
@@ -11,7 +11,7 @@ Ein **Assembler** übersetzt Programme, die du in lesbaren Kürzeln wie `lda #$0
 | **diese Seite** | Mein erstes Programm, Aufbau einer Zeile, Adressierungsarten, undokumentierte Befehle |
 | [Ausdrücke und Funktionen](help:asm-expr) | Zahlenformate, Operatoren und Vorrang, `<` und `>`, eingebaute Funktionen, Listen, `.function` |
 | [Direktiven](help:asm-directives) | `.org`, Daten, Konstanten und Variablen, `.if`, `.repeat`, `.for`, `.include`, `.basicstub`, `.cycles` … |
-| [Texte und Zeichensätze](help:asm-text) | `.petscii`, `.screen`, `.atascii`, `.text`, `.encoding`, Sonderzeichen `{clr}` |
+| [Texte und Zeichensätze](help:asm-text) | `.petscii`, `.screencode`, `.atascii`, `.text`, `.encoding`, Sonderzeichen `{clr}` |
 | [Labels, Makros, Scopes, Strukturen](help:asm-macros) | lokale und anonyme Labels, `.macro`, `{ }`, `.struct`, `.enum` |
 | [Segmente, Bänke, Module](help:cartridges) | `.segment`, `.bank`, `.cartridge` |
 | [Systembibliothek](help:asm-library) | `#include <c64/hardware.asm>` und fertige Makros |
@@ -23,7 +23,7 @@ Die Zielsysteme beschreiben [VC-20](help:vic20), [C128 und Plus/4](help:c128-plu
 
 Das kleinste sinnvolle Programm färbt den Bildschirmrahmen rot und schreibt ein Wort auf den Bildschirm. So gehst du vor:
 
-1. **Projekt anlegen:** *Datei ▸ Neues Projekt …* (Cmd/Strg+Alt+N), Zielsystem **C64**, Vorlage **Assembler**. Oder auf der Kommandozeile: `vcc new hallo --target c64 --template asm-hello` (siehe [Projekt-Assistent](help:wizard)). Die Vorlage legt die Datei `src/c64/main.asm` an.
+1. **Projekt anlegen:** *Datei ▸ Neues Projekt …* (Cmd/Strg+Alt+N), Zielsystem **C64**, Vorlage **Assembler**. Oder auf der Kommandozeile: `vcc new hallo --target c64 --template asm-hello` (siehe [Startseite, Konfigurationsassistent und neues Projekt](help:wizard)). Die Vorlage legt die Datei `src/c64/main.asm` an.
 2. **Quelltext ersetzen:** Öffne `main.asm` und schreibe das Programm unten hinein.
 3. **Bauen und starten:** **F7** baut das Projekt, **F5** baut und startet das Startprogramm im Emulator (siehe [Bauen und Starten](help:build)). Auf der Kommandozeile: `vcc build` im Projektordner.
 
@@ -42,7 +42,7 @@ loop:   lda text,x          ; ein Zeichen holen ...
         bne loop            ; nein: weiter
         rts                 ; zurück zu BASIC
 
-text:   .screen "hallo"     ; Text als Bildschirmcodes
+text:   .screencode "hallo"     ; Text als Bildschirmcodes
 ```
 
 Zeile für Zeile:
@@ -60,7 +60,7 @@ Zeile für Zeile:
 | `sta $0400,x` | schreibe es in den Bildschirmspeicher (der beginnt bei `$0400`) |
 | `inx` / `cpx #5` / `bne loop` | X erhöhen, mit 5 vergleichen, solange nicht gleich zurück zu `loop` |
 | `rts` | zurück zum Aufrufer (hier BASIC) |
-| `.screen "hallo"` | legt die fünf Zeichen als **Bildschirmcodes** ab (siehe [Texte](help:asm-text)) |
+| `.screencode "hallo"` | legt die fünf Zeichen als **Bildschirmcodes** ab (siehe [Texte](help:asm-text)) |
 
 Nach dem Bauen entstehen im Ordner `build/` das Programm (`main.prg`), ein Listing (`main.lst`: Adresse, Bytes und Quelltext nebeneinander), die Symboltabelle und die Speicherbelegung. Das Listing zeigt, was der Assembler aus jeder Zeile gemacht hat:
 
@@ -85,12 +85,12 @@ start:  lda #$00        ; Label mit Doppelpunkt
 ```
 
 - **Label:** ein Name mit Doppelpunkt am Zeilenanfang. `start:` benennt die Adresse; `.loop:` ist ein *lokales* Label (siehe [Labels](help:asm-macros)). Ohne Doppelpunkt hält der Assembler das Wort für einen Befehl.
-- **Befehl:** ein Kürzel des Prozessors (`lda`, `sta`, `jmp` …). Groß-/Kleinschreibung ist egal. Die Befehle der CPU zeigt **F1** auf dem Wort.
+- **Befehl:** ein Kürzel des Prozessors (`lda`, `sta`, `jmp` …). Groß-/Kleinschreibung ist egal. Zu den Befehlen der CPU zeigt eine Karte beim Daraufzeigen mit der Maus die Beschreibung.
 - **Direktive:** beginnt mit einem Punkt und ist eine Anweisung an den Assembler (siehe [Direktiven](help:asm-directives)).
 - **Zuweisung:** `NAME = ausdruck` definiert eine Konstante, `*= adresse` setzt die Adresse (wie `.org`).
 - **Kommentar:** `;` oder `//` bis zum Zeilenende (nicht innerhalb von Anführungszeichen).
 - Auf einer Zeile steht nur **ein** Befehl; einen Trenner wie `:` zwischen mehreren Befehlen gibt es nicht.
-- Chip-Register stehen als `chip.register` zur Verfügung (`vic2.border`); **F1** auf dem Wort zeigt die Beschreibung.
+- Chip-Register stehen als `chip.register` zur Verfügung (`vic2.border`); beim Daraufzeigen mit der Maus erscheint die Beschreibung.
 
 ## Adressierungsarten
 
@@ -148,7 +148,7 @@ Die 6502-Familie hat Befehle, die nie offiziell beschrieben wurden, aber funktio
 - **Mehrere Durchläufe:** Der Assembler übersetzt den Quelltext mehrmals, bis alle Adressen feststehen. Deshalb darfst du Labels vor ihrer Definition benutzen. Die Anzahl der Durchläufe steht im [Bauprotokoll](help:build).
 - **Ausgabe:** Die Bytes liegen in **Segmenten** (je `.org` eines). Je nach Zielsystem entsteht ein PRG (Ladeadresse + Daten), ein Atari-XEX, ein Modul (`.crt`, `.car`) oder eine Diskette.
 - **Ausgabedateien:** Listing (`.lst`), Symboltabelle (`.sym.txt`), VICE-Labels (`.vs`), Debug-Info (`.vcdbg`).
-- **Kommandozeile:** `vcc asm datei.asm -o ausgabe --target c64 --format prg` übersetzt eine einzelne Datei; `-I ordner` ergänzt die Include-Suche, `-D NAME=wert` definiert eine Konstante (für `.ifdef`/`.if`), `--illegals deny|warn|allow` setzt die Voreinstellung. `vcc build` baut ein ganzes Projekt.
+- **Kommandozeile:** `vcc asm datei.asm -o ausgabe --target c64 --format prg` übersetzt eine einzelne Datei; `-I ordner` ergänzt die Include-Suche (Mediendateien des Projekts bindet `vcc asm` ebenfalls ein), `-D NAME=wert` definiert eine Konstante (für `.ifdef`/`.if`), `--illegals deny|warn|allow` setzt die Voreinstellung. `vcc build` baut ein ganzes Projekt.
 - **Fehlermeldungen:** `error[E…]` und `warning[W…]` mit Datei und Zeile; die Codes erklärt der [Spickzettel](help:asm-index).
 
-Mit **F1** auf einer Direktive, einem Befehl oder einem Chip-Register zeigt die Hilfe die passende Beschreibung.
+Zeigst du mit der Maus auf eine Direktive, einen Befehl oder ein Chip-Register, erscheint eine Karte mit der passenden Beschreibung.

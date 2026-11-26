@@ -34,8 +34,8 @@ pub enum Eingabe { Keine, /** Note und Instrument zum Vorhören */ Note(u8, usiz
 impl SongDoc {
     pub fn oeffnen(root: &Path, rel: &str, data: &Path) -> Result<SongDoc, String> {
         let abs = root.join(rel);
-        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
-        if !matches!(media["kind"].as_str(), Some("song" | "play")) { return Err(format!("{rel}: kein Song und kein PLAY-Tracker")) }
+        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("songdoc-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("songdoc-rel-e", rel = &rel, e = e.to_string()))?;
+        if !matches!(media["kind"].as_str(), Some("song" | "play")) { return Err(vc_i18n::t!("songdoc-rel-kein-song-und-kein-play", rel = &rel)) }
         let profiles = vc_media::load_profiles(data)?; let p = vc_media::profile(&profiles, media["profile"].as_str().unwrap_or(""))?;
         let play = media["kind"] == "play"; let chip = p.raw["chip"].as_str().unwrap_or("sid").to_string(); let kanaele = if play { media["voices"].as_u64().unwrap_or(6) as usize } else { p.raw["channels"].as_u64().unwrap_or(3) as usize };
         let hz = if media["clock"].as_str() == Some("ntsc") { 60.0 } else { 50.0 };
@@ -80,7 +80,7 @@ impl SongDoc {
     pub fn kann_redo(&self) -> bool { !self.redo.is_empty() }
     pub fn media_text(&self) -> String { vc_media::project::format_media(&self.media) }
     pub fn speichern(&mut self) -> Result<(), String> {
-        std::fs::write(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = "gespeichert".into(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = vc_i18n::t!("songdoc-gespeichert"); Ok(())
     }
 
     // -- Navigation -----------------------------------------------------------------------------------------------------
@@ -140,14 +140,14 @@ impl SongDoc {
 
     // -- Block ----------------------------------------------------------------------------------------------------------
     fn block(&self) -> Auswahl { self.auswahl.unwrap_or((self.cursor, self.cursor)) }
-    pub fn kopieren(&mut self) { let ((r0, c0), (r1, c1)) = self.block(); let p = self.muster; self.zwischen = Some((r0..=r1).map(|r| (c0..=c1).map(|c| self.zelle(p, r, c)).collect()).collect()); self.status = format!("Kopiert ({}×{} Zellen)", r1 - r0 + 1, c1 - c0 + 1) }
+    pub fn kopieren(&mut self) { let ((r0, c0), (r1, c1)) = self.block(); let p = self.muster; self.zwischen = Some((r0..=r1).map(|r| (c0..=c1).map(|c| self.zelle(p, r, c)).collect()).collect()); self.status = vc_i18n::t!("songdoc-kopiert-p1-p2-zellen", p1 = r1 - r0 + 1, p2 = c1 - c0 + 1) }
     pub fn ausschneiden(&mut self) { self.kopieren(); self.undo_punkt(); let ((r0, c0), (r1, c1)) = self.block(); let p = self.muster; for r in r0..=r1 { for c in c0..=c1 { self.setze_zelle(p, r, c, "--- --") } } }
     /// Block ab dem Cursor einfügen (am Rand abgeschnitten)
     pub fn einfuegen(&mut self) {
-        let Some(z) = self.zwischen.clone() else { self.status = "Zwischenablage leer: erst kopieren".into(); return }; self.undo_punkt();
+        let Some(z) = self.zwischen.clone() else { self.status = vc_i18n::t!("songdoc-zwischenablage-leer-erst-kopieren").into(); return }; self.undo_punkt();
         let (p, (r0, c0), n) = (self.muster, self.cursor, self.zeilen());
         for (dr, zeile) in z.iter().enumerate() { for (dc, t) in zeile.iter().enumerate() { if r0 + dr < n && c0 + dc < self.kanaele { self.setze_zelle(p, r0 + dr, c0 + dc, t) } } }
-        self.status = format!("Eingefügt ab Zeile {r0:02X}, Kanal {}", c0 + 1)
+        self.status = vc_i18n::t!("songdoc-eingefuegt-ab-zeile-r0-kanal-p2", r0 = format!("{:02X}", r0), p2 = c0 + 1)
     }
     /// Noten im Block um `halbtoene` verschieben (Notenende und leere Zellen bleiben)
     pub fn transponieren(&mut self, halbtoene: i32) {

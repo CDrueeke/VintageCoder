@@ -128,11 +128,11 @@ impl Cpu {
         match cc {
             1 => {
                 let m = [M::Izx, M::Zp, M::Imm, M::Abs, M::Izy, M::Zpx, M::Aby, M::Abx][bbb as usize];
-                if op == 0x89 { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); }
+                if op == 0x89 { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); }
                 let (o, cross) = self.operand(b, m);
                 let mut cyc = Self::base_cycles(m);
                 if aaa == 4 { // STA
-                    let Operand::Addr(a) = o else { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); };
+                    let Operand::Addr(a) = o else { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); };
                     b.write(a, self.a); if matches!(m, M::Abx | M::Aby | M::Izy) { cyc += 1; } return Ok(cyc);
                 }
                 if cross { cyc += 1; }
@@ -145,16 +145,16 @@ impl Cpu {
             }
             2 => {
                 let store_load_y = matches!(aaa, 4 | 5);   // STX/LDX nutzen Zeropage,Y bzw. Absolut,Y
-                if op == 0x9E { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); }
-                let m = match bbb { 0 => M::Imm, 1 => M::Zp, 3 => M::Abs, 5 => if store_load_y { M::Zpy } else { M::Zpx }, 7 => if store_load_y { M::Aby } else { M::Abx }, _ => return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")) };
-                if bbb == 0 && aaa != 5 { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); }   // KIL und Verwandte
+                if op == 0x9E { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); }
+                let m = match bbb { 0 => M::Imm, 1 => M::Zp, 3 => M::Abs, 5 => if store_load_y { M::Zpy } else { M::Zpx }, 7 => if store_load_y { M::Aby } else { M::Abx }, _ => return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))) };
+                if bbb == 0 && aaa != 5 { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); }   // KIL und Verwandte
                 let (o, cross) = self.operand(b, m);
                 let mut cyc = Self::base_cycles(m);
                 match aaa {
                     4 => { let Operand::Addr(a) = o else { return Err("STX".into()) }; b.write(a, self.x); if m == M::Aby { cyc += 1; } Ok(cyc) }
                     5 => { let v = Self::load(b, &o); self.x = self.nz(v); Ok(cyc + cross as u32) }
                     _ => {
-                        let Operand::Addr(a) = o else { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")) };
+                        let Operand::Addr(a) = o else { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))) };
                         let v = b.read(a);
                         let r = match aaa { 0 => self.asl(v), 1 => self.rol(v), 2 => self.lsr(v), 3 => self.ror(v), 6 => { let r = v.wrapping_sub(1); self.nz(r) } _ => { let r = v.wrapping_add(1); self.nz(r) } };
                         b.write(a, r); Ok(cyc + 2 + if matches!(m, M::Abx) { 1 } else { 0 })
@@ -162,9 +162,9 @@ impl Cpu {
                 }
             }
             0 => {
-                if op == 0x9C { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); }
-                let m = match bbb { 0 => M::Imm, 1 => M::Zp, 3 => M::Abs, 5 => M::Zpx, 7 => M::Abx, _ => return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")) };
-                if matches!(aaa, 0 | 1 | 2 | 3) && !(aaa == 1 && matches!(bbb, 1 | 3)) { return Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")); }
+                if op == 0x9C { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); }
+                let m = match bbb { 0 => M::Imm, 1 => M::Zp, 3 => M::Abs, 5 => M::Zpx, 7 => M::Abx, _ => return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))) };
+                if matches!(aaa, 0 | 1 | 2 | 3) && !(aaa == 1 && matches!(bbb, 1 | 3)) { return Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))); }
                 let (o, cross) = self.operand(b, m);
                 let cyc = Self::base_cycles(m);
                 match aaa {
@@ -173,7 +173,7 @@ impl Cpu {
                     5 => { let v = Self::load(b, &o); self.y = self.nz(v); Ok(cyc + cross as u32) }
                     6 => { let v = Self::load(b, &o); let y = self.y; self.cmp(y, v); Ok(cyc) }
                     7 => { let v = Self::load(b, &o); let x = self.x; self.cmp(x, v); Ok(cyc) }
-                    _ => Err(format!("unbekannter Befehl ${op:02X} bei ${at:04X}")),
+                    _ => Err(vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at))),
                 }
             }
             _ => self.illegal(b, op, aaa, bbb, at),
@@ -182,7 +182,7 @@ impl Cpu {
 
     /// Undokumentierte Befehle (Spalte 3 der Befehlsmatrix)
     fn illegal<B: Bus>(&mut self, b: &mut B, op: u8, aaa: u8, bbb: u8, at: u16) -> Result<u32, String> {
-        let bad = || format!("unbekannter Befehl ${op:02X} bei ${at:04X}");
+        let bad = || vc_i18n::t!("media-unbekannter-befehl-op-bei-at", op = format!("{:02X}", op), at = format!("{:04X}", at));
         if bbb == 2 { // Direktoperanden
             let v = self.fetch(b);
             match op {

@@ -130,7 +130,7 @@ pub fn plan(kind: &str, store: &RomStore, existing: &[String]) -> Plan {
                 let r = store.resolve("atari8", role);
                 if has(flag) { p.log.push(format!("atari8/{role}: {flag} aus den Emulatorparametern")); continue; }
                 match r.status {
-                    Status::Missing => if role == "os-xl" { p.log.push("atari8/os-xl: nicht im ROM-Verzeichnis – atari800 verwendet seine Einstellung bzw. das eingebaute Altirra-OS (Ersatz)".into()) },
+                    Status::Missing => if role == "os-xl" { p.log.push(vc_i18n::t!("rest-roms-os-xl").to_string()) },
                     Status::Unusable => p.warnings.push(format!("{}: Datei hat die falsche Größe und wird nicht benutzt", describe(&r))),
                     _ if !own(r.stage) => p.log.push(format!("{} – nicht übergeben", describe(&r))),
                     s => {
@@ -149,12 +149,12 @@ pub fn plan(kind: &str, store: &RomStore, existing: &[String]) -> Plan {
                 p.args = vec!["-rom".into(), path.to_string_lossy().into_owned()];
                 p.xemu_rom = Some(path);
                 p.log.push(describe(&r));
-                match r.status { Status::UnknownRevision => p.warnings.push("mega65/rom: unbekannte Revision, Symbole und Offsets können abweichen".into()), Status::Replacement => p.warnings.push("mega65/rom: freie Ersatz-ROM (Open-ROMs), kein Original".into()), _ => {} }
+                match r.status { Status::UnknownRevision => p.warnings.push(vc_i18n::t!("rest-roms-mega65-revision").to_string()), Status::Replacement => p.warnings.push("mega65/rom: freie Ersatz-ROM (Open-ROMs), kein Original".into()), _ => {} }
             } else {
                 p.error = Some(if r.status == Status::Unusable { format!("MEGA65-ROM {} hat {} Byte, erwartet 131072", r.path.as_ref().map(|p| p.display().to_string()).unwrap_or_default(), r.size.unwrap_or(0)) } else { missing_message(store, "mega65", "rom") });
             }
         }
-        "altirra" => p.log.push("Altirra verwaltet seine Firmware selbst (Einstellungen von Altirra); VintageCoder übergibt keine ROMs".into()),
+        "altirra" => p.log.push(vc_i18n::t!("rest-roms-altirra").to_string()),
         _ => {}
     }
     p
@@ -194,7 +194,7 @@ mod tests {
         t.put("mega65/CHARROM.M65", 4096);   // Inhalt 0xEA, nur Größe zählt für die nächste Prüfung
         std::fs::write(t.0.join("mega65/CHARROM.M65"), &data).unwrap();
         let k = KnownRom { id: "c64.chargen.t".into(), label: "t".into(), size: 4096, crc32: hash::crc32_hex(&data), sha1: hash::sha1_hex(&data), uses: vec![Use { system: "c64".into(), role: "chargen".into() }], default: true, free: false, note: String::new(), sets: Default::default() };
-        let known = KnownTable { format: 1, roms: vec![k] };
+        let known = KnownTable { format: 1, combined: vec![], roms: vec![k] };
         // der Xemu-Ordner als alte Ablage `<config>/mega65` (auf Windows zusätzlich `%APPDATA%\\xemu-lgb\\mega65`)
         let env = RomEnv { config_dir: Some(t.0.clone()), ..Default::default() };
         let store = RomStore::with_known(env, known);

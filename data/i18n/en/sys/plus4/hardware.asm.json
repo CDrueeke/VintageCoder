@@ -1,0 +1,270 @@
+{
+ "source": "sys/plus4/hardware.asm",
+ "entries": {
+  "/L4": {
+   "de": "Prozessorport",
+   "en": "Processor port",
+   "status": "maschinell"
+  },
+  "/L5": {
+   "de": "Datenrichtung des Prozessorports",
+   "en": "Data direction of the processor port",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Kassette, serieller Bus",
+   "en": "Cassette, serial bus",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Speicherbereiche",
+   "en": "Memory areas",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Farbspeicher",
+   "en": "Color memory",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Standard-Bildschirmspeicher",
+   "en": "Default screen memory",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "BASIC-Programmanfang",
+   "en": "BASIC program start",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "TED",
+   "en": "TED",
+   "status": "unverändert"
+  },
+  "/L14": {
+   "de": "Timer 1 niedrig",
+   "en": "Timer 1 low",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Timer 1 hoch",
+   "en": "Timer 1 high",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Timer 2 niedrig",
+   "en": "Timer 2 low",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Timer 2 hoch",
+   "en": "Timer 2 high",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "Timer 3 niedrig",
+   "en": "Timer 3 low",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Timer 3 hoch",
+   "en": "Timer 3 high",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Steuerregister 1 (Y-Scroll, 24/25 Zeilen, Bitmap, ECM)",
+   "en": "Control register 1 (Y scroll, 24/25 rows, bitmap, ECM)",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Steuerregister 2 (X-Scroll, 38/40 Spalten, Multicolor, PAL/NTSC)",
+   "en": "Control register 2 (X scroll, 38/40 columns, multicolor, PAL/NTSC)",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Tastatur-/Joystick-Abfrage",
+   "en": "Keyboard/joystick scan",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "IRQ-Quellen (Schreiben von 1 löscht)",
+   "en": "IRQ sources (writing 1 clears)",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "IRQ-Quellen freigeben, Rasterzeile Bit 8",
+   "en": "Enable IRQ sources, raster line bit 8",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Raster-IRQ-Zeile (Bit 0-7)",
+   "en": "Raster IRQ line (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Cursorposition hoch",
+   "en": "Cursor position high",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Cursorposition niedrig",
+   "en": "Cursor position low",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Stimme 1: Frequenz niedrig",
+   "en": "Voice 1: frequency low",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Stimme 2: Frequenz niedrig",
+   "en": "Voice 2: frequency low",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "Stimme 2: Frequenz hoch",
+   "en": "Voice 2: frequency high",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Lautstärke und Stimmenauswahl",
+   "en": "Volume and voice selection",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Bitmap-Adresse, Stimme 1 hoch, Zeichensatz RAM/ROM",
+   "en": "Bitmap address, voice 1 high, character set RAM/ROM",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Zeichensatzadresse, Schnellmodus",
+   "en": "Character set address, fast mode",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Bildschirmspeicheradresse",
+   "en": "Screen memory address",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Hintergrundfarbe 0",
+   "en": "Background color 0",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Hintergrundfarbe 1",
+   "en": "Background color 1",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Hintergrundfarbe 2",
+   "en": "Background color 2",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Hintergrundfarbe 3",
+   "en": "Background color 3",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "Rahmenfarbe",
+   "en": "Border color",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Zeichenzeile hoch",
+   "en": "Character row high",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Zeichenzeile niedrig",
+   "en": "Character row low",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "Aktuelle Rasterzeile Bit 8",
+   "en": "Current raster line bit 8",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "Aktuelle Rasterzeile Bit 0-7",
+   "en": "Current raster line bits 0-7",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Horizontaler Zähler",
+   "en": "Horizontal counter",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Blinkzähler, Zeichenzeile 0-7",
+   "en": "Blink counter, character row 0-7",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "ROM einblenden (Schreiben)",
+   "en": "Switch ROM in (write)",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "RAM einblenden (Schreiben)",
+   "en": "Switch RAM in (write)",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "TED: Farbtöne (Farbwert = Ton + 16 * Helligkeit 0-7)",
+   "en": "TED: hues (color value = hue + 16 * luminance 0-7)",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "ACIA 6551 (nur Plus/4)",
+   "en": "ACIA 6551 (Plus/4 only)",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "Daten",
+   "en": "Data",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "Status (lesen) / Reset (schreiben)",
+   "en": "Status (read) / reset (write)",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "Befehlsregister",
+   "en": "Command register",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "Steuerregister",
+   "en": "Control register",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "6529-Ports",
+   "en": "6529 ports",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "Port 6529 (Anwenderport, Kassettenstatus)",
+   "en": "Port 6529 (user port, cassette status)",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Tastaturmatrix und Joystick-Spaltenauswahl",
+   "en": "Keyboard matrix and joystick column select",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "ROM-Bankwahl",
+   "en": "ROM bank select",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "Funktions-ROM wählen (Schreiben)",
+   "en": "Select function ROM (write)",
+   "status": "maschinell"
+  }
+ }
+}

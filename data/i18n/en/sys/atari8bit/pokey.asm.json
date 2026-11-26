@@ -1,0 +1,160 @@
+{
+ "source": "sys/atari8bit/pokey.asm",
+ "entries": {
+  "/L4": {
+   "de": "Schreibregister",
+   "en": "Write registers",
+   "status": "maschinell"
+  },
+  "/L5": {
+   "de": "Kanal 1: Frequenz",
+   "en": "Channel 1: frequency",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Kanal 2: Frequenz",
+   "en": "Channel 2: frequency",
+   "status": "maschinell"
+  },
+  "/L7": {
+   "de": "Kanal 3: Frequenz",
+   "en": "Channel 3: frequency",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Kanal 4: Frequenz",
+   "en": "Channel 4: frequency",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Kanal 1: Verzerrung und Lautstärke",
+   "en": "Channel 1: distortion and volume",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Kanal 2: Verzerrung und Lautstärke",
+   "en": "Channel 2: distortion and volume",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Kanal 3: Verzerrung und Lautstärke",
+   "en": "Channel 3: distortion and volume",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Kanal 4: Verzerrung und Lautstärke",
+   "en": "Channel 4: distortion and volume",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Audiosteuerung (Taktung, Filter, 16 Bit)",
+   "en": "Audio control (clocking, filter, 16 bit)",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Timer starten",
+   "en": "Start timers",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Serielle Statusbits löschen",
+   "en": "Clear serial status bits",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Paddle-Abtastung starten",
+   "en": "Start paddle scan",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Serielle Ausgabe",
+   "en": "Serial output",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "IRQ-Freigabe",
+   "en": "IRQ enable",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Seriell-/Tastatursteuerung",
+   "en": "Serial/keyboard control",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Leseregister",
+   "en": "Read registers",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "Paddle 0",
+   "en": "Paddle 0",
+   "status": "unverändert"
+  },
+  "/L23": {
+   "de": "Paddle 1",
+   "en": "Paddle 1",
+   "status": "unverändert"
+  },
+  "/L24": {
+   "de": "Paddle 2",
+   "en": "Paddle 2",
+   "status": "unverändert"
+  },
+  "/L25": {
+   "de": "Paddle 3",
+   "en": "Paddle 3",
+   "status": "unverändert"
+  },
+  "/L26": {
+   "de": "Paddle 4",
+   "en": "Paddle 4",
+   "status": "unverändert"
+  },
+  "/L27": {
+   "de": "Paddle 5",
+   "en": "Paddle 5",
+   "status": "unverändert"
+  },
+  "/L28": {
+   "de": "Paddle 6",
+   "en": "Paddle 6",
+   "status": "unverändert"
+  },
+  "/L29": {
+   "de": "Paddle 7",
+   "en": "Paddle 7",
+   "status": "unverändert"
+  },
+  "/L30": {
+   "de": "Paddle-Abtaststatus",
+   "en": "Paddle scan status",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Tastaturcode",
+   "en": "Keyboard code",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Zufallszahl",
+   "en": "Random number",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Serielle Eingabe",
+   "en": "Serial input",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "IRQ-Status",
+   "en": "IRQ status",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Seriell-/Tastaturstatus",
+   "en": "Serial/keyboard status",
+   "status": "maschinell"
+  }
+ }
+}

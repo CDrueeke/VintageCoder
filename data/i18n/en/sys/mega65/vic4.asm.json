@@ -1,0 +1,555 @@
+{
+ "source": "sys/mega65/vic4.asm",
+ "entries": {
+  "/L4": {
+   "de": "VIC-III/IV ($D02F ff.)",
+   "en": "VIC-III/IV ($D02F ff.)",
+   "status": "unverändert"
+  },
+  "/L9": {
+   "de": "Schlüsselregister: erst $47, dann $53 schreiben schaltet die erweiterten VIC-IV-Register frei (vorher wirkungslos); Makro mega65_enable_vic4",
+   "en": "Key register: writing $47 and then $53 unlocks the extended VIC-IV registers (they have no effect before); macro mega65_enable_vic4",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Bitplane enable bits",
+   "en": "Bitplane enable bits",
+   "status": "unverändert"
+  },
+  "/L11": {
+   "de": "Complement bitplane flags",
+   "en": "Complement bitplane flags",
+   "status": "unverändert"
+  },
+  "/L12": {
+   "de": "Bitplane X",
+   "en": "Bitplane X",
+   "status": "unverändert"
+  },
+  "/L13": {
+   "de": "Bitplane Y",
+   "en": "Bitplane Y",
+   "status": "unverändert"
+  },
+  "/L14": {
+   "de": "Bitplane X Offset",
+   "en": "Bitplane X Offset",
+   "status": "unverändert"
+  },
+  "/L15": {
+   "de": "Bitplane Y Offset",
+   "en": "Bitplane Y Offset",
+   "status": "unverändert"
+  },
+  "/L16": {
+   "de": "Display Address Translater (DAT) Bitplane N port",
+   "en": "Display Address Translater (DAT) Bitplane N port",
+   "status": "unverändert"
+  },
+  "/L17": {
+   "de": "top border position",
+   "en": "top border position",
+   "status": "unverändert"
+  },
+  "/L18": {
+   "de": "bottom border position",
+   "en": "bottom border position",
+   "status": "unverändert"
+  },
+  "/L19": {
+   "de": "character generator horizontal position",
+   "en": "character generator horizontal position",
+   "status": "unverändert"
+  },
+  "/L20": {
+   "de": "Character generator vertical position",
+   "en": "Character generator vertical position",
+   "status": "unverändert"
+  },
+  "/L21": {
+   "de": "Read horizontal raster scan position LSB",
+   "en": "Read horizontal raster scan position LSB",
+   "status": "unverändert"
+  },
+  "/L22": {
+   "de": "Read physical raster position",
+   "en": "Read physical raster position",
+   "status": "unverändert"
+  },
+  "/L23": {
+   "de": "sprite extended height enable (one bit per sprite)",
+   "en": "sprite extended height enable (one bit per sprite)",
+   "status": "unverändert"
+  },
+  "/L24": {
+   "de": "Sprite extended height size (sprite pixels high)",
+   "en": "Sprite extended height size (sprite pixels high)",
+   "status": "unverändert"
+  },
+  "/L25": {
+   "de": "Sprite extended width enables (8 bytes per sprite row = 64…",
+   "en": "Sprite extended width enables (8 bytes per sprite row = 64...",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "number of bytes to advance between each text row (LSB)",
+   "en": "number of bytes to advance between each text row (LSB)",
+   "status": "unverändert"
+  },
+  "/L27": {
+   "de": "number of bytes to advance between each text row (MSB)",
+   "en": "number of bytes to advance between each text row (MSB)",
+   "status": "unverändert"
+  },
+  "/L28": {
+   "de": "Horizontal hardware scale of text mode (pixel 120ths per pi…",
+   "en": "Horizontal hardware scale of text mode (pixel 120ths per pi...",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Vertical scaling of text mode (number of physical rasters p…",
+   "en": "Vertical scaling of text mode (number of physical rasters p...",
+   "status": "maschinell"
+  },
+  "/L30": {
+   "de": "Number of characters to display per row (LSB)",
+   "en": "Number of characters to display per row (LSB)",
+   "status": "unverändert"
+  },
+  "/L31": {
+   "de": "Sprite H640 X Super-MSBs",
+   "en": "Sprite H640 X Super-MSBs",
+   "status": "unverändert"
+  },
+  "/L32": {
+   "de": "screen RAM precise base address (bits 7 - 0)",
+   "en": "screen RAM precise base address (bits 7 - 0)",
+   "status": "unverändert"
+  },
+  "/L33": {
+   "de": "screen RAM precise base address (bits 15 - 8)",
+   "en": "screen RAM precise base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/L34": {
+   "de": "screen RAM precise base address (bits 23 - 16)",
+   "en": "screen RAM precise base address (bits 23 - 16)",
+   "status": "unverändert"
+  },
+  "/L35": {
+   "de": "colour RAM base address (bits 0 - 7)",
+   "en": "colour RAM base address (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/L36": {
+   "de": "colour RAM base address (bits 15 - 8)",
+   "en": "colour RAM base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/L37": {
+   "de": "Character set precise base address (bits 0 - 7)",
+   "en": "Character set precise base address (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/L38": {
+   "de": "Character set precise base address (bits 15 - 8)",
+   "en": "Character set precise base address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/L39": {
+   "de": "Character set precise base address (bits 23 - 16)",
+   "en": "Character set precise base address (bits 23 - 16)",
+   "status": "unverändert"
+  },
+  "/L40": {
+   "de": "sprite 16-colour mode enables",
+   "en": "sprite 16-colour mode enables",
+   "status": "unverändert"
+  },
+  "/L41": {
+   "de": "sprite pointer address (bits 7 - 0)",
+   "en": "sprite pointer address (bits 7 - 0)",
+   "status": "unverändert"
+  },
+  "/L42": {
+   "de": "sprite pointer address (bits 15 - 8)",
+   "en": "sprite pointer address (bits 15 - 8)",
+   "status": "unverändert"
+  },
+  "/L43": {
+   "de": "VIC-IV 16-colour bitplane enable flags",
+   "en": "VIC-IV 16-colour bitplane enable flags",
+   "status": "unverändert"
+  },
+  "/L44": {
+   "de": "Sprite Y position adjustment",
+   "en": "Sprite Y position adjustment",
+   "status": "unverändert"
+  },
+  "/L45": {
+   "de": "Sprite alpha-blend enable",
+   "en": "Sprite alpha-blend enable",
+   "status": "unverändert"
+  },
+  "/L46": {
+   "de": "Sprite alpha-blend value",
+   "en": "Sprite alpha-blend value",
+   "status": "unverändert"
+  },
+  "/L47": {
+   "de": "Sprite V400 enables",
+   "en": "Sprite V400 enables",
+   "status": "unverändert"
+  },
+  "/L48": {
+   "de": "Sprite V400 Y position MSBs",
+   "en": "Sprite V400 Y position MSBs",
+   "status": "unverändert"
+  },
+  "/L49": {
+   "de": "Sprite V400 Y position super MSBs",
+   "en": "Sprite V400 Y position super MSBs",
+   "status": "unverändert"
+  },
+  "/L50": {
+   "de": "Physical raster compare value to be used if FNRSTCMP is cle…",
+   "en": "Physical raster compare value to be used if FNRSTCMP is cle...",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "DMAgic ($D700 ff.)",
+   "en": "DMAgic ($D700 ff.)",
+   "status": "unverändert"
+  },
+  "/L53": {
+   "de": "DMAgic DMA list address LSB (bits 0 - 7), trigger DMA when…",
+   "en": "DMAgic DMA list address LSB (bits 0 - 7), trigger DMA when...",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "DMA list address high byte (bits 8 - 15).",
+   "en": "DMA list address high byte (bits 8 - 15).",
+   "status": "unverändert"
+  },
+  "/L55": {
+   "de": "DMA list address mega-byte (bits 20 - 27). Overlaps with AD…",
+   "en": "DMA list address mega-byte (bits 20 - 27). Overlaps with AD...",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Set low-order byte of DMA list address (bits 0 - 7), and tr…",
+   "en": "Set low-order byte of DMA list address (bits 0 - 7), and tr...",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Set low-order byte of DMA list address (bits 0 - 7), and tr…",
+   "en": "Set low-order byte of DMA list address (bits 0 - 7), and tr...",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Trigger Enhanced DMAgic job inline (i.e., beginning at PC v…",
+   "en": "Trigger Enhanced DMAgic job inline (i.e., beginning at PC v...",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "DMA list address low byte (bits 0 - 7) WITHOUT STARTING A D…",
+   "en": "DMA list address low byte (bits 0 - 7) WITHOUT STARTING A D...",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "Hypervisor und System ($D640 ff.)",
+   "en": "Hypervisor and system ($D640 ff.)",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "Writing triggers hypervisor trap \\$XX",
+   "en": "Writing triggers hypervisor trap \\$XX",
+   "status": "unverändert"
+  },
+  "/L63": {
+   "de": "Hypervisor A register storage",
+   "en": "Hypervisor A register storage",
+   "status": "unverändert"
+  },
+  "/L64": {
+   "de": "Hypervisor X register storage",
+   "en": "Hypervisor X register storage",
+   "status": "unverändert"
+  },
+  "/L65": {
+   "de": "Hypervisor Z register storage",
+   "en": "Hypervisor Z register storage",
+   "status": "unverändert"
+  },
+  "/L66": {
+   "de": "Hypervisor B register storage",
+   "en": "Hypervisor B register storage",
+   "status": "unverändert"
+  },
+  "/L67": {
+   "de": "Hypervisor SPL register storage",
+   "en": "Hypervisor SPL register storage",
+   "status": "unverändert"
+  },
+  "/L68": {
+   "de": "Hypervisor SPH register storage",
+   "en": "Hypervisor SPH register storage",
+   "status": "unverändert"
+  },
+  "/L69": {
+   "de": "Hypervisor P register storage",
+   "en": "Hypervisor P register storage",
+   "status": "unverändert"
+  },
+  "/L70": {
+   "de": "Hypervisor PC-low register storage",
+   "en": "Hypervisor PC-low register storage",
+   "status": "unverändert"
+  },
+  "/L71": {
+   "de": "Hypervisor PC-high register storage",
+   "en": "Hypervisor PC-high register storage",
+   "status": "unverändert"
+  },
+  "/L72": {
+   "de": "Hypervisor MAPLO register storage (high bits)",
+   "en": "Hypervisor MAPLO register storage (high bits)",
+   "status": "unverändert"
+  },
+  "/L73": {
+   "de": "Hypervisor MAPLO register storage (low bits)",
+   "en": "Hypervisor MAPLO register storage (low bits)",
+   "status": "unverändert"
+  },
+  "/L74": {
+   "de": "Hypervisor MAPHI register storage (high bits)",
+   "en": "Hypervisor MAPHI register storage (high bits)",
+   "status": "unverändert"
+  },
+  "/L75": {
+   "de": "Hypervisor MAPHI register storage (low bits)",
+   "en": "Hypervisor MAPHI register storage (low bits)",
+   "status": "unverändert"
+  },
+  "/L76": {
+   "de": "Hypervisor MAPLO mega-byte number register storage",
+   "en": "Hypervisor MAPLO mega-byte number register storage",
+   "status": "unverändert"
+  },
+  "/L77": {
+   "de": "Hypervisor MAPHI mega-byte number register storage",
+   "en": "Hypervisor MAPHI mega-byte number register storage",
+   "status": "unverändert"
+  },
+  "/L78": {
+   "de": "Hypervisor CPU port \\$00 value",
+   "en": "Hypervisor CPU port \\$00 value",
+   "status": "unverändert"
+  },
+  "/L79": {
+   "de": "Hypervisor CPU port \\$01 value",
+   "en": "Hypervisor CPU port \\$01 value",
+   "status": "unverändert"
+  },
+  "/L80": {
+   "de": "Hypervisor DMAgic source MB",
+   "en": "Hypervisor DMAgic source MB",
+   "status": "unverändert"
+  },
+  "/L81": {
+   "de": "Hypervisor DMAgic destination MB",
+   "en": "Hypervisor DMAgic destination MB",
+   "status": "unverändert"
+  },
+  "/L82": {
+   "de": "Hypervisor DMAGic list address bits 0-7",
+   "en": "Hypervisor DMAGic list address bits 0-7",
+   "status": "unverändert"
+  },
+  "/L83": {
+   "de": "Hypervisor DMAGic list address bits 15-8",
+   "en": "Hypervisor DMAGic list address bits 15-8",
+   "status": "unverändert"
+  },
+  "/L84": {
+   "de": "Hypervisor DMAGic list address bits 23-16",
+   "en": "Hypervisor DMAGic list address bits 23-16",
+   "status": "unverändert"
+  },
+  "/L85": {
+   "de": "Hypervisor DMAGic list address bits 27-24",
+   "en": "Hypervisor DMAGic list address bits 27-24",
+   "status": "unverändert"
+  },
+  "/L86": {
+   "de": "Hypervisor current virtual page number (bits 2 - 9)",
+   "en": "Hypervisor current virtual page number (bits 2 - 9)",
+   "status": "unverändert"
+  },
+  "/L87": {
+   "de": "Hypervisor current virtual page number (bits 10 - 17)",
+   "en": "Hypervisor current virtual page number (bits 10 - 17)",
+   "status": "unverändert"
+  },
+  "/L88": {
+   "de": "Hypervisor virtual memory page X logical page (bits 0 - 7)",
+   "en": "Hypervisor virtual memory page X logical page (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/L89": {
+   "de": "Hypervisor virtual memory page X logical page (bits 8 - 15)",
+   "en": "Hypervisor virtual memory page X logical page (bits 8 - 15)",
+   "status": "unverändert"
+  },
+  "/L90": {
+   "de": "Hypervisor virtual memory page X physical page (bits 0 - 7)",
+   "en": "Hypervisor virtual memory page X physical page (bits 0 - 7)",
+   "status": "unverändert"
+  },
+  "/L91": {
+   "de": "Hypervisor virtual memory page X physical page (bits 8 - 15)",
+   "en": "Hypervisor virtual memory page X physical page (bits 8 - 15)",
+   "status": "unverändert"
+  },
+  "/L92": {
+   "de": "Hypervisor GeoRAM base address (x MB)",
+   "en": "Hypervisor GeoRAM base address (x MB)",
+   "status": "unverändert"
+  },
+  "/L93": {
+   "de": "Hypervisor GeoRAM address mask (applied to GeoRAM block reg…",
+   "en": "Hypervisor GeoRAM address mask (applied to GeoRAM block reg...",
+   "status": "maschinell"
+  },
+  "/L94": {
+   "de": "Hypervisor watchdog register: writing any value clears the…",
+   "en": "Hypervisor watchdog register: writing any value clears the...",
+   "status": "maschinell"
+  },
+  "/L95": {
+   "de": "Hypervisor already-upgraded bit (writing sets permanently)",
+   "en": "Hypervisor already-upgraded bit (writing sets permanently)",
+   "status": "unverändert"
+  },
+  "/L96": {
+   "de": "Writing trigger return from hypervisor",
+   "en": "Writing trigger return from hypervisor",
+   "status": "unverändert"
+  },
+  "/L97": {
+   "de": "SD controller status/command",
+   "en": "SD controller status/command",
+   "status": "unverändert"
+  },
+  "/L98": {
+   "de": "SD controller SD sector address (LSB)",
+   "en": "SD controller SD sector address (LSB)",
+   "status": "unverändert"
+  },
+  "/L99": {
+   "de": "SD controller SD sector address (2nd byte)",
+   "en": "SD controller SD sector address (2nd byte)",
+   "status": "unverändert"
+  },
+  "/L100": {
+   "de": "SD controller SD sector address (3rd byte)",
+   "en": "SD controller SD sector address (3rd byte)",
+   "status": "unverändert"
+  },
+  "/L101": {
+   "de": "SD controller SD sector address (MSB)",
+   "en": "SD controller SD sector address (MSB)",
+   "status": "unverändert"
+  },
+  "/L102": {
+   "de": "WRITE ONLY set fill byte for use in fill mode, instead of S…",
+   "en": "WRITE ONLY set fill byte for use in fill mode, instead of S...",
+   "status": "maschinell"
+  },
+  "/L103": {
+   "de": "F011 drive 0 disk image address on SD card (LSB)",
+   "en": "F011 drive 0 disk image address on SD card (LSB)",
+   "status": "unverändert"
+  },
+  "/L104": {
+   "de": "Diskimage sector number (bits 0-7)",
+   "en": "Diskimage sector number (bits 0-7)",
+   "status": "unverändert"
+  },
+  "/L105": {
+   "de": "F011 drive 0 disk image address on SD card (2nd byte)",
+   "en": "F011 drive 0 disk image address on SD card (2nd byte)",
+   "status": "unverändert"
+  },
+  "/L106": {
+   "de": "Diskimage sector number (bits 8-15)",
+   "en": "Diskimage sector number (bits 8-15)",
+   "status": "unverändert"
+  },
+  "/L107": {
+   "de": "F011 drive 0 disk image address on SD card (3rd byte)",
+   "en": "F011 drive 0 disk image address on SD card (3rd byte)",
+   "status": "unverändert"
+  },
+  "/L108": {
+   "de": "Diskimage sector number (bits 16-23)",
+   "en": "Diskimage sector number (bits 16-23)",
+   "status": "unverändert"
+  },
+  "/L109": {
+   "de": "F011 drive 0 disk image address on SD card (MSB)",
+   "en": "F011 drive 0 disk image address on SD card (MSB)",
+   "status": "unverändert"
+  },
+  "/L110": {
+   "de": "Diskimage sector number (bits 24-31)",
+   "en": "Diskimage sector number (bits 24-31)",
+   "status": "unverändert"
+  },
+  "/L111": {
+   "de": "F011 drive 1 disk image address on SD card (LSB)",
+   "en": "F011 drive 1 disk image address on SD card (LSB)",
+   "status": "unverändert"
+  },
+  "/L112": {
+   "de": "Diskimage 2 sector number (bits 0-7)",
+   "en": "Diskimage 2 sector number (bits 0-7)",
+   "status": "unverändert"
+  },
+  "/L113": {
+   "de": "F011 drive 1 disk image address on SD card (2nd byte)",
+   "en": "F011 drive 1 disk image address on SD card (2nd byte)",
+   "status": "unverändert"
+  },
+  "/L114": {
+   "de": "Diskimage 2 sector number (bits 8-15)",
+   "en": "Diskimage 2 sector number (bits 8-15)",
+   "status": "unverändert"
+  },
+  "/L115": {
+   "de": "F011 drive 1 disk image address on SD card (3rd byte)",
+   "en": "F011 drive 1 disk image address on SD card (3rd byte)",
+   "status": "unverändert"
+  },
+  "/L116": {
+   "de": "Diskimage 2 sector number (bits 16-23)",
+   "en": "Diskimage 2 sector number (bits 16-23)",
+   "status": "unverändert"
+  },
+  "/L117": {
+   "de": "F011 drive 1 disk image address on SD card (MSB)",
+   "en": "F011 drive 1 disk image address on SD card (MSB)",
+   "status": "unverändert"
+  },
+  "/L118": {
+   "de": "Diskimage 2 sector number (bits 24-31)",
+   "en": "Diskimage 2 sector number (bits 24-31)",
+   "status": "unverändert"
+  },
+  "/L119": {
+   "de": "Enable automatic track seeking for sector reads and writes",
+   "en": "Enable automatic track seeking for sector reads and writes",
+   "status": "unverändert"
+  }
+ }
+}

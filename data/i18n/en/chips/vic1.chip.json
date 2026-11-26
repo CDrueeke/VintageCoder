@@ -1,0 +1,175 @@
+{
+ "source": "chips/vic1.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Horizontaler Bildursprung (Bit 0-6), Bit 7 = Interlace",
+   "en": "Horizontal screen origin (bits 0-6), bit 7 = interlace",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/0/doc": {
+   "de": "Interlace-Modus",
+   "en": "Interlace mode",
+   "status": "maschinell"
+  },
+  "/regs/0/bits/1/doc": {
+   "de": "Bildursprung X in 4-Pixel-Schritten",
+   "en": "Screen origin X in 4-pixel steps",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Vertikaler Bildursprung (in Rasterzeilen/2)",
+   "en": "Vertical screen origin (in raster lines/2)",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Spaltenzahl (Bit 0-6), Bit 7 = Bildschirmadresse Bit 9",
+   "en": "Number of columns (bits 0-6), bit 7 = screen address bit 9",
+   "status": "maschinell"
+  },
+  "/regs/2/bits/0/doc": {
+   "de": "Bildschirmspeicher-Adresse Bit 9",
+   "en": "Screen memory address bit 9",
+   "status": "maschinell"
+  },
+  "/regs/2/bits/1/doc": {
+   "de": "Zeichen pro Zeile (Standard 22)",
+   "en": "Characters per row (default 22)",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Zeilenzahl (Bit 1-6), Bit 0 = 8×16-Zeichen, Bit 7 = Rasterzeile Bit 0",
+   "en": "Number of rows (bits 1-6), bit 0 = 8x16 characters, bit 7 = raster line bit 0",
+   "status": "maschinell"
+  },
+  "/regs/3/bits/0/doc": {
+   "de": "Rasterzeile Bit 0 (nur lesen)",
+   "en": "Raster line bit 0 (read only)",
+   "status": "maschinell"
+  },
+  "/regs/3/bits/1/doc": {
+   "de": "Zeichenzeilen (Standard 23)",
+   "en": "Character rows (default 23)",
+   "status": "maschinell"
+  },
+  "/regs/3/bits/2/doc": {
+   "de": "Zeichen 8×16 statt 8×8",
+   "en": "Characters 8x16 instead of 8x8",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Rasterzeile (Bit 8-1)",
+   "en": "Raster line (bits 8-1)",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Speicherzeiger: Bit 4-7 Bildschirm (A13-A10), Bit 0-3 Zeichensatz (A13-A10)",
+   "en": "Memory pointer: bits 4-7 screen (A13-A10), bits 0-3 character set (A13-A10)",
+   "status": "maschinell"
+  },
+  "/regs/5/bits/0/doc": {
+   "de": "Bildschirmspeicher (A13-A10; A9 in $9002)",
+   "en": "Screen memory (A13-A10; A9 in $9002)",
+   "status": "maschinell"
+  },
+  "/regs/5/bits/1/doc": {
+   "de": "Zeichensatz (0=$8000 ROM, 8=$0000 RAM, 12=$1000 RAM …)",
+   "en": "Character set (0=$8000 ROM, 8=$0000 RAM, 12=$1000 RAM ...)",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "Lichtgriffel X",
+   "en": "Light pen X",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Lichtgriffel Y",
+   "en": "Light pen Y",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Paddle X",
+   "en": "Paddle X",
+   "status": "unverändert"
+  },
+  "/regs/9/doc": {
+   "de": "Paddle Y",
+   "en": "Paddle Y",
+   "status": "unverändert"
+  },
+  "/regs/10/doc": {
+   "de": "Bassstimme: Tonhöhe (Bit 0-6), Bit 7 = ein",
+   "en": "Bass voice: pitch (bits 0-6), bit 7 = on",
+   "status": "maschinell"
+  },
+  "/regs/10/bits/0/doc": {
+   "de": "Stimme eingeschaltet",
+   "en": "Voice on",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Altstimme: Tonhöhe (Bit 0-6), Bit 7 = ein",
+   "en": "Alto voice: pitch (bits 0-6), bit 7 = on",
+   "status": "maschinell"
+  },
+  "/regs/11/bits/0/doc": {
+   "de": "Stimme eingeschaltet",
+   "en": "Voice on",
+   "status": "maschinell"
+  },
+  "/regs/12/doc": {
+   "de": "Sopranstimme: Tonhöhe (Bit 0-6), Bit 7 = ein",
+   "en": "Soprano voice: pitch (bits 0-6), bit 7 = on",
+   "status": "maschinell"
+  },
+  "/regs/12/bits/0/doc": {
+   "de": "Stimme eingeschaltet",
+   "en": "Voice on",
+   "status": "maschinell"
+  },
+  "/regs/13/doc": {
+   "de": "Rauschen: Frequenz (Bit 0-6), Bit 7 = ein",
+   "en": "Noise: frequency (bits 0-6), bit 7 = on",
+   "status": "maschinell"
+  },
+  "/regs/13/bits/0/doc": {
+   "de": "Rauschen eingeschaltet",
+   "en": "Noise on",
+   "status": "maschinell"
+  },
+  "/regs/14/doc": {
+   "de": "Lautstärke (Bit 0-3), Hilfsfarbe (Bit 4-7)",
+   "en": "Volume (bits 0-3), auxiliary color (bits 4-7)",
+   "status": "maschinell"
+  },
+  "/regs/14/bits/0/doc": {
+   "de": "Hilfsfarbe für Multicolor",
+   "en": "Auxiliary color for multicolor",
+   "status": "maschinell"
+  },
+  "/regs/14/bits/1/doc": {
+   "de": "Lautstärke 0-15",
+   "en": "Volume 0-15",
+   "status": "maschinell"
+  },
+  "/regs/15/doc": {
+   "de": "Hintergrund (Bit 4-7), Normal/Invers (Bit 3), Rahmen (Bit 0-2)",
+   "en": "Background (bits 4-7), normal/inverse (bit 3), border (bits 0-2)",
+   "status": "maschinell"
+  },
+  "/regs/15/bits/0/doc": {
+   "de": "Hintergrundfarbe 0-15",
+   "en": "Background color 0-15",
+   "status": "maschinell"
+  },
+  "/regs/15/bits/1/doc": {
+   "de": "1 = normal, 0 = invers",
+   "en": "1 = normal, 0 = inverse",
+   "status": "maschinell"
+  },
+  "/regs/15/bits/2/doc": {
+   "de": "Rahmenfarbe 0-7",
+   "en": "Border color 0-7",
+   "status": "maschinell"
+  }
+ }
+}

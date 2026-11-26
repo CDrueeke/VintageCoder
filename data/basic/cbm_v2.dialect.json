@@ -2,6 +2,11 @@
   "$schema": "https://vintagecoder.dev/schema/basic-dialect-1.json",
   "id": "cbm_v2",
   "family": "cbm",
+  "name": "BASIC V2",
+  "kind": "builtin",
+  "systems": ["c64", "vic20", "pet"],
+  "jumps": ["GOTO", "GOSUB", "THEN", "RUN"],
+  "provenance": {"source": "petcat 3.10 -k2 (Wortliste verglichen 2026-11-22)", "checked": "2026-11-22"},
   "backend": "linked_lines",
   "loadAddr": "$0801",
   "varSigChars": 2,
@@ -11,6 +16,10 @@
   "numberStorage": "ascii_text",
   "floatFormat": "mbf5",
   "capabilities": {"doLoop": false, "graphic": false, "spriteCmds": false, "trap": false, "restoreLine": false},
+  "syntax": {
+    "statements": {"POKE": "2", "WAIT": "2-3", "SYS": "1", "OPEN": "1-4", "CLOSE": "1", "LOAD": "0-3", "SAVE": "0-3", "VERIFY": "0-3", "CMD": "1-2", "RUN": "0-1"},
+    "functions": {"ABS": "1", "ATN": "1", "COS": "1", "EXP": "1", "FRE": "1", "INT": "1", "LOG": "1", "PEEK": "1", "POS": "1", "RND": "1", "SGN": "1", "SIN": "1", "SQR": "1", "TAN": "1", "USR": "1", "ASC": "1", "CHR$": "1", "LEN": "1", "LEFT$": "2", "MID$": "2-3", "RIGHT$": "2", "STR$": "1", "VAL": "1", "TAB(": "1", "SPC(": "1"}
+  },
   "tokens": [
     ["END", "$80"],
     ["FOR", "$81"],

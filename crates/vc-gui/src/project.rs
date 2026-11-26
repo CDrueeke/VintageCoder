@@ -9,7 +9,7 @@ use vc_ide_model::projsearch::{self, Params};
 #[derive(Clone, Debug, PartialEq)]
 pub struct Datei { pub rel: String }
 #[derive(Clone, Debug, PartialEq)]
-pub struct Gruppe { pub name: &'static str, pub dateien: Vec<Datei> }
+pub struct Gruppe { pub name: String, pub dateien: Vec<Datei> }
 #[derive(Clone, Debug, PartialEq)]
 pub struct Fund { pub rel: String, pub zeile: usize, pub text: String }
 
@@ -22,7 +22,7 @@ fn erste_projektdatei(root: &Path) -> Option<String> {
 /// Projekt laden (Ordner mit der ersten `.vcprj` darin, falls vorhanden); eine unlesbare Projektdatei ist ein Fehler, kein stiller Ersatz
 pub fn pruefen(root: &Path, datei: Option<String>) -> Result<Project, String> {
     let datei = datei.or_else(|| erste_projektdatei(root));
-    if let Some(f) = &datei { vc_ide::projfile::ProjectFile::load(&root.join(f)).map_err(|e| format!("Projekt konnte nicht geladen werden: {e}"))?; }
+    if let Some(f) = &datei { vc_ide::projfile::ProjectFile::load(&root.join(f)).map_err(|e| vc_i18n::t!("project-projekt-konnte-nicht-geladen-werden-e", e = &e))?; }
     Project::load(root.to_path_buf(), datei)
 }
 
@@ -131,7 +131,7 @@ mod tests {
         let r = tmp("g"); std::fs::create_dir_all(r.join("lib")).unwrap(); std::fs::create_dir_all(r.join("build")).unwrap();
         for f in ["main.asm", "lib/rand.asm", "ideen.md", "build/x.prg", ".versteckt"] { std::fs::write(r.join(f), "x").unwrap() }
         let p = laden(&r); let d = dateien(&p); assert!(d.contains(&"lib/rand.asm".to_string()) && !d.iter().any(|x| x.starts_with("build") || x.starts_with('.')));
-        let g = gruppiere(&p.entries); let namen: Vec<_> = g.iter().map(|x| x.name).collect(); assert_eq!(namen, [Group::Asm.title(), Group::Note.title()]);
+        let g = gruppiere(&p.entries); let namen: Vec<_> = g.iter().map(|x| x.name.clone()).collect(); assert_eq!(namen, [Group::Asm.title(), Group::Note.title()]);
         assert_eq!(g[0].dateien.len(), 2); let _ = std::fs::remove_dir_all(&r);
     }
     #[test] fn suche_findet_zeilen_und_beachtet_grenze_und_ungespeichertes() {

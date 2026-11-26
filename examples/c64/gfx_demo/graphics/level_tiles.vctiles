@@ -6,7 +6,9 @@
   "size": {"w":2,"h":2},
   "colorMode": "tile",
   "charsets": ["graphics/font.vcchar"],
-  "pins": [{"cs":0,"from":0,"to":255}],
+  "pins": [
+    {"cs":0,"from":0,"to":255}
+  ],
   "propDefs": [
     {"name":"solid","bit":0}
   ],

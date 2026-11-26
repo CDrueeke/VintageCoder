@@ -8,8 +8,8 @@ pub enum Group { Asm, Basic, Song, Play, Sprite, Charset, Screen, Tiles, Palette
 
 impl Group {
     pub const ALL: [Group; 13] = [Group::Asm, Group::Basic, Group::Song, Group::Play, Group::Sprite, Group::Charset, Group::Screen, Group::Tiles, Group::Palette, Group::Note, Group::Text, Group::Binary, Group::Other];
-    pub fn title(self) -> &'static str {
-        match self { Group::Asm => "Assembler", Group::Basic => "BASIC", Group::Song => "Tracker", Group::Play => "PLAY-Tracker", Group::Sprite => "Sprites / PMG", Group::Charset => "Zeichensätze", Group::Screen => "Bildschirme", Group::Tiles => "Kacheln", Group::Palette => "Paletten", Group::Note => "Notizen", Group::Text => "Text / Doku", Group::Binary => "Binärdaten", Group::Other => "Weitere Dateien" }
+    pub fn title(self) -> String {
+        match self { Group::Asm => vc_i18n::t!("project-assembler"), Group::Basic => "BASIC".into(), Group::Song => vc_i18n::t!("project-tracker"), Group::Play => vc_i18n::t!("project-play-tracker"), Group::Sprite => vc_i18n::t!("project-sprites-pmg"), Group::Charset => vc_i18n::t!("project-zeichensaetze"), Group::Screen => vc_i18n::t!("project-bildschirme"), Group::Tiles => vc_i18n::t!("project-kacheln"), Group::Palette => vc_i18n::t!("project-paletten"), Group::Note => vc_i18n::t!("project-notizen"), Group::Text => vc_i18n::t!("project-text-doku"), Group::Binary => vc_i18n::t!("project-binaerdaten"), Group::Other => vc_i18n::t!("project-weitere-dateien") }
     }
     /// Kurzbezeichnung für den Ordnerbaum
     pub fn tag(self) -> &'static str {
@@ -44,12 +44,12 @@ pub struct Project {
 
 impl Project {
     pub fn open(file: &Path) -> Result<Project, String> {
-        let root = file.parent().ok_or("Projektordner fehlt")?.to_path_buf();
+        let root = file.parent().ok_or(vc_i18n::t!("project-projektordner-fehlt"))?.to_path_buf();
         Self::load(root, file.file_name().map(|n| n.to_string_lossy().into_owned()))
     }
     pub fn load(root: PathBuf, file: Option<String>) -> Result<Project, String> {
         let meta = file.as_ref().and_then(|f| std::fs::read_to_string(root.join(f)).ok()).and_then(|t| serde_json::from_str::<Value>(&t).ok());
-        let name = meta.as_ref().and_then(|m| m["project"]["name"].as_str().map(String::from)).or_else(|| root.file_name().map(|n| n.to_string_lossy().into_owned())).unwrap_or_else(|| "Projekt".into());
+        let name = meta.as_ref().and_then(|m| m["project"]["name"].as_str().map(String::from)).or_else(|| root.file_name().map(|n| n.to_string_lossy().into_owned())).unwrap_or_else(|| vc_i18n::t!("project-projekt").into());
         let systems = meta.as_ref().and_then(|m| m["targets"].as_array().map(|t| t.iter().filter_map(|x| x["system"].as_str().or(x["id"].as_str()).map(String::from)).collect())).unwrap_or_default();
         let (mut entries, mut dirs) = (vec![], vec![]); scan(&root, &root, 0, &mut entries, &mut dirs); dirs.sort();
         entries.sort_by(|a, b| (a.group as u8, a.rel.to_lowercase()).cmp(&(b.group as u8, b.rel.to_lowercase())));

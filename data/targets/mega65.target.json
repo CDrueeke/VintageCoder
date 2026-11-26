@@ -4,6 +4,7 @@
     "id": "mega65",
     "name": "MEGA65",
     "cpu": "45gs02",
+    "compatible": ["c64"],
     "chips": ["vic2", "vic4", "dmagic", "mega65", "sid", "sid2", "sid3", "sid4", "cia1", "cia2"],
     "verified": "tables-from-xemu",
     "_comment": "Registerlisten von VIC-IV, DMAgic und System aus der I/O-Karte des MEGA65-Kerns (tools/gen_chips_mega65.py); vier SIDs bei $D400/$D420/$D440/$D460 (sid … sid4)."

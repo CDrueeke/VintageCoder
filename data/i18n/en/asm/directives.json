@@ -1,0 +1,245 @@
+{
+ "source": "asm/directives.json",
+ "entries": {
+  "/0/args": {
+   "de": "adresse",
+   "en": "address",
+   "status": "maschinell"
+  },
+  "/1/args": {
+   "de": "n[, skip | füllbyte]",
+   "en": "n[, skip | fillbyte]",
+   "status": "maschinell"
+  },
+  "/2/args": {
+   "de": "adresse",
+   "en": "address",
+   "status": "maschinell"
+  },
+  "/3/args": {
+   "de": "nummer",
+   "en": "number",
+   "status": "maschinell"
+  },
+  "/4/args": {
+   "de": "\"name\"[, von, bis]",
+   "en": "\"name\"[, from, to]",
+   "status": "maschinell"
+  },
+  "/5/args": {
+   "de": "\"typ\"[, \"name\"]",
+   "en": "\"type\"[, \"name\"]",
+   "status": "maschinell"
+  },
+  "/6/args": {
+   "de": "werte",
+   "en": "values",
+   "status": "maschinell"
+  },
+  "/7/args": {
+   "de": "werte",
+   "en": "values",
+   "status": "maschinell"
+  },
+  "/8/args": {
+   "de": "werte",
+   "en": "values",
+   "status": "maschinell"
+  },
+  "/9/args": {
+   "de": "werte",
+   "en": "values",
+   "status": "maschinell"
+  },
+  "/10/args": {
+   "de": "werte",
+   "en": "values",
+   "status": "maschinell"
+  },
+  "/11/args": {
+   "de": "ziele",
+   "en": "targets",
+   "status": "maschinell"
+  },
+  "/12/args": {
+   "de": "\"hexbytes\"",
+   "en": "\"hexbytes\"",
+   "status": "unverändert"
+  },
+  "/13/args": {
+   "de": "anzahl[, ausdruck[, variable]]",
+   "en": "count[, expression[, variable]]",
+   "status": "maschinell"
+  },
+  "/14/args": {
+   "de": "\"datei\"[, start[, länge]]",
+   "en": "\"file\"[, start[, length]]",
+   "status": "maschinell"
+  },
+  "/15/args": {
+   "de": "anzahl, ausdruck[, variable]",
+   "en": "count, expression[, variable]",
+   "status": "maschinell"
+  },
+  "/16/args": {
+   "de": "\"text\", …",
+   "en": "\"text\", ...",
+   "status": "maschinell"
+  },
+  "/17/args": {
+   "de": "\"text\", …",
+   "en": "\"text\", ...",
+   "status": "maschinell"
+  },
+  "/18/args": {
+   "de": "\"text\", …",
+   "en": "\"text\", ...",
+   "status": "maschinell"
+  },
+  "/19/args": {
+   "de": "\"text\", …",
+   "en": "\"text\", ...",
+   "status": "maschinell"
+  },
+  "/20/args": {
+   "de": "\"text\", …",
+   "en": "\"text\", ...",
+   "status": "maschinell"
+  },
+  "/21/args": {
+   "de": "\"text\"",
+   "en": "\"text\"",
+   "status": "unverändert"
+  },
+  "/22/args": {
+   "de": "\"text\"",
+   "en": "\"text\"",
+   "status": "unverändert"
+  },
+  "/23/args": {
+   "de": "\"name\"",
+   "en": "\"name\"",
+   "status": "unverändert"
+  },
+  "/24/args": {
+   "de": "name = wert",
+   "en": "name = value",
+   "status": "maschinell"
+  },
+  "/25/args": {
+   "de": "name = wert",
+   "en": "name = value",
+   "status": "maschinell"
+  },
+  "/26/args": {
+   "de": "name = wert",
+   "en": "name = value",
+   "status": "maschinell"
+  },
+  "/27/args": {
+   "de": "name(parameter) = ausdruck",
+   "en": "name(parameters) = expression",
+   "status": "maschinell"
+  },
+  "/28/args": {
+   "de": "ausdruck",
+   "en": "expression",
+   "status": "maschinell"
+  },
+  "/29/args": {
+   "de": "name",
+   "en": "name",
+   "status": "unverändert"
+  },
+  "/30/args": {
+   "de": "name",
+   "en": "name",
+   "status": "unverändert"
+  },
+  "/31/args": {
+   "de": "ausdruck",
+   "en": "expression",
+   "status": "maschinell"
+  },
+  "/33/args": {
+   "de": "anzahl[, variable]",
+   "en": "count[, variable]",
+   "status": "maschinell"
+  },
+  "/34/args": {
+   "de": "init, bedingung, schritt | variable in liste",
+   "en": "init, condition, step | variable in list",
+   "status": "maschinell"
+  },
+  "/37/args": {
+   "de": "name(parameter)",
+   "en": "name(parameters)",
+   "status": "maschinell"
+  },
+  "/39/args": {
+   "de": "name",
+   "en": "name",
+   "status": "unverändert"
+  },
+  "/40/args": {
+   "de": "name",
+   "en": "name",
+   "status": "unverändert"
+  },
+  "/42/args": {
+   "de": "name {",
+   "en": "name {",
+   "status": "unverändert"
+  },
+  "/43/args": {
+   "de": "\"datei\"[ as name]",
+   "en": "\"file\"[ as name]",
+   "status": "maschinell"
+  },
+  "/44/args": {
+   "de": "ziel[, zeile][, \"kommentar\"]",
+   "en": "target[, line][, \"comment\"]",
+   "status": "maschinell"
+  },
+  "/45/args": {
+   "de": "adresse",
+   "en": "address",
+   "status": "maschinell"
+  },
+  "/46/args": {
+   "de": "bedingung[, \"meldung\"]",
+   "en": "condition[, \"message\"]",
+   "status": "maschinell"
+  },
+  "/47/args": {
+   "de": "\"text\"",
+   "en": "\"text\"",
+   "status": "unverändert"
+  },
+  "/48/args": {
+   "de": "\"text\"",
+   "en": "\"text\"",
+   "status": "unverändert"
+  },
+  "/49/args": {
+   "de": "name[ max=n]",
+   "en": "name[ max=n]",
+   "status": "unverändert"
+  },
+  "/50/args": {
+   "de": "\"id\"",
+   "en": "\"id\"",
+   "status": "unverändert"
+  },
+  "/51/args": {
+   "de": "\"id\"[, illegals=…]",
+   "en": "\"id\"[, illegals=...]",
+   "status": "maschinell"
+  },
+  "/52/args": {
+   "de": "auto | jmp | off",
+   "en": "auto | jmp | off",
+   "status": "unverändert"
+  }
+ }
+}

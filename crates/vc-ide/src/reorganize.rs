@@ -16,7 +16,7 @@ pub struct Move {
     pub to: String,
     pub category: Category,
     /// Bezeichnung für die Anzeige (Kategorie oder „Test“)
-    pub label: &'static str,
+    pub label: String,
     /// Am Ziel liegt schon eine andere Datei (oder ein anderer Eintrag will dorthin): wird nicht verschoben
     pub conflict: bool,
 }
@@ -78,7 +78,7 @@ pub fn plan(root: &Path, pf: &ProjectFile, opts: &Opts) -> Vec<Move> {
         let (category, tdir, label) = if l.ends_with(".vctest") {
             // Tests gehören in den Ordner mit der Rolle „Tests“; gibt es keinen, bleiben sie
             let Some(td) = pf.folders.iter().find(|f| f.role == "tests" && f.targets.is_empty()).map(|f| f.dir.clone()) else { continue };
-            (Category::Text, td, "Test")
+            (Category::Text, td, vc_i18n::t!("reorganize-test"))
         } else {
             let Some((c, d)) = target_of(root, pf, rel) else { continue };
             // Studio-Dateien nur, wenn layout einen Ordner nennt (sonst blieben sie in der Wurzel, nicht dahin zurück)
@@ -173,14 +173,14 @@ fn build_hashes(root: &Path, data: &Path, pf: &ProjectFile) -> Result<BTreeMap<S
     let v = crate::projfile::build_project(&crate::build::Ctx { root, data }, pf, None);
     let mut out = BTreeMap::new();
     for r in v["results"].as_array().into_iter().flatten() {
-        if r["ok"] != true { return Err(format!("{} lässt sich nicht bauen", r["file"].as_str().unwrap_or("?"))); }
+        if r["ok"] != true { return Err(vc_i18n::t!("reorganize-p1-laesst-sich-nicht-bauen", p1 = r["file"].as_str().unwrap_or("?"))); }
         if let Some(a) = r["artifact"].as_str() {
-            let bytes = std::fs::read(root.join(a)).map_err(|e| format!("{a}: {e}"))?;
+            let bytes = std::fs::read(root.join(a)).map_err(|e| vc_i18n::t!("reorganize-a-e", a = &a, e = &e))?;
             let mut h = std::collections::hash_map::DefaultHasher::new(); bytes.hash(&mut h);
             out.insert(a.to_string(), h.finish());
         }
     }
-    if out.is_empty() { return Err("keine Ergebnisdateien".into()); }
+    if out.is_empty() { return Err(vc_i18n::t!("reorganize-keine-ergebnisdateien").into()); }
     Ok(out)
 }
 
@@ -200,29 +200,35 @@ pub fn letzte(root: &Path) -> Option<Letzte> {
     let mut v: Vec<(u64, PathBuf)> = rd.flatten().filter_map(|e| { let n = e.file_name().to_string_lossy().into_owned(); let zeit = n.split('-').next()?.parse::<u64>().ok()?; let sub = n.split_once('-').and_then(|(_, r)| r.parse::<u64>().ok()).unwrap_or(0); e.path().join("moves.txt").is_file().then_some((zeit * 1000 + sub, e.path())) }).collect();
     v.sort();
     let (key, backup) = v.pop()?;
-    let list = std::fs::read_to_string(backup.join("moves.txt")).ok()?;
-    let moves: Vec<(String, String)> = list.lines().filter_map(|l| l.split_once('\t')).map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    let moves = lies_moves(root, &backup).ok()?;
     if moves.is_empty() || !moves.iter().any(|(_, to)| root.join(to).is_file()) { return None }
     Some(Letzte { backup, zeit: key / 1000, moves })
+}
+
+/// Gibt es eine neueste Sicherung, die nicht von diesem Programm stammt? (Dann „Sicherung stammt nicht von VintageCoder“ anzeigen, nichts tun.)
+pub fn fremde_sicherung(root: &Path) -> bool {
+    let Ok(rd) = std::fs::read_dir(root.join(".vcbackup")) else { return false };
+    rd.flatten().any(|e| e.path().join("moves.txt").is_file() && !ist_echt(&e.path()))
 }
 
 /// Gründe, aus denen „Rückgängig“ nichts überschreiben darf: Datei fehlt oder wurde geändert, alter Ort belegt
 pub fn undo_konflikte(root: &Path, l: &Letzte) -> Vec<String> {
     let mut out = vec![];
     for (from, to) in &l.moves {
-        if !root.join(to).is_file() { out.push(format!("{to}: fehlt (gelöscht oder verschoben)")) }
-        else if root.join(from).exists() { out.push(format!("{from}: ist am alten Ort schon belegt")) }
+        if !root.join(to).is_file() { out.push(vc_i18n::t!("reorganize-to-fehlt-geloescht-oder-verschoben", to = &to)) }
+        else if root.join(from).exists() { out.push(vc_i18n::t!("reorganize-from-ist-am-alten-ort-schon", from = &from)) }
     }
     if let Ok(t) = std::fs::read_to_string(l.backup.join("after.txt")) {
         for z in t.lines() { let Some((h, rel)) = z.split_once('\t') else { continue };
-            if let Ok(b) = std::fs::read(root.join(rel)) { if hash_bytes(&b).to_string() != h { out.push(format!("{rel}: seit dem Umordnen geändert")) } } }
+            let Ok(pfad) = crate::safepath::resolve(root, rel) else { continue };
+            if let Ok(b) = std::fs::read(pfad) { if hash_bytes(&b).to_string() != h { out.push(vc_i18n::t!("reorganize-rel-seit-dem-umordnen-geaendert", rel = &rel)) } } }
     }
     out.sort(); out.dedup(); out
 }
 
 /// Nimmt die letzte Umordnung zurück, aber nur ohne Konflikte; sonst Fehler mit der Liste
 pub fn undo_geprueft(root: &Path, l: &Letzte) -> Result<usize, String> {
-    let k = undo_konflikte(root, l); if !k.is_empty() { return Err(format!("Nicht rückgängig gemacht, damit nichts überschrieben wird:\n{}", k.join("\n"))) }
+    let k = undo_konflikte(root, l); if !k.is_empty() { return Err(vc_i18n::t!("reorganize-nicht-rueckgaengig-gemacht-damit-nichts-ueberschrieben", p1 = k.join("\n"))) }
     undo(root, &l.backup)
 }
 
@@ -235,17 +241,18 @@ fn stamp() -> String {
 /// nachher gebaut und verglichen. Bei einem Fehler mittendrin wird alles zurückgenommen.
 pub fn apply(root: &Path, file: &Path, pf: &mut ProjectFile, moves: &[Move], data: Option<&Path>, rewrite: bool, progress: &dyn Fn(&str)) -> Result<Report, String> {
     let moves: Vec<Move> = moves.iter().filter(|m| !m.conflict && m.from != m.to).cloned().collect();
-    if moves.is_empty() { return Err("nichts zu verschieben".into()); }
+    if moves.is_empty() { return Err(vc_i18n::t!("reorganize-nichts-zu-verschieben").into()); }
     for m in &moves {
-        if !root.join(&m.from).is_file() { return Err(format!("{}: Datei fehlt", m.from)); }
-        if root.join(&m.to).exists() { return Err(format!("{}: Ziel existiert schon", m.to)); }
-        if !importfiles::valid_dir(dir_of(&m.to)) { return Err(format!("{}: ungültiger Zielordner", m.to)); }
+        crate::safepath::resolve(root, &m.from)?; crate::safepath::resolve(root, &m.to)?;
+        if !root.join(&m.from).is_file() { return Err(vc_i18n::t!("reorganize-p1-datei-fehlt", p1 = &m.from)); }
+        if root.join(&m.to).exists() { return Err(vc_i18n::t!("reorganize-p1-ziel-existiert-schon", p1 = &m.to)); }
+        if !importfiles::valid_dir(dir_of(&m.to)) { return Err(vc_i18n::t!("reorganize-p1-ungueltiger-zielordner", p1 = &m.to)); }
     }
     let rw = if rewrite { rewrites(root, &moves) } else { vec![] };
     // Vorher bauen (nur zum Vergleich; scheitert es schon vorher, entfällt die Prüfung)
-    if data.is_some() { progress("Vorher bauen …"); }
+    if data.is_some() { progress(&vc_i18n::t!("reorganize-vorher-bauen")); }
     let before = data.map(|d| build_hashes(root, d, pf));
-    progress("Sicherung anlegen …");
+    progress(&vc_i18n::t!("reorganize-sicherung-anlegen"));
     // Sicherung
     let backup = root.join(".vcbackup").join(stamp());
     let mut n = 0;
@@ -256,16 +263,16 @@ pub fn apply(root: &Path, file: &Path, pf: &mut ProjectFile, moves: &[Move], dat
     let save = |rel: &str| -> Result<(), String> {
         let dest = backup.join("files").join(rel);
         std::fs::create_dir_all(dest.parent().unwrap()).map_err(|e| e.to_string())?;
-        std::fs::copy(root.join(rel), &dest).map(|_| ()).map_err(|e| format!("{rel}: {e}"))
+        std::fs::copy(root.join(rel), &dest).map(|_| ()).map_err(|e| vc_i18n::t!("reorganize-rel-e", rel = &rel, e = &e))
     };
     for (f, _, _) in &rw { save(f)?; }
     save(&vcprj_rel)?;
-    std::fs::write(backup.join("moves.txt"), moves.iter().map(|m| format!("{}\t{}\n", m.from, m.to)).collect::<String>()).map_err(|e| e.to_string())?;
-    progress("Dateien verschieben …");
+    vc_core::atomar::schreiben(backup.join("moves.txt"), moves.iter().map(|m| format!("{}\t{}\n", m.from, m.to)).collect::<String>()).map_err(|e| e.to_string())?;
+    progress(&vc_i18n::t!("reorganize-dateien-verschieben"));
     // Ausführen: erst Texte (am alten Ort), dann Dateien verschieben
     let mut done: Vec<&Move> = vec![];
     let result: Result<(), String> = (|| {
-        for (f, text, _) in &rw { std::fs::write(root.join(f), text).map_err(|e| format!("{f}: {e}"))?; }
+        for (f, text, _) in &rw { vc_core::atomar::schreiben(root.join(f), text).map_err(|e| vc_i18n::t!("reorganize-f-e", f = &f, e = &e))?; }
         for m in &moves {
             let dest = root.join(&m.to);
             std::fs::create_dir_all(dest.parent().unwrap()).map_err(|e| e.to_string())?;
@@ -280,18 +287,19 @@ pub fn apply(root: &Path, file: &Path, pf: &mut ProjectFile, moves: &[Move], dat
         let _ = restore(root, &backup);
         return Err(e);
     }
-    if data.is_some() { progress("Nachher bauen und vergleichen …"); }
+    if data.is_some() { progress(&vc_i18n::t!("reorganize-nachher-bauen-und-vergleichen")); }
     let check = match (before, data) {
         (Some(Ok(b)), Some(d)) => match build_hashes(root, d, pf) {
             Ok(a) => { let diff: Vec<String> = b.iter().filter(|(k, v)| a.get(*k) != Some(v)).map(|(k, _)| k.clone()).collect(); if diff.is_empty() { Check::Same(b.len()) } else { Check::Different(diff) } }
             Err(e) => Check::Different(vec![e]),
         },
-        (Some(Err(e)), _) => Check::Skipped(format!("vorher schon nicht baubar: {e}")),
-        _ => Check::Skipped("nicht angefordert".into()),
+        (Some(Err(e)), _) => Check::Skipped(vc_i18n::t!("reorganize-vorher-schon-nicht-baubar-e", e = &e)),
+        _ => Check::Skipped(vc_i18n::t!("reorganize-nicht-angefordert").into()),
     };
     // Stand nach dem Umordnen festhalten: „Rückgängig“ erkennt später geänderte Dateien und überschreibt sie nicht
     { let mut zeilen = String::new(); let mut merke = |rel: &str| { if let Ok(b) = std::fs::read(root.join(rel)) { zeilen.push_str(&format!("{}\t{rel}\n", hash_bytes(&b))) } };
-      for m in &moves { merke(&m.to) } for (f, _, _) in &rw { merke(f) } merke(&vcprj_rel); let _ = std::fs::write(backup.join("after.txt"), zeilen); }
+      for m in &moves { merke(&m.to) } for (f, _, _) in &rw { merke(f) } merke(&vcprj_rel); let _ = vc_core::atomar::schreiben(backup.join("after.txt"), zeilen); }
+    beglaubigen(&backup);
     prune_backups(root, KEEP_BACKUPS, &backup);
     Ok(Report { moved: moves.iter().map(|m| (m.from.clone(), m.to.clone())).collect(), rewritten: rw.iter().map(|(f, _, n)| (f.clone(), *n)).collect(), backup, check })
 }
@@ -314,38 +322,97 @@ pub fn prune_backups(root: &Path, keep: usize, current: &Path) {
 
 /// Schreibt die Quelltexte aus [`rewrites`] zurück (am bisherigen Ort), z. B. vor dem Umbenennen einer eingebundenen Datei
 pub fn write_rewrites(root: &Path, rw: &[(String, String, usize)]) -> Result<(), String> {
-    for (f, text, _) in rw { std::fs::write(root.join(f), text).map_err(|e| format!("{f}: {e}"))?; }
+    for (f, text, _) in rw { vc_core::atomar::schreiben(root.join(f), text).map_err(|e| vc_i18n::t!("reorganize-f-e", f = &f, e = &e))?; }
     Ok(())
 }
 
 /// Gesicherte Dateien zurückschreiben (an ihren ursprünglichen Ort)
 fn restore(root: &Path, backup: &Path) -> Result<(), String> {
     let base = backup.join("files");
-    fn walk(base: &Path, dir: &Path, out: &mut Vec<PathBuf>) { if let Ok(rd) = std::fs::read_dir(dir) { for e in rd.flatten() { let p = e.path(); if p.is_dir() { walk(base, &p, out); } else { out.push(p); } } } }
-    let mut files = vec![]; walk(&base, &base, &mut files);
-    for f in files {
-        let rel = f.strip_prefix(&base).map_err(|e| e.to_string())?;
-        let dest = root.join(rel);
+    let mut files = vec![]; sicherungsdateien(&base, &base, &mut files);
+    for (rel, f) in files {
+        let dest = crate::safepath::resolve(root, &rel)?;
         if let Some(p) = dest.parent() { let _ = std::fs::create_dir_all(p); }
-        std::fs::copy(&f, &dest).map_err(|e| format!("{}: {e}", rel.display()))?;
+        std::fs::copy(&f, &dest).map_err(|e| format!("{rel}: {e}"))?;
     }
     Ok(())
 }
 
 /// Macht eine Umordnung rückgängig: Dateien zurückverschieben, gesicherte Texte und Projektdatei wiederherstellen
 pub fn undo(root: &Path, backup: &Path) -> Result<usize, String> {
-    let list = std::fs::read_to_string(backup.join("moves.txt")).map_err(|e| format!("moves.txt: {e}"))?;
+    let moves = lies_moves(root, backup)?;
     let mut n = 0;
-    for l in list.lines().rev() {
-        let Some((from, to)) = l.split_once('\t') else { continue };
-        if !root.join(to).is_file() { continue; }
-        if root.join(from).exists() { return Err(format!("{from}: existiert schon, nicht zurückverschoben")); }
-        if let Some(p) = root.join(from).parent() { let _ = std::fs::create_dir_all(p); }
-        std::fs::rename(root.join(to), root.join(from)).map_err(|e| format!("{to}: {e}"))?;
+    for (from, to) in moves.iter().rev() {
+        let (pf, pt) = (crate::safepath::resolve(root, from)?, crate::safepath::resolve(root, to)?);
+        if !pt.is_file() { continue; }
+        if pf.exists() { return Err(vc_i18n::t!("reorganize-from-existiert-schon-nicht-zurueckverschoben", from = &from)); }
+        if let Some(p) = pf.parent() { let _ = std::fs::create_dir_all(p); }
+        std::fs::rename(&pt, &pf).map_err(|e| vc_i18n::t!("reorganize-to-e", to = &to, e = &e))?;
         n += 1;
     }
     restore(root, backup)?;
     Ok(n)
+}
+
+// ---- Echtheit der Sicherung: `.vcbackup/` liegt im Projektordner und kann aus einem fremden Projekt (ZIP, Git) stammen.
+// Eine Sicherung zählt nur, wenn ihr Fingerabdruck in der Liste im Konfigurationsordner dieses Programms steht;
+// jeder Pfad daraus muss außerdem im Projektordner bleiben (siehe `safepath`).
+
+fn sicherungsliste() -> Option<PathBuf> {
+    #[cfg(test)]
+    let d = { let d = std::env::temp_dir().join(format!("vc_reorg_liste_{}", std::process::id())); let _ = std::fs::create_dir_all(&d); d };   // Tests nie in den echten Konfigurationsordner
+    #[cfg(not(test))]
+    // `VC_CONFIG_DIR` ersetzt den Konfigurationsordner (Tests anderer Pakete und Prozesse, die `apply` aufrufen)
+    let d = match std::env::var_os("VC_CONFIG_DIR").filter(|d| !d.is_empty()) { Some(d) => PathBuf::from(d), None => vc_core::userdirs::config_dir()? };
+    Some(d.join("reorganize-sicherungen.txt"))
+}
+
+/// Fingerabdruck einer Sicherung: Ort, `moves.txt`, `after.txt` und Inhalt von `files/`
+fn fingerabdruck(backup: &Path) -> String {
+    let mut t = format!("{}\n", std::fs::canonicalize(backup).unwrap_or_else(|_| backup.to_path_buf()).display());
+    for n in ["moves.txt", "after.txt"] { t.push_str(&format!("{n}\n")); t.push_str(&std::fs::read_to_string(backup.join(n)).unwrap_or_default()); }
+    let mut fs = vec![]; sicherungsdateien(&backup.join("files"), &backup.join("files"), &mut fs);
+    fs.sort();
+    for (rel, p) in fs { t.push_str(&format!("{rel}\t{}\n", crate::turbo::sha256_hex(&std::fs::read(p).unwrap_or_default()))); }
+    crate::turbo::sha256_hex(t.as_bytes())
+}
+
+/// Dateien unter `dir` (relativ zu `base`); Symlinks werden weder gelesen noch kopiert
+fn sicherungsdateien(base: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>) {
+    let Ok(rd) = std::fs::read_dir(dir) else { return };
+    for e in rd.flatten() {
+        let p = e.path();
+        let Ok(md) = std::fs::symlink_metadata(&p) else { continue };
+        if md.file_type().is_symlink() { continue; }
+        if md.is_dir() { sicherungsdateien(base, &p, out); }
+        else if let Ok(r) = p.strip_prefix(base) { out.push((r.to_string_lossy().replace('\\', "/"), p)); }
+    }
+}
+
+/// Trägt die Sicherung als echt ein (nach dem Schreiben von `moves.txt` und `after.txt`)
+fn beglaubigen(backup: &Path) {
+    let Some(f) = sicherungsliste() else { return };
+    if let Some(d) = f.parent() { let _ = std::fs::create_dir_all(d); }
+    use std::io::Write;
+    // eine Zeile mit einem einzigen Schreibaufruf: gleichzeitige Schreiber (mehrere Fenster, Tests) vermischen sonst ihre Zeilen
+    let zeile = format!("{}\n", fingerabdruck(backup));
+    if let Ok(mut h) = std::fs::OpenOptions::new().create(true).append(true).open(&f) { let _ = h.write_all(zeile.as_bytes()); }
+}
+
+/// Stammt die Sicherung von diesem Programm (und ist unverändert)?
+pub fn ist_echt(backup: &Path) -> bool {
+    let Some(f) = sicherungsliste() else { return false };
+    let fp = fingerabdruck(backup);
+    std::fs::read_to_string(f).map_or(false, |t| t.lines().any(|l| l == fp))
+}
+
+/// Liest `moves.txt` einer Sicherung: nur wenn sie echt ist, und nur mit Pfaden, die im Projektordner bleiben
+fn lies_moves(root: &Path, backup: &Path) -> Result<Vec<(String, String)>, String> {
+    let list = std::fs::read_to_string(backup.join("moves.txt")).map_err(|e| vc_i18n::t!("reorganize-moves-txt-e", e = &e))?;
+    if !ist_echt(backup) { return Err(vc_i18n::t!("reorganize-sicherung-nicht-von-vintagecoder").into()); }
+    let moves: Vec<(String, String)> = list.lines().filter_map(|l| l.split_once('\t')).map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    for (a, b) in &moves { crate::safepath::resolve(root, a)?; crate::safepath::resolve(root, b)?; }
+    Ok(moves)
 }
 
 #[cfg(test)]
@@ -354,11 +421,12 @@ mod tests {
 
     #[test]
     fn letzte_umordnung_spaeter_rueckgaengig_mit_konfliktpruefung() {
+        sicher();
         let root = tmp("spaeter"); std::fs::create_dir_all(root.join("lib")).unwrap();
         std::fs::write(root.join("p.vcprj"), "{\"project\":{\"name\":\"t\"}}").unwrap();
         std::fs::write(root.join("a.inc"), b"\x01\x02 inc").unwrap(); std::fs::write(root.join("m.asm"), "  .include \"a.inc\"\n").unwrap();
         let mut pf = ProjectFile::load(&root.join("p.vcprj")).unwrap();
-        let moves = vec![Move { from: "a.inc".into(), to: "lib/a.inc".into(), category: Category::Text, label: "Test", conflict: false }];
+        let moves = vec![Move { from: "a.inc".into(), to: "lib/a.inc".into(), category: Category::Text, label: "Test".into(), conflict: false }];
         let vorher: Vec<(String, Vec<u8>)> = ["a.inc", "m.asm", "p.vcprj"].iter().map(|f| (f.to_string(), std::fs::read(root.join(f)).unwrap())).collect();
         assert!(letzte(&root).is_none());
         let rep = apply(&root, &root.join("p.vcprj"), &mut pf, &moves, None, true, &|_| {}).unwrap(); assert!(root.join("lib/a.inc").is_file());
@@ -373,6 +441,63 @@ mod tests {
         let l = letzte(&root).unwrap(); assert_eq!(undo_geprueft(&root, &l).unwrap(), 1);
         for (f, b) in vorher { assert_eq!(std::fs::read(root.join(&f)).unwrap(), b, "{f} wie vorher"); }
         let _ = std::fs::remove_dir_all(&root);
+    }
+
+    fn sicher() {}
+
+    #[test]
+    fn praeparierte_sicherung_bewegt_nichts() {
+        sicher();
+        let aussen = tmp("fremd-aussen");
+        let root = tmp("fremd");
+        std::fs::write(root.join("boese.asm"), "x").unwrap();
+        let b = root.join(".vcbackup/1");
+        std::fs::create_dir_all(&b).unwrap();
+        let ziel = aussen.join("x.plist");
+        let abs = ziel.to_string_lossy().into_owned();
+        for pfad in ["../../../Library/LaunchAgents/x.plist", abs.as_str(), "C:\\Windows\\x", "\\\\server\\share\\x", "..\\x"] {
+            std::fs::write(b.join("moves.txt"), format!("{pfad}\tboese.asm\n")).unwrap();
+            // 1. nicht von VintageCoder: keine Aktion
+            assert!(letzte(&root).is_none(), "{pfad}");
+            assert!(fremde_sicherung(&root));
+            let e = undo(&root, &b).unwrap_err(); assert!(e.contains("nicht von VintageCoder"), "{e}");
+            // 2. selbst mit gültiger Beglaubigung: Pfadprüfung
+            beglaubigen(&b);
+            assert!(letzte(&root).is_none(), "{pfad}: ungültiger Pfad verworfen");
+            let e = undo(&root, &b).unwrap_err(); assert!(e.contains("Unzul") || e.contains("Invalid"), "{e}");
+            assert!(root.join("boese.asm").is_file() && !ziel.exists(), "{pfad}");
+        }
+        // after.txt mit fremdem Pfad wird nur ignoriert, nie gelesen
+        std::fs::write(b.join("moves.txt"), "a.inc\tboese.asm\n").unwrap();
+        std::fs::write(b.join("after.txt"), "1\t../../etc/passwd\n").unwrap();
+        beglaubigen(&b);
+        let l = letzte(&root).unwrap();
+        assert!(undo_konflikte(&root, &l).iter().all(|k| !k.contains("passwd")));
+        // files/ mit Symlink nach draußen wird nicht zurückgespielt
+        #[cfg(unix)]
+        {
+            std::fs::create_dir_all(b.join("files")).unwrap();
+            std::fs::write(aussen.join("geheim.txt"), "geheim").unwrap();
+            std::os::unix::fs::symlink(aussen.join("geheim.txt"), b.join("files/geheim.txt")).unwrap();
+            beglaubigen(&b);
+            let _ = undo(&root, &b);
+            assert!(!root.join("geheim.txt").exists());
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn symlink_im_projekt_nach_draussen_wird_abgelehnt() {
+        sicher();
+        let aussen = tmp("sym2-aussen");
+        let root = tmp("sym2");
+        std::fs::write(root.join("neu.asm"), "x").unwrap();
+        std::os::unix::fs::symlink(&aussen, root.join("link")).unwrap();
+        let b = root.join(".vcbackup/1"); std::fs::create_dir_all(&b).unwrap();
+        std::fs::write(b.join("moves.txt"), "link/alt.asm\tneu.asm\n").unwrap();
+        beglaubigen(&b);
+        assert!(undo(&root, &b).is_err());
+        assert!(!aussen.join("alt.asm").exists() && root.join("neu.asm").is_file());
     }
 
     fn tmp(tag: &str) -> PathBuf {
@@ -427,6 +552,7 @@ mod tests {
 
     #[test]
     fn umordnen_verschiebt_schreibt_pfade_um_baut_gleich_und_macht_rueckgaengig() {
+        sicher();
         let root = tmp("apply");
         vc_media::wizard::create(&data(), &root, "reorg", &["c64".to_string()], "asm-hello").unwrap();
         let main = root.join("src/c64/main.asm");
@@ -468,7 +594,7 @@ mod tests {
         let file = root.join("p.vcprj");
         let mut pf = ProjectFile::default(); pf.save(&file).unwrap();
         assert!(apply(&root, &file, &mut pf, &[], None, true, &|_| {}).is_err());
-        let bad = Move { from: "a.bin".into(), to: "../x/a.bin".into(), category: Category::Binary, label: "x", conflict: false };
+        let bad = Move { from: "a.bin".into(), to: "../x/a.bin".into(), category: Category::Binary, label: "x".into(), conflict: false };
         assert!(apply(&root, &file, &mut pf, &[bad], None, true, &|_| {}).is_err());
         assert!(root.join("a.bin").is_file());
         let _ = std::fs::remove_dir_all(&root);
@@ -485,8 +611,8 @@ mod tests {
         pf.layout.insert("studio".into(), "gfx".into());
         pf.set_role("tests", Some("tests"));
         let p = plan(&root, &pf, &Opts::default());
-        assert_eq!(p.iter().find(|m| m.from == "held.vcsprite").map(|m| (m.to.as_str(), m.label)), Some(("gfx/held.vcsprite", "Studio-Datei")));
-        assert_eq!(p.iter().find(|m| m.from == "mathe.vctest").map(|m| (m.to.as_str(), m.label)), Some(("tests/mathe.vctest", "Test")));
+        assert_eq!(p.iter().find(|m| m.from == "held.vcsprite").map(|m| (m.to.as_str(), m.label.as_str())), Some(("gfx/held.vcsprite", "Editor-Datei")));
+        assert_eq!(p.iter().find(|m| m.from == "mathe.vctest").map(|m| (m.to.as_str(), m.label.as_str())), Some(("tests/mathe.vctest", "Test")));
         // Sicherungen: nur die letzten KEEP_BACKUPS bleiben, die aktuelle nie weg
         for i in 0..8u64 { std::fs::create_dir_all(root.join(".vcbackup").join(format!("{}", 100 + i))).unwrap(); }
         std::fs::create_dir_all(root.join(".vcbackup/107-1")).unwrap();

@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Atari: Troxx",
+    "description": "Troxx for the Atari 8 bit (XL/XE): travel along grid lines, close rectangles. Player/missile graphics, display list interrupts, POKEY with four voices, high score list, two players in turns"
+  },
+  "targets": [
+    {
+      "id": "atari8",
+      "system": "atari8",
+      "model": "800xl",
+      "variant": "pal",
+      "cpu": "sally",
+      "illegals": "deny",
+      "emulator": "atari800"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "atari8"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm"
+}

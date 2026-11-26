@@ -1130,7 +1130,7 @@
       ],
       "notes": [
         "Die Dateien entstehen in build/export/; der Befehl gibt Pfad und Größe je Datei aus. Bei der Ausgabe in mehreren Teilen (Screens: chars/attrs, Kacheln: tiles/map/colors) gibt es je Teil eine Datei bzw. einen Abschnitt.",
-        "Beim Bauen werden veraltete Mediendateien ohnehin als asm und data nach build/export/ geschrieben.",
+        "Mediendateien lassen sich auch direkt mit #include einbinden; dafür ist dieser Export nicht nötig.",
         "Der Projektordner ist der aktuelle Ordner; Pfade zu Projektdateien sind relativ dazu. Eine vorhandene Zieldatei wird nie überschrieben (Fehler)."
       ],
       "see_also": [

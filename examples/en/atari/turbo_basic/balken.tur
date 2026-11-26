@@ -1,0 +1,62 @@
+; =====================================================================================================================
+; balken.tur - Turbo BASIC XL without line numbers: PROC/EXEC, WHILE, REPEAT and multi-line IF
+; =====================================================================================================================
+; The build numbers the lines; Turbo BASIC XL itself is needed to load and run
+; (load the file BALKEN.BAS, then RUN).  Semicolon lines are comments of the source text and do not go into the program.
+;
+; WHAT YOU SEE
+;   Two title lines are shown in the text window at the bottom.  Above it (graphics mode 7, 160 x 96 dots) 16 vertical colored bars are
+;   built up one after another from left to right, each 10 dots wide, in the order red, green, blue, red, green, blue ...
+;   Half a second passes between two bars.  Then "PRESS A KEY" appears; the bars stay until a key is pressed.  Then the screen
+;   is cleared (GRAPHICS 0) and the program ends.
+;   Shows: PROC/ENDPROC with EXEC (subroutines with names instead of GOSUB numbers), WHILE/WEND, REPEAT/UNTIL, multi-line
+;   IF/ELSE/ENDIF, MOD, PAUSE (Turbo BASIC extensions; standard Atari BASIC does not know these commands).
+;
+; VARIABLES: spalte = current bar number 0..15 (global, read in the PROCs; there are no local variables);
+;            farbe = color number 1..3 of the current bar; x = left edge of the bar in dots.
+;
+; The text window at the bottom uses color registers 1 (text, brightness only) and 2 (background): therefore register 1 bright (14) and register 2 dark (4),
+; otherwise the text would be invisible.
+; Graphics mode 7 has four colors: COLOR 0 is the background, COLOR 1..3 belong to the color registers 0..2 (SETCOLOR register, hue, brightness).
+GRAPHICS 7
+SETCOLOR 0,4,6 : SETCOLOR 1,12,14 : SETCOLOR 2,8,4
+EXEC titel
+spalte=0
+; draw one bar per pass, 16 passes
+WHILE spalte<16
+  EXEC balken
+  spalte=spalte+1
+WEND
+; wait for a key: address 764 (CH) contains 255 as long as no key has been pressed
+? "PRESS A KEY";
+REPEAT
+  PAUSE 1
+UNTIL PEEK(764)<>255
+GRAPHICS 0
+END
+
+; subroutine: print two title lines in the text window
+PROC titel
+  ? "TURBO BASIC XL"
+  ? "PROC, EXEC, WHILE, REPEAT"
+ENDPROC
+
+; subroutine: draw one bar; color 1 = red, 2 = green, 3 = blue in turn (spalte MOD 3)
+PROC balken
+  IF spalte MOD 3=0
+    farbe=1
+  ELSE
+    IF spalte MOD 3=1
+      farbe=2
+    ELSE
+      farbe=3
+    ENDIF
+  ENDIF
+  x=spalte*10
+  COLOR farbe
+  FOR k=0 TO 9
+    PLOT x+k,0 : DRAWTO x+k,79
+  NEXT k
+  ; PAUSE n waits n frames (1/50 s on PAL): 25 frames = half a second
+  PAUSE 25
+ENDPROC

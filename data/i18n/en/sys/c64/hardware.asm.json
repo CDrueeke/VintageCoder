@@ -1,0 +1,650 @@
+{
+ "source": "sys/c64/hardware.asm",
+ "entries": {
+  "/L4": {
+   "de": "Prozessorport",
+   "en": "Processor port",
+   "status": "maschinell"
+  },
+  "/L5": {
+   "de": "Datenrichtung des Prozessorports",
+   "en": "Data direction of the processor port",
+   "status": "maschinell"
+  },
+  "/L6": {
+   "de": "Speicherbelegung (LORAM/HIRAM/CHAREN) und Kassette",
+   "en": "Memory configuration (LORAM/HIRAM/CHAREN) and cassette",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Speicherbereiche",
+   "en": "Memory areas",
+   "status": "maschinell"
+  },
+  "/L9": {
+   "de": "Standard-Bildschirmspeicher",
+   "en": "Default screen memory",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "Sprite-Zeiger (bei Standard-Bildschirm)",
+   "en": "Sprite pointers (with default screen)",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Farb-RAM (nur Bit 0-3)",
+   "en": "Color RAM (bits 0-3 only)",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "VIC-II",
+   "en": "VIC-II",
+   "status": "unverändert"
+  },
+  "/L14": {
+   "de": "Sprite 0: X (Bit 0-7)",
+   "en": "Sprite 0: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Sprite 0: Y",
+   "en": "Sprite 0: Y",
+   "status": "unverändert"
+  },
+  "/L16": {
+   "de": "Sprite 1: X (Bit 0-7)",
+   "en": "Sprite 1: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "Sprite 1: Y",
+   "en": "Sprite 1: Y",
+   "status": "unverändert"
+  },
+  "/L18": {
+   "de": "Sprite 2: X (Bit 0-7)",
+   "en": "Sprite 2: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Sprite 2: Y",
+   "en": "Sprite 2: Y",
+   "status": "unverändert"
+  },
+  "/L20": {
+   "de": "Sprite 3: X (Bit 0-7)",
+   "en": "Sprite 3: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Sprite 3: Y",
+   "en": "Sprite 3: Y",
+   "status": "unverändert"
+  },
+  "/L22": {
+   "de": "Sprite 4: X (Bit 0-7)",
+   "en": "Sprite 4: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Sprite 4: Y",
+   "en": "Sprite 4: Y",
+   "status": "unverändert"
+  },
+  "/L24": {
+   "de": "Sprite 5: X (Bit 0-7)",
+   "en": "Sprite 5: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Sprite 5: Y",
+   "en": "Sprite 5: Y",
+   "status": "unverändert"
+  },
+  "/L26": {
+   "de": "Sprite 6: X (Bit 0-7)",
+   "en": "Sprite 6: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Sprite 6: Y",
+   "en": "Sprite 6: Y",
+   "status": "unverändert"
+  },
+  "/L28": {
+   "de": "Sprite 7: X (Bit 0-7)",
+   "en": "Sprite 7: X (bits 0-7)",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Sprite 7: Y",
+   "en": "Sprite 7: Y",
+   "status": "unverändert"
+  },
+  "/L30": {
+   "de": "X-Bit 8 aller Sprites",
+   "en": "X bit 8 of all sprites",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Steuerregister 1 (Y-Scroll, 24/25 Zeilen, Bitmap, ECM, Rasterzeile Bit 8)",
+   "en": "Control register 1 (Y scroll, 24/25 rows, bitmap, ECM, raster line bit 8)",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Rasterzeile (lesen) / Raster-IRQ-Zeile (schreiben)",
+   "en": "Raster line (read) / raster interrupt line (write)",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Lichtgriffel X",
+   "en": "Light pen X",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Lichtgriffel Y",
+   "en": "Light pen Y",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Sprites einschalten",
+   "en": "Enable sprites",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Steuerregister 2 (X-Scroll, 38/40 Spalten, Multicolor)",
+   "en": "Control register 2 (X scroll, 38/40 columns, multicolor)",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Sprites doppelt hoch",
+   "en": "Sprites double height",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Zeichensatz- und Bildschirmspeicher-Zeiger",
+   "en": "Character set and screen memory pointers",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "IRQ-Quellen (Schreiben von 1 löscht)",
+   "en": "IRQ sources (writing 1 clears)",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "IRQ-Quellen freigeben",
+   "en": "Enable IRQ sources",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Sprites hinter dem Hintergrund",
+   "en": "Sprites behind the background",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "Sprites mehrfarbig",
+   "en": "Sprites multicolor",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "Sprites doppelt breit",
+   "en": "Sprites double width",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Kollision Sprite-Sprite (Lesen löscht)",
+   "en": "Collision sprite-sprite (reading clears)",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Kollision Sprite-Hintergrund (Lesen löscht)",
+   "en": "Collision sprite-background (reading clears)",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "Rahmenfarbe",
+   "en": "Border color",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "Hintergrundfarbe 0",
+   "en": "Background color 0",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "Hintergrundfarbe 1 (Multicolor/ECM)",
+   "en": "Background color 1 (multicolor/ECM)",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "Hintergrundfarbe 2",
+   "en": "Background color 2",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "Hintergrundfarbe 3",
+   "en": "Background color 3",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "Sprite-Multicolor 0",
+   "en": "Sprite multicolor 0",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "Sprite-Multicolor 1",
+   "en": "Sprite multicolor 1",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Farbe Sprite 0",
+   "en": "Color of sprite 0",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Farbe Sprite 1",
+   "en": "Color of sprite 1",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "Farbe Sprite 2",
+   "en": "Color of sprite 2",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Farbe Sprite 3",
+   "en": "Color of sprite 3",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Farbe Sprite 4",
+   "en": "Color of sprite 4",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Farbe Sprite 5",
+   "en": "Color of sprite 5",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "Farbe Sprite 6",
+   "en": "Color of sprite 6",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "Farbe Sprite 7",
+   "en": "Color of sprite 7",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "SID",
+   "en": "SID",
+   "status": "unverändert"
+  },
+  "/L63": {
+   "de": "Stimme 1: Frequenz niedrig",
+   "en": "Voice 1: frequency low",
+   "status": "maschinell"
+  },
+  "/L64": {
+   "de": "Stimme 1: Frequenz hoch",
+   "en": "Voice 1: frequency high",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "Stimme 1: Pulsbreite niedrig",
+   "en": "Voice 1: pulse width low",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "Stimme 1: Pulsbreite hoch (4 Bit)",
+   "en": "Voice 1: pulse width high (4 bits)",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "Stimme 1: Wellenform und Gate",
+   "en": "Voice 1: waveform and gate",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "Stimme 1: Attack/Decay",
+   "en": "Voice 1: attack/decay",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "Stimme 1: Sustain/Release",
+   "en": "Voice 1: sustain/release",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "Stimme 2: Frequenz niedrig",
+   "en": "Voice 2: frequency low",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "Stimme 2: Frequenz hoch",
+   "en": "Voice 2: frequency high",
+   "status": "maschinell"
+  },
+  "/L72": {
+   "de": "Stimme 2: Pulsbreite niedrig",
+   "en": "Voice 2: pulse width low",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "Stimme 2: Pulsbreite hoch (4 Bit)",
+   "en": "Voice 2: pulse width high (4 bits)",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "Stimme 2: Wellenform und Gate",
+   "en": "Voice 2: waveform and gate",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Stimme 2: Attack/Decay",
+   "en": "Voice 2: attack/decay",
+   "status": "maschinell"
+  },
+  "/L76": {
+   "de": "Stimme 2: Sustain/Release",
+   "en": "Voice 2: sustain/release",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "Stimme 3: Frequenz niedrig",
+   "en": "Voice 3: frequency low",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "Stimme 3: Frequenz hoch",
+   "en": "Voice 3: frequency high",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "Stimme 3: Pulsbreite niedrig",
+   "en": "Voice 3: pulse width low",
+   "status": "maschinell"
+  },
+  "/L80": {
+   "de": "Stimme 3: Pulsbreite hoch (4 Bit)",
+   "en": "Voice 3: pulse width high (4 bits)",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "Stimme 3: Wellenform und Gate",
+   "en": "Voice 3: waveform and gate",
+   "status": "maschinell"
+  },
+  "/L82": {
+   "de": "Stimme 3: Attack/Decay",
+   "en": "Voice 3: attack/decay",
+   "status": "maschinell"
+  },
+  "/L83": {
+   "de": "Stimme 3: Sustain/Release",
+   "en": "Voice 3: sustain/release",
+   "status": "maschinell"
+  },
+  "/L84": {
+   "de": "Filter-Grenzfrequenz (Bit 0-2)",
+   "en": "Filter cutoff frequency (bits 0-2)",
+   "status": "maschinell"
+  },
+  "/L85": {
+   "de": "Filter-Grenzfrequenz (Bit 3-10)",
+   "en": "Filter cutoff frequency (bits 3-10)",
+   "status": "maschinell"
+  },
+  "/L86": {
+   "de": "Resonanz und Filterzuordnung",
+   "en": "Resonance and filter routing",
+   "status": "maschinell"
+  },
+  "/L87": {
+   "de": "Filtermodus und Lautstärke",
+   "en": "Filter mode and volume",
+   "status": "maschinell"
+  },
+  "/L88": {
+   "de": "Paddle X (lesen)",
+   "en": "Paddle X (read)",
+   "status": "maschinell"
+  },
+  "/L89": {
+   "de": "Paddle Y (lesen)",
+   "en": "Paddle Y (read)",
+   "status": "maschinell"
+  },
+  "/L90": {
+   "de": "Oszillator 3 (lesen)",
+   "en": "Oscillator 3 (read)",
+   "status": "maschinell"
+  },
+  "/L91": {
+   "de": "Hüllkurve 3 (lesen)",
+   "en": "Envelope 3 (read)",
+   "status": "maschinell"
+  },
+  "/L93": {
+   "de": "SID: Bits im Steuerregister",
+   "en": "SID: bits in the control register",
+   "status": "maschinell"
+  },
+  "/L94": {
+   "de": "Ctrl: Gate",
+   "en": "Ctrl: gate",
+   "status": "maschinell"
+  },
+  "/L95": {
+   "de": "Ctrl: Synchronisation",
+   "en": "Ctrl: sync",
+   "status": "maschinell"
+  },
+  "/L96": {
+   "de": "Ctrl: Ringmodulation",
+   "en": "Ctrl: ring modulation",
+   "status": "maschinell"
+  },
+  "/L97": {
+   "de": "Ctrl: Test",
+   "en": "Ctrl: test",
+   "status": "maschinell"
+  },
+  "/L98": {
+   "de": "Ctrl: Dreieck",
+   "en": "Ctrl: triangle",
+   "status": "maschinell"
+  },
+  "/L99": {
+   "de": "Ctrl: Sägezahn",
+   "en": "Ctrl: sawtooth",
+   "status": "maschinell"
+  },
+  "/L100": {
+   "de": "Ctrl: Rechteck",
+   "en": "Ctrl: pulse",
+   "status": "maschinell"
+  },
+  "/L101": {
+   "de": "Ctrl: Rauschen",
+   "en": "Ctrl: noise",
+   "status": "maschinell"
+  },
+  "/L103": {
+   "de": "CIA 1 (Tastatur, Joystick, IRQ)",
+   "en": "CIA 1 (keyboard, joystick, IRQ)",
+   "status": "maschinell"
+  },
+  "/L104": {
+   "de": "Port A",
+   "en": "Port A",
+   "status": "unverändert"
+  },
+  "/L105": {
+   "de": "Port B",
+   "en": "Port B",
+   "status": "unverändert"
+  },
+  "/L106": {
+   "de": "Datenrichtung A",
+   "en": "Data direction A",
+   "status": "maschinell"
+  },
+  "/L107": {
+   "de": "Datenrichtung B",
+   "en": "Data direction B",
+   "status": "maschinell"
+  },
+  "/L108": {
+   "de": "Timer A niedrig",
+   "en": "Timer A low",
+   "status": "maschinell"
+  },
+  "/L109": {
+   "de": "Timer A hoch",
+   "en": "Timer A high",
+   "status": "maschinell"
+  },
+  "/L110": {
+   "de": "Timer B niedrig",
+   "en": "Timer B low",
+   "status": "maschinell"
+  },
+  "/L111": {
+   "de": "Timer B hoch",
+   "en": "Timer B high",
+   "status": "maschinell"
+  },
+  "/L112": {
+   "de": "Uhr: Zehntelsekunden",
+   "en": "Clock: tenths of seconds",
+   "status": "maschinell"
+  },
+  "/L113": {
+   "de": "Uhr: Sekunden",
+   "en": "Clock: seconds",
+   "status": "maschinell"
+  },
+  "/L114": {
+   "de": "Uhr: Minuten",
+   "en": "Clock: minutes",
+   "status": "maschinell"
+  },
+  "/L115": {
+   "de": "Uhr: Stunden",
+   "en": "Clock: hours",
+   "status": "maschinell"
+  },
+  "/L116": {
+   "de": "Serielles Schieberegister",
+   "en": "Serial shift register",
+   "status": "maschinell"
+  },
+  "/L117": {
+   "de": "Interrupt-Steuerung/-Status",
+   "en": "Interrupt control/status",
+   "status": "maschinell"
+  },
+  "/L118": {
+   "de": "Steuerregister A",
+   "en": "Control register A",
+   "status": "maschinell"
+  },
+  "/L119": {
+   "de": "Steuerregister B",
+   "en": "Control register B",
+   "status": "maschinell"
+  },
+  "/L121": {
+   "de": "CIA 2 (IEC, Userport, VIC-Bank, NMI)",
+   "en": "CIA 2 (IEC, user port, VIC bank, NMI)",
+   "status": "maschinell"
+  },
+  "/L122": {
+   "de": "Port A",
+   "en": "Port A",
+   "status": "unverändert"
+  },
+  "/L123": {
+   "de": "Port B",
+   "en": "Port B",
+   "status": "unverändert"
+  },
+  "/L124": {
+   "de": "Datenrichtung A",
+   "en": "Data direction A",
+   "status": "maschinell"
+  },
+  "/L125": {
+   "de": "Datenrichtung B",
+   "en": "Data direction B",
+   "status": "maschinell"
+  },
+  "/L126": {
+   "de": "Timer A niedrig",
+   "en": "Timer A low",
+   "status": "maschinell"
+  },
+  "/L127": {
+   "de": "Timer A hoch",
+   "en": "Timer A high",
+   "status": "maschinell"
+  },
+  "/L128": {
+   "de": "Timer B niedrig",
+   "en": "Timer B low",
+   "status": "maschinell"
+  },
+  "/L129": {
+   "de": "Timer B hoch",
+   "en": "Timer B high",
+   "status": "maschinell"
+  },
+  "/L130": {
+   "de": "Uhr: Zehntelsekunden",
+   "en": "Clock: tenths of seconds",
+   "status": "maschinell"
+  },
+  "/L131": {
+   "de": "Uhr: Sekunden",
+   "en": "Clock: seconds",
+   "status": "maschinell"
+  },
+  "/L132": {
+   "de": "Uhr: Minuten",
+   "en": "Clock: minutes",
+   "status": "maschinell"
+  },
+  "/L133": {
+   "de": "Uhr: Stunden",
+   "en": "Clock: hours",
+   "status": "maschinell"
+  },
+  "/L134": {
+   "de": "Serielles Schieberegister",
+   "en": "Serial shift register",
+   "status": "maschinell"
+  },
+  "/L135": {
+   "de": "Interrupt-Steuerung/-Status",
+   "en": "Interrupt control/status",
+   "status": "maschinell"
+  },
+  "/L136": {
+   "de": "Steuerregister A",
+   "en": "Control register A",
+   "status": "maschinell"
+  },
+  "/L137": {
+   "de": "Steuerregister B",
+   "en": "Control register B",
+   "status": "maschinell"
+  },
+  "/L139": {
+   "de": "Farben",
+   "en": "Colors",
+   "status": "maschinell"
+  }
+ }
+}

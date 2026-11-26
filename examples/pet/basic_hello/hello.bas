@@ -2,7 +2,7 @@
 ;
 ; Zweck: kleinstes BASIC-Beispiel fuer den PET (BASIC 2 oder 4, Dialekt cbm_v2). Es zeigt, dass der Quelltext ohne Zeilennummern
 ;   auskommt: die Zeilen werden beim Bauen mit 10, 20, 30 ... nummeriert und `@ende` wird durch die Zeilennummer ersetzt.
-;   Aufbau: `vcc build examples/pet/basic_hello` (oder `vcc basic hello.bas --target pet -o hello.prg`); das PRG hat die Ladeadresse
+;   Bauen: `vcc build examples/pet/basic_hello` (oder `vcc basic hello.bas --target pet -o hello.prg`); das PRG hat die Ladeadresse
 ;   $0401 (BASIC-Anfang des PET). Start im Emulator z. B. `xpet -model 4032 -autostart hello.prg` (laut Hilfeseite "PET/CBM" auf dem 4032
 ;   geprueft), sonst laden und RUN.
 ;

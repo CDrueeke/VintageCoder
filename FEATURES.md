@@ -10,7 +10,7 @@ python3 tools/release.py stage --os windows|macos|linux --out build/stage-<os> -
 
 Die Kommandozeile `vcc` mit Assembler, BASIC, Bau, Test und dem Sprachserver `vc-lsp` ist **immer** dabei. Entwicklungsstände, Release-Kriterien und Lücken stehen in `STATUS.md`; die Technik (Abhängigkeiten, Dateien je Zeile) in `release/registry.json`. Eine Auswahl gilt für alle drei Betriebssysteme. Die Versionsnummer vergibt nur der Projektinhaber (`CHANGELOG.md`).
 
-**Stand 2026-11-17:** Gewählt (`[x]`) ist der Umfang des nächsten Releases: C64, Atari 8 Bit, MEGA65, Plus/4 mit C16/116, C128 und VC-20, jeweils mit Studios, Anbindungen und Beispielen. Abgewählt sind PET/CBM, CBM-II, die echte MEGA65 (serieller Monitor) und der Extraktor; sie sind im Quelltext vorhanden, aber in den Paketen ausgeblendet. Die Stände sind keine vollständige manuelle Abnahme; was je Paket geprüft wurde, steht in `STATUS.md`.
+**Stand 2026-11-17:** Gewählt (`[x]`) ist der Umfang des nächsten Releases: C64, Atari 8 Bit, MEGA65, Plus/4 mit C16/116, C128 und VC-20, jeweils mit Studios, Anbindungen und Beispielen. Abgewählt sind PET/CBM, die echte MEGA65 (serieller Monitor) und der Extraktor; sie sind im Quelltext vorhanden, aber in den Paketen ausgeblendet. Die Stände sind keine vollständige manuelle Abnahme; was je Paket geprüft wurde, steht in `STATUS.md`.
 
 Ausführlich: IDE-Hilfe „Release-Auswahl“ und `docs/release-auswahl.md`; Vorlage für die Release-Notiz: `release/notes-template.md`.
 
@@ -57,7 +57,7 @@ Gemeint ist die **Anbindung im Programm** (Erkennung, Parameterkatalog, Einstell
 
 | Kennung | Anbindung | Stand | Release |
 |---|---|---|---|
-| `EMU-VICE` | VICE (`x64sc`, `x128`, `xplus4`, `xvic`, `xpet`, `xcbm2`) | Stabil | [x] |
+| `EMU-VICE` | VICE (`x64sc`, `x128`, `xplus4`, `xvic`, `xpet`) | Stabil | [x] |
 | `EMU-ATARI800` | atari800 | Stabil | [x] |
 | `EMU-ALTIRRA` | Altirra | Beta | [x] |
 | `EMU-FUJISAN` | Fujisan | Beta | [x] |
@@ -77,7 +77,6 @@ Gemeint ist die **Anbindung im Programm** (Erkennung, Parameterkatalog, Einstell
 | `SYS-C128` | Commodore 128 | Beta | [x] |
 | `SYS-VC20` | VC-20 | Beta | [x] |
 | `SYS-PET` | PET/CBM (BASIC) | Spike | [ ] |
-| `SYS-CBM2` | CBM-II (nur BASIC) | Spike | [ ] |
 
 ## 5. Beispielprojekte (je gewähltem Zielsystem)
 
@@ -88,4 +87,5 @@ Ein Beispiel wird nur ausgeliefert, wenn sein Paket **und** das Zielsystem seine
 | `EX-HELLO` | Kleinstbeispiele je System (`hello`, `basic_hello`, `basic_native`, `border` …) | Stabil | [x] |
 | `EX-JUMPRUN` | Hugo & Gumbo | Stabil | [x] |
 | `EX-PRALLBALL` | Prallball für alle sechs Systeme | Stabil | [x] |
+| `EX-TROXX` | Troxx für VC-20, C64, Plus/4, Atari und MEGA65 (erst 0.3.1) | Stabil | [ ] |
 | `EX-DEMOS` | Rasterbalken, Sprites, Musik, Kacheln, Module, Tests | Stabil | [x] |

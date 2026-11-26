@@ -1,1350 +1,1108 @@
 {
- "hinweis": "id, kapitel, alt, caption, aufnahme (Befehl), marken: Koordinaten in Rohpixeln der Rohaufnahme. Rohbilder (bilder/roh/) liegen nicht im Repository, siehe werkzeug/README.md. Bilder der neuen Oberfläche entstehen mit tools/handbuchbilder.py (ohne Marken)",
+ "hinweis": "Quelle der Wahrheit für Handbuchbilder. id, kapitel, status (vorhanden = PNG in diesem Ordner und Bild im Text; offen = noch nicht aufgenommen, im Text steht der Platzhalter), alt/caption (deutsch), alt_en/caption_en (englisch), optional mangel (Hinweis für die Neuaufnahme). Bilder entstehen mit ui/tools/handbuchbilder.sh; Prüfung: tools/check_bildplatzhalter.py.",
  "bilder": [
   {
    "id": "ui-gesamt",
    "kapitel": "oberflaeche",
-   "alt": "Hauptfenster der IDE im Dunkelmodus: links der Projektbaum, in der Mitte der Quelltext einer Assembler-Datei, rechts die Gliederung, unten die Ausgabe.",
-   "caption": "Das Hauptfenster im Überblick.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/music_demo music_demo.asm \"\" 60  (VC_THEME=dark)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 108,
-     "y": 217,
-     "w": 485,
-     "h": 627,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 615,
-     "y": 217,
-     "w": 1590,
-     "h": 1000,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2212,
-     "y": 160,
-     "w": 588,
-     "h": 1440,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 615,
-     "y": 1231,
-     "w": 1590,
-     "h": 433,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 60,
-     "y": 1676,
-     "w": 2740,
-     "h": 38,
-     "nr": 5
-    },
-    {
-     "typ": "rahmen",
-     "x": 2558,
-     "y": 82,
-     "w": 232,
-     "h": 56,
-     "nr": 6
-    }
-   ]
+   "alt": "Das Hauptfenster im Bereich „Code“. Oben die Kopfzeile mit dem Projektnamen und den Hauptbereichen von „Startseite“ bis „Debug“. Links die Seitenleiste „PROJEKT“ mit dem Dateibaum, in der Mitte der Editor mit jumprun.asm, darunter die Ablage mit dem Reiter „Ausgabe“, rechts das Panel „Maschine“, ganz unten die Statusleiste.",
+   "caption": "Das Hauptfenster im Überblick: Kopfzeile, Seitenleiste, Editor, Ablage, Panel Maschine und Statusleiste.",
+   "status": "vorhanden",
+   "alt_en": "The main window in the area 'Code'. At the top is the header with the project name and the main areas from 'Startseite' to 'Debug'. On the left is the sidebar 'PROJEKT' with the file tree, in the middle the editor with jumprun.asm, below it the drawer with the tab 'Ausgabe', on the right the panel 'Maschine', and at the bottom the status bar.",
+   "caption_en": "The main window at a glance: header, sidebar, editor, drawer, machine panel and status bar."
   },
   {
    "id": "editor-syntax",
    "kapitel": "editor",
-   "alt": "Assembler-Quelltext mit farbiger Syntaxhervorhebung, Zeilennummern und Gliederung rechts.",
-   "caption": "Der Editor färbt Befehle, Zahlen, Beschriftungen und Kommentare unterschiedlich.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Code-Bereich mit der Datei jumprun.asm: links die Seitenleiste mit dem Projektbaum, in der Mitte der Assembler-Quelltext mit Zeilennummern und farbiger Hervorhebung für Kommentare, Befehle, Zahlen und Namen. Unten die Statusleiste mit Zeile und Spalte.",
+   "caption": "Der Editor färbt Befehle, Zahlen, Namen und Kommentare unterschiedlich.",
+   "status": "vorhanden",
+   "alt_en": "The Code area with the file jumprun.asm: the sidebar with the project tree on the left, and in the middle the assembler source with line numbers and colored highlighting for comments, instructions, numbers, and names. The status bar at the bottom shows line and column.",
+   "caption_en": "The editor colors instructions, numbers, names, and comments differently."
   },
   {
    "id": "editor-vervollstaendigung",
    "kapitel": "editor",
-   "alt": "Die Vervollständigung im Editor: nach der Eingabe von „sta vic2.b“ zeigt eine Liste vic2.border und vic2.bg0 bis vic2.bg3.",
-   "caption": "Die Vorschlagsliste beim Tippen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Code-Editor mit der Dateiliste links und dem Quelltext jumprun.asm. In der letzten Zeile steht „lda“ und darunter ist eine Vorschlagsliste offen mit „lda“ (Akkumulator laden), Konstanten wie TILE_CYC_LDA und Makros wie tile_draw.",
+   "caption": "Die Vorschlagsliste erscheint beim Tippen.",
+   "status": "vorhanden",
+   "alt_en": "The code editor with the file list on the left and the source jumprun.asm. The last line contains 'lda' and a suggestion list is open below it with lda (load accumulator), constants such as TILE_CYC_LDA and macros such as tile_draw.",
+   "caption_en": "The suggestion list appears while you type."
   },
   {
    "id": "editor-falten",
    "kapitel": "editor",
-   "alt": "Ein Quelltext mit einem eingeklappten Block: neben der Zeilennummer steht der Pfeil zum Falten.",
-   "caption": "Ein gefalteter Abschnitt: seine Zeilen sind versteckt, der Pfeil ▸ in der Rinne klappt sie wieder auf",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Editor mit einem eingeklappten Abschnitt: In der Rinne neben den Zeilennummern steht ein Pfeil, die versteckten Zeilen fehlen.",
+   "caption": "Ein gefalteter Abschnitt: Der Pfeil in der Rinne klappt ihn wieder auf.",
+   "status": "offen",
+   "alt_en": "The editor with one folded section: an arrow sits in the gutter next to the line numbers and the hidden lines are missing.",
+   "caption_en": "A folded section: the arrow in the gutter opens it again."
   },
   {
    "id": "editor-kontextmenue",
    "kapitel": "editor",
-   "alt": "Das Kontextmenü des Editors mit Ausschneiden, Kopieren, Einfügen, Alles auswählen, Hilfe zum Wort, Gehe zu Definition, Alles falten, Alles entfalten, Haltepunkt umschalten und Debuggen: Bis hier ausführen.",
-   "caption": "Das Kontextmenü im Editor (Rechtsklick)",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Code-Editor mit der BASIC-Datei sterne.bas und geöffnetem Kontextmenü an Zeile 4. Die Einträge sind Ausschneiden und Kopieren (ausgegraut), Einfügen (markiert), Alles auswählen, Gehe zu Definition, Korrigieren (Quick-Fix) (ausgegraut), Kommentar umschalten, Gehe zu Zeile, Lesezeichen umschalten, Alles falten, Alles entfalten, Haltepunkt umschalten und die drei BASIC-Einträge zum Umwandeln und Neu nummerieren.",
+   "caption": "Das Kontextmenü des Editors in einer BASIC-Datei mit den drei BASIC-Einträgen am Ende.",
+   "status": "vorhanden",
+   "alt_en": "The code editor with the BASIC file sterne.bas and an open context menu at line 4. The entries are Ausschneiden and Kopieren (grayed out), Einfuegen (highlighted), Alles auswaehlen, Gehe zu Definition, Korrigieren (Quick-Fix) (grayed out), Kommentar umschalten, Gehe zu Zeile, Lesezeichen umschalten, Alles falten, Alles entfalten, Haltepunkt umschalten and the three BASIC entries for converting and renumbering.",
+   "caption_en": "The editor context menu in a BASIC file with the three BASIC entries at the end."
   },
   {
    "id": "editor-zeichenwaehler",
    "kapitel": "editor",
-   "alt": "Dialog „Zeichen einfügen“ mit dem Zeichenraster des C64-Zeichensatzes.",
-   "caption": "Der Zeichenwähler fügt Bildschirmzeichen als Wert oder Text ein.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"charpick\" 60  (VC_THEME=dark)",
-   "marken": []
+   "alt": "Der Zeichenwähler über dem Editor: ein Raster mit den Zeichen des Zeichensatzes, ein Zeichen ist ausgewählt, darunter die Wahl, ob es als Wert oder als Text eingefügt wird.",
+   "caption": "Der Zeichenwähler fügt ein Bildschirmzeichen als Wert oder als Text in den Quelltext ein.",
+   "status": "offen",
+   "alt_en": "The character picker over the editor: a grid of characters from the character set with one selected, and below it the choice to insert it as a value or as text.",
+   "caption_en": "The character picker inserts a screen character into the source as a value or as text."
   },
   {
    "id": "editor-hilfe-f1",
    "kapitel": "editor",
-   "alt": "Der Editor mit dem Cursor auf dem Befehl sta; rechts im Panel der Reiter Hilfe mit der Beschreibung des Befehls und seinen Adressierungsarten.",
-   "caption": "F1 öffnet die Hilfe zum Wort unter dem Cursor",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Reiter „Code“ mit der Datei jumprun.asm. Über dem Quelltext steht ein kleines Fenster zum Befehl JSR („Unterprogramm aufrufen“) mit Adressierungsart, Opcode $20, 3 Bytes und 6 Zyklen.",
+   "caption": "Der Editor zeigt zum Befehl JSR eine Kurzinfo mit Opcode, Bytes und Zyklen.",
+   "status": "vorhanden",
+   "alt_en": "The 'Code' tab with the file jumprun.asm. Above the source text a small window describes the JSR instruction, with addressing mode, opcode $20, 3 bytes and 6 cycles.",
+   "caption_en": "The editor shows a short info box for the JSR instruction with opcode, bytes and cycles.",
+   "mangel": "zeigt die Hover-Kurzinfo zu JSR, nicht die Hilfeseite (F1 oeffnet sie)"
   },
   {
    "id": "editor-suchen",
    "kapitel": "editor",
-   "alt": "Die Suchleiste über dem Text mit dem Suchbegriff „sta“, der Anzeige „1 von 15“ und den Knöpfen für vorigen und nächsten Treffer; die Treffer sind im Text hervorgehoben.",
-   "caption": "Suchen mit Cmd/Strg+F",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Code-Ansicht mit jumprun.asm und geöffneter Suchleiste über dem Text. Das Suchfeld enthält „jsr“, daneben stehen „Weiter“, „Zurück“, „Alle“ und die Optionen „Groß/Klein“, „Regulärer Ausdruck“ und „Ganzes Wort“. Darunter liegt das Feld „Ersetzen durch“ mit „Ersetzen“ und „Alle ersetzen“.",
+   "caption": "Die Suchleiste mit Ersetzen über dem Quelltext.",
+   "status": "vorhanden",
+   "alt_en": "The code view with jumprun.asm and the search bar open above the text. The search field contains jsr, next to it are the buttons Weiter, Zurueck and Alle and the options Gross/Klein, Regulaerer Ausdruck and Ganzes Wort. Below is the field Ersetzen durch with the buttons Ersetzen and Alle ersetzen.",
+   "caption_en": "The search bar with replace, above the source text.",
+   "mangel": "Satz davor passt thematisch nicht"
   },
   {
    "id": "bauprotokoll",
    "kapitel": "bauen-starten",
-   "alt": "Bauprotokoll mit grünem Haken, Schritten und Größe der erzeugten Datei.",
-   "caption": "Das Bauprotokoll nach erfolgreichem Bauen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"build\" 120  (VC_THEME=dark)",
-   "marken": []
+   "alt": "Der Code-Bereich mit geöffneter Ablage auf der Seite Ausgabe. Sie zeigt oben die Knöpfe Kopieren und Leeren, dann Warnungen, die Schritte Ausgabe schreiben und Zwischendateien, das Format prg mit 16605 Bytes und in Grün die Zeile Fertig: 16.605 Bytes in build/jumprun.prg.",
+   "caption": "Das Bauprotokoll auf der Seite Ausgabe nach einem erfolgreichen Bau.",
+   "status": "vorhanden",
+   "alt_en": "The Code area with the tray below the editor open on the Ausgabe page. It shows the buttons Kopieren and Leeren at the top, then warnings, the steps Ausgabe schreiben and Zwischendateien, the format prg with 16605 bytes, and a green line Fertig: 16.605 Bytes in build/jumprun.prg.",
+   "caption_en": "The build log on the Ausgabe page after a successful build."
   },
   {
    "id": "befehlspalette",
    "kapitel": "oberflaeche",
-   "alt": "Befehlspalette mit Suchfeld und Liste von Befehlen und Tastenkürzeln.",
-   "caption": "Die Befehlspalette findet jeden Befehl.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm \"palette\" 60  (VC_THEME=dark)",
-   "marken": []
+   "alt": "Die Befehlspalette über dem Code-Editor: oben das Suchfeld „Befehl oder Datei suchen ...“, darunter unter BEFEHLE eine Liste mit Einträgen wie „Über VintageCoder“, „Konfigurationsassistent ...“ und mehreren Markdown-Befehlen, teils mit Tastenkürzeln. Unten steht der Hinweis zur Bedienung mit Pfeiltasten und Esc.",
+   "caption": "Die Befehlspalette findet jeden Befehl und jede Datei.",
+   "status": "vorhanden",
+   "alt_en": "The command palette open over the code editor. A search field at the top reads 'Befehl oder Datei suchen ...'. Below it is a list of commands, some with keyboard shortcuts. A hint line at the bottom explains arrow keys and Esc.",
+   "caption_en": "The command palette finds every command and file."
   },
   {
    "id": "einstellungen",
    "kapitel": "03",
-   "alt": "Reiter Einstellungen, Seite „Allgemein“: Farbschema Dunkel, Hell oder System, Oberflächengröße und Speicherort der Einstellungsdatei.",
-   "caption": "Einstellungen: Seite „Allgemein“.",
-   "aufnahme": "VC_SET_PAGE=general werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm settings 60",
-   "marken": []
+   "alt": "Die Einstellungen auf der Seite „Allgemein“: links die Seitenliste (Allgemein, Ziele und Hardware, ROMs, Aussehen, Editor, Toolchain, Tastenkürzel, Sicherung, Info und Update), rechts die Karten Sprache (Deutsch gewählt), Updates, Startbild, Hilfe, Projektordner und Einrichtung. Unten stehen die Knöpfe „Speichern“ und „Verwerfen“.",
+   "caption": "Die Einstellungen, Seite „Allgemein“.",
+   "status": "vorhanden",
+   "alt_en": "The settings on the Allgemein (General) page: on the left the page list, on the right the cards for language (German selected), updates, splash screen, help, project folder and setup. The buttons Save and Discard are at the bottom.",
+   "caption_en": "The settings, General page."
   },
   {
    "id": "projekt-einstellungen",
    "kapitel": "projekte",
-   "alt": "Der Reiter „Projekt-Einstellungen“ mit den Unterreitern Allgemein, Targets, Quellen und Diskette, den Feldern Name und Beschreibung und rechts der Übersicht über den Zustand des Projekts.",
-   "caption": "Die Projekt-Einstellungen: Name, Targets, Quellen und Diskette",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich Projekt mit den Unterreitern Übersicht, Allgemein, Ziele, Quellen, Bauen und Starten, Diskette und Weitergeben; „Allgemein“ ist gewählt. Die Seite „Projekt: Allgemein“ zeigt die Felder „Name“ und „Beschreibung“, die Auswahl „Start-Programm“ mit jumprun.asm und einen ausgeschalteten Schalter zum Wiederherstellen der zuletzt geöffneten Dateien.",
+   "caption": "Die Projekt-Seite „Allgemein“ mit Name, Beschreibung und Start-Programm.",
+   "status": "vorhanden",
+   "alt_en": "The Projekt area with the sub tabs Uebersicht, Allgemein, Ziele, Quellen, Bauen und Starten, Diskette and Weitergeben; Allgemein is selected. The page Projekt: Allgemein shows the fields Name and Beschreibung, the choice Start-Programm set to jumprun.asm, and a switch (off) for restoring the last opened files.",
+   "caption_en": "The general project page with name, description and start program."
   },
   {
    "id": "memory-map",
    "kapitel": "09 · 19",
-   "alt": "Die Karte im rechten Panel: 16×16 Seiten, gefärbt nach Art (Zeropage, Stack, BASIC, ROM, E/A, frei, Programm), darunter die Auswahl des Prozessorports und die Angaben zur gewählten Seite (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: die Matrix aus 256 Seiten, gefärbt nach Art des Speichers, mit Filter und den Angaben zur gewählten Seite",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich Daten mit der Seite Speicher: links die Bereiche (Zeropage, Stack, BASIC, ROM, E/A, frei), in der Mitte eine Matrix aus 16 mal 16 Kästchen, nach Art gefärbt, rechts die Angaben zur gewählten Seite $08 mit Prüfungen und die Auswahl des Prozessorports.",
+   "caption": "Beispielansicht: die Speicherkarte mit 256 Seiten, nach Art gefärbt, und den Angaben zur gewählten Seite.",
+   "status": "vorhanden",
+   "alt_en": "The Daten area with the Speicher page: the ranges (zero page, Stack, BASIC, ROM, E/A, frei) on the left, a matrix of 16 by 16 squares colored by type in the middle, and on the right the details of the selected page $08 with checks and the choice of processor port.",
+   "caption_en": "Example view: the memory map with 256 pages colored by type and the details of the selected page."
   },
   {
    "id": "debug-ueberblick",
    "kapitel": "09",
-   "alt": "Die Debug-Sitzung (Beispielansicht): Editor mit markierter Zeile, unten die Schublade mit den Spalten Register, Disassembler, Speicher und Beobachten.",
-   "caption": "Beispielansicht, es läuft kein Emulator: die Debug-Sitzung nach F6 mit Kopfzeile, Editor und Schublade",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Debug-Ansicht (Reiter Debug aktiv): links die Spalte mit HALTEPUNKTE, BEOBACHTEN, MOMENTAUFNAHME und CHIPS, in der Mitte eine Werkzeugleiste, der Disassembler mit Zeilen ab $0801 und darunter der Speicher ab $0400, rechts REGISTER mit dem Zustand ANGEHALTEN, Stapel und BILDSCHIRM.",
+   "caption": "Beispielansicht, es läuft kein Emulator: die Debug-Ansicht mit Haltepunkten, Disassembler, Speicher und Registern.",
+   "status": "vorhanden",
+   "alt_en": "The debug view with the Debug tab active. On the left are breakpoints, watch, snapshot and chips. In the middle are a toolbar, the disassembler starting at $0801 and the memory from $0400. On the right are the registers showing the paused state, the stack and the screen.",
+   "caption_en": "Example view, no emulator is running: the debug view with breakpoints, disassembler, memory and registers.",
+   "mangel": "ohne Editor mit markierter Zeile"
   },
   {
    "id": "willkommen-seite",
    "kapitel": "01 · 00 · 04",
-   "alt": "Die Startseite mit den Knöpfen „Neues Projekt“, „Projekt öffnen“, „Beispiel öffnen“ und „Einrichten“, der Liste der zuletzt geöffneten Projekte, den Studios und rechts dem Kasten „Toolchain und Hardware“ mit der Schnellreferenz.",
-   "caption": "Die Startseite",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Startseite ohne offenes Projekt: der Titel VintageCoder, die Karten Neues Projekt, Projekt öffnen und Beispiel öffnen, der Link Projektdatei (.vcprj) wählen, der Abschnitt Zuletzt geöffnete Projekte (noch leer) und die Beispielprojekte mit Filtern je System und Karten mit Öffnen und Kopieren.",
+   "caption": "Die Startseite erscheint, solange kein Projekt offen ist.",
+   "status": "vorhanden",
+   "alt_en": "The start page with no project open: the title VintageCoder, the cards Neues Projekt, Projekt oeffnen, and Beispiel oeffnen, the link Projektdatei (.vcprj) waehlen, the section Zuletzt geoeffnete Projekte (still empty), and the sample projects with filters per system and cards with Oeffnen and Kopieren.",
+   "caption_en": "The start page appears as long as no project is open."
   },
   {
    "id": "wizard-system",
    "kapitel": "02",
-   "alt": "Der Projekt-Assistent, linke Spalte: die Liste der Zielsysteme, der Commodore 64 ist gewählt, darunter das Hardware-Profil mit der Anzeige „gültig“.",
-   "caption": "Spalte 1 des Assistenten: das Zielsystem wählen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Projekt-Assistent im ersten Schritt: links die Liste der Zielsysteme mit einem gewählten System, darunter das Hardware-Profil mit der Anzeige „gültig“.",
+   "caption": "Im Assistenten das Zielsystem wählen.",
+   "status": "offen",
+   "alt_en": "The project wizard on its first step: the list of target systems on the left with one system selected, and below it the hardware profile with the status 'valid'.",
+   "caption_en": "Choose the target system in the wizard."
   },
   {
    "id": "wizard-sprache",
    "kapitel": "02",
-   "alt": "Der Projekt-Assistent, mittlere Spalte: oben die Wahl zwischen Assembler und BASIC, darunter die Vorlagenkarten „Assembler-Programm“, „Steckmodul“ und „Leeres Projekt“.",
-   "caption": "Spalte 2: erst die Sprache, dann die Vorlage",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog zum Anlegen eines Projekts, mittlere Spalte: oben die Wahl der Sprache, darunter die Vorlagenkarten.",
+   "caption": "Erst die Sprache, dann die Vorlage.",
+   "status": "offen",
+   "alt_en": "The dialog for creating a project, middle column: the language choice on top and the template cards below it.",
+   "caption_en": "First the language, then the template."
   },
   {
    "id": "wizard-details",
    "kapitel": "00 · 02",
-   "alt": "Der Projekt-Assistent, rechte Spalte „Projekt-Details“: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette, Zeichensatz, weitere Zielsysteme und die Vorschau der Dateistruktur.",
-   "caption": "Spalte 3: Name, Speicherort und die Vorschau der Dateien",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Projekt-Assistent auf der Seite mit den Projekt-Details: Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette und Zeichensatz, rechts die Vorschau der Dateistruktur.",
+   "caption": "Projektname, Speicherort und die Vorschau der Dateien im Projekt-Assistenten.",
+   "status": "offen",
+   "alt_en": "The project wizard on the project details page: project name, location, video standard, default emulator, start target, disk and character set, with a preview of the file structure on the right.",
+   "caption_en": "Project name, location and the file preview in the project wizard."
   },
   {
    "id": "einstellungen-emulator",
    "kapitel": "installation",
-   "alt": "Einstellungen, Seite „Zielsysteme und Hardware“: links die Systemliste mit grünen Punkten, rechts das gewählte System mit dem Standard-Emulator VICE x64sc, dem Pfadfeld, den Startparametern und dem Knopf „Test-Start“.",
-   "caption": "Einstellungen: Emulator-Pfad prüfen und mit „Test-Start“ ausprobieren",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Einstellungen, Seite „Ziele und Hardware“ mit gewähltem System Commodore 64. Die Karte „Emulatoren“ zeigt VICE x64sc (taktgenau) als Standard, das Programmfeld mit „automatisch“, die Knöpfe „Suchen“ und „Testen“ und die grüne Meldung „Gefunden“ mit dem Pfad. Darunter stehen „Startparameter“ (eingeklappt), „Entfernen“, „Emulator hinzufügen ...“ und unter „ECHTE HARDWARE“ der Knopf „Ultimate 64 / II+ (Netzwerk) anbinden“.",
+   "caption": "Die Emulator-Karte: Programm suchen und mit „Testen“ prüfen.",
+   "status": "vorhanden",
+   "alt_en": "Settings, page Ziele und Hardware (targets and hardware) with the Commodore 64 selected. The Emulatoren card shows VICE x64sc as the default, the program field set to automatisch, the buttons Suchen and Testen, and a green Gefunden (found) message with the path. Below are the collapsed Startparameter, the button Entfernen, Emulator hinzufuegen ... and, under ECHTE HARDWARE, the button to connect an Ultimate 64 / II+ over the network.",
+   "caption_en": "The emulator card: find the program and check it with Testen.",
+   "mangel": "zeigt nicht Portabel installieren oder MEGA65"
   },
   {
    "id": "einstellungen-roms",
    "kapitel": "installation",
-   "alt": "Einstellungen, Seite „ROMs“ (Ausschnitt): oben die Reiter je System, darunter je Rolle (KERNAL, BASIC, Zeichensatz, Laufwerk) der Status, die erwartete Größe und der Knopf „Auswählen …“.",
-   "caption": "Einstellungen ▸ ROMs: je Rolle ein Status; hier ist noch nichts gefunden",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Einstellungen, Seite ROMs. Links die Liste der Seiten, rechts oben die Knöpfe ROM-Ordner öffnen und Neu prüfen, darunter ROM-Datei oder Zip wählen, ROMs anderer Programme suchen und Fundliste kopieren. Reiter je System (C64 gewählt) und je Rolle der Status Fehlt mit erwarteter Größe, unten die durchsuchten Orte.",
+   "caption": "Die Seite ROMs zeigt je System und Rolle, ob eine Datei gefunden wurde; hier fehlt noch alles.",
+   "status": "vorhanden",
+   "alt_en": "Settings, ROMs page. The list of pages is on the left. At the top right are the buttons ROM-Ordner oeffnen and Neu pruefen, below them ROM-Datei oder Zip waehlen, ROMs anderer Programme suchen, and Fundliste kopieren. Tabs for each system (C64 selected) and for each role the status Fehlt with the expected size. The searched places are at the bottom.",
+   "caption_en": "The ROMs page shows for each system and role whether a file was found; here everything is still missing."
   },
   {
    "id": "argumente",
    "kapitel": "08",
-   "alt": "Einstellungen, Zielsysteme: der aufgeklappte Parametereditor „Startparameter“ mit den Gruppen Ablauf, Bild, Ton und weiteren, dem Feld „Weitere Parameter“, den Platzhaltern und der Vorschau der Kommandozeile.",
-   "caption": "Startparameter für den Emulator mit Vorschau der Kommandozeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Einstellungen, Seite „Ziele und Hardware“ mit gewähltem System Commodore 64. Der Bereich „Startparameter“ ist aufgeklappt und zeigt die eingeklappten Gruppen Ablauf, Bild, Ton, Laufwerk und Start von Datei, Eingabe, Monitor und Fehlersuche sowie Protokoll und Einstellungen, darunter das Feld „Weitere Parameter“ und Knöpfe zum Einfügen von Variablen wie {project} und {output}.",
+   "caption": "Die Startparameter des Emulators mit ihren Gruppen und den Variablen zum Einfügen.",
+   "status": "vorhanden",
+   "alt_en": "Settings, page Ziele und Hardware (targets and hardware) with the Commodore 64 selected. The section Startparameter (start parameters) is open and shows collapsed groups such as Ablauf, Bild and Ton, then the field Weitere Parameter and buttons for inserting variables like {project} and {output}.",
+   "caption_en": "The start parameters of the emulator with their groups and the variables you can insert."
   },
   {
    "id": "ui-zonen",
    "kapitel": "03",
-   "alt": "Hauptfenster mit ausgeblendeter Seitenleiste und ausgeblendetem Inspektor: der Editor nutzt die ganze Breite.",
-   "caption": "Zonen lassen sich ausblenden.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm zones 60",
-   "marken": []
+   "alt": "Hauptfenster mit ausgeblendeter Seitenleiste und ausgeblendetem Panel Maschine: der Editor nutzt die ganze Breite.",
+   "caption": "Bereiche lassen sich ausblenden.",
+   "status": "offen",
+   "alt_en": "Main window with the sidebar and the machine panel hidden: the editor uses the full width.",
+   "caption_en": "Areas can be hidden."
   },
   {
    "id": "datei-neu-dialog",
    "kapitel": "04",
-   "alt": "Der Dialog „Neue Datei“ mit den Knöpfen für die Art (Assembler, BASIC, Text, Notiz, Studios, Disketten), der Auswahl „Ordner“, dem Feld „Name“ und den Knöpfen „OK“ und „Abbrechen“.",
-   "caption": "Der Dialog „Neue Datei“",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog „Neue Datei“ liegt über dem Quelltext von jumprun.asm. Er hat ein Eingabefeld „Name (Pfad relativ zum gewählten Ordner)“, die Auswahl „Art“ mit dem Eintrag „Assembler (.asm)“ und die Knöpfe „Abbrechen“ und „Anlegen“.",
+   "caption": "Der Dialog „Neue Datei“ mit Name und Art.",
+   "status": "vorhanden",
+   "alt_en": "The dialog Neue Datei (new file) lies over the source of jumprun.asm. It has a name field, a choice called Art (type) set to Assembler (.asm), and the buttons Abbrechen and Anlegen.",
+   "caption_en": "The new file dialog with name and type."
   },
   {
    "id": "datei-umbenennen-dialog",
    "kapitel": "04",
-   "alt": "Der Dialog „Datei umbenennen“ mit dem Feld „Name (der Ordner steht davor)“ und den Knöpfen „OK“ und „Abbrechen“.",
-   "caption": "Der Dialog zum Umbenennen einer Datei",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Über dem Code-Editor mit der Datei jumprun.asm liegt der kleine Dialog „Umbenennen“. Das Feld „Name (Pfad relativ zum gewählten Ordner)“ enthält den markierten Namen hal_c64.asm, darunter stehen die Knöpfe „Abbrechen“ und „Umbenennen“.",
+   "caption": "Der Dialog zum Umbenennen einer Datei.",
+   "status": "vorhanden",
+   "alt_en": "The small 'Umbenennen' (rename) dialog over the code editor with the file jumprun.asm. The field 'Name (Pfad relativ zum gewaehlten Ordner)' holds the selected name hal_c64.asm. Below it are the buttons 'Abbrechen' and 'Umbenennen'.",
+   "caption_en": "The dialog for renaming a file."
   },
   {
    "id": "drag-drop-rueckfrage",
    "kapitel": "04",
-   "alt": "Die Rückfrage „Dateien ins Projekt übernehmen“ beim Ablegen von zwei Dateien: je eine Zeile mit Haken, Name, Art, Ordner und Ziel, unten die Knöpfe „2 übernehmen“ und „Abbrechen“.",
-   "caption": "Beim Ablegen von Dateien fragt VintageCoder nach Name, Art und Ordner",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Rückfrage beim Ablegen von zwei Dateien auf das Fenster: je eine Zeile mit Haken, Name, Art, Ordner und Ziel, unten die Knöpfe zum Übernehmen und Abbrechen.",
+   "caption": "Beim Ablegen von Dateien fragt VintageCoder nach Name, Art und Ordner.",
+   "status": "offen",
+   "alt_en": "The question shown when two files are dropped on the window: one row per file with a check box, name, kind, folder and target, and the buttons to accept and cancel below.",
+   "caption_en": "When you drop files, VintageCoder asks for name, kind and folder."
   },
   {
    "id": "projekt-uebersicht",
    "kapitel": "04",
-   "alt": "Reiter „Übersicht“ des Projekts mit Speicher, Diskette, Grafik und Klang, letztem Build und Quellenliste.",
-   "caption": "Die Projekt-Übersicht.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm projbuild,showov 150",
-   "marken": []
+   "alt": "Der Bereich Projekt mit der Unterseite Übersicht. Vier Karten mit grünem oder grauem Punkt: Allgemein, Ziele (C64, PAL), Quellen (Programme: 1, Quellgruppen: 1) und Diskette (nicht eingeschaltet), jeweils mit dem Knopf Ändern.",
+   "caption": "Die Übersicht des Projekts zeigt Allgemein, Ziele, Quellen und Diskette als Karten.",
+   "status": "vorhanden",
+   "alt_en": "The Projekt area with the Uebersicht subpage. Four cards with a green or gray dot: Allgemein, Ziele (C64, PAL), Quellen (Programme: 1, Quellgruppen: 1), and Diskette (not switched on), each with the button Aendern.",
+   "caption_en": "The project overview shows Allgemein, Ziele, Quellen, and Diskette as cards."
   },
   {
    "id": "bauen-knopf",
    "kapitel": "02 · 08",
-   "alt": "Die Kopfzeile mit dem Zielfeld „Commodore 64 · VICE x64sc“ und den Knöpfen Starten, Debuggen und Bauen.",
-   "caption": "Starten (F5), Debuggen (F6) und Bauen (F7) in der Kopfzeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Kopfzeile mit dem Zielfeld für System und Emulator und den Knöpfen Starten, Debuggen und Bauen.",
+   "caption": "Starten, Debuggen und Bauen in der Kopfzeile.",
+   "status": "offen",
+   "alt_en": "The header with the target field for system and emulator and the buttons Run, Debug and Build.",
+   "caption_en": "Run, Debug and Build in the header."
   },
   {
    "id": "ui-reiter",
    "kapitel": "03",
-   "alt": "Reiterleiste mit Dateiart-Marke ASM, orangem Punkt für ungespeicherte Änderungen und Schließen-Kreuz.",
+   "alt": "Reiterleiste im Editor mit mehreren Reitern, einem Punkt für ungespeicherte Änderungen und dem Schließen-Kreuz.",
    "caption": "Reiter im Editor.",
-   "aufnahme": "Ausschnitt aus editor-vervollstaendigung (werkzeug/ausschnitte.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 244,
-     "y": 10,
-     "w": 60,
-     "h": 40,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 480,
-     "y": 16,
-     "w": 30,
-     "h": 28,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 530,
-     "y": 12,
-     "w": 34,
-     "h": 36,
-     "nr": 3
-    }
-   ]
+   "status": "offen",
+   "alt_en": "Tab bar in the editor with several tabs, a dot for unsaved changes and the close cross.",
+   "caption_en": "Tabs in the editor."
   },
   {
    "id": "projektbaum",
    "kapitel": "04",
-   "alt": "Projektbaum mit Ordner lib/, Startprogramm mit Stern und Projektdatei sowie Umschalter Ordner oder Nach Art.",
-   "caption": "Der Projektbaum.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Die Seitenleiste im Bereich Code mit dem Projektbaum: ein Ordner lib, das Startprogramm mit Stern und die Projektdatei, darüber der Umschalter zwischen Ordner und Art.",
+   "caption": "Der Projektbaum in der Seitenleiste.",
+   "status": "offen",
+   "alt_en": "The sidebar in the Code area with the project tree: a folder lib, the start program marked with a star and the project file, with the switch between folder and kind above them.",
+   "caption_en": "The project tree in the sidebar."
   },
   {
    "id": "ui-modus-code",
    "kapitel": "03",
-   "alt": "Rechte Seite im Code-Arbeitsplatz: Inspektor mit Gliederung, Memory Map, Referenz und Fußpanel mit Ausgabe, Bauprotokoll, Probleme, Tests.",
-   "caption": "Der Code-Arbeitsplatz.",
-   "aufnahme": "Ausschnitt aus editor-syntax (werkzeug/ausschnitte.sh)",
-   "marken": []
+   "alt": "Der Arbeitsbereich für Code: links die Seitenleiste mit dem Projektbaum, in der Mitte der Editor, rechts das Maschinen-Panel mit Gliederung und Memory Map, unter dem Editor die Ablage mit Ausgabe, Bauprotokoll, Probleme und Tests.",
+   "caption": "Der Arbeitsbereich für Code mit Editor, Maschinen-Panel und der Ablage darunter.",
+   "status": "offen",
+   "alt_en": "The code workspace: the sidebar with the project tree on the left, the editor in the middle, the machine panel on the right with outline and memory map, and below the editor the tray with output, build log, problems and tests.",
+   "caption_en": "The code workspace with the editor, the machine panel and the tray below the editor."
   },
   {
    "id": "ui-modus-debug",
    "kapitel": "03",
-   "alt": "Rechte Seite im Debug-Arbeitsplatz: Register, Beobachten, Haltepunkte und Fußpanel mit Disassembler, Speicher, Emulator.",
-   "caption": "Der Debug-Arbeitsplatz.",
-   "aufnahme": "Ausschnitt aus debug-ueberblick (werkzeug/ausschnitte.sh)",
-   "marken": []
+   "alt": "Das Hauptfenster im Debug-Modus: rechts Register, Beobachten und Haltepunkte, unter dem Editor die Ablage mit Disassembler, Speicher und Emulator.",
+   "caption": "Der Debug-Modus (Beispielansicht).",
+   "status": "offen",
+   "alt_en": "The main window in debug mode: registers, watches and breakpoints on the right, and the tray below the editor with disassembler, memory and emulator.",
+   "caption_en": "The debug mode (example view)."
   },
   {
    "id": "theme-hell-dunkel",
    "kapitel": "03",
-   "alt": "Dasselbe Fenster links im Dunkelmodus, rechts im Hellmodus, durch eine Diagonale getrennt.",
+   "alt": "Dasselbe Fenster links im dunklen und rechts im hellen Erscheinungsbild, durch eine Diagonale getrennt.",
    "caption": "Dunkel und Hell.",
-   "aufnahme": "werkzeug/ausschnitte.sh (split.swift)",
-   "marken": []
+   "status": "offen",
+   "alt_en": "The same window in the dark appearance on the left and the light appearance on the right, split by a diagonal line.",
+   "caption_en": "Dark and light."
   },
   {
    "id": "roms-einrichten",
    "kapitel": "installation",
-   "alt": "Assistent „ROMs einrichten“, Schritt 2 „Dateien ablegen“: Ablagezone, ROM-Ordner mit Knöpfen „Ordner öffnen“ und „Neu prüfen“.",
-   "caption": "ROM-Dateien in den ROM-Ordner legen.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm romwiz2 60",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 950,
-     "y": 645,
-     "w": 820,
-     "h": 40,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 955,
-     "y": 855,
-     "w": 870,
-     "h": 165,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1431,
-     "y": 790,
-     "w": 200,
-     "h": 40,
-     "nr": 3
-    }
-   ]
+   "alt": "Der Assistent zum Einrichten der ROMs, Schritt Dateien ablegen: eine Ablagezone, der ROM-Ordner und die Knöpfe ROM-Ordner öffnen und Neu prüfen.",
+   "caption": "ROM-Dateien legst du in den ROM-Ordner oder ziehst sie auf die Ablagezone.",
+   "status": "offen",
+   "alt_en": "The ROM setup wizard at the step for placing files: a drop zone, the ROM folder, and the buttons to open the ROM folder and to check again.",
+   "caption_en": "Put ROM files in the ROM folder or drop them on the drop zone."
   },
   {
    "id": "editor-ersetzen",
    "kapitel": "05",
-   "alt": "Die Suchleiste mit einem zweiten Feld zum Ersetzen und den Knöpfen „Ersetzen“ und „Alle“.",
-   "caption": "Ersetzen mit Cmd/Strg+Alt+F",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Suchleiste im Editor mit einem zweiten Feld zum Ersetzen und den Knöpfen zum Ersetzen und für Alle.",
+   "caption": "Ersetzen mit Cmd/Strg+Alt+F.",
+   "status": "offen",
+   "alt_en": "The search bar in the editor with a second field for the replacement text and the buttons for Replace and Replace all.",
+   "caption_en": "Replace with Cmd/Ctrl+Alt+F."
   },
   {
    "id": "editor-gehe-zu",
    "kapitel": "05",
-   "alt": "Die Leiste „Gehe zu Zeile“ über dem Text mit der eingetippten Zeilennummer.",
-   "caption": "Gehe zu Zeile mit Cmd/Strg+L",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Über dem Quelltext von jumprun.asm liegt der Dialog Gehe zu Zeile mit dem Feld Zeilennummer (1 bis 266), in dem 22 steht, und den Knöpfen Abbrechen und Gehe zu. Im Editor ist Zeile 22 markiert.",
+   "caption": "Der Dialog Gehe zu Zeile springt zu einer Zeilennummer.",
+   "status": "vorhanden",
+   "alt_en": "A dialog called Gehe zu Zeile lies over the source of jumprun.asm. It has the field Zeilennummer (1 bis 266) containing 22, and the buttons Abbrechen and Gehe zu. Line 22 is highlighted in the editor.",
+   "caption_en": "The Gehe zu Zeile dialog jumps to a line number."
   },
   {
    "id": "editor-referenz",
    "kapitel": "05",
-   "alt": "Referenz-Reiter zum Befehl SEI am Cursor: Erklärung, Adressierung, Opcode und Zyklen.",
+   "alt": "Der Referenz-Reiter im Tray unter dem Editor zum Befehl am Cursor: Erklärung, Adressierung, Opcode und Zyklen.",
    "caption": "Die Referenz zum Befehl am Cursor.",
-   "aufnahme": "werkzeug/shot.sh <ziel> c64/rasterbars rasterbars.asm ref,showref 60",
-   "marken": []
+   "status": "offen",
+   "alt_en": "The reference tab in the tray below the editor for the instruction at the cursor: explanation, addressing, opcode and cycles.",
+   "caption_en": "The reference for the instruction at the cursor."
   },
   {
    "id": "debug-haltepunkt-gutter",
    "kapitel": "09",
-   "alt": "Roter Haltepunkt-Punkt neben der Zeilennummer 60 und die angehaltene Zeile 61 (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: der rote Punkt links neben der Zeilennummer ist ein Haltepunkt",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Editor mit einem roten Haltepunkt-Punkt links neben einer Zeilennummer und der markierten angehaltenen Zeile direkt darunter.",
+   "caption": "Beispielansicht: der rote Punkt links neben der Zeilennummer ist ein Haltepunkt.",
+   "status": "offen",
+   "alt_en": "The editor with a red breakpoint dot to the left of a line number and the highlighted paused line right below it.",
+   "caption_en": "Example view: the red dot to the left of the line number is a breakpoint."
   },
   {
    "id": "debug-pc-zeile",
    "kapitel": "09",
-   "alt": "Die angehaltene Zeile 61 mit hellem Streifen (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: der helle Streifen zeigt die Zeile, an der das Programm steht; der Befehl in dieser Zeile ist noch nicht ausgeführt",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Editor mit einer angehaltenen Zeile, die einen hellen Streifen trägt.",
+   "caption": "Beispielansicht: der helle Streifen zeigt die Zeile, an der das Programm steht; der Befehl in dieser Zeile ist noch nicht ausgeführt.",
+   "status": "offen",
+   "alt_en": "The editor with a paused line that has a bright stripe.",
+   "caption_en": "Example view: the bright stripe shows the line where the program stops; the instruction on that line has not run yet."
   },
   {
    "id": "debug-register",
    "kapitel": "09",
-   "alt": "Die Spalte Register: PC, A, X, Y, SP und die Flag-Leiste (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: der Programmzähler PC, die Rechenregister A, X und Y, der Stapelzeiger SP und die Flags N V B D I Z C",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Schmale Seitenspalte mit den Registern PC $0801, A $00, X $00, Y $00 und SP $F8, den Flags N, V, B, D, I, Z und C mit hervorgehobenem I, dem Stapel, einer leeren Bildschirmanzeige und Schaltern. Oben rechts steht „ANGEHALTEN“.",
+   "caption": "Beispielansicht: die Debug-Spalte mit Registern, Flags, Stapel und Bildschirm.",
+   "status": "vorhanden",
+   "alt_en": "A narrow side column with the registers PC $0801, A $00, X $00, Y $00 and SP $F8, the flags N, V, B, D, I, Z and C with I highlighted, the stack, an empty screen area and some switches. At the top right it says 'ANGEHALTEN' (halted).",
+   "caption_en": "Example view: the debug column with registers, flags, stack and screen."
   },
   {
    "id": "debug-disassembler",
    "kapitel": "09",
-   "alt": "Der Disassembler mit Programmzähler-Zeile und Haltepunkt (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: der Disassembler mit dem Pfeil an der Zeile des Programmzählers, einem roten Punkt für den Haltepunkt, Adresse, Bytes und Befehl",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Disassembler als Liste: pro Zeile ein Haltepunkt-Kreis, Adresse, Bytes, Befehl und rechts die Zyklenzahl. Die erste Zeile ab $0801 ist hervorgehoben und trägt rechts den Verweis auf jumprun.asm, darunter steht die Marke „start:“.",
+   "caption": "Beispielansicht: der Disassembler mit Adresse, Bytes, Befehl und Zyklen je Zeile.",
+   "status": "vorhanden",
+   "alt_en": "The disassembler as a list: each line has a breakpoint circle, address, bytes, instruction and the cycle count on the right. The first line at $0801 is highlighted and links to jumprun.asm, and the label start: appears further down.",
+   "caption_en": "Example view: the disassembler with address, bytes, instruction and cycles on each line."
   },
   {
    "id": "debug-speicher",
    "kapitel": "09",
-   "alt": "Die Spalte Speicher mit Hexdump (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: oben das Adressfeld, darunter der Hexdump mit 8 Bytes je Zeile und rechts die Zeichen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Oben der Disassembler mit Adressen, Bytes und Befehlen, darunter die Karte „Speicher ab $0400“ mit einem Hexdump: links die Adressen von 0400 bis 04F0, in der Mitte 16 Bytes je Zeile, alle 00, rechts die Zeichen als Punkte.",
+   "caption": "Beispielansicht: Adresse, 16 Bytes in Hex und rechts dieselben Bytes als Zeichen.",
+   "status": "vorhanden",
+   "alt_en": "At the top the disassembler with addresses, bytes and instructions, below it the 'Speicher ab $0400' area with a hex dump: addresses 0400 to 04F0 on the left, 16 bytes per row in the middle, all 00, and the characters as dots on the right.",
+   "caption_en": "Example view: address, 16 bytes in hex and the same bytes as characters on the right."
   },
   {
    "id": "debug-beobachten",
    "kapitel": "09",
-   "alt": "Die Spalte Beobachten mit drei Ausdrücken und die Liste der Haltepunkte (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: oben das Eingabefeld, darunter die Ausdrücke mit ihrem Wert dezimal und in Hex",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Schmale Seitenspalte der Debug-Ansicht mit den Bereichen „Haltepunkte“, „Beobachten“, „Momentaufnahme“ und „Chips“. Unter „Beobachten“ stehen drei Ausdrücke a, x und $d020, jeweils mit dem Wert „$00 · 0“ und einem Knopf zum Entfernen, darunter ein Eingabefeld und der Knopf „Hinzufügen“.",
+   "caption": "Beispielansicht, es läuft kein Emulator: der Bereich Beobachten mit drei Ausdrücken und ihren Werten in hexadezimaler und dezimaler Schreibweise.",
+   "status": "vorhanden",
+   "alt_en": "Narrow side column of the debug view with the sections 'Haltepunkte', 'Beobachten', 'Momentaufnahme' and 'Chips'. Under 'Beobachten' there are three expressions, a, x and $d020, each with the value '$00 / 0' and a button to remove it. Below them are an input field and the button 'Hinzufuegen'.",
+   "caption_en": "Example view, no emulator is running: the watch area with three expressions and their values in hexadecimal and decimal."
   },
   {
    "id": "debug-bedingung",
    "kapitel": "09",
-   "alt": "Reiter Haltepunkte: ein Haltepunkt mit Bedingung [$fb] == 9 an naechste_farbe und der Bereich „Neu“ mit Art, Adresse, Bedingung.",
+   "alt": "Der Haltepunkte-Reiter mit einem bedingten Haltepunkt an der Marke naechste_farbe (Bedingung ($fb) == 9) und dem Formular zum Hinzufügen mit Art, Adresse und Bedingung.",
    "caption": "Ein bedingter Haltepunkt.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=breaks VC_POINT='exec,0817,0817,[$fb] == 9' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
-   "marken": []
+   "status": "offen",
+   "alt_en": "The breakpoints tab with one conditional breakpoint at the label naechste_farbe (condition ($fb) == 9) and the form for adding a breakpoint with kind, address and condition.",
+   "caption_en": "A conditional breakpoint."
   },
   {
    "id": "debug-datenhaltepunkt",
    "kapitel": "09",
-   "alt": "Reiter Haltepunkte mit einem Schreib-Haltepunkt auf $00FB (ZAEHLER), der als getroffen angezeigt wird.",
-   "caption": "Ein Datenhaltepunkt hält bei jedem Schreiben.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=breaks VC_POINT_LATE=1 VC_POINT='write,00fb,00fb' werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
-   "marken": []
+   "alt": "Die Liste der Haltepunkte mit einem Daten-Haltepunkt auf eine Zeropage-Adresse, der beim Schreiben anhält und als getroffen markiert ist.",
+   "caption": "Beispielansicht: ein Datenhaltepunkt hält bei jedem Schreiben auf die Adresse an.",
+   "status": "offen",
+   "alt_en": "The list of breakpoints with a data breakpoint on a zero page address that stops on write and is marked as hit.",
+   "caption_en": "Example view: a data breakpoint stops on every write to the address."
   },
   {
    "id": "debug-momentaufnahme",
    "kapitel": "09",
-   "alt": "Fußpanel Momentaufnahme: Vorschau des Textbildschirms, erkannte Adressen und Häkchen für Bildschirm und Zeichensatz.",
-   "caption": "Eine Momentaufnahme sichert Bildschirm, Zeichensatz und Sprites aus dem laufenden Programm.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=snapshot werkzeug/shot.sh <ziel> c64/sprite_demo sprite_demo.asm bp,debug,dbgtab 960",
-   "marken": []
+   "alt": "Die Ablage unter dem Editor, Reiter Momentaufnahme: erkannte Adressen von Bildschirm und Zeichensatz, Schalter für Sprites, Kacheln und Zeichensatz, Namensfeld und Knopf „Als Dateien sichern“.",
+   "caption": "Beispielansicht: eine Momentaufnahme sichert Bildschirm, Zeichensatz und Sprites aus dem laufenden Programm.",
+   "status": "offen",
+   "alt_en": "The tray below the editor, snapshot tab: detected addresses of screen and character set, switches for sprites, tiles and character set, a name field and the button 'Save as files'.",
+   "caption_en": "Example view: a snapshot saves screen, character set and sprites from the running program."
   },
   {
    "id": "emulator-reiter",
    "kapitel": "08 · 09",
-   "alt": "Das rechte Panel, Reiter „Bild“, in einer Debug-Sitzung vor dem ersten Bild: der Knopf „Bild holen“, die Häkchen „bei jedem Halt“ und „Zeitlupe live“ und der Hinweis „Noch kein Bild“.",
-   "caption": "Beispielansicht, es läuft kein Emulator: der Reiter „Bild“ vor dem ersten Bild",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Das Maschinen-Panel rechts mit dem Reiter Bild in einer Debug-Sitzung vor dem ersten Bild: der Knopf zum Holen eines Bildes, zwei Optionen und der Hinweis, dass noch kein Bild da ist.",
+   "caption": "Beispielansicht, es läuft kein Emulator: der Reiter Bild vor dem ersten Bild.",
+   "status": "offen",
+   "alt_en": "The machine panel on the right with the Image tab in a debug session before the first image: the button to fetch an image, two options and the note that there is no image yet.",
+   "caption_en": "Example view, no emulator is running: the Image tab before the first image."
   },
   {
    "id": "live-bild",
    "kapitel": "09",
-   "alt": "Reiter Live-Bild mit dem Hinweis „Keine Ultimate 64 eingerichtet“.",
-   "caption": "Das Live-Bild braucht eine eingerichtete Ultimate 64.",
-   "aufnahme": "VC_BP_LINE=17 VC_DBG_TAB=live  werkzeug/shot.sh <ziel> /tmp/demo/Retro/farbwechsel farbwechsel.asm bp,debug,dbgtab 960",
-   "marken": []
+   "alt": "Der Bereich Bildschirm im Debug-Bereich mit dem Hinweis, dass keine Ultimate 64 eingerichtet ist und deshalb kein Live-Bild erscheint.",
+   "caption": "Beispielansicht: das Live-Bild braucht eine eingerichtete Ultimate 64.",
+   "status": "offen",
+   "alt_en": "The screen section in the debug area with a note that no Ultimate 64 is set up, so no live image appears.",
+   "caption_en": "Example view: the live image needs a Ultimate 64 that is set up."
   },
   {
    "id": "tests-panel",
    "kapitel": "10",
-   "alt": "Die Schublade mit dem Reiter „Tests“ nach einem Lauf: „Alle ausführen“, „Fehlgeschlagene“, die Auswahl „Läuft auf:“, die Gruppe mit ihren Ergebnissen und rechts die Zähler.",
-   "caption": "Der Reiter „Tests“ in der Schublade (Beispielansicht mit zwei Prüfungen)",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Code-Editor mit der Datei tests_demo.asm. Unter dem Editor ist die Ablage mit dem Reiter „Tests“ geöffnet: Knöpfe „Alle ausführen“ und „Fehlgeschlagene“, die Auswahl „Ziel“ mit „VICE x64sc“, ein Filterfeld, das Häkchen „nur Fehler“ und die Angabe „8 von 17 bestanden“. Darunter stehen die statischen Prüfungen mit grünen Punkten und dem Wort „bestanden“.",
+   "caption": "Der Reiter „Tests“ in der Ablage mit der Liste der Prüfungen und ihren Ergebnissen.",
+   "status": "vorhanden",
+   "alt_en": "The code editor with the file tests_demo.asm. Below the editor the drawer is open on the tab 'Tests': buttons 'Alle ausfuehren' and 'Fehlgeschlagene', the choice 'Ziel' set to 'VICE x64sc', a filter field, the checkbox 'nur Fehler' and the text '8 von 17 bestanden'. Below that are the static checks with green dots and the word 'bestanden'.",
+   "caption_en": "The 'Tests' tab in the drawer with the list of checks and their results."
   },
   {
    "id": "tests-ergebnis",
    "kapitel": "10",
-   "alt": "Ein fehlgeschlagener Test ist gewählt: rechts stehen Name, Zustand, die Meldung „erwartet ≤ $2000, ist $2310“ und der Knopf „Diesen Test debuggen“.",
-   "caption": "Ein fehlgeschlagener Test mit seiner Meldung (Beispielansicht)",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich Code mit der Datei tests_demo.asm und unten der Seite „Tests“. Die Liste zeigt Prüfungen mit grünen Punkten („bestanden“), einen gelben Eintrag „fehlgeschlagen“ und zwei „übersprungen“; oben steht „8 von 17 bestanden“. Rechts daneben stehen Zustand, Meldung und gemessener Wert des gewählten Tests und die Knöpfe „Zur Quelle“, „Testdatei öffnen“ und „Diesen Test debuggen“.",
+   "caption": "Die Seite „Tests“ mit der Liste der Prüfungen und dem Ergebnis des gewählten Tests.",
+   "status": "vorhanden",
+   "alt_en": "The Code area with the file tests_demo.asm and the 'Tests' page at the bottom. The list shows checks with green dots ('bestanden', passed), one yellow entry 'fehlgeschlagen' (failed) and two 'uebersprungen' (skipped). At the top it says '8 von 17 bestanden' (8 of 17 passed). On the right are the state, message and measured value of the chosen test and the buttons 'Zur Quelle', 'Testdatei oeffnen' and 'Diesen Test debuggen'.",
+   "caption_en": "The 'Tests' page with the list of checks and the result of the chosen test."
   },
   {
    "id": "zeichensatz-ueberblick",
    "kapitel": "12",
-   "alt": "Zeichensatz-Editor mit font.vcchar: links die Zeichenmatrix, in der Mitte die 8×8-Zeichenfläche, rechts Pixelwerte und Farben, unten der Export-Streifen.",
-   "caption": "Der Zeichensatz-Editor.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Zeichensatz-Editor im Bereich „Grafik“ mit der Datei font.vcchar. Links die Zeichenmatrix „FONT“ mit 256 Zeichen und den Bereichen „Alle“, „Buchstaben“, „Ziffern“, „Satzzeichen“ und „Frei“. In der Mitte die große Zeichenfläche mit Werkzeugleiste, rechts die Karten „VORSCHAU IM BILD“, „VORLAGE“, „ZEICHEN“, „FARBEN“ und „VERSCHIEBEN“.",
+   "caption": "Der Zeichensatz-Editor mit Zeichenmatrix, Zeichenfläche und den Karten rechts.",
+   "status": "vorhanden",
+   "alt_en": "The character set editor in the area 'Grafik' with the file font.vcchar. On the left is the character matrix 'FONT' with 256 characters and the ranges 'Alle', 'Buchstaben', 'Ziffern', 'Satzzeichen' and 'Frei'. In the middle is the large drawing area with a toolbar. On the right are the cards 'VORSCHAU IM BILD', 'VORLAGE', 'ZEICHEN', 'FARBEN' and 'VERSCHIEBEN'.",
+   "caption_en": "The character set editor with the character matrix, drawing area and the cards on the right."
   },
   {
    "id": "zeichensatz-multicolor",
    "kapitel": "12",
-   "alt": "Das Zeichensatz-Studio mit einem Multicolor-Zeichen: die Punkte sind doppelt so breit, rechts die Karte „Werkzeug“ mit den vier Pixelwerten und die Karte „Dokument“ mit den Farben.",
-   "caption": "Im Multicolor-Modus sind die Punkte doppelt so breit; rechts steht, welches Register welche Farbe liefert",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Zeichensatz-Editor mit einem Multicolor-Zeichen: die Punkte sind doppelt so breit, rechts die Karte Farben mit den vier Pixelwerten und den Registern, die ihre Farben liefern.",
+   "caption": "Im Multicolor-Modus sind die Punkte doppelt so breit; rechts steht, welches Register welche Farbe liefert.",
+   "status": "offen",
+   "alt_en": "The character set editor with a multicolor character: the dots are twice as wide, and on the right the Colors card lists the four pixel values and the registers that supply their colors.",
+   "caption_en": "In multicolor mode the dots are twice as wide; the card on the right shows which register supplies which color."
   },
   {
    "id": "sprite-c64",
    "kapitel": "13",
-   "alt": "Sprite-Editor mit hero.vcsprite: links die Frame-Liste, in der Mitte die Zeichenfläche, rechts Modus, Pixelwerte, VIC-II-Flags und Farben, unten das Animationsfeld und der Export-Streifen.",
+   "alt": "Der Reiter Grafik mit der Seite „Sprites“ und der Datei hero.vcsprite: links die Sprite-Dateien und zwei Bilder, in der Mitte das 12x21 Pixel große Multicolor-Sprite einer Figur in Gelb, Rotbraun und Blau, rechts die Karten „Farben“, „Sprite“ (Mehrfarbig an), „Vorschau im Spiel“ und „Verschieben“. Unter der Zeichenfläche steht der Hinweis „Keine Animation“.",
    "caption": "Der Sprite-Editor mit einem Multicolor-Sprite.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=graphics/hero.vcsprite werkzeug/shot.sh <ziel> c64/sprite_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 490,
-     "y": 420,
-     "w": 198,
-     "h": 282,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 702,
-     "y": 420,
-     "w": 900,
-     "h": 790,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 580,
-     "w": 368,
-     "h": 230,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 2153,
-     "y": 980,
-     "w": 368,
-     "h": 222,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 690,
-     "y": 1245,
-     "w": 1840,
-     "h": 40,
-     "nr": 6
-    }
-   ]
+   "status": "vorhanden",
+   "alt_en": "The Grafik tab with the Sprites page and the file hero.vcsprite: on the left the sprite files and two frames, in the middle the 12x21 pixel multicolor sprite of a figure in yellow, brown-red and blue, on the right the cards for colors, sprite (multicolor on), preview in the game and move. Below the drawing area a note says there is no animation.",
+   "caption_en": "The sprite editor with a multicolor sprite."
   },
   {
    "id": "sprite-c64-multicolor",
    "kapitel": "13",
-   "alt": "Rechte Spalte des Sprite-Editors: Modus dieses Frames (Hires oder Multicolor), Pixelwerte mit $D025 und $D026 und die VIC-II-Sprite-Flags.",
-   "caption": "Modus, Pixelwerte und Flags eines Frames.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Die Seitenleiste des Sprite-Editors mit dem Schalter Mehrfarbig für das gewählte Bild, den Pixelwerten mit den beiden gemeinsamen Farben und den Sprite-Flags des Chips.",
+   "caption": "Modus, Pixelwerte und Flags eines Bildes.",
+   "status": "offen",
+   "alt_en": "The sidebar of the sprite editor with the multicolor switch for the selected frame, the pixel values with the two shared colors and the sprite flags of the chip.",
+   "caption_en": "Mode, pixel values and flags of one frame."
   },
   {
    "id": "sprite-atari-pmg",
    "kapitel": "13",
-   "alt": "Der PMG-Editor für Atari: links die vier Player P0 bis P3, in der Mitte das Frame mit 8×32 Punkten, rechts Werkzeug und Dokument mit der Atari-Palette (PAL, NTSC oder Projekt).",
-   "caption": "Der PMG-Editor: links die vier Player, rechts die Farben",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der PMG-Editor für Atari: links die Liste der Player, in der Mitte das Raster eines Frames, rechts Werkzeuge und die Atari-Palette.",
+   "caption": "Der PMG-Editor: links die Player, in der Mitte das Frame, rechts die Farben.",
+   "status": "offen",
+   "alt_en": "The PMG editor for Atari: the list of players on the left, the grid of one frame in the middle, and tools and the Atari palette on the right.",
+   "caption_en": "The PMG editor: players on the left, the frame in the middle, colors on the right."
   },
   {
    "id": "bildschirm-editor",
    "kapitel": "14",
-   "alt": "Bildschirm-Editor mit title.vcscreen: der Textbildschirm, rechts die Zeichenauswahl, darunter Farben, unten der Export-Streifen.",
-   "caption": "Der Bildschirm-Editor.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Bildschirm-Editor im Bereich Grafik mit der Datei title.vcscreen: links die Zeichenauswahl und die Liste der Bildschirm-Dateien, in der Mitte die 40 mal 25 große Textbildschirm-Fläche mit einem türkisen Rahmen aus Zeichen und weißen und gelben Zeichen, rechts die Karten für Größe, Farben des Systems, Zeichensatz und Ausgabe.",
+   "caption": "Der Bildschirm-Editor mit Zeichenauswahl, Bildschirm-Fläche und Einstellungen.",
+   "status": "vorhanden",
+   "alt_en": "The screen editor in the Graphics area with the file title.vcscreen. On the left are the character picker and the list of screen files. In the middle is the 40 by 25 text screen with a cyan frame made of characters and some white and yellow characters. On the right are the cards for size, system colors, character set and output.",
+   "caption_en": "The screen editor with character picker, screen area and settings."
   },
   {
    "id": "kachel-editor",
    "kapitel": "14",
-   "alt": "Kachel-Editor mit level_tiles.vctiles: links die Kachelliste mit Verwendung, in der Mitte die große Kachel, rechts Farbe, Eigenschaften und Zeichenwähler.",
-   "caption": "Der Kachel-Editor.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Kachel-Editor im Bereich Grafik mit der Datei level_tiles.vctiles: links der Kachelsatz mit den Kacheln leer, stein, gras und kiste, in der Mitte die große 2 mal 2 Kachel und der Zeichenwähler mit einem Raster, rechts die Karten Kachel, Farbe, Eigenschaften, Größe der Kacheln, Zielzeichensatz und Kachel.",
+   "caption": "Der Kachel-Editor mit Kachelsatz, Kachelfläche und Zeichenwähler.",
+   "status": "vorhanden",
+   "alt_en": "The tile editor in the Graphics area with the file level_tiles.vctiles. On the left is the tile set with the tiles leer, stein, gras and kiste. In the middle are the large 2 by 2 tile and the character picker with a grid. On the right are the cards Kachel, Farbe, Eigenschaften, Groesse der Kacheln, Zielzeichensatz and Kachel.",
+   "caption_en": "The tile editor with tile set, tile area and character picker."
   },
   {
    "id": "kachel-bank",
    "kapitel": "14",
-   "alt": "Rechte Spalte des Kachel-Editors: Zeichensatz-Auswahl und Zeichenraster der Kachelbank.",
+   "alt": "Der Kachel-Editor: rechts die Auswahl des Zeichensatzes und das Zeichenraster der Kachelbank.",
    "caption": "Zeichensatz und Bank der Kacheln.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "status": "offen",
+   "alt_en": "The tile editor: on the right the character set selection and the character grid of the tile bank.",
+   "caption_en": "Character set and bank of the tiles."
   },
   {
    "id": "kachel-karte",
    "kapitel": "14",
-   "alt": "Karten-Editor (Screen-Bank) im Kachelmodus mit level.vcscreen: Kachelpalette, Karte, Größe und Ursprung rechts.",
-   "caption": "Der Karten-Editor.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich „Grafik“ mit dem Reiter „Karten“ im Projekt gfx_demo. Links die vier Kacheln des Kachelsatzes und die Schalter für Ebenen, in der Mitte die Karte „level“ mit Boden aus Kacheln und Grasstreifen, rechts die Felder zu Name, Größe, Farben und Ausgabe. Unter der Karte stehen die Level.",
+   "caption": "Der Karten-Editor mit Kachelsatz, Karte und den Einstellungen zur Karte.",
+   "status": "vorhanden",
+   "alt_en": "The 'Grafik' area with the tab 'Karten' in the project gfx_demo. On the left the four tiles of the tile set and the switches for layers, in the middle the map 'level' with a floor of tiles and a strip of grass, on the right the fields for name, size, colors and output. The levels are listed below the map.",
+   "caption_en": "The map editor with tile set, map and the map settings."
   },
   {
    "id": "palette-mega65",
    "kapitel": "15",
-   "alt": "Das Paletten-Studio des MEGA65: 256 Farbfelder, rechts die Karte „Eintrag 0 ($00)“ mit Farbfeld, den Reglern R, G, B und dem Feld Hex; oben die Leiste mit „Standardpalette“.",
-   "caption": "Der Paletten-Editor des MEGA65: 256 Farbfelder und die Karte für den gewählten Eintrag",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Paletten-Editor im Bereich „Grafik“ für die MEGA65-Palette pal65 mit 256 Farben. In der Mitte ein Raster aus 16 mal 16 Farbfeldern, das erste Feld ist gewählt. Rechts die Karten „FARBE 0“ mit Vorschau, Reglern „ROT“, „GRÜN“, „BLAU“, dem Feld „HEXWERT“ mit #000000, „IM EINSATZ“ und „AUSGABE“.",
+   "caption": "Der Paletten-Editor des MEGA65 mit 256 Farbfeldern und der Karte für den gewählten Eintrag.",
+   "status": "vorhanden",
+   "alt_en": "The palette editor in the area 'Grafik' for the MEGA65 palette pal65 with 256 colors. In the middle is a grid of 16 by 16 color cells with the first cell selected. On the right are the cards 'FARBE 0' with a preview, sliders 'ROT', 'GRUEN' and 'BLAU', the field 'HEXWERT' with #000000, 'IM EINSATZ' and 'AUSGABE'.",
+   "caption_en": "The MEGA65 palette editor with 256 color cells and the card for the selected entry."
   },
   {
    "id": "palette-atari",
    "kapitel": "15",
-   "alt": "Die Karte „Dokument“ im Atari-PMG-Editor: die gewählte Spielerfarbe, darunter die Atari-Palette (128 Farbtöne) mit den Schaltern PAL, NTSC und Projekt.",
-   "caption": "Beim Atari wählst du eine von 128 festen Farben; die Videonorm (PAL oder NTSC) ändert, wie sie aussehen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Farbkarte im Sprite-Editor für den Atari: die gewählte Spielerfarbe und darunter das Raster der 128 festen Farben mit der Palettenansicht Projekt, PAL oder NTSC.",
+   "caption": "Beim Atari wählst du eine von 128 festen Farben; die Videonorm ändert, wie sie aussehen.",
+   "status": "offen",
+   "alt_en": "The color card in the sprite editor for the Atari: the selected player color and below it the grid of the 128 fixed colors with the palette view Project, PAL or NTSC.",
+   "caption_en": "On the Atari you pick one of 128 fixed colors; the video standard changes how they look."
   },
   {
    "id": "tracker-ueberblick",
    "kapitel": "16",
-   "alt": "Tracker mit tune.vcsong: Reihenfolge und Patterns links, Raster mit drei Stimmen in der Mitte, Klaviertastatur, Instrumente mit Hüllkurve rechts, Export-Streifen unten.",
-   "caption": "Der Tracker für den SID.",
-   "aufnahme": "VC_ZOOM=0.75 VC_WIN=2000x1300 VC_STUDIO=music/tune.vcsong werkzeug/shot.sh <ziel> c64/music_demo \"\" embed 220 e",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 450,
-     "w": 261,
-     "h": 565,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 776,
-     "y": 455,
-     "w": 611,
-     "h": 741,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 2135,
-     "y": 450,
-     "w": 388,
-     "h": 750,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 489,
-     "y": 305,
-     "w": 2029,
-     "h": 42,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 771,
-     "y": 1301,
-     "w": 265,
-     "h": 39,
-     "nr": 5
-    }
-   ]
+   "alt": "Der Reiter Musik mit der Datei tune.vcsong: links Reihenfolge (Muster 1, 2, 1, 2), Instrumente Puls, Bass und Snare, in der Mitte die Werkzeugleiste mit Mitscrollen, Tempo, Zeilen, Oktave und Schritt und das Raster mit drei Stimmen, rechts die Karten „Instrument 00 · Puls“, „Klaviatur“ und „Lautstärke“. Der Cursor steht auf Zeile 02, unten steht „ungespeichert“.",
+   "caption": "Der Tracker mit Reihenfolge, Raster mit drei Stimmen und Instrumenten.",
+   "status": "vorhanden",
+   "alt_en": "The Musik tab with the file tune.vcsong: on the left the order list (pattern 1, 2, 1, 2) and the instruments Puls, Bass and Snare, in the middle the toolbar with follow, tempo, rows, octave and step and the grid with three voices, on the right the cards for instrument 00 Puls, keyboard and volume. The cursor is on row 02, and the status line says unsaved.",
+   "caption_en": "The tracker with order list, grid with three voices and instruments."
   },
   {
    "id": "tracker-muster",
    "kapitel": "16",
-   "alt": "Ausschnitt des Raster mit drei Stimmen und Cursor auf C-4 00 in Stimme 1.",
-   "caption": "Das Muster-Raster.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Reiter „Musik“ mit tune.vcsong. Links Reihenfolge und Instrumente, in der Mitte die Werkzeugleiste, die Stimmen 1 bis 3 und das Muster-Raster mit Noten wie C-4 00 und C-2 01; der Cursor steht in Stimme 3, Reihe 01. Rechts das Instrument „Puls“ mit Klangform, Reglern und der Klaviatur mit Computertasten.",
+   "caption": "Das Muster-Raster mit drei Stimmen und rechts die Klaviatur.",
+   "status": "vorhanden",
+   "alt_en": "The 'Musik' tab with tune.vcsong. On the left the order list and the instruments, in the middle the toolbar, voices 1 to 3 and the pattern grid with notes like C-4 00 and C-2 01; the cursor is in voice 3, row 01. On the right the instrument 'Puls' with waveform, sliders and the keyboard with computer keys.",
+   "caption_en": "The pattern grid with three voices and the keyboard on the right."
   },
   {
    "id": "tracker-instrument",
    "kapitel": "16",
-   "alt": "Rechte Spalte des Trackers: Instrumentliste, Wellenform, Pulsbreite und ADSR-Regler.",
-   "caption": "Instrumente: Wellenform und ADSR.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Reiter „Musik“ mit tune.vcsong. Rechts die Spalte „Instrument 00 · Puls“ mit den Klangformen (Rechteck gewählt), den Reglern Anschlag, Abfall, Halten, Ausklang und Pulsbreite, der Klaviatur und der Lautstärke. Links Reihenfolge und Instrumente, in der Mitte das Muster mit drei Stimmen.",
+   "caption": "Die rechte Spalte des Trackers mit Klangform, Hüllkurve, Pulsbreite und Klaviatur.",
+   "status": "vorhanden",
+   "alt_en": "The 'Musik' tab with tune.vcsong. On the right the column 'Instrument 00 - Puls' with the waveforms (square selected), the sliders Anschlag, Abfall, Halten, Ausklang and Pulsbreite, the keyboard and the volume. On the left the order list and instruments, in the middle the pattern with three voices.",
+   "caption_en": "The right column of the tracker with waveform, envelope, pulse width and keyboard.",
+   "mangel": "sehr aehnlich zu tracker-muster"
   },
   {
    "id": "tracker-huellkurve",
    "kapitel": "16",
-   "alt": "Hüllkurve eines Instruments im Modus Instrumente: die Kurve mit Attack-Spitze, Decay und Release über den Reglern.",
-   "caption": "Die Hüllkurve: ansteigend bis zur Spitze (Attack), fallend auf das Haltepegel (Decay), nach Note aus ausklingend (Release)",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich Musik im Projekt music_demo mit der Reihenfolge und den Instrumenten links, dem Muster mit drei Stimmen in der Mitte und rechts der Karte „INSTRUMENT 00 · PULS“. Dort sind die Klangform „Rechteck“ gewählt und die Regler Anschlag, Abfall, Halten, Ausklang und Pulsbreite sowie die Klaviatur zu sehen. Eine gezeichnete Hüllkurve gibt es nicht.",
+   "caption": "Der Musik-Bereich: die Hüllkurve des Instruments stellst du rechts mit vier Reglern ein.",
+   "status": "vorhanden",
+   "alt_en": "The Musik (music) area in the project music_demo with the order list and instruments on the left, the pattern with three voices in the middle, and on the right the card INSTRUMENT 00 - PULS. The waveform Rechteck (pulse) is selected, and the sliders Anschlag, Abfall, Halten, Ausklang and Pulsbreite and the keyboard are visible. No drawn envelope curve is shown.",
+   "caption_en": "The music area: you set the envelope of the instrument on the right with four sliders.",
+   "mangel": "rote Fehlermeldung, keine Huellkurve im Bild"
   },
   {
    "id": "tracker-hoerprobe",
    "kapitel": "16",
-   "alt": "Der Tracker im Modus Noten; in der Karte „Klaviatur“ sind die gerade klingenden Tasten hervorgehoben.",
-   "caption": "Die Karte „Klaviatur“ zeigt die gerade klingenden Töne (Beispielansicht)",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Reiter „Musik“ mit tune.vcsong. Über dem Muster-Raster stehen die Knöpfe der Stimmen 1, 2 und 3 und „Alle einblenden“. In Stimme 1 steht in Reihe 01 die Note C-3, der Cursor ist in Reihe 02; rechts ist die Karte „Klaviatur“ ohne hervorgehobene Taste.",
+   "caption": "Der Tracker mit der Stimmen-Leiste über dem Raster und der Klaviatur rechts.",
+   "status": "vorhanden",
+   "alt_en": "The 'Musik' tab with tune.vcsong. Above the pattern grid are the buttons for voices 1, 2 and 3 and 'Alle einblenden'. Voice 1 has the note C-3 in row 01 and the cursor is in row 02; on the right is the 'Klaviatur' card with no key highlighted.",
+   "caption_en": "The tracker with the voice bar above the grid and the keyboard on the right.",
+   "mangel": "keine Taste hervorgehoben, drei Stimmen"
   },
   {
    "id": "tracker-pokey",
    "kapitel": "16",
-   "alt": "Ein POKEY-Instrument: die Verzerrung (Reiner Ton, Rauschen, Buzz, Gritty, Bass) und 16 Lautstärkewerte je Bild als Regler; der Strich „ab hier“ zeigt die Wiederholung.",
-   "caption": "POKEY-Instrumente haben Verzerrung und eine 16-Schritte-Lautstärkekurve",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Ein POKEY-Instrument im Tracker: die Wahl der Verzerrung und die Hüllkurve je Bild als Reihe von Reglern; eine Linie markiert, ab welchem Bild sich die Kurve wiederholt.",
+   "caption": "POKEY-Instrumente haben eine Verzerrung und eine Hüllkurve je Bild.",
+   "status": "offen",
+   "alt_en": "A POKEY instrument in the tracker: the distortion choice and the per-frame envelope as a row of sliders, with a line marking the frame where the curve repeats.",
+   "caption_en": "POKEY instruments have a distortion and a per-frame envelope."
   },
   {
    "id": "play-tracker",
    "kapitel": "17",
-   "alt": "Der PLAY-Tracker des MEGA65: sechs Stimmen als Spalten, ein Schritt je Zeile, rechts die Karten Werkzeug (Instrumente), Klaviatur und Kanäle.",
-   "caption": "Der PLAY-Tracker: sechs Stimmen als Spalten, ein Schritt (Sechzehntel) pro Zeile, rechts die Instrumente und die Klaviatur",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Editor für PLAY-Dateien: sechs Stimmen als Spalten, ein Schritt je Zeile, rechts die Einstellungen der Hüllkurve mit Klaviatur und Lautstärke.",
+   "caption": "Der PLAY-Tracker: sechs Stimmen als Spalten, ein Schritt pro Zeile.",
+   "status": "offen",
+   "alt_en": "The editor for PLAY files: six voices as columns, one step per row, and on the right the envelope settings with keyboard and volume.",
+   "caption_en": "The PLAY tracker: six voices as columns, one step per row."
   },
   {
    "id": "disk-studio",
    "kapitel": "18",
-   "alt": "Das Disk-Studio mit einer D64-Datei: oben das Verzeichnis, darunter die Belegungskarte der Spuren mit der Kette der gewählten Datei, rechts die Karten Zustand, Sektor und „In das Projekt übernehmen“.",
-   "caption": "Das Disk-Studio: Verzeichnis, Belegungskarte, Sektoranzeige und Übernahme in das Projekt",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Bereich „Daten“ mit der Seite „Disk“ und dem Diskettenabbild beispiel.d64. Links die Karten „DISKETTE“, „BELEGUNG“ und „AKTIONEN“, in der Mitte das Verzeichnis mit den drei Dateien HUGO, GUMBO und MUSIK und die Belegungskarte, rechts die Sektoranzeige „SEKTOR 18/0“ als Hexdump.",
+   "caption": "Der Disk-Editor mit Verzeichnis, Belegungskarte und Sektoranzeige.",
+   "status": "vorhanden",
+   "alt_en": "The area 'Daten' with the page 'Disk' and the disk image beispiel.d64. On the left are the cards 'DISKETTE', 'BELEGUNG' and 'AKTIONEN'. In the middle are the directory with the three files HUGO, GUMBO and MUSIK and the allocation map. On the right is the sector view 'SEKTOR 18/0' as a hex dump.",
+   "caption_en": "The disk editor with directory, allocation map and sector view."
   },
   {
    "id": "disk-validieren",
    "kapitel": "18",
-   "alt": "Das Disk-Studio nach „Validieren“: die Karte „Zustand“ meldet, dass BAM, Verzeichnis und Ketten übereinstimmen.",
-   "caption": "Validieren prüft BAM, Verzeichnis und Dateiketten und meldet die Befunde",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Disk-Editor nach dem Prüfen: Das Feld Prüfbericht meldet, dass keine Probleme gefunden wurden, und die Karte Diskette zeigt keine Probleme an.",
+   "caption": "Prüfen untersucht BAM, Verzeichnis und Dateiketten und meldet die Befunde.",
+   "status": "offen",
+   "alt_en": "The disk editor after the check: the report field says that no problems were found and the disk card shows no problems.",
+   "caption_en": "The check examines the BAM, the directory and the file chains and reports what it finds."
   },
   {
    "id": "segmente-baenke",
    "kapitel": "18",
-   "alt": "Das rechte Panel mit der Karte neben Editor und Debug-Schublade (Beispielansicht).",
-   "caption": "Beispielansicht, es läuft kein Emulator: die Memory Map zeigt, welche Segmente welche Speicherseiten belegen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Das Maschinen-Panel rechts neben dem Editor mit der Memory Map und der Tabelle der Segmente des letzten Baus.",
+   "caption": "Beispielansicht: die Memory Map zeigt, welche Segmente welche Speicherseiten belegen.",
+   "status": "offen",
+   "alt_en": "The machine panel to the right of the editor with the memory map and the table of segments from the last build.",
+   "caption_en": "Example view: the memory map shows which segments use which memory pages."
   },
   {
    "id": "rom-verzeichnis",
    "kapitel": "18",
-   "alt": "Einstellungen, Seite „ROMs“ (Ausschnitt): je System ein Reiter, je Rolle der Status, die erwartete Größe und der Knopf „Auswählen …“.",
-   "caption": "Einstellungen ▸ ROMs: Status je Rolle und Knopf „Auswählen …“; ROM-Ordner und Ablagezone stehen darüber und darunter auf der Seite",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Einstellungen, Seite ROMs: je System ein Reiter, je Rolle der Status, die erwartete Größe und der Knopf „Auswählen …“.",
+   "caption": "Einstellungen, ROMs: Status je Rolle und Knopf „Auswählen …“.",
+   "status": "offen",
+   "alt_en": "Settings, ROMs page: one tab per system, and for each role the status, the expected size and the button 'Choose ...'.",
+   "caption_en": "Settings, ROMs: status for each role and the button 'Choose ...'."
   },
   {
    "id": "projekt-neu-ergebnis",
    "kapitel": "02",
-   "alt": "Das frisch angelegte Projekt hallo: links der Projektbaum mit src/c64/main.asm und hallo.vcprj, in der Mitte der geöffnete Quelltext, oben die Kopfzeile, unten das Protokoll.",
-   "caption": "Das neue Projekt direkt nach dem Anlegen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Das frisch angelegte Projekt hallo im Bereich Code: in der Seitenleiste der Ordner src/c64/ mit main.asm, in der Mitte der geöffnete Quelltext, unten der Tray unter dem Editor.",
+   "caption": "Das neue Projekt direkt nach dem Anlegen.",
+   "status": "offen",
+   "alt_en": "The newly created project hallo in the Code area: the folder src/c64/ with main.asm in the sidebar, the open source text in the middle and the tray below the editor.",
+   "caption_en": "The new project right after it was created."
   },
   {
    "id": "asm-erstes-programm",
    "kapitel": "06",
-   "alt": "Der Quelltext main.asm eines neuen Projekts im Editor, links der Projektbaum.",
-   "caption": "Der Editor mit dem Quelltext einer Projektvorlage",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Quelltext main.asm eines neuen Projekts im Editor, links in der Seitenleiste der Projektbaum.",
+   "caption": "Der Editor mit dem Quelltext einer Projektvorlage.",
+   "status": "offen",
+   "alt_en": "The source file main.asm of a new project in the editor, with the project tree in the sidebar on the left.",
+   "caption_en": "The editor with the source of a project template."
   },
   {
    "id": "ausgabe-panel",
    "kapitel": "08",
-   "alt": "Der Reiter „Protokoll“ mit den Zeilen eines Baus und Starts: Bauen, Fertig, Gestartet.",
-   "caption": "Der Reiter „Protokoll“ meldet Bauen, Starten und Debuggen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Ablage unter dem Editor, Reiter Ausgabe, mit den Zeilen eines Baus und Starts: Bauen, Fertig, Gestartet.",
+   "caption": "Der Reiter Ausgabe meldet Bauen, Starten und Debuggen.",
+   "status": "offen",
+   "alt_en": "The tray below the editor, Output tab, with the lines of a build and start: Building, Done, Started.",
+   "caption_en": "The Output tab reports building, starting and debugging."
   },
   {
    "id": "asm-fehler",
    "kapitel": "06",
-   "alt": "Der Editor mit der rot unterlegten Zeile „jmp ende“; darunter der Reiter Probleme mit der Meldung „E202: unbekanntes Symbol „ende““.",
-   "caption": "Eine Fehlermeldung lesen: Code, Beschreibung und Zeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Code-Bereich mit dem Quelltext jumprun.asm. Unter dem Editor zeigt die Ablage die Seite Probleme mit zwei roten Fehlern (E202 ungültige Hex-Zahl, E205 unbekannter Befehl) samt Zeilennummern und darunter zwei Hinweisen.",
+   "caption": "Die Seite Probleme listet Fehler mit Code, Beschreibung und Zeile.",
+   "status": "vorhanden",
+   "alt_en": "The Code area with the source file jumprun.asm. The tray below the editor shows the Probleme page with two red errors (E202 invalid hex number, E205 unknown instruction) with line numbers, and two hints below them.",
+   "caption_en": "The Probleme page lists errors with code, description, and line."
   },
   {
    "id": "editor-fehlerzeile",
    "kapitel": "05",
-   "alt": "Eine rot hinterlegte Zeile mit rot unterstrichenem Fehler: „jmp ende“ nennt ein Symbol, das es nicht gibt.",
-   "caption": "Ein Fehler wird rot unterstrichen, die Meldung erscheint beim Darüberfahren",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Die Code-Ansicht mit jumprun.asm, gescrollt bis Zeile 269. In den Zeilen 267 und 268 stehen „lda #$zz“ und „xyz 5“, beide rot unterstrichen und mit einem roten Punkt am Rand. Die Statusleiste unten zeigt „2 Fehler · 2 Meldungen in anderen Dateien“.",
+   "caption": "Fehlerhafte Zeilen sind rot unterstrichen und am Rand markiert, die Statusleiste zählt die Fehler.",
+   "status": "vorhanden",
+   "alt_en": "The code view with jumprun.asm scrolled to line 269. Lines 267 and 268 contain lda #$zz and xyz 5, both underlined in red and marked with a red dot in the margin. The status bar at the bottom shows 2 Fehler (errors) and 2 messages in other files.",
+   "caption_en": "Faulty lines are underlined in red and marked in the margin, and the status bar counts the errors.",
+   "mangel": "andere Fehlerzeilen als im Text"
   },
   {
    "id": "basic-marken",
    "kapitel": "07",
-   "alt": "Ein BASIC-Quelltext ohne Zeilennummern mit den Marken @neu und @ende; „then @neu“ und „goto @ende“ springen dorthin.",
-   "caption": "Marken (@name) im Quelltext; die Zeilennummern vergibt der Bau",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Ein BASIC-Quelltext ohne Zeilennummern mit den Marken @neu und @ende, zu denen then @neu und goto @ende springen.",
+   "caption": "Marken (@name) im Quelltext; die Zeilennummern vergibt der Bau.",
+   "status": "offen",
+   "alt_en": "A BASIC source text without line numbers with the labels @neu and @ende; then @neu and goto @ende jump to them.",
+   "caption_en": "Labels (@name) in the source; the build assigns the line numbers."
   },
   {
    "id": "basic-langenamen",
    "kapitel": "07",
-   "alt": "Ein BASIC-Quelltext mit langen Variablennamen (punkte, runde, zaehler%, name$) und der Zeile #longnames am Anfang der Datei.",
-   "caption": "Lange Namen im Quelltext; beim Bauen entstehen eindeutige Kurznamen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Ein BASIC-Quelltext mit langen Variablennamen und der Zeile #longnames am Anfang der Datei.",
+   "caption": "Lange Namen im Quelltext; beim Bauen entstehen eindeutige Kurznamen.",
+   "status": "offen",
+   "alt_en": "A BASIC source with long variable names and the line #longnames at the top of the file.",
+   "caption_en": "Long names in the source; the build creates unique short names."
   },
   {
    "id": "basic-nach-asm",
    "kapitel": "07",
-   "alt": "Dialog „Nach Assembler konvertieren“ mit Ausgabedatei, Zielsystem C64 und Optionen für die Umwandlung.",
+   "alt": "Der Dialog zum Umwandeln von BASIC in Assembler mit Ausgabedatei, Zielsystem und den Optionen der Umwandlung.",
    "caption": "BASIC in Assembler umwandeln.",
-   "aufnahme": "werkzeug/aufnahmen-4.sh (Hilfsprojekt unter /tmp/demo/Retro, Code aus dem Kapitel) (Demo dlgb2a)",
-   "marken": []
+   "status": "offen",
+   "alt_en": "The dialog for converting BASIC to assembly with output file, target system and the conversion options.",
+   "caption_en": "Convert BASIC to assembly."
   },
   {
    "id": "zeichensatz-standard",
    "kapitel": "12",
-   "alt": "Der Dialog „Zeichensatz hinzufügen“ im Reiter „Standardzeichensatz“ mit der Liste der Quellen und dem Häkchen „Zeichen stattdessen einbetten“.",
-   "caption": "Standardzeichensätze verweisen auf deine ROMs; fehlt ein ROM, ist der Eintrag grau",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Zeichensatz-Editor für font.vcchar: links FONT mit dem Raster der 256 Zeichen und den Knöpfen für BEREICHE (Alle, Buchstaben, Ziffern, Satzzeichen, Frei), in der Mitte die große Zeichenfläche für Zeichen 0, rechts VORSCHAU IM BILD, die Karte VORLAGE mit Auswahl „C64 Zeichensatz“ und „Vorlage laden“, der Satz „Selbst gestaltet, keine Vorlage geladen“ sowie ZEICHEN und FARBEN.",
+   "caption": "Der Zeichensatz-Editor mit der Karte Vorlage rechts.",
+   "status": "offen",
+   "alt_en": "The character set editor for font.vcchar. On the left is the grid of 256 characters with range buttons (Alle, Buchstaben, Ziffern, Satzzeichen, Frei). In the middle is the large drawing area for character 0. On the right are the preview, the template card with a C64 character set choice and a Vorlage laden button, the note that it was designed by hand, and the character and color cards.",
+   "caption_en": "The character set editor with the template card on the right.",
+   "mangel": "Neu aufnehmen: zeigt nicht die Herkunft/Vorlage"
   },
   {
    "id": "zeichensatz-png-import",
    "kapitel": "12",
-   "alt": "Der Dialog „Zeichensatz hinzufügen“ im Reiter „Aus PNG-Raster“ mit Name, Dateiwahl, Profil und dem Häkchen „Dunkle Pixel sind gesetzt“.",
-   "caption": "Ein Zeichensatz als PNG-Raster: 16 Zeichen je Zeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog zum Hinzufügen eines Zeichensatzes im Reiter Aus PNG-Raster mit Name, Dateiwahl, Profil und dem Häkchen, dass dunkle Pixel gesetzt sind.",
+   "caption": "Ein Zeichensatz als PNG-Raster: 16 Zeichen je Zeile.",
+   "status": "offen",
+   "alt_en": "The dialog for adding a character set on the tab From PNG grid with name, file choice, profile and the check box that dark pixels are set.",
+   "caption_en": "A character set as a PNG grid: 16 characters per row."
   },
   {
    "id": "system-vergleich-c64",
    "kapitel": "19",
-   "alt": "Das Beispielprojekt border im Editor: links der Projektbaum, in der Mitte der Quelltext, oben das Zielsystem Commodore 64.",
-   "caption": "Das C64-Beispiel border: Projektbaum, Quelltext und das Zielsystem in der Kopfzeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Das Beispielprojekt border im Editor: links in der Seitenleiste der Projektbaum, in der Mitte der Quelltext, oben in der Kopfzeile das Zielsystem C64.",
+   "caption": "Das C64-Beispiel border: Projektbaum, Quelltext und das Zielsystem in der Kopfzeile.",
+   "status": "offen",
+   "alt_en": "The example project border in the editor: the project tree in the sidebar on the left, the source in the middle, and the C64 target system in the header.",
+   "caption_en": "The C64 example border: project tree, source and the target system in the header."
   },
   {
    "id": "system-vergleich-atari",
    "kapitel": "19",
-   "alt": "Das Atari-Beispielprojekt colorbars im Editor, oben das Zielsystem Atari 800 XL/XE.",
-   "caption": "Das Atari-Beispiel colorbars: Quelltext mit ANTIC und GTIA, oben das Zielsystem",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Ein Atari-Beispielprojekt im Editor mit Quelltext für die Chips ANTIC und GTIA; in der Kopfzeile ist das Zielsystem Atari gewählt.",
+   "caption": "Ein Atari-Beispiel: Quelltext mit ANTIC und GTIA, oben das Zielsystem.",
+   "status": "offen",
+   "alt_en": "An Atari example project in the editor with source code for the ANTIC and GTIA chips; the target system Atari is chosen in the header.",
+   "caption_en": "An Atari example: source code with ANTIC and GTIA, with the target system at the top."
   },
   {
    "id": "system-vergleich-mega65",
    "kapitel": "19",
-   "alt": "Das MEGA65-Beispielprojekt hello im Editor, oben das Zielsystem MEGA65.",
-   "caption": "Das MEGA65-Beispiel hello: Quelltext mit dem Makro zum Freischalten des VIC-IV",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Das MEGA65-Beispielprojekt hello im Bereich Code: der Quelltext mit dem Makro zum Freischalten des VIC-IV, in der Kopfzeile das Zielsystem MEGA65.",
+   "caption": "Das MEGA65-Beispiel hello mit dem Makro zum Freischalten des VIC-IV.",
+   "status": "offen",
+   "alt_en": "The MEGA65 example project hello in the Code area: the source with the macro that unlocks the VIC-IV, with the target system MEGA65 in the header.",
+   "caption_en": "The MEGA65 example hello with the macro that unlocks the VIC-IV."
   },
   {
    "id": "emulator-bild-projektbild",
    "kapitel": "08",
-   "alt": "Ausschnitt der Knopfleiste im Emulator-Reiter mit „Als Projektbild setzen“ (die Willkommensseite mit Projektbild ist nicht abgebildet).",
+   "alt": "Die Knopfleiste im Emulator-Reiter mit dem Knopf Als Projektbild setzen.",
    "caption": "Das Emulator-Bild als Projektbild setzen.",
-   "aufnahme": "Ausschnitt aus system-vergleich-c64 (werkzeug/ausschnitte3.sh)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 293,
-     "y": 87,
-     "w": 308,
-     "h": 41,
-     "nr": 1
-    }
-   ]
+   "status": "offen",
+   "alt_en": "The button bar in the emulator tab with the button to set the picture as the project image.",
+   "caption_en": "Set the emulator picture as the project image."
   },
   {
    "id": "probleme-panel",
    "kapitel": "08",
-   "alt": "Der Reiter „Probleme“ mit dem Eintrag „jumprun.asm:61 E202: unbekanntes Symbol „ende““; die Zeile im Editor darüber ist markiert und rot unterstrichen.",
-   "caption": "Der Reiter „Probleme“ listet Fehler und Warnungen, ein Klick springt zur Zeile",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Reiter Code mit der Datei jumprun.asm und dem geöffneten Fach unter dem Editor, Reiter „Probleme“ aktiv (daneben Ausgabe, Tests, Suche, Gliederung). Es steht dort „Projekt: 2 Meldungen in 2 Dateien, davon 0 Fehler“ und zwei Hinweise zu lib/core.asm und lib/music.inc über automatisch verlängerte Sprünge.",
+   "caption": "Das Fach unter dem Editor mit dem Reiter „Probleme“ (hier nur Hinweise, keine Fehler).",
+   "status": "vorhanden",
+   "alt_en": "The Code tab with the file jumprun.asm and the tray below the editor open, Probleme (Problems) tab active (next to Output, Tests, Search, Outline). It shows 2 messages in 2 files, 0 of them errors, and two hints for lib/core.asm and lib/music.inc about automatically extended branches.",
+   "caption_en": "The tray below the editor with the Problems tab (only hints here, no errors).",
+   "mangel": "zeigt keinen Fehler"
   },
   {
    "id": "disk-neu",
    "kapitel": "18",
-   "alt": "Der Dialog „Neue Datei“ mit gewählter Art „Diskette D64“, dem Ordner und dem Feld Name.",
-   "caption": "Neue Diskette: im Dialog „Neue Datei“ die Art Diskette wählen",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog Neue Datei mit gewählter Art Diskette, dem Ordner und dem Feld Name.",
+   "caption": "Neue Diskette: im Dialog Neue Datei die Art Diskette wählen.",
+   "status": "offen",
+   "alt_en": "The New file dialog with the kind Disk image selected, the folder and the Name field.",
+   "caption_en": "New disk: choose the kind Disk image in the New file dialog."
   },
   {
    "id": "grafik-exportieren",
    "kapitel": "11",
-   "alt": "Export-Dialog über dem Sprite-Studio: Ausgabeformat Assembler, Name hero, Vorschau des Quelltexts und die Knöpfe Im Emulator testen, In Projekt speichern, In aktiven Code einfügen.",
-   "caption": "Der Export-Dialog.",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui website_bilder -- --ignored (build/web/, Beispielprojekt Hugo & Gumbo, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog „Exportieren“ über dem Sprite-Editor für graphics/hero.vcsprite. Oben die Formate Assembler, Konstanten, Binär, PRG und BASIC DATA (Assembler gewählt), darunter das Feld Name mit „hero“ und der erzeugte Assembler-Text. Unten stehen die bereiten Dateien, ein gelber Hinweis unter „Ziel im Quelltext“ und die Knöpfe „Abbrechen“, „Im Emulator testen“, „In Projekt speichern“, „Als Include einfügen“ und „In Quelltext kopieren“.",
+   "caption": "Der Export-Dialog mit Format, Name, erzeugtem Text und Zielwahl.",
+   "status": "vorhanden",
+   "alt_en": "The 'Exportieren' (export) dialog over the sprite editor for graphics/hero.vcsprite. At the top are the formats Assembler, Konstanten, Binaer, PRG and BASIC DATA (Assembler selected), below that the name field with 'hero' and the generated assembler text. At the bottom are the ready files, a yellow note under 'Ziel im Quelltext' and the buttons 'Abbrechen', 'Im Emulator testen', 'In Projekt speichern', 'Als Include einfuegen' and 'In Quelltext kopieren'.",
+   "caption_en": "The export dialog with format, name, generated text and target choice."
   },
   {
    "id": "editor-zweiter-bereich",
    "kapitel": "05",
-   "alt": "Der Editor ist geteilt: links music.inc, rechts jumprun.asm, jeweils mit eigener Reiterleiste.",
-   "caption": "Der zweite Editorbereich: zwei Dateien nebeneinander",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der geteilte Editor: links music.inc, rechts jumprun.asm, jeder Bereich mit eigener Reiterleiste.",
+   "caption": "Der zweite Editorbereich: zwei Dateien nebeneinander.",
+   "status": "offen",
+   "alt_en": "The split editor: music.inc on the left and jumprun.asm on the right, each pane with its own tab bar.",
+   "caption_en": "The second editor pane: two files side by side."
   },
   {
    "id": "asm-makro",
    "kapitel": "06",
-   "alt": "Der Quelltext mit dem Makro music_init, das bei jedem Aufruf als Befehlsfolge eingesetzt wird.",
-   "caption": "Ein Makro wird bei jedem Aufruf eingesetzt",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Quelltext mit einem Makro, das bei jedem Aufruf als Befehlsfolge eingesetzt wird.",
+   "caption": "Ein Makro wird bei jedem Aufruf eingesetzt.",
+   "status": "offen",
+   "alt_en": "The source with a macro that is inserted as a sequence of instructions at every call.",
+   "caption_en": "A macro is inserted at every call."
   },
   {
    "id": "sprite-animation",
    "kapitel": "13",
-   "alt": "Das Sprite-Studio mit der Karte „Sprite“: unter „Animationen“ die Animation „laufen“ mit Vorschau, Schrittzahl, Schleife und den Schritten mit Dauer in Bildern.",
-   "caption": "Das Animationsfeld: Schritte mit Dauer in Bildern, darüber Ablauf und Name",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Sprite-Editor mit hero.vcsprite, Reiter „Animationen“. Links die Animation „laufen“ mit Schleife, Tempo 8,3 und zwei Bildern, in der Mitte die vergrößerte Figur, darunter die Zeitleiste mit der Animation und zwei Bildern, rechts Farben und die Vorschau im Spiel.",
+   "caption": "Der Reiter „Animationen“ mit der Animation „laufen“ und der Zeitleiste unter der Zeichenfläche.",
+   "status": "vorhanden",
+   "alt_en": "The sprite editor with hero.vcsprite, tab 'Animationen'. On the left the animation 'laufen' with loop, speed 8.3 and two frames, in the middle the enlarged figure, below it the timeline with the animation and two frames, on the right the colors and the preview in the game.",
+   "caption_en": "The 'Animationen' tab with the animation 'laufen' and the timeline below the drawing area."
   },
   {
    "id": "tracker-sid-pokey",
    "kapitel": "16",
-   "alt": "Der Dialog „Song aus anderem System übernehmen“ mit Namensfeld, Quelle (POKEY (Atari) → SID (C64)) und den Knöpfen „OK“ und „Abbrechen“.",
-   "caption": "Ein Song aus einem anderen System wird für den Chip dieses Trackers umgewandelt",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Der Dialog zum Übernehmen eines Songs aus einem anderen System mit Namensfeld, der Quelle (POKEY nach SID) und den Knöpfen OK und Abbrechen.",
+   "caption": "Ein Song aus einem anderen System wird für den Chip dieses Trackers umgewandelt.",
+   "status": "offen",
+   "alt_en": "The dialog for taking over a song from another system with a name field, the source (POKEY to SID) and the buttons OK and Cancel.",
+   "caption_en": "A song from another system is converted for the chip of this tracker."
   },
   {
    "id": "start-splash",
    "kapitel": "installation",
-   "alt": "Startbildschirm von VintageCoder mit Name, Version und Alpha-Marke, einem orangen Hinweiskasten zum Alpha-Stand, einem blauen Kasten mit dem Haftungsausschluss, einem Haken „Beim nächsten Start nicht mehr anzeigen“ und dem Knopf „Verstanden, los geht’s“.",
-   "caption": "Der Startbildschirm: erst lesen, dann bestätigen.",
-   "aufnahme": "VC_DEMO=splash (VC_WIN=1400x860), werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 386,
-     "y": 314,
-     "w": 628,
-     "h": 96,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 386,
-     "y": 426,
-     "w": 628,
-     "h": 160,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 386,
-     "y": 606,
-     "w": 552,
-     "h": 22,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 824,
-     "y": 644,
-     "w": 190,
-     "h": 32,
-     "nr": 4
-    }
-   ]
+   "alt": "Ein hellgrauer Bildschirm mit dem Schriftzug „VintageCoder“ in Violett und Schwarz mit gelbem Punkt und darunter der Zeile „Assembler-Entwicklung für 8-Bit-Computer“. Weitere Bedienelemente sind nicht zu sehen.",
+   "caption": "Der Startbildschirm mit dem Namen VintageCoder.",
+   "status": "vorhanden",
+   "alt_en": "A light gray screen with the VintageCoder logo in purple and black with a yellow dot, and below it the line Assembler-Entwicklung fuer 8-Bit-Computer (assembler development for 8-bit computers). No other controls are visible.",
+   "caption_en": "The start screen with the VintageCoder name."
   },
   {
    "id": "assistent-weg-waehlen",
    "kapitel": "installation",
-   "alt": "Konfigurationsassistent, Schritt 1 von 7: links die Schrittleiste, rechts zwei Karten „Schnelleinrichtung“ (empfohlen, gewählt) und „Alles selbst einstellen“, darunter drei Hinweise zu Datenschutz und Änderbarkeit.",
-   "caption": "Willkommen: Schnelleinrichtung oder „Alles selbst einstellen“.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=welcome VC_WIN=1500x950, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 174,
-     "y": 175,
-     "w": 216,
-     "h": 380,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 197,
-     "w": 435,
-     "h": 132,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 871,
-     "y": 197,
-     "w": 435,
-     "h": 130,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 345,
-     "w": 724,
-     "h": 74,
-     "nr": 4
-    },
-    {
-     "typ": "rahmen",
-     "x": 1262,
-     "y": 830,
-     "w": 62,
-     "h": 26,
-     "nr": 5
-    }
-   ]
+   "alt": "Erster Schritt „1. Willkommen“ des Einrichtungsassistenten: links die Schrittleiste, rechts die Sprachwahl „Automatisch“, „Deutsch“, „English“ und die Wahl zwischen „Schnelleinrichtung (7 Schritte)“ (gewählt) und „Alles selbst einstellen (12 Schritte)“.",
+   "caption": "Der Willkommen-Schritt: Sprache wählen und zwischen Schnelleinrichtung und „Alles selbst einstellen“ entscheiden.",
+   "status": "vorhanden",
+   "alt_en": "First step, 1. Willkommen (Welcome), of the setup wizard: on the left the step list, on the right the language choice Automatisch, Deutsch, English and the choice between the quick setup with 7 steps (selected) and setting everything yourself with 12 steps.",
+   "caption_en": "The welcome step: pick the language and choose between the quick setup and setting everything yourself."
   },
   {
    "id": "assistent-design",
    "kapitel": "installation",
-   "alt": "Assistent, Schritt „Design und Größe“: drei Karten Dunkel, Hell und System, Regler für Oberfläche und Editorschrift, eine Vorschau mit Assembler-Zeilen und eine Lesbarkeitsprüfung der Farben.",
-   "caption": "Design und Größe wirken sofort.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=design, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 197,
-     "w": 648,
-     "h": 145,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 357,
-     "w": 886,
-     "h": 98,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 470,
-     "w": 886,
-     "h": 100,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 583,
-     "w": 886,
-     "h": 222,
-     "nr": 4
-    }
-   ]
+   "alt": "Der Einrichtungsassistent im Schritt „2. Design“: links die Schrittliste mit den Gruppen Start, Systeme, Arbeitsplatz und Abschluss, rechts drei Karten FARBSCHEMA (System, Dunkel, Hell, Dunkel gewählt), ZOOM (100 %) und EDITOR-SCHRIFT (13 pt). Unten stehen die Knöpfe Abbrechen, Später fortsetzen, Zurück und Weiter.",
+   "caption": "Im Schritt Design stellst du Farbschema, Zoom und Editor-Schrift ein.",
+   "status": "vorhanden",
+   "alt_en": "The setup wizard at step 2, Design. The step list is on the left. On the right are three cards: color scheme (System, Dark, Light, with Dark selected), zoom (100 %) and editor font (13 pt). The buttons Abbrechen, Spaeter fortsetzen, Zurueck and Weiter are at the bottom.",
+   "caption_en": "The Design step sets the color scheme, zoom and editor font."
   },
   {
    "id": "assistent-systeme",
    "kapitel": "installation",
-   "alt": "Assistent, Schritt „Welche Systeme nutzt du?“: Kacheln für C64, C128, C16/Plus/4, VC-20, Atari 800 XL/XE und MEGA65 mit Haken „verwenden“ und der Meldung, ob der Emulator gefunden wurde.",
-   "caption": "Zielsysteme wählen; die Chips zeigen, ob ein Emulator gefunden wurde.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=systems, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 222,
-     "w": 270,
-     "h": 104,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 536,
-     "y": 288,
-     "w": 95,
-     "h": 26,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 200,
-     "w": 160,
-     "h": 18,
-     "nr": 3
-    }
-   ]
+   "alt": "Konfigurationsassistent, Schritt 3 Zielsysteme. Links die Schrittliste, rechts sieben Schalter für Commodore 64, 128, Plus/4, 16 / 116, VC-20, Atari 800 XL / XE und MEGA65; nur der Commodore 64 ist eingeschaltet. Unten die Knöpfe Abbrechen, Später fortsetzen, Zurück und Weiter.",
+   "caption": "Im Schritt Zielsysteme schaltest du die Systeme ein, für die du programmieren willst.",
+   "status": "vorhanden",
+   "alt_en": "Setup wizard, step 3 Zielsysteme. The step list is on the left. On the right are seven switches for Commodore 64, 128, Plus/4, 16 / 116, VC-20, Atari 800 XL / XE, and MEGA65. Only the Commodore 64 is on. The buttons Abbrechen, Spaeter fortsetzen, Zurueck, and Weiter are at the bottom.",
+   "caption_en": "In the Zielsysteme step you switch on the systems you want to program for.",
+   "mangel": "ohne Emulator-Chips"
   },
   {
    "id": "assistent-toolchain",
    "kapitel": "installation",
-   "alt": "Assistent, Schritt „Toolchain“: Tabelle mit eingebautem Assembler und dem gefundenen VICE x64sc samt Fundort, darunter der Installationshinweis mit Reitern für macOS, Windows und Linux und den Knöpfen „Pfad wählen“ und „Erneut suchen“.",
-   "caption": "Toolchain: was gefunden wurde, und Hilfe für das, was fehlt.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=toolchain, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 197,
-     "w": 886,
-     "h": 140,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 697,
-     "y": 269,
-     "w": 80,
-     "h": 28,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 351,
-     "w": 886,
-     "h": 205,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 439,
-     "y": 471,
-     "w": 226,
-     "h": 24,
-     "nr": 4
-    }
-   ]
+   "alt": "Der Einrichtungsassistent im Schritt „4. Toolchain“: oben der Hinweis „Eingebaut (vc-asm). Kein weiteres Programm nötig.“, links die Liste ZIELSYSTEME mit Commodore 64, rechts die Karten STARTZIEL und EMULATOREN mit VICE x64sc (taktgenau), dem grün markierten Fund des Programms, den Knöpfen Suchen und Testen sowie dem Knopf „Ultimate 64 / II+ (Netzwerk) anbinden“ unter ECHTE HARDWARE.",
+   "caption": "Die Toolchain zeigt, welcher Emulator gefunden wurde.",
+   "status": "vorhanden",
+   "alt_en": "The setup wizard at step 4, Toolchain. A note at the top says the assembler is built in. On the left is the list of target systems with Commodore 64. On the right are the start target and emulator cards, with VICE x64sc (cycle exact) found and marked in green, the buttons Suchen and Testen, and a button to connect an Ultimate 64 under real hardware.",
+   "caption_en": "The Toolchain step shows which emulator was found."
   },
   {
    "id": "assistent-projekte",
    "kapitel": "installation",
-   "alt": "Assistent, Schritt „Projekte und Beispiele“: Eingabefeld für das Basisverzeichnis der Projekte mit Knopf „Durchsuchen“ und Chip „Ordner wird neu angelegt“, darunter der Haken zum Kopieren der mitgelieferten Beispiele.",
-   "caption": "Projektordner und Beispiele.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=projects, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 439,
-     "y": 257,
-     "w": 653,
-     "h": 26,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 439,
-     "y": 287,
-     "w": 160,
-     "h": 26,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 439,
-     "y": 400,
-     "w": 262,
-     "h": 22,
-     "nr": 3
-    }
-   ]
+   "alt": "Einrichtungsassistent, Schritt „5. Projekte“. Oben das Feld „Projektordner“ mit dem Knopf „Wählen ...“, darunter der Bereich „Beispiele“ mit einem eingeschalteten Schalter „Beispielprojekte der gewählten Systeme kopieren“ und einer Liste angehakter C64-Beispiele. Unten stehen „Abbrechen“, „Später fortsetzen“, „Zurück“ und „Weiter“.",
+   "caption": "Der Assistent wählt den Projektordner und die Beispielprojekte.",
+   "status": "vorhanden",
+   "alt_en": "Setup wizard, step 5 Projekte (projects). At the top is the field Projektordner (project folder) with a Waehlen button, below it the section Beispiele (examples) with a switch turned on to copy the example projects and a list of checked C64 examples. The buttons Abbrechen, Spaeter fortsetzen, Zurueck and Weiter are at the bottom.",
+   "caption_en": "The wizard step for the project folder and the example projects."
   },
   {
    "id": "assistent-zusammenfassung",
    "kapitel": "installation",
-   "alt": "Assistent, Schritt „Zusammenfassung: was wird geändert?“: links die Änderungsliste mit Haken je Eintrag, rechts die Kästen „Wird geschrieben nach“ und „Sicherheitsnetz“, unten der Knopf „Übernehmen“.",
-   "caption": "Die Änderungsliste: geschrieben wird erst nach „Übernehmen“.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=summary, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 197,
-     "w": 610,
-     "h": 185,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 1050,
-     "y": 197,
-     "w": 260,
-     "h": 125,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1050,
-     "y": 334,
-     "w": 260,
-     "h": 150,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 1223,
-     "y": 830,
-     "w": 100,
-     "h": 26,
-     "nr": 4
-    }
-   ]
+   "alt": "Einrichtungsassistent, Schritt „6. Zusammenfassung“. Eine Karte nennt, was geändert wird: unter „SYSTEM“ das Zielsystem Commodore 64 mit VICE x64sc und unter „PROJEKTE“ das Kopieren von 15 Beispielen, jeweils mit gesetztem Haken. Unten rechts stehen „Zurück“ und „Übernehmen“.",
+   "caption": "Die Zusammenfassung listet jede Änderung mit Haken, geschrieben wird erst nach „Übernehmen“.",
+   "status": "vorhanden",
+   "alt_en": "Setup wizard, step 6 Zusammenfassung (summary). One card lists what will change: under SYSTEM the target system Commodore 64 with VICE x64sc, and under PROJEKTE the copying of 15 examples, each with a checked box. The buttons Zurueck and Uebernehmen are at the bottom right.",
+   "caption_en": "The summary lists every change with a checkbox; nothing is written until you click Uebernehmen.",
+   "mangel": "ohne Kaesten Wird geschrieben nach und Sicherheitsnetz"
   },
   {
    "id": "assistent-fertig",
    "kapitel": "installation",
-   "alt": "Assistent, letzter Schritt „Fertig“: Zeile mit dem eingerichteten System, vier Karten (Beispiel starten, Neues Projekt, Handbuch öffnen, Assistent erneut starten) und der Kasten „Konfiguration sichern“.",
-   "caption": "Fertig: wie es weitergeht.",
-   "aufnahme": "VC_WIZ_MODE=quick VC_WIZ_STEP=done, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 267,
-     "w": 880,
-     "h": 62,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 342,
-     "w": 886,
-     "h": 90,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 1264,
-     "y": 830,
-     "w": 60,
-     "h": 26,
-     "nr": 3
-    }
-   ]
+   "alt": "Letzter Schritt „7. Fertig“ des Einrichtungsassistenten: links die Schrittleiste mit den Gruppen Start, Systeme, Arbeitsplatz und Abschluss, rechts die Meldung „Die Einrichtung ist fertig.“ und die Karte „Erstes Projekt“ mit den Knöpfen „Neues Projekt anlegen ...“ und „Beispiel öffnen: c64/jumprun“.",
+   "caption": "Der letzte Schritt „Fertig“ bietet ein neues Projekt oder ein Beispiel an.",
+   "status": "vorhanden",
+   "alt_en": "Last step, 7. Fertig (Done), of the setup wizard: on the left the step list with the groups Start, Systeme, Arbeitsplatz and Abschluss, on the right the message that setup is finished and a card for the first project with the buttons New project and Open example c64/jumprun.",
+   "caption_en": "The last step offers a new project or an example."
   },
   {
    "id": "assistent-wiederaufruf",
    "kapitel": "installation",
-   "alt": "Assistent im Wiederaufruf („Konfiguration prüfen“): links die Schrittleiste mit Statusmarken „Problem“, rechts der gespeicherte Stand, eine Liste der Probleme mit „Schritt öffnen“, die Teil-Assistenten und die Knöpfe zum Exportieren, Importieren und Zurücksetzen.",
+   "alt": "Der Einrichtungs-Assistent beim erneuten Aufruf zum Prüfen der Konfiguration: links die Schrittleiste mit Statusmarken, rechts der gespeicherte Stand, die Liste der Probleme mit Schritt öffnen und die Knöpfe zum Exportieren, Importieren und Zurücksetzen.",
    "caption": "Wiederaufruf: Statusmarken, Probleme und Teil-Assistenten.",
-   "aufnahme": "VC_WIZ_MODE=recall VC_WIZ_STEP=welcome mit vorbereiteter settings.json, werkzeug/aufnahmen-7.sh",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 336,
-     "y": 353,
-     "w": 52,
-     "h": 20,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 392,
-     "w": 886,
-     "h": 102,
-     "nr": 2
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 556,
-     "w": 520,
-     "h": 26,
-     "nr": 3
-    },
-    {
-     "typ": "rahmen",
-     "x": 426,
-     "y": 640,
-     "w": 598,
-     "h": 26,
-     "nr": 4
-    }
-   ]
+   "status": "offen",
+   "alt_en": "The setup wizard when it is opened again to check the configuration: the step list with status marks on the left, the saved state on the right, the list of problems with an open-step button and the buttons to export, import and reset.",
+   "caption_en": "Opening the wizard again: status marks, problems and partial wizards."
   },
   {
    "id": "include-ziehen",
    "kapitel": "editor",
-   "alt": "Eine Datei wird aus dem Projektbaum in den Quelltext gezogen: eine blaue Linie zwischen zwei Zeilen zeigt, wo die Zeile entsteht.",
-   "caption": "Beim Ziehen zeigt die Linie, wo die Zeile entsteht",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Beispielprojekt, ohne Marken)",
-   "marken": []
+   "alt": "Eine Datei wird aus dem Projektbaum in den Quelltext gezogen; eine blaue Linie zwischen zwei Zeilen zeigt, wo die neue Zeile entsteht.",
+   "caption": "Beim Ziehen zeigt die Linie, wo die Zeile entsteht.",
+   "status": "offen",
+   "alt_en": "A file is dragged from the project tree into the source; a blue line between two lines shows where the new line will appear.",
+   "caption_en": "While dragging, the line shows where the new line appears."
   },
   {
    "id": "include-eingefuegt",
    "kapitel": "editor",
-   "alt": "Nach dem Loslassen steht die Zeile .incbin \"data/level.bin\" im Quelltext; unten erscheint eine Leiste mit der Zeile und dem Knopf „Rückgängig“.",
+   "alt": "Nach dem Einfügen steht eine Include-Zeile im Quelltext; unten erscheint eine Leiste mit der Zeile und dem Knopf „Rückgängig“.",
    "caption": "Die eingefügte Zeile und die Leiste mit „Rückgängig“.",
-   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 432,
-     "y": 484,
-     "w": 662,
-     "h": 20,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 523,
-     "y": 783,
-     "w": 356,
-     "h": 38,
-     "nr": 2
-    }
-   ]
+   "status": "offen",
+   "alt_en": "After inserting, an include line stands in the source code; a bar with that line and the button 'Undo' appears at the bottom.",
+   "caption_en": "The inserted line and the bar with 'Undo'."
   },
   {
    "id": "include-abgelehnt",
    "kapitel": "editor",
-   "alt": "Ziehen der Projektdatei rasterbars.vcprj in den Quelltext: am Mauszeiger steht in Rot „Projektdatei und Diskettenimages lassen sich nicht in Quelltext einbinden“.",
+   "alt": "Das Ziehen der Projektdatei rasterbars.vcprj in den Quelltext: Am Mauszeiger steht in Rot, dass sich Projektdateien und Diskettenimages nicht in Quelltext einbinden lassen.",
    "caption": "Abgelehnt: Projektdateien lassen sich nicht einbinden.",
-   "aufnahme": "VC_DEMO=dropdrag VC_DRAG_FROM/VC_DRAG_TO, werkzeug/aufnahmen-7.sh (Demo-Projekt dropdemo)",
-   "marken": [
-    {
-     "typ": "rahmen",
-     "x": 54,
-     "y": 361,
-     "w": 243,
-     "h": 24,
-     "nr": 1
-    },
-    {
-     "typ": "rahmen",
-     "x": 712,
-     "y": 497,
-     "w": 330,
-     "h": 60,
-     "nr": 2
-    }
-   ]
+   "status": "offen",
+   "alt_en": "Dragging the project file rasterbars.vcprj into the source text: next to the pointer a red note says that project files and disk images cannot be included in source text.",
+   "caption_en": "Refused: project files cannot be included."
   },
   {
    "id": "menueleiste",
    "kapitel": "03",
-   "alt": "Die Menüleiste im Fenster: oben die Titel Datei, Bearbeiten, Ansicht, Projekt und Hilfe, darunter das geöffnete Menü Bearbeiten mit Kürzeln und den Untermenüs (Suchen und Ersetzen, Markdown, Falten …); nicht mögliche Einträge sind grau und nennen ihren Grund.",
-   "caption": "Die Menüleiste im Fenster (hier das Menü Bearbeiten mit Untermenüs): unter Windows und Linux so, unter macOS liegt sie in der Menüleiste des Systems",
-   "aufnahme": "neue Oberfläche: cargo test -p vc-gui handbuch_bilder -- --ignored, dann python3 tools/handbuchbilder.py (Menüleiste im Fenster, Kürzel in der Schreibweise von Windows und Linux)",
-   "marken": []
+   "alt": "Die Menüleiste im Fenster mit den Titeln Datei, Bearbeiten, Ansicht, Projekt und Hilfe; das Menü Bearbeiten ist geöffnet und zeigt Kürzel und Untermenüs, nicht mögliche Einträge sind grau.",
+   "caption": "Die Menüleiste im Fenster, hier mit geöffnetem Menü Bearbeiten.",
+   "status": "offen",
+   "alt_en": "The menu bar in the window with the titles File, Edit, View, Project and Help; the Edit menu is open and shows shortcuts and submenus, and entries that are not possible are grayed out.",
+   "caption_en": "The menu bar in the window, here with the Edit menu open."
+  },
+  {
+   "id": "einstellungen-info",
+   "status": "vorhanden",
+   "alt": "Die Einstellungen, Seite „Info und Update“. Oben die Karte „Über VintageCoder“ mit Name, Version 0.3.0, Copyright, Lizenz und den Knöpfen „Webseite“, „Quelltext“ und „Feedback …“. Darunter die Karte „Danksagungen“ mit einer Liste von Programmen und Bibliotheken.",
+   "caption": "Die Seite „Info und Update“ mit der Karte „Über VintageCoder“ und den Danksagungen.",
+   "alt_en": "The settings, page 'Info und Update'. At the top the card 'Ueber VintageCoder' with name, version 0.3.0, copyright, license and the buttons 'Webseite', 'Quelltext' and 'Feedback ...'. Below it the card 'Danksagungen' with a list of programs and libraries.",
+   "caption_en": "The 'Info und Update' page with the 'Ueber VintageCoder' card and the acknowledgments.",
+   "kapitel": ""
+  },
+  {
+   "id": "basic-medium-include",
+   "status": "offen",
+   "alt": "Der Export-Dialog mit einer Datei aus dem Projekt und den Knöpfen Als Include einfügen und, beim Format BASIC DATA, In Quelltext kopieren; im Hintergrund der geöffnete BASIC-Quelltext.",
+   "caption": "Der Export-Dialog fügt die Include-Zeile in den Quelltext ein.",
+   "alt_en": "The export dialog with a project file and the buttons to insert as include and, for the BASIC DATA format, to copy into the source; the open BASIC source is behind it.",
+   "caption_en": "The export dialog inserts the include line into the source.",
+   "kapitel": ""
+  },
+  {
+   "id": "basic-asm-direktive",
+   "status": "vorhanden",
+   "alt": "Der Code-Editor mit der BASIC-Datei test.bas, die Zeilen mit #define, #if, #else und #asm mit der Datei code.asm enthält. Über dem Text steht eine Hilfekarte zu „#asm datei.asm“, die erklärt, dass Maschinencode eingebunden wird und asm.name die Adresse einer Marke ergibt.",
+   "caption": "Die Hilfekarte zur Direktive #asm im BASIC-Editor.",
+   "alt_en": "The code editor with the BASIC file test.bas, which contains lines with #define, #if, #else and #asm with the file code.asm. Above the text is a help card for the '#asm' directive that explains that machine code is included and that asm.name gives the address of a label.",
+   "caption_en": "The help card for the #asm directive in the BASIC editor.",
+   "kapitel": "",
+   "mangel": "Hilfekarte zu #asm, nicht ein Fehler"
+  },
+  {
+   "id": "basic-karte-nummerierung",
+   "status": "offen",
+   "alt": "Die Karte Nummerierung der BASIC-Einstellungen mit Startnummer und Schrittweite für die Zeilennummern.",
+   "caption": "Die Karte Nummerierung mit Start und Schrittweite.",
+   "alt_en": "The Numbering card of the BASIC settings with the start number and the step for the line numbers.",
+   "caption_en": "The Numbering card with start and step.",
+   "kapitel": ""
+  },
+  {
+   "id": "basic-umwandeln-dialog",
+   "status": "vorhanden",
+   "alt": "Der Reiter „Code“ mit test.bas und darüber der Dialog „In Nummern umwandeln“. Er erklärt den Vorgang, nennt Modus „Labels“, Start 10 und Schrittweite 10 und zeigt eine Vorschau mit sieben Zeilen, links alt, rechts neu. Unten die Knöpfe „Abbrechen“ und „Anwenden“.",
+   "caption": "Der Dialog „In Nummern umwandeln“ mit Vorschau der geänderten Zeilen.",
+   "alt_en": "The 'Code' tab with test.bas and above it the dialog 'In Nummern umwandeln'. It explains the step, shows mode 'Labels', start 10 and step 10, and a preview of seven lines, old on the left and new on the right. At the bottom the buttons 'Abbrechen' and 'Anwenden'.",
+   "caption_en": "The 'In Nummern umwandeln' dialog with a preview of the changed lines.",
+   "kapitel": ""
+  },
+  {
+   "id": "basic-karte-pruefung",
+   "status": "offen",
+   "alt": "Der Bereich Projekt, Seite Quellen, mit der Karte BASIC: die Schalter für die Syntaxprüfung beim Bauen und die Liste der abgeschalteten Meldungen.",
+   "caption": "Die Prüfung einzelner Meldungen schaltest du auf der Karte BASIC ab.",
+   "alt_en": "The project area, sources page, with the BASIC card: the switch for the syntax check at build time and the list of disabled messages.",
+   "caption_en": "You turn off single checks on the BASIC card.",
+   "kapitel": ""
+  },
+  {
+   "id": "feedback-dialog",
+   "status": "vorhanden",
+   "alt": "Der Dialog „Feedback senden“ über der Seite „Info und Update“. Er zeigt einen Hinweis, das Feld „Betreff“ mit Versionsangabe, das Feld „Text“ mit technischen Angaben zur Installation, einen Schalter für das Debug-Protokoll und die Knöpfe „Abbrechen“, „In die Zwischenablage“ und „Mail vorbereiten“.",
+   "caption": "Der Dialog „Feedback senden“ mit Betreff, Text und Mail-Knopf.",
+   "alt_en": "The dialog 'Feedback senden' on top of the 'Info und Update' page. It shows a notice, the 'Betreff' field with version information, the 'Text' field with technical installation details, a switch for the debug log and the buttons 'Abbrechen', 'In die Zwischenablage' and 'Mail vorbereiten'.",
+   "caption_en": "The 'Feedback senden' dialog with subject, text and the mail button.",
+   "kapitel": ""
+  },
+  {
+   "id": "einstellungen-sicherung",
+   "status": "vorhanden",
+   "alt": "Die Einstellungen mit der Liste links (Allgemein bis „Info und Update“), „Sicherung“ ist gewählt. Rechts die Karte „SICHERUNG“ mit einem kurzen Erklärtext und den Knöpfen „Konfiguration exportieren ...“, „Konfiguration importieren ...“ und „Auf Vorgabe zurücksetzen ...“.",
+   "caption": "Die Karte „Sicherung“ in den Einstellungen mit Export, Import und Zurücksetzen.",
+   "alt_en": "The settings with the list on the left (from 'Allgemein' to 'Info und Update'), with 'Sicherung' selected. On the right is the card 'SICHERUNG' with a short explanatory text and the buttons 'Konfiguration exportieren ...', 'Konfiguration importieren ...' and 'Auf Vorgabe zuruecksetzen ...'.",
+   "caption_en": "The 'Sicherung' card in the settings with export, import and reset.",
+   "kapitel": ""
+  },
+  {
+   "id": "turbo-karte-diskette",
+   "status": "offen",
+   "alt": "Der Bereich Projekt, Seite Diskette, mit der Karte Turbo BASIC XL und den Knöpfen zum Bereitstellen und Ersetzen der Diskette.",
+   "caption": "Die Karte Turbo BASIC XL auf der Seite Diskette.",
+   "alt_en": "The project area, disk page, with the Turbo BASIC XL card and the buttons to provide or replace the disk.",
+   "caption_en": "The Turbo BASIC XL card on the disk page.",
+   "kapitel": ""
+  },
+  {
+   "id": "einstellungen-update",
+   "status": "vorhanden",
+   "alt": "Die Karte „Updates“ mit dem Text „Noch nie nach Updates gesucht.“, dem Knopf „Jetzt nach Updates suchen“ und dem Hinweis, dass nur die Versionsliste abgefragt wird und die Häufigkeit unter „Allgemein“ eingestellt wird.",
+   "caption": "Die Karte „Updates“ mit dem Knopf zum Suchen nach Updates.",
+   "alt_en": "The 'Updates' card with the text 'Noch nie nach Updates gesucht.' (never checked for updates), the button 'Jetzt nach Updates suchen' and a note that only the version list is requested and that the frequency is set under 'Allgemein'.",
+   "caption_en": "The 'Updates' card with the button to check for updates.",
+   "kapitel": "",
+   "mangel": "zeigt nicht die Wahl der Haeufigkeit"
+  },
+  {
+   "id": "neues-projekt-dialog",
+   "status": "vorhanden",
+   "alt": "Der Dialog „Neues Projekt erstellen“ über der Startseite. Links die Liste „ZIELSYSTEM“ mit Commodore 64 (gewählt) bis MEGA65 und dem Hardware-Profil „gültig“, in der Mitte die „VORLAGE“ mit „Assembler-Programm“ (gewählt), „Steckmodul“ und „Leeres Projekt“, rechts die „PROJEKT-DETAILS“ mit Projektname, Speicherort, Videonorm, Standard-Emulator, Startziel, Diskette und Zeichensatz. Unten die Knöpfe „Abbrechen“ und „Projekt erstellen und öffnen“.",
+   "caption": "Der Dialog „Neues Projekt erstellen“ mit Zielsystem, Vorlage und Projekt-Details.",
+   "alt_en": "The dialog 'Neues Projekt erstellen' above the start page. On the left is the list 'ZIELSYSTEM' from Commodore 64 (selected) to MEGA65 with the hardware profile 'gueltig'. In the middle is the 'VORLAGE' with 'Assembler-Programm' (selected), 'Steckmodul' and 'Leeres Projekt'. On the right are the 'PROJEKT-DETAILS' with project name, location, video standard, default emulator, start target, disk and character set. At the bottom are the buttons 'Abbrechen' and 'Projekt erstellen und oeffnen'.",
+   "caption_en": "The dialog 'Neues Projekt erstellen' with target system, template and project details.",
+   "kapitel": ""
+  },
+  {
+   "id": "turbo-diskette-assistent",
+   "status": "offen",
+   "alt": "Der Dialog zum Bereitstellen der Turbo-BASIC-XL-Diskette: die Auswahl der Datei und die Bestätigung, bevor die Kopie ins Projekt gelegt wird.",
+   "caption": "Der Dialog stellt die Turbo-BASIC-XL-Diskette für das Projekt bereit.",
+   "alt_en": "The dialog for providing the Turbo BASIC XL disk: the file choice and the confirmation before the copy is placed in the project.",
+   "caption_en": "The dialog provides the Turbo BASIC XL disk for the project.",
+   "kapitel": ""
+  },
+  {
+   "id": "panel-maschine",
+   "status": "vorhanden",
+   "alt": "Das Panel „Maschine“ mit System Commodore 64, Startziel VICE x64sc (taktgenau) und Zustand „bereit“, den Knöpfen „Bauen“, „Starten“ und „Beenden“. Unter „Letzter Bau“ stehen Quelle jumprun.asm, Programm build/jumprun.prg, Größe 16.605 Bytes und eine Tabelle mit vier Segmenten.",
+   "caption": "Das Panel „Maschine“ mit dem letzten Bau und seinen Segmenten.",
+   "alt_en": "The 'Maschine' (machine) panel with system Commodore 64, start target VICE x64sc (cycle exact) and state 'bereit' (ready), and the buttons 'Bauen', 'Starten' and 'Beenden'. Under 'Letzter Bau' (last build) are the source jumprun.asm, the program build/jumprun.prg, the size 16,605 bytes and a table with four segments.",
+   "caption_en": "The 'Maschine' panel with the last build and its segments.",
+   "kapitel": ""
+  },
+  {
+   "id": "hex-ansicht",
+   "status": "vorhanden",
+   "alt": "Der Bereich „Daten“ mit der Seite „Hex“. Links die Liste „BINÄRDATEIEN“ mit jumprun.prg gewählt, in der Mitte ein Hexdump der Datei mit Adressen, Bytewerten und Textspalte, darüber ein Suchfeld, „16 Byte“, „8 Byte“ und „Nur lesen“. Rechts die Karte „AUSWAHL“ mit Dateiname, Größe, Ladeadresse $0801 und Seitenwahl 1 / 5.",
+   "caption": "Die Hex-Ansicht zeigt eine Binärdatei Byte für Byte, nur zum Lesen.",
+   "alt_en": "The area 'Daten' with the page 'Hex'. On the left is the list 'BINAERDATEIEN' with jumprun.prg selected. In the middle is a hex dump of the file with addresses, byte values and a text column, with a search field, '16 Byte', '8 Byte' and 'Nur lesen' above it. On the right is the card 'AUSWAHL' with file name, size, load address $0801 and page selector 1 / 5.",
+   "caption_en": "The hex view shows a binary file byte by byte, read only.",
+   "kapitel": ""
+  },
+  {
+   "id": "debug-test-sitzung",
+   "status": "offen",
+   "alt": "Der Bereich Debug mit dem Hinweis Test-Sitzung neben dem Status; das Programm hält am Anfang des gewählten Tests an.",
+   "caption": "Beispielansicht: eine Debug-Sitzung für einen einzelnen Test.",
+   "alt_en": "The debug area with the test session note next to the status; the program is stopped at the start of the selected test.",
+   "caption_en": "Example view: a debug session for a single test.",
+   "kapitel": ""
+  },
+  {
+   "id": "disk-editor-uebernahme",
+   "status": "offen",
+   "alt": "Der Disk-Editor nach dem Klick auf „Ins Projekt übernehmen“: die Liste Übernahme zeigt, welche Dateien ins Projekt geschrieben wurden.",
+   "caption": "Die Liste Übernahme nach dem Übernehmen ins Projekt.",
+   "alt_en": "The disk editor after clicking 'Add to project': the Import list shows which files were written to the project.",
+   "caption_en": "The Import list after adding to the project.",
+   "kapitel": ""
   }
  ]
 }

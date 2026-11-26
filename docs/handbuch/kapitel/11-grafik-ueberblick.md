@@ -10,7 +10,7 @@ referenz: [graphics, export]
 
 # Grafik und Klang im Überblick
 
-**Ziel:** Du weißt, welche Zeichen-Werkzeuge („Studios“) VintageCoder hat, wie du eine neue Grafik- oder Klangdatei anlegst und wie ihr Inhalt vom Editor in dein Programm kommt. Mit diesem Kapitel verstehst du den Weg, den alle folgenden Kapitel (12 bis 17) jeweils im Detail gehen.
+**Ziel:** Du weißt, welche Zeichen-Werkzeuge („Editoren“) VintageCoder hat, wie du eine Grafikdatei öffnest und anlegst und wie ihr Inhalt vom Editor in dein Programm kommt. Mit diesem Kapitel verstehst du den Weg, den alle folgenden Kapitel (12 bis 17) jeweils im Detail gehen.
 
 ## Das brauchst du
 
@@ -21,7 +21,7 @@ referenz: [graphics, export]
 
 Alles, was nicht Programmtext ist, nennen wir **Assets** (englisch für „Bestände“): ein Sprite, ein Zeichensatz, ein Bildschirm, eine Palette, ein Song. Jedes Asset liegt als **kleine Textdatei** in deinem Projekt, zum Beispiel `graphics/hero.vcsprite`. Der Inhalt sind Hex-Zeilen, die Pixel beschreiben. Das hat zwei Vorteile: Du kannst die Dateien mit Versionsverwaltung wie Git sinnvoll vergleichen, und der Editor und der Bau lesen dieselbe Quelle.
 
-| Endung | Art | Studio | Kapitel |
+| Endung | Art | Editor | Kapitel |
 |---|---|---|---|
 | `.vcchar` | Zeichensatz | Zeichensatz-Editor | [12](kapitel:zeichensatz) |
 | `.vcsprite` | Sprites (C64, MEGA65) | Sprite-Editor | [13](kapitel:sprites) |
@@ -29,64 +29,68 @@ Alles, was nicht Programmtext ist, nennen wir **Assets** (englisch für „Best�
 | `.vcscreen` | Textbildschirm oder Screen-Bank | Bildschirm-Editor | [14](kapitel:bildschirm-kacheln) |
 | `.vctiles` | Kachelsatz | Kachel-Editor | [14](kapitel:bildschirm-kacheln) |
 | `.vcpal` | Palette (MEGA65) | Paletten-Editor | [15](kapitel:paletten) |
-| `.vcsong` | Song (SID, POKEY und andere) | Tracker | [16](kapitel:tracker) |
-| `.vcplay` | PLAY-Song (MEGA65) | PLAY-Tracker | [17](kapitel:play-tracker) |
+| `.vcsong` | Song (SID, POKEY und andere) | Tracker (Hauptbereich **Musik**) | [16](kapitel:tracker) |
+| `.vcplay` | PLAY-Song (MEGA65) | PLAY-Tracker (Hauptbereich **Musik**) | [17](kapitel:play-tracker) |
 
 > **Info:** Jedes Asset gehört zu einem **Profil**. Das Profil legt fest, wie das Asset aufgebaut ist, etwa `c64.sprite.multicolor` (C64-Sprite, mehrfarbig, 12×21 Punkte) oder `atari.char.antic2` (Atari-Zeichensatz mit 128 Zeichen). Das Profil wählst du beim Anlegen.
 
+Gebaut sind der Sprite-Editor (mit PMG), der Zeichensatz-Editor, der Paletten-Editor, der Kachel-Editor, der Bildschirm-Editor, der Karten-Editor und der Tracker (mit dem PLAY-Tracker).
+
 ## Schritt für Schritt: ein Asset anlegen und öffnen
 
-1. Klicke in der linken Spalte auf den Knopf **＋** („Neue Datei im gewählten Ordner“). Dasselbe erreichst du über **Datei ▸ Neue Datei …**.
-2. Im Dialog **Neue Datei** wählst du die **Art**: neben Assembler, BASIC, Text und Notiz stehen dort **Sprites / PMG**, **Zeichensätze**, **Bildschirme**, **Kacheln**, **Paletten**, **Tracker** und **PLAY-Tracker** (dazu leere Disketten). Bei den Grafik- und Klangarten wählst du außerdem das **Profil**, also die passende Variante. Dann gibst du den **Namen** ein und bestätigst mit **OK**. Unter dem Namen steht, wo die Datei angelegt wird.
-3. Die neue Datei öffnet sich im passenden Studio. Ein **Doppelklick** auf eine vorhandene Datei im Projektbaum öffnet sie genauso.
+1. Wähle in der Kopfzeile den Hauptbereich **Grafik**. In der zweiten Reihe stehen **Sprites**, **Zeichensatz**, **Kacheln**, **Bildschirm** und **Palette**. Songs bearbeitest du im Hauptbereich **Musik**.
+2. Ist noch keine Datei offen, zeigt der Editor die passenden Dateien des Projekts als Knöpfe; ein Klick öffnet die Datei. Mit **Öffnen …** wählst du eine andere Datei aus dem Projekt. Ein **Doppelklick** auf die Datei im Projektbaum öffnet sie genauso im passenden Editor.
+3. Eine neue Datei legst du im Editor selbst an: im Sprite-Editor mit **Neue Sprite-Datei …**, im Zeichensatz-Editor mit **Neuer Zeichensatz …**. Im Dialog wählst du unter **Art und System** das **Profil** (die passende Variante), gibst den **Namen** ein (Buchstaben, Ziffern, `_` und `-`), prüfst den **Ordner im Projekt** (Vorgabe `graphics`) und klickst auf **Anlegen**. Die Datei öffnet sich gleich. Der Dialog **Neue Datei** (Seitenleiste oder **Datei ▸ Neue Datei …**) legt dagegen nur Quelltexte und Notizen an. Für Kachelsätze, Bildschirme, Paletten und Songs gibt es keinen eigenen Anlegen-Dialog; du öffnest sie aus dem Projekt, sie liegen zum Beispiel schon in den Beispielprojekten.
 
-## Der gemeinsame Aufbau der Studios
+![Der Reiter Grafik mit der Seite „Sprites“ und der Datei hero.vcsprite: links die Sprite-Dateien und zwei Bilder, in der Mitte das 12x21 Pixel große Multicolor-Sprite einer Figur in Gelb, Rotbraun und Blau, rechts die Karten „Farben“, „Sprite“ (Mehrfarbig an), „Vorschau im Spiel“ und „Verschieben“. Unter der Zeichenfläche steht der Hinweis „Keine Animation“.](bild:sprite-c64 "Der Sprite-Editor mit einem Multicolor-Sprite.")
 
-Sprite-, Zeichensatz-, Bildschirm- und Kachel-Editor sehen sich bewusst ähnlich. Wenn du einen kennst, findest du dich in den anderen zurecht:
+## Der gemeinsame Aufbau der Editoren
 
-1. **Kopfzeile:** ein kleines Kürzel für die Art (zum Beispiel SPR, CHR, SCR, PAL), der Dateiname (ein Punkt dahinter bedeutet „ungespeicherte Änderungen“), die Maße und rechts die Knöpfe **Exportieren …** und **Speichern**. Im Sprite- und Zeichensatz-Editor kommt **PNG laden …** dazu.
-2. **Werkzeugleiste:** eine Reihe mit Zeichenwerkzeugen, Rückgängig und Wiederholen, Transformieren, Zoom sowie **Raster** und **Onion Skin**. Was nicht in die Reihe passt, steht im Menü **⋯**.
-3. **Links** die Liste (Frames, Zeichen oder Kacheln), **in der Mitte** die Zeichenfläche, **rechts** die Seitenspalte aus Karten mit Pixelwerten, Farben und Eigenschaften.
-4. **Fußzeile:** Zellposition, Zoom und Meldungen, rechts der Hinweis **? Tasten** mit den Einzeltasten des Studios.
+Sprite-, Zeichensatz-, Paletten-, Kachel- und Bildschirm-Editor sehen sich bewusst ähnlich. Wenn du einen kennst, findest du dich in den anderen zurecht. Sie liegen im Hauptbereich **Grafik** und zeigen immer eine Datei. Ist sie geändert, steht in der Fußzeile „● ungespeichert“.
 
-Die Studios öffnen als Reiter im Editorbereich.
+1. **Links** die Liste: im Sprite-Editor die Sprite-Dateien und die Bilder (Frames), im Zeichensatz-Editor die Zeichenübersicht, im Paletten-Editor das Farbraster, im Kachel-Editor der Kachelsatz, im Bildschirm-Editor die Zeichentafel.
+2. **In der Mitte** die Zeichenfläche mit der **Werkzeugleiste** darüber: Zeichenwerkzeuge, Rückgängig und Wiederholen, Spiegeln, **Raster**, Zoom und, im Sprite-Editor, **Onion Skin**. Rechts in der Leiste stehen die Dateiknöpfe **Exportieren …** und **Speichern** (im Sprite- und im Zeichensatz-Editor auch **PNG laden …**). Der Kachel- und der Bildschirm-Editor ordnen ihre Werkzeuge in eigener Weise an; siehe [Kapitel 14](kapitel:bildschirm-kacheln).
+3. **Rechts** die Karten mit den Pixelwerten, Farben und Eigenschaften.
+4. **Fußzeile:** Name, Maße, Zellposition und Meldungen.
 
-Die Zeichenfläche passt ihren Zoom automatisch an den freien Platz an. Willst du selbst bestimmen, nutze in der Werkzeugleiste **−** und **+** oder **Strg/Cmd + Mausrad**. Die Tasten **+** und **−** wirken ebenso, **0** passt die Fläche wieder ein (Knopf **Einpassen**).
+Im Sprite- und im Zeichensatz-Editor passt die Zeichenfläche ihren Zoom automatisch an den freien Platz an. Willst du selbst bestimmen, nutze in der Werkzeugleiste **−** und **+** oder **Cmd/Strg + Mausrad**. Die Tasten **+** und **−** wirken ebenso, **0** passt die Fläche wieder ein (Knopf **Einpassen**).
 
-Sinnvolle Grundregeln für alle Studios:
+Sinnvolle Grundregeln für die Editoren:
 
-- **Strg/Cmd+S** speichert, **Strg/Cmd+Z** macht rückgängig, **Strg/Cmd+Umschalt+Z** wiederholt.
+- **Cmd/Strg+S** speichert, **Cmd/Strg+Z** macht rückgängig, **Cmd/Strg+Umschalt+Z** wiederholt.
 - Mit der **rechten Maustaste** radierst du auf der Zeichenfläche (Sprite-, Zeichensatz-Editor).
-- Die Farben richten sich nach dem Zielsystem. Beim Atari wählst du rechts außerdem die **Videonorm** (PAL oder NTSC).
+- Die Farben richten sich nach dem Zielsystem. Beim Atari wählst du rechts außerdem die **Ansicht** (Projekt, PAL oder NTSC).
+- Die Einzeltasten der Werkzeuge (im Sprite- und Zeichensatz-Editor D, E, I, F, L, R, S, X, Y und die Ziffern für den Pixelwert; im Bildschirm-Editor D, T, F, R, I, E) gelten, wenn die Zeichenfläche den Fokus hat. Die Tabellen stehen in den Kapiteln zum [Sprite-Editor](kapitel:sprites) und zum [Zeichensatz-Editor](kapitel:zeichensatz) und in [Tastenkürzel, FAQ, Fehlersuche](kapitel:kuerzel-faq).
 
 ## Vom Editor ins Programm: der Export
 
-Dein Programm kann die Textdatei nicht lesen, es braucht **Bytes**. Der **Export** wandelt ein Asset um, zum Beispiel in eine Assembler-Datei mit einer Marke und `.byte`-Zeilen. Das Ergebnis landet in `build/export/`.
+Dein Programm kann die Textdatei nicht lesen, es braucht **Bytes**. Der **Export** wandelt ein Asset um, zum Beispiel in eine Assembler-Datei mit einer Marke und `.byte`-Zeilen. Zum Einbinden brauchst du den Export nicht: Der Assembler wandelt die Datei beim `.include` selbst um.
 
 Es gibt zwei Wege:
 
-- **Automatisch:** Beim **Bauen** (F7) schreibt VintageCoder veraltete Assets selbst nach `build/export/<name>.asm`. Du musst nichts tun, außer die Datei im Quelltext einzubinden.
-- **Von Hand:** Der Knopf **Exportieren …** in der Kopfzeile des Studios (oder **Cmd/Strg+Umschalt+E**, auch im Menü **Datei**) öffnet den Export-Dialog.
+- **Automatisch:** Du bindest die Datei des Assets im Quelltext ein, zum Beispiel `.include "graphics/hero.vcsprite"`. Beim **Bauen** (F7) wandelt VintageCoder sie selbst um; ein Zwischenspeicher (`build/.media-cache/`) hält das Ergebnis aktuell.
+- **Von Hand:** Der Knopf **Exportieren …** in der Werkzeugleiste des Editors (oder **Cmd/Strg+Umschalt+E**, auch im Menü **Datei**) öffnet den Export-Dialog.
 
 ### Der Export-Dialog
 
-Das **Ausgabeformat** wählst du oben:
+Das **Format** wählst du oben:
 
 | Format | Datei | Wofür |
 |---|---|---|
 | Assembler | `<name>.asm` | Daten als `.byte`-Zeilen mit Marken und Konstanten; der Normalfall |
 | Konstanten | `<name>.inc` | nur die Größen (`<name>_len`) und optional die Adresse |
 | Binär | `<name>.bin` | Rohdaten, zum Beispiel zum Nachladen |
-| PRG | `<name>.prg` | Rohdaten mit Ladeadresse (die gibst du im Feld **Adresse** an) |
-| BASIC DATA | `<name>.data.bas` | `DATA`-Zeilen für BASIC-Programme |
+| PRG | `<name>.prg` | Rohdaten mit Ladeadresse (die gibst du im Feld **Ladeadresse** an) |
+| BASIC DATA | `<name>.data.bas` | `DATA`-Zeilen für BASIC-Programme, auf Wunsch mit **Einleseroutine mitliefern** |
 
-Im Feld **Name** steht die Marke, die als Vorsilbe aller Namen im Export dient. Die **Vorschau** zeigt den aktuellen Stand, auch ungespeicherte Änderungen, ohne etwas im Projekt anzulegen. Unten stehen drei Aktionen:
+Im Feld **Name** steht die Marke, die als Vorsilbe aller Namen im Export dient. Die **Vorschau** zeigt den aktuellen Stand, auch ungespeicherte Änderungen, ohne etwas im Projekt anzulegen (Reiter **Text** und **Hex**). Darunter steht, wie viele Dateien und Bytes entstehen, und bei **Ziel im Quelltext** wählst du den geöffneten Quelltext, in den eingefügt werden soll. Unten stehen die Aktionen:
 
 - **Im Emulator testen:** speichert, exportiert, baut dein Projekt und startet es wie F5.
 - **In Projekt speichern:** schreibt die Dateien nach `build/export/`.
-- **In aktiven Code einfügen:** speichert, exportiert als Assembler und setzt eine `.include`-Zeile in den zuletzt benutzten Assembler-Quelltext. Das gelingt auch, wenn du die Datei aus dem Projektbaum in den Editor ziehst.
+- **Als Include einfügen** (nur bei Assembler und BASIC DATA): speichert, exportiert und setzt eine `.include`-Zeile in den gewählten Quelltext.
+- **In Quelltext kopieren** (nur bei Assembler und BASIC DATA): schreibt den erzeugten Text selbst an die Cursorzeile des gewählten Quelltexts, ohne Include.
 
-![Export-Dialog eines Sprites: Ausgabeformat, Name, Umfang mit Vorschau des erzeugten Textes und die Aktionen Im Emulator testen, In Projekt speichern, In aktiven Code einfügen](bild:grafik-exportieren "Der Export-Dialog: Format, Name, Vorschau und die Aktionen")
+![Der Dialog „Exportieren“ über dem Sprite-Editor für graphics/hero.vcsprite. Oben die Formate Assembler, Konstanten, Binär, PRG und BASIC DATA (Assembler gewählt), darunter das Feld Name mit „hero“ und der erzeugte Assembler-Text. Unten stehen die bereiten Dateien, ein gelber Hinweis unter „Ziel im Quelltext“ und die Knöpfe „Abbrechen“, „Im Emulator testen“, „In Projekt speichern“, „Als Include einfügen“ und „In Quelltext kopieren“.](bild:grafik-exportieren "Der Export-Dialog mit Format, Name, erzeugtem Text und Zielwahl.")
 
 > **Tipp:** Brauchst du nur die Daten im Programm, lass den automatischen Export arbeiten. Der Dialog lohnt sich, wenn du ein anderes Format brauchst oder die Bytes einmal ansehen möchtest.
 
@@ -119,11 +123,11 @@ start:  sei
 loop:   jmp loop
 
 .org $2000
-.include "build/export/hero.asm"
+.include "graphics/hero.vcsprite"
 ```
 
-1. Öffne das Projekt `examples/c64/sprite_demo`.
-2. Drücke **F7** (Projekt bauen). Dabei entsteht `build/export/hero.asm` automatisch, weil das Sprite „veraltet“ war.
+1. Öffne das Projekt `examples/c64/sprite_demo` (auf der Startseite bei den Beispielen).
+2. Drücke **F7** (Projekt bauen). Dabei wandelt VintageCoder `graphics/hero.vcsprite` beim `.include` automatisch um.
 3. Drücke **F5** (Startprogramm starten). Im Emulator erscheint der kleine Held.
 
 Die letzten beiden Zeilen sind der ganze „Einbau“: `.org $2000` legt die Adresse fest, `.include` holt die exportierten Bytes dorthin. Wie das Sprite entsteht, lernst du in [Kapitel 13](kapitel:sprites).
@@ -131,9 +135,9 @@ Die letzten beiden Zeilen sind der ganze „Einbau“: `.org $2000` legt die Adr
 ## Häufige Stolpersteine
 
 - **„Label nicht gefunden“ beim Bauen:** Der Name nach dem Export (`hero`, `font`, …) richtet sich nach dem Namen im Asset, nicht nach dem Dateinamen. Im Export-Dialog siehst du den Namen im Feld **Name**.
-- **Änderungen erscheinen nicht im Programm:** Dann wurde nach deiner Änderung nicht neu exportiert. Baue mit F7 oder nutze **Exportieren …**. Speichere vorher mit Strg/Cmd+S.
-- **Ein Studio öffnet nicht:** Das Asset braucht ein geöffnetes Projekt. Ohne Projekt gibt es keinen Projektbaum.
+- **Änderungen erscheinen nicht im Programm:** Dann wurde nach deiner Änderung nicht neu exportiert. Baue mit F7 oder nutze **Exportieren …**. Speichere vorher mit Cmd/Strg+S.
+- **Ein Editor zeigt „Keine … geöffnet“:** Er braucht ein geöffnetes Projekt und eine Datei des passenden Typs. Wähle eine Datei aus der Liste oder öffne sie mit einem Doppelklick im Projektbaum.
 
 ## Wie geht es weiter?
 
-Als Nächstes lernst du das einfachste Studio kennen: den [Zeichensatz-Editor](kapitel:zeichensatz). Ausführliche Nachschlagetexte: [Studios im Überblick](hilfe:graphics) und [Export](hilfe:export).
+Als Nächstes lernst du den einfachsten Editor kennen: den [Zeichensatz-Editor](kapitel:zeichensatz). Ausführliche Nachschlagetexte: [Editoren im Überblick](hilfe:graphics) und [Export](hilfe:export).

@@ -1,24 +1,21 @@
-# Lizenz und freie Nutzung
+# Lizenz und Danksagungen
 
-Kurz gesagt: **Was du mit VintageCoder baust, gehört dir.** Die ausführliche Fassung steht in der Datei **LICENSING.md** (im Installationsordner unter `share/doc` bzw. `Resources`, im Quelltext im Wurzelordner); der verbindliche Teil ist ihr Abschnitt „Erklärung des Rechteinhabers“.
+Kurz gesagt: **Was du mit VintageCoder baust, gehört dir.** Programme, Diskettenabbilder, Quelltexte, Grafiken, Musik und alle anderen Dateien, die du erzeugst, darfst du frei verwenden und weitergeben. Die Sprache VCASM und die Dateiformate sind frei.
 
-## Was du darfst
+## Lizenz
 
-- **Deine Ausgaben sind frei.** Programme (PRG, XEX, BIN, CRT), Diskettenabbilder, Quelltexte, Projekt- und Assetdateien, Grafiken, Berichte und alle anderen Dateien, die du mit VintageCoder erzeugst, darfst du beliebig verwenden und weitergeben: auch kommerziell, auch ohne deinen Quelltext offenzulegen, auch ohne Hinweis auf VintageCoder.
-- **Die Sprache VCASM und die Dateiformate sind frei.** Jeder darf sie in eigenen Werkzeugen (Assemblern, Editoren, Konvertern, Emulatoren) umsetzen, unabhängig von der Lizenz von VintageCoder.
-- **`vcc` und `vc-lsp` darfst du aus beliebiger Software aufrufen** (Editoren, Build-Systeme, automatische Prüfungen), über die Kommandozeile, Dateien, Standardein- und -ausgabe oder das Language-Server-Protokoll.
-- **Systemdateien, Vorlagen und Beispiele** (`data/sys`, `data/templates`, `examples`) stehen unter **MIT-0** („MIT ohne Namensnennung“): Du darfst sie ohne Auflagen in eigene Programme übernehmen, ändern und weitergeben, auch ohne Urheberhinweis.
+- **VintageCoder** steht unter der **GNU General Public License, Version 3 oder später**, ohne Gewährleistung. Der Text liegt in der Datei **LICENSE**, Einzelheiten in **LICENSING.md** (im Installationsordner unter `share/doc` bzw. `Resources`, im Quelltext im Wurzelordner).
+- **Systemdateien, Vorlagen und Beispiele** (`data/sys`, `data/templates`, `examples`) stehen unter **MIT-0**: Du darfst sie ohne Auflagen übernehmen.
+- **Name und Logo** „VintageCoder“ sind von der GPL ausgenommen; Einzelheiten stehen in LICENSING.md.
 
-## Wofür die GPL gilt
+Auf der Kommandozeile zeigt `vcc --license` einen kurzen Hinweis.
 
-Der Quelltext von VintageCoder selbst (die Entwicklungsumgebung, `vcc`, `vc-lsp`) steht unter der **GNU General Public License, Version 3 oder später**. Wer das Programm ändert und weitergibt, beachtet die GPL: Quelltext der geänderten Fassung unter der GPL, Lizenzhinweise stehen lassen.
+## Danksagungen
 
-## Was nicht dazugehört
+VintageCoder enthält Teile anderer Projekte. Name, Urheber, Lizenz und Links stehen in der Rubrik **Danksagungen** der Karte **Über VintageCoder** (siehe [Über VintageCoder](help:about)) und in der Datei `THIRD-PARTY-NOTICES.md`. Zum Beispiel:
 
-- **Fremdanteile** behalten ihre eigene Lizenz. Das bekannteste Beispiel ist der **RMT-Player** (`rmtplayr.asm`, `rmt.inc` in den Atari-Beispielen `music_demo` und `jumprun`): Er steht unter der GPL Version 3. Ein Programm, das ihn enthält, darfst du nur nach den Bedingungen dieser Lizenz weitergeben (unter anderem mit dem Quelltext des ganzen Programms). Wenn du das nicht willst, nimm einen anderen Spieler. Beim Übersetzen weist VintageCoder darauf hin, siehe [Lizenzhinweis beim Übersetzen](help:license-build).
-- **Rechte Dritter** an Inhalten, die du einbindest (ROMs, fremde Zeichensätze, Musik, Bilder), bleiben bestehen; dafür bist du selbst verantwortlich. VintageCoder liefert keine ROMs mit.
-- **Name und Logo** „VintageCoder“ sind nicht frei. Du darfst aber wahrheitsgemäß sagen, dass ein Programm mit VintageCoder gebaut wurde.
+- **RMT-Player** (Raster Music Tracker) in den Atari-Beispielen `music_demo` und `jumprun`: Radek Štěrba / Raster / C.P.U. 2002–2009, weitergeführt von Vin Samuel und Peter Dell, GPL v3, [Quelle](https://github.com/raster-atari-org/RASTER-Music-Tracker).
+- **JetBrains Mono** (Schrift), **CodeMirror** (Editor), **Project Fluent** (Texte), **Tauri** (Anwendungsrahmen) und die Rust-Bibliotheken.
+- Die Emulatoren VICE, atari800, Altirra, Fujisan und Xemu (vom Anwender installiert, von VintageCoder gestartet) und MEGA65 core als Quelle technischer Daten.
 
-Auf der Kommandozeile zeigt `vcc --license` einen kurzen Hinweis. Die Drittanbieter-Hinweise (`THIRD-PARTY-NOTICES.md`) erreichst du über **Hilfe ▸ Über VintageCoder**, siehe [Über VintageCoder](help:about).
-
-Dies ist eine Erklärung in einfachen Worten und keine Rechtsberatung.
+Beim Bauen weist VintageCoder auf Quelltext unter einer Copyleft-Lizenz hin, siehe [Lizenzhinweis beim Übersetzen](help:license-build).

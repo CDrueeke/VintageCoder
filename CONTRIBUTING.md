@@ -1,6 +1,6 @@
 # Mitwirken
 
-Danke für dein Interesse an VintageCoder! Das Projekt befindet sich im Alpha-Stadium und wird von einer Einzelperson betreut. Beiträge sind willkommen, es gibt aber keine Zusage, dass sie angenommen werden, und Antworten können dauern.
+Danke für dein Interesse an VintageCoder! Das Projekt wird von einer Einzelperson betreut. Beiträge sind willkommen, es gibt aber keine Zusage, dass sie angenommen werden, und Antworten können dauern.
 
 ## Fehler melden und Vorschläge machen
 

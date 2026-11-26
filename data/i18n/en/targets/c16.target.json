@@ -1,0 +1,35 @@
+{
+ "source": "targets/c16.target.json",
+ "entries": {
+  "/regions/0/note": {
+   "de": "16 KB RAM, bis $3FFF (sonst wie Plus/4)",
+   "en": "16 KB RAM, up to $3FFF (otherwise as Plus/4)",
+   "status": "maschinell"
+  },
+  "/regions/1/note": {
+   "de": "$00/$01: Prozessorport",
+   "en": "$00/$01: processor port",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "Farb-RAM (Standard)",
+   "en": "Color RAM (default)",
+   "status": "maschinell"
+  },
+  "/regions/3/note": {
+   "de": "Standard-Bildschirm",
+   "en": "Default screen",
+   "status": "maschinell"
+  },
+  "/regions/4/note": {
+   "de": "BASIC-3.5-Programme beginnen bei $1001; bis $3FFF frei",
+   "en": "BASIC 3.5 programs start at $1001; free up to $3FFF",
+   "status": "maschinell"
+  },
+  "/regions/7/note": {
+   "de": "ACIA, Tastatur, TED",
+   "en": "ACIA, keyboard, TED",
+   "status": "maschinell"
+  }
+ }
+}

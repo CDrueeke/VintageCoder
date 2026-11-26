@@ -1,0 +1,15 @@
+{
+ "source": "chips/vic2e.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Zusätzliche Tastaturleitungen K0-K2 (Bit 0-2)",
+   "en": "Additional keyboard lines K0-K2 (bits 0-2)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Bit 0: 2-MHz-Modus (VIC-Bildschirm aus); Bit 1: Test",
+   "en": "Bit 0: 2 MHz mode (VIC screen off); bit 1: test",
+   "status": "maschinell"
+  }
+ }
+}

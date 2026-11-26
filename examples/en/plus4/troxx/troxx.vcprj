@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: Troxx",
+    "description": "Troxx for the Plus/4: travel along grid lines, close rectangles. TED with 121 colors, character set in RAM, raster interrupt, two voices, high score list on disk, two players in turns"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "cpu": "7501",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

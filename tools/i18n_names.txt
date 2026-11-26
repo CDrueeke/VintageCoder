@@ -1,0 +1,5 @@
+# Eigennamen, die in englischen Katalogen Umlaute enthalten dürfen (tools/check_i18n.py); ein Name je Zeile
+Drüeke
+Štěrba
+Gábor Lénárt
+Lasse Öörni

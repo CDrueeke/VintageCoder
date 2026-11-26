@@ -32,7 +32,7 @@ pub fn save_to(path: &Path, root: &Path, zu: &BTreeSet<String>) -> bool {
     while m.len() > MAX_PER_PROJECT { let Some(k) = m.iter().next_back().cloned() else { break }; m.remove(&k); }
     f.projects.insert(key(root), m);
     if let Some(d) = path.parent() { let _ = std::fs::create_dir_all(d); }
-    std::fs::write(path, format!("{}\n", f.to_json())).is_ok()
+    vc_core::atomar::schreiben(path, format!("{}\n", f.to_json())).is_ok()
 }
 
 #[cfg(test)]

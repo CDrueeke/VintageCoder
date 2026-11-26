@@ -10,7 +10,7 @@ import json, subprocess, sys, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DOC = ROOT / "THIRD-PARTY-NOTICES.md"
-GUI = ["vc-gui", "vc-gui-ui", "vc-gui-editor"]
+GUI = ["vc-gui", "vc-gui-ui", "vc-gui-editor", "vc-i18n", "vc-shell", "vc-commands"]
 PLATTFORMEN = ["aarch64-apple-darwin", "x86_64-pc-windows-msvc", "x86_64-unknown-linux-gnu"]  # Zielsysteme der Ausgaben (macOS, Windows, Linux)
 BEGIN, END = "<!-- GUI-PAKETE:BEGIN -->", "<!-- GUI-PAKETE:END -->"
 
@@ -30,11 +30,11 @@ def pakete(md):
         for d in nodes[i]["deps"]:
             if any(k.get("kind") in (None, "build") for k in d["dep_kinds"]): stack.append(d["pkg"])
     fremd = sorted((by_id[i] for i in seen if i not in members), key=lambda p: (p["name"], p["version"]))
-    direkt = sorted({d["name"] for i in start for d in by_id[i]["dependencies"] if d.get("kind") in (None, "build") and d.get("path") is None})
+    direkt = sorted({d["name"] for i in start for d in by_id[i]["dependencies"] if d.get("kind") in (None, "build") and d.get("path") is None and not d.get("optional")})
     return fremd, direkt
 
 def abschnitt(fremd, direkt):
-    zeilen = [BEGIN, "", "### Pakete der neuen Oberfläche (`vc-gui`, `vc-gui-ui`, `vc-gui-editor`)", "",
+    zeilen = [BEGIN, "", "### Pakete der neuen Oberfläche (`vc-gui`, `vc-gui-ui`, `vc-gui-editor`, `vc-i18n`)", "",
         f"Erzeugt mit `python3 tools/gui_notices.py` aus `cargo metadata` (macOS, Windows, Linux, ohne Dev-Abhängigkeiten): **{len(fremd)} Pakete** außer den eigenen. Direkte Abhängigkeiten der drei Crates: {', '.join('`' + n + '`' for n in direkt)}. Die Liste ist ein Auszug des Gesamtbestands oben und wird bei jeder Änderung der Abhängigkeiten neu erzeugt (Prüfung: `python3 -m unittest tools.test_gui_notices`).", "",
         "| Paket | Version | Lizenz | Quelle |", "|---|---|---|---|"]
     for p in fremd:

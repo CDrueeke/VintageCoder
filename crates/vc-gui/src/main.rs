@@ -35,6 +35,7 @@ mod debug;
 mod testlauf;
 mod einstellungen;
 mod setui;
+mod sprache;
 mod romui;
 mod zielui;
 mod argsui;
@@ -67,8 +68,8 @@ use vc_gui_ui::theme::Pal;
 use vc_ide_model::layout::{Anzeige, Bereich, Gemerkt, Layout};
 
 const ICON: &[u8] = include_bytes!("../../../branding/vintagecoder-icon.png");
-const WORT_FUER_DUNKEL: &[u8] = include_bytes!("../../../branding/vintagecoder-wordmark-light.png");
-const WORT_FUER_HELL: &[u8] = include_bytes!("../../../branding/vintagecoder-wordmark-dark.png");
+const WORT_FUER_DUNKEL: &[u8] = include_bytes!("../../../branding/vintagecoder-wortmarke-transparent.png");
+const WORT_FUER_HELL: &[u8] = include_bytes!("../../../branding/vintagecoder-wortmarke-hell.png");
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Tab { Datei(String), Einstellungen, Start, Projekt, /** Hilfe-Thema im Dokumentenfeld (Kennung; leer = Übersicht) */ Hilfe(String) }
@@ -135,7 +136,7 @@ struct FindLeiste { offen: bool, ersetzen: bool, frage: String, mit: String, gro
 pub enum NeuArt { Asm, Basic, Text, Notiz, Studio(vc_ide_model::project::Group), /** leere Diskette: Kennung `d64`, `d71`, `d81`, `atr` */ Diskette(&'static str) }
 impl NeuArt {
     fn endung(self) -> &'static str { match self { NeuArt::Asm => ".asm", NeuArt::Basic => ".bas", NeuArt::Text => ".txt", NeuArt::Notiz => ".md", NeuArt::Studio(_) => "", NeuArt::Diskette(k) => match k { "d71" => ".d71", "d81" => ".d81", "atr" => ".atr", _ => ".d64" } } }
-    fn name(self) -> &'static str { match self { NeuArt::Asm => t::ART_ASM, NeuArt::Basic => t::ART_BASIC, NeuArt::Text => t::ART_TEXT, NeuArt::Notiz => t::ART_NOTIZ, NeuArt::Studio(g) => g.title(), NeuArt::Diskette(k) => match k { "d71" => "Diskette D71", "d81" => "Diskette D81", "atr" => "Diskette ATR", _ => "Diskette D64" } } }
+    fn name(self) -> String { match self { NeuArt::Asm => t::art_asm(), NeuArt::Basic => t::art_basic(), NeuArt::Text => t::art_text(), NeuArt::Notiz => t::art_notiz(), NeuArt::Studio(g) => g.title().to_string(), NeuArt::Diskette(k) => match k { "d71" => vc_i18n::t!("gui-diskette-d71"), "d81" => vc_i18n::t!("gui-diskette-d81"), "atr" => vc_i18n::t!("gui-diskette-atr"), _ => vc_i18n::t!("gui-diskette-d64") }.to_string() } }
 }
 enum BaumArt { Neu { ordner: String, art: NeuArt, profile: Vec<(String, String)>, profil: usize }, Ordner(String), Umbenennen(String), Loeschen(String), SpeichernUnter(String) }
 /// Offenes Kontextmenü: Art, Ort im Fenster, Ziel (Datei im Baum), Tastaturauswahl
@@ -202,10 +203,11 @@ impl App {
         let (proj, start_fehler) = if ohne_projekt { (project::laden(&root), None) } else { match project::pruefen(&root, start_vcprj) { Ok(p) => (p, None), Err(e) => (project::laden(&root), Some(e)) } };
         let namen = project::dateien(&proj);
         let (lsp_start, lsp_rx) = lsp::Lsp::start(&root, &data); *LSP_EMPFAENGER.lock().unwrap() = Some(lsp_rx);
-        let mut app = App { einst: Einstellungen::laden(), sys_dunkel: true, data: data.clone(), root, proj, namen, tabs: vec![], aktiv: 0, editoren: HashMap::new(), schublade: 0, log: vec![t::BEREIT.into()], probleme: vec![], baut: false,
+        let mut app = App { einst: Einstellungen::laden(), sys_dunkel: true, data: data.clone(), root, proj, namen, tabs: vec![], aktiv: 0, editoren: HashMap::new(), schublade: 0, log: vec![t::bereit().into()], probleme: vec![], baut: false,
             palette: Palette { offen: false, frage: String::new(), auswahl: 0 }, seite: Seite::Dateien, baum_ziel: String::new(), baum_zu: Default::default(), baum_filter: String::new(), baum_datei: if cfg!(test) { None } else { vc_ide_model::treestate::file() }, suche_frage: String::new(), funde: vec![], sucht: false, suche_fertig: false,
             find: FindLeiste { offen: false, ersetzen: false, frage: String::new(), mit: String::new(), gross_klein: false, info: String::new() }, goto: GotoLeiste { offen: false, text: String::new() },
             pretty_zeile: None, hinweis: String::new(), menue_test: std::env::var_os("VC_MENUE_IM_FENSTER").is_some_and(|v| v == "1"), kuerzel_windows: false, doppel: None, doppel_ms: if cfg!(test) { 0 } else { 300 }, gliederung: RefCell::new((String::new(), 0, vec![])), logos: [image::Handle::from_bytes(WORT_FUER_DUNKEL), image::Handle::from_bytes(WORT_FUER_HELL), image::Handle::from_bytes(ICON)], unbenannt: 0, danach: Danach::Nichts, info: None, run_on: String::new(), ziel_menue: false, kopf_menue: false, textmeta: HashMap::new(), lesefehler: HashSet::new(), scratch: vec![], scratch_n: 0, scratch_datei: if cfg!(test) { None } else { vc_ide_model::scratchsave::file() }, scratch_stand: String::new(), scratch_rest: None, scratch_kept: vec![], neu_projekt: None, kopier: None, pe: None, wiz: None, upd: Default::default(), wechsel_ohne_speichern: false, beenden_frage: None, start: Default::default(), satz: setui::Satz::neu(), paletten: HashMap::new(), pal_hex: String::new(), import: None, export: None, letzte_asm: None, studios: HashMap::new(), farben: studio::Farben::laden(&data), debug_spalte: 0, trenner: false, reg_alt: None, reg_neu: None, rueckfrage: None, emu_bild: None, emu_ms: 0.0, emu_auto: true, emu_live: false, emu_text: String::new(), tests: testlauf::TestLauf::default(), test_debug: false, snap_name: "momentaufnahme".into(), snap_sprites: true, snap_tiles: false, snap_rom: true, karte: KartenZustand::default(), dbg: None, run_to: None, snap: debug::Snap::default(), bp_an: HashSet::new(), dbg_fehler: 0, dbg_notizen: 0, mem_text: "0400".into(), beob: vec![], beob_text: String::new(), punkt_text: String::new(), lsp: lsp_start, lsp_gesendet: HashMap::new(), diagnosen: HashMap::new(), panel_seite: PanelSeite::Gliederung, hilfe: HilfeZustand::default(), zeichen_suche: String::new(), ed_fokus: 0, ed_aktiv: true, zeichen_cache: RefCell::new((false, 255, vec![])), andere: None, fokus_rechts: false, ziehen: None, ueber_tab: None, fenster: iced::Size::new(1280.0, 800.0), kontext: None, ziel: None, def_req: 0, layout: Layout::aus_gemerkt(Gemerkt { seitenleiste_minimiert: false, schublade_minimiert: false, panel_minimiert: true }), fokus_bereich: Bereich::Dokument, marken: Default::default(), marken_datei: if cfg!(test) { None } else { vc_ide_model::cursors::file() }, baum: None, papierkorb: vc_ide_model::fileops::can_trash(), vorschlag_noetig: false, vorschlag_req: 0, vorschlag_fuer: (0, Default::default()), hover_req: 0, lsp_gen: 0, exportiert: vec![], disks: HashMap::new(), hexe: HashMap::new(), baum_zug: None, probe_aktiv: false, splash: false, zahlen: None, baum_sel: None, md_cache: Default::default(), md_quelltext: HashSet::new(), md_als: HashSet::new(), zeichen: None, hex: None, md_grenze: mdansicht::BLOECKE, phys: None, layout_gelernt: None, layout_system: tastatur::system_layout(), screens: HashMap::new(), tilesets: HashMap::new(), banken: HashMap::new(), songs: HashMap::new(), audio: audio::Audio::neu(), audio_song: None, song_import: None };
+        app.sprache_anwenden();
         app.marken = app.marken_datei.as_ref().map(|f| vc_ide_model::cursors::load_from(f, &app.root)).unwrap_or_default();
         app.baum_zu = app.baum_datei.as_ref().map(|f| vc_ide_model::treestate::load_from(f, &app.root)).unwrap_or_default();
         app.layout = Layout::aus_gemerkt(Gemerkt { seitenleiste_minimiert: !app.einst.seitenleiste, schublade_minimiert: !app.einst.schublade, panel_minimiert: !app.einst.panel });
@@ -233,10 +235,10 @@ impl App {
     /// Breite des Panels: während einer Debug-Sitzung breiter (Disassembler, Speicher)
     fn panel_breite(&self) -> f32 { if self.panel_seite == PanelSeite::Emulator { 460.0 } else if self.panel_seite == PanelSeite::Karte { 380.0 } else { 260.0 } }
     fn panel_offen(&self) -> bool { self.layout.offen(Bereich::Panel) }
-    fn streifen_zustand(&self) -> Vec<(String, bool)> { [(t::GLIEDERUNG, PanelSeite::Gliederung), (t::HILFE_TITEL, PanelSeite::Hilfe), (t::ZEICHEN, PanelSeite::Zeichen), (t::KARTE, PanelSeite::Karte)].iter().map(|(n, p)| (n.to_string(), self.panel_offen() && self.panel_seite == *p)).collect() }
+    fn streifen_zustand(&self) -> Vec<(String, bool)> { [(t::gliederung(), PanelSeite::Gliederung), (t::hilfe_titel(), PanelSeite::Hilfe), (t::zeichen(), PanelSeite::Zeichen), (t::karte(), PanelSeite::Karte)].iter().map(|(n, p)| (n.to_string(), self.panel_offen() && self.panel_seite == *p)).collect() }
     /// Bereiche für den Bildschirmleser: (Name, Zustand, Knopfnamen)
     fn bereiche_zustand(&self) -> Vec<(String, String, Vec<String>)> {
-        [(Bereich::Seitenleiste, t::SPALTE), (Bereich::Dokument, t::DOKUMENTE), (Bereich::Schublade, t::SCHUBLADE), (Bereich::Panel, t::PANEL)].iter().map(|(b, n)| {
+        [(Bereich::Seitenleiste, t::spalte()), (Bereich::Dokument, t::dokumente()), (Bereich::Schublade, t::schublade()), (Bereich::Panel, t::panel())].iter().map(|(b, n)| {
             let a = self.layout.anzeige(*b); let (mi, ma) = bw::knopfnamen(n, a);
             (n.to_string(), bw::zustandstext(a).to_string(), if self.layout.kann_minimieren(*b) && a != Anzeige::Minimiert { vec![mi, ma] } else { vec![ma] })
         }).collect()
@@ -259,13 +261,13 @@ impl App {
     /// Zeichen an der Cursorstelle einfügen, in der Form, die dort passt (Name in Zeichenketten, `CHR$` im BASIC …)
     fn zeichen_einfuegen(&mut self, w: ZeichenWahl) {
         use vc_ide_model::{charesc, charpanel};
-        let Some(n) = self.name() else { self.log.push(t::BAUM_KEINE_DATEI.into()); return };
+        let Some(n) = self.name() else { self.log.push(t::baum_keine_datei().into()); return };
         let Some(e) = self.editoren.get(&n) else { return };
         let (lang, atari) = (e.lang, self.atari()); let line = &e.lines[e.cursor.line]; let before: String = line.chars().take(e.cursor.col).collect();
         let in_text = lang == vc_ide_model::lang::Lang::Asm && charesc::asm_text_line(line) && before.matches('"').count() % 2 == 1;
         let spot = charpanel::spot(lang, &before, in_text);
         let txt = match w { ZeichenWahl::Steuer(i) => { let list = self.zeichen_eintraege(lang); charpanel::default_form(lang, spot).zip(list.get(i)).map(|(f, en)| charpanel::render(f, en)) } ZeichenWahl::Code(c) => charpanel::code_text(atari, 0, lang, Some(spot), c) };
-        match txt { Some(x) => { if let Some(e) = self.editoren.get_mut(&n) { e.insert(&x) } self.editor_fokus() } None => self.log.push(t::ZEICHEN_NICHT_HIER.into()) }
+        match txt { Some(x) => { if let Some(e) = self.editoren.get_mut(&n) { e.insert(&x) } self.editor_fokus() } None => self.log.push(t::zeichen_nicht_hier().into()) }
     }
     /// Studio-Arten, für die das Projekt Profile hat: (Art, Profile (Kennung, Name))
     fn studio_profile(&self, g: vc_ide_model::project::Group) -> Vec<(String, String)> {
@@ -294,33 +296,33 @@ impl App {
                     let rel = if ordner.is_empty() { name.clone() } else { format!("{ordner}/{name}") };
                     let stem: String = name.rsplit_once('.').map_or(name.as_str(), |x| x.0).to_uppercase().chars().filter(|c| c.is_ascii_alphanumeric() || *c == ' ').take(16).collect();
                     let ziel = project::pfad(&self.root, &rel);
-                    if ziel.exists() { Err(format!("{rel} gibt es schon")) } else {
+                    if ziel.exists() { Err(vc_i18n::t!("gui-rel-gibt-es-schon", rel = &rel)) } else {
                         vc_ide_model::diskdoc::DiskDoc::neu(vc_ide_model::diskdoc::format_aus_kennung(k), if stem.is_empty() { "DISK" } else { &stem }, "01", None).and_then(|mut d| { if let Some(o) = ziel.parent() { std::fs::create_dir_all(o).map_err(|e| e.to_string())? } d.speichern_unter(ziel.clone()); match d.note { Some((false, m)) => Err(m), _ => Ok((rel, true)) } })
                     }
                 } else if let NeuArt::Studio(_) = art {
-                    match profile.get(profil) { Some((id, _)) => vc_media::project::create(&self.root, &self.data, &name, id, &ordner).map(|v| (v["path"].as_str().unwrap_or("").to_string(), false)), None => Err("Für dieses Projekt gibt es dafür kein Profil.".into()) }
+                    match profile.get(profil) { Some((id, _)) => vc_media::project::create(&self.root, &self.data, &name, id, &ordner).map(|v| (v["path"].as_str().unwrap_or("").to_string(), false)), None => Err(vc_i18n::t!("gui-fuer-dieses-projekt-gibt-es-dafuer").into()) }
                 } else {
                     let name = if name.contains('.') { name } else { format!("{name}{}", art.endung()) };
                     let rel = if ordner.is_empty() { name } else { format!("{ordner}/{name}") };
                     vc_ide_model::fileops::create_file(&self.root, &rel).map(|r| (r, true))
                 };
                 match ergebnis {
-                    Ok((rel, oeffnen)) => { self.projekt_neu_laden(); self.log.push(format!("Angelegt: {rel}")); let hat_studio = rel.ends_with(".vcsprite") || rel.ends_with(".vcpmg") || rel.ends_with(".vcchar") || rel.ends_with(".vcpal");
-                        if oeffnen || hat_studio { self.oeffne(&rel) } else { self.log.push("Bildschirm-, Kachel- und Tracker-Dateien öffnen sich mit ihren Studios (folgt).".into()) } }
+                    Ok((rel, oeffnen)) => { self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-angelegt-rel", rel = &rel)); let hat_studio = rel.ends_with(".vcsprite") || rel.ends_with(".vcpmg") || rel.ends_with(".vcchar") || rel.ends_with(".vcpal");
+                        if oeffnen || hat_studio { self.oeffne(&rel) } else { self.log.push(vc_i18n::t!("gui-bildschirm-kachel-und-tracker-dateien-oeffnen").into()) } }
                     Err(e) => fehler(self, b, e),
                 }
             }
-            BaumArt::Ordner(ref ordner) => { let rel = if ordner.is_empty() { b.text.trim().to_string() } else { format!("{ordner}/{}", b.text.trim()) }; match vc_ide_model::fileops::create_dir(&self.root, &rel) { Ok(r) => { self.projekt_neu_laden(); self.log.push(format!("Ordner angelegt: {r}/")) } Err(e) => fehler(self, b, e) } }
+            BaumArt::Ordner(ref ordner) => { let rel = if ordner.is_empty() { b.text.trim().to_string() } else { format!("{ordner}/{}", b.text.trim()) }; match vc_ide_model::fileops::create_dir(&self.root, &rel) { Ok(r) => { self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-ordner-angelegt-r", r = &r)) } Err(e) => fehler(self, b, e) } }
             BaumArt::SpeichernUnter(ref n) => { let n = n.clone(); let rel = b.text.trim().to_string(); match self.scratch_speichern_unter(&n, &rel) { Ok(()) => {} Err(e) => fehler(self, b, e) } }
             BaumArt::Umbenennen(ref alt) => { let alt = alt.clone(); let name = b.text.trim().to_string();
-                if name.contains('/') || name.contains('\\') { fehler(self, b, "Nur der Name, kein Pfad: Verschieben geht per Ziehen im Baum.".into()) } else {
+                if name.contains('/') || name.contains('\\') { fehler(self, b, vc_i18n::t!("gui-nur-der-name-kein-pfad-verschieben").into()) } else {
                     let neu_rel = match alt.rsplit_once('/') { Some((o, _)) => format!("{o}/{name}"), None => name.clone() };
                     let ist_ordner = project::pfad(&self.root, &alt).is_dir();
                     let r = if ist_ordner { vc_ide_model::fileops::rename_dir(&mut self.proj, &alt, &neu_rel) } else { vc_ide_model::fileops::rename_file(&mut self.proj, &alt, &neu_rel).map(|n| (n.clone(), vec![(alt.clone(), n)])) };
                     match r {
                         Ok((neu, paare)) => {
                             for (a, n) in &paare { self.datei_verschoben(a, n) }
-                            self.projekt_neu_laden(); self.log.push(format!("Umbenannt: {alt} → {neu}")); self.markiere()
+                            self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-umbenannt-alt-neu", alt = &alt, neu = &neu)); self.markiere()
                         }
                         Err(e) => fehler(self, b, e),
                     } } }
@@ -328,7 +330,7 @@ impl App {
                 Ok(korb) => {
                     self.tab_entfernen(&Tab::Datei(rel.clone()));
                     self.editoren.remove(&rel); if self.lsp_gesendet.remove(&rel).is_some() { self.lsp.senden(lsp::Cmd::Close { uri: lsp::uri(&self.root, &rel) }) } self.diagnosen.remove(&rel);
-                    self.projekt_neu_laden(); self.log.push(format!("{} {rel}", if korb { "In den Papierkorb gelegt:" } else { "Gelöscht:" })); self.markiere()
+                    self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-p1-rel", p1 = if korb { vc_i18n::t!("gui-in-den-papierkorb-gelegt") } else { vc_i18n::t!("gui-geloescht") }, rel = &rel)); self.markiere()
                 }
                 Err(e) => fehler(self, b, e),
             } }
@@ -337,7 +339,7 @@ impl App {
     /// Projekt wechseln: Ordner, `.vcprj` oder Datei (→ Projekt der nächsten `.vcprj` darüber, sonst Einzeldatei). Fehler stehen im Protokoll
     pub(crate) fn projekt_oeffnen(&mut self, p: PathBuf) -> bool {
         let Some(z) = project::ziel_fuer(&p) else { self.oeffne_pfad(p); return true };
-        if self.dbg.is_some() || self.baut { self.log.push("Projekt wechseln: erst die Debug-Sitzung beziehungsweise den Bau beenden.".into()); self.schublade_zeigen(); return false }
+        if self.dbg.is_some() || self.baut { self.log.push(vc_i18n::t!("gui-projekt-wechseln-erst-die-debug-sitzung").into()); self.schublade_zeigen(); return false }
         if z.root == self.root && z.vcprj == self.proj.file || z.root == self.root && z.vcprj.is_none() { self.zuletzt_merken(); if let Some(d) = z.datei.or_else(|| project::startprogramm(&self.proj)) { self.oeffne(&d) } return true }
         let proj = match project::pruefen(&z.root, z.vcprj.clone()) { Ok(pr) => pr, Err(e) => { self.log.push(e); self.schublade_zeigen(); return false } };
         if !self.wechsel_ohne_speichern { for n in self.alle_namen() { if !self.ist_scratch(&n) { self.speichere_datei(&n) } } }
@@ -351,7 +353,7 @@ impl App {
         self.baum_zu = self.baum_datei.as_ref().map(|f| vc_ide_model::treestate::load_from(f, &self.root)).unwrap_or_default(); self.baum_filter.clear();
         let (l, rx) = lsp::Lsp::start(&self.root, &self.data); self.lsp = l; self.lsp_gen += 1; if cfg!(test) { drop(rx) } else { *LSP_EMPFAENGER.lock().unwrap() = Some(rx) }
         self.zuletzt_merken();
-        self.log.push(format!("Projekt geöffnet: {}", self.proj.name));
+        self.log.push(vc_i18n::t!("gui-projekt-geoeffnet-p1", p1 = &self.proj.name));
         if let Some(d) = z.datei.or_else(|| project::startprogramm(&self.proj)) { self.oeffne(&d) }
         true
     }
@@ -429,7 +431,7 @@ impl App {
         Some((rechts, hi))
     }
     fn teilen_umschalten(&mut self) {
-        if self.andere.is_none() && self.tabs.len() < 2 { self.log.push(t::TEILEN_MIND_ZWEI.into()); return }
+        if self.andere.is_none() && self.tabs.len() < 2 { self.log.push(t::teilen_mind_zwei().into()); return }
         let (mut l, mut r) = self.gruppen_nehmen(); let f = gruppen::teile_oder_vereine(&mut l, &mut r, self.fokus_rechts); self.gruppen_setzen(l, r, f)
     }
     /// Reiter überall entfernen (Datei gelöscht); leere Gruppen verschwinden
@@ -447,14 +449,14 @@ impl App {
         let alt = project::pfad(&self.root, rel);
         let sicherung = self.root.join(".vcbackup").join(format!("kachelkarte-{}", vc_ide_model::recent::now())).join(rel);
         if let Some(p) = sicherung.parent() { let _ = std::fs::create_dir_all(p); }
-        if let Err(e) = std::fs::copy(&alt, &sicherung) { self.log.push(format!("{rel}: Sicherung fehlgeschlagen, nichts umgewandelt: {e}")); self.schublade_zeigen(); return }
+        if let Err(e) = std::fs::copy(&alt, &sicherung) { self.log.push(vc_i18n::t!("gui-rel-sicherung-fehlgeschlagen-nichts-umgewandelt-e", rel = &rel, e = e.to_string())); self.schublade_zeigen(); return }
         match vc_media::project::migrate_tiles_in(&self.root, &self.data, Some(rel), true) {
             Ok(bericht) => {
-                for z in &bericht { self.log.push(z.clone()) } self.log.push(format!("Kachelkarte umgewandelt; Sicherung der alten Datei: {}", vc_core::paths::rel_path(&self.root, &sicherung)));
+                for z in &bericht { self.log.push(z.clone()) } self.log.push(vc_i18n::t!("gui-kachelkarte-umgewandelt-sicherung-der-alten-datei", p1 = vc_core::paths::rel_path(&self.root, &sicherung)));
                 self.projekt_neu_laden();
                 let bank = rel.rsplit_once('.').map_or(rel.to_string(), |(a, _)| a.to_string()) + ".vcscreen"; if project::pfad(&self.root, &bank).is_file() { self.oeffne(&bank) }
             }
-            Err(e) => { self.log.push(format!("{rel}: Umwandlung fehlgeschlagen: {e}")); self.schublade_zeigen() }
+            Err(e) => { self.log.push(vc_i18n::t!("gui-rel-umwandlung-fehlgeschlagen-e", rel = &rel, e = &e)); self.schublade_zeigen() }
         }
     }
     /// Einzeltasten der Studios (Buchstaben, Ziffern, Satzzeichen ohne Cmd/Alt) sind per Einstellung abschaltbar; Pfeile, Leertaste, Esc, Entf und Cmd-/Alt-Kürzel gelten immer
@@ -466,7 +468,7 @@ impl App {
             (None, Some(t)) => (if t.system.is_empty() { t.id.clone() } else { t.system.clone() }, t.variant.to_ascii_lowercase()),
             _ => return space::horizontal().width(0).into() };
         let Some(mut t) = telemetrie::takt_text(&self.data, &sys, &norm) else { return space::horizontal().width(0).into() };
-        if let Some(d) = &self.dbg { let s = d.snapshot(); if s.have_regs { t.push_str(&format!(" · PC ${:04X}", s.pc)) } }
+        if let Some(d) = &self.dbg { let s = d.snapshot(); if s.have_regs { t.push_str(&format!(" {}", vc_i18n::t!("gui-pc-p1", p1 = format!("{:04X}", s.pc)))) } }
         text(t).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.mute).into()
     }
     /// Geparstes Markdown (einmal je Inhalt)
@@ -534,13 +536,13 @@ impl App {
         let name = quelle.rsplit('/').next().unwrap_or(quelle).to_string();
         let neu = if ziel_ordner.is_empty() { name.clone() } else { format!("{ziel_ordner}/{name}") };
         if neu == quelle { return }
-        if ziel_ordner == quelle || ziel_ordner.starts_with(&format!("{quelle}/")) { self.log.push("Ein Ordner lässt sich nicht in sich selbst verschieben.".into()); return }
-        if self.editoren.values().any(|e| e.dirty) { self.log.push("Verschieben: erst alle geänderten Dateien speichern (Pfade in Quelltexten werden angepasst).".into()); return }
+        if ziel_ordner == quelle || ziel_ordner.starts_with(&format!("{quelle}/")) { self.log.push(vc_i18n::t!("gui-ein-ordner-laesst-sich-nicht-in").into()); return }
+        if self.editoren.values().any(|e| e.dirty) { self.log.push(vc_i18n::t!("gui-verschieben-erst-alle-geaenderten-dateien-speichern").into()); return }
         let ist_ordner = project::pfad(&self.root, quelle).is_dir();
         let paare: Vec<(String, String)> = if ist_ordner { ro::list_files(&self.root).into_iter().filter_map(|f| f.strip_prefix(&format!("{quelle}/")).map(|r| (f.clone(), format!("{neu}/{r}")))).collect() } else { vec![(quelle.to_string(), neu.clone())] };
-        if paare.is_empty() { self.log.push(format!("{quelle}: nichts zu verschieben")); return }
-        let moves: Vec<ro::Move> = paare.iter().map(|(a, b)| ro::Move { from: a.clone(), to: b.clone(), category: vc_ide::importfiles::Category::Source, label: "", conflict: false }).collect();
-        let (Some(file), Some(mut pf)) = (self.proj.file.clone(), self.proj.pf.clone()) else { self.log.push("Verschieben braucht eine Projektdatei (.vcprj).".into()); return };
+        if paare.is_empty() { self.log.push(vc_i18n::t!("gui-quelle-nichts-zu-verschieben", quelle = &quelle)); return }
+        let moves: Vec<ro::Move> = paare.iter().map(|(a, b)| ro::Move { from: a.clone(), to: b.clone(), category: vc_ide::importfiles::Category::Source, label: String::new(), conflict: false }).collect();
+        let (Some(file), Some(mut pf)) = (self.proj.file.clone(), self.proj.pf.clone()) else { self.log.push(vc_i18n::t!("gui-verschieben-braucht-eine-projektdatei-vcprj").into()); return };
         match ro::apply(&self.root, &self.root.join(&file), &mut pf, &moves, None, true, &|_| {}) {
             Ok(rep) => {
                 for (a, b) in &paare { self.datei_verschoben(a, b) }
@@ -549,23 +551,23 @@ impl App {
                 if ist_ordner { loesche_leere_ordner(&self.root.join(quelle)) }
                 self.projekt_neu_laden(); self.baum_zu.remove(ziel_ordner);
                 let angepasst: usize = rep.rewritten.iter().map(|(_, n)| n).sum();
-                self.log.push(format!("Verschoben: {quelle} → {neu}{}", if angepasst > 0 { format!(" ({angepasst} Pfad(e) in Quelltexten angepasst)") } else { String::new() })); self.markiere()
+                self.log.push(vc_i18n::t!("gui-verschoben-quelle-neu-p3", quelle = &quelle, neu = &neu, p3 = if angepasst > 0 { format!(" {}", vc_i18n::t!("gui-angepasst-pfad-e-in-quelltexten-angepasst", angepasst = &angepasst)) } else { String::new() })); self.markiere()
             }
-            Err(e) => self.log.push(format!("Verschieben fehlgeschlagen: {e}")),
+            Err(e) => self.log.push(vc_i18n::t!("gui-verschieben-fehlgeschlagen-e", e = &e)),
         }
     }
     /// Verschieben im Baum zurücknehmen (die letzte Sicherung unter `.vcbackup/`); nichts wird überschrieben, wenn sich Dateien seitdem geändert haben
     fn baum_rueckgaengig(&mut self) {
         use vc_ide::reorganize as ro;
-        let Some(l) = ro::letzte(&self.root) else { self.log.push("Es gibt nichts rückgängig zu machen.".into()); return };
-        if self.editoren.values().any(|e| e.dirty) { self.log.push("Rückgängig: erst alle geänderten Dateien speichern.".into()); return }
+        let Some(l) = ro::letzte(&self.root) else { self.log.push(vc_i18n::t!("gui-es-gibt-nichts-rueckgaengig-zu-machen").into()); return };
+        if self.editoren.values().any(|e| e.dirty) { self.log.push(vc_i18n::t!("gui-rueckgaengig-erst-alle-geaenderten-dateien-speichern").into()); return }
         match ro::undo_geprueft(&self.root, &l) {
             Ok(n) => {
                 let _ = std::fs::remove_dir_all(&l.backup); // verbraucht: der nächste Aufruf nimmt den Schritt davor zurück
                 for (a, b) in &l.moves { self.datei_verschoben(b, a) }
                 let offen: Vec<String> = self.editoren.keys().cloned().collect(); for f in offen { if f.ends_with(".asm") || f.ends_with(".inc") || f.ends_with(".bas") { self.editor_neu_lesen(&f) } }
                 let alte: std::collections::BTreeSet<String> = l.moves.iter().filter_map(|(_, b)| b.rsplit_once('/').map(|(o, _)| o.to_string())).collect(); for o in alte { loesche_leere_ordner(&self.root.join(o)) }
-                self.projekt_neu_laden(); self.log.push(format!("Verschieben rückgängig gemacht ({n} Datei(en))")); self.markiere()
+                self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-verschieben-rueckgaengig-gemacht-n-datei-en", n = &n)); self.markiere()
             }
             Err(e) => self.log.push(e),
         }
@@ -583,7 +585,7 @@ impl App {
     fn ordner_zu(&self, rel: String) -> String { if rel.is_empty() || project::pfad(&self.root, &rel).is_dir() { rel } else { rel.rsplit_once('/').map_or(String::new(), |(o, _)| o.to_string()) } }
     fn oeffne(&mut self, rel: &str) {
         // Bilder, Binärdaten und Archive öffnen nicht als Text, sondern im Standardprogramm des Systems
-        { let pf = project::pfad(&self.root, rel); if pf.is_file() && !self.editoren.contains_key(rel) && !vc_ide::diskimage::is_image_name(rel) && !(rel.ends_with(".vcsprite") || rel.ends_with(".vcpmg") || rel.ends_with(".vcchar") || rel.ends_with(".vcsong") || rel.ends_with(".vcplay") || rel.ends_with(".vcscreen") || rel.ends_with(".vctiles") || rel.ends_with(".vcpal") || rel.ends_with(".asset.json")) && project::ist_nichttext(&pf) && !hexansicht::hex_statt_extern(rel) { self.log.push(format!("{rel}: keine Textdatei, öffnet im Standardprogramm")); aussen::ausfuehren(aussen::Aufruf::Standardprogramm(pf)); return } }
+        { let pf = project::pfad(&self.root, rel); if pf.is_file() && !self.editoren.contains_key(rel) && !vc_ide::diskimage::is_image_name(rel) && !(rel.ends_with(".vcsprite") || rel.ends_with(".vcpmg") || rel.ends_with(".vcchar") || rel.ends_with(".vcsong") || rel.ends_with(".vcplay") || rel.ends_with(".vcscreen") || rel.ends_with(".vctiles") || rel.ends_with(".vcpal") || rel.ends_with(".asset.json")) && project::ist_nichttext(&pf) && !hexansicht::hex_statt_extern(rel) { self.log.push(vc_i18n::t!("gui-rel-keine-textdatei-oeffnet-im-standardprogramm", rel = &rel)); aussen::ausfuehren(aussen::Aufruf::Standardprogramm(pf)); return } }
         if self.hexe.contains_key(rel) && !project::ist_nichttext(&project::pfad(&self.root, rel)) { self.hexe.remove(rel); }
         if (!self.editoren.contains_key(rel) && project::pfad(&self.root, rel).is_file() && project::ist_nichttext(&project::pfad(&self.root, rel)) && !rel.ends_with(".vcsprite") && !rel.ends_with(".vcpmg") && !rel.ends_with(".vcchar") && !rel.ends_with(".vcsong") && !rel.ends_with(".vcplay") && !rel.ends_with(".vcscreen") && !rel.ends_with(".vctiles") && !rel.ends_with(".vcpal") && !rel.ends_with(".asset.json") && !vc_ide::diskimage::is_image_name(rel)) { self.hex_oeffnen(rel); return }
         // Medien mit eigenem Studio (Sprite, Player/Missile, Zeichensatz) öffnen im Studio statt im Texteditor
@@ -599,7 +601,7 @@ impl App {
         }
         if !self.editoren.contains_key(rel) {
             let gelesen = textdatei::lesen(&project::pfad(&self.root, rel)).or_else(|_| textdatei::lesen(std::path::Path::new(rel)));
-            let txt = match gelesen { Ok((t, m)) => { self.textmeta.insert(rel.into(), m); t } Err(e) => { self.lesefehler.insert(rel.into()); self.log.push(format!("{e} (wird nicht überschrieben)")); format!("; {rel}: nicht lesbar") } };
+            let txt = match gelesen { Ok((t, m)) => { self.textmeta.insert(rel.into(), m); t } Err(e) => { self.lesefehler.insert(rel.into()); self.log.push(vc_i18n::t!("gui-e-wird-nicht-ueberschrieben", e = &e)); vc_i18n::t!("gui-rel-nicht-lesbar", rel = &rel) } };
             let mut e = Editor::new(&txt); e.lang = vc_ide_model::lang::Lang::of(rel); e.wrap = self.einst.umbruch; e.dirty = false;
             if let Some((l, c)) = self.marken.get(rel).copied() { let line = l.saturating_sub(1).min(e.lines.len() - 1); let col = c.saturating_sub(1).min(e.line_len(line)); e.set_cursor(Pos { line, col }, false); e.center_on(line) }
             self.editoren.insert(rel.into(), e);
@@ -623,17 +625,17 @@ impl App {
             let ziel = k.ziel.as_deref().unwrap_or(""); let alle = ziel == "*"; let (haupt, unter) = ziel.split_once('/').map_or((ziel, ""), |(a, b)| (a, b));
             let eintrag = |i: &befehle::Info, zeilen: &mut Vec<Zeile<Msg>>, cmds: &mut Vec<Option<Cmd>>| { let ok = self.nutzbar(i.cmd); let n = befehle::menuename(i); zeilen.push(Zeile { name: if ok { n.to_string() } else { format!("{} ({})", n, Self::menue_grund(i.cmd)) }, kuerzel: kontext::kuerzel(i.cmd, mac), aktiv: ok, msg: Some(Msg::KontextWahl(i.cmd)) }); cmds.push(Some(i.cmd)); };
             for m in befehle::MENUES.iter().filter(|m| alle || **m == haupt) {
-                if alle { zeilen.push(Zeile { name: m.to_uppercase(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None) }
+                if alle { zeilen.push(Zeile { name: befehle::menue_titel(m).to_uppercase(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None) }
                 if !alle && !unter.is_empty() {
-                    zeilen.push(Zeile { name: format!("◂ {m}"), kuerzel: String::new(), aktiv: true, msg: Some(Msg::MenueAuf(m.to_string())) }); cmds.push(None);
-                    zeilen.push(Zeile { name: unter.to_uppercase(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None);
+                    zeilen.push(Zeile { name: format!("◂ {}", befehle::menue_titel(m)), kuerzel: String::new(), aktiv: true, msg: Some(Msg::MenueAuf(m.to_string())) }); cmds.push(None);
+                    zeilen.push(Zeile { name: befehle::untermenue_titel(unter).to_uppercase(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None);
                     for i in befehle::menue_eintraege(m, unter) { eintrag(i, &mut zeilen, &mut cmds) }
                     continue;
                 }
                 for i in befehle::menue_eintraege(m, "") { eintrag(i, &mut zeilen, &mut cmds) }
                 for u in befehle::untermenues(m) {
-                    if alle { zeilen.push(Zeile { name: u.to_string(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None); for i in befehle::menue_eintraege(m, u) { eintrag(i, &mut zeilen, &mut cmds) } }
-                    else { if befehle::untermenues(m).first() == Some(u) && !zeilen.is_empty() { zeilen.push(Zeile { name: String::new(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None) } zeilen.push(Zeile { name: format!("{u} ▸"), kuerzel: String::new(), aktiv: true, msg: Some(Msg::MenueAuf(format!("{m}/{u}"))) }); cmds.push(None) }
+                    if alle { zeilen.push(Zeile { name: befehle::untermenue_titel(u), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None); for i in befehle::menue_eintraege(m, u) { eintrag(i, &mut zeilen, &mut cmds) } }
+                    else { if befehle::untermenues(m).first() == Some(u) && !zeilen.is_empty() { zeilen.push(Zeile { name: String::new(), kuerzel: String::new(), aktiv: false, msg: None }); cmds.push(None) } zeilen.push(Zeile { name: format!("{} ▸", befehle::untermenue_titel(u)), kuerzel: String::new(), aktiv: true, msg: Some(Msg::MenueAuf(format!("{m}/{u}"))) }); cmds.push(None) }
                 }
             }
             return (zeilen, cmds);
@@ -679,15 +681,15 @@ impl App {
     /// Zu schmal für alle Menütitel: ein Knopf „Menü“ mit allen Menüs untereinander
     fn menue_schmal(&self) -> bool { self.fenster.width / self.einst.zoom < 560.0 }
     /// Was ein Befehl braucht, wenn er gerade ausgegraut ist (aus der Befehlstabelle)
-    fn menue_grund(c: Cmd) -> &'static str {
+    fn menue_grund(c: Cmd) -> String {
         match c {
-            Cmd::DebugHierher => return "braucht eine Debug-Sitzung und einen offenen Quelltext",
-            Cmd::DebugWeiter | Cmd::DebugPause | Cmd::DebugUeber | Cmd::DebugHinein | Cmd::DebugRaus | Cmd::DebugEnde => return "braucht eine Debug-Sitzung",
-            Cmd::Exportieren => return "braucht ein geöffnetes Studio",
-            Cmd::MdFett | Cmd::MdKursiv | Cmd::MdCode | Cmd::MdDurchgestrichen | Cmd::MdLink | Cmd::MdBild | Cmd::MdUeberschriftTiefer | Cmd::MdUeberschriftHoeher | Cmd::MdAufzaehlung | Cmd::MdNummerierung | Cmd::MdAufgaben | Cmd::MdZitat | Cmd::MdAufgabeUmschalten | Cmd::MdTabelleNeu | Cmd::MdTabelleAusrichten => return "braucht eine Markdown-Datei",
+            Cmd::DebugHierher => return vc_i18n::t!("gui-braucht-eine-debug-sitzung-und-einen"),
+            Cmd::DebugWeiter | Cmd::DebugPause | Cmd::DebugUeber | Cmd::DebugHinein | Cmd::DebugRaus | Cmd::DebugEnde => return vc_i18n::t!("gui-braucht-eine-debug-sitzung"),
+            Cmd::Exportieren => return vc_i18n::t!("gui-braucht-ein-geoeffnetes-studio"),
+            Cmd::MdFett | Cmd::MdKursiv | Cmd::MdCode | Cmd::MdDurchgestrichen | Cmd::MdLink | Cmd::MdBild | Cmd::MdUeberschriftTiefer | Cmd::MdUeberschriftHoeher | Cmd::MdAufzaehlung | Cmd::MdNummerierung | Cmd::MdAufgaben | Cmd::MdZitat | Cmd::MdAufgabeUmschalten | Cmd::MdTabelleNeu | Cmd::MdTabelleAusrichten => return vc_i18n::t!("gui-braucht-eine-markdown-datei"),
             _ => {}
         }
-        match befehle::info(c).braucht { befehle::Braucht::Projekt => "braucht ein Projekt", befehle::Braucht::Editor => "braucht einen offenen Quelltext", befehle::Braucht::Nichts => "gerade nicht möglich" } }
+        match befehle::info(c).braucht { befehle::Braucht::Projekt => vc_i18n::t!("gui-braucht-ein-projekt"), befehle::Braucht::Editor => vc_i18n::t!("gui-braucht-einen-offenen-quelltext"), befehle::Braucht::Nichts => vc_i18n::t!("gui-gerade-nicht-moeglich") } }
     fn menue_oeffnen(&mut self, name: &str) {
         let idx = befehle::MENUES.iter().position(|m| *m == name.split('/').next().unwrap_or("")).unwrap_or(0);
         let pos = if name == "*" { iced::Point::new(8.0, 26.0) } else { iced::Point::new(8.0 + idx as f32 * 86.0, 26.0) };
@@ -717,8 +719,8 @@ impl App {
             button(inhalt).width(Length::Fixed(breit)).padding([3, 6]).on_press(Msg::MenueAuf(name)).style(move |_, st| button::Style { background: (an || matches!(st, button::Status::Hovered | button::Status::Pressed)).then(|| pal.sel.into()), text_color: pal.text, border: Border { radius: 4.0.into(), ..Border::default() }, ..Default::default() }).into()
         };
         let mut r = row![].spacing(0).align_y(Alignment::Center);
-        if self.menue_schmal() { r = r.push(titel("*".into(), "☰ Menü".into(), 86.0)) }
-        else { for (i, m) in befehle::MENUES.iter().enumerate() { let anz = format!("{m}"); let _ = i; r = r.push(titel(m.to_string(), anz, 86.0)) } }
+        if self.menue_schmal() { r = r.push(titel("*".into(), vc_i18n::t!("gui-menue").into(), 86.0)) }
+        else { for (i, m) in befehle::MENUES.iter().enumerate() { let anz = befehle::menue_titel(m); let _ = i; r = r.push(titel(m.to_string(), anz, 86.0)) } }
         container(r.push(space::horizontal())).padding([2, 8]).width(Length::Fill).height(26).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 0.0.into() }, ..Default::default() }).into()
     }
     fn kontext_sel_setzen(&mut self) { let Some(k) = &self.kontext else { return }; let (z, _) = self.kontext_zeilen(k); let sel = kontext::naechste(&z, z.len().saturating_sub(1), 1); if let Some(k) = &mut self.kontext { k.sel = sel } }
@@ -743,9 +745,9 @@ impl App {
     fn nutzbar(&self, c: Cmd) -> bool { if matches!(c, Cmd::MdFett | Cmd::MdKursiv | Cmd::MdCode | Cmd::MdDurchgestrichen | Cmd::MdLink | Cmd::MdBild | Cmd::MdUeberschriftTiefer | Cmd::MdUeberschriftHoeher | Cmd::MdAufzaehlung | Cmd::MdNummerierung | Cmd::MdAufgaben | Cmd::MdZitat | Cmd::MdAufgabeUmschalten | Cmd::MdTabelleNeu | Cmd::MdTabelleAusrichten) { return self.md_aktiv() } if c == Cmd::MdAlsMarkdown { return self.name().is_some_and(|n| self.editoren.contains_key(&n)) } if c == Cmd::Exportieren { return self.name().is_some_and(|n| self.studios.contains_key(&n) || self.paletten.contains_key(&n) || self.screens.contains_key(&n) || self.tilesets.contains_key(&n) || self.banken.contains_key(&n) || self.songs.contains_key(&n)) } if matches!(c, Cmd::DebugWeiter | Cmd::DebugPause | Cmd::DebugUeber | Cmd::DebugHinein | Cmd::DebugRaus | Cmd::DebugEnde | Cmd::DebugHierher) { return self.dbg.is_some() && (c != Cmd::DebugHierher || self.name().is_some()) } match befehle::info(c).braucht { Braucht::Nichts => true, Braucht::Projekt => true, Braucht::Editor => self.name().is_some() } }
     #[cfg(target_os = "macos")]
     fn a11y(&self) {
-        let reiter = self.tabs.iter().enumerate().map(|(i, x)| match x { Tab::Datei(n) => (n.clone(), i == self.aktiv, (self.editoren.get(n).map_or(false, |e| e.dirty) || self.studios.get(n).map_or(false, |s| s.doc.dirty()) || self.paletten.get(n).map_or(false, |p| p.dirty()) || self.disks.get(n).map_or(false, |d| d.dirty) || self.screens.get(n).map_or(false, |s| s.doc.dirty()) || self.tilesets.get(n).map_or(false, |s| s.doc.dirty()) || self.banken.get(n).map_or(false, |s| s.doc.dirty()) || self.songs.get(n).map_or(false, |s| s.doc.dirty()))), Tab::Einstellungen => (t::EINSTELLUNGEN.to_string(), i == self.aktiv, false), Tab::Start => ("Start".to_string(), i == self.aktiv, false), Tab::Projekt => ("Projekt".to_string(), i == self.aktiv, self.pe.as_ref().is_some_and(|z| z.geaendert())), Tab::Hilfe(k) => (self.hilfe_titel(k), i == self.aktiv, false) }).collect();
+        let reiter = self.tabs.iter().enumerate().map(|(i, x)| match x { Tab::Datei(n) => (n.clone(), i == self.aktiv, (self.editoren.get(n).map_or(false, |e| e.dirty) || self.studios.get(n).map_or(false, |s| s.doc.dirty()) || self.paletten.get(n).map_or(false, |p| p.dirty()) || self.disks.get(n).map_or(false, |d| d.dirty) || self.screens.get(n).map_or(false, |s| s.doc.dirty()) || self.tilesets.get(n).map_or(false, |s| s.doc.dirty()) || self.banken.get(n).map_or(false, |s| s.doc.dirty()) || self.songs.get(n).map_or(false, |s| s.doc.dirty()))), Tab::Einstellungen => (t::einstellungen().to_string(), i == self.aktiv, false), Tab::Start => (vc_i18n::t!("gui-start").to_string(), i == self.aktiv, false), Tab::Projekt => (vc_i18n::t!("gui-projekt").to_string(), i == self.aktiv, self.pe.as_ref().is_some_and(|z| z.geaendert())), Tab::Hilfe(k) => (self.hilfe_titel(k), i == self.aktiv, false) }).collect();
         let n = self.name(); let ed = n.as_ref().and_then(|n| self.editoren.get(n));
-        native::a11y_update(&native::A11y { studio: self.studio_a11y(), reiter, dateien: project::baum_zeilen(&self.proj, &self.baum_zu, &self.baum_filter, &self.exportiert).into_iter().map(|z| { let sel = self.baum_sel.as_deref() == Some(z.rel.as_str()) || (self.baum_sel.is_none() && Some(&z.rel) == n.as_ref()); (if z.ordner { format!("{}, Ordner, {}, Ebene {}", z.name, if z.offen { "aufgeklappt" } else { "zugeklappt" }, z.tiefe + 1) } else { format!("{}, Datei, Ebene {}", z.name, z.tiefe + 1) }, sel) }).collect(), editor_name: n.map(|n| format!("Editor {n}")).unwrap_or_else(|| "Kein Dokument".into()), editor_wert: ed.map(|e| format!("Zeile {}: {}", e.cursor.line + 1, e.lines[e.cursor.line])).unwrap_or_default(), protokoll: self.log.last().cloned().unwrap_or_default(), baut: self.baut, streifen: self.streifen_zustand(), bereiche: self.bereiche_zustand(), kontext: self.kontext.as_ref().map(|k| (kontext::menuename(k.art).to_string(), self.kontext_zeilen(k).0.into_iter().filter(|z| !z.name.is_empty()).map(|z| (z.name, z.aktiv)).collect())) });
+        native::a11y_update(&native::A11y { studio: self.studio_a11y(), reiter, dateien: project::baum_zeilen(&self.proj, &self.baum_zu, &self.baum_filter, &self.exportiert).into_iter().map(|z| { let sel = self.baum_sel.as_deref() == Some(z.rel.as_str()) || (self.baum_sel.is_none() && Some(&z.rel) == n.as_ref()); (if z.ordner { vc_i18n::t!("gui-p1-ordner-p2-ebene-p3", p1 = &z.name, p2 = if z.offen { vc_i18n::t!("gui-aufgeklappt") } else { vc_i18n::t!("gui-zugeklappt") }, p3 = z.tiefe + 1) } else { vc_i18n::t!("gui-p1-datei-ebene-p2", p1 = &z.name, p2 = z.tiefe + 1) }, sel) }).collect(), editor_name: n.map(|n| vc_i18n::t!("gui-editor-n", n = &n)).unwrap_or_else(|| vc_i18n::t!("gui-kein-dokument").into()), editor_wert: ed.map(|e| vc_i18n::t!("gui-zeile-p1-p2", p1 = e.cursor.line + 1, p2 = &e.lines[e.cursor.line])).unwrap_or_default(), protokoll: self.log.last().cloned().unwrap_or_default(), baut: self.baut, streifen: self.streifen_zustand(), bereiche: self.bereiche_zustand(), kontext: self.kontext.as_ref().map(|k| (kontext::menuename(k.art).to_string(), self.kontext_zeilen(k).0.into_iter().filter(|z| !z.name.is_empty()).map(|z| (z.name, z.aktiv)).collect())) });
         native::aktiviere(|c| self.nutzbar(c));
     }
     #[cfg(not(target_os = "macos"))]
@@ -786,9 +788,9 @@ impl App {
                 if e.version == v && e.cursor == p { let vok: Vec<&str> = vc_gui_editor::highlight::MNEMONICS.iter().chain(vc_gui_editor::highlight::DIRECTIVES.iter()).copied().collect(); e.update_completion(&vok) }
             }
             lsp::Antwort::Definition { req, ziel } => {
-                if req != self.def_req { return } let Some((uri, zeile)) = ziel else { self.log.push("Keine Definition gefunden.".into()); return };
+                if req != self.def_req { return } let Some((uri, zeile)) = ziel else { self.log.push(vc_i18n::t!("gui-keine-definition-gefunden").into()); return };
                 let rel = self.namen.iter().find(|r| lsp::uri(&self.root, r) == uri).cloned();
-                match rel { Some(r) => { self.oeffne(&r); if let Some(e) = self.editoren.get_mut(&r) { let l = zeile.min(e.lines.len() - 1); e.set_cursor(Pos { line: l, col: 0 }, false); e.center_on(l) } } None => self.log.push(format!("Definition außerhalb des Projekts: {uri}")) }
+                match rel { Some(r) => { self.oeffne(&r); if let Some(e) = self.editoren.get_mut(&r) { let l = zeile.min(e.lines.len() - 1); e.set_cursor(Pos { line: l, col: 0 }, false); e.center_on(l) } } None => self.log.push(vc_i18n::t!("gui-definition-ausserhalb-des-projekts-uri", uri = &uri)) }
             }
             lsp::Antwort::Hover { req, uri, zeile, spalte, text, bereich } => {
                 let Some(rel) = self.lsp_gesendet.keys().find(|r| lsp::uri(&self.root, r) == uri).cloned() else { return };
@@ -808,7 +810,7 @@ impl App {
             Msg::A11yBereit | Msg::Nichts => {}
             Msg::SystemSchema(m) => self.sys_dunkel = !matches!(m, iced::theme::Mode::Light),
             Msg::Ed(e) => self.ed_nachricht(e),
-            Msg::Menue(id) => { if self.einst.kuerzel_diagnose { self.diag_zeile(format!("Kürzel: Menü-Auslösung id={id}")) } if let Some(c) = befehle::nach_id(&id) { if self.doppelt(c, true) { if self.einst.kuerzel_diagnose { self.diag_zeile(format!("Kürzel: {id} als Doppelereignis verworfen")) } return Task::none() } return self.befehl(c) } }
+            Msg::Menue(id) => { if self.einst.kuerzel_diagnose { self.diag_zeile(vc_i18n::t!("gui-kuerzel-menue-ausloesung-id-id", id = &id)) } if let Some(c) = befehle::nach_id(&id) { if self.doppelt(c, true) { if self.einst.kuerzel_diagnose { self.diag_zeile(vc_i18n::t!("gui-kuerzel-id-als-doppelereignis-verworfen", id = &id)) } return Task::none() } return self.befehl(c) } }
             Msg::Befehl(c) => return self.befehl(c),
             Msg::TasteP(k, mods, p) => { if self.einst.kuerzel_diagnose && (mods.command() || mods.control() || mods.alt() || matches!(k, keyboard::Key::Named(_))) { let c = befehle::BEFEHLE.iter().find(|i| trifft(i.tasten, &k, mods)).map(|i| i.id).unwrap_or("-"); self.diag_zeile(format!("Kürzel: Taste={k:?} physisch={p:?} Cmd={} Umschalt={} Alt={} Strg={} → Befehl {c}", mods.command(), mods.shift(), mods.alt(), mods.control())) } if let Some(l) = tastatur::lernen(&k, &p) { self.layout_gelernt = Some(l) } self.phys = tastatur::physisch_zeichen(&p); let r = self.update_innen(Msg::Taste(k, mods)); self.phys = None; return r }
             Msg::Taste(k, mods) => { self.hinweis.clear();
@@ -909,8 +911,8 @@ impl App {
             Msg::KontextMsg(m) => { self.kontext = None; return self.update_innen(*m) }
             Msg::KontextWahl(c) => { let ziel = self.kontext.take().and_then(|k| if k.art == Art::Menue { None } else { k.ziel }); self.ziel = ziel; let t = self.befehl(c); self.ziel = None; return t }
             Msg::Einfuegen(t) => { if let (Some(t), Some(ed)) = (t, self.ed()) { ed.insert(&t.replace("\r\n", "\n")) } self.editor_fokus() }
-            Msg::BaumUmbenennen => match self.ziel.take().or_else(|| self.name()) { Some(n) => { let kurz = n.rsplit('/').next().unwrap_or(&n).to_string(); self.baum = Some(BaumDialog { art: BaumArt::Umbenennen(n.clone()), text: kurz, fehler: String::new() }); return self.text_fokus("baum") } None => self.log.push(t::BAUM_KEINE_DATEI.into()) },
-            Msg::BaumLoeschen => match self.ziel.take().or_else(|| self.name()) { Some(n) => self.baum = Some(BaumDialog { art: BaumArt::Loeschen(n), text: String::new(), fehler: String::new() }), None => self.log.push(t::BAUM_KEINE_DATEI.into()) },
+            Msg::BaumUmbenennen => match self.ziel.take().or_else(|| self.name()) { Some(n) => { let kurz = n.rsplit('/').next().unwrap_or(&n).to_string(); self.baum = Some(BaumDialog { art: BaumArt::Umbenennen(n.clone()), text: kurz, fehler: String::new() }); return self.text_fokus("baum") } None => self.log.push(t::baum_keine_datei().into()) },
+            Msg::BaumLoeschen => match self.ziel.take().or_else(|| self.name()) { Some(n) => self.baum = Some(BaumDialog { art: BaumArt::Loeschen(n), text: String::new(), fehler: String::new() }), None => self.log.push(t::baum_keine_datei().into()) },
             Msg::BaumText(x) => { if let Some(b) = &mut self.baum { b.text = x; b.fehler.clear() } }
             Msg::BaumAbbruch => self.baum = None,
             Msg::BaumOk => self.baum_ausfuehren(),
@@ -940,7 +942,7 @@ impl App {
             Msg::DiskDateien(rel, v) => self.disk_dateien(&rel, v),
             Msg::DiskFertig(rel, r) => self.disk_fertig(&rel, r),
             Msg::SongTick => return self.song_tick(),
-            Msg::SongKonv(rel, rmt) => { self.fokus_auf(&rel); return Task::perform(async move { rfd::AsyncFileDialog::new().set_title(if rmt { "RMT-Modul wählen" } else { "Song aus anderem System wählen" }).add_filter(if rmt { "RMT-Modul" } else { "SID-Datei (.sid), GoatTracker (.sng) oder Song (.vcsong)" }, if rmt { &["rmt"][..] } else { &["sng", "sid", "vcsong"][..] }).pick_file().await.map(|f| f.path().to_path_buf()) }, move |p| Msg::SongDatei(rel.clone(), rmt, p)) }
+            Msg::SongKonv(rel, rmt) => { self.fokus_auf(&rel); return Task::perform(async move { rfd::AsyncFileDialog::new().set_title(if rmt { vc_i18n::t!("gui-rmt-modul-waehlen") } else { vc_i18n::t!("gui-song-aus-anderem-system-waehlen") }).add_filter(&if rmt { "RMT-Modul".to_string() } else { vc_i18n::t!("gui-sid-datei-sid-goattracker-sng-oder-song") }, if rmt { &["rmt"][..] } else { &["sng", "sid", "vcsong"][..] }).pick_file().await.map(|f| f.path().to_path_buf()) }, move |p| Msg::SongDatei(rel.clone(), rmt, p)) }
             Msg::SongDatei(rel, rmt, p) => { if let Some(p) = p { self.song_import_oeffnen(&rel, rmt, p) } }
             Msg::SongImpName(n) => { if let Some(d) = &mut self.song_import { d.name = n; d.fehler.clear() } }
             Msg::SongImpSub(x) => { if let Some(d) = &mut self.song_import { if let Some((_, songs, _)) = &d.quelle.sid { d.subtune = (d.subtune as i32 + x).clamp(1, *songs as i32) as u16 } } }
@@ -960,7 +962,7 @@ impl App {
             Msg::ScreenMaus(rel, m) => { self.fokus_auf(&rel); self.screen_maus(&rel, m) }
             Msg::GruppeKlick(r) => { self.gruppe_fokus(r); self.ed_aktiv = false; self.fokus_bereich = Bereich::Dokument }
             Msg::StudioMaus(rel, m) => { self.fokus_auf(&rel); self.studio_maus(&rel, m) }
-            Msg::StudioAkt(rel, studio::Aktion::PngLaden) => { self.fokus_auf(&rel); return Task::perform(async { rfd::AsyncFileDialog::new().set_title("PNG-Bild laden").add_filter("Bild", &["png"]).pick_file().await.map(|f| f.path().to_path_buf()) }, move |p| Msg::PngGewaehlt(rel.clone(), p)) }
+            Msg::StudioAkt(rel, studio::Aktion::PngLaden) => { self.fokus_auf(&rel); return Task::perform(async { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("gui-png-bild-laden")).add_filter("Bild", &["png"]).pick_file().await.map(|f| f.path().to_path_buf()) }, move |p| Msg::PngGewaehlt(rel.clone(), p)) }
             Msg::PngGewaehlt(rel, p) => { if let Some(p) = p { self.png_laden(&rel, &p) } }
             Msg::StudioAkt(rel, a) => { self.fokus_auf(&rel); self.studio_aktion(&rel, a) }
             Msg::StudioTick => {}
@@ -985,7 +987,7 @@ impl App {
             Msg::DisHaltepunkt(a) => {
                 // Klick auf den Rand des Disassemblers: Haltepunkt in der Quellzeile der Adresse umschalten (der Editor ist maßgeblich)
                 let ziel = self.info.as_ref().and_then(|i| i.zeile_bei(a)).map(|(f, n)| (f.to_string(), n));
-                match ziel { Some((f, n)) => { if let Some(e) = self.editoren.get_mut(&f) { let l = n - 1; if !e.breakpoints.remove(&l) { e.breakpoints.insert(l); } } } None => self.log.push(format!("Zu ${a:04X} gibt es keine Quellzeile: dort lässt sich kein Haltepunkt setzen.")) }
+                match ziel { Some((f, n)) => { if let Some(e) = self.editoren.get_mut(&f) { let l = n - 1; if !e.breakpoints.remove(&l) { e.breakpoints.insert(l); } } } None => self.log.push(vc_i18n::t!("gui-zu-a-gibt-es-keine-quellzeile", a = format!("{:04X}", a))) }
             }
             Msg::RueckfrageNein => self.rueckfrage = None,
             Msg::RueckfrageJa => match self.rueckfrage.take() {
@@ -1041,11 +1043,11 @@ impl App {
             Msg::ScratchRest(w) => self.scratch_wiederherstellen(w),
             Msg::KopfMenue => self.kopf_menue = !self.kopf_menue,
             Msg::KopfWahl(c) => { self.kopf_menue = false; return self.befehl(c) }
-            Msg::ZielWahl(id) => { self.ziel_menue = false; self.log.push(format!("Ziel: {}", self.ziel_name(&id))); self.run_on = id }
+            Msg::ZielWahl(id) => { self.ziel_menue = false; self.log.push(vc_i18n::t!("gui-ziel-p1", p1 = self.ziel_name(&id))); self.run_on = id }
             // Endet der Emulator in den ersten Sekunden mit Fehler, steht seine letzte Ausgabe mit einem Hinweis im Protokoll (z. B. VICE ohne ROM-Dateien)
             Msg::StartFehler(zeilen) => { if !zeilen.is_empty() { for m in zeilen { for l in m.lines() { self.log.push(l.to_string()) } } self.schublade = 0; self.einst.schublade = true } }
-            Msg::Gestartet(Ok(c)) if !cfg!(test) => { self.log.push(format!("Gestartet: {c}")); return Task::perform(async { tokio::task::spawn_blocking(|| vc_ide::launch::wait_early_exit(std::time::Duration::from_secs(8))).await.unwrap_or_default() }, Msg::StartFehler) }
-            Msg::Gestartet(r) => match r { Ok(c) => self.log.push(format!("Gestartet: {c}")), Err(e) => { self.log.push(format!("Start fehlgeschlagen: {}", debug::freundlich(&e))); if debug::freundlich(&e) != e { self.log.push(format!("  Einzelheit: {e}")) } self.schublade = 0; self.einst.schublade = true } },
+            Msg::Gestartet(Ok(c)) if !cfg!(test) => { self.log.push(vc_i18n::t!("gui-gestartet-c", c = &c)); return Task::perform(async { tokio::task::spawn_blocking(|| vc_ide::launch::wait_early_exit(std::time::Duration::from_secs(8))).await.unwrap_or_default() }, Msg::StartFehler) }
+            Msg::Gestartet(r) => match r { Ok(c) => self.log.push(vc_i18n::t!("gui-gestartet-c", c = &c)), Err(e) => { self.log.push(vc_i18n::t!("gui-start-fehlgeschlagen-p1", p1 = debug::freundlich(&e))); if debug::freundlich(&e) != e { self.log.push(format!("  {}", vc_i18n::t!("gui-einzelheit-e", e = &e))) } self.schublade = 0; self.einst.schublade = true } },
             Msg::GotoProblem(i) => { if let Some(p) = self.probleme.get(i).cloned() { self.zeige(&p.datei, p.zeile) } }
             Msg::PaletteFrage(q) => { self.palette.frage = q; self.palette.auswahl = 0 }
             Msg::PaletteAuswahl(d) => { let n = self.palette_eintraege().len().max(1) as i32; self.palette.auswahl = (self.palette.auswahl as i32 + d).rem_euclid(n) as usize }
@@ -1063,7 +1065,7 @@ impl App {
             Msg::ErsetzFrage(q) => self.find.mit = q,
             Msg::FindSchritt(d) => { if let Some(e) = self.ed() { e.step_match(d); } self.find_info() }
             Msg::ErsetzeEins => { let (q, w, c) = (self.find.frage.clone(), self.find.mit.clone(), self.find.gross_klein); if let Some(e) = self.ed() { e.replace_current(&w, &q, c) } self.find_info() }
-            Msg::ErsetzeAlle => { let (q, w, c) = (self.find.frage.clone(), self.find.mit.clone(), self.find.gross_klein); let n = self.ed().map(|e| e.replace_all(&w, &q, c)).unwrap_or(0); self.find.info = format!("{n} ersetzt") }
+            Msg::ErsetzeAlle => { let (q, w, c) = (self.find.frage.clone(), self.find.mit.clone(), self.find.gross_klein); let n = self.ed().map(|e| e.replace_all(&w, &q, c)).unwrap_or(0); self.find.info = vc_i18n::t!("gui-n-ersetzt", n = &n) }
             Msg::FindGrossKlein => { self.find.gross_klein = !self.find.gross_klein; self.find_aktualisieren(false) }
             Msg::FindZu => { self.find.offen = false; if let Some(e) = self.ed() { e.clear_search() } }
             Msg::GotoZeile(l) => { if let Some(e) = self.ed() { let l = l.min(e.lines.len() - 1); e.set_cursor(Pos { line: l, col: 0 }, false); e.center_on(l) } }
@@ -1098,8 +1100,8 @@ impl App {
 
     fn oeffne_pfad(&mut self, p: PathBuf) {
         if let Ok(rel) = p.strip_prefix(&self.root) { let r = rel.to_string_lossy().into_owned(); self.oeffne(&r) }
-        else if let Ok(txt) = std::fs::read_to_string(&p) { let n = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or("Datei".into()); let mut e = Editor::new(&txt); e.dirty = false; self.editoren.insert(n.clone(), e); self.tab_oeffnen(Tab::Datei(n)); }
-        else { self.log.push(format!("{}: nicht lesbar", p.display())) }
+        else if let Ok(txt) = std::fs::read_to_string(&p) { let n = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| vc_i18n::t!("gui-datei")); let mut e = Editor::new(&txt); e.dirty = false; self.editoren.insert(n.clone(), e); self.tab_oeffnen(Tab::Datei(n)); }
+        else { self.log.push(vc_i18n::t!("gui-p1-nicht-lesbar", p1 = p.display())) }
     }
     fn zeige(&mut self, datei: &str, zeile: usize) {
         self.oeffne(datei); self.markiere();
@@ -1110,7 +1112,7 @@ impl App {
         if let Some(e) = self.ed() { e.set_search(&q, c); if springen && !e.matches.is_empty() { let i = e.current_match.unwrap_or(0) as i32; e.current_match = None; let _ = i; e.step_match(1); } }
         self.find_info()
     }
-    fn find_info(&mut self) { let q = self.find.frage.clone(); let (n, i) = self.ed().map(|e| (e.matches.len(), e.current_match.map(|i| i + 1))).unwrap_or((0, None)); self.find.info = if q.is_empty() { String::new() } else if n == 0 { t::KEIN_TREFFER.into() } else { format!("{} von {n}", i.unwrap_or(0)) } }
+    fn find_info(&mut self) { let q = self.find.frage.clone(); let (n, i) = self.ed().map(|e| (e.matches.len(), e.current_match.map(|i| i + 1))).unwrap_or((0, None)); self.find.info = if q.is_empty() { String::new() } else if n == 0 { t::kein_treffer().into() } else { vc_i18n::t!("gui-p1-von-n", p1 = i.unwrap_or(0), n = &n) } }
     fn ed_nachricht(&mut self, e: EdMsg) {
         let aendert = matches!(e, EdMsg::Insert(_) | EdMsg::Backspace | EdMsg::Delete | EdMsg::Enter | EdMsg::Tab | EdMsg::Undo | EdMsg::Redo);
         let tippt = matches!(&e, EdMsg::Insert(s) if s.chars().count() == 1); let mut hover_anfrage = None; let mut kontext_offen: Option<iced::Point> = None;
@@ -1143,7 +1145,7 @@ impl App {
         if aendert { if let Some(ed) = self.ed() { ed.hover = None } }
         if let Some(p) = hover_anfrage {
             // Fehlerzeile unter der Maus: die Meldung steht sofort da (der Sprachdienst ergänzt sie)
-            if let Some(n) = self.name() { let d = self.diagnosen.get(&n).and_then(|v| v.iter().find(|d| d.zeile == p.line).cloned()); if let (Some(d), Some(e)) = (d, self.editoren.get_mut(&n)) { let len = e.lines[p.line.min(e.lines.len() - 1)].chars().count().max(1); e.hover = Some(vc_gui_editor::core::HoverInfo { von: Pos { line: p.line, col: 0 }, bis: Pos { line: p.line, col: len }, text: format!("**{}**\n{}", if d.fehler { "Fehler" } else if d.hinweis { "Hinweis" } else { "Warnung" }, d.text) }) } }
+            if let Some(n) = self.name() { let d = self.diagnosen.get(&n).and_then(|v| v.iter().find(|d| d.zeile == p.line).cloned()); if let (Some(d), Some(e)) = (d, self.editoren.get_mut(&n)) { let len = e.lines[p.line.min(e.lines.len() - 1)].chars().count().max(1); e.hover = Some(vc_gui_editor::core::HoverInfo { von: Pos { line: p.line, col: 0 }, bis: Pos { line: p.line, col: len }, text: format!("**{}**\n{}", if d.fehler { vc_i18n::t!("gui-fehler") } else if d.hinweis { vc_i18n::t!("gui-hinweis") } else { vc_i18n::t!("gui-warnung") }, d.text) }) } }
             if let Some(n) = self.name().filter(|n| vc_ide_model::editor_names::is_native_basic(n)) { self.basic_hover(&n, p) }
             if let Some(n) = self.name().filter(|n| self.lsp_gesendet.contains_key(n)) { self.hover_req += 1; self.lsp.senden(lsp::Cmd::Hover { uri: lsp::uri(&self.root, &n), zeile: p.line, spalte: p.col, req: self.hover_req }) } }
     }
@@ -1159,7 +1161,7 @@ impl App {
     /// Include-Zeile für `quelle` im aktiven Quelltext einfügen: vor die Zeilengrenze `k`, ohne Angabe unter die Cursorzeile.
     /// Schon eingebunden: nichts einfügen, zur vorhandenen Zeile springen. Ablehnungen und Erfolg als Hinweis in der Statusleiste.
     fn include_ablegen(&mut self, quelle: &str, k: Option<usize>) {
-        let Some(n) = self.name().filter(|n| self.editoren.contains_key(n)) else { self.hinweis = "Kein Quelltext offen: hier gibt es nichts zum Einbinden".into(); return };
+        let Some(n) = self.name().filter(|n| self.editoren.contains_key(n)) else { self.hinweis = vc_i18n::t!("gui-kein-quelltext-offen-hier-gibt-es").into(); return };
         let text = self.editoren[&n].text();
         match vc_ide_model::dropinc::plan(&n, &text, quelle, Some(&self.root)) {
             Ok(plan) => {
@@ -1167,11 +1169,11 @@ impl App {
                 let l = ed.lines.len(); let k = k.unwrap_or(ed.cursor.line + 1);
                 if k < l { ed.replace(Pos { line: k, col: 0 }, Pos { line: k, col: 0 }, &format!("{}\n", plan.line)) }
                 else { let e = Pos { line: l - 1, col: ed.line_len(l - 1) }; ed.replace(e, e, &format!("\n{}", plan.line)) }
-                self.hinweis = format!("Eingebunden: {}{} ({}+Z nimmt es zurück)", plan.line, plan.alt.map(|(a, _)| format!(" · Alternative von Hand: {a}")).unwrap_or_default(), befehle::plattform_text("Cmd"));
+                self.hinweis = vc_i18n::t!("gui-eingebunden-p1-p2-p3-z-nimmt", p1 = &plan.line, p2 = plan.alt.map(|(a, _)| format!(" · {}", vc_i18n::t!("gui-alternative-von-hand-a", a = &a))).unwrap_or_default(), p3 = befehle::plattform_text("Cmd"));
             }
             Err(vc_ide_model::dropinc::Reject::Already(z)) => {
                 if let Some(ed) = self.editoren.get_mut(&n) { let z = z.min(ed.lines.len() - 1); ed.set_cursor(Pos { line: z, col: 0 }, false); ed.center_pending = Some(z) }
-                self.hinweis = format!("Diese Datei ist schon eingebunden (Zeile {}) – nichts eingefügt", z + 1);
+                self.hinweis = vc_i18n::t!("gui-diese-datei-ist-schon-eingebunden-zeile", p1 = z + 1);
             }
             Err(e) => self.hinweis = e.to_string(),
         }
@@ -1223,7 +1225,7 @@ impl App {
             Cmd::DebugHierher => {
                 let (Some(n), Some(info)) = (self.name(), self.info.clone()) else { return Task::none() };
                 let zeile = self.editoren.get(&n).map(|e| e.cursor.line + 1).unwrap_or(1);
-                match info.adresse_von(&n, zeile) { None => self.log.push(format!("Zeile {zeile} hat keinen Code: dort kann nicht angehalten werden.")), Some(a) => if let Some(d) = &self.dbg { d.send(debug::Cmd::AddPoint { kind: "exec".into(), start: a, end: a, cond: None, ignore: 0 }); d.send(debug::Cmd::Cont); self.run_to = Some((a, false)) } }
+                match info.adresse_von(&n, zeile) { None => self.log.push(vc_i18n::t!("gui-zeile-zeile-hat-keinen-code-dort", zeile = &zeile)), Some(a) => if let Some(d) = &self.dbg { d.send(debug::Cmd::AddPoint { kind: "exec".into(), start: a, end: a, cond: None, ignore: 0 }); d.send(debug::Cmd::Cont); self.run_to = Some((a, false)) } }
             }
             Cmd::Speichern => self.speichern(),
             Cmd::StudioVergroessern | Cmd::StudioVerkleinern | Cmd::StudioEinpassen | Cmd::StudioRaster | Cmd::StudioZwiebel => { if let Some(n) = self.name() {
@@ -1235,10 +1237,10 @@ impl App {
             Cmd::TrackerNoten | Cmd::TrackerInstrumente | Cmd::TrackerAblauf => { if let Some(n) = self.name().filter(|n| self.songs.contains_key(n)) { let m = match c { Cmd::TrackerNoten => songstudio::SongModus::Noten, Cmd::TrackerInstrumente => songstudio::SongModus::Instrumente, _ => songstudio::SongModus::Ablauf }; self.song_aktion(&n, songstudio::GAkt::Modus(m)) } }
             Cmd::AlleSpeichern => { for n in self.alle_namen() { if !self.ist_scratch(&n) { self.speichere_datei(&n) } } }
             Cmd::NeuerReiter | Cmd::NeueNotiz => self.scratch_neu(c == Cmd::NeueNotiz, String::new()),
-            Cmd::DateiOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title("Datei öffnen").pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
+            Cmd::DateiOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("gui-datei-oeffnen")).pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
             // Projektdatei wählen (ein Klick wählt, Doppelklick oder „Öffnen“ öffnet); in einem Ordner-Dialog sind Dateien ausgegraut und lassen sich nicht anklicken
-            Cmd::ProjektOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title("Projekt öffnen (Projektdatei .vcprj)").add_filter("VintageCoder-Projekt", &["vcprj"]).pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
-            Cmd::ProjektOrdnerOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title("Projektordner öffnen").pick_folder().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
+            Cmd::ProjektOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("gui-projekt-oeffnen-projektdatei-vcprj")).add_filter(&vc_i18n::t!("gui-vintagecoder-projekt"), &["vcprj"]).pick_file().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
+            Cmd::ProjektOrdnerOeffnen => return Task::perform(async { rfd::AsyncFileDialog::new().set_title(vc_i18n::t!("gui-projektordner-oeffnen")).pick_folder().await.map(|f| f.path().to_path_buf()) }, Msg::Geoeffnet),
             Cmd::DateiSchliessen => { let i = self.aktiv; return self.update_innen(Msg::Schliesse(i)) }
             Cmd::Rueckgaengig => { match self.name().filter(|n| self.studios.contains_key(n) || self.paletten.contains_key(n) || self.screens.contains_key(n) || self.tilesets.contains_key(n) || self.banken.contains_key(n) || self.songs.contains_key(n)) { Some(n) if self.songs.contains_key(&n) => self.song_aktion(&n, songstudio::GAkt::Undo), Some(n) if self.banken.contains_key(&n) => self.bank_aktion(&n, bankstudio::BAkt::Undo), Some(n) if self.tilesets.contains_key(&n) => self.tile_aktion(&n, tilestudio::TAkt::Undo), Some(n) if self.screens.contains_key(&n) => self.screen_aktion(&n, screenstudio::SAkt::Undo), Some(n) if self.paletten.contains_key(&n) => self.palette_aktion(&n, palettestudio::PAkt::Undo), Some(n) => self.studio_aktion(&n, studio::Aktion::Undo), None => self.ed_nachricht(EdMsg::Undo) } } Cmd::Wiederholen => { match self.name().filter(|n| self.studios.contains_key(n) || self.paletten.contains_key(n) || self.screens.contains_key(n) || self.tilesets.contains_key(n) || self.banken.contains_key(n) || self.songs.contains_key(n)) { Some(n) if self.songs.contains_key(&n) => self.song_aktion(&n, songstudio::GAkt::Redo), Some(n) if self.banken.contains_key(&n) => self.bank_aktion(&n, bankstudio::BAkt::Redo), Some(n) if self.tilesets.contains_key(&n) => self.tile_aktion(&n, tilestudio::TAkt::Redo), Some(n) if self.screens.contains_key(&n) => self.screen_aktion(&n, screenstudio::SAkt::Redo), Some(n) if self.paletten.contains_key(&n) => self.palette_aktion(&n, palettestudio::PAkt::Redo), Some(n) => self.studio_aktion(&n, studio::Aktion::Redo), None => self.ed_nachricht(EdMsg::Redo) } }
             Cmd::Suchen | Cmd::Ersetzen => { self.find.offen = true; self.find.ersetzen = c == Cmd::Ersetzen; self.goto.offen = false; let sel = self.ed().and_then(|e| e.selected_text()).filter(|s| !s.contains('\n')); if let Some(s) = sel { self.find.frage = s } self.find_aktualisieren(true); return self.text_fokus("find") }
@@ -1257,8 +1259,8 @@ impl App {
             Cmd::SchubladeMax => { self.layout.umschalten_maximiert(Bereich::Schublade); self.layout_merken() }
             Cmd::PanelMax => { self.layout.umschalten_maximiert(Bereich::Panel); self.layout_merken() }
             Cmd::AlsInclude => { if let Some(q) = self.ziel.take() { self.include_ablegen(&q, None) } }
-            Cmd::ZeileFormatieren => { if let Some(n) = self.name() { let l = self.editoren.get(&n).map(|e| e.cursor.line); if let (Some(l), Some(ed)) = (l, self.editoren.get_mut(&n)) { if !prettyzeile::zeile_formatieren(ed, &n, l) { self.status_hinweis("Zeile ist schon formatiert (oder hier gibt es keine Formatierung)") } } } }
-            Cmd::DateiFormatieren => { if let Some(n) = self.name() { if let Some(ed) = self.editoren.get_mut(&n) { if !prettyzeile::datei_formatieren(ed, &n) { self.status_hinweis("Datei ist schon formatiert (oder hier gibt es keine Formatierung)") } } } }
+            Cmd::ZeileFormatieren => { if let Some(n) = self.name() { let l = self.editoren.get(&n).map(|e| e.cursor.line); if let (Some(l), Some(ed)) = (l, self.editoren.get_mut(&n)) { if !prettyzeile::zeile_formatieren(ed, &n, l) { self.status_hinweis(&vc_i18n::t!("gui-zeile-ist-schon-formatiert-oder-hier")) } } } }
+            Cmd::DateiFormatieren => { if let Some(n) = self.name() { if let Some(ed) = self.editoren.get_mut(&n) { if !prettyzeile::datei_formatieren(ed, &n) { self.status_hinweis(&vc_i18n::t!("gui-datei-ist-schon-formatiert-oder-hier")) } } } }
             Cmd::EditorSchriftGroesser => return self.update_innen(Msg::SetSchrift(self.einst.editor_schrift + 1.0)),
             Cmd::EditorSchriftKleiner => return self.update_innen(Msg::SetSchrift(self.einst.editor_schrift - 1.0)),
             Cmd::DarstellungZuruecksetzen => { self.layout.zuruecksetzen(); self.layout_merken(); let _ = self.update_innen(Msg::SetZoom(1.0)); return self.update_innen(Msg::SetSchrift(Einstellungen::default().editor_schrift)) }
@@ -1269,7 +1271,7 @@ impl App {
             Cmd::HellDunkel => { let s = if self.dunkel() { Schema::Hell } else { Schema::Dunkel }; return self.update_innen(Msg::SetSchema(s)) }
             Cmd::Umbruch => { let u = !self.einst.umbruch; return self.update_innen(Msg::SetUmbruch(u)) }
             Cmd::Einstellungen => self.tab_oeffnen(Tab::Einstellungen),
-            Cmd::Zeilenende | Cmd::Kodierung => { if let Some(n) = self.name().filter(|n| self.editoren.contains_key(n)) { let mut mt = self.textmeta.get(&n).copied().unwrap_or_default(); if c == Cmd::Zeilenende { mt.crlf = !mt.crlf } else { mt.latin1 = !mt.latin1; mt.bom = false } self.textmeta.insert(n.clone(), mt); if let Some(e) = self.editoren.get_mut(&n) { e.dirty = true } self.log.push(format!("{n}: {} · {} (gilt beim Speichern)", mt.kodierung(), mt.zeilenende())) } }
+            Cmd::Zeilenende | Cmd::Kodierung => { if let Some(n) = self.name().filter(|n| self.editoren.contains_key(n)) { let mut mt = self.textmeta.get(&n).copied().unwrap_or_default(); if c == Cmd::Zeilenende { mt.crlf = !mt.crlf } else { mt.latin1 = !mt.latin1; mt.bom = false } self.textmeta.insert(n.clone(), mt); if let Some(e) = self.editoren.get_mut(&n) { e.dirty = true } self.log.push(vc_i18n::t!("gui-n-p2-p3-gilt-beim-speichern", n = &n, p2 = mt.kodierung(), p3 = mt.zeilenende())) } }
             Cmd::ProjektNeu => self.neuprojekt_oeffnen(),
             Cmd::Assistent => self.wiz_oeffnen(None),
             Cmd::AssistentRoms => self.wiz_oeffnen(Some(vc_ide::setup::Mode::Part(vc_ide::setup::Part::Roms))),
@@ -1277,7 +1279,7 @@ impl App {
             Cmd::AssistentHardware => self.wiz_oeffnen(Some(vc_ide::setup::Mode::Part(vc_ide::setup::Part::Hardware))),
             Cmd::AssistentDesign => self.wiz_oeffnen(Some(vc_ide::setup::Mode::Part(vc_ide::setup::Part::DesignEditor))),
             // „Nach Neuem suchen“: nur auf Knopfdruck (nie von selbst): ROM-Verzeichnis neu einlesen und die Emulatorsuche des Assistenten starten
-            Cmd::AssistentNeues => { vc_media::romref::rescan_async(); self.log.push("Nach Neuem gesucht: ROM-Verzeichnis neu eingelesen, Emulatorsuche im Assistenten.".into()); self.wiz_oeffnen(Some(vc_ide::setup::Mode::Part(vc_ide::setup::Part::Emulators))) }
+            Cmd::AssistentNeues => { vc_media::romref::rescan_async(); self.log.push(vc_i18n::t!("gui-nach-neuem-gesucht-rom-verzeichnis-neu").into()); self.wiz_oeffnen(Some(vc_ide::setup::Mode::Part(vc_ide::setup::Part::Emulators))) }
             Cmd::Ueber => return self.info_akt(infodlg::InfoAkt::UeberAuf),
             Cmd::Feedback => return self.info_akt(infodlg::InfoAkt::FeedbackAuf),
             Cmd::UpdatePruefen => return self.info_akt(infodlg::InfoAkt::Pruefen),
@@ -1308,22 +1310,22 @@ impl App {
             Cmd::AlleAuswaehlen => { if let Some(n) = self.name().filter(|n| self.studios.contains_key(n)) { self.studio_aktion(&n, studio::Aktion::AuswahlAlles) } else { self.ed_nachricht(EdMsg::SelectAll) } }
             Cmd::AllesFalten => { if let Some(ed) = self.ed() { let n = ed.lines.len(); for l in 0..n { if !ed.is_hidden(l) && !ed.folds.contains_key(&l) && ed.fold_range(l).is_some() { ed.toggle_fold(l) } } } }
             Cmd::AllesEntfalten => { if let Some(ed) = self.ed() { let starts: Vec<usize> = ed.folds.keys().copied().collect(); for l in starts { ed.toggle_fold(l) } } }
-            Cmd::Vervollstaendigen => { let vokabular: Vec<&str> = vc_gui_editor::highlight::MNEMONICS.iter().chain(vc_gui_editor::highlight::DIRECTIVES.iter()).copied().collect(); if let Some(ed) = self.ed() { ed.update_completion_ab(&vokabular, 0); if ed.completion.is_none() { self.hinweis = "Keine Vorschläge an dieser Stelle".into() } } }
+            Cmd::Vervollstaendigen => { let vokabular: Vec<&str> = vc_gui_editor::highlight::MNEMONICS.iter().chain(vc_gui_editor::highlight::DIRECTIVES.iter()).copied().collect(); if let Some(ed) = self.ed() { ed.update_completion_ab(&vokabular, 0); if ed.completion.is_none() { self.hinweis = vc_i18n::t!("gui-keine-vorschlaege-an-dieser-stelle").into() } } }
             Cmd::ProblemSpringen => { let i = self.ziel.take().and_then(|z| z.parse::<usize>().ok()).unwrap_or(0); return self.update_innen(Msg::GotoProblem(i)) }
-            Cmd::ProblemKopieren => { let i = self.ziel.take().and_then(|z| z.parse::<usize>().ok()).unwrap_or(0); if let Some(p) = self.probleme.get(i) { return iced::clipboard::write(format!("{}:{}: {}", p.datei, p.zeile, p.text)) } else { self.hinweis = "Keine Probleme".into() } }
-            Cmd::ProblemeAlleKopieren => { if self.probleme.is_empty() { self.hinweis = "Keine Probleme".into() } else { return iced::clipboard::write(self.probleme.iter().map(|p| format!("{}:{}: {}", p.datei, p.zeile, p.text)).collect::<Vec<_>>().join("\n")) } }
+            Cmd::ProblemKopieren => { let i = self.ziel.take().and_then(|z| z.parse::<usize>().ok()).unwrap_or(0); if let Some(p) = self.probleme.get(i) { return iced::clipboard::write(format!("{}:{}: {}", p.datei, p.zeile, p.text)) } else { self.hinweis = vc_i18n::t!("gui-keine-probleme").into() } }
+            Cmd::ProblemeAlleKopieren => { if self.probleme.is_empty() { self.hinweis = vc_i18n::t!("gui-keine-probleme").into() } else { return iced::clipboard::write(self.probleme.iter().map(|p| format!("{}:{}: {}", p.datei, p.zeile, p.text)).collect::<Vec<_>>().join("\n")) } }
             Cmd::ProtokollKopieren => { return iced::clipboard::write(self.log.join("\n")) }
             Cmd::ProtokollLeeren => { self.log.clear() }
-            Cmd::PfadKopieren => { let rel = self.ziel.take().or_else(|| self.name()); if let Some(rel) = rel { let p = project::pfad(&self.root, &rel).to_string_lossy().into_owned(); self.log.push(format!("Pfad kopiert: {p}")); return iced::clipboard::write(p) } }
+            Cmd::PfadKopieren => { let rel = self.ziel.take().or_else(|| self.name()); if let Some(rel) = rel { let p = project::pfad(&self.root, &rel).to_string_lossy().into_owned(); self.log.push(vc_i18n::t!("gui-pfad-kopiert-p", p = &p)); return iced::clipboard::write(p) } }
             Cmd::BaumRueckgaengig => self.baum_rueckgaengig(),
-            Cmd::HexAnsicht => { let rel = self.ziel.take().or_else(|| self.name()); if let Some(rel) = rel { if project::pfad(&self.root, &rel).is_file() { self.hex_oeffnen(&rel) } else { self.log.push(t::BAUM_KEINE_DATEI.into()) } } }
+            Cmd::HexAnsicht => { let rel = self.ziel.take().or_else(|| self.name()); if let Some(rel) = rel { if project::pfad(&self.root, &rel).is_file() { self.hex_oeffnen(&rel) } else { self.log.push(t::baum_keine_datei().into()) } } }
             Cmd::ImOrdnerZeigen => { let rel = self.ziel.take().or_else(|| self.name()); if let Some(rel) = rel { zeige_im_ordner(&project::pfad(&self.root, &rel)) } }
             Cmd::Kopieren | Cmd::Ausschneiden | Cmd::Einfuegen if self.name().is_some_and(|n| self.songs.contains_key(&n)) => { let n = self.name().unwrap_or_default(); self.song_aktion(&n, match c { Cmd::Kopieren => songstudio::GAkt::Kopieren, Cmd::Ausschneiden => songstudio::GAkt::Ausschneiden, _ => songstudio::GAkt::Einfuegen }) }
             Cmd::Kopieren | Cmd::Ausschneiden if self.name().is_some_and(|n| self.studios.contains_key(&n)) => { let n = self.name().unwrap_or_default(); self.studio_aktion(&n, if c == Cmd::Kopieren { studio::Aktion::Kopieren } else { studio::Aktion::Ausschneiden }) }
             Cmd::Einfuegen if self.name().is_some_and(|n| self.studios.contains_key(&n)) => { let n = self.name().unwrap_or_default(); self.studio_aktion(&n, studio::Aktion::Einfuegen) }
             Cmd::Kopieren | Cmd::Ausschneiden => { let sel = self.ed().and_then(|e| e.selected_text()); if let Some(t) = sel { if c == Cmd::Ausschneiden { if let Some(e) = self.ed() { e.insert("") } } self.editor_fokus(); return iced::clipboard::write(t) } }
             Cmd::Einfuegen => return iced::clipboard::read().map(Msg::Einfuegen),
-            Cmd::GeheZuDefinition => { if let Some(n) = self.name().filter(|n| self.lsp_gesendet.contains_key(n)) { if let Some(e) = self.editoren.get(&n) { self.def_req += 1; self.lsp.senden(lsp::Cmd::Definition { uri: lsp::uri(&self.root, &n), zeile: e.cursor.line, spalte: e.cursor.col, req: self.def_req }) } } else { self.log.push("Gehe zu Definition: nur in Assembler-Dateien.".into()) } }
+            Cmd::GeheZuDefinition => { if let Some(n) = self.name().filter(|n| self.lsp_gesendet.contains_key(n)) { if let Some(e) = self.editoren.get(&n) { self.def_req += 1; self.lsp.senden(lsp::Cmd::Definition { uri: lsp::uri(&self.root, &n), zeile: e.cursor.line, spalte: e.cursor.col, req: self.def_req }) } } else { self.log.push(vc_i18n::t!("gui-gehe-zu-definition-nur-in-assembler").into()) } }
             Cmd::HaltepunktUmschalten => { if let Some(e) = self.ed() { let l = e.cursor.line; if !e.breakpoints.remove(&l) { e.breakpoints.insert(l); } } }
             Cmd::ReiterAndereHaelfte => { if let Some(tab) = self.tabs.get(self.aktiv).cloned() { let ziel = if self.andere.is_none() { true } else { !self.fokus_rechts }; self.tab_verschieben(tab, ziel, None) } }
         }
@@ -1336,7 +1338,7 @@ impl App {
         self.editoren.get(n).is_some_and(|e| e.dirty && !self.lesefehler.contains(n)) || self.studios.get(n).is_some_and(|s| s.doc.dirty()) || self.paletten.get(n).is_some_and(|p| p.dirty()) || self.disks.get(n).is_some_and(|d| d.dirty) || self.screens.get(n).is_some_and(|s| s.doc.dirty()) || self.tilesets.get(n).is_some_and(|s| s.doc.dirty()) || self.banken.get(n).is_some_and(|s| s.doc.dirty()) || self.songs.get(n).is_some_and(|s| s.doc.dirty())
     }
     /// Namen aller Dateien, Studios, Disketten und unbenannten Reiter mit ungespeicherten Änderungen
-    pub(crate) fn ungespeichert(&self) -> Vec<String> { let mut v: Vec<String> = self.alle_namen().into_iter().filter(|n| self.ist_geaendert(n)).collect(); if self.pe.as_ref().is_some_and(|z| z.geaendert()) { v.push("Projekt-Einstellungen".into()) } v.sort(); v.dedup(); v }
+    pub(crate) fn ungespeichert(&self) -> Vec<String> { let mut v: Vec<String> = self.alle_namen().into_iter().filter(|n| self.ist_geaendert(n)).collect(); if self.pe.as_ref().is_some_and(|z| z.geaendert()) { v.push(vc_i18n::t!("gui-projekt-einstellungen").into()) } v.sort(); v.dedup(); v }
     /// Würde das Öffnen von `p` das Projekt wechseln (und damit ungespeicherte Dateien betreffen)?
     fn wechsel_noetig(&self, p: &std::path::Path) -> bool { match project::ziel_fuer(p) { Some(z) => !(z.root == self.root && (z.vcprj == self.proj.file || z.vcprj.is_none())), None => false } }
     /// Programm beenden; im Testlauf nur aufzeichnen (Attrappe in `aussen`)
@@ -1361,10 +1363,10 @@ impl App {
     }
     fn beenden_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let (liste, folge) = self.beenden_frage.as_ref()?;
-        let frage = match folge { Folge::Beenden => "VintageCoder beenden?", Folge::Projekt(_) => "Projekt wechseln?" };
-        let mut c = column![text(frage).size(16).color(pal.text), text("Diese Reiter haben ungespeicherte Änderungen:").size(12.5).color(pal.mute)].spacing(10);
-        for n in liste { c = c.push(text(format!("• {n}{}", if self.ist_scratch(n) { "  (unbenannt, wird in der Zwischenkopie gesichert)" } else { "" })).size(12.5).color(pal.text)) }
-        c = c.push(row![knopf(pal, "Speichern", Some(Msg::BeendenAntwort(1)), pal.text, true), knopf(pal, "Verwerfen", Some(Msg::BeendenAntwort(2)), pal.text, false), knopf(pal, "Abbrechen", Some(Msg::BeendenAntwort(0)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
+        let frage = match folge { Folge::Beenden => vc_i18n::t!("gui-vintagecoder-beenden"), Folge::Projekt(_) => vc_i18n::t!("gui-projekt-wechseln") };
+        let mut c = column![text(frage).size(16).color(pal.text), text(vc_i18n::t!("gui-diese-reiter-haben-ungespeicherte-aenderungen")).size(12.5).color(pal.mute)].spacing(10);
+        for n in liste { c = c.push(text(format!("• {n}{}", if self.ist_scratch(n) { format!("  {}", vc_i18n::t!("gui-unbenannt-wird-in-der-zwischenkopie-gesichert")) } else { String::new() })).size(12.5).color(pal.text)) }
+        c = c.push(row![knopf(pal, vc_i18n::t!("gui-speichern"), Some(Msg::BeendenAntwort(1)), pal.text, true), knopf(pal, vc_i18n::t!("gui-verwerfen"), Some(Msg::BeendenAntwort(2)), pal.text, false), knopf(pal, vc_i18n::t!("gui-abbrechen"), Some(Msg::BeendenAntwort(0)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
         let karte = container(c).width(480).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hintergrund = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() })).on_press(Msg::BeendenAntwort(0));
         Some(stack![hintergrund, container(karte).center(Length::Fill)].into())
@@ -1373,7 +1375,7 @@ impl App {
     fn ist_scratch(&self, n: &str) -> bool { self.scratch.iter().any(|(s, _)| s == n) }
     /// Neuer unbenannter Reiter bzw. neue Notiz: nur im Speicher, nie als Datei im Projekt, bis „Speichern unter“
     fn scratch_neu(&mut self, notiz: bool, text: String) {
-        self.scratch_n += 1; let n = format!("{} {}", if notiz { "Notiz" } else { "Unbenannt" }, self.scratch_n);
+        self.scratch_n += 1; let n = format!("{} {}", if notiz { vc_i18n::t!("gui-notiz") } else { vc_i18n::t!("gui-unbenannt") }, self.scratch_n);
         let mut e = Editor::new(&text); e.lang = vc_ide_model::lang::Lang::of(if notiz { "x.md" } else { "x.asm" }); e.wrap = self.einst.umbruch; e.dirty = !text.is_empty();
         self.editoren.insert(n.clone(), e); self.scratch.push((n.clone(), notiz)); self.tab_oeffnen(Tab::Datei(n)); self.editor_fokus();
     }
@@ -1390,13 +1392,13 @@ impl App {
     fn scratch_speichern_unter(&mut self, n: &str, rel: &str) -> Result<(), String> {
         let notiz = self.scratch.iter().any(|(s, nt)| s == n && *nt);
         let rel = if rel.contains('.') { rel.to_string() } else { format!("{rel}.{}", if notiz { "md" } else { "asm" }) };
-        let text = self.editoren.get(n).map(|e| e.text()).ok_or("Reiter nicht gefunden")?;
+        let text = self.editoren.get(n).map(|e| e.text()).ok_or(vc_i18n::t!("gui-reiter-nicht-gefunden"))?;
         let rel = vc_ide_model::fileops::create_file(&self.root, &rel)?;
         textdatei::schreiben(&self.root.join(&rel), &text, &textdatei::Meta::default()).map_err(|e| { let _ = std::fs::remove_file(self.root.join(&rel)); e })?;
         self.scratch.retain(|(s, _)| s != n);
         if let Some(mut e) = self.editoren.remove(n) { e.lang = vc_ide_model::lang::Lang::of(&rel); e.dirty = false; self.editoren.insert(rel.clone(), e); }
         for t in self.tabs.iter_mut().chain(self.andere.iter_mut().flat_map(|(t, _)| t.iter_mut())) { if matches!(t, Tab::Datei(x) if x == n) { *t = Tab::Datei(rel.clone()) } }
-        self.projekt_neu_laden(); self.log.push(format!("Gespeichert: {rel}")); self.scratch_stand.clear(); self.scratch_sichern(); self.markiere();
+        self.projekt_neu_laden(); self.log.push(vc_i18n::t!("gui-gespeichert-rel", rel = &rel)); self.scratch_stand.clear(); self.scratch_sichern(); self.markiere();
         if rel.ends_with(".asm") || rel.ends_with(".inc") { let e = &self.editoren[&rel]; self.lsp.senden(lsp::Cmd::Open { uri: lsp::uri(&self.root, &rel), text: e.text() }); self.lsp_gesendet.insert(rel.clone(), e.version); }
         Ok(())
     }
@@ -1421,14 +1423,14 @@ impl App {
     fn scratch_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let e = self.scratch_rest.as_ref()?;
         let jetzt = vc_ide_model::scratchsave::now_secs();
-        let mut c = column![text("Letzte Sitzung wiederherstellen?").size(16).color(pal.text), text("Beim letzten Beenden waren unbenannte Reiter ungespeichert. Die Zwischenkopie liegt nur auf diesem Rechner, unverschlüsselt, und verfällt nach 14 Tagen.").size(12.5).color(pal.mute)].spacing(10);
-        for x in e { c = c.push(text(format!("• {} · {} Zeichen · {}", x.name, x.text.chars().count(), vc_ide_model::recent::ago(x.saved_at, jetzt))).size(12.5).color(pal.text)) }
-        c = c.push(row![knopf(pal, "Wiederherstellen", Some(Msg::ScratchRest(1)), pal.text, true), knopf(pal, "Verwerfen", Some(Msg::ScratchRest(2)), pal.text, false), knopf(pal, "Nicht jetzt", Some(Msg::ScratchRest(0)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
+        let mut c = column![text(vc_i18n::t!("gui-letzte-sitzung-wiederherstellen")).size(16).color(pal.text), text(vc_i18n::t!("gui-beim-letzten-beenden-waren-unbenannte-reiter")).size(12.5).color(pal.mute)].spacing(10);
+        for x in e { c = c.push(text(vc_i18n::t!("gui-p1-p2-zeichen-p3", p1 = &x.name, p2 = x.text.chars().count(), p3 = vc_ide_model::recent::ago(x.saved_at, jetzt))).size(12.5).color(pal.text)) }
+        c = c.push(row![knopf(pal, vc_i18n::t!("gui-wiederherstellen"), Some(Msg::ScratchRest(1)), pal.text, true), knopf(pal, vc_i18n::t!("gui-verwerfen"), Some(Msg::ScratchRest(2)), pal.text, false), knopf(pal, vc_i18n::t!("gui-nicht-jetzt"), Some(Msg::ScratchRest(0)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
         let karte = container(c).width(480).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         Some(stack![container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() }), container(karte).center(Length::Fill)].into())
     }
     fn speichere(&mut self, n: &str) { if self.ist_scratch(n) { self.speichern_unter_dialog(n); return } self.speichere_datei(n) }
-    fn speichere_datei(&mut self, n: &str) { if let Some(s) = self.songs.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if let Some(s) = self.banken.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if let Some(s) = self.tilesets.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if let Some(s) = self.screens.get_mut(n) { if s.doc.dirty() { match s.doc.save() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if let Some(d) = self.disks.get_mut(n) { if d.dirty && d.path.is_some() { d.speichern(); if let Some((_, m)) = &d.note { self.log.push(m.clone()) } } return } if let Some(p) = self.paletten.get_mut(n) { if p.dirty() { match p.save() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if let Some(s) = self.studios.get_mut(n) { if s.doc.dirty() { match s.doc.save() { Ok(()) => self.log.push(format!("Gespeichert: {n}")), Err(e) => self.log.push(e) } } return } if self.lesefehler.contains(n) { self.log.push(format!("{n}: nicht gespeichert, die Datei war nicht lesbar und würde überschrieben")); return } let meta = self.textmeta.get(n).copied().unwrap_or_default(); if let Some(e) = self.editoren.get_mut(n) { if e.dirty { match textdatei::schreiben(&self.root.join(n), &e.text(), &meta).map_err(|er| std::io::Error::other(er)) { Ok(_) => { e.dirty = false; self.log.push(format!("Gespeichert: {n}")) } Err(er) => self.log.push(format!("Speichern fehlgeschlagen: {er}")) } } } }
+    fn speichere_datei(&mut self, n: &str) { if let Some(s) = self.songs.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if let Some(s) = self.banken.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if let Some(s) = self.tilesets.get_mut(n) { if s.doc.dirty() { match s.doc.speichern() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if let Some(s) = self.screens.get_mut(n) { if s.doc.dirty() { match s.doc.save() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if let Some(d) = self.disks.get_mut(n) { if d.dirty && d.path.is_some() { d.speichern(); if let Some((_, m)) = &d.note { self.log.push(m.clone()) } } return } if let Some(p) = self.paletten.get_mut(n) { if p.dirty() { match p.save() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if let Some(s) = self.studios.get_mut(n) { if s.doc.dirty() { match s.doc.save() { Ok(()) => self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)), Err(e) => self.log.push(e) } } return } if self.lesefehler.contains(n) { self.log.push(vc_i18n::t!("gui-n-nicht-gespeichert-die-datei-war", n = &n)); return } let meta = self.textmeta.get(n).copied().unwrap_or_default(); if let Some(e) = self.editoren.get_mut(n) { if e.dirty { match textdatei::schreiben(&self.root.join(n), &e.text(), &meta).map_err(|er| std::io::Error::other(er)) { Ok(_) => { e.dirty = false; self.log.push(vc_i18n::t!("gui-gespeichert-n", n = &n)) } Err(er) => self.log.push(vc_i18n::t!("gui-speichern-fehlgeschlagen-er", er = er.to_string())) } } } }
     fn speichern(&mut self) { if let Some(n) = self.name() { self.speichere(&n) } }
     fn bauen(&mut self, danach: Danach) -> Task<Msg> { self.bauen_wahl(danach, false) }
     /// `aktiv`: die Quelldatei im aktiven Reiter bauen; sonst das Startprogramm des Projekts (Hauptquelle), ersatzweise die aktive Datei
@@ -1437,42 +1439,42 @@ impl App {
         self.danach = danach;
         let aktive = self.name().filter(|n| n.ends_with(".asm"));
         let rel = if aktiv { aktive } else { self.proj.pf.as_ref().and_then(|p| p.main.clone()).filter(|m| m.ends_with(".asm") && self.namen.contains(m)).or_else(|| hauptquelle(&self.namen).filter(|_| self.proj.pf.is_some())).or(aktive) };
-        let Some(rel) = rel else { self.log.push("Keine Quelldatei zum Bauen.".into()); self.danach = Danach::Nichts; return Task::none() };
+        let Some(rel) = rel else { self.log.push(vc_i18n::t!("gui-keine-quelldatei-zum-bauen").into()); self.danach = Danach::Nichts; return Task::none() };
         for n in self.editoren.keys().cloned().collect::<Vec<_>>() { self.speichere(&n) }
-        self.baut = true; self.schublade = 0; self.log.push(format!("Bauen: {rel} …"));
+        self.baut = true; self.schublade = 0; self.log.push(vc_i18n::t!("gui-bauen-rel", rel = &rel));
         let (root, data, pf) = (self.root.clone(), self.data.clone(), self.proj.pf.clone());
         Task::perform(async move { tokio::task::spawn_blocking(move || vc_ide::projfile::build_gui(&vc_ide::build::Ctx { root: &root, data: &data }, pf.as_ref(), &rel)).await.unwrap_or_else(|e| Err(e.to_string())) }, Msg::BauFertig)
     }
     fn bau_ende(&mut self, r: Result<serde_json::Value, String>) -> bool {
         self.probleme.clear();
         match r {
-            Err(e) => { self.log.push(format!("Fehler: {e}")); false }
+            Err(e) => { self.log.push(vc_i18n::t!("gui-fehler-e", e = &e)); false }
             Ok(v) => {
                 // W203 (zu weiter Sprung automatisch verlängert) hat der Nutzer mit `.branchlong auto` selbst bestellt: kein Problem, eine Protokollzeile genügt
-                if let Some(d) = v["diagnostics"].as_array() { let lang = d.iter().filter(|x| x["code"] == "W203").count(); if lang > 0 { self.log.push(format!("{lang} Sprünge automatisch verlängert (.branchlong auto)")) } }
+                if let Some(d) = v["diagnostics"].as_array() { let lang = d.iter().filter(|x| x["code"] == "W203").count(); if lang > 0 { self.log.push(vc_i18n::t!("gui-lang-spruenge-automatisch-verlaengert-branchlong-auto", lang = &lang)) } }
                 // Lizenzhinweis (L001, Copyleft im Quelltext): steht im Protokoll und als Information unter „Probleme“, ist kein Fehler
                 if let Some(d) = v["diagnostics"].as_array() { for x in d.iter().filter(|x| x["severity"] == "info") { if let Some(m) = x["message"].as_str() { self.log.push(m.to_string()) } } }
                 if let Some(d) = v["diagnostics"].as_array() { for x in d.iter().filter(|x| x["code"] != "W203") { self.probleme.push(Problem { datei: x["file"].as_str().unwrap_or("").into(), zeile: x["line"].as_u64().unwrap_or(0) as usize, text: x["message"].as_str().unwrap_or("").into(), fehler: x["severity"] == "error" }) } }
                 if v["ok"] == true {
-                    self.log.push(format!("Fertig: {} Bytes → {}", v["size"], v["artifact"]));
-                    if let Some(d) = v["disk"].as_object() { self.log.push(format!("Disk {} ({} Bytes): {}", d["file"].as_str().unwrap_or(""), d["size"], d["programs"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default())) }
-                    if let Some(e) = v["disk_error"].as_str() { self.log.push(format!("Diskette: {e}")); self.schublade_zeigen() } else if let Some(e) = v["disk_skipped"].as_str() { self.log.push(e.to_string()) }
+                    self.log.push(vc_i18n::t!("gui-fertig-p1-bytes-p2", p1 = v["size"].to_string(), p2 = v["artifact"].to_string()));
+                    if let Some(d) = v["disk"].as_object() { self.log.push(vc_i18n::t!("gui-disk-p1-p2-bytes-p3", p1 = d["file"].as_str().unwrap_or(""), p2 = d["size"].to_string(), p3 = d["programs"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default())) }
+                    if let Some(e) = v["disk_error"].as_str() { self.log.push(vc_i18n::t!("gui-diskette-e", e = &e)); self.schublade_zeigen() } else if let Some(e) = v["disk_skipped"].as_str() { self.log.push(e.to_string()) }
                     let symbols = v["symbols"].as_array().map(|a| a.iter().filter_map(|x| Some((x["name"].as_str()?.to_string(), x["value"].as_i64()?))).collect()).unwrap_or_default();
                     let zeilen = v["lines"].as_array().map(|a| a.iter().filter_map(|l| Some((l["file"].as_str()?.to_string(), l["line"].as_u64()? as usize, l["addr"].as_u64()? as u16, l["len"].as_u64().unwrap_or(1) as usize))).collect()).unwrap_or_default();
                     self.info = Some(BauInfo { target: v["target"].as_str().unwrap_or("c64").into(), artifact: self.root.join(v["artifact"].as_str().unwrap_or("")), symbols, run: v["run"].as_u64().map(|r| r as u16), zeilen, segmente: v["segments"].as_array().map(|a| a.iter().filter_map(|x| Some((x["start"].as_u64()? as u32, x["length"].as_u64()? as usize))).collect()).unwrap_or_default() });
                     self.karte_laden();
                     true
-                } else { self.log.push(format!("Bauen fehlgeschlagen: {} Problem(e)", self.probleme.len())); self.schublade = 1; self.einst.schublade = true; false }
+                } else { self.log.push(vc_i18n::t!("build-failed", n = self.probleme.len())); self.schublade = 1; self.einst.schublade = true; false }
             }
         }
     }
     /// Das gebaute Programm im Emulator (oder auf der gewählten Maschine) starten; läuft im Hintergrund
     fn starte(&mut self) -> Task<Msg> {
-        let Some(info) = self.info.clone() else { self.log.push("Nichts zum Starten: erst bauen.".into()); return Task::none() };
+        let Some(info) = self.info.clone() else { self.log.push(vc_i18n::t!("gui-nichts-zum-starten-erst-bauen").into()); return Task::none() };
         let (root, data) = (self.root.clone(), self.data.clone());
         let maschine = vc_ide::settings::effective().start_machine(&self.run_on, &info.target).cloned();
-        self.log.push(match &maschine { Some(m) => format!("Starten auf {} …", m.display_name()), None => "Starten im Emulator …".into() });
-        Task::perform(async move { tokio::task::spawn_blocking(move || if cfg!(test) { Err("Testlauf: kein Emulator gestartet".to_string()) } else { match maschine {
+        self.log.push(match &maschine { Some(m) => vc_i18n::t!("gui-starten-auf-p1", p1 = m.display_name()), None => vc_i18n::t!("gui-starten-im-emulator").into() });
+        Task::perform(async move { tokio::task::spawn_blocking(move || if cfg!(test) { Err(vc_i18n::t!("gui-testlauf-kein-emulator-gestartet").to_string()) } else { match maschine {
             Some(m) => vc_ide::launch::run_on_machine(&m, &info.artifact, &info.target),
             None => vc_ide::launch::spawn(&info.artifact, &info.target, &vc_ide::launch::atari_variant(&root), &vc_ide::launch::project_args(&data, &root, &info.target)),
         } }).await.unwrap_or_else(|e| Err(e.to_string())) }, Msg::Gestartet)
@@ -1490,19 +1492,19 @@ impl App {
         let (einst, sys) = (vc_ide::settings::effective(), self.system_id());
         match einst.start_machine(run_on, &sys) {
             Some(m) => m.display_name().to_string(),
-            None => { let k = einst.emulator_for(&sys).kind; if k.is_empty() { "Emulator".into() } else { vc_ide::targets::kind_label(&k).to_string() } }
+            None => { let k = einst.emulator_for(&sys).kind; if k.is_empty() { vc_i18n::t!("gui-emulator").into() } else { vc_ide::targets::kind_label(&k).to_string() } }
         }
     }
     /// Auswahl der Startziele: Emulator des Systems und die eingerichteten Maschinen
     fn ziel_eintraege(&self) -> Vec<(String, String)> {
         let (einst, sys) = (vc_ide::settings::effective(), self.system_id());
-        let mut v = vec![("@emulator".to_string(), format!("Emulator ({})", self.ziel_name("@emulator")))];
+        let mut v = vec![("@emulator".to_string(), vc_i18n::t!("gui-emulator-p1", p1 = self.ziel_name("@emulator")))];
         for m in einst.machines_for(&sys) { v.push((m.id.clone(), m.display_name().to_string())) }
         v
     }
     fn ziel_chip(&self, pal: Pal) -> Element<'_, Msg> {
-        let sys = self.system_id(); let sname = vc_ide::targets::system(&sys).map(|s| s.name).unwrap_or("C64");
-        button(text(format!("{sname} · {} ▾", self.ziel_name(&self.run_on))).size(11.5).color(pal.accent)).padding([3, 10]).on_press(Msg::ZielMenue).style(move |_, _| button::Style { background: None, border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, text_color: pal.accent, ..Default::default() }).into()
+        let sys = self.system_id(); let sname = vc_ide::targets::system(&sys).map(|s| s.name()).unwrap_or_else(|| "C64".to_string());
+        button(text(vc_i18n::t!("gui-sname-p2", sname = &sname, p2 = self.ziel_name(&self.run_on))).size(11.5).color(pal.accent)).padding([3, 10]).on_press(Msg::ZielMenue).style(move |_, _| button::Style { background: None, border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, text_color: pal.accent, ..Default::default() }).into()
     }
     /// Haltepunkte der Editoren als Adressen (nur mit Zeilenzuordnung des letzten Baus)
     fn gewuenschte_haltepunkte(&self) -> HashSet<u16> {
@@ -1511,14 +1513,14 @@ impl App {
     }
     /// Debug-Sitzung starten (nach erfolgreichem Bau): Emulator oder Maschine, Haltepunkte, Layout (Schublade und Panel offen)
     fn debug_start(&mut self) {
-        let Some(info) = self.info.clone() else { self.log.push("Nichts zum Debuggen: erst bauen.".into()); return };
-        if cfg!(test) { self.log.push("Testlauf: keine Debug-Sitzung gestartet".into()); return }
+        let Some(info) = self.info.clone() else { self.log.push(vc_i18n::t!("gui-nichts-zum-debuggen-erst-bauen").into()); return };
+        if cfg!(test) { self.log.push(vc_i18n::t!("gui-testlauf-keine-debug-sitzung-gestartet").into()); return }
         self.debug_ende();
         vc_ide::launch::stop_running();
-        let cpu = match vc_target::load_target(&self.data, &info.target).and_then(|t| vc_target::load_cpu(&self.data, &t.cpu)) { Ok(c) => c, Err(e) => { self.log.push(format!("Debuggen: {e}")); return } };
+        let cpu = match vc_target::load_target(&self.data, &info.target).and_then(|t| vc_target::load_cpu(&self.data, &t.cpu)) { Ok(c) => c, Err(e) => { self.log.push(vc_i18n::t!("gui-debuggen-e", e = &e)); return } };
         let machine = vc_ide::settings::effective().start_machine(&self.run_on, &info.target).cloned();
         if let Some(m) = machine.as_ref().filter(|m| m.kind == "mega65" && m.link_for(vc_ide::mega65net::Action::Debug) == vc_ide::mega65net::Link::Eth) {
-            self.log.push(format!("{}: Debuggen geht nur über USB (Ethernet bietet keinen Monitor).", m.display_name())); return
+            self.log.push(vc_i18n::t!("gui-p1-debuggen-geht-nur-ueber-usb", p1 = m.display_name())); return
         }
         let (adapter, host, password): (String, Option<String>, Option<String>) = match machine {
             Some(m) if m.kind == "ultimate64" => ("ultimate64".into(), Some(m.host.clone()), Some(m.password.clone())),
@@ -1531,7 +1533,7 @@ impl App {
         self.dbg = Some(debug::Debugger::start(spec, cpu, info.symbols.clone(), bps.into_iter().collect()));
         if !self.beob.is_empty() { if let Some(d) = &self.dbg { d.send(debug::Cmd::Watches(self.beob.clone())) } }
         self.emu_modus_senden();
-        self.log.push("Debug-Sitzung startet …".into());
+        self.log.push(vc_i18n::t!("gui-debug-sitzung-startet").into());
         self.layout.debug_start(); self.schublade = 3;
     }
     fn debug_ende(&mut self) {
@@ -1539,13 +1541,13 @@ impl App {
         self.test_debug = false;
         self.snap = debug::Snap::default(); self.bp_an.clear(); self.run_to = None;
         self.emu_bild = None; self.reg_alt = None; self.reg_neu = None; self.layout.debug_ende(); if self.schublade == 3 { self.schublade = 0 } if matches!(self.panel_seite, PanelSeite::Debug | PanelSeite::Emulator) { self.panel_seite = PanelSeite::Gliederung } for e in self.editoren.values_mut() { e.debug_line = None }
-        self.log.push("Debug-Sitzung beendet".into());
+        self.log.push(vc_i18n::t!("gui-debug-sitzung-beendet").into());
     }
     /// Zustand des Arbeits-Threads übernehmen (alle 100 ms), Haltepunkte abgleichen, Ausführungszeile markieren
     fn debug_abgleich(&mut self) {
         let Some(snap) = self.dbg.as_ref().map(|d| d.snapshot()) else { return };
-        if snap.error_seq != self.dbg_fehler { self.dbg_fehler = snap.error_seq; if let Some(e) = &snap.error { self.log.push(e.clone()); if let Some(r) = snap.error_raw.as_ref().filter(|r| *r != e) { self.log.push(format!("  Einzelheit: {r}")) } } }
-        else if snap.error_seq == 0 && snap.ended { if let Some(e) = &snap.error { self.log.push(format!("Debuggen: {e}")) } }
+        if snap.error_seq != self.dbg_fehler { self.dbg_fehler = snap.error_seq; if let Some(e) = &snap.error { self.log.push(e.clone()); if let Some(r) = snap.error_raw.as_ref().filter(|r| *r != e) { self.log.push(format!("  {}", vc_i18n::t!("gui-einzelheit-r", r = &r))) } } }
+        else if snap.error_seq == 0 && snap.ended { if let Some(e) = &snap.error { self.log.push(vc_i18n::t!("gui-debuggen-e", e = &e)) } }
         while self.dbg_notizen < snap.notes.len() { self.log.push(snap.notes[self.dbg_notizen].1.clone()); self.dbg_notizen += 1 }
         if snap.ended { self.snap = snap; self.debug_ende(); return }
         // „Bis hierher ausführen“: der einmalige Haltepunkt verschwindet, sobald der Lauf wieder angehalten hat
@@ -1585,7 +1587,7 @@ impl App {
         for n in self.editoren.keys().cloned().collect::<Vec<_>>() { self.speichere(&n) }
         self.schublade = 2; self.layout.aufklappen(Bereich::Schublade);
         // Tests laufen mit eigenem Emulator (eigener Port, nur eigener Prozess): eine laufende Debug-Sitzung bleibt unberührt
-        if self.dbg.is_some() { self.log.push("Die Tests laufen parallel zur Debug-Sitzung (eigener Emulator).".into()) }
+        if self.dbg.is_some() { self.log.push(vc_i18n::t!("gui-die-tests-laufen-parallel-zur-debug").into()) }
         self.tests.start(self.root.clone(), self.data.clone(), only);
         Task::none()
     }
@@ -1596,11 +1598,11 @@ impl App {
         self.test_debug_los(file, name)
     }
     fn test_debug_los(&mut self, file: PathBuf, name: String) {
-        if cfg!(test) { self.log.push("Testlauf: keine Debug-Sitzung gestartet".into()); return }
+        if cfg!(test) { self.log.push(vc_i18n::t!("gui-testlauf-keine-debug-sitzung-gestartet").into()); return }
         self.tests.stop_blockierend();
         self.bp_an.clear(); self.dbg_fehler = 0; self.dbg_notizen = 0; self.snap = debug::Snap::default(); self.reg_alt = None; self.reg_neu = None; self.test_debug = true;
         self.dbg = Some(debug::Debugger::start_test(file, self.data.clone(), name.clone()));
-        self.log.push(format!("Debug-Sitzung für den Test „{name}“ startet …"));
+        self.log.push(vc_i18n::t!("gui-debug-sitzung-fuer-den-test-name", name = &name));
         self.layout.debug_start(); self.schublade = 3;
     }
     fn emu_modus_senden(&self) { if let Some(d) = &self.dbg { d.send(debug::Cmd::FrameMode { auto: self.emu_auto, slow: self.emu_live }) } }
@@ -1617,9 +1619,9 @@ impl App {
     fn palette_eintraege(&self) -> Vec<Eintrag> {
         let mut v: Vec<Eintrag> = befehle::filtere(&self.palette.frage).into_iter().map(|i| Eintrag::Befehl(i.cmd)).collect();
         let q = self.palette.frage.to_lowercase();
-        v.extend(self.studio_aktionen().into_iter().filter(|x| x.aktiv && (q.is_empty() || format!("studio {}", x.name).to_lowercase().contains(&q) || x.name.to_lowercase().contains(&q))).map(|x| Eintrag::Studio(x.name, befehle::plattform_text(&x.kuerzel), Box::new(x.msg))));
+        v.extend(self.studio_aktionen().into_iter().filter(|x| x.aktiv && (q.is_empty() || vc_i18n::t!("gui-studio-p1", p1 = &x.name).to_lowercase().contains(&q) || x.name.to_lowercase().contains(&q))).map(|x| Eintrag::Studio(x.name, befehle::plattform_text(&x.kuerzel), Box::new(x.msg))));
         if !q.is_empty() { v.extend(self.namen.iter().filter(|n| n.to_lowercase().contains(&q)).take(12).map(|n| Eintrag::Datei(n.clone()))) }
-        if !cfg!(test) && (q.len() >= 2 || q == "z") { for r in vc_ide_model::recent::load(Some(&self.data)).into_iter().filter(|r| !r.missing && (r.name.to_lowercase().contains(&q) || r.path.to_string_lossy().to_lowercase().contains(&q) || "zuletzt geöffnet".contains(&q))).take(6) { v.push(Eintrag::Projekt(r.path, r.name)) } }
+        if !cfg!(test) && (q.len() >= 2 || q == "z") { for r in vc_ide_model::recent::load(Some(&self.data)).into_iter().filter(|r| !r.missing && (r.name.to_lowercase().contains(&q) || r.path.to_string_lossy().to_lowercase().contains(&q) || vc_i18n::t!("gui-zuletzt-geoeffnet").contains(&q))).take(6) { v.push(Eintrag::Projekt(r.path, r.name)) } }
         v
     }
     fn gliederung_holen(&self) -> Vec<(usize, String)> {
@@ -1631,50 +1633,50 @@ impl App {
     // ------------------------------------------------------------ Kopfzeile
     /// Breitenstufe der Kopfzeile: 0 voll, 1 Symbole mit Tooltip, 2 zusätzlich Suchfeld als Lupe, 3 zusätzlich Debuggen/Bauen im „⋯“-Menü
     fn kopf_stufe(&self) -> u8 { let w = self.fenster.width / self.einst.zoom; if w >= 1180.0 { 0 } else if w >= 960.0 { 1 } else if w >= 640.0 { 2 } else { 3 } }
-    fn kopf_eintraege(&self) -> Vec<(Cmd, &'static str, bool)> {
-        vec![(Cmd::Debuggen, "● Debuggen", true), (Cmd::Bauen, if self.baut { t::BAUT } else { t::BAUEN }, !self.baut)]
+    fn kopf_eintraege(&self) -> Vec<(Cmd, String, bool)> {
+        vec![(Cmd::Debuggen, vc_i18n::t!("gui-debuggen").to_string(), true), (Cmd::Bauen, if self.baut { t::baut() } else { t::bauen() }, !self.baut)]
     }
     fn kopfzeile<'a>(&'a self, pal: Pal) -> Element<'a, Msg> {
         let stufe = self.kopf_stufe();
         fn tipp_fn<'a>(pal: Pal, inhalt: Element<'a, Msg>, name: &str, cmd: Cmd) -> Element<'a, Msg> {
             let tasten = befehle::BEFEHLE.iter().find(|i| i.cmd == cmd).map(|i| befehle::fuer_anzeige(i.tasten, cfg!(target_os = "macos"))).unwrap_or_default();
-            iced::widget::tooltip(inhalt, container(text(if tasten.is_empty() { name.to_string() } else { format!("{name}   {tasten}") }).size(12).color(pal.text)).padding([4, 8]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).into()
+            iced::widget::tooltip(inhalt, container(text(if tasten.is_empty() { name.to_string() } else { vc_i18n::t!("gui-name-tasten", name = &name, tasten = &tasten) }).size(12).color(pal.text)).padding([4, 8]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).into()
         }
         let tipp = |inhalt: Element<'a, Msg>, name: &str, cmd: Cmd| -> Element<'a, Msg> { tipp_fn(pal, inhalt, name, cmd) };
-        let ziffer = |s: &'static str| -> &'static str { s.split_once(' ').map(|(a, _)| a).unwrap_or(s) };
-        let name = if self.root == ohne_projekt_ordner() { "Kein Projekt".to_string() } else { self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default() };
+        let ziffer = |s: &str| -> String { s.split_once(' ').map(|(a, _)| a).unwrap_or(s).to_string() };
+        let name = if self.root == ohne_projekt_ordner() { vc_i18n::t!("gui-kein-projekt").to_string() } else { self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default() };
         let kuerzen = |n: &str, max: usize| -> String { if n.chars().count() > max { format!("{}…", n.chars().take(max.saturating_sub(1)).collect::<String>()) } else { n.to_string() } };
         let (max_name, chip_kurz) = match stufe { 0 => (40, false), 1 => (if self.dbg.is_some() { 14 } else { 22 }, self.dbg.is_some()), 2 => (14, true), _ => (10, true) };
-        let projekt = column![text(kuerzen(&name, max_name)).size(14).color(pal.text).wrapping(iced::widget::text::Wrapping::None), text("Projekt ▾").size(11).color(pal.mute)].spacing(1);
+        let projekt = column![text(kuerzen(&name, max_name)).size(14).color(pal.text).wrapping(iced::widget::text::Wrapping::None), text(vc_i18n::t!("gui-projekt-2")).size(11).color(pal.mute)].spacing(1);
         let aktionen: Element<Msg> = if self.dbg.is_some() {
             if stufe >= 1 { self.debug_leiste_kompakt(pal) } else { self.debug_leiste(pal) }
         } else {
-            let start = if stufe == 0 { knopf(pal, t::STARTEN, Some(Msg::Befehl(Cmd::Starten)), pal.text, true) } else { tipp(knopf(pal, ziffer(t::STARTEN), Some(Msg::Befehl(Cmd::Starten)), pal.text, true), "Starten", Cmd::Starten) };
+            let start = if stufe == 0 { knopf(pal, &t::starten(), Some(Msg::Befehl(Cmd::Starten)), pal.text, true) } else { tipp(knopf(pal, &ziffer(&t::starten()), Some(Msg::Befehl(Cmd::Starten)), pal.text, true), &vc_i18n::t!("gui-starten"), Cmd::Starten) };
             let mut r = row![start].spacing(if stufe == 0 { 10 } else { 6 }).align_y(Alignment::Center);
             if stufe < 3 {
-                r = r.push(if stufe == 0 { button(row![dbgview::ikon(dbgview::Ikon::Kaefer, pal.text), text("Debuggen").size(13).color(pal.text)].spacing(6).align_y(Alignment::Center)).padding([6, 12]).on_press(Msg::Befehl(Cmd::Debuggen)).style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }).into() } else { tipp(button(container(dbgview::ikon(dbgview::Ikon::Kaefer, pal.text)).center_x(Length::Shrink)).padding([7, 12]).on_press(Msg::Befehl(Cmd::Debuggen)).style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }).into(), "Debuggen", Cmd::Debuggen) });
-                let (bt, an) = (if self.baut { t::BAUT } else { t::BAUEN }, (!self.baut).then_some(Msg::Befehl(Cmd::Bauen)));
-                r = r.push(if stufe == 0 { knopf(pal, bt, an, pal.text, false) } else { tipp(knopf(pal, ziffer(bt), an, pal.text, false), "Bauen", Cmd::Bauen) });
-            } else { r = r.push(tipp(knopf(pal, "⋯", Some(Msg::KopfMenue), pal.text, false), "Mehr", Cmd::Palette)) }
+                r = r.push(if stufe == 0 { button(row![dbgview::ikon(dbgview::Ikon::Kaefer, pal.text), text(vc_i18n::t!("gui-debuggen-2")).size(13).color(pal.text)].spacing(6).align_y(Alignment::Center)).padding([6, 12]).on_press(Msg::Befehl(Cmd::Debuggen)).style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }).into() } else { tipp(button(container(dbgview::ikon(dbgview::Ikon::Kaefer, pal.text)).center_x(Length::Shrink)).padding([7, 12]).on_press(Msg::Befehl(Cmd::Debuggen)).style(move |_, _| button::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: pal.text, ..Default::default() }).into(), &vc_i18n::t!("gui-debuggen-2"), Cmd::Debuggen) });
+                let (bt, an) = (if self.baut { t::baut() } else { t::bauen() }, (!self.baut).then_some(Msg::Befehl(Cmd::Bauen)));
+                r = r.push(if stufe == 0 { knopf(pal, &bt, an, pal.text, false) } else { tipp(knopf(pal, &ziffer(&bt), an, pal.text, false), &vc_i18n::t!("gui-bauen"), Cmd::Bauen) });
+            } else { r = r.push(tipp(knopf(pal, "⋯", Some(Msg::KopfMenue), pal.text, false), &vc_i18n::t!("gui-mehr"), Cmd::Palette)) }
             r.into()
         };
         let suche: Element<Msg> = if stufe >= 2 || self.dbg.is_some() && stufe >= 1 {
-            tipp(knopf(pal, "⌕", Some(Msg::Befehl(Cmd::Palette)), pal.text, false), t::SUCHFELD, Cmd::Palette)
+            tipp(knopf(pal, "⌕", Some(Msg::Befehl(Cmd::Palette)), pal.text, false), &t::suchfeld(), Cmd::Palette)
         } else if stufe == 1 {
-            button(text(format!("{}   {}", "Suchen", befehle::fuer_anzeige("Cmd+K", cfg!(target_os = "macos") && !self.kuerzel_windows))).size(12).color(pal.mute)).on_press(Msg::Befehl(Cmd::Palette)).style(move |_, _| button::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 15.0.into() }, text_color: pal.mute, ..Default::default() }).into()
+            button(text(format!("{}   {}", vc_i18n::t!("gui-suchen"), befehle::fuer_anzeige("Cmd+K", cfg!(target_os = "macos") && !self.kuerzel_windows))).size(12).color(pal.mute)).on_press(Msg::Befehl(Cmd::Palette)).style(move |_, _| button::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 15.0.into() }, text_color: pal.mute, ..Default::default() }).into()
         } else {
-            button(text(format!("{}        {}", t::SUCHFELD, befehle::fuer_anzeige("Cmd+K", cfg!(target_os = "macos") && !self.kuerzel_windows))).size(12).color(pal.mute)).on_press(Msg::Befehl(Cmd::Palette)).style(move |_, _| button::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 15.0.into() }, text_color: pal.mute, ..Default::default() }).into()
+            button(text(format!("{}        {}", t::suchfeld(), befehle::fuer_anzeige("Cmd+K", cfg!(target_os = "macos") && !self.kuerzel_windows))).size(12).color(pal.mute)).on_press(Msg::Befehl(Cmd::Palette)).style(move |_, _| button::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 15.0.into() }, text_color: pal.mute, ..Default::default() }).into()
         };
-        let chip: Element<Msg> = if chip_kurz { tipp(self.ziel_chip_kurz(pal), &format!("Ziel: {} · {}", vc_ide::targets::system(&self.system_id()).map(|s| s.name).unwrap_or("C64"), self.ziel_name(&self.run_on)), Cmd::Palette) } else { self.ziel_chip(pal) };
+        let chip: Element<Msg> = if chip_kurz { tipp(self.ziel_chip_kurz(pal), &vc_i18n::t!("gui-ziel-p1-p2", p1 = vc_ide::targets::system(&self.system_id()).map(|s| s.name()).unwrap_or_else(|| "C64".to_string()), p2 = self.ziel_name(&self.run_on)), Cmd::Palette) } else { self.ziel_chip(pal) };
         container(row![
             image(self.logos[if stufe >= 2 { 2 } else if pal.dark { 0 } else { 1 }].clone()).height(24),
             projekt, chip, aktionen, space::horizontal(), suche, knopf(pal, "⚙", Some(Msg::Befehl(Cmd::Einstellungen)), pal.text, false),
         ].spacing(if stufe == 0 { 10 } else { 8 }).align_y(Alignment::Center)).padding([8, if stufe >= 2 { 10 } else { 14 }]).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line)).into()
     }
     fn ziel_chip_kurz(&self, pal: Pal) -> Element<'_, Msg> {
-        let sys = self.system_id(); let sname = vc_ide::targets::system(&sys).map(|s| s.name).unwrap_or("C64");
-        let kurz = match sys.as_str() { "c64" => "C64", "c128" => "C128", "vic20" => "VC-20", "plus4" => "Plus/4", "c16" => "C16", "atari8" => "Atari", "mega65" => "MEGA65", "pet" => "PET", _ => sname };
-        button(text(format!("{kurz} ▾")).size(11.5).color(pal.accent)).padding([3, 8]).on_press(Msg::ZielMenue).style(move |_, _| button::Style { background: None, border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, text_color: pal.accent, ..Default::default() }).into()
+        let sys = self.system_id(); let sname = vc_ide::targets::system(&sys).map(|s| s.name()).unwrap_or_else(|| "C64".to_string());
+        let kurz = match sys.as_str() { "c64" => "C64".to_string(), "c128" => "C128".to_string(), "vic20" => "VC-20".to_string(), "plus4" => vc_i18n::t!("gui-plus-4"), "c16" => "C16".to_string(), "atari8" => vc_i18n::t!("gui-atari"), "mega65" => "MEGA65".to_string(), "pet" => "PET".to_string(), _ => sname };
+        button(text(vc_i18n::t!("gui-kurz", kurz = &kurz)).size(11.5).color(pal.accent)).padding([3, 8]).on_press(Msg::ZielMenue).style(move |_, _| button::Style { background: None, border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, text_color: pal.accent, ..Default::default() }).into()
     }
 
     // ------------------------------------------------------------ Ansicht
@@ -1700,7 +1702,7 @@ impl App {
             }
         };
         let gruppen: Element<Msg> = if !leiste_nur && self.ziehen.as_ref().is_some_and(|z| z.start.is_some()) && self.andere.is_none() {
-            stack![gruppen, container(container(text(t::ABLEGEN_RECHTS).size(13).color(pal.accent)).center(Length::Fill).width(Length::FillPortion(35)).height(Length::Fill).style(move |_| flaeche(Color { a: 0.12, ..pal.accent }, pal.accent))).align_right(Length::Fill).padding([36, 0])].into()
+            stack![gruppen, container(container(text(t::ablegen_rechts()).size(13).color(pal.accent)).center(Length::Fill).width(Length::FillPortion(35)).height(Length::Fill).style(move |_| flaeche(Color { a: 0.12, ..pal.accent }, pal.accent))).align_right(Length::Fill).padding([36, 0])].into()
         } else { gruppen };
         // Ist die Mitte ausgeblendet (Spalte oder Panel maximiert), stehen Reiterleiste und Schubladenleiste oben und unten
         let mut oben: Option<Element<Msg>> = None; let mut unten: Option<Element<Msg>> = None;
@@ -1719,8 +1721,8 @@ impl App {
         let koerper: Element<Msg> = if oben.is_some() || unten.is_some() { let mut c = column![]; if let Some(o) = oben { c = c.push(o) } c = c.push(koerper.height(Length::Fill)); if let Some(u) = unten { c = c.push(u) } c.into() } else { koerper.into() };
 
         let (z, s) = self.name().and_then(|n| self.editoren.get(&n)).map(|e| (e.cursor.line + 1, e.cursor.col + 1)).unwrap_or((0, 0));
-        let upd_hinweis: Element<Msg> = match self.update_hinweis() { Some(v) => button(text(format!("Update {v} verfügbar")).size(11.5).color(pal.accent)).padding([0, 8]).on_press(Msg::Info(infodlg::InfoAkt::UpdateAuf)).style(|_, _| button::Style::default()).into(), None => text("").into() };
-        let status = container(row![text(if !self.hinweis.is_empty() { self.hinweis.clone() } else if self.baut { "baut …".to_string() } else { t::BEREIT.to_string() }).size(11.5).color(pal.mute), upd_hinweis, space::horizontal(), self.takt_anzeige(pal), space::horizontal().width(12), { let mt = self.name().and_then(|n| self.textmeta.get(&n).copied()).unwrap_or_default(); let schalter = |t: &str, tipp: &str, c: Cmd| -> Element<Msg> { iced::widget::tooltip(button(text(t.to_string()).size(11.5).color(pal.mute)).padding([0, 6]).on_press(Msg::Befehl(c)).style(|_, _| button::Style::default()), container(text(tipp.to_string()).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into() }; let r: Element<Msg> = if z > 0 { row![text(format!("Z {z} · S {s}   {}", self.editoren.get(&self.name().unwrap_or_default()).map_or("", |e| match e.lang { vc_ide_model::lang::Lang::Asm => "Assembler", _ => "Text" }))).size(11.5).color(pal.mute), schalter(mt.kodierung(), "Kodierung beim Speichern: UTF-8 ↔ ISO-8859-1 (Klick wechselt)", Cmd::Kodierung), schalter(mt.zeilenende(), "Zeilenende beim Speichern: LF ↔ CRLF (Klick wechselt)", Cmd::Zeilenende)].spacing(6).align_y(Alignment::Center).into() } else { text("").into() }; r }]).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line));
+        let upd_hinweis: Element<Msg> = match self.update_hinweis() { Some(v) => button(text(vc_i18n::t!("gui-update-v-verfuegbar", v = v.to_string())).size(11.5).color(pal.accent)).padding([0, 8]).on_press(Msg::Info(infodlg::InfoAkt::UpdateAuf)).style(|_, _| button::Style::default()).into(), None => text("").into() };
+        let status = container(row![text(if !self.hinweis.is_empty() { self.hinweis.clone() } else if self.baut { vc_i18n::t!("gui-baut").to_string() } else { t::bereit().to_string() }).size(11.5).color(pal.mute), upd_hinweis, space::horizontal(), self.takt_anzeige(pal), space::horizontal().width(12), { let mt = self.name().and_then(|n| self.textmeta.get(&n).copied()).unwrap_or_default(); let schalter = |t: &str, tipp: &str, c: Cmd| -> Element<Msg> { iced::widget::tooltip(button(text(t.to_string()).size(11.5).color(pal.mute)).padding([0, 6]).on_press(Msg::Befehl(c)).style(|_, _| button::Style::default()), container(text(tipp.to_string()).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into() }; let r: Element<Msg> = if z > 0 { row![text(vc_i18n::t!("gui-z-z-s-s-p3", z = &z, s = &s, p3 = self.editoren.get(&self.name().unwrap_or_default()).map_or("", |e| match e.lang { vc_ide_model::lang::Lang::Asm => "Assembler", _ => "Text" }))).size(11.5).color(pal.mute), schalter(&mt.kodierung(), &vc_i18n::t!("gui-kodierung-beim-speichern-utf-8-iso"), Cmd::Kodierung), schalter(mt.zeilenende(), &vc_i18n::t!("gui-zeilenende-beim-speichern-lf-crlf-klick"), Cmd::Zeilenende)].spacing(6).align_y(Alignment::Center).into() } else { text("").into() }; r }]).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line));
         let grund: Element<Msg> = container({ let mut c = column![]; if self.menue_sichtbar() { c = c.push(self.menueleiste(pal)) } c.push(kopf).push(container(koerper).height(Length::Fill)).push(status) }).style(move |_| container::Style { background: Some(pal.bg.into()), ..Default::default() }).into();
         let grund: Element<Msg> = if self.ziehen.is_some() { stack![grund, iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill)).on_move(Msg::Maus).on_release(Msg::MausLos).interaction(iced::mouse::Interaction::Grabbing)].into() } else { grund };
         let grund: Element<Msg> = if let Some(k) = &self.kontext {
@@ -1731,7 +1733,7 @@ impl App {
             stack![grund, fang, container(karte).padding(iced::Padding { left: x, top: y, ..Default::default() })].into()
         } else { grund };
         let grund: Element<Msg> = if self.ziel_menue {
-            let zeilen: Vec<Element<Msg>> = self.ziel_eintraege().into_iter().map(|(id, name)| { let sel = id == self.run_on || (self.run_on.is_empty() && id == "@emulator"); button(text(format!("{}{name}", if sel { "✓ " } else { "   " })).size(13).color(pal.text)).width(Length::Fill).padding([6, 12]).on_press(Msg::ZielWahl(id)).style(move |_, st| button::Style { background: matches!(st, button::Status::Hovered).then(|| pal.sel.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }).collect();
+            let zeilen: Vec<Element<Msg>> = self.ziel_eintraege().into_iter().map(|(id, name)| { let sel = id == self.run_on || (self.run_on.is_empty() && id == "@emulator"); button(text(vc_i18n::t!("gui-p1-name", p1 = if sel { "✓ " } else { "   " }, name = &name)).size(13).color(pal.text)).width(Length::Fill).padding([6, 12]).on_press(Msg::ZielWahl(id)).style(move |_, st| button::Style { background: matches!(st, button::Status::Hovered).then(|| pal.sel.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }).collect();
             let fang = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill)).on_press(Msg::ZielMenue);
             stack![grund, fang, container(container(column(zeilen).spacing(2).padding(6)).width(280).style(move |_| flaeche(pal.panel, pal.line))).padding(iced::Padding { left: 190.0, top: 46.0, ..Default::default() })].into()
         } else { grund };
@@ -1758,7 +1760,7 @@ impl App {
         let grund: Element<Msg> = match self.beenden_dialog(pal) { Some(d) => stack![grund, d].into(), None => grund };
         let grund: Element<Msg> = match self.zahlen_dialog(pal) { Some(d) => stack![grund, d].into(), None => grund };
         let grund: Element<Msg> = if self.splash {
-            let karte = container(column![image(self.logos[2].clone()).height(96), text("VintageCoder").size(30).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), text(format!("Version {}", infodlg::version())).size(13).color(pal.mute), text("Alpha-Version").size(12).color(pal.warn), text("Klick oder Taste schließt das Startbild").size(11).color(pal.mute)].spacing(8).align_x(Alignment::Center)).padding(36).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 16.0.into() }, shadow: iced::Shadow { color: Color { a: 0.45, ..Color::BLACK }, offset: iced::Vector::new(0.0, 8.0), blur_radius: 24.0 }, ..Default::default() });
+            let karte = container(column![image(self.logos[2].clone()).height(96), text(vc_i18n::t!("gui-vintagecoder")).size(30).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), text(vc_i18n::t!("gui-version-p1", p1 = infodlg::version())).size(13).color(pal.mute), text(vc_i18n::t!("gui-klick-oder-taste-schliesst-das-startbild")).size(11).color(pal.mute)].spacing(8).align_x(Alignment::Center)).padding(36).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 16.0.into() }, shadow: iced::Shadow { color: Color { a: 0.45, ..Color::BLACK }, offset: iced::Vector::new(0.0, 8.0), blur_radius: 24.0 }, ..Default::default() });
             stack![grund, iced::widget::mouse_area(container(container(karte).center(Length::Fill)).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.55, ..Color::BLACK }.into()), ..Default::default() })).on_press(Msg::SplashZu)].into()
         } else { grund };
         if self.palette.offen { stack![grund, self.palette_ansicht(pal)].into() } else { grund }
@@ -1768,20 +1770,20 @@ impl App {
     fn gruppe_ansicht<'a>(&'a self, pal: Pal, sz: f32, rechts: bool, tabs: &'a [Tab], aktiv: usize, fokus: bool, nur_leiste: bool) -> Element<'a, Msg> {
         let (lo, hi) = self.sichtbare_reiter(tabs, aktiv);
         let leiste = row(tabs.iter().enumerate().skip(lo).take(hi - lo).map(|(i, x)| {
-            let (name, dirty) = match x { Tab::Datei(n) => (n.rsplit('/').next().unwrap_or(n).to_string(), (self.editoren.get(n).map_or(false, |e| e.dirty) || self.studios.get(n).map_or(false, |s| s.doc.dirty()) || self.paletten.get(n).map_or(false, |p| p.dirty()) || self.disks.get(n).map_or(false, |d| d.dirty))), Tab::Einstellungen => (t::EINSTELLUNGEN.to_string(), false), Tab::Start => ("Start".to_string(), false), Tab::Projekt => ("Projekt".to_string(), self.pe.as_ref().is_some_and(|z| z.geaendert())), Tab::Hilfe(k) => (self.hilfe_titel(k), false) };
+            let (name, dirty) = match x { Tab::Datei(n) => (n.rsplit('/').next().unwrap_or(n).to_string(), (self.editoren.get(n).map_or(false, |e| e.dirty) || self.studios.get(n).map_or(false, |s| s.doc.dirty()) || self.paletten.get(n).map_or(false, |p| p.dirty()) || self.disks.get(n).map_or(false, |d| d.dirty))), Tab::Einstellungen => (t::einstellungen().to_string(), false), Tab::Start => (vc_i18n::t!("gui-start").to_string(), false), Tab::Projekt => (vc_i18n::t!("gui-projekt").to_string(), self.pe.as_ref().is_some_and(|z| z.geaendert())), Tab::Hilfe(k) => (self.hilfe_titel(k), false) };
             let sel = i == aktiv; let gezogen = self.ziehen.as_ref().is_some_and(|z| z.start.is_some() && z.tab == *x);
-            let titel = container(text(format!("{name}{}", if dirty { " •" } else { "" })).size(12.5).color(if sel { pal.text } else { pal.mute })).padding([6, 10]).style(move |_| container::Style { background: (sel || gezogen).then(|| if gezogen { pal.sel.into() } else { pal.editor.into() }), border: Border { radius: 6.0.into(), color: if sel && fokus { pal.accent } else { Color::TRANSPARENT }, width: if sel && fokus { 1.0 } else { 0.0 } }, ..Default::default() });
+            let titel = container(text(vc_i18n::t!("gui-name-p2", name = &name, p2 = if dirty { " •" } else { "" })).size(12.5).color(if sel { pal.text } else { pal.mute })).padding([6, 10]).style(move |_| container::Style { background: (sel || gezogen).then(|| if gezogen { pal.sel.into() } else { pal.editor.into() }), border: Border { radius: 6.0.into(), color: if sel && fokus { pal.accent } else { Color::TRANSPARENT }, width: if sel && fokus { 1.0 } else { 0.0 } }, ..Default::default() });
             row![kontext::rechtsklick(iced::widget::mouse_area(titel).on_press(Msg::TabDruck(rechts, i)).on_enter(Msg::TabUeber(Some((rechts, i)))).on_exit(Msg::TabUeber(None)).interaction(iced::mouse::Interaction::Pointer), move |pt| Msg::KontextReiter(rechts, i, pt)),
                  button(text("×").size(13).color(pal.mute)).padding([4, 6]).on_press(Msg::SchliesseIn(rechts, i)).style(move |_, _| button::Style { background: None, text_color: pal.mute, ..Default::default() })].align_y(Alignment::Center).into() }).collect::<Vec<_>>()).spacing(4);
         let ueberlauf = |n: usize, links: bool, ziel: usize| -> Element<'a, Msg> { button(text(if links { format!("‹ {n}") } else { format!("{n} ›") }).size(12).color(pal.accent)).padding([6, 8]).on_press(Msg::ReiterIn(rechts, ziel)).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.accent, ..Default::default() }).into() };
-        let teilen: Element<'a, Msg> = iced::widget::tooltip(button(text("◫").size(14).color(pal.mute)).padding([4, 8]).on_press(Msg::Befehl(Cmd::Teilen)).style(move |_, _| button::Style { background: None, text_color: pal.mute, ..Default::default() }), container(text(if self.andere.is_some() { "Teilung aufheben (Cmd+Alt+T)" } else { "Editor teilen: zweite Hälfte rechts (Cmd+Alt+T)" }).size(12).color(pal.text)).padding([5, 8]).style(move |_| container::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, ..Default::default() }), iced::widget::tooltip::Position::Bottom).into();
+        let teilen: Element<'a, Msg> = iced::widget::tooltip(button(text("◫").size(14).color(pal.mute)).padding([4, 8]).on_press(Msg::Befehl(Cmd::Teilen)).style(move |_, _| button::Style { background: None, text_color: pal.mute, ..Default::default() }), container(text(if self.andere.is_some() { vc_i18n::t!("gui-teilung-aufheben-cmd-alt-t") } else { vc_i18n::t!("gui-editor-teilen-zweite-haelfte-rechts-cmd") }).size(12).color(pal.text)).padding([5, 8]).style(move |_| container::Style { background: Some(pal.editor.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, ..Default::default() }), iced::widget::tooltip::Position::Bottom).into();
         let mut zeile = row![].spacing(4).align_y(Alignment::Center);
         if lo > 0 { zeile = zeile.push(ueberlauf(lo, true, lo - 1)) }
         zeile = zeile.push(leiste);
         if hi < tabs.len() { zeile = zeile.push(ueberlauf(tabs.len() - hi, false, hi)) }
         zeile = zeile.push(teilen);
         let leiste = zeile;
-        let leiste = bw::kopfzeile(pal, t::DOKUMENTE, self.layout.anzeige(Bereich::Dokument), leiste.into(), false, "", KUERZEL_MAX, akt(Bereich::Dokument));
+        let leiste = bw::kopfzeile(pal, &t::dokumente(), self.layout.anzeige(Bereich::Dokument), leiste.into(), false, "", KUERZEL_MAX, akt(Bereich::Dokument));
         let leiste = container(leiste).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line));
         if nur_leiste { return container(leiste).width(Length::FillPortion(1)).into() }
         let inhalt: Element<Msg> = match tabs.get(aktiv) {
@@ -1794,10 +1796,10 @@ impl App {
             Some(Tab::Datei(n)) if self.hexe.contains_key(n) => iced::widget::mouse_area(self.hex_ansicht(pal, n)).on_press(Msg::GruppeKlick(rechts)).into(),
             Some(Tab::Datei(n)) if self.disks.contains_key(n) => iced::widget::mouse_area(self.disk_ansicht(pal, n)).on_press(Msg::GruppeKlick(rechts)).into(),
             Some(Tab::Datei(n)) if self.md_vorschau(n) => { let ed = &self.editoren[n]; let doc = self.md_doc(&ed.text());
-                let leiste = container(row![text("Markdown-Vorschau").size(12).color(pal.mute), space::horizontal(), vc_gui_ui::muster::knopf(pal, "Quelltext", "Zum Editor wechseln (Befehlspalette: Markdown: Vorschau/Quelltext)", Some(Msg::MdUmschalten(n.clone())), false, false)].align_y(Alignment::Center)).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line));
+                let leiste = container(row![text(vc_i18n::t!("gui-markdown-vorschau")).size(12).color(pal.mute), space::horizontal(), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("gui-quelltext"), &vc_i18n::t!("gui-zum-editor-wechseln-befehlspalette-markdown-vorschau"), Some(Msg::MdUmschalten(n.clone())), false, false)].align_y(Alignment::Center)).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line));
                 column![leiste, container(scrollable(container(mdansicht::ansicht(pal, &doc, self.md_grenze, Some(Msg::MdMehr))).padding(iced::Padding { top: 12.0, right: 24.0, bottom: 24.0, left: 24.0 }).max_width(820)).height(Length::Fill)).width(Length::Fill).height(Length::Fill).style(move |_| flaeche(pal.editor, pal.line))].into() }
             Some(Tab::Datei(n)) if n.to_lowercase().ends_with(".md") && self.editoren.contains_key(n) => { let ed = &self.editoren[n]; let v = editor_view(ed, pal, sz, move |m| Msg::EdIn(rechts, m)).aktiv(self.ed_aktiv).ziehen(self.baum_zug.as_ref().is_some_and(|g| !g.ordner)).alt_menue(self.alt_menue_buchstaben()); let ev = container(if fokus { v.fokus(self.ed_fokus) } else { v }).width(Length::Fill).height(Length::Fill);
-                let leiste = container(row![text("Markdown-Quelltext").size(12).color(pal.mute), space::horizontal(), vc_gui_ui::muster::knopf(pal, "Vorschau", "Zur gerenderten Ansicht wechseln", Some(Msg::MdUmschalten(n.clone())), false, false)].align_y(Alignment::Center)).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line));
+                let leiste = container(row![text(vc_i18n::t!("gui-markdown-quelltext")).size(12).color(pal.mute), space::horizontal(), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("gui-vorschau"), &vc_i18n::t!("gui-zur-gerenderten-ansicht-wechseln"), Some(Msg::MdUmschalten(n.clone())), false, false)].align_y(Alignment::Center)).padding([4, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line));
                 column![leiste, iced::widget::tooltip(ev, self.hover_karte(pal, ed), iced::widget::tooltip::Position::FollowCursor).gap(18).snap_within_viewport(true)].into() }
             Some(Tab::Datei(n)) => match self.editoren.get(n) { Some(ed) => { let v = editor_view(ed, pal, sz, move |m| Msg::EdIn(rechts, m)).aktiv(self.ed_aktiv).ziehen(self.baum_zug.as_ref().is_some_and(|g| !g.ordner)).alt_menue(self.alt_menue_buchstaben()); let ev = container(if fokus { v.fokus(self.ed_fokus) } else { v }).width(Length::Fill).height(Length::Fill); iced::widget::tooltip(ev, self.hover_karte(pal, ed), iced::widget::tooltip::Position::FollowCursor).gap(18).snap_within_viewport(true).into() } None => text("").into() },
             Some(Tab::Einstellungen) => self.einstellungen_ansicht(pal),
@@ -1810,22 +1812,22 @@ impl App {
     }
     fn find_leiste(&self, pal: Pal) -> Element<'_, Msg> {
         let mut z = column![row![
-            text_input(t::FINDEN, &self.find.frage).id("find").on_input(Msg::FindFrage).on_submit(Msg::FindSchritt(1)).width(260).padding(6),
+            text_input(&t::finden(), &self.find.frage).id("find").on_input(Msg::FindFrage).on_submit(Msg::FindSchritt(1)).width(260).padding(6),
             text(self.find.info.clone()).size(12).color(pal.mute).width(90),
             knopf(pal, "↑", Some(Msg::FindSchritt(-1)), pal.text, false), knopf(pal, "↓", Some(Msg::FindSchritt(1)), pal.text, false),
-            knopf(pal, if self.find.gross_klein { "Aa ✓" } else { "Aa" }, Some(Msg::FindGrossKlein), pal.text, false),
+            knopf(pal, if self.find.gross_klein { vc_i18n::t!("gui-aa") } else { vc_i18n::t!("gui-aa-2") }, Some(Msg::FindGrossKlein), pal.text, false),
             space::horizontal().width(8), knopf(pal, "×", Some(Msg::FindZu), pal.mute, false),
         ].spacing(8).align_y(Alignment::Center).wrap().vertical_spacing(6)].spacing(6);
-        if self.find.ersetzen { z = z.push(row![text_input(t::ERSETZEN, &self.find.mit).on_input(Msg::ErsetzFrage).on_submit(Msg::ErsetzeEins).width(260).padding(6), knopf(pal, t::ERSETZEN, Some(Msg::ErsetzeEins), pal.text, false), knopf(pal, t::ALLE, Some(Msg::ErsetzeAlle), pal.text, false)].spacing(8).align_y(Alignment::Center)) }
+        if self.find.ersetzen { z = z.push(row![text_input(&t::ersetzen(), &self.find.mit).on_input(Msg::ErsetzFrage).on_submit(Msg::ErsetzeEins).width(260).padding(6), knopf(pal, &t::ersetzen(), Some(Msg::ErsetzeEins), pal.text, false), knopf(pal, &t::alle(), Some(Msg::ErsetzeAlle), pal.text, false)].spacing(8).align_y(Alignment::Center)) }
         container(z).padding([8, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line)).into()
     }
     fn goto_leiste(&self, pal: Pal) -> Element<'_, Msg> {
-        container(row![text("Gehe zu Zeile").size(12.5).color(pal.mute), text_input("Zeilennummer", &self.goto.text).id("goto").on_input(Msg::GotoText).on_submit(Msg::GotoLos).width(140).padding(6)].spacing(10).align_y(Alignment::Center)).padding([8, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line)).into()
+        container(row![text(vc_i18n::t!("gui-gehe-zu-zeile")).size(12.5).color(pal.mute), text_input(&vc_i18n::t!("gui-zeilennummer"), &self.goto.text).id("goto").on_input(Msg::GotoText).on_submit(Msg::GotoLos).width(140).padding(6)].spacing(10).align_y(Alignment::Center)).padding([8, 12]).width(Length::Fill).style(move |_| flaeche(pal.panel2, pal.line)).into()
     }
     fn schublade_ansicht(&self, pal: Pal, voll: bool) -> Element<'_, Msg> {
         let body: Element<Msg> = if self.schublade == 3 && self.dbg.is_some() { self.debug_flaeche(pal) } else if self.schublade == 2 { self.tests_ansicht(pal) } else if self.schublade == 0 {
             kontext::rechtsklick(scrollable(column(self.log.iter().rev().take(300).rev().map(|l| text(l.clone()).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text).into()).collect::<Vec<_>>()).spacing(2).padding(8)).anchor_bottom().width(Length::Fill), |pt| Msg::KontextAuf(Art::Protokoll, pt, None))
-        } else if self.probleme.is_empty() { container(text("Keine Probleme.").size(12.5).color(pal.mute)).padding(12).into() } else {
+        } else if self.probleme.is_empty() { container(text(vc_i18n::t!("gui-keine-probleme-2")).size(12.5).color(pal.mute)).padding(12).into() } else {
             scrollable(column(self.probleme.iter().enumerate().map(|(i, p)| kontext::rechtsklick(button(text(format!("{}:{}  {}", p.datei, p.zeile, p.text)).size(12).font(vc_gui_ui::fonts::MONO).color(if p.fehler { pal.err } else { pal.warn })).on_press(Msg::GotoProblem(i)).style(move |_, _| button::Style { background: None, text_color: pal.text, ..Default::default() }), move |pt| Msg::KontextAuf(Art::Problem, pt, Some(i.to_string())))).collect::<Vec<_>>()).spacing(2).padding(8)).width(Length::Fill).into()
         };
         let kopf = self.schublade_kopf(pal);
@@ -1839,18 +1841,18 @@ impl App {
         let farbe = |o: &vc_ide::tests::Outcome| match (o.state, o.level) { (State::Passed, _) => pal.ok, (State::Failed, Level::Error) => pal.err, (State::Failed, Level::Hint) | (State::TimedOut, _) => pal.warn, (State::Skipped, _) => pal.mute };
         let c = tl.suite.counts(); let fehler = c.failed + c.timed_out;
         let leiste = row![
-            if tl.laeuft() { knopf_k("■ Abbrechen".into(), Some(Msg::TestStopp)) } else if self.dbg.is_some() { iced::widget::tooltip(knopf_k("▶ Alle ausführen".into(), Some(Msg::TestAlle)), container(text(t::TESTS_PARALLEL).size(11.5).color(pal.text)).padding(6).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into() } else { knopf_k("▶ Alle ausführen".into(), Some(Msg::TestAlle)) },
-            knopf_k("Fehlgeschlagene".into(), (!tl.laeuft() && fehler > 0).then_some(Msg::TestFehler)),
-            knopf_k(format!("Läuft auf: {} ▾", tl.backend_name()), Some(Msg::TestBackend)),
-            text_input("Filter", &tl.filter).on_input(Msg::TestFilter).size(12).padding(3).width(150),
-            iced::widget::checkbox(tl.nur_fehler).label("nur Fehler").on_toggle(Msg::TestNurFehler).size(14).text_size(11.5),
+            if tl.laeuft() { knopf_k(vc_i18n::t!("gui-abbrechen-2").into(), Some(Msg::TestStopp)) } else if self.dbg.is_some() { iced::widget::tooltip(knopf_k(vc_i18n::t!("gui-alle-ausfuehren").into(), Some(Msg::TestAlle)), container(text(t::tests_parallel()).size(11.5).color(pal.text)).padding(6).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into() } else { knopf_k(vc_i18n::t!("gui-alle-ausfuehren").into(), Some(Msg::TestAlle)) },
+            knopf_k(vc_i18n::t!("gui-fehlgeschlagene").into(), (!tl.laeuft() && fehler > 0).then_some(Msg::TestFehler)),
+            knopf_k(vc_i18n::t!("gui-laeuft-auf-p1", p1 = tl.backend_name()), Some(Msg::TestBackend)),
+            text_input(&vc_i18n::t!("gui-filter"), &tl.filter).on_input(Msg::TestFilter).size(12).padding(3).width(150),
+            iced::widget::checkbox(tl.nur_fehler).label(vc_i18n::t!("gui-nur-fehler")).on_toggle(Msg::TestNurFehler).size(14).text_size(11.5),
             space::horizontal(),
-            text(if tl.laeuft() { "läuft …".to_string() } else { format!("{} bestanden · {} fehlgeschlagen · {} übersprungen{}", c.passed, fehler, c.skipped, tl.suite.last_millis.map(|m| format!(" · {}", testlauf::dauer(m))).unwrap_or_default()) }).size(11.5).color(pal.mute),
+            text(if tl.laeuft() { vc_i18n::t!("gui-laeuft").to_string() } else { vc_i18n::t!("gui-p1-bestanden-fehler-fehlgeschlagen-p3-uebersprungen", p1 = &c.passed, fehler = &fehler, p3 = &c.skipped, p4 = tl.suite.last_millis.map(|m| format!(" · {}", testlauf::dauer(m))).unwrap_or_default()) }).size(11.5).color(pal.mute),
         ].spacing(8).align_y(Alignment::Center);
         // Liste
         let mut liste = column![].spacing(1); let mut letzte: Option<usize> = None;
         if let Some(e) = &tl.suite.error { liste = liste.push(text(e.clone()).size(12).color(pal.err)) }
-        if tl.suite.is_empty() && !tl.laeuft() && tl.suite.error.is_none() { liste = liste.push(text(t::TESTS_LEER).size(12.5).color(pal.mute)) }
+        if tl.suite.is_empty() && !tl.laeuft() && tl.suite.error.is_none() { liste = liste.push(text(t::tests_leer()).size(12.5).color(pal.mute)) }
         for (gi, ii) in tl.suite.visible(&tl.filter, tl.nur_fehler) {
             let g = &tl.suite.groups[gi];
             if letzte != Some(gi) { letzte = Some(gi); liste = liste.push(text(format!("{}{}{}", g.title, g.backend.as_ref().map(|b| format!(" · {b}")).unwrap_or_default(), if g.expected > g.items.len() { format!(" ({}/{})", g.items.len(), g.expected) } else { String::new() })).size(11).color(pal.mute)) }
@@ -1862,19 +1864,19 @@ impl App {
         let mut detail = column![].spacing(5);
         let gew = tl.sel.as_ref().and_then(|(f, n)| tl.suite.groups.iter().find_map(|g| g.items.iter().find(|i| i.file == *f && i.outcome.name == *n).map(|i| (g, i))));
         match gew {
-            None => detail = detail.push(text(t::TESTS_WAHL).size(12).color(pal.mute)),
+            None => detail = detail.push(text(t::tests_wahl()).size(12).color(pal.mute)),
             Some((g, it)) => {
                 let o = &it.outcome;
                 detail = detail.push(text(o.name.clone()).size(13.5).color(pal.text));
                 detail = detail.push(text(testlauf::zustand_text(o)).size(12).color(farbe(o)));
                 if !o.detail.is_empty() { detail = detail.push(text(o.detail.clone()).size(12).color(pal.text)) }
-                if let Some(m) = &o.measured { detail = detail.push(text(format!("gemessen: {m}")).size(11.5).font(mono).color(pal.accent)) }
-                if let Some(r) = &o.regs { detail = detail.push(text(format!("A {:02X}  X {:02X}  Y {:02X}  SP {:02X}  PC {:04X}", r.a, r.x, r.y, r.sp, r.pc)).size(11.5).font(mono).color(pal.text)); detail = detail.push(text("NV-BDIZC".chars().enumerate().map(|(i, ch)| if r.flags & (0x80 >> i) != 0 { ch } else { '·' }).collect::<String>()).size(11.5).font(mono).color(pal.ok)) }
+                if let Some(m) = &o.measured { detail = detail.push(text(vc_i18n::t!("gui-gemessen-m", m = &m)).size(11.5).font(mono).color(pal.accent)) }
+                if let Some(r) = &o.regs { detail = detail.push(text(vc_i18n::t!("gui-a-p1-x-p2-y-p3", p1 = format!("{:02X}", r.a), p2 = format!("{:02X}", r.x), p3 = format!("{:02X}", r.y), p4 = format!("{:02X}", r.sp), p5 = format!("{:04X}", r.pc))).size(11.5).font(mono).color(pal.text)); detail = detail.push(text("NV-BDIZC".chars().enumerate().map(|(i, ch)| if r.flags & (0x80 >> i) != 0 { ch } else { '·' }).collect::<String>()).size(11.5).font(mono).color(pal.ok)) }
                 if g.file.is_some() { if let Some(s) = testlauf::TestLauf::setup_zeile(&it.file, &o.name) { detail = detail.push(text(s).size(11).font(mono).color(pal.mute)) } }
                 let mut knoepfe = row![].spacing(6);
-                if let Some((d, z)) = &o.location { let rel = vc_ide::tests::suite::rel_to(&self.root, d); knoepfe = knoepfe.push(knopf_k(format!("Zur Quelle ({rel}:{z})"), Some(Msg::TestQuelle(rel, *z)))) }
+                if let Some((d, z)) = &o.location { let rel = vc_ide::tests::suite::rel_to(&self.root, d); knoepfe = knoepfe.push(knopf_k(vc_i18n::t!("gui-zur-quelle-rel-z", rel = &rel, z = &z), Some(Msg::TestQuelle(rel, *z)))) }
                 let emu = tl.backend.is_some(); let kann = g.file.is_some() && !g.mailbox && emu && !tl.laeuft() && o.state != State::Skipped;
-                knoepfe = knoepfe.push(knopf_k(t::TEST_DEBUG.into(), kann.then(|| Msg::TestDebug(it.file.clone(), o.name.clone()))));
+                knoepfe = knoepfe.push(knopf_k(t::test_debug().into(), kann.then(|| Msg::TestDebug(it.file.clone(), o.name.clone()))));
                 detail = detail.push(knoepfe);
             }
         }
@@ -1882,11 +1884,11 @@ impl App {
     }
     /// Reiter der Schublade in der Bereichskopfzeile (ein Klick auf einen Reiter klappt sie auch auf)
     fn schublade_kopf(&self, pal: Pal) -> Element<'_, Msg> {
-        let tests_titel = match self.tests.status_text() { Some(s) => s, None => t::TESTS.to_string() };
+        let tests_titel = match self.tests.status_text() { Some(s) => s, None => t::tests().to_string() };
         let mut reiter = row![].spacing(6);
-        if self.dbg.is_some() { reiter = reiter.push(reiter_knopf(pal, t::DEBUG_REITER, self.schublade == 3, Msg::Schublade(3))) }
-        reiter = reiter.push(reiter_knopf(pal, t::PROTOKOLL, self.schublade == 0, Msg::Schublade(0))).push(reiter_knopf(pal, &format!("{} ({})", t::PROBLEME, self.probleme.len()), self.schublade == 1, Msg::Schublade(1))).push(reiter_knopf(pal, &tests_titel, self.schublade == 2, Msg::Schublade(2)));
-        bw::kopfzeile(pal, t::SCHUBLADE, self.layout.anzeige(Bereich::Schublade), reiter.wrap().vertical_spacing(2).into(), true, "Cmd+J", KUERZEL_MAX, akt(Bereich::Schublade))
+        if self.dbg.is_some() { reiter = reiter.push(reiter_knopf(pal, &t::debug_reiter(), self.schublade == 3, Msg::Schublade(3))) }
+        reiter = reiter.push(reiter_knopf(pal, &t::protokoll(), self.schublade == 0, Msg::Schublade(0))).push(reiter_knopf(pal, &format!("{} ({})", t::probleme(), self.probleme.len()), self.schublade == 1, Msg::Schublade(1))).push(reiter_knopf(pal, &tests_titel, self.schublade == 2, Msg::Schublade(2)));
+        bw::kopfzeile(pal, &t::schublade(), self.layout.anzeige(Bereich::Schublade), reiter.wrap().vertical_spacing(2).into(), true, "Cmd+J", KUERZEL_MAX, akt(Bereich::Schublade))
     }
     /// Schublade minimiert: eine Leiste mit den Reitern
     fn schublade_leiste(&self, pal: Pal) -> Element<'_, Msg> { container(self.schublade_kopf(pal)).width(Length::Fill).style(move |_| flaeche(pal.panel, pal.line)).into() }
@@ -1896,8 +1898,8 @@ impl App {
         container(column![k("≡", Seite::Dateien), k("⌕", Seite::Suche)].spacing(4).align_x(Alignment::Center)).width(38).height(Length::Fill).padding([8, 4]).style(move |_| flaeche(pal.panel, pal.line)).into()
     }
     fn seitenleiste(&self, pal: Pal, breit: bool) -> Element<'_, Msg> {
-        let umschalter = row![reiter_knopf(pal, t::DATEIEN, self.seite == Seite::Dateien, Msg::SeiteWahl(Seite::Dateien)), reiter_knopf(pal, t::SUCHE, self.seite == Seite::Suche, Msg::SeiteWahl(Seite::Suche))].spacing(4);
-        let umschalter = bw::kopfzeile(pal, t::SPALTE, self.layout.anzeige(Bereich::Seitenleiste), umschalter.into(), true, "Cmd+B", KUERZEL_MAX, akt(Bereich::Seitenleiste));
+        let umschalter = row![reiter_knopf(pal, &t::dateien(), self.seite == Seite::Dateien, Msg::SeiteWahl(Seite::Dateien)), reiter_knopf(pal, &t::suche(), self.seite == Seite::Suche, Msg::SeiteWahl(Seite::Suche))].spacing(4);
+        let umschalter = bw::kopfzeile(pal, &t::spalte(), self.layout.anzeige(Bereich::Seitenleiste), umschalter.into(), true, "Cmd+B", KUERZEL_MAX, akt(Bereich::Seitenleiste));
         let aktiv = self.name();
         let inhalt: Element<Msg> = match self.seite {
             Seite::Dateien => {
@@ -1911,7 +1913,7 @@ impl App {
                     if z.ordner {
                         let enthaelt = !z.offen && offen.iter().any(|o| o.starts_with(&format!("{}/", z.rel)));
                         let marke = text(if z.offen { "▾" } else { "▸" }).size(11).color(pal.mute); let r2 = rel.clone();
-                        let hinweis: Element<Msg> = if enthaelt { iced::widget::tooltip(text("●").size(9).color(pal.accent), container(text("enthält geöffnete Dateien").size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Right).into() } else { space::horizontal().width(0).into() };
+                        let hinweis: Element<Msg> = if enthaelt { iced::widget::tooltip(text("●").size(9).color(pal.accent), container(text(vc_i18n::t!("gui-enthaelt-geoeffnete-dateien")).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Right).into() } else { space::horizontal().width(0).into() };
                         let ziel_hier = self.baum_zug.as_ref().is_some_and(|g| g.bewegt && g.ziel.as_deref() == Some(rel.as_str())); let kb_fokus = self.fokus_bereich == Bereich::Seitenleiste && self.baum_sel.as_deref() == Some(rel.as_str());
                         let zeile = button(row![einzug, marke, text(format!("{}/", z.name)).size(13).color(pal.text), hinweis].spacing(5).align_y(Alignment::Center)).width(Length::Fill).padding([3, 6]).style(move |_, _| button::Style { background: ziel_hier.then(|| pal.sel.into()), border: Border { radius: 6.0.into(), color: if ziel_hier || kb_fokus { pal.accent } else { Color::TRANSPARENT }, width: if kb_fokus { 2.0 } else if ziel_hier { 1.0 } else { 0.0 } }, text_color: pal.text, ..Default::default() });
                         c = c.push(kontext::rechtsklick(self.zug_zeile(zeile.into(), &rel, true), move |pt| Msg::KontextAuf(Art::Baum, pt, Some(r2.clone()))));
@@ -1926,16 +1928,16 @@ impl App {
                         c = c.push(kontext::rechtsklick(self.zug_zeile(button(zeile).width(Length::Fill).padding([3, 4]).style(move |_, _| button::Style { background: if aktuell { Some(pal.sel.into()) } else if geoeffnet { Some(pal.panel2.into()) } else { None }, border: Border { radius: 6.0.into(), color: if aktuell || kb_fokus { pal.accent } else { Color::TRANSPARENT }, width: if kb_fokus { 2.0 } else if aktuell { 1.0 } else { 0.0 } }, text_color: pal.text, ..Default::default() }).into(), &rel, false), move |pt| Msg::KontextAuf(Art::Baum, pt, Some(r2.clone()))));
                     }
                 }
-                if self.proj.entries.is_empty() && self.proj.dirs.is_empty() { c = c.push(text("Das Projekt ist leer.").size(12).color(pal.mute)) }
-                let sk = |t: &'static str, tipp: &'static str, m: Msg| -> Element<Msg> { iced::widget::tooltip(button(text(t).size(13).color(pal.text)).padding([3, 8]).on_press(m).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }), container(text(tipp).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).into() };
-                let aktionen = row![text_input("Dateien filtern", &self.baum_filter).id("baumfilter").on_input(Msg::BaumFilter).padding(5).size(12.5), sk("＋", "Neue Datei im gewählten Ordner", Msg::BaumNeu(self.baum_ziel.clone(), NeuArt::Asm)), sk("⟳", "Baum neu einlesen", Msg::BaumNeuLaden), sk("⊟", "Alle Ordner zuklappen", Msg::BaumAlleZu)].spacing(4).align_y(Alignment::Center);
-                let fuss = text(format!("{n_dat} Datei(en) · {n_ord} Ordner{}", if self.baum_filter.trim().is_empty() { "" } else { " (gefiltert)" })).size(11).color(pal.mute);
+                if self.proj.entries.is_empty() && self.proj.dirs.is_empty() { c = c.push(text(vc_i18n::t!("gui-das-projekt-ist-leer")).size(12).color(pal.mute)) }
+                let sk = |t: &'static str, tipp: &str, m: Msg| -> Element<'static, Msg> { iced::widget::tooltip(button(text(t).size(13).color(pal.text)).padding([3, 8]).on_press(m).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() }), container(text(tipp.to_string()).size(11.5).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Bottom).into() };
+                let aktionen = row![text_input(&vc_i18n::t!("gui-dateien-filtern"), &self.baum_filter).id("baumfilter").on_input(Msg::BaumFilter).padding(5).size(12.5), sk("＋", &vc_i18n::t!("gui-neue-datei-im-gewaehlten-ordner"), Msg::BaumNeu(self.baum_ziel.clone(), NeuArt::Asm)), sk("⟳", &vc_i18n::t!("gui-baum-neu-einlesen"), Msg::BaumNeuLaden), sk("⊟", &vc_i18n::t!("gui-alle-ordner-zuklappen"), Msg::BaumAlleZu)].spacing(4).align_y(Alignment::Center);
+                let fuss = text(format!("{}{}", vc_i18n::t!("status-tree-summary", n = &n_dat, dirs = &n_ord), if self.baum_filter.trim().is_empty() { String::new() } else { format!(" {}", vc_i18n::t!("status-tree-filtered")) })).size(11).color(pal.mute);
                 let c = column![aktionen, scrollable(c).height(Length::Fill), fuss].spacing(6);
                 container(c).height(Length::Fill).into()
             }
             Seite::Suche => {
-                let mut c = column![text_input(t::SUCHE_PLATZHALTER, &self.suche_frage).id("suche").on_input(Msg::SucheFrage).on_submit(Msg::SucheLos).padding(6)].spacing(6);
-                if self.sucht { c = c.push(text("Suche läuft …").size(12).color(pal.mute)) } else if self.suche_fertig { c = c.push(text(if self.funde.is_empty() { t::SUCHE_LEER.to_string() } else { format!("{} {}", self.funde.len(), t::TREFFER) }).size(12).color(pal.mute)) }
+                let mut c = column![text_input(&t::suche_platzhalter(), &self.suche_frage).id("suche").on_input(Msg::SucheFrage).on_submit(Msg::SucheLos).padding(6)].spacing(6);
+                if self.sucht { c = c.push(text(vc_i18n::t!("gui-suche-laeuft")).size(12).color(pal.mute)) } else if self.suche_fertig { c = c.push(text(if self.funde.is_empty() { t::suche_leer().to_string() } else { format!("{} {}", self.funde.len(), t::treffer()) }).size(12).color(pal.mute)) }
                 for (i, f) in self.funde.iter().enumerate().take(300) { c = c.push(button(column![text(format!("{}:{}", f.rel, f.zeile)).size(11).color(pal.mute), text(f.text.clone()).size(12).font(vc_gui_ui::fonts::MONO).color(pal.text)].spacing(1)).width(Length::Fill).padding([3, 6]).on_press(Msg::GotoFund(i)).style(move |_, _| button::Style { background: None, text_color: pal.text, ..Default::default() })) }
                 scrollable(c).height(Length::Fill).into()
             }
@@ -1948,8 +1950,8 @@ impl App {
     /// Rückfrage „Eine Debug-Sitzung läuft. Beenden und …?“ mit [Sitzung beenden] [Abbrechen]
     fn rueckfrage_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let r = self.rueckfrage.as_ref()?;
-        let (titel, frage, ja) = match r { Rueckfrage::TestDebug(_, n) => (t::RQ_TITEL, format!("Eine Debug-Sitzung läuft. Beenden und den Test „{n}“ debuggen?"), t::RQ_BEENDEN), Rueckfrage::DebugNeu => (t::RQ_TITEL, "Eine Debug-Sitzung läuft. Beenden und neu bauen und debuggen?".to_string(), t::RQ_BEENDEN), Rueckfrage::ScratchWeg(n) => ("Reiter schließen", format!("„{n}“ hat Inhalt und ist nicht gespeichert (Cmd+S legt ihn als Datei an). Verwerfen?"), "Verwerfen"), Rueckfrage::Kachelkarte(n) => ("Ältere Kachelkarte umwandeln?", format!("„{n}“ ist eine ältere Kachelkarte (kind „tilemap“). Das Kachelsatz-Studio liest Kachelsatz und Bildschirm: Umwandeln legt beides neben der Datei an und öffnet den Bildschirm. Die alte Datei wird vorher unter .vcbackup/ gesichert und dann durch die neuen ersetzt."), "Umwandeln"), Rueckfrage::KonfigImport(p, z) => ("Konfiguration übernehmen?", format!("Die Datei „{}“ enthält: {z}. Die jetzigen Einstellungen für Zielsysteme, Emulatoren, Maschinen und Parameter werden ersetzt; bekannte Maschinen behalten ihr Passwort. Die Oberflächeneinstellungen (Farbschema, Zoom) bleiben.", p.display()), "Übernehmen"), Rueckfrage::KonfigReset => ("Einstellungen zurücksetzen?", "Alle Einstellungen der IDE (Zielsysteme, Emulatoren, Maschinen samt Passwörtern, Pfade, Parameter) gehen auf die Vorgabe zurück. Das lässt sich nicht rückgängig machen; vorher kann man die Konfiguration exportieren.".to_string(), "Zurücksetzen") };
-        let c = column![text(titel).size(16).color(pal.text), text(frage).size(12.5).color(pal.text), row![knopf(pal, ja, Some(Msg::RueckfrageJa), pal.text, true), knopf(pal, t::BAUM_ABBRUCH, Some(Msg::RueckfrageNein), pal.text, false)].spacing(8)].spacing(12);
+        let (titel, frage, ja) = match r { Rueckfrage::TestDebug(_, n) => (t::rq_titel(), vc_i18n::t!("gui-eine-debug-sitzung-laeuft-beenden-und", n = &n), t::rq_beenden()), Rueckfrage::DebugNeu => (t::rq_titel(), vc_i18n::t!("gui-eine-debug-sitzung-laeuft-beenden-und-2").to_string(), t::rq_beenden()), Rueckfrage::ScratchWeg(n) => (vc_i18n::t!("gui-reiter-schliessen").to_string(), vc_i18n::t!("gui-n-hat-inhalt-und-ist-nicht", n = &n), vc_i18n::t!("gui-verwerfen").to_string()), Rueckfrage::Kachelkarte(n) => (vc_i18n::t!("gui-aeltere-kachelkarte-umwandeln").to_string(), vc_i18n::t!("gui-n-ist-eine-aeltere-kachelkarte-kind", n = &n), vc_i18n::t!("gui-umwandeln").to_string()), Rueckfrage::KonfigImport(p, z) => (vc_i18n::t!("gui-konfiguration-uebernehmen").to_string(), vc_i18n::t!("gui-die-datei-p1-enthaelt-z-die", p1 = p.display(), z = &z), vc_i18n::t!("gui-uebernehmen").to_string()), Rueckfrage::KonfigReset => (vc_i18n::t!("gui-einstellungen-zuruecksetzen").to_string(), vc_i18n::t!("gui-alle-einstellungen-der-ide-zielsysteme-emulatoren").to_string(), vc_i18n::t!("gui-zuruecksetzen").to_string()) };
+        let c = column![text(titel).size(16).color(pal.text), text(frage).size(12.5).color(pal.text), row![knopf(pal, &ja, Some(Msg::RueckfrageJa), pal.text, true), knopf(pal, &t::baum_abbruch(), Some(Msg::RueckfrageNein), pal.text, false)].spacing(8)].spacing(12);
         let karte = container(c).width(440).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, ..Default::default() });
         let hintergrund = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() })).on_press(Msg::RueckfrageNein);
         Some(stack![hintergrund, container(karte).center(Length::Fill)].into())
@@ -1959,42 +1961,42 @@ impl App {
         let mut liste = vec![OrdnerWahl(String::new())]; liste.extend(self.proj.dirs.iter().filter(|d| !d.split('/').any(|t| t.starts_with('.'))).map(|d| OrdnerWahl(d.clone())));
         liste.sort(); liste.dedup();
         let wahl = OrdnerWahl(aktuell.to_string()); if !liste.contains(&wahl) { liste.push(wahl.clone()) }
-        column![text("Ordner").size(11).color(pal.mute), iced::widget::pick_list(liste, Some(wahl), |o| Msg::BaumOrdnerWahl(o.0)).text_size(12.5).padding(6).width(Length::Fill)].spacing(4).into()
+        column![text(vc_i18n::t!("gui-ordner")).size(11).color(pal.mute), iced::widget::pick_list(liste, Some(wahl), |o| Msg::BaumOrdnerWahl(o.0)).text_size(12.5).padding(6).width(Length::Fill)].spacing(4).into()
     }
     fn baum_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let b = self.baum.as_ref()?;
-        let titel = match &b.art { BaumArt::Neu { .. } => t::DLG_NEUE_DATEI, BaumArt::Ordner(_) => t::DLG_NEUER_ORDNER, BaumArt::Umbenennen(_) => t::DLG_UMBENENNEN, BaumArt::Loeschen(_) => t::DLG_LOESCHEN, BaumArt::SpeichernUnter(_) => "Speichern unter" };
+        let titel = match &b.art { BaumArt::Neu { .. } => t::dlg_neue_datei(), BaumArt::Ordner(_) => t::dlg_neuer_ordner(), BaumArt::Umbenennen(_) => t::dlg_umbenennen(), BaumArt::Loeschen(_) => t::dlg_loeschen(), BaumArt::SpeichernUnter(_) => vc_i18n::t!("gui-speichern-unter").to_string() };
         let mut c = column![text(titel).size(16).color(pal.text)].spacing(10);
         match &b.art {
-            BaumArt::Loeschen(rel) => { c = c.push(text(format!("{rel} {}", if self.papierkorb { t::BAUM_FRAGE_KORB } else { t::BAUM_FRAGE_ENDGUELTIG })).size(12.5).color(pal.text)) }
+            BaumArt::Loeschen(rel) => { c = c.push(text(vc_i18n::t!("gui-rel-p2", rel = &rel, p2 = if self.papierkorb { t::baum_frage_korb() } else { t::baum_frage_endgueltig() })).size(12.5).color(pal.text)) }
             art => {
                 if let BaumArt::Neu { ordner, art: gewaehlt, profile, profil } = art {
                     let mut arten = vec![NeuArt::Asm, NeuArt::Basic, NeuArt::Text, NeuArt::Notiz]; arten.extend(self.studio_arten().into_iter().map(NeuArt::Studio)); arten.extend([NeuArt::Diskette("d64"), NeuArt::Diskette("d71"), NeuArt::Diskette("d81"), NeuArt::Diskette("atr")]);
-                    c = c.push(text(t::DLG_ART).size(11).color(pal.mute));
+                    c = c.push(text(t::dlg_art()).size(11).color(pal.mute));
                     let mut zeile = row![].spacing(4); let mut zeilen = column![].spacing(4); let mut n = 0;
                     for a in arten { let on = a == *gewaehlt; zeile = zeile.push(button(text(a.name()).size(12.5).color(pal.text)).padding([4, 9]).on_press(Msg::BaumArtWahl(a)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { color: if on { pal.accent } else { pal.line }, width: 1.0, radius: 6.0.into() }, text_color: pal.text, ..Default::default() })); n += 1; if n % 4 == 0 { zeilen = zeilen.push(std::mem::replace(&mut zeile, row![].spacing(4))) } }
                     zeilen = zeilen.push(zeile); c = c.push(zeilen);
-                    if let NeuArt::Studio(_) = gewaehlt { c = c.push(text(t::DLG_PROFIL).size(11).color(pal.mute)); for (i, (_, name)) in profile.iter().enumerate() { let on = i == *profil; c = c.push(button(text(format!("{} {name}", if on { "●" } else { "○" })).size(12.5).color(pal.text)).padding([3, 6]).on_press(Msg::BaumProfil(i)).style(move |_, _| button::Style { background: None, text_color: pal.text, ..Default::default() })) } }
+                    if let NeuArt::Studio(_) = gewaehlt { c = c.push(text(t::dlg_profil()).size(11).color(pal.mute)); for (i, (_, name)) in profile.iter().enumerate() { let on = i == *profil; c = c.push(button(text(vc_i18n::t!("gui-p1-name-2", p1 = if on { "●" } else { "○" }, name = &name)).size(12.5).color(pal.text)).padding([3, 6]).on_press(Msg::BaumProfil(i)).style(move |_, _| button::Style { background: None, text_color: pal.text, ..Default::default() })) } }
                     c = c.push(self.ordner_wahl(pal, ordner));
                 } else if let BaumArt::Ordner(ordner) = art { c = c.push(self.ordner_wahl(pal, ordner)); }
-                c = c.push(text(t::DLG_NAME).size(11).color(pal.mute));
-                c = c.push(text_input(t::BAUM_PFAD, &b.text).id("baum").on_input(Msg::BaumText).on_submit(Msg::BaumOk).padding(7));
+                c = c.push(text(t::dlg_name()).size(11).color(pal.mute));
+                c = c.push(text_input(&t::baum_pfad(), &b.text).id("baum").on_input(Msg::BaumText).on_submit(Msg::BaumOk).padding(7));
                 // Vorschau des endgültigen Pfads, mit der Endung, die die Art ergänzt (wie die Endungs-Automatik beim Speichern im Betriebssystem)
-                match &b.art { BaumArt::Neu { ordner, art: ga, .. } if !b.text.trim().is_empty() => { let n = b.text.trim().to_string(); let n = if n.contains('.') || matches!(ga, NeuArt::Studio(_)) { n } else { format!("{n}{}", ga.endung()) }; let rel = if ordner.is_empty() { n } else { format!("{ordner}/{n}") }; c = c.push(text(format!("Wird angelegt: {rel}")).size(11.5).color(pal.mute)) } _ => {} }
+                match &b.art { BaumArt::Neu { ordner, art: ga, .. } if !b.text.trim().is_empty() => { let n = b.text.trim().to_string(); let n = if n.contains('.') || matches!(ga, NeuArt::Studio(_)) { n } else { format!("{n}{}", ga.endung()) }; let rel = if ordner.is_empty() { n } else { format!("{ordner}/{n}") }; c = c.push(text(vc_i18n::t!("gui-wird-angelegt-rel", rel = &rel)).size(11.5).color(pal.mute)) } _ => {} }
             }
         }
         if !b.fehler.is_empty() { c = c.push(text(b.fehler.clone()).size(12).color(pal.err)) }
-        c = c.push(row![knopf(pal, t::BAUM_OK, Some(Msg::BaumOk), pal.text, true), knopf(pal, t::BAUM_ABBRUCH, Some(Msg::BaumAbbruch), pal.text, false)].spacing(8));
+        c = c.push(row![knopf(pal, &t::baum_ok(), Some(Msg::BaumOk), pal.text, true), knopf(pal, &t::baum_abbruch(), Some(Msg::BaumAbbruch), pal.text, false)].spacing(8));
         let karte = container(c).width(440).padding(18).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 12.0.into() }, shadow: iced::Shadow { color: Color { a: 0.45, ..Color::BLACK }, offset: iced::Vector::new(0.0, 6.0), blur_radius: 18.0 }, ..Default::default() });
         let hintergrund = iced::widget::mouse_area(container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Color { a: 0.45, ..Color::BLACK }.into()), ..Default::default() })).on_press(Msg::BaumAbbruch);
         Some(stack![hintergrund, container(karte).center(Length::Fill)].into())
     }
     fn panel(&self, pal: Pal, breit: bool) -> Element<'_, Msg> {
-        let reiter = |name: &'static str, p: PanelSeite| -> Element<Msg> { let on = self.panel_seite == p; button(text(name).size(12).color(if on { pal.text } else { pal.mute })).padding([4, 8]).on_press(Msg::PanelWahl(p)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel.into() }), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() };
-        let mut kopf = row![reiter(t::GLIEDERUNG, PanelSeite::Gliederung), reiter(t::HILFE_TITEL, PanelSeite::Hilfe), reiter(t::ZEICHEN, PanelSeite::Zeichen)].spacing(4);
-        kopf = kopf.push(reiter(t::KARTE, PanelSeite::Karte));
-        if self.dbg.is_some() && self.snap.can_frame { kopf = kopf.push(reiter(t::EMULATOR_BILD, PanelSeite::Emulator)) }
-        let kopf = bw::kopfzeile(pal, t::PANEL, self.layout.anzeige(Bereich::Panel), kopf.wrap().vertical_spacing(2).into(), true, "Cmd+Alt+B", KUERZEL_MAX, akt(Bereich::Panel));
+        let reiter = |name: String, p: PanelSeite| -> Element<Msg> { let on = self.panel_seite == p; button(text(name).size(12).color(if on { pal.text } else { pal.mute })).padding([4, 8]).on_press(Msg::PanelWahl(p)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel.into() }), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() };
+        let mut kopf = row![reiter(t::gliederung(), PanelSeite::Gliederung), reiter(t::hilfe_titel(), PanelSeite::Hilfe), reiter(t::zeichen(), PanelSeite::Zeichen)].spacing(4);
+        kopf = kopf.push(reiter(t::karte(), PanelSeite::Karte));
+        if self.dbg.is_some() && self.snap.can_frame { kopf = kopf.push(reiter(t::emulator_bild(), PanelSeite::Emulator)) }
+        let kopf = bw::kopfzeile(pal, &t::panel(), self.layout.anzeige(Bereich::Panel), kopf.wrap().vertical_spacing(2).into(), true, "Cmd+Alt+B", KUERZEL_MAX, akt(Bereich::Panel));
         let inhalt = match self.panel_seite { PanelSeite::Gliederung => self.panel_gliederung(pal), PanelSeite::Hilfe => self.panel_hilfe(pal), PanelSeite::Zeichen => self.panel_zeichen(pal), PanelSeite::Debug => self.panel_debug(pal), PanelSeite::Karte => self.panel_karte(pal), PanelSeite::Emulator => self.panel_emulator(pal) };
         container(column![kopf, inhalt].spacing(8)).width(if breit { Length::Fill } else { Length::Fixed(self.panel_breite()) }).height(Length::Fill).padding(10).style(move |_| flaeche(pal.panel, pal.line)).into()
     }
@@ -2002,7 +2004,7 @@ impl App {
     /// Panel „Speicherkarte“: 256 Seiten (16 × 16), Bankumschaltung, Programmbelegung, Auswahl mit Einzelheiten
     fn panel_karte(&self, pal: Pal) -> Element<'_, Msg> {
         use vc_ide_model::memmap_facts as mm; use vc_target::{Page, PageCategory};
-        let Some(info) = &self.info else { return container(text(t::KARTE_LEER).size(12.5).color(pal.mute)).padding(8).into() };
+        let Some(info) = &self.info else { return container(text(t::karte_leer()).size(12.5).color(pal.mute)).padding(8).into() };
         let k = &self.karte; let facts = k.facts.clone().unwrap_or_default();
         let preset = k.banking.as_ref().and_then(|b| k.preset.as_deref().and_then(|i| b.preset(i)).or_else(|| b.default_preset()));
         let plan: [Page; 256] = match (&k.banking, preset) { (Some(b), Some(p)) => b.page_plan(p), _ => mm::plain_plan() };
@@ -2010,12 +2012,12 @@ impl App {
         let farbe = move |c: PageCategory| -> Color { let (d, h) = match c { PageCategory::Free => ((0x2a, 0x2e, 0x36), (0xe4, 0xe7, 0xec)), PageCategory::Zeropage => ((0x2a, 0x8f, 0xb4), (0x7f, 0xc4, 0xdf)), PageCategory::Stack => ((0x1f, 0x9d, 0x8f), (0x72, 0xcc, 0xc0)), PageCategory::Screen => ((0xb4, 0x4f, 0x8a), (0xe0, 0x9c, 0xc0)), PageCategory::Sprites => ((0xb8, 0x55, 0x5f), (0xe3, 0xa0, 0xa6)), PageCategory::Charset => ((0x2f, 0x8f, 0x5a), (0x8f, 0xd0, 0xa8)), PageCategory::Music => ((0x9a, 0x86, 0x2b), (0xd6, 0xc4, 0x78)), PageCategory::Io => ((0xb0, 0x6c, 0x2e), (0xe0, 0xb0, 0x80)), PageCategory::Rom => ((0x6b, 0x66, 0x7c), (0xb4, 0xb0, 0xc4)), PageCategory::Basic => ((0x7a, 0x4c, 0xb8), (0xbd, 0x9c, 0xe0)) }; let (r, g, b) = if pal.dark { d } else { h }; Color::from_rgb8(r, g, b) };
         let titel = |s: String| -> Element<Msg> { text(s).size(11).color(pal.mute).into() };
         let mono = |s: String, c: Color| -> Element<Msg> { text(s).size(11.5).font(vc_gui_ui::fonts::MONO).color(c).into() };
-        let filter_zeile = row(["all", "prog", "ram", "rom", "io"].iter().zip(["Alle", "Programm", "RAM", "ROM", "E/A"]).map(|(f, n)| { let on = k.filter == *f; let f: &'static str = f; button(text(n).size(11).color(if on { pal.text } else { pal.mute })).padding([2, 6]).on_press(Msg::KarteFilter(f)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }).collect::<Vec<_>>()).spacing(4);
-        let mut c = column![titel(format!("{} · 64 KB", info.target.to_uppercase())), filter_zeile].spacing(6);
+        let filter_zeile = row(["all", "prog", "ram", "rom", "io"].iter().zip([vc_i18n::t!("gui-alle"), vc_i18n::t!("gui-programm"), "RAM".to_string(), "ROM".to_string(), "E/A".to_string()]).map(|(f, n)| { let on = k.filter == *f; let f: &'static str = f; button(text(n).size(11).color(if on { pal.text } else { pal.mute })).padding([2, 6]).on_press(Msg::KarteFilter(f)).style(move |_, _| button::Style { background: Some(if on { pal.sel.into() } else { pal.panel2.into() }), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }).collect::<Vec<_>>()).spacing(4);
+        let mut c = column![titel(vc_i18n::t!("gui-p1-64-kb", p1 = info.target.to_uppercase())), filter_zeile].spacing(6);
         // Matrix: 16 Zeilen à 16 Seiten; Programmbelegung als unterer Balken in Cyan
         let mut gitter = column![].spacing(1);
         for r in 0..16usize {
-            let mut z = row![container(text(format!("${r:X}000")).size(9).font(vc_gui_ui::fonts::MONO).color(pal.mute)).width(28).align_right(Length::Fill)].spacing(1).align_y(Alignment::Center);
+            let mut z = row![container(text(vc_i18n::t!("gui-r-000", r = format!("{:X}", r))).size(9).font(vc_gui_ui::fonts::MONO).color(pal.mute)).width(28).align_right(Length::Fill)].spacing(1).align_y(Alignment::Center);
             for sp in 0..16usize {
                 let p = r * 16 + sp; let (pg, u) = (plan[p], usage[p]); let dim = !filter.matches(pg.kind, u); let auswahl = k.sel as usize == p;
                 let basis = farbe(pg.category); let basis = if dim { Color { a: 0.3, ..basis } } else { basis };
@@ -2034,45 +2036,45 @@ impl App {
             if let Some(p) = preset { if !p.note.is_empty() { c = c.push(text(p.note.clone()).size(11).color(pal.mute)) } }
         }
         // Legende
-        c = c.push(row(mm::legend(&plan).into_iter().map(|cat| row![container(space::vertical()).width(8).height(8).style(move |_| container::Style { background: Some(farbe(cat).into()), ..Default::default() }), text(mm::category_label(cat)).size(10).color(pal.mute)].spacing(3).align_y(Alignment::Center).into()).chain(std::iter::once(row![container(space::vertical()).width(8).height(8).style(move |_| container::Style { background: Some(pal.accent.into()), ..Default::default() }), text("Programm").size(10).color(pal.mute)].spacing(3).align_y(Alignment::Center).into())).collect::<Vec<_>>()).spacing(8).wrap());
+        c = c.push(row(mm::legend(&plan).into_iter().map(|cat| row![container(space::vertical()).width(8).height(8).style(move |_| container::Style { background: Some(farbe(cat).into()), ..Default::default() }), text(mm::category_label(cat)).size(10).color(pal.mute)].spacing(3).align_y(Alignment::Center).into()).chain(std::iter::once(row![container(space::vertical()).width(8).height(8).style(move |_| container::Style { background: Some(pal.accent.into()), ..Default::default() }), text(vc_i18n::t!("gui-programm")).size(10).color(pal.mute)].spacing(3).align_y(Alignment::Center).into())).collect::<Vec<_>>()).spacing(8).wrap());
         // Auswahl
         let p = k.sel; let pg = plan[p as usize];
-        c = c.push(titel(format!("SEITE ${p:02X} · ${:04X}–${:04X}", (p as u32) << 8, ((p as u32) << 8) + 255)));
+        c = c.push(titel(vc_i18n::t!("gui-seite-p-p2-p3", p = format!("{:02X}", p), p2 = format!("{:04X}", (p as u32) << 8), p3 = format!("{:04X}", ((p as u32) << 8) + 255))));
         c = c.push(mono(format!("{} · {}", mm::kind_label(pg.kind), mm::category_label(pg.category)), pal.text));
-        if usage[p as usize] > 0 { c = c.push(mono(format!("Programm: {} von 256 Byte", usage[p as usize]), pal.accent)) }
-        for (n, a) in mm::page_symbols(&facts, p, p).into_iter().take(8) { c = c.push(mono(format!("{n}  ${a:04X}"), pal.lab)) }
-        for (f, a, b) in mm::page_sources(&info.zeilen, p, p).into_iter().take(4) { c = c.push(mono(format!("{f}:{a}{}", if b != a { format!("–{b}") } else { String::new() }), pal.mute)) }
+        if usage[p as usize] > 0 { c = c.push(mono(vc_i18n::t!("gui-programm-p1-von-256-byte", p1 = usage[p as usize]), pal.accent)) }
+        for (n, a) in mm::page_symbols(&facts, p, p).into_iter().take(8) { c = c.push(mono(vc_i18n::t!("gui-n-a", n = &n, a = format!("{:04X}", a)), pal.lab)) }
+        for (f, a, b) in mm::page_sources(&info.zeilen, p, p).into_iter().take(4) { c = c.push(mono(vc_i18n::t!("gui-f-a-p3", f = &f, a = &a, p3 = if b != a { format!("–{b}") } else { String::new() }), pal.mute)) }
         // Prüfungen
-        c = c.push(titel("PRÜFUNG".into()));
+        c = c.push(titel(vc_i18n::t!("gui-pruefung").into()));
         for ch in mm::checks(&facts, Some(&plan)) { c = c.push(mono(format!("{} {}", match ch.level { mm::Level::Ok => "✓", mm::Level::Info => "·", mm::Level::Warn => "⚠", mm::Level::Err => "✗" }, ch.text), match ch.level { mm::Level::Err => pal.err, mm::Level::Warn => pal.warn, _ => pal.mute })) }
         scrollable(c.spacing(4).padding(iced::Padding { right: 12.0, left: 2.0, ..Default::default() })).height(Length::Fill).into()
     }
     /// Panel „Emulator“: Bild des angehaltenen (oder in Zeitlupe laufenden) Emulators, Tastatureingabe
     fn panel_emulator(&self, pal: Pal) -> Element<'_, Msg> {
         let sn = &self.snap;
-        let knopf_e = |name: &'static str, m: Msg| -> Element<Msg> { button(text(name).size(11.5).color(pal.text)).padding([3, 8]).on_press(m).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 5.0.into() }, text_color: pal.text, ..Default::default() }).into() };
-        let mut c = column![row![knopf_e(t::EMU_AKTUALISIEREN, Msg::EmuBild),
-            iced::widget::checkbox(self.emu_auto).label(t::EMU_AUTO).on_toggle(Msg::EmuAuto).size(14).text_size(11.5),
-            iced::widget::checkbox(self.emu_live).label(t::EMU_LIVE).on_toggle(Msg::EmuLive).size(14).text_size(11.5)].spacing(10).align_y(Alignment::Center)].spacing(8);
+        let knopf_e = |name: String, m: Msg| -> Element<Msg> { button(text(name).size(11.5).color(pal.text)).padding([3, 8]).on_press(m).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { color: pal.line, width: 1.0, radius: 5.0.into() }, text_color: pal.text, ..Default::default() }).into() };
+        let mut c = column![row![knopf_e(t::emu_aktualisieren(), Msg::EmuBild),
+            iced::widget::checkbox(self.emu_auto).label(t::emu_auto()).on_toggle(Msg::EmuAuto).size(14).text_size(11.5),
+            iced::widget::checkbox(self.emu_live).label(t::emu_live()).on_toggle(Msg::EmuLive).size(14).text_size(11.5)].spacing(10).align_y(Alignment::Center)].spacing(8);
         if sn.frame_sources.len() > 1 { c = c.push(row(sn.frame_sources.iter().enumerate().map(|(i, n)| button(text(n.clone()).size(11.5).color(pal.text)).padding([2, 8]).on_press(Msg::EmuQuelle(i)).style(move |_, _| button::Style { background: Some(pal.panel2.into()), border: Border { radius: 4.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into()).collect::<Vec<_>>()).spacing(4)) }
         match &self.emu_bild {
             Some((_, h, w, hh)) => {
                 c = c.push(container(image(h.clone()).width(Length::Fill).content_fit(iced::ContentFit::Contain).filter_method(image::FilterMethod::Nearest)).width(Length::Fill).style(move |_| container::Style { background: Some(Color::BLACK.into()), ..Default::default() }));
-                c = c.push(text(format!("{w}×{hh} · Bild {} · Aufbau {:.2} ms", sn.frame_seq, self.emu_ms)).size(11).font(vc_gui_ui::fonts::MONO).color(pal.mute));
+                c = c.push(text(vc_i18n::t!("gui-w-hh-bild-p3-aufbau-p4", w = &w, hh = &hh, p3 = &sn.frame_seq, p4 = vc_i18n::num((self.emu_ms) as f64, 2))).size(11).font(vc_gui_ui::fonts::MONO).color(pal.mute));
             }
-            None => c = c.push(text(if sn.running { t::EMU_LAEUFT } else { t::EMU_KEIN_BILD }).size(12).color(pal.mute)),
+            None => c = c.push(text(if sn.running { t::emu_laeuft() } else { t::emu_kein_bild() }).size(12).color(pal.mute)),
         }
         if let Some(e) = &sn.frame_err { c = c.push(text(debug::freundlich(e)).size(11.5).color(pal.warn)) }
-        if sn.can_text { c = c.push(text_input(t::EMU_TEXT, &self.emu_text).on_input(Msg::EmuText).on_submit(Msg::EmuSenden).size(12).padding(4)) }
+        if sn.can_text { c = c.push(text_input(&t::emu_text(), &self.emu_text).on_input(Msg::EmuText).on_submit(Msg::EmuSenden).size(12).padding(4)) }
         scrollable(c.padding(iced::Padding { right: 12.0, ..Default::default() })).height(Length::Fill).into()
     }
     /// Titel eines Hilfe-Reiters (Thema oder „Hilfe“)
-    fn hilfe_titel(&self, k: &str) -> String { if k.is_empty() { "Hilfe".into() } else { vc_ide_model::helpstate::open(&self.data, &self.hilfe_ziel(), self.hilfe_sprache(), k).map(|d| d.title).unwrap_or_else(|| k.to_string()) } }
+    fn hilfe_titel(&self, k: &str) -> String { if k.is_empty() { vc_i18n::t!("gui-hilfe").into() } else { vc_ide_model::helpstate::open(&self.data, &self.hilfe_ziel(), self.hilfe_sprache(), k).map(|d| d.title).unwrap_or_else(|| k.to_string()) } }
     /// Hilfe-Thema im Dokumentenfeld: gerendertes Markdown in lesbarer Breite, Links zwischen Themen wirken im selben Reiter
     fn hilfe_reiter(&self, pal: Pal, k: &str) -> Element<'_, Msg> {
         let inhalt: Element<Msg> = match if k.is_empty() { None } else { vc_ide_model::helpstate::open(&self.data, &self.hilfe_ziel(), self.hilfe_sprache(), k) } {
             Some(d) => { let doc = self.md_doc(&d.markdown); container(mdansicht::ansicht(pal, &doc, usize::MAX, None)).max_width(760).into() }
-            None => { let mut c = column![text("Hilfe").size(21).font(vc_gui_ui::fonts::UI_FETT).color(pal.text)].spacing(6); let mut gruppe = String::new();
+            None => { let mut c = column![text(vc_i18n::t!("gui-hilfe")).size(21).font(vc_gui_ui::fonts::UI_FETT).color(pal.text)].spacing(6); let mut gruppe = String::new();
                 for th in &self.hilfe.themen { if th.group != gruppe { gruppe = th.group.clone(); c = c.push(text(gruppe.to_uppercase()).size(10.5).color(pal.mute)) } c = c.push(Self::zeile_knopf(pal, text(th.title.clone()).size(13).color(pal.text).into(), Msg::MdLink(format!("help:{}", th.id)))) }
                 container(c).max_width(520).into() }
         };
@@ -2080,14 +2082,14 @@ impl App {
     }
     fn panel_hilfe(&self, pal: Pal) -> Element<'_, Msg> {
         use vc_ide_model::helpstate::Line;
-        let suche = text_input(t::HILFE_SUCHE, &self.hilfe.suche).id("hilfesuche").on_input(Msg::HilfeSuche).padding(6);
+        let suche = text_input(&t::hilfe_suche(), &self.hilfe.suche).id("hilfesuche").on_input(Msg::HilfeSuche).padding(6);
         let inhalt: Element<Msg> = if let Some(d) = &self.hilfe.doc {
             let doc = self.md_doc(&d.markdown);
-            let kopf = row![button(text(t::HILFE_ZURUECK).size(12).color(pal.accent)).padding([2, 4]).on_press(Msg::HilfeZurueck).style(|_, _| button::Style { background: None, ..Default::default() }), space::horizontal(), vc_gui_ui::muster::knopf(pal, "Im Reiter öffnen", "Dieses Thema im Dokumentenfeld öffnen (mehr Platz)", Some(Msg::HilfeImReiter), false, false)].align_y(Alignment::Center);
+            let kopf = row![button(text(t::hilfe_zurueck()).size(12).color(pal.accent)).padding([2, 4]).on_press(Msg::HilfeZurueck).style(|_, _| button::Style { background: None, ..Default::default() }), space::horizontal(), vc_gui_ui::muster::knopf(pal, &vc_i18n::t!("gui-im-reiter-oeffnen"), &vc_i18n::t!("gui-dieses-thema-im-dokumentenfeld-oeffnen-mehr"), Some(Msg::HilfeImReiter), false, false)].align_y(Alignment::Center);
             let c = column![kopf, container(mdansicht::ansicht_schmal(pal, &doc, usize::MAX, None)).max_width(620)].spacing(8);
             scrollable(c.padding(iced::Padding { left: 6.0, right: 16.0, top: 0.0, bottom: 8.0 })).height(Length::Fill).into()
         } else if !self.hilfe.suche.trim().is_empty() {
-            if self.hilfe.treffer.is_empty() { text(t::HILFE_NICHTS).size(12.5).color(pal.mute).into() } else {
+            if self.hilfe.treffer.is_empty() { text(t::hilfe_nichts()).size(12.5).color(pal.mute).into() } else {
                 scrollable(column(self.hilfe.treffer.iter().take(60).map(|r| Self::zeile_knopf(pal, column![text(r.title.clone()).size(13).color(pal.text), text(r.snippet.clone()).size(11).color(pal.mute)].spacing(1).into(), Msg::HilfeOeffne(r.id.clone()))).collect::<Vec<_>>()).spacing(2)).height(Length::Fill).into() }
         } else {
             let mut c = column![].spacing(2); let mut gruppe = String::new();
@@ -2104,22 +2106,22 @@ impl App {
         let mut c = column![].spacing(2);
         for h in treffer.into_iter().take(200) { match h {
             Hit::Control(i) => if let Some(e) = list.get(i) { c = c.push(Self::zeile_knopf(pal, column![row![text(format!("{{{}}}", e.name)).size(13).font(vc_gui_ui::fonts::MONO).color(pal.lab), space::horizontal(), text(format!("${:02x}", e.code)).size(11).color(pal.mute)], text(e.desc.clone()).size(11).color(pal.mute)].spacing(1).into(), Msg::ZeichenEinfuegen(ZeichenWahl::Steuer(i)))) },
-            Hit::Code(code) => { let lit = vc_ide_model::chartext::literal_of(atari, 0, code).map(|c| c.to_string()).unwrap_or_else(|| "·".into()); c = c.push(Self::zeile_knopf(pal, row![text(lit).size(13).font(vc_gui_ui::fonts::MONO).color(pal.lab), space::horizontal(), text(format!("${code:02x} · {code}")).size(11).color(pal.mute)].into(), Msg::ZeichenEinfuegen(ZeichenWahl::Code(code)))) }
+            Hit::Code(code) => { let lit = vc_ide_model::chartext::literal_of(atari, 0, code).map(|c| c.to_string()).unwrap_or_else(|| "·".into()); c = c.push(Self::zeile_knopf(pal, row![text(lit).size(13).font(vc_gui_ui::fonts::MONO).color(pal.lab), space::horizontal(), text(vc_i18n::t!("gui-code-code2", code = format!("{:02x}", code), code2 = &code)).size(11).color(pal.mute)].into(), Msg::ZeichenEinfuegen(ZeichenWahl::Code(code)))) }
         } }
-        column![text_input(t::ZEICHEN_SUCHE, &self.zeichen_suche).id("zeichensuche").on_input(Msg::ZeichenSuche).padding(6), scrollable(container(c).padding(iced::Padding { right: 12.0, ..Default::default() })).height(Length::Fill)].spacing(8).into()
+        column![text_input(&t::zeichen_suche(), &self.zeichen_suche).id("zeichensuche").on_input(Msg::ZeichenSuche).padding(6), scrollable(container(c).padding(iced::Padding { right: 12.0, ..Default::default() })).height(Length::Fill)].spacing(8).into()
     }
     fn panel_gliederung(&self, pal: Pal) -> Element<'_, Msg> {
         let g = self.gliederung_holen();
-        if g.is_empty() { text(t::GLIEDERUNG_LEER).size(12.5).color(pal.mute).into() } else {
+        if g.is_empty() { text(t::gliederung_leer()).size(12.5).color(pal.mute).into() } else {
             scrollable(column(g.into_iter().map(|(l, n)| { let datei = self.name().unwrap_or_default(); button(row![text(n).size(13).font(vc_gui_ui::fonts::MONO).color(pal.lab), space::horizontal(), text(format!("{}", l + 1)).size(11).color(pal.mute)]).width(Length::Fill).padding([3, 6]).on_press(Msg::GotoZeile(l)).style(move |_, _| { let _ = &datei; button::Style { background: None, text_color: pal.text, ..Default::default() } }).into() }).collect::<Vec<_>>()).spacing(1)).height(Length::Fill).into() }
     }
     fn palette_ansicht(&self, pal: Pal) -> Element<'_, Msg> {
         let ein = self.palette_eintraege();
         let liste = column(ein.iter().take(12).enumerate().map(|(i, e)| {
-            let (name, tasten) = match e { Eintrag::Befehl(c) => { let inf = befehle::info(*c); (inf.name.to_string(), befehle::fuer_anzeige(inf.tasten, cfg!(target_os = "macos"))) } Eintrag::Datei(n) => (n.clone(), "Datei".into()), Eintrag::Projekt(_, n) => (format!("Projekt: {n}"), "Zuletzt geöffnet".into()), Eintrag::Studio(n, k, _) => (format!("Studio: {n}"), if k.is_empty() { "Studio".to_string() } else { k.clone() }) };
+            let (name, tasten) = match e { Eintrag::Befehl(c) => { let inf = befehle::info(*c); (inf.name().to_string(), befehle::fuer_anzeige(inf.tasten, cfg!(target_os = "macos"))) } Eintrag::Datei(n) => (n.clone(), vc_i18n::t!("gui-datei").into()), Eintrag::Projekt(_, n) => (vc_i18n::t!("gui-projekt-n", n = &n), vc_i18n::t!("gui-zuletzt-geoeffnet-2").into()), Eintrag::Studio(n, k, _) => (vc_i18n::t!("gui-studio-n", n = &n), if k.is_empty() { vc_i18n::t!("gui-studio").to_string() } else { k.clone() }) };
             let aus = matches!(e, Eintrag::Befehl(c) if !self.nutzbar(*c)); let sel = i == self.palette.auswahl;
             button(row![text(name).size(14).color(if aus { pal.mute } else { pal.text }), space::horizontal(), text(tasten).size(12).color(pal.mute)]).width(Length::Fill).padding([8, 12]).on_press_maybe((!aus).then_some(Msg::PaletteLos(i))).style(move |_, _| button::Style { background: sel.then(|| pal.sel.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }).collect::<Vec<_>>());
-        let karte = container(column![text_input(t::SUCHFELD, &self.palette.frage).id("palette").on_input(Msg::PaletteFrage).on_submit(Msg::PaletteLos(self.palette.auswahl)).padding(10), liste].spacing(8).width(560)).padding(14).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 14.0.into() }, ..Default::default() });
+        let karte = container(column![text_input(&t::suchfeld(), &self.palette.frage).id("palette").on_input(Msg::PaletteFrage).on_submit(Msg::PaletteLos(self.palette.auswahl)).padding(10), liste].spacing(8).width(560)).padding(14).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: 14.0.into() }, ..Default::default() });
         stack![container(space::vertical()).width(Length::Fill).height(Length::Fill).style(|_| container::Style { background: Some(Background::Color(Color { a: 0.5, ..Color::BLACK })), ..Default::default() }), container(karte).center_x(Length::Fill).padding(90)].into()
     }
     fn abo(&self) -> Subscription<Msg> {
@@ -2165,7 +2167,7 @@ fn lsp_strom() -> impl iced::futures::Stream<Item = Msg> {
 fn hauptquelle(namen: &[String]) -> Option<String> { namen.iter().find(|n| n.ends_with(".asm") && !n.contains('/')).or_else(|| namen.iter().find(|n| n.ends_with(".asm"))).cloned() }
 
 /// Buchstabe, der mit Alt das Menü öffnet (Mnemonic, unterstrichen); deutsche Windows-Gewohnheit: D Datei, B Bearbeiten, A Ansicht, P Projekt, H Hilfe
-fn menue_buchstabe(menue: &str) -> Option<char> { match menue { "Datei" => Some('d'), "Bearbeiten" => Some('b'), "Ansicht" => Some('a'), "Projekt" => Some('p'), "Hilfe" => Some('h'), _ => None } }
+fn menue_buchstabe(menue: &str) -> Option<char> { befehle::menue_buchstabe(menue) }
 /// Passt ein Kürzel („Cmd+Umschalt+F“, „F7“) zu dieser Taste? (Windows/Linux; auf macOS verarbeitet das Menü die Kürzel)
 pub fn trifft(tasten: &str, k: &keyboard::Key, m: keyboard::Modifiers) -> bool {
     let Some((cmd, sh, alt, taste)) = befehle::zerlege(tasten) else { return false };
@@ -2227,9 +2229,9 @@ fn akt(b: Bereich) -> Aktionen<Msg> { Aktionen { minimieren: Msg::BereichAkt(b, 
 const KUERZEL_MAX: &str = "Cmd+Umschalt+Enter";
 
 fn flaeche(bg: Color, line: Color) -> container::Style { container::Style { background: Some(bg.into()), border: Border { color: line, width: 0.5, radius: 0.0.into() }, ..Default::default() } }
-fn chip<'a>(pal: Pal, s: &str) -> Element<'a, Msg> { container(text(s.to_string()).size(11.5).color(pal.accent)).padding([3, 10]).style(move |_| container::Style { border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, ..Default::default() }).into() }
-fn knopf<'a>(pal: Pal, s: &str, auf: Option<Msg>, c: Color, haupt: bool) -> Element<'a, Msg> {
-    let mut b = button(text(s.to_string()).size(13).color(if haupt { if pal.dark { Color::BLACK } else { Color::WHITE } } else { c })).padding([6, 12]).style(move |_, _| button::Style { background: Some(if haupt { pal.ok.into() } else { pal.panel.into() }), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: c, ..Default::default() });
+fn chip<'a>(pal: Pal, s: impl AsRef<str>) -> Element<'a, Msg> { container(text(s.as_ref().to_string()).size(11.5).color(pal.accent)).padding([3, 10]).style(move |_| container::Style { border: Border { color: pal.accent, width: 1.0, radius: 12.0.into() }, ..Default::default() }).into() }
+fn knopf<'a>(pal: Pal, s: impl AsRef<str>, auf: Option<Msg>, c: Color, haupt: bool) -> Element<'a, Msg> {
+    let mut b = button(text(s.as_ref().to_string()).size(13).color(if haupt { if pal.dark { Color::BLACK } else { Color::WHITE } } else { c })).padding([6, 12]).style(move |_, _| button::Style { background: Some(if haupt { pal.ok.into() } else { pal.panel.into() }), border: Border { color: pal.line, width: 1.0, radius: 7.0.into() }, text_color: c, ..Default::default() });
     if let Some(m) = auf { b = b.on_press(m) } b.into()
 }
 fn reiter_knopf<'a>(pal: Pal, s: &str, sel: bool, m: Msg) -> Element<'a, Msg> { button(text(s.to_string()).size(12.5).color(pal.text)).padding([4, 10]).on_press(m).style(move |_, _| button::Style { background: sel.then(|| pal.panel2.into()), border: Border { radius: 6.0.into(), ..Border::default() }, text_color: pal.text, ..Default::default() }).into() }
@@ -2260,8 +2262,9 @@ fn fenstergroesse(wert: Option<&str>) -> iced::Size {
 const ANWENDUNGSKENNUNG: &str = "vintagecoder";
 
 fn main() -> iced::Result {
+    vc_i18n::set_missing_hook(|k| vc_ide::debuglog::log("i18n", &format!("Schlüssel fehlt: {k}")));
     iced::application(App::neu, App::update, App::view)
-        .title("VintageCoder")
+        .title(|_: &App| vc_i18n::t!("window-title"))
         .subscription(App::abo)
         .theme(|a: &App| if a.dunkel() { Theme::Dark } else { Theme::Light })
         .scale_factor(|a: &App| a.einst.zoom)
@@ -2441,7 +2444,7 @@ mod tests {
         let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); let tmp = std::env::temp_dir().join(format!("vcgui-teilen-{}", std::process::id())); let _ = std::fs::remove_dir_all(&tmp); std::fs::create_dir_all(&tmp).unwrap();
         for f in ["a.asm", "b.asm", "c.asm"] { std::fs::write(tmp.join(f), "nop\n").unwrap() }
         app.root = tmp.clone(); app.projekt_neu_laden(); app.tabs.clear(); app.andere = None; app.editoren.clear(); app.lsp_gesendet.clear(); einstellungen::test_konfig(tmp.join("konf"));
-        app.oeffne("a.asm"); let _ = app.befehl(Cmd::Teilen); assert!(app.andere.is_none() && app.log.last().is_some_and(|l| l == t::TEILEN_MIND_ZWEI), "mit einem Reiter lässt sich nicht teilen");
+        app.oeffne("a.asm"); let _ = app.befehl(Cmd::Teilen); assert!(app.andere.is_none() && app.log.last().is_some_and(|l| *l == t::teilen_mind_zwei()), "mit einem Reiter lässt sich nicht teilen");
         for f in ["b.asm", "c.asm"] { app.oeffne(f) }
         let _ = app.befehl(Cmd::Teilen);
         assert_eq!(app.tabs, [Tab::Datei("c.asm".into())]); assert!(app.fokus_rechts); assert_eq!(app.andere.as_ref().unwrap().0.len(), 2, "c rechts und fokussiert, a und b links");
@@ -2883,6 +2886,98 @@ mod tests {
         assert_eq!(fenstergroesse(Some(" 1280X800 ")), iced::Size::new(1280.0, 800.0));
         for falsch in [None, Some(""), Some("gross"), Some("100x100"), Some("1400"), Some("1400x"), Some("99999x800")] { assert_eq!(fenstergroesse(falsch), iced::Size::new(1600.0, 1000.0), "{falsch:?}"); }
     }
+    /// i18n I0: Sprachwahl in den Einstellungen wirkt sofort (Texte, Menütitel), bleibt gespeichert und ändert nichts an nicht umgestellten Texten
+    #[test] fn sprachwahl_wirkt_sofort_und_wird_gespeichert() {
+        let (mut app, tmp) = studio_app(); app.log.clear();
+        let texte = |app: &mut App| -> Vec<String> { let _ = app.befehl(Cmd::Einstellungen); knoten_sammeln(app, 1280, 800).into_iter().filter(|k| k.art == "text").map(|k| k.text).collect() };
+        let t = texte(&mut app); assert_eq!(vc_i18n::language(), vc_i18n::Lang::De, "Tests laufen mit Deutsch");
+        assert!(t.iter().any(|x| x == "Sprache") && t.iter().any(|x| x == "Darstellung"), "{t:?}");
+        let _ = app.update(Msg::Set(setui::SetAkt::Sprache("en".into())));
+        assert_eq!(vc_i18n::language(), vc_i18n::Lang::En); assert_eq!(app.satz.gespeichert.language, "en", "gespeichert");
+        let t = texte(&mut app); assert!(t.iter().any(|x| x == "Language"), "{t:?}"); assert!(t.iter().any(|x| x == "Appearance") && !t.iter().any(|x| x == "Darstellung"), "{t:?}");
+        assert_eq!(befehle::menue_titel("Datei"), "File"); assert_eq!(befehle::menue_titel("Hilfe"), "Help");
+        let _ = app.update(Msg::Set(setui::SetAkt::Sprache("auto".into())));
+        assert_eq!(vc_i18n::language(), vc_i18n::Lang::De, "Automatisch gilt im Test als Deutsch"); assert!(app.satz.gespeichert.language.is_empty());
+        let _ = app.update(Msg::Set(setui::SetAkt::Sprache("de".into()))); assert_eq!(befehle::menue_titel("Datei"), "Datei");
+        // Pseudo-Sprache: umgestellte Texte verfremdet, alle übrigen unverändert
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::Xx));
+        let t = texte(&mut app); assert!(!t.iter().any(|x| x == "Sprache" || x == "Darstellung"), "umgestellte Texte sind verfremdet: {t:?}"); assert!(t.iter().any(|x| x.starts_with('[') && x.contains("ŕ")), "{t:?}");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        let _ = std::fs::remove_dir_all(tmp);
+    }
+    /// i18n I1: In der Pseudo-Sprache `xx` ist jeder übersetzte Text verfremdet (`[…]`). Was ohne Klammer bleibt und Buchstabenwörter enthält,
+    /// ist ein fester deutscher Rest (oder ein Eigenname aus `XX_ERLAUBT`).
+    const XX_ERLAUBT: &[&str] = &["VintageCoder", "VCASM", "BASIC", "Assembler", "Markdown", "Tracker", "Sprite", "Sprites", "Studio", "MEGA65", "Commodore", "Atari", "VICE", "Xemu", "Ultimate", "PETSCII", "ASCII", "Hex", "Hires", "Multicolor", "Text", "Code", "Frame", "Screen", "PAL", "NTSC", "PRG", "Tool", "Cmd", "Ctrl", "Alt", "Shift", "Enter", "Esc", "Tab", "Space", "Doppelklick", "Inter", "POKEY", "SID", "TED", "VDC", "MOS", "ANTIC", "GTIA", "Plus", "Mono", "Debug", "Hardware", "sprite", "vcasm"];
+    /// Ausnahme „Bereit“: die erste Protokollzeile ist Verlauf und bleibt in der Sprache, in der sie entstand.
+    /// Texte aus Datendateien (Vorlagen, Emulator-Katalog): kommen mit den Daten in Etappe I3 in den Katalog
+    const XX_DATEN: &[&str] = &["VICE x", "Xemu", "atari800", "Altirra", "Assembler-Programm", "Assemblerprogramm", "Steckmodul", "Leeres Projekt", "8-KB-Modul", "Deutsch", "English", "Ordner mit"];
+    /// Namen aus den Beispielprojekten (Nutzerdaten, nicht Oberfläche) und Protokollverlauf
+    const XX_NUTZER: &[&str] = &["Puls", "Bass", "Snare", "leer", "stein", "gras", "kiste", "solid", ".vcchar", "gfx_demo", "music_demo", "Projekt geöffnet"];
+    /// Das Feedback-Fenster zeigt die Systemzeile, die unverändert (deutsch) in die Mail an den Entwickler geht
+    const XX_MAIL: &[&str] = &["Paket:"];
+    fn xx_reste(knoten: &[Knoten]) -> Vec<String> {
+        let wort = |t: &str| t.split(|c: char| !c.is_alphabetic()).filter(|w| w.chars().count() >= 3 && w.chars().all(|c| c.is_alphabetic())).map(|w| w.to_string()).collect::<Vec<_>>();
+        let mut out: Vec<String> = vec![];
+        for k in knoten.iter().filter(|k| k.art == "text") {
+            // übersetzte Teile stehen in `[…]` (und sind mit `~` verlängert): übrig bleibt, was nicht durch den Katalog lief
+            let mut t0 = String::new(); let mut tiefe = 0; for c in k.text.chars() { match c { '[' => tiefe += 1, ']' if tiefe > 0 => tiefe -= 1, _ if tiefe == 0 => t0.push(c), _ => {} } }
+            let t = t0.trim(); if t.is_empty() { continue }
+            if t.contains('.') && !t.contains(' ') || t.contains('/') || t.starts_with('$') || t.chars().any(|c| c.is_ascii_digit()) && t.contains('-') && !t.contains(' ') { continue } // Dateinamen, Pfade, Adressen, Kennungen
+            if t == "Bereit" || t.contains(".byte") || XX_DATEN.iter().chain(XX_NUTZER).chain(XX_MAIL).any(|d| t.contains(d)) { continue }
+            let w: Vec<String> = wort(t).into_iter().filter(|w| !XX_ERLAUBT.contains(&w.as_str()) && !w.chars().all(|c| c.is_uppercase())).collect();
+            if !w.is_empty() && !out.contains(&t.to_string()) { out.push(t.to_string()) }
+        }
+        out
+    }
+    #[test] fn xx_zeigt_in_den_kernansichten_keine_deutschen_reste() {
+        type Fabrik = fn() -> (App, std::path::PathBuf);
+        let nichts: Box<dyn Fn(&mut App)> = Box::new(|_| {});
+        let einst = |s: setui::Seite| -> Box<dyn Fn(&mut App)> { Box::new(move |a| { let _ = a.befehl(Cmd::Einstellungen); let _ = a.update(Msg::Set(setui::SetAkt::Seite(s))); }) };
+        let cmd = |c: Cmd| -> Box<dyn Fn(&mut App)> { Box::new(move |a| { let _ = a.befehl(c); }) };
+        let ansichten: Vec<(&str, Fabrik, Box<dyn Fn(&mut App)>)> = vec![
+            ("Sprite-Studio", studio_app, nichts),
+            ("Einstellungen Allgemein", studio_app, einst(setui::Seite::Allgemein)), ("Einstellungen Ziele", studio_app, einst(setui::Seite::Ziele)), ("Einstellungen ROMs", studio_app, einst(setui::Seite::Roms)),
+            ("Einstellungen Toolchain", studio_app, einst(setui::Seite::Toolchain)), ("Einstellungen Editor", studio_app, einst(setui::Seite::Editor)), ("Einstellungen Kürzel", studio_app, einst(setui::Seite::Kuerzel)),
+            ("Assistent", studio_app, cmd(Cmd::Assistent)), ("Palette", studio_app, cmd(Cmd::Palette)), ("Info", studio_app, cmd(Cmd::Ueber)), ("Export", studio_app, cmd(Cmd::Exportieren)),
+            ("Neues Projekt", studio_app, cmd(Cmd::ProjektNeu)), ("Projekteinstellungen", studio_app, cmd(Cmd::ProjektEinstellungen)), ("Zahlenwerkzeuge", studio_app, cmd(Cmd::Zahlenwerkzeuge)),
+            ("Startseite", studio_app, cmd(Cmd::Startseite)), ("Feedback", studio_app, cmd(Cmd::Feedback)), ("Projekt kopieren", studio_app, cmd(Cmd::ProjektKopieren)),
+            ("Disk-Studio", disk_app, Box::new(|_| {})), ("Zeichensatz/Bildschirm-Studio", screen_app, Box::new(|_| {})), ("Tracker", song_app, Box::new(|_| {})),
+            ("Zielsysteme", ziele_app, Box::new(|_| {})), ("Kachel-Studio", kachel_app, Box::new(|_| {})), ("Paletten-Studio", palette_app, Box::new(|_| {})), ("Debugger", debug_app, Box::new(|_| {})),
+        ];
+        let mut alle = vec![];
+        for (name, fabrik, f) in &ansichten {
+            let (mut app, tmp) = fabrik(); vc_i18n::set_thread_language(Some(vc_i18n::Lang::Xx)); f(&mut app); // Befehle und Hinweise entstehen in der gewählten Sprache
+            let k = knoten_sammeln(&mut app, 1280, 800); vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+            for r in xx_reste(&k) { alle.push(format!("{name}: {r}")) }
+            let _ = std::fs::remove_dir_all(tmp);
+        }
+        assert!(alle.is_empty(), "deutsche Reste in der Pseudo-Sprache:\n{}", alle.join("\n"));
+    }
+    /// i18n I0: Der Assistent zeigt die Sprachwahl auf der ersten Seite; die Wahl gilt sofort
+    #[test] fn assistent_welcome_seite_hat_die_sprachwahl() {
+        let (mut app, tmp) = studio_app(); let _ = app.befehl(Cmd::Assistent);
+        let t = |app: &mut App| -> Vec<String> { knoten_sammeln(app, 1280, 800).into_iter().filter(|k| k.art == "text").map(|k| k.text).collect() };
+        let v = t(&mut app); assert!(v.iter().any(|x| x == "Sprache / Language") && v.iter().any(|x| x == "Willkommen bei VintageCoder"), "{v:?}");
+        let _ = app.update(Msg::Wiz(assistent::WizAkt::Sprache("en".into())));
+        let v = t(&mut app); assert!(v.iter().any(|x| x == "Welcome to VintageCoder"), "{v:?}"); assert_eq!(app.satz.entwurf.language, "en");
+        let _ = app.update(Msg::Wiz(assistent::WizAkt::Sprache("de".into()))); assert!(t(&mut app).iter().any(|x| x == "Willkommen bei VintageCoder"));
+        let _ = std::fs::remove_dir_all(tmp);
+    }
+    /// Nachweisbilder zur Sprachwahl (i18n I0) nach `build/i18n-bilder/`: `cargo test -p vc-gui bild_i18n -- --ignored`
+    #[test] #[ignore] fn bild_i18n() {
+        let aus = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../build/i18n-bilder"); std::fs::create_dir_all(&aus).unwrap();
+        let (mut app, tmp) = studio_app(); let _ = app.befehl(Cmd::Einstellungen);
+        let bild = |app: &mut App, name: &str| foto_gross(app, &[], aus.join(name).to_str().unwrap(), 1280, 800);
+        for (l, n) in [("de", "einstellungen-de.png"), ("en", "einstellungen-en.png")] { let _ = app.update(Msg::Set(setui::SetAkt::Sprache(l.into()))); bild(&mut app, n) }
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::Xx)); bild(&mut app, "einstellungen-xx.png"); vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        let _ = app.update(Msg::Set(setui::SetAkt::Sprache("de".into())));
+        let _ = app.befehl(Cmd::Assistent); bild(&mut app, "willkommen-de.png");
+        let _ = app.update(Msg::Wiz(assistent::WizAkt::Sprache("en".into()))); bild(&mut app, "willkommen-en.png");
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::Xx)); bild(&mut app, "willkommen-xx.png"); vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        let _ = app.update(Msg::Wiz(assistent::WizAkt::Sprache("de".into()))); let _ = app.update(Msg::Wiz(assistent::WizAkt::Abbruch));
+        for (l, n) in [("de", "dateibaum-de.png"), ("en", "dateibaum-en.png")] { let _ = app.update(Msg::Set(setui::SetAkt::Sprache(l.into()))); bild(&mut app, n) }
+        let _ = app.update(Msg::Set(setui::SetAkt::Sprache("de".into()))); let _ = std::fs::remove_dir_all(tmp);
+    }
     #[test] fn starten_baut_zuerst_und_startet_nur_nach_erfolg() {
         let (mut app, _) = App::neu(); app.einst = Einstellungen::default(); app.root = std::env::temp_dir(); app.log.clear(); app.namen.clear(); app.tabs.clear();
         let _ = app.befehl(Cmd::Starten); assert_eq!(app.danach, Danach::Nichts, "ohne Quelldatei wird nichts vorgemerkt");
@@ -3157,7 +3252,7 @@ mod tests {
         let ausgabe: Vec<_> = std::fs::read_dir(tmp.join("build/export")).unwrap().flatten().map(|e| e.file_name().to_string_lossy().into_owned()).collect(); assert!(ausgabe.iter().any(|n| n.ends_with(".asm")), "{ausgabe:?}"); assert!(app.export.is_some());
         // der Baum zeigt die Exportdateien in der Gruppe „Exportiert“ (der Bauordner selbst bleibt ausgeblendet), die Meldung nennt Ort und Gruppe
         assert!(app.exportiert.iter().any(|f| f.starts_with("build/export/") && f.ends_with(".asm")), "{:?}", app.exportiert); assert!(!app.namen.iter().any(|n| n.starts_with("build/")));
-        assert!(app.export.as_ref().unwrap().meldung.contains("build/export/") && app.export.as_ref().unwrap().meldung.contains(t::GRUPPE_EXPORT), "{}", app.export.as_ref().unwrap().meldung);
+        assert!(app.export.as_ref().unwrap().meldung.contains("build/export/") && app.export.as_ref().unwrap().meldung.contains(&t::gruppe_export()), "{}", app.export.as_ref().unwrap().meldung);
         // In aktiven Code einfügen: `.include` des Exports im zuletzt benutzten Quelltext (Datei ist im Studio, also zählt der letzte Quelltext)
         let _ = app.update(Msg::ExportAus(exportdlg::ExportAus::Einfuegen)); assert!(app.export.is_none());
         assert!(app.editoren["main.asm"].text().contains(".include") && app.editoren["main.asm"].text().contains("build/export/"), "{}", app.editoren["main.asm"].text());
@@ -3213,17 +3308,17 @@ mod tests {
         assert!(app.projekt_oeffnen(tmp.clone())); assert_eq!(app.name().as_deref(), Some("sprite_demo.asm"));
         app.oeffne("graphics/hero.vcsprite"); assert!(app.studios.contains_key("graphics/hero.vcsprite"));
         let _ = app.befehl(Cmd::Exportieren); assert!(app.export.is_some());
-        let vorher = app.editoren["sprite_demo.asm"].text(); assert!(vorher.contains(".include \"build/export/hero.asm\""), "das Beispiel bindet den Export schon ein");
+        let vorher = app.editoren["sprite_demo.asm"].text(); assert!(vorher.contains(".include \"graphics/hero.vcsprite\""), "das Beispiel bindet den Export schon ein");
         let _ = simuliere(&mut app, &[]);
         // schon eingebunden: sichtbare Ablehnung (Dialog bleibt offen und nennt den Grund, Protokoll auch), nichts doppelt eingefügt
         let _ = app.update(Msg::ExportAus(exportdlg::ExportAus::Einfuegen));
         assert!(app.export.as_ref().is_some_and(|d| d.meldung.contains("schon eingebunden")), "Meldung im Dialog: {:?}", app.export.as_ref().map(|d| d.meldung.clone()));
         assert!(app.log.last().is_some_and(|l| l.contains("schon eingebunden")), "{:?}", app.log.last()); assert_eq!(app.editoren["sprite_demo.asm"].text(), vorher); assert_eq!(app.schublade, 0);
         // ohne die vorhandene Zeile: eingefügt, Dialog schließt, Protokoll meldet; Pfad relativ zur .asm
-        { let e = app.editoren.get_mut("sprite_demo.asm").unwrap(); let t = e.text().replace(".include \"build/export/hero.asm\"\n", ""); *e = Editor::new(&t); }
+        { let e = app.editoren.get_mut("sprite_demo.asm").unwrap(); let t = e.text().replace(".include \"graphics/hero.vcsprite\"\n", ""); *e = Editor::new(&t); }
         app.oeffne("graphics/hero.vcsprite"); let _ = app.befehl(Cmd::Exportieren); let _ = app.update(Msg::ExportAus(exportdlg::ExportAus::Einfuegen));
         let nachher = app.editoren["sprite_demo.asm"].text();
-        assert!(app.export.is_none(), "Dialog schließt: {:?}", app.log.last()); assert!(nachher.contains(".include \"build/export/hero.asm\""), "Include steht in sprite_demo.asm; Protokoll: {:?}", app.log);
+        assert!(app.export.is_none(), "Dialog schließt: {:?}", app.log.last()); assert!(nachher.contains(".include \"graphics/hero.vcsprite\""), "Include steht in sprite_demo.asm; Protokoll: {:?}", app.log);
         assert!(app.log.last().is_some_and(|l| l.starts_with("In sprite_demo.asm eingefügt: .include")), "{:?}", app.log.last());
         // Wiederholung: jetzt wieder schon eingebunden
         app.oeffne("graphics/hero.vcsprite"); let _ = app.befehl(Cmd::Exportieren); let _ = app.update(Msg::ExportAus(exportdlg::ExportAus::Einfuegen));
@@ -3670,7 +3765,7 @@ mod tests {
                 let (zeilen, cmds) = app.kontext_zeilen(k); let erwartet: Vec<&befehle::Info> = befehle::menue_eintraege(m, u).collect();
                 let befehlszeilen: Vec<(&Zeile<Msg>, Cmd)> = zeilen.iter().zip(&cmds).filter_map(|(z, c)| c.map(|c| (z, c))).collect();
                 assert_eq!(befehlszeilen.len(), erwartet.len(), "{ziel}: gleich viele Einträge wie die Befehlstabelle");
-                for ((z, c), i) in befehlszeilen.iter().zip(&erwartet) { assert_eq!(*c, i.cmd); assert!(z.name.starts_with(befehle::menuename(i)), "{ziel}: {} vs {}", z.name, i.name); assert_eq!(z.kuerzel, kontext::kuerzel(i.cmd, cfg!(target_os = "macos")), "{ziel}/{}: Kürzel", i.name) }
+                for ((z, c), i) in befehlszeilen.iter().zip(&erwartet) { assert_eq!(*c, i.cmd); assert!(z.name.starts_with(&befehle::menuename(i)), "{ziel}: {} vs {}", z.name, i.name()); assert_eq!(z.kuerzel, kontext::kuerzel(i.cmd, cfg!(target_os = "macos")), "{ziel}/{}: Kürzel", i.name()) }
                 gesehen += erwartet.len();
                 if u.is_empty() { let subs = zeilen.iter().filter(|z| z.aktiv && z.name.ends_with(" ▸")).count(); assert_eq!(subs, befehle::untermenues(m).len(), "{m}: eine Zeile je Untermenü") } else { assert!(zeilen[0].name.starts_with('◂'), "{ziel}: erste Zeile führt zurück") }
             }
@@ -4200,7 +4295,7 @@ mod tests {
         use iced::keyboard::{Key, Modifiers};
         let (mut app, tmp) = studio_app(); let texte = |app: &mut App| -> Vec<String> { knoten_sammeln(app, 1280, 800).into_iter().filter(|k| k.art == "text").map(|k| k.text).collect() };
         assert!(app.einst.splash, "Vorgabe: an"); assert!(!texte(&mut app).iter().any(|x| x.starts_with("Version ")), "im Test startet es nicht von selbst");
-        app.splash = true; let t = texte(&mut app); assert!(t.iter().any(|x| x == "VintageCoder") && t.iter().any(|x| x.starts_with("Version ")) && t.iter().any(|x| x == "Alpha-Version"), "Logo, Version und Hinweis: {t:?}");
+        app.splash = true; let t = texte(&mut app); assert!(t.iter().any(|x| x == "VintageCoder") && t.iter().any(|x| x.starts_with("Version ")), "Logo und Version: {t:?}");
         let _ = app.update(Msg::SplashZu); assert!(!app.splash); app.splash = true; let _ = app.update(Msg::Taste(Key::Character("x".into()), Modifiers::empty())); assert!(!app.splash, "jede Taste schließt, ohne etwas zu tun");
         let _ = app.update(Msg::SetSplash(false)); assert!(!app.einst.splash, "abschaltbar");
         let _ = std::fs::remove_dir_all(&tmp);
@@ -4255,7 +4350,7 @@ mod tests {
         let _ = app.befehl(Cmd::Rueckgaengig); // Kürzel/Befehle bleiben
         let t: Vec<String> = { let _ = app.update(Msg::Set(setui::SetAkt::Seite(setui::Seite::Editor))); knoten_sammeln(&mut app, 1280, 800).into_iter().filter(|k| k.art == "text").map(|k| k.text).collect() }; let _ = t;
         let _ = app.befehl(Cmd::Einstellungen); let _ = app.update(Msg::Set(setui::SetAkt::Seite(setui::Seite::Editor))); let t: Vec<String> = knoten_sammeln(&mut app, 1280, 800).into_iter().filter(|k| k.art == "text").map(|k| k.text).collect();
-        assert!(t.iter().any(|x| x == "Einzeltasten der Studios"), "Schalter auf der Seite Editor: {t:?}");
+        assert!(t.iter().any(|x| x == "Einzeltasten der Editoren"), "Schalter auf der Seite Editor: {t:?}");
         let _ = app.update(Msg::SetStudioTasten(true)); let _ = app.update(Msg::Taste(Key::Character("d".into()), Modifiers::empty()));
         let _ = std::fs::remove_dir_all(&tmp);
     }
@@ -4345,7 +4440,7 @@ mod tests {
         let _ = (std::fs::remove_dir_all(&tmp), std::fs::remove_dir_all(&fremd));
     }
     #[test] fn tracker_tasten_kollidieren_nicht_mit_der_befehlstabelle() {
-        for k in songstudio::TRACKER_TASTEN.iter().chain(songstudio::TRACKER_CMD_TASTEN) { for i in befehle::BEFEHLE { assert!(!i.tasten.eq_ignore_ascii_case(k), "Tracker-Taste {k} kollidiert mit {} ({})", i.name, i.tasten) } }
+        for k in songstudio::TRACKER_TASTEN.iter().chain(songstudio::TRACKER_CMD_TASTEN) { for i in befehle::BEFEHLE { assert!(!i.tasten.eq_ignore_ascii_case(k), "Tracker-Taste {k} kollidiert mit {} ({})", i.name(), i.tasten) } }
         // die Noteneingabe nutzt Buchstaben und Ziffern, Oktave/Instrument/Notenende die Zeichen , . [ ] 1: keine Überschneidung zwischen Klaviertasten und diesen
         for z in [",", ".", "[", "]"] { assert!(vc_ide_model::songdoc::klaviertaste(z.chars().next().unwrap()).is_none(), "{z} ist keine Klaviertaste") } assert!(vc_ide_model::songdoc::klaviertaste('1').is_none(), "1 ist Notenende, keine Klaviertaste");
         // keine doppelten Einträge in der Tracker-Tastentabelle
@@ -4972,7 +5067,7 @@ mod tests {
     #[test] fn projekt_oeffnen_per_projektdatei_wechselt_genau_einmal_und_der_dialog_nimmt_dateien_an() {
         let (mut app, _t0) = studio_app(); let tmp = kopie_von_beispiel("examples/c64/sprite_demo"); let vcprj = tmp.join("sprite_demo.vcprj"); assert!(vcprj.is_file());
         // der Öffnen-Befehl ist ein Dateidialog (pick_file mit Filter .vcprj), der Ordner-Dialog ein eigener Befehl
-        assert!(befehle::BEFEHLE.iter().any(|i| i.cmd == Cmd::ProjektOrdnerOeffnen && i.name.contains("Projektordner")));
+        assert!(befehle::BEFEHLE.iter().any(|i| i.cmd == Cmd::ProjektOrdnerOeffnen && i.name().contains("Projektordner")));
         let alt = app.root.clone(); let _ = app.update(Msg::Geoeffnet(Some(vcprj.clone()))); assert_eq!(app.root, tmp, "Projektdatei öffnet das Projekt"); assert_ne!(app.root, alt); assert_eq!(app.proj.file.as_deref(), Some("sprite_demo.vcprj"));
         // genau einmal: dieselbe Datei nochmal wählen lädt nicht neu (Reiter/Zustand bleiben)
         let tabs = app.tabs.clone(); let lsp = app.lsp_gen; let _ = app.update(Msg::Geoeffnet(Some(vcprj.clone()))); assert_eq!(app.lsp_gen, lsp, "kein zweiter Projektwechsel"); assert_eq!(app.root, tmp); assert!(app.tabs.len() >= tabs.len() - 1);
@@ -5079,7 +5174,7 @@ mod tests {
             let t0 = texte(&mut app); let stufe = app.kopf_stufe();
             let hat = |ts: &[String], z: &str| ts.iter().any(|t| t.contains(z));
             assert!(hat(&t0, "▶"), "{b}: Starten fehlt: {t0:?}"); assert!(hat(&t0, "⚙"), "{b}: Einstellungen fehlen");
-            assert!(hat(&t0, "⌕") || hat(&t0, "Suchen") || hat(&t0, t::SUCHFELD), "{b}: Suche fehlt: {t0:?}");
+            assert!(hat(&t0, "⌕") || hat(&t0, "Suchen") || hat(&t0, &t::suchfeld()), "{b}: Suche fehlt: {t0:?}");
             if stufe < 3 { assert!(hat(&t0, "▣") && !hat(&t0, "⋯") || hat(&t0, "Debuggen") && hat(&t0, "Bauen"), "{b}: Debuggen/Bauen fehlen: {t0:?}") }
             else {
                 assert!(hat(&t0, "⋯"), "{b}: Überlaufknopf fehlt");
@@ -5109,6 +5204,41 @@ mod tests {
         let neu: Vec<&String> = alle.iter().filter(|f| !bekannt.contains(*f)).collect(); let behoben = bekannt.iter().filter(|f| !alle.contains(f)).count();
         eprintln!("Layout-Befunde: {} gesamt, {} bekannt, {} neu, {} behoben", alle.len(), alle.len() - neu.len(), neu.len(), behoben);
         assert!(neu.is_empty(), "neue Layout-Befunde:\n{}", neu.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
+    }
+    /// i18n I1: dieselbe Layout-Prüfung in Englisch und in der Pseudo-Sprache `xx` (+40 % Textlänge): zeigt abgeschnittene oder überlappende Texte,
+    /// bevor eine echte Übersetzung sie zeigt. Bekannte Befunde: `tests/layout_bekannt_<sprache>.txt` (Neuschreiben: `VC_UPDATE_REFS=1`).
+    #[test] fn layout_pruefung_englisch_und_pseudo_sprache() {
+        let ueberlagert = ["dialog-ueber", "dialog-feedback", "assistent-willkommen", "assistent-zusammenfassung", "dialog-neues-projekt", "dialog-projekt-kopieren", "dialog-speichern-unter", "dialog-wiederherstellung", "dialog-beenden", "karte", "baum-menue", "menueleiste", "menueleiste-schmal", "befehlspalette", "dialog-export", "dialog-import", "dialog-neue-datei", "dialog-song-import"];
+        for (code, lang) in [("en", vc_i18n::Lang::En), ("xx", vc_i18n::Lang::Xx)] {
+            let mut alle: Vec<String> = vec![];
+            for (name, bauen) in galerie_zustaende() {
+                let (mut app, tmp) = bauen(); app.einst.zoom = 1.0; app.einst.schema = Schema::Dunkel; app.proj.name = "Referenz".into();
+                vc_i18n::set_thread_language(Some(lang));
+                for (b, h) in [(1280u32, 800u32), (900, 700), (720, 800)] { let k = knoten_sammeln(&mut app, b, h); for f in layout_befunde(&k, b as f32, h as f32, ueberlagert.contains(&name)) { alle.push(format!("{name} | {b}x{h} | {f}")) } }
+                vc_i18n::set_thread_language(Some(vc_i18n::Lang::De)); let _ = std::fs::remove_dir_all(&tmp);
+            }
+            alle.sort(); alle.dedup();
+            let datei = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("tests/layout_bekannt_{code}.txt"));
+            if std::env::var_os("VC_UPDATE_REFS").is_some() { std::fs::write(&datei, alle.join("\n") + "\n").unwrap(); continue }
+            let bekannt: std::collections::HashSet<String> = std::fs::read_to_string(&datei).unwrap_or_default().lines().map(String::from).collect();
+            let neu: Vec<&String> = alle.iter().filter(|f| !bekannt.contains(*f)).collect();
+            eprintln!("Layout-Befunde {code}: {} gesamt, {} neu", alle.len(), neu.len());
+            assert!(neu.is_empty(), "neue Layout-Befunde in {code}:\n{}", neu.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
+        }
+    }
+    /// Nachweisbilder zu i18n I1 nach `build/i18n-i1/<bereich>-<de|en|xx>.png` (1280×800, dunkel): `cargo test -p vc-gui bild_i18n_i1 -- --ignored`
+    #[test] #[ignore] fn bild_i18n_i1() {
+        let aus = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../build/i18n-i1"); std::fs::create_dir_all(&aus).unwrap();
+        let wahl = ["editor", "studio-sprite", "studio-tracker", "studio-bank", "studio-disk", "studio-zeichensatz", "studio-palette", "einstellungen", "einstellungen-ziele", "einstellungen-roms", "einstellungen-toolchain", "einstellungen-editor", "einstellungen-kuerzel",
+            "assistent-willkommen", "assistent-zusammenfassung", "befehlspalette", "menueleiste", "dialog-ueber", "dialog-export", "dialog-neues-projekt", "dialog-feedback", "startseite", "debug-angehalten", "projekt-einstellungen"];
+        for (name, bauen) in galerie_zustaende() {
+            if !wahl.contains(&name) { continue }
+            let (mut app, tmp) = bauen(); app.einst.zoom = 1.0; app.einst.schema = Schema::Dunkel; app.proj.name = "Beispiel".into();
+            for (code, lang) in [("de", vc_i18n::Lang::De), ("en", vc_i18n::Lang::En), ("xx", vc_i18n::Lang::Xx)] {
+                vc_i18n::set_thread_language(Some(lang)); foto_gross(&mut app, &[], aus.join(format!("{name}-{code}.png")).to_str().unwrap(), 1280, 800);
+            }
+            vc_i18n::set_thread_language(Some(vc_i18n::Lang::De)); let _ = std::fs::remove_dir_all(&tmp);
+        }
     }
     // ---------------------------------------------------------------------------------------------- Bildvergleich
     /// Ausgewählte Ansichten gegen Referenzbilder in `tests/ref/` (Dunkel, 1280×800). Fehlt eine Referenz, wird sie übersprungen (Freigabe durch den Projektinhaber nötig).
@@ -5271,7 +5401,7 @@ mod tests {
         let _ = simuliere(&mut app, &[(iced::Event::Mouse(iced::mouse::Event::CursorMoved { position: mitte }), mitte), (iced::Event::Mouse(iced::mouse::Event::ButtonPressed(iced::mouse::Button::Left)), mitte), (iced::Event::Mouse(iced::mouse::Event::ButtonReleased(iced::mouse::Button::Left)), mitte)]);
         for i in befehle::BEFEHLE.iter().filter(|i| !i.tasten.is_empty()) {
             let (ev, _, _) = kuerzel_ev(i.tasten); let (_, st) = ui_status(&mut app, ev, mitte);
-            assert!(st.iter().all(|s| *s == iced::event::Status::Ignored), "{} ({}) wird von einem Widget verbraucht", i.name, i.tasten);
+            assert!(st.iter().all(|s| *s == iced::event::Status::Ignored), "{} ({}) wird von einem Widget verbraucht", i.name(), i.tasten);
         }
         let _ = std::fs::remove_dir_all(&tmp);
     }

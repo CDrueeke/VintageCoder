@@ -68,7 +68,7 @@ laenge = * - anfang        ; 2 Bytes zwischen anfang und hier
 ;= ea ea 02
 ```
 
-Der Programmzähler `*` ist bei Zeilen mit einem Befehl die Adresse **vor** dem Befehl. In einem [Pseudo-PC](help:asm-directives)-Abschnitt (`.pseudopc`) ist es die Laufzeitadresse.
+Der Programmzähler `*` ist bei Zeilen mit einem Befehl die Adresse **vor** dem Befehl. In einem [Pseudo-PC](help:asm-directives)-Abschnitt (`.relocate`) ist es die Laufzeitadresse.
 
 ### Vorwärtsreferenzen
 
@@ -162,7 +162,7 @@ ziel = $12ff
 
 Bei `<` ist der Unterschied besonders unangenehm: `<ziel + 1` ergibt hier `$ff + 1 = $100`, und das passt nicht in ein Byte (**E203**). Setze deshalb im Zweifel immer die Klammer: `<(ziel + 1)` ergibt `$00`.
 
-Eine Tabelle aus Adressen legst du bequem mit [.lohifill](help:asm-directives) oder zwei Listen `<`/`>` an (siehe unten bei Listen).
+Eine Tabelle aus Adressen legst du bequem mit [.lohitable](help:asm-directives) oder zwei Listen `<`/`>` an (siehe unten bei Listen).
 
 ## Vergleiche und Logik
 
@@ -264,7 +264,7 @@ tabelle = next(256)        ; nächste Seitengrenze ab hier: $c100
 ;= 00 c1
 ```
 
-Das Gegenstück als Direktive ist `.page` (siehe [Direktiven](help:asm-directives)).
+Das Gegenstück als Direktive ist `.align n, skip` (siehe [Direktiven](help:asm-directives)).
 
 ## Eigene Funktionen: `.function`
 
@@ -336,7 +336,7 @@ Eine Liste baust du in einer Schleife auf (hier für eine Tabelle, die auch zum 
 .var quadrate = []
 .for n in range(5)
     quadrate += [n * n]
-.next
+.endfor
 tab:    .byte quadrate
 ;= 00 01 04 09 10
 ```

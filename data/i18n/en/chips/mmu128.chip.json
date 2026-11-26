@@ -1,0 +1,65 @@
+{
+ "source": "chips/mmu128.chip.json",
+ "entries": {
+  "/regs/0/doc": {
+   "de": "Konfiguration (Bank, ROM-Auswahl, E/A)",
+   "en": "Configuration (bank, ROM selection, I/O)",
+   "status": "maschinell"
+  },
+  "/regs/1/doc": {
+   "de": "Vorkonfiguration A",
+   "en": "Preconfiguration A",
+   "status": "maschinell"
+  },
+  "/regs/2/doc": {
+   "de": "Vorkonfiguration B",
+   "en": "Preconfiguration B",
+   "status": "maschinell"
+  },
+  "/regs/3/doc": {
+   "de": "Vorkonfiguration C",
+   "en": "Preconfiguration C",
+   "status": "maschinell"
+  },
+  "/regs/4/doc": {
+   "de": "Vorkonfiguration D",
+   "en": "Preconfiguration D",
+   "status": "maschinell"
+  },
+  "/regs/5/doc": {
+   "de": "Modus (40/80-Spalten, C64-Modus, 8502/Z80)",
+   "en": "Mode (40/80 columns, C64 mode, 8502/Z80)",
+   "status": "maschinell"
+  },
+  "/regs/6/doc": {
+   "de": "RAM-Konfiguration (Common RAM, VIC-Bank)",
+   "en": "RAM configuration (common RAM, VIC bank)",
+   "status": "maschinell"
+  },
+  "/regs/7/doc": {
+   "de": "Zeropage-Zeiger Low",
+   "en": "Zero page pointer low",
+   "status": "maschinell"
+  },
+  "/regs/8/doc": {
+   "de": "Zeropage-Zeiger High",
+   "en": "Zero page pointer high",
+   "status": "maschinell"
+  },
+  "/regs/9/doc": {
+   "de": "Stack-Zeiger Low",
+   "en": "Stack pointer low",
+   "status": "maschinell"
+  },
+  "/regs/10/doc": {
+   "de": "Stack-Zeiger High",
+   "en": "Stack pointer high",
+   "status": "maschinell"
+  },
+  "/regs/11/doc": {
+   "de": "Version",
+   "en": "Version",
+   "status": "unverändert"
+  }
+ }
+}

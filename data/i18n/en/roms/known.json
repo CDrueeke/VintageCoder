@@ -1,0 +1,1955 @@
+{
+ "source": "roms/known.json",
+ "entries": {
+  "/roms/0/label": {
+   "de": "Atari BASIC Rev. A",
+   "en": "Atari BASIC Rev. A",
+   "status": "unverändert"
+  },
+  "/roms/0/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/1/label": {
+   "de": "Atari BASIC Rev. B",
+   "en": "Atari BASIC Rev. B",
+   "status": "unverändert"
+  },
+  "/roms/1/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/2/label": {
+   "de": "Atari BASIC Rev. C",
+   "en": "Atari BASIC Rev. C",
+   "status": "unverändert"
+  },
+  "/roms/2/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/3/label": {
+   "de": "Atari 400/800-OS A (NTSC)",
+   "en": "Atari 400/800-OS A (NTSC)",
+   "status": "unverändert"
+  },
+  "/roms/3/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung; im Xformer-Satz als ATARIOSB.ROM benannt, Inhalt ist OS A",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection; named ATARIOSB.ROM in the Xformer set, content is OS A",
+   "status": "maschinell"
+  },
+  "/roms/4/label": {
+   "de": "Atari 400/800-OS A (PAL)",
+   "en": "Atari 400/800-OS A (PAL)",
+   "status": "unverändert"
+  },
+  "/roms/4/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/5/label": {
+   "de": "Atari 400/800-OS B (NTSC)",
+   "en": "Atari 400/800-OS B (NTSC)",
+   "status": "unverändert"
+  },
+  "/roms/5/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/6/label": {
+   "de": "Atari 400/800-OS B (PAL)",
+   "en": "Atari 400/800-OS B (PAL)",
+   "status": "unverändert"
+  },
+  "/roms/6/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/7/label": {
+   "de": "Atari XL/XE-OS Rev. 02 (800XL/65XE/130XE)",
+   "en": "Atari XL/XE-OS Rev. 02 (800XL/65XE/130XE)",
+   "status": "unverändert"
+  },
+  "/roms/7/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/8/label": {
+   "de": "Atari XL/XE-OS Rev. 03 (800XE)",
+   "en": "Atari XL/XE-OS Rev. 03 (800XE)",
+   "status": "unverändert"
+  },
+  "/roms/8/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/9/label": {
+   "de": "Atari XL/XE-OS Rev. 03B (65XE, arabisch)",
+   "en": "Atari XL/XE-OS Rev. 03B (65XE, Arabic)",
+   "status": "maschinell"
+  },
+  "/roms/9/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung; arabischer Zeichensatz",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection; Arabic character set",
+   "status": "maschinell"
+  },
+  "/roms/10/label": {
+   "de": "Atari XL/XE-OS Rev. 03B (65XE, arabisch 2)",
+   "en": "Atari XL/XE-OS Rev. 03B (65XE, Arabic 2)",
+   "status": "maschinell"
+  },
+  "/roms/10/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung; arabischer Zeichensatz",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection; Arabic character set",
+   "status": "maschinell"
+  },
+  "/roms/11/label": {
+   "de": "Atari XL/XE-OS Rev. 04 (XEGS)",
+   "en": "Atari XL/XE-OS Rev. 04 (XEGS)",
+   "status": "unverändert"
+  },
+  "/roms/11/note": {
+   "de": "Prüfsumme gemessen (Windows, Altirra-Sammlung); Revision aus dem Dateinamen der Sammlung",
+   "en": "Checksum measured (Windows, Altirra collection); revision taken from the file name in the collection",
+   "status": "maschinell"
+  },
+  "/roms/12/label": {
+   "de": "C128 BASIC (hoch) 318019-04",
+   "en": "C128 BASIC (high) 318019-04",
+   "status": "maschinell"
+  },
+  "/roms/12/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/13/label": {
+   "de": "C128 BASIC (niedrig) 318018-04",
+   "en": "C128 BASIC (low) 318018-04",
+   "status": "maschinell"
+  },
+  "/roms/13/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/14/label": {
+   "de": "C128 Zeichensatz 315079-01",
+   "en": "C128 character set 315079-01",
+   "status": "maschinell"
+  },
+  "/roms/14/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "geprüft"
+  },
+  "/roms/15/label": {
+   "de": "C128 Zeichensatz 325078-02",
+   "en": "C128 character set 325078-02",
+   "status": "maschinell"
+  },
+  "/roms/15/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/16/label": {
+   "de": "C128 Zeichensatz 325167-02",
+   "en": "C128 character set 325167-02",
+   "status": "maschinell"
+  },
+  "/roms/16/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/17/label": {
+   "de": "C128 Zeichensatz 325173-01D",
+   "en": "C128 character set 325173-01D",
+   "status": "maschinell"
+  },
+  "/roms/17/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/18/label": {
+   "de": "C128 Zeichensatz 325181-01",
+   "en": "C128 character set 325181-01",
+   "status": "maschinell"
+  },
+  "/roms/18/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/19/label": {
+   "de": "C128 Zeichensatz 390059-01",
+   "en": "C128 character set 390059-01",
+   "status": "maschinell"
+  },
+  "/roms/19/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/20/label": {
+   "de": "C128 KERNAL 315078-03",
+   "en": "C128 KERNAL 315078-03",
+   "status": "unverändert"
+  },
+  "/roms/20/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/21/label": {
+   "de": "C128 KERNAL 318020-05",
+   "en": "C128 KERNAL 318020-05",
+   "status": "unverändert"
+  },
+  "/roms/21/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "geprüft"
+  },
+  "/roms/22/label": {
+   "de": "C128 KERNAL 318034-01",
+   "en": "C128 KERNAL 318034-01",
+   "status": "unverändert"
+  },
+  "/roms/22/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/23/label": {
+   "de": "C128 KERNAL 325172-01",
+   "en": "C128 KERNAL 325172-01",
+   "status": "unverändert"
+  },
+  "/roms/23/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/24/label": {
+   "de": "C128 KERNAL (C64-Betrieb) 325179-01",
+   "en": "C128 KERNAL (C64 mode) 325179-01",
+   "status": "maschinell"
+  },
+  "/roms/24/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/25/label": {
+   "de": "C128 KERNAL (C64-Betrieb) 325182-01",
+   "en": "C128 KERNAL (C64 mode) 325182-01",
+   "status": "maschinell"
+  },
+  "/roms/25/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/26/label": {
+   "de": "C64 BASIC 901226-01",
+   "en": "C64 BASIC 901226-01",
+   "status": "unverändert"
+  },
+  "/roms/26/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/27/label": {
+   "de": "C64 BASIC Open-ROMs",
+   "en": "C64 BASIC Open-ROMs",
+   "status": "unverändert"
+  },
+  "/roms/27/note": {
+   "de": "Open-ROMs basic_generic",
+   "en": "Open-ROMs basic_generic",
+   "status": "unverändert"
+  },
+  "/roms/28/label": {
+   "de": "C64 Zeichensatz 901225-01",
+   "en": "C64 character set 901225-01",
+   "status": "maschinell"
+  },
+  "/roms/28/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/29/label": {
+   "de": "C64 Zeichensatz 906143-02",
+   "en": "C64 character set 906143-02",
+   "status": "maschinell"
+  },
+  "/roms/29/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/30/label": {
+   "de": "C64 Zeichensatz Open-ROMs",
+   "en": "C64 character set Open-ROMs",
+   "status": "maschinell"
+  },
+  "/roms/30/note": {
+   "de": "Open-ROMs chargen_openroms",
+   "en": "Open-ROMs chargen_openroms",
+   "status": "unverändert"
+  },
+  "/roms/31/label": {
+   "de": "C64 Zeichensatz PXLfont-2.3",
+   "en": "C64 character set PXLfont-2.3",
+   "status": "maschinell"
+  },
+  "/roms/31/note": {
+   "de": "Open-ROMs PXL-Font 2.3",
+   "en": "Open-ROMs PXL-Font 2.3",
+   "status": "unverändert"
+  },
+  "/roms/32/label": {
+   "de": "C64 Laufwerk 1541 325302-01+901229-05",
+   "en": "C64 drive 1541 325302-01+901229-05",
+   "status": "maschinell"
+  },
+  "/roms/32/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/33/label": {
+   "de": "C64 Laufwerk 1571 310654-05",
+   "en": "C64 drive 1571 310654-05",
+   "status": "maschinell"
+  },
+  "/roms/33/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/34/label": {
+   "de": "C64 Laufwerk 1581 318045-02",
+   "en": "C64 drive 1581 318045-02",
+   "status": "geprüft"
+  },
+  "/roms/34/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/35/label": {
+   "de": "C64 KERNAL 251104-04",
+   "en": "C64 KERNAL 251104-04",
+   "status": "unverändert"
+  },
+  "/roms/35/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/36/label": {
+   "de": "C64 KERNAL 390852-01",
+   "en": "C64 KERNAL 390852-01",
+   "status": "unverändert"
+  },
+  "/roms/36/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "geprüft"
+  },
+  "/roms/37/label": {
+   "de": "C64 KERNAL 901227-01",
+   "en": "C64 KERNAL 901227-01",
+   "status": "unverändert"
+  },
+  "/roms/37/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/38/label": {
+   "de": "C64 KERNAL 901227-02",
+   "en": "C64 KERNAL 901227-02",
+   "status": "unverändert"
+  },
+  "/roms/38/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/39/label": {
+   "de": "C64 KERNAL 901227-03",
+   "en": "C64 KERNAL 901227-03",
+   "status": "unverändert"
+  },
+  "/roms/39/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/40/label": {
+   "de": "C64 KERNAL 901246-01",
+   "en": "C64 KERNAL 901246-01",
+   "status": "unverändert"
+  },
+  "/roms/40/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/41/label": {
+   "de": "C64 KERNAL 906145-02",
+   "en": "C64 KERNAL 906145-02",
+   "status": "unverändert"
+  },
+  "/roms/41/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/42/label": {
+   "de": "C64 KERNAL Open-ROMs",
+   "en": "C64 KERNAL Open-ROMs",
+   "status": "unverändert"
+  },
+  "/roms/42/note": {
+   "de": "Open-ROMs kernal_generic",
+   "en": "Open-ROMs kernal_generic",
+   "status": "unverändert"
+  },
+  "/roms/43/label": {
+   "de": "C65-ROM (BASIC 10.0 V0.9B.910828)",
+   "en": "C65-ROM (BASIC 10.0 V0.9B.910828)",
+   "status": "unverändert"
+  },
+  "/roms/43/note": {
+   "de": "kein MEGA65-ROM; wird nicht importiert",
+   "en": "not a MEGA65 ROM; is not imported",
+   "status": "maschinell"
+  },
+  "/roms/44/label": {
+   "de": "MEGA65 System-ROM 920395 (BASIC 65 V920395)",
+   "en": "MEGA65 system ROM 920395 (BASIC 65 V920395)",
+   "status": "maschinell"
+  },
+  "/roms/44/note": {
+   "de": "Original-ROM; Banner BASIC 65 V920395 (Xemu-Ordner, Windows)",
+   "en": "Original ROM; banner BASIC 65 V920395 (Xemu folder, Windows)",
+   "status": "maschinell"
+  },
+  "/roms/44/sets/upper/label": {
+   "de": "Großbuchstaben und Grafik",
+   "en": "Uppercase and graphics",
+   "status": "maschinell"
+  },
+  "/roms/44/sets/lower/label": {
+   "de": "Groß-/Kleinschreibung",
+   "en": "Upper/lower case",
+   "status": "maschinell"
+  },
+  "/roms/45/label": {
+   "de": "MEGA65 System-ROM 920395 (anderer Build)",
+   "en": "MEGA65 system ROM 920395 (other build)",
+   "status": "maschinell"
+  },
+  "/roms/45/note": {
+   "de": "gleiches Banner V920395, anderer Inhalt",
+   "en": "same banner V920395, different content",
+   "status": "maschinell"
+  },
+  "/roms/46/label": {
+   "de": "MEGA65 System-ROM 920413",
+   "en": "MEGA65 system ROM 920413",
+   "status": "maschinell"
+  },
+  "/roms/46/note": {
+   "de": "Revision nur aus dem Dateinamen der Quelle",
+   "en": "Revision taken from the file name of the source only",
+   "status": "maschinell"
+  },
+  "/roms/46/sets/upper/label": {
+   "de": "Großbuchstaben und Grafik",
+   "en": "Uppercase and graphics",
+   "status": "maschinell"
+  },
+  "/roms/46/sets/lower/label": {
+   "de": "Groß-/Kleinschreibung",
+   "en": "Upper/lower case",
+   "status": "maschinell"
+  },
+  "/roms/47/label": {
+   "de": "MEGA65 System-ROM Open-ROMs",
+   "en": "MEGA65 system ROM Open-ROMs",
+   "status": "maschinell"
+  },
+  "/roms/47/note": {
+   "de": "Open-ROMs (MEGA65/open-roms), LGPL-3.0 oder später",
+   "en": "Open-ROMs (MEGA65/open-roms), LGPL-3.0 or later",
+   "status": "maschinell"
+  },
+  "/roms/47/sets/upper/label": {
+   "de": "Großbuchstaben und Grafik",
+   "en": "Uppercase and graphics",
+   "status": "maschinell"
+  },
+  "/roms/47/sets/lower/label": {
+   "de": "Groß-/Kleinschreibung",
+   "en": "Upper/lower case",
+   "status": "maschinell"
+  },
+  "/roms/48/label": {
+   "de": "Plus/4, C16 BASIC 318006-01",
+   "en": "Plus/4, C16 BASIC 318006-01",
+   "status": "unverändert"
+  },
+  "/roms/48/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/49/label": {
+   "de": "Plus/4, C16 Funktions-ROM (hoch) 317054-01",
+   "en": "Plus/4, C16 function ROM (high) 317054-01",
+   "status": "maschinell"
+  },
+  "/roms/49/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/50/label": {
+   "de": "Plus/4, C16 Funktions-ROM (niedrig) 317053-01",
+   "en": "Plus/4, C16 function ROM (low) 317053-01",
+   "status": "maschinell"
+  },
+  "/roms/50/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/51/label": {
+   "de": "Plus/4, C16 KERNAL 318004-01",
+   "en": "Plus/4, C16 KERNAL 318004-01",
+   "status": "unverändert"
+  },
+  "/roms/51/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/52/label": {
+   "de": "Plus/4, C16 KERNAL 318004-05",
+   "en": "Plus/4, C16 KERNAL 318004-05",
+   "status": "unverändert"
+  },
+  "/roms/52/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/53/label": {
+   "de": "Plus/4, C16 KERNAL 318005-05",
+   "en": "Plus/4, C16 KERNAL 318005-05",
+   "status": "unverändert"
+  },
+  "/roms/53/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/54/label": {
+   "de": "VC-20 BASIC 901486-01",
+   "en": "VIC-20 BASIC 901486-01",
+   "status": "maschinell"
+  },
+  "/roms/54/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "geprüft"
+  },
+  "/roms/55/label": {
+   "de": "VC-20 Zeichensatz 901460-02",
+   "en": "VIC-20 character set 901460-02",
+   "status": "maschinell"
+  },
+  "/roms/55/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/56/label": {
+   "de": "VC-20 Zeichensatz 901460-03",
+   "en": "VIC-20 character set 901460-03",
+   "status": "maschinell"
+  },
+  "/roms/56/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/57/label": {
+   "de": "VC-20 KERNAL 901486-02",
+   "en": "VIC-20 KERNAL 901486-02",
+   "status": "maschinell"
+  },
+  "/roms/57/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/58/label": {
+   "de": "VC-20 KERNAL 901486-06",
+   "en": "VIC-20 KERNAL 901486-06",
+   "status": "maschinell"
+  },
+  "/roms/58/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/59/label": {
+   "de": "VC-20 KERNAL 901486-07",
+   "en": "VIC-20 KERNAL 901486-07",
+   "status": "maschinell"
+  },
+  "/roms/59/note": {
+   "de": "Revision aus dem Dateinamen der Quelle (VICE)",
+   "en": "Revision taken from the file name of the source (VICE)",
+   "status": "maschinell"
+  },
+  "/roms/60/label": {
+   "de": "C64 KERNAL 325017-02 (schwedisch)",
+   "en": "C64 KERNAL 325017-02 (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/60/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/61/label": {
+   "de": "C64 KERNAL 901227-03 (dänisch)",
+   "en": "C64 KERNAL 901227-03 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/61/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/62/label": {
+   "de": "C64 KERNAL (skandinavisch)",
+   "en": "C64 KERNAL (Scandinavian)",
+   "status": "maschinell"
+  },
+  "/roms/62/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/63/label": {
+   "de": "C64 KERNAL SX-64 (skandinavisch)",
+   "en": "C64 KERNAL SX-64 (Scandinavian)",
+   "status": "maschinell"
+  },
+  "/roms/63/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/64/label": {
+   "de": "C64 KERNAL (türkisch)",
+   "en": "C64 KERNAL (Turkish)",
+   "status": "maschinell"
+  },
+  "/roms/64/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/65/label": {
+   "de": "C64 Zeichensatz 325018-02",
+   "en": "C64 character set 325018-02",
+   "status": "maschinell"
+  },
+  "/roms/65/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/66/label": {
+   "de": "C64 Zeichensatz 325018-02 (C2G007)",
+   "en": "C64 character set 325018-02 (C2G007)",
+   "status": "maschinell"
+  },
+  "/roms/66/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/67/label": {
+   "de": "C64 Zeichensatz 325056-03",
+   "en": "C64 character set 325056-03",
+   "status": "maschinell"
+  },
+  "/roms/67/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/68/label": {
+   "de": "C64 Zeichensatz 901225-01 (dänisch)",
+   "en": "C64 character set 901225-01 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/68/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/69/label": {
+   "de": "C64 Zeichensatz (türkisch)",
+   "en": "C64 character set (Turkish)",
+   "status": "maschinell"
+  },
+  "/roms/69/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/70/label": {
+   "de": "VC-20 Zeichensatz 901460-03 (dänisch)",
+   "en": "VIC-20 character set 901460-03 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/70/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/71/label": {
+   "de": "VC-20 Zeichensatz NEC P22101-207",
+   "en": "VIC-20 character set NEC P22101-207",
+   "status": "maschinell"
+  },
+  "/roms/71/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/72/label": {
+   "de": "VC-20 KERNAL 901486-07 (dänisch)",
+   "en": "VIC-20 KERNAL 901486-07 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/72/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/73/label": {
+   "de": "VC-20 KERNAL NEC P22081-206",
+   "en": "VIC-20 KERNAL NEC P22081-206",
+   "status": "maschinell"
+  },
+  "/roms/73/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/74/label": {
+   "de": "VC-20 KERNAL (schwedisch, gepatcht)",
+   "en": "VIC-20 KERNAL (Swedish, patched)",
+   "status": "maschinell"
+  },
+  "/roms/74/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/75/label": {
+   "de": "Plus/4, C16 KERNAL 318004-03",
+   "en": "Plus/4, C16 KERNAL 318004-03",
+   "status": "unverändert"
+  },
+  "/roms/75/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/76/label": {
+   "de": "Plus/4, C16 KERNAL 318004-04",
+   "en": "Plus/4, C16 KERNAL 318004-04",
+   "status": "unverändert"
+  },
+  "/roms/76/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/77/label": {
+   "de": "Plus/4, C16 KERNAL 318005-04",
+   "en": "Plus/4, C16 KERNAL 318005-04",
+   "status": "unverändert"
+  },
+  "/roms/77/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/78/label": {
+   "de": "Plus/4, C16 KERNAL 318030-01",
+   "en": "Plus/4, C16 KERNAL 318030-01",
+   "status": "unverändert"
+  },
+  "/roms/78/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/79/label": {
+   "de": "Plus/4, C16 KERNAL 318030-02",
+   "en": "Plus/4, C16 KERNAL 318030-02",
+   "status": "unverändert"
+  },
+  "/roms/79/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/80/label": {
+   "de": "Plus/4, C16 KERNAL 318005-05 (französisch)",
+   "en": "Plus/4, C16 KERNAL 318005-05 (French)",
+   "status": "maschinell"
+  },
+  "/roms/80/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/81/label": {
+   "de": "Plus/4, C16 KERNAL 325155-03 (schwedisch)",
+   "en": "Plus/4, C16 KERNAL 325155-03 (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/81/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/82/label": {
+   "de": "Plus/4, C16 Funktions-ROM (niedrig) 325010-01",
+   "en": "Plus/4, C16 function ROM (low) 325010-01",
+   "status": "maschinell"
+  },
+  "/roms/82/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/83/label": {
+   "de": "Plus/4, C16 Funktions-ROM (hoch) 325011-01",
+   "en": "Plus/4, C16 function ROM (high) 325011-01",
+   "status": "maschinell"
+  },
+  "/roms/83/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/84/label": {
+   "de": "Plus/4, C16 Funktions-ROM (niedrig) 317053-01 (französisch)",
+   "en": "Plus/4, C16 function ROM (low) 317053-01 (French)",
+   "status": "maschinell"
+  },
+  "/roms/84/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/85/label": {
+   "de": "Plus/4, C16 Funktions-ROM (hoch) 317054-01 (französisch)",
+   "en": "Plus/4, C16 function ROM (high) 317054-01 (French)",
+   "status": "maschinell"
+  },
+  "/roms/85/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/86/label": {
+   "de": "Plus/4, C16 Funktions-ROM (niedrig) 325155-02 (schwedisch)",
+   "en": "Plus/4, C16 function ROM (low) 325155-02 (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/86/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/87/label": {
+   "de": "Plus/4, C16 Funktions-ROM (hoch) 325155-01 (schwedisch)",
+   "en": "Plus/4, C16 function ROM (high) 325155-01 (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/87/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/88/label": {
+   "de": "Atari XL/XE-OS AA00R10",
+   "en": "Atari XL/XE OS AA00R10",
+   "status": "maschinell"
+  },
+  "/roms/88/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/89/label": {
+   "de": "Atari XL/XE-OS AA00R11",
+   "en": "Atari XL/XE OS AA00R11",
+   "status": "maschinell"
+  },
+  "/roms/89/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/90/label": {
+   "de": "Atari XL/XE-OS BB00R1",
+   "en": "Atari XL/XE OS BB00R1",
+   "status": "maschinell"
+  },
+  "/roms/90/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/91/label": {
+   "de": "Atari XL/XE-OS BB02R3",
+   "en": "Atari XL/XE OS BB02R3",
+   "status": "maschinell"
+  },
+  "/roms/91/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/92/label": {
+   "de": "Atari XL/XE-OS BB02R3V4",
+   "en": "Atari XL/XE OS BB02R3V4",
+   "status": "maschinell"
+  },
+  "/roms/92/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/93/label": {
+   "de": "Atari XL/XE-OS CC01R4",
+   "en": "Atari XL/XE OS CC01R4",
+   "status": "maschinell"
+  },
+  "/roms/93/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/94/label": {
+   "de": "Atari 400/800-OS A (NTSC, zweite Fassung)",
+   "en": "Atari 400/800 OS A (NTSC, second version)",
+   "status": "maschinell"
+  },
+  "/roms/94/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/95/label": {
+   "de": "MEGA65 System-ROM 920423",
+   "en": "MEGA65 system ROM 920423",
+   "status": "maschinell"
+  },
+  "/roms/95/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/96/label": {
+   "de": "MEGA65 System-ROM 999422",
+   "en": "MEGA65 system ROM 999422",
+   "status": "maschinell"
+  },
+  "/roms/96/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/97/label": {
+   "de": "C128 BASIC (niedrig) 318018-02",
+   "en": "C128 BASIC (low) 318018-02",
+   "status": "maschinell"
+  },
+  "/roms/97/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/98/label": {
+   "de": "C128 BASIC (hoch) 318019-02",
+   "en": "C128 BASIC (high) 318019-02",
+   "status": "maschinell"
+  },
+  "/roms/98/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/99/label": {
+   "de": "C128 BASIC (niedrig) 318018-03",
+   "en": "C128 BASIC (low) 318018-03",
+   "status": "maschinell"
+  },
+  "/roms/99/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/100/label": {
+   "de": "C128 BASIC (hoch) 318019-03",
+   "en": "C128 BASIC (high) 318019-03",
+   "status": "maschinell"
+  },
+  "/roms/100/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/101/label": {
+   "de": "C128 KERNAL 318020-03",
+   "en": "C128 KERNAL 318020-03",
+   "status": "unverändert"
+  },
+  "/roms/101/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/102/label": {
+   "de": "C128 KERNAL 318020-04",
+   "en": "C128 KERNAL 318020-04",
+   "status": "unverändert"
+  },
+  "/roms/102/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/103/label": {
+   "de": "C128 KERNAL 325166-02 (französisch/belgisch)",
+   "en": "C128 KERNAL 325166-02 (French/Belgian)",
+   "status": "maschinell"
+  },
+  "/roms/103/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/104/label": {
+   "de": "C128 KERNAL 315078-01 (deutsch)",
+   "en": "C128 KERNAL 315078-01 (German)",
+   "status": "maschinell"
+  },
+  "/roms/104/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/105/label": {
+   "de": "C128 KERNAL 315078-02 (deutsch)",
+   "en": "C128 KERNAL 315078-02 (German)",
+   "status": "maschinell"
+  },
+  "/roms/105/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/106/label": {
+   "de": "C128 KERNAL 315078-03 p7 (deutsch)",
+   "en": "C128 KERNAL 315078-03 p7 (German)",
+   "status": "maschinell"
+  },
+  "/roms/106/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/107/label": {
+   "de": "C128 KERNAL U35 (deutsch)",
+   "en": "C128 KERNAL U35 (German)",
+   "status": "maschinell"
+  },
+  "/roms/107/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/108/label": {
+   "de": "C128 KERNAL 325168-02 (italienisch)",
+   "en": "C128 KERNAL 325168-02 (Italian)",
+   "status": "maschinell"
+  },
+  "/roms/108/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/109/label": {
+   "de": "C128 KERNAL 325177-02 (norwegisch)",
+   "en": "C128 KERNAL 325177-02 (Norwegian)",
+   "status": "maschinell"
+  },
+  "/roms/109/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/110/label": {
+   "de": "C128 KERNAL 325180-02 (schwedisch)",
+   "en": "C128 KERNAL 325180-02 (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/110/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/111/label": {
+   "de": "C128 KERNAL 325172-02 (schweizerisch)",
+   "en": "C128 KERNAL 325172-02 (Swiss)",
+   "status": "maschinell"
+  },
+  "/roms/111/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/112/label": {
+   "de": "C128 Zeichensatz 325175-02 (dänisch)",
+   "en": "C128 character set 325175-02 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/112/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/113/label": {
+   "de": "C128 Zeichensatz 325175-01 (dänisch)",
+   "en": "C128 character set 325175-01 (Danish)",
+   "status": "maschinell"
+  },
+  "/roms/113/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/114/label": {
+   "de": "C128 Zeichensatz I/F/B 325167-02",
+   "en": "C128 character set I/F/B 325167-02",
+   "status": "maschinell"
+  },
+  "/roms/114/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/115/label": {
+   "de": "C128 Zeichensatz 325171-01 (spanisch)",
+   "en": "C128 character set 325171-01 (Spanish)",
+   "status": "maschinell"
+  },
+  "/roms/115/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/116/label": {
+   "de": "C128 Zeichensatz 325078-02 (norwegisch)",
+   "en": "C128 character set 325078-02 (Norwegian)",
+   "status": "maschinell"
+  },
+  "/roms/116/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/117/label": {
+   "de": "C128 Zeichensatz 325173-01D (schweizerisch)",
+   "en": "C128 character set 325173-01D (Swiss)",
+   "status": "maschinell"
+  },
+  "/roms/117/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/118/label": {
+   "de": "C128 KERNAL (C64-Betrieb, finnisch 1)",
+   "en": "C128 KERNAL (C64 mode, Finnish 1)",
+   "status": "maschinell"
+  },
+  "/roms/118/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/119/label": {
+   "de": "C128 KERNAL (C64-Betrieb, finnisch 2)",
+   "en": "C128 KERNAL (C64 mode, Finnish 2)",
+   "status": "maschinell"
+  },
+  "/roms/119/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/120/label": {
+   "de": "C128 KERNAL (C64-Betrieb, französisch)",
+   "en": "C128 KERNAL (C64 mode, French)",
+   "status": "maschinell"
+  },
+  "/roms/120/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/121/label": {
+   "de": "C128 KERNAL (C64-Betrieb, italienisch)",
+   "en": "C128 KERNAL (C64 mode, Italian)",
+   "status": "maschinell"
+  },
+  "/roms/121/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/122/label": {
+   "de": "C128 KERNAL (C64-Betrieb, norwegisch)",
+   "en": "C128 KERNAL (C64 mode, Norwegian)",
+   "status": "maschinell"
+  },
+  "/roms/122/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/combined/0/label": {
+   "de": "C64C-ROM 251913-01 (BASIC + KERNAL)",
+   "en": "C64C ROM 251913-01 (BASIC + KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/0/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/1/label": {
+   "de": "C64-GS-ROM 390852-01 (BASIC + KERNAL)",
+   "en": "C64 GS ROM 390852-01 (BASIC + KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/1/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/2/label": {
+   "de": "Plus/4-Funktions-ROM 3-plus-1 (niedrig + hoch)",
+   "en": "Plus/4 function ROM 3-plus-1 (low + high)",
+   "status": "maschinell"
+  },
+  "/combined/2/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/3/label": {
+   "de": "C128 BASIC 252343-03 (niedrig + hoch)",
+   "en": "C128 BASIC 252343-03 (low + high)",
+   "status": "maschinell"
+  },
+  "/combined/3/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/4/label": {
+   "de": "C128 BASIC 318022-01 (niedrig + hoch)",
+   "en": "C128 BASIC 318022-01 (low + high)",
+   "status": "maschinell"
+  },
+  "/combined/4/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/5/label": {
+   "de": "C128 BASIC 318022-02 (niedrig + hoch)",
+   "en": "C128 BASIC 318022-02 (low + high)",
+   "status": "maschinell"
+  },
+  "/combined/5/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/6/label": {
+   "de": "C128 BASIC 390393-01 (hoch + niedrig)",
+   "en": "C128 BASIC 390393-01 (high + low)",
+   "status": "maschinell"
+  },
+  "/combined/6/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/7/label": {
+   "de": "C128-C64-Teil 325176-07 (dänisch) (BASIC + KERNAL)",
+   "en": "C128 C64-mode part 325176-07 (Danish) (BASIC + KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/7/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/8/label": {
+   "de": "C128-C64-Teil 325182-01 (BASIC + KERNAL)",
+   "en": "C128 C64-mode part 325182-01 (BASIC + KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/8/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/9/label": {
+   "de": "C128-C64-Teil 325179-01 (norwegisch) (BASIC + KERNAL)",
+   "en": "C128 C64-mode part 325179-01 (Norwegian) (BASIC + KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/9/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/10/label": {
+   "de": "C128-Gesamt-ROM 252343-04 (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 252343-04 (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/10/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/11/label": {
+   "de": "C128-Gesamt-ROM 318023-02 (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318023-02 (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/11/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/12/label": {
+   "de": "C128-Gesamt-ROM 318082-01 (dänisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318082-01 (Danish) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/12/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/13/label": {
+   "de": "C128-Gesamt-ROM (französisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM (French) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/13/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/14/label": {
+   "de": "C128-Gesamt-ROM 318077-01 (deutsch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318077-01 (German) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/14/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/15/label": {
+   "de": "C128-Gesamt-ROM 318077-03 (deutsch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318077-03 (German) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/15/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/16/label": {
+   "de": "C128-Gesamt-ROM 318079-01 (italienisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318079-01 (Italian) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/16/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/17/label": {
+   "de": "C128-Gesamt-ROM 318083-01 (norwegisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318083-01 (Norwegian) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/17/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/18/label": {
+   "de": "C128-Gesamt-ROM (spanisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM (Spanish) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/18/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/19/label": {
+   "de": "C128-Gesamt-ROM 318034-01 (schwedisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318034-01 (Swedish) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/19/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/combined/20/label": {
+   "de": "C128-Gesamt-ROM 318081-01 (schweizerisch) (C64-BASIC, C64-KERNAL, C128-KERNAL)",
+   "en": "C128 combined ROM 318081-01 (Swiss) (C64 BASIC, C64 KERNAL, C128 KERNAL)",
+   "status": "maschinell"
+  },
+  "/combined/20/note": {
+   "de": "Aufbau aus den Prüfsummen der Teile abgeleitet (Abgleich mit der Tabelle); Prüfsumme gemessen (lokale Sammlung)",
+   "en": "Layout derived from the checksums of the parts (compared with the table); checksum measured (local collection)",
+   "status": "maschinell"
+  },
+  "/roms/123/label": {
+   "de": "PET-BASIC 2, $C000 (901465-01)",
+   "en": "PET BASIC 2, $C000 (901465-01)",
+   "status": "maschinell"
+  },
+  "/roms/123/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/124/label": {
+   "de": "PET-BASIC 2, $D000 (901465-02)",
+   "en": "PET BASIC 2, $D000 (901465-02)",
+   "status": "maschinell"
+  },
+  "/roms/124/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/125/label": {
+   "de": "PET-BASIC 4, $B000 (901465-19)",
+   "en": "PET BASIC 4, $B000 (901465-19)",
+   "status": "maschinell"
+  },
+  "/roms/125/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/126/label": {
+   "de": "PET-BASIC 4, $B000 (901465-23)",
+   "en": "PET BASIC 4, $B000 (901465-23)",
+   "status": "maschinell"
+  },
+  "/roms/126/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/127/label": {
+   "de": "PET-BASIC 4, $C000 (901465-20)",
+   "en": "PET BASIC 4, $C000 (901465-20)",
+   "status": "maschinell"
+  },
+  "/roms/127/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/128/label": {
+   "de": "PET-BASIC 4, $D000 (901465-21)",
+   "en": "PET BASIC 4, $D000 (901465-21)",
+   "status": "maschinell"
+  },
+  "/roms/128/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/129/label": {
+   "de": "PET-KERNAL 2 (901465-03)",
+   "en": "PET KERNAL 2 (901465-03)",
+   "status": "maschinell"
+  },
+  "/roms/129/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/130/label": {
+   "de": "PET-KERNAL 4 (901465-22)",
+   "en": "PET KERNAL 4 (901465-22)",
+   "status": "maschinell"
+  },
+  "/roms/130/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/131/label": {
+   "de": "PET-Editor ROM 1 (901439-03 = 901447-05)",
+   "en": "PET editor ROM 1 (901439-03 = 901447-05)",
+   "status": "maschinell"
+  },
+  "/roms/131/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/132/label": {
+   "de": "PET-Editor 2, B-Tastatur (901474-01)",
+   "en": "PET editor 2, B keyboard (901474-01)",
+   "status": "maschinell"
+  },
+  "/roms/132/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/133/label": {
+   "de": "PET-Editor 2, N-Tastatur (901447-24 = 901439-17)",
+   "en": "PET editor 2, N keyboard (901447-24 = 901439-17)",
+   "status": "maschinell"
+  },
+  "/roms/133/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/134/label": {
+   "de": "PET-Editor 4, B-Tastatur (901474-02)",
+   "en": "PET editor 4, B keyboard (901474-02)",
+   "status": "maschinell"
+  },
+  "/roms/134/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/135/label": {
+   "de": "PET-Editor 4, N-Tastatur (901447-29)",
+   "en": "PET editor 4, N keyboard (901447-29)",
+   "status": "maschinell"
+  },
+  "/roms/135/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/136/label": {
+   "de": "PET-Editor 4, 40 Spalten, B-Tastatur, 50 Hz (ts)",
+   "en": "PET editor 4, 40 columns, B keyboard, 50 Hz (ts)",
+   "status": "maschinell"
+  },
+  "/roms/136/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/137/label": {
+   "de": "PET-Editor 4, 40 Spalten, B-Tastatur, 60 Hz (ts)",
+   "en": "PET editor 4, 40 columns, B keyboard, 60 Hz (ts)",
+   "status": "maschinell"
+  },
+  "/roms/137/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/138/label": {
+   "de": "PET-Editor 4, 40 Spalten, N-Tastatur, 50 Hz (901498-01)",
+   "en": "PET editor 4, 40 columns, N keyboard, 50 Hz (901498-01)",
+   "status": "maschinell"
+  },
+  "/roms/138/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/139/label": {
+   "de": "PET-Editor 4, 40 Spalten, N-Tastatur, 60 Hz (901499-01)",
+   "en": "PET editor 4, 40 columns, N keyboard, 60 Hz (901499-01)",
+   "status": "maschinell"
+  },
+  "/roms/139/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/140/label": {
+   "de": "PET-Editor 4, 40 Spalten, N-Tastatur (Variante 1)",
+   "en": "PET editor 4, 40 columns, N keyboard (variant 1)",
+   "status": "maschinell"
+  },
+  "/roms/140/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/141/label": {
+   "de": "PET-Editor 4, 40 Spalten, N-Tastatur (Variante 2)",
+   "en": "PET editor 4, 40 columns, N keyboard (variant 2)",
+   "status": "maschinell"
+  },
+  "/roms/141/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/142/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 50 Hz (901474-04, 02/83)",
+   "en": "PET editor 4, 80 columns, B keyboard, 50 Hz (901474-04, 02/83)",
+   "status": "maschinell"
+  },
+  "/roms/142/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/143/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 50 Hz (901474-04, 36/81)",
+   "en": "PET editor 4, 80 columns, B keyboard, 50 Hz (901474-04, 36/81)",
+   "status": "maschinell"
+  },
+  "/roms/143/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/144/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 50 Hz (901474-04, Variante)",
+   "en": "PET editor 4, 80 columns, B keyboard, 50 Hz (901474-04, variant)",
+   "status": "maschinell"
+  },
+  "/roms/144/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/145/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 50 Hz (deutsch)",
+   "en": "PET editor 4, 80 columns, B keyboard, 50 Hz (German)",
+   "status": "maschinell"
+  },
+  "/roms/145/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/146/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 50 Hz (schwedisch)",
+   "en": "PET editor 4, 80 columns, B keyboard, 50 Hz (Swedish)",
+   "status": "maschinell"
+  },
+  "/roms/146/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/147/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 60 Hz (901474-03)",
+   "en": "PET editor 4, 80 columns, B keyboard, 60 Hz (901474-03)",
+   "status": "maschinell"
+  },
+  "/roms/147/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/148/label": {
+   "de": "PET-Editor 4, 80 Spalten, B-Tastatur, 60 Hz (deutsch)",
+   "en": "PET editor 4, 80 columns, B keyboard, 60 Hz (German)",
+   "status": "maschinell"
+  },
+  "/roms/148/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/149/label": {
+   "de": "PET-Editor 4, 80 Spalten, N-Tastatur, 50 Hz (4016 auf 8016)",
+   "en": "PET editor 4, 80 columns, N keyboard, 50 Hz (4016 to 8016)",
+   "status": "maschinell"
+  },
+  "/roms/149/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/150/label": {
+   "de": "PET-Zeichensatz 1 (901447-08)",
+   "en": "PET character set 1 (901447-08)",
+   "status": "maschinell"
+  },
+  "/roms/150/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/151/label": {
+   "de": "PET-Zeichensatz 2 (901447-10)",
+   "en": "PET character set 2 (901447-10)",
+   "status": "maschinell"
+  },
+  "/roms/151/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/152/label": {
+   "de": "PET-Zeichensatz (deutsch)",
+   "en": "PET character set (German)",
+   "status": "maschinell"
+  },
+  "/roms/152/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/153/label": {
+   "de": "PET-Zeichensatz (deutsch, Variante 2)",
+   "en": "PET character set (German, variant 2)",
+   "status": "maschinell"
+  },
+  "/roms/153/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/154/label": {
+   "de": "PET-Zeichensatz (ungarisch)",
+   "en": "PET character set (Hungarian)",
+   "status": "maschinell"
+  },
+  "/roms/154/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/155/label": {
+   "de": "PET-Zeichensatz (japanisch, 901447-12)",
+   "en": "PET character set (Japanese, 901447-12)",
+   "status": "maschinell"
+  },
+  "/roms/155/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/156/label": {
+   "de": "PET-Zeichensatz (norwegisch)",
+   "en": "PET character set (Norwegian)",
+   "status": "maschinell"
+  },
+  "/roms/156/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/157/label": {
+   "de": "PET-Zeichensatz (schwedisch, 901447-14)",
+   "en": "PET character set (Swedish, 901447-14)",
+   "status": "maschinell"
+  },
+  "/roms/157/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/158/label": {
+   "de": "PET-ROM 1, Chip $C000 (901439-01 = 901447-01)",
+   "en": "PET ROM 1, chip $C000 (901439-01 = 901447-01)",
+   "status": "maschinell"
+  },
+  "/roms/158/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/159/label": {
+   "de": "PET-ROM 1, Chip $C800 (901439-05 = 901447-02)",
+   "en": "PET ROM 1, chip $C800 (901439-05 = 901447-02)",
+   "status": "maschinell"
+  },
+  "/roms/159/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/160/label": {
+   "de": "PET-ROM 1, Chip $D000 (901439-02 = 901447-03)",
+   "en": "PET ROM 1, chip $D000 (901439-02 = 901447-03)",
+   "status": "maschinell"
+  },
+  "/roms/160/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/161/label": {
+   "de": "PET-ROM 1, Chip $D800 (901439-06 = 901447-04)",
+   "en": "PET ROM 1, chip $D800 (901439-06 = 901447-04)",
+   "status": "maschinell"
+  },
+  "/roms/161/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/162/label": {
+   "de": "PET-ROM 1, Chip $F000 (901439-04 = 901447-06)",
+   "en": "PET ROM 1, chip $F000 (901439-04 = 901447-06)",
+   "status": "maschinell"
+  },
+  "/roms/162/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/163/label": {
+   "de": "PET-ROM 1, Chip $F800 (901439-07 = 901447-07)",
+   "en": "PET ROM 1, chip $F800 (901439-07 = 901447-07)",
+   "status": "maschinell"
+  },
+  "/roms/163/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/164/label": {
+   "de": "PET-ROM 2, Chip $C000 (901439-09 = 901447-09)",
+   "en": "PET ROM 2, chip $C000 (901439-09 = 901447-09)",
+   "status": "maschinell"
+  },
+  "/roms/164/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/165/label": {
+   "de": "PET-ROM 3, Chip $C000 (901439-13 = 901447-20)",
+   "en": "PET ROM 3, chip $C000 (901439-13 = 901447-20)",
+   "status": "maschinell"
+  },
+  "/roms/165/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/166/label": {
+   "de": "PET-ROM 3, Chip $C800 (901439-14 = 901447-21)",
+   "en": "PET ROM 3, chip $C800 (901439-14 = 901447-21)",
+   "status": "maschinell"
+  },
+  "/roms/166/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/167/label": {
+   "de": "PET-ROM 3, Chip $D000 (901439-15 = 901447-22)",
+   "en": "PET ROM 3, chip $D000 (901439-15 = 901447-22)",
+   "status": "maschinell"
+  },
+  "/roms/167/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/168/label": {
+   "de": "PET-ROM 3, Chip $D800 (901439-16 = 901447-23)",
+   "en": "PET ROM 3, chip $D800 (901439-16 = 901447-23)",
+   "status": "maschinell"
+  },
+  "/roms/168/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/169/label": {
+   "de": "PET-ROM 3, Chip $F000 (901439-18 = 901447-25)",
+   "en": "PET ROM 3, chip $F000 (901439-18 = 901447-25)",
+   "status": "maschinell"
+  },
+  "/roms/169/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  },
+  "/roms/170/label": {
+   "de": "PET-ROM 3, Chip $F800 (901439-19 = 901447-26)",
+   "en": "PET ROM 3, chip $F800 (901439-19 = 901447-26)",
+   "status": "maschinell"
+  },
+  "/roms/170/note": {
+   "de": "Prüfsumme gemessen (lokale Sammlung); System und Rolle aus Ordner und Dateiname",
+   "en": "Checksum measured (local collection); system and role taken from folder and file name",
+   "status": "maschinell"
+  }
+ }
+}

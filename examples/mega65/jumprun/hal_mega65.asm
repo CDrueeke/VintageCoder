@@ -2,7 +2,7 @@
 ; hal_mega65.asm - Hardware-Schicht (HAL) des MEGA65 fuer "Hugo & Gumbo"  (Stufe 1: C64-Code im VIC-II-Modus)
 ; =====================================================================================================================
 ;
-; Die Spiellogik (common/jumprun/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
+; Die Spiellogik (lib/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
 ; die Chips des MEGA65.
 ;
 ; SCHNITTSTELLE (vollstaendig in core.asm beschrieben; hier, was diese HAL dazu liefert und braucht)

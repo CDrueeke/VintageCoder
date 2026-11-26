@@ -1,0 +1,355 @@
+{
+ "source": "sys/c128/hardware.asm",
+ "entries": {
+  "/L6": {
+   "de": "VIC-IIe",
+   "en": "VIC-IIe",
+   "status": "unverändert"
+  },
+  "/L7": {
+   "de": "Zusätzliche Tastaturzeilen (Bit 0-2)",
+   "en": "Additional keyboard rows (bits 0-2)",
+   "status": "maschinell"
+  },
+  "/L8": {
+   "de": "Bit 0: 2-MHz-Betrieb",
+   "en": "Bit 0: 2 MHz mode",
+   "status": "maschinell"
+  },
+  "/L10": {
+   "de": "MMU ($D500, immer im E/A-Bereich)",
+   "en": "MMU ($D500, always in the I/O area)",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Konfigurationsregister (Bank/ROM-Sicht)",
+   "en": "Configuration register (bank/ROM view)",
+   "status": "maschinell"
+  },
+  "/L12": {
+   "de": "Vorkonfiguration A",
+   "en": "Preconfiguration A",
+   "status": "maschinell"
+  },
+  "/L13": {
+   "de": "Vorkonfiguration B",
+   "en": "Preconfiguration B",
+   "status": "maschinell"
+  },
+  "/L14": {
+   "de": "Vorkonfiguration C",
+   "en": "Preconfiguration C",
+   "status": "maschinell"
+  },
+  "/L15": {
+   "de": "Vorkonfiguration D",
+   "en": "Preconfiguration D",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Betriebsart (40/80, C64-Modus, Prozessor)",
+   "en": "Operating mode (40/80, C64 mode, processor)",
+   "status": "maschinell"
+  },
+  "/L17": {
+   "de": "RAM-Konfiguration (gemeinsamer Bereich, VIC-Bank)",
+   "en": "RAM configuration (common area, VIC bank)",
+   "status": "maschinell"
+  },
+  "/L18": {
+   "de": "Zeropage-Zeiger niedrig",
+   "en": "Zero page pointer low",
+   "status": "maschinell"
+  },
+  "/L19": {
+   "de": "Zeropage-Zeiger hoch (Bank)",
+   "en": "Zero page pointer high (bank)",
+   "status": "maschinell"
+  },
+  "/L20": {
+   "de": "Stapelseiten-Zeiger niedrig",
+   "en": "Stack page pointer low",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "Stapelseiten-Zeiger hoch (Bank)",
+   "en": "Stack page pointer high (bank)",
+   "status": "maschinell"
+  },
+  "/L22": {
+   "de": "MMU-Version",
+   "en": "MMU version",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "MMU-Spiegel ($FF00, immer sichtbar)",
+   "en": "MMU mirror ($FF00, always visible)",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Konfigurationsregister (immer sichtbar)",
+   "en": "Configuration register (always visible)",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Laden der Konfiguration A (Schreiben genügt)",
+   "en": "Load configuration A (writing is enough)",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Laden der Konfiguration B",
+   "en": "Load configuration B",
+   "status": "maschinell"
+  },
+  "/L28": {
+   "de": "Laden der Konfiguration C",
+   "en": "Load configuration C",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "Laden der Konfiguration D",
+   "en": "Load configuration D",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Standardkonfigurationen für MMU_CR_FF00",
+   "en": "Default configurations for MMU_CR_FF00",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Bank 15: Systemroms und E/A (Standard)",
+   "en": "Bank 15: system ROMs and I/O (default)",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Bank 0 RAM mit E/A",
+   "en": "Bank 0 RAM with I/O",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Bank 0 RAM, kein E/A",
+   "en": "Bank 0 RAM, no I/O",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Bank 1 RAM mit E/A",
+   "en": "Bank 1 RAM with I/O",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Bank 1 RAM, kein E/A",
+   "en": "Bank 1 RAM, no I/O",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "VDC 8563/8568 (80 Spalten)",
+   "en": "VDC 8563/8568 (80 columns)",
+   "status": "maschinell"
+  },
+  "/L39": {
+   "de": "Registerauswahl (schreiben) / Status (lesen)",
+   "en": "Register select (write) / status (read)",
+   "status": "maschinell"
+  },
+  "/L40": {
+   "de": "Registerdaten",
+   "en": "Register data",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "VDC-Registernummern (in VDC_ADDR schreiben)",
+   "en": "VDC register numbers (write to VDC_ADDR)",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "VDC-Register 0",
+   "en": "VDC register 0",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "VDC-Register 1",
+   "en": "VDC register 1",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "VDC-Register 2",
+   "en": "VDC register 2",
+   "status": "maschinell"
+  },
+  "/L46": {
+   "de": "VDC-Register 3",
+   "en": "VDC register 3",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "VDC-Register 4",
+   "en": "VDC register 4",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "VDC-Register 5",
+   "en": "VDC register 5",
+   "status": "maschinell"
+  },
+  "/L49": {
+   "de": "VDC-Register 6",
+   "en": "VDC register 6",
+   "status": "maschinell"
+  },
+  "/L50": {
+   "de": "VDC-Register 7",
+   "en": "VDC register 7",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "VDC-Register 8",
+   "en": "VDC register 8",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "VDC-Register 9",
+   "en": "VDC register 9",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "VDC-Register 10",
+   "en": "VDC register 10",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "VDC-Register 11",
+   "en": "VDC register 11",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "VDC-Register 12",
+   "en": "VDC register 12",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "VDC-Register 13",
+   "en": "VDC register 13",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "VDC-Register 14",
+   "en": "VDC register 14",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "VDC-Register 15",
+   "en": "VDC register 15",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "VDC-Register 16",
+   "en": "VDC register 16",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "VDC-Register 17",
+   "en": "VDC register 17",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "VDC-Register 18",
+   "en": "VDC register 18",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "VDC-Register 19",
+   "en": "VDC register 19",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "VDC-Register 20",
+   "en": "VDC register 20",
+   "status": "maschinell"
+  },
+  "/L64": {
+   "de": "VDC-Register 21",
+   "en": "VDC register 21",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "VDC-Register 22",
+   "en": "VDC register 22",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "VDC-Register 23",
+   "en": "VDC register 23",
+   "status": "maschinell"
+  },
+  "/L67": {
+   "de": "VDC-Register 24",
+   "en": "VDC register 24",
+   "status": "maschinell"
+  },
+  "/L68": {
+   "de": "VDC-Register 25",
+   "en": "VDC register 25",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "VDC-Register 26",
+   "en": "VDC register 26",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "VDC-Register 27",
+   "en": "VDC register 27",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "VDC-Register 28",
+   "en": "VDC register 28",
+   "status": "maschinell"
+  },
+  "/L72": {
+   "de": "VDC-Register 29",
+   "en": "VDC register 29",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "VDC-Register 30",
+   "en": "VDC register 30",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "VDC-Register 31",
+   "en": "VDC register 31",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "VDC-Register 32",
+   "en": "VDC register 32",
+   "status": "maschinell"
+  },
+  "/L76": {
+   "de": "VDC-Register 33",
+   "en": "VDC register 33",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "VDC-Register 34",
+   "en": "VDC register 34",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "VDC-Register 35",
+   "en": "VDC register 35",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "VDC-Register 36",
+   "en": "VDC register 36",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "VDC-Farben (RGBI)",
+   "en": "VDC colors (RGBI)",
+   "status": "maschinell"
+  }
+ }
+}

@@ -1,13 +1,13 @@
 # BASIC: Dialekte und Zielsysteme
 
-Jedes System hat sein eigenes BASIC, und VintageCoder baut jedes im Originaldialekt. Das Zielsystem des Projekts bestimmt den **Dialekt**; pro Quellgruppe lässt er sich im Projekt-Editor ändern (`"dialect"` in der `.vcprj`). Die Seite zeigt, was jeder Dialekt kann, wie Text und Steuerzeichen geschrieben werden und welche Besonderheiten es gibt. Sie gehört zum [BASIC-Handbuch](help:basic).
+Jedes System hat sein eigenes BASIC, und VintageCoder baut jedes im Originaldialekt. Das Zielsystem des Projekts bestimmt den **Dialekt**. Pro Quellgruppe lässt er sich in der Projektdatei ändern (`"dialect"` in der `.vcprj`); der Bereich **Projekt**, Seite **Quellen**, zeigt ihn je Quellgruppe an. Für eine einzelne Datei gilt die Zeile `#dialect id` (siehe [Direktiven](help:basic-directives)). Die Seite zeigt, was jeder Dialekt kann, wie Text und Steuerzeichen geschrieben werden und welche Besonderheiten es gibt. Sie gehört zum [BASIC-Handbuch](help:basic).
 
 ## Überblick
 
 | System | Dialekt (Kennung) | Programmstart | Ergebnis | Variablennamen |
 |---|---|---|---|---|
 | C64 | BASIC V2 (`cbm_v2`) | `$0801` | `.prg` | 2 Zeichen zählen |
-| VC-20 | BASIC V2 (`cbm_v2`) | je nach Speicherausbau (`$1001`, `$0401` oder `$1201`) | `.prg` | 2 Zeichen zählen |
+| VC-20 | VIC-BASIC 2.0 (`vic_basic_2`, baut auf `cbm_v2` auf) | je nach Speicherausbau (`$1001`, `$0401` oder `$1201`) | `.prg` | 2 Zeichen zählen |
 | C128 | BASIC 7.0 (`basic7`) | `$1C01` | `.prg` | 2 Zeichen zählen |
 | Plus/4 | BASIC 3.5 (`basic35`) | `$1001` | `.prg` | 2 Zeichen zählen |
 | MEGA65 | BASIC 65 (`basic65`) | `$2001` | `.prg` | 2 Zeichen zählen |
@@ -16,7 +16,7 @@ Jedes System hat sein eigenes BASIC, und VintageCoder baut jedes im Originaldial
 
 - Die **Programmstart-Adresse** ist die Ladeadresse der `.prg`-Datei; sie steht in den ersten zwei Bytes.
 - Beim VC-20 hängt sie vom **Speicherausbau** ab (Projekt-Einstellung, auf der Kommandozeile `--memory 8k`).
-- Der Dialekt gilt für die **Quellgruppe**. Soll eine Datei ausnahmsweise einen anderen Dialekt haben (z. B. Turbo BASIC XL statt Atari BASIC), wählst du ihn bei dieser Quellgruppe.
+- Der Dialekt gilt für die **Quellgruppe**. Soll eine Datei ausnahmsweise einen anderen Dialekt haben (z. B. Turbo BASIC XL statt Atari BASIC), schreibst du `#dialect turbo_basic_xl` an den Anfang der Datei. Diese Zeile geht der Einstellung des Projekts vor. Eine unbekannte Kennung meldet **B178**, eine Kennung, die nicht zum Zielsystem passt, **B170** (als Warnung).
 
 Wählst du den falschen Dialekt, bleibt der Bau ohne Meldung: Ein Befehl, den der Dialekt nicht kennt, wird als Folge von Buchstaben, also wie Variablennamen, übersetzt. Das merkst du erst auf dem Gerät.
 
@@ -257,7 +257,7 @@ Unterschiede zum Commodore-Weg:
 
 - **Kleine Schreibweise im Text bleibt klein.** Das Atari-BASIC kennt in Zeichenketten ASCII/ATASCII von Leerzeichen bis `~`. Zeichen darüber, wie Umlaute, ergeben einen Fehler (siehe unten).
 - **Steuerzeichen** in `{…}`: `{clr}` (Bildschirm löschen, `$7D`), `{up}`, `{down}`, `{left}`, `{right}`, `{esc}`, `{tab}`, `{del}`, `{eol}`, `{bell}` und jedes Byte als `{$xx}`.
-- **Der Übersetzer prüft die Syntax der Anweisungen** (anders als bei Commodore): Er liest jede Anweisung nach der Grammatik des Atari-BASIC und meldet Fehler wie `'=' nach 'X' erwartet`, `Ausdruck unvollständig` oder `unerwartetes Zeichen '_'` als **B100**. Auch das `'` als Kommentar gibt es dort nicht.
+- **Der Übersetzer prüft die Syntax der Anweisungen** (anders als bei Commodore): Er liest jede Anweisung nach der Grammatik des Atari-BASIC und meldet Fehler wie `'=' nach 'X' erwartet` (**B180**), `Ausdruck unvollständig` (**B181**) oder `unerwartetes Zeichen '_'` (**B100**). Die Codes **B180** bis **B185** gehören dem Atari: B180 Anweisung, B181 Ausdruck, B182 Name, B183 Zahl, B184 Text, B185 Grenzen (zu viele Variablen, Zeile zu lang, Zeilennummer zu groß). Auch das `'` als Kommentar gibt es dort nicht.
 - Die **Zeilennummern** reichen bis 32767; eine Zeile darf höchstens 255 Byte lang werden.
 - Namen können beliebig lang sein, aber höchstens 128 verschiedene Variablen. `_` ist in Namen nicht erlaubt (siehe [Lange Namen](help:basic-names)).
 - **Marken** funktionieren wie überall: `goto @neu`, `gosub @x`, `trap @fehler`, `on a goto @a, @b`.
@@ -268,7 +268,7 @@ x =
 ```
 
 ```text
-main.bas:1: error B100: Ausdruck unvollständig
+main.bas:1: error B181: Ausdruck unvollständig
 ```
 
 Zeichen außerhalb des ATASCII-Bereichs melden sich ebenso:
@@ -278,12 +278,12 @@ Zeichen außerhalb des ATASCII-Bereichs melden sich ebenso:
 ```
 
 ```text
-main.bas:1: error B100: Zeichen 'ü' nicht im ATASCII-Bereich (nutze {$xx})
+main.bas:1: error B184: Zeichen 'ü' nicht im ATASCII-Bereich (nutze {$xx})
 ```
 
 ## Turbo BASIC XL (Atari)
 
-Turbo BASIC XL ist ein schnelleres, erweitertes Atari-BASIC. Es wird als Dialekt der Quellgruppe gewählt (Projekt-Editor „BASIC-Dialekt“, in der `.vcprj` `"dialect": "turbo_basic_xl"`; auf der Kommandozeile `--dialect turbo_basic_xl`). Zusätzlich zum Atari BASIC kennt der Übersetzer:
+Turbo BASIC XL ist ein schnelleres, erweitertes Atari-BASIC. Du wählst es beim Anlegen des Projekts (Dialog „Neues Projekt“, BASIC-Dialekt), als Dialekt der Quellgruppe (in der `.vcprj` `"dialect": "turbo_basic_xl"`), für eine einzelne Datei mit `#dialect turbo_basic_xl` oder auf der Kommandozeile mit `--dialect turbo_basic_xl`. Zusätzlich zum Atari BASIC kennt der Übersetzer:
 
 - **Strukturen:** `PROC name … ENDPROC`, `EXEC name`, `WHILE … WEND`, `REPEAT … UNTIL`, `DO … LOOP`, `EXIT`, mehrzeiliges `IF … ELSE … ENDIF`.
 - **Sprungmarken:** `GO# name` und `# name` (eigene Marke in Turbo BASIC XL); `ON x EXEC a, b` und `ON x GO# a, b`. Daneben funktioniert `@name` wie immer.
@@ -369,7 +369,7 @@ endproc
 70 ? "fertig"
 ```
 
-**Zum Starten** braucht man Turbo BASIC XL selbst (nicht im Lieferumfang). Die gebaute `.bas`-Datei kann man damit laden. Geprüft ist die Ausgabe Byte für Byte gegen einen unabhängigen Tokenizer, nicht gegen das Originalprogramm in einem Emulator. Zu lange Zeilen (über 255 Byte) lehnt der Bau ab.
+**Zum Starten** braucht man Turbo BASIC XL selbst; es gehört nicht zum Lieferumfang. Du stellst eine eigene Diskette bereit (Bereich **Projekt**, Seite **Diskette**, Karte „Turbo BASIC XL“), VintageCoder schreibt dein Programm als `AUTORUN.BAS` in eine Kopie davon und startet sie im Emulator; siehe [Turbo BASIC XL: Diskette](hilfe:turbo-disk). Die gebaute `.bas`-Datei kann man auch von Hand laden. Geprüft ist die Ausgabe Byte für Byte gegen einen unabhängigen Tokenizer, nicht gegen das Originalprogramm in einem Emulator. Zu lange Zeilen (über 255 Byte) lehnt der Bau ab.
 
 ## Gleiche Aufgabe auf jedem System
 

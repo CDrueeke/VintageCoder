@@ -1,0 +1,87 @@
+{
+  "i18n": { "status": "maschinell", "source_hash": "db0dcbb1efdc" },
+  "command": "debuglog",
+  "group": "hilfe",
+  "summary": "Analyze the debug log of the IDE",
+  "description": [
+    "Summarizes the log file that VintageCoder writes when the debug log is turned on (Settings > General or the environment variable VC_DEBUG_LOG). The file consists of JSON lines (ts, seq, kind, msg). The first line contains the version and installation. The output shows the program, the number and kind of entries, crashes, errors and warnings, and the last events before the end.",
+    "Without a file, the default file logs/vintagecoder.log in the configuration folder is used. The command only reads and sends nothing."
+  ],
+  "aliases": [],
+  "forms": [
+    {
+      "id": "",
+      "usage": "vcc debuglog [file.log] [options]",
+      "args": [
+        {
+          "name": "file.log",
+          "required": false,
+          "repeat": false,
+          "help": "Log file. The default is the file in the configuration folder (or VC_DEBUG_LOG, if it is a path)."
+        }
+      ],
+      "option_groups": [
+        {
+          "id": "ausgabe",
+          "label": "Output"
+        }
+      ],
+      "options": [
+        {
+          "flag": "--json",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Print the summary as machine-readable JSON.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--tail",
+          "short": "",
+          "value": "n",
+          "group": "ausgabe",
+          "help": "Number of last events to show.",
+          "default": "",
+          "default_text": "20",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--path",
+          "short": "",
+          "value": "",
+          "group": "ausgabe",
+          "help": "Print only the path of the default file.",
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        }
+      ],
+      "examples": [
+        {
+          "title": "Summarize the default log",
+          "cmd": "vcc debuglog"
+        },
+        {
+          "title": "Analyze a file from a feedback report, machine-readable",
+          "cmd": "vcc debuglog error.log --json"
+        },
+        {
+          "title": "Show the path of the default file",
+          "cmd": "vcc debuglog --path"
+        }
+      ],
+      "notes": [
+        "Lines that are not a valid entry (for example one cut off by a crash) are counted and skipped.",
+        "When the file is rotated (5 MB), the previous file stays with the extension .log.1."
+      ],
+      "see_also": [
+        "feedback"
+      ]
+    }
+  ]
+}

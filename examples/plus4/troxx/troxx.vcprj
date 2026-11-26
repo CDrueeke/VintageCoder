@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "project": {
+    "name": "Plus/4: Troxx",
+    "description": "Troxx fuer den Plus/4: Gitterlinien abfahren, Rechtecke schliessen. TED mit 121 Farben, Zeichensatz im RAM, Rasterinterrupt, zwei Stimmen, Bestenliste auf Diskette, zwei Spieler abwechselnd"
+  },
+  "targets": [
+    {
+      "id": "plus4",
+      "system": "plus4",
+      "cpu": "7501",
+      "variant": "pal",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "plus4"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm",
+  "disk": {
+    "format": "d64"
+  }
+}

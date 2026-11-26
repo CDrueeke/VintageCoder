@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "project": {
+    "name": "VIC-20: Troxx (Spike)",
+    "description": "Troxx, reference version for the unexpanded VIC-20: travel along grid lines, close rectangles. Stage 1 (spike): screen, character set, grid, frame timing, joystick, sound"
+  },
+  "targets": [
+    {
+      "id": "vic20",
+      "system": "vic20",
+      "variant": "pal",
+      "memory": "unexpanded",
+      "cpu": "nmos6502",
+      "illegals": "deny",
+      "emulator": "vice"
+    }
+  ],
+  "sources": [
+    {
+      "targets": [
+        "vic20"
+      ],
+      "kind": "asm",
+      "files": [
+        "main.asm"
+      ]
+    }
+  ],
+  "main": "main.asm"
+}

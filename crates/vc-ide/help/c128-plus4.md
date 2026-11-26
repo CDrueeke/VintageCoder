@@ -18,5 +18,5 @@ Zwei weitere Commodore-Targets, beide mit eigenem BASIC-Dialekt und Emulator (VI
 
 ## Hinweise
 - Registerlisten stammen aus den Handbüchern, nicht aus einem Emulator-Dump; Programme der Vorlagen laufen im VICE (Haltepunkt-Test mit `x128` und `xplus4`).
-- Projekt-Assistent in der Oberfläche oder auf der Kommandozeile: `vcc new proj --target c128,plus4 --template asm-hello`.
+- Dialog **Neues Projekt erstellen** in der Oberfläche oder auf der Kommandozeile: `vcc new proj --target c128,plus4 --template asm-hello`.
 - Nicht enthalten: Z80-Modus, VDC-Grafik, Bank-Umschaltung (MMU) als Assembler-Hilfe, Kassetten-/Modulformate dieser Rechner.

@@ -13,6 +13,7 @@ DISTROS   := debian ubuntu fedora opensuse
 PLATFORM  ?= linux/amd64
 OUT       ?= $(CURDIR)/build/pakete
 FEATURES  ?= FEATURES.md
+OBERFLAECHE ?= tauri
 BASE_debian   := debian:stable
 BASE_ubuntu   := ubuntu:24.04
 BASE_fedora   := fedora:latest
@@ -33,7 +34,7 @@ $(addprefix pkg-,$(DISTROS)): pkg-%: image-%
 	mkdir -p "$(OUT)/$*"
 	docker run --rm --platform $(PLATFORM) \
 	  -v "$(CURDIR)":/src:ro -v "$(OUT)/$*":/out \
-	  -v vc-cargo-$*:/opt/cargo/registry -v vc-target-$*:/cache/target -e CARGO_TARGET_DIR=/cache/target -e FEATURES=$(FEATURES) \
+	  -v vc-cargo-$*:/opt/cargo/registry -v vc-target-$*:/cache/target -v vc-npm-$*:/cache/npm -e CARGO_TARGET_DIR=/cache/target -e npm_config_cache=/cache/npm -e FEATURES=$(FEATURES) -e OBERFLAECHE=$(OBERFLAECHE) \
 	  vc-build-$* tools/linux-build.sh $* /out
 
 $(addprefix test-,$(DISTROS)): test-%:

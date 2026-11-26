@@ -2,6 +2,7 @@
 //! Ausdrucksauswertung (Pratt-Parser) für Operanden und Direktiven.
 use std::collections::HashMap;
 use std::rc::Rc;
+use vc_core::{msg, Msg};
 
 pub struct Ctx<'a> {
     pub syms: &'a HashMap<String, i64>,
@@ -38,8 +39,8 @@ impl Val {
     pub fn int(v: i64, known: bool) -> Val { Val { v, known, f: None, list: None } }
     pub fn list(items: Vec<Val>) -> Val { Val { v: 0, known: items.iter().all(|x| x.known), f: None, list: Some(Rc::new(items)) } }
     /// Fehler, wenn der Wert eine Liste ist (für Rechenoperationen mit Zahlen)
-    pub fn scalar(self, op: &str) -> Result<Val, String> {
-        if self.list.is_some() { Err(format!("'{op}' ist für Listen nicht erlaubt")) } else { Ok(self) }
+    pub fn scalar(self, op: &str) -> Result<Val, Msg> {
+        if self.list.is_some() { Err(msg!("diag-asm-e202-list-not-allowed", op = op)) } else { Ok(self) }
     }
     /// Alle Zahlen einer (verschachtelten) Liste der Reihe nach; ein einzelner Wert ergibt sich selbst
     pub fn flatten(&self) -> Vec<Val> {
@@ -48,16 +49,16 @@ impl Val {
             None => vec![self.clone()],
         }
     }
-    fn real(x: f64, known: bool) -> Result<Val, String> {
-        if !x.is_finite() { return if known { Err("Ergebnis ist keine endliche Zahl".into()) } else { Ok(Val::int(0, false)) }; }
+    fn real(x: f64, known: bool) -> Result<Val, Msg> {
+        if !x.is_finite() { return if known { Err(msg!("diag-asm-e202-not-finite")) } else { Ok(Val::int(0, false)) }; }
         Ok(Val { v: x as i64, known, f: Some(x), list: None })
     }
     fn as_f64(&self) -> f64 { self.f.unwrap_or(self.v as f64) }
     /// Nachkommaanteil vorhanden?
     pub fn has_fraction(&self) -> bool { self.f.map_or(false, |x| x.fract() != 0.0) }
-    fn as_int(&self, op: &str) -> Result<i64, String> {
-        if self.list.is_some() { return Err(format!("'{op}' ist für Listen nicht erlaubt")); }
-        if self.has_fraction() { Err(format!("'{op}' ist nur für ganze Zahlen erlaubt")) } else { Ok(self.v) }
+    fn as_int(&self, op: &str) -> Result<i64, Msg> {
+        if self.list.is_some() { return Err(msg!("diag-asm-e202-list-not-allowed", op = op)); }
+        if self.has_fraction() { Err(msg!("diag-asm-e202-integer-only", op = op)) } else { Ok(self.v) }
     }
     fn truthy(&self) -> bool { self.as_f64() != 0.0 }
 }
@@ -91,7 +92,7 @@ pub fn lookup_scoped<T>(name: &str, scope: &str, path: &str, find: &mut dyn FnMu
     }
 }
 
-fn lex(s: &str) -> Result<Vec<Tok>, String> {
+fn lex(s: &str) -> Result<Vec<Tok>, Msg> {
     let c: Vec<char> = s.chars().collect();
     let mut i = 0;
     let mut out = vec![];
@@ -102,13 +103,13 @@ fn lex(s: &str) -> Result<Vec<Tok>, String> {
             i += if ch == '$' { 1 } else { 2 };
             let st = i;
             while i < c.len() && c[i].is_ascii_hexdigit() { i += 1; }
-            if st == i { return Err("ungültige Hex-Zahl".into()); }
-            out.push(Tok::Num(i64::from_str_radix(&c[st..i].iter().collect::<String>(), 16).map_err(|e| e.to_string())?));
+            if st == i { return Err(msg!("diag-asm-e202-bad-hex")); }
+            out.push(Tok::Num(i64::from_str_radix(&c[st..i].iter().collect::<String>(), 16).map_err(|_| msg!("diag-asm-e202-number-too-large"))?));
         } else if ch == '%' && c.get(i + 1).map_or(false, |x| *x == '0' || *x == '1') {
             i += 1;
             let st = i;
             while i < c.len() && (c[i] == '0' || c[i] == '1') { i += 1; }
-            out.push(Tok::Num(i64::from_str_radix(&c[st..i].iter().collect::<String>(), 2).map_err(|e| e.to_string())?));
+            out.push(Tok::Num(i64::from_str_radix(&c[st..i].iter().collect::<String>(), 2).map_err(|_| msg!("diag-asm-e202-number-too-large"))?));
         } else if ch.is_ascii_digit() {
             let st = i;
             while i < c.len() && c[i].is_ascii_digit() { i += 1; }
@@ -128,10 +129,10 @@ fn lex(s: &str) -> Result<Vec<Tok>, String> {
                 }
             }
             let text: String = c[st..i].iter().collect();
-            if real { out.push(Tok::Float(text.parse().map_err(|_| "ungültige Kommazahl".to_string())?)); }
-            else { out.push(Tok::Num(text.parse().map_err(|_| "Zahl zu groß".to_string())?)); }
+            if real { out.push(Tok::Float(text.parse().map_err(|_| msg!("diag-asm-e202-bad-float"))?)); }
+            else { out.push(Tok::Num(text.parse().map_err(|_| msg!("diag-asm-e202-number-too-large"))?)); }
         } else if ch == '\'' {
-            if c.get(i + 2) != Some(&'\'') { return Err("ungültiges Zeichenliteral".into()); }
+            if c.get(i + 2) != Some(&'\'') { return Err(msg!("diag-asm-e202-bad-char-literal")); }
             out.push(Tok::Num(c[i + 1] as i64));
             i += 3;
         } else if ch.is_alphabetic() || ch == '_' || ch == '.' {
@@ -146,7 +147,7 @@ fn lex(s: &str) -> Result<Vec<Tok>, String> {
                     '!' => "!",
                     '+' => "+", '-' => "-", '*' => "*", '/' => "/", '%' => "%", '&' => "&", '|' => "|", '^' => "^",
                     '~' => "~", '<' => "<", '>' => ">", '(' => "(", ')' => ")", ',' => ",", '[' => "[", ']' => "]", ':' => ":",
-                    _ => return Err(format!("unerwartetes Zeichen '{ch}'")),
+                    _ => return Err(msg!("diag-asm-e202-unexpected-char", ch = ch)),
                 },
             };
             i += op.len();
@@ -187,7 +188,7 @@ fn func_arity(n: &str) -> Option<(usize, usize)> {
 
 impl P<'_, '_> {
     /// Funktionsaufruf `name(arg, …)`; der Name steht schon gelesen, die Klammer kommt als Nächstes.
-    fn args(&mut self, name: &str) -> Result<Vec<Val>, String> {
+    fn args(&mut self, name: &str) -> Result<Vec<Val>, Msg> {
         self.i += 1;
         let mut args: Vec<Val> = vec![];
         if self.t.get(self.i) == Some(&Tok::Op(")")) { self.i += 1; } else {
@@ -196,43 +197,43 @@ impl P<'_, '_> {
                 match self.t.get(self.i) {
                     Some(Tok::Op(",")) => self.i += 1,
                     Some(Tok::Op(")")) => { self.i += 1; break; }
-                    _ => return Err(format!("')' fehlt bei {name}(…)")),
+                    _ => return Err(msg!("diag-asm-e202-call-paren-missing", name = name)),
                 }
             }
         }
         Ok(args)
     }
-    fn call_user(&mut self, name: &str) -> Result<Val, String> {
+    fn call_user(&mut self, name: &str) -> Result<Val, Msg> {
         let args = self.args(name)?;
         let f = &self.ctx.funcs[name];
-        if args.len() != f.params.len() { return Err(format!("{name}() erwartet {} Argument(e), erhalten {}", f.params.len(), args.len())); }
-        if self.ctx.stack.iter().any(|s| s == name) { return Err(format!("Funktion '{name}' ruft sich selbst auf")); }
-        if self.ctx.stack.len() >= 32 { return Err("Funktionen zu tief verschachtelt".into()); }
+        if args.len() != f.params.len() { return Err(msg!("diag-asm-e202-fn-arity", name = name, expected = f.params.len(), got = args.len())); }
+        if self.ctx.stack.iter().any(|s| s == name) { return Err(msg!("diag-asm-e202-fn-recursion", name = name)); }
+        if self.ctx.stack.len() >= 32 { return Err(msg!("diag-asm-e202-fn-too-deep")); }
         let mut vars = self.ctx.vars.clone();
         for (p, a) in f.params.iter().zip(&args) { vars.insert(qualified(p, "", self.ctx.path), a.clone()); }
         let mut stack = self.ctx.stack.to_vec();
         stack.push(name.to_string());
         let ctx = Ctx { syms: self.ctx.syms, locals: self.ctx.locals, vars: &vars, funcs: self.ctx.funcs, stack: &stack, pc: self.ctx.pc, scope: self.ctx.scope, path: self.ctx.path, strict: self.ctx.strict };
-        let mut v = eval(&f.body, &ctx).map_err(|e| format!("{e} (in Funktion {name})"))?;
+        let mut v = eval(&f.body, &ctx).map_err(|e| msg!("diag-asm-e202-in-function", inner = e, name = name))?;
         v.known &= args.iter().all(|a| a.known);
         Ok(v)
     }
-    fn call(&mut self, name: &str) -> Result<Val, String> {
+    fn call(&mut self, name: &str) -> Result<Val, Msg> {
         let args = self.args(name)?;
         let (lo, hi) = func_arity(name).unwrap();
         if args.len() < lo || args.len() > hi {
-            return Err(if lo == hi { format!("{name}() erwartet {lo} Argument(e), erhalten {}", args.len()) } else { format!("{name}() erwartet mindestens {lo} Argument(e), erhalten {}", args.len()) });
+            return Err(if lo == hi { msg!("diag-asm-e202-fn-arity", name = name, expected = lo, got = args.len()) } else { msg!("diag-asm-e202-fn-arity-min", name = name, expected = lo, got = args.len()) });
         }
         let known = args.iter().all(|a| a.known);
         if name == "len" {
-            return match &args[0].list { Some(l) => Ok(Val::int(l.len() as i64, args[0].known)), None => Err("len() erwartet eine Liste".into()) };
+            return match &args[0].list { Some(l) => Ok(Val::int(l.len() as i64, args[0].known)), None => Err(msg!("diag-asm-e202-len-needs-list")) };
         }
-        for a in &args { if a.list.is_some() { return Err(format!("{name}() erwartet Zahlen, keine Liste")); } }
+        for a in &args { if a.list.is_some() { return Err(msg!("diag-asm-e202-fn-needs-numbers", name = name)); } }
         if name == "range" {
             let (lo, hi, st) = match args.as_slice() { [n] => (0, n.v, 1), [l, h] => (l.v, h.v, 1), [l, h, s] => (l.v, h.v, s.v), _ => unreachable!() };
-            if st == 0 { return Err("range: Schrittweite darf nicht 0 sein".into()); }
+            if st == 0 { return Err(msg!("diag-asm-e202-range-step-zero")); }
             let count = if st > 0 { (hi - lo).max(0) + st - 1 } else { (lo - hi).max(0) - st - 1 } / st.abs();
-            if count > 65536 { return Err("range: mehr als 65536 Elemente".into()); }
+            if count > 65536 { return Err(msg!("diag-asm-e202-range-too-long")); }
             return Ok(Val::list((0..count).map(|k| Val::int(lo + k * st, known)).collect()));
         }
         let x = args[0].as_f64();
@@ -262,7 +263,7 @@ impl P<'_, '_> {
         }
     }
 
-    fn expr(&mut self, min: u8) -> Result<Val, String> {
+    fn expr(&mut self, min: u8) -> Result<Val, Msg> {
         let mut lhs = self.unary()?;
         loop {
             let op = match self.t.get(self.i) { Some(Tok::Op(o)) => *o, _ => break };
@@ -276,10 +277,10 @@ impl P<'_, '_> {
                     ("+", Some(a), Some(b)) => Val::list(a.iter().chain(b.iter()).cloned().collect()),
                     ("*", Some(a), None) | ("*", None, Some(a)) => {
                         let n = if lhs.list.is_some() { rhs.as_int("*")? } else { lhs.as_int("*")? };
-                        if n < 0 || n.saturating_mul(a.len() as i64) > 65536 { return Err("Liste zu lang (höchstens 65536 Elemente)".into()); }
+                        if n < 0 || n.saturating_mul(a.len() as i64) > 65536 { return Err(msg!("diag-asm-e202-list-too-long")); }
                         Val::list((0..n).flat_map(|_| a.iter().cloned()).collect())
                     }
-                    _ => return Err(format!("'{op}' ist für Listen nicht erlaubt (nur Liste + Liste und Liste * Zahl)")),
+                    _ => return Err(msg!("diag-asm-e202-list-op", op = op)),
                 };
                 continue;
             }
@@ -288,7 +289,7 @@ impl P<'_, '_> {
                 let (x, y) = (lhs.as_f64(), rhs.as_f64());
                 lhs = match op {
                     "+" => Val::real(x + y, known)?, "-" => Val::real(x - y, known)?, "*" => Val::real(x * y, known)?,
-                    "/" => { if y == 0.0 { if known { return Err("Division durch 0".into()) } else { Val::int(0, false) } } else { Val::real(x / y, known)? } }
+                    "/" => { if y == 0.0 { if known { return Err(msg!("diag-asm-e202-div-zero")) } else { Val::int(0, false) } } else { Val::real(x / y, known)? } }
                     "==" => Val::int((x == y) as i64, known), "!=" => Val::int((x != y) as i64, known),
                     "<" => Val::int((x < y) as i64, known), ">" => Val::int((x > y) as i64, known),
                     "<=" => Val::int((x <= y) as i64, known), ">=" => Val::int((x >= y) as i64, known),
@@ -300,8 +301,8 @@ impl P<'_, '_> {
             let (a, b) = (lhs.v, rhs.v);
             let v = match op {
                 "+" => a.wrapping_add(b), "-" => a.wrapping_sub(b), "*" => a.wrapping_mul(b),
-                "/" => if b == 0 { if known { return Err("Division durch 0".into()) } else { 0 } } else { a / b },
-                "%" => if b == 0 { if known { return Err("Division durch 0".into()) } else { 0 } } else { a % b },
+                "/" => if b == 0 { if known { return Err(msg!("diag-asm-e202-div-zero")) } else { 0 } } else { a / b },
+                "%" => if b == 0 { if known { return Err(msg!("diag-asm-e202-div-zero")) } else { 0 } } else { a % b },
                 "&" => a & b, "|" => a | b, "^" => a ^ b,
                 "==" => (a == b) as i64, "!=" => (a != b) as i64, "<" => (a < b) as i64, ">" => (a > b) as i64,
                 "<=" => (a <= b) as i64, ">=" => (a >= b) as i64, "&&" => (a != 0 && b != 0) as i64, "||" => (a != 0 || b != 0) as i64,
@@ -314,11 +315,11 @@ impl P<'_, '_> {
     }
 
     /// Primärausdruck mit anschließenden Index- und Ausschnittzugriffen `t[i]`, `t[a:b]`
-    fn unary(&mut self) -> Result<Val, String> {
+    fn unary(&mut self) -> Result<Val, Msg> {
         let mut v = self.primary()?;
         while self.t.get(self.i) == Some(&Tok::Op("[")) {
             self.i += 1;
-            let Some(items) = v.list.clone() else { return Err("Index nur auf Listen erlaubt".into()) };
+            let Some(items) = v.list.clone() else { return Err(msg!("diag-asm-e202-index-not-list")) };
             let n = items.len() as i64;
             let fix = |k: i64| if k < 0 { k + n } else { k };
             let mut lo: Option<Val> = None;
@@ -326,19 +327,19 @@ impl P<'_, '_> {
             if self.t.get(self.i) == Some(&Tok::Op(":")) {
                 self.i += 1;
                 let hi = if self.t.get(self.i) == Some(&Tok::Op("]")) { None } else { Some(self.expr(1)?) };
-                if self.t.get(self.i) != Some(&Tok::Op("]")) { return Err("']' fehlt".into()); }
+                if self.t.get(self.i) != Some(&Tok::Op("]")) { return Err(msg!("diag-asm-e202-bracket-missing")); }
                 self.i += 1;
                 let a = match &lo { Some(x) => fix(x.clone().scalar(":")?.v), None => 0 }.clamp(0, n);
                 let b = match &hi { Some(x) => fix(x.clone().scalar(":")?.v), None => n }.clamp(a, n);
                 v = Val::list(items[a as usize..b as usize].to_vec());
                 v.known &= lo.map_or(true, |x| x.known) && hi.map_or(true, |x| x.known);
             } else {
-                let idx = lo.ok_or("Index fehlt")?;
-                if self.t.get(self.i) != Some(&Tok::Op("]")) { return Err("']' fehlt".into()); }
+                let idx = lo.ok_or_else(|| msg!("diag-asm-e202-index-missing"))?;
+                if self.t.get(self.i) != Some(&Tok::Op("]")) { return Err(msg!("diag-asm-e202-bracket-missing")); }
                 self.i += 1;
                 let k = fix(idx.clone().scalar("[]")?.v);
                 if k < 0 || k >= n {
-                    if idx.known && v.known { return Err(format!("Index {} außerhalb der Liste (Länge {n})", idx.v)); }
+                    if idx.known && v.known { return Err(msg!("diag-asm-e202-index-out-of-range", index = idx.v, len = n)); }
                     v = Val::int(0, false);
                 } else {
                     let mut e = items[k as usize].clone();
@@ -350,8 +351,8 @@ impl P<'_, '_> {
         Ok(v)
     }
 
-    fn primary(&mut self) -> Result<Val, String> {
-        let t = self.t.get(self.i).cloned().ok_or("Ausdruck unvollständig")?;
+    fn primary(&mut self) -> Result<Val, Msg> {
+        let t = self.t.get(self.i).cloned().ok_or_else(|| msg!("diag-asm-e202-incomplete"))?;
         self.i += 1;
         match t {
             Tok::Num(n) => Ok(Val::int(n, true)),
@@ -362,9 +363,9 @@ impl P<'_, '_> {
                 // next(n): nächste durch n teilbare Adresse ab dem Programmzähler (bleibt stehen, wenn er schon passt)
                 self.i += 1;
                 let n = self.expr(1)?;
-                if self.t.get(self.i) != Some(&Tok::Op(")")) { return Err("')' fehlt".into()); }
+                if self.t.get(self.i) != Some(&Tok::Op(")")) { return Err(msg!("diag-asm-e202-paren-missing")); }
                 self.i += 1;
-                if n.known && n.v < 1 { return Err("next(n): n muss größer als 0 sein".into()); }
+                if n.known && n.v < 1 { return Err(msg!("diag-asm-e202-next-zero")); }
                 let n1 = n.v.max(1);
                 Ok(Val::int((self.ctx.pc + n1 - 1) / n1 * n1, n.known))
             }
@@ -375,7 +376,7 @@ impl P<'_, '_> {
                 match found {
                     Some(v) => Ok(v),
                     None if name.eq_ignore_ascii_case("pi") => Val::real(std::f64::consts::PI, true),
-                    None if self.ctx.strict => Err(format!("unbekanntes Symbol '{name}'")),
+                    None if self.ctx.strict => Err(msg!("diag-asm-e202-unknown-symbol", name = name)),
                     None => Ok(Val::int(0, false)),
                 }
             }
@@ -387,7 +388,7 @@ impl P<'_, '_> {
                         match self.t.get(self.i) {
                             Some(Tok::Op(",")) => self.i += 1,
                             Some(Tok::Op("]")) => { self.i += 1; break; }
-                            _ => return Err("']' fehlt".into()),
+                            _ => return Err(msg!("diag-asm-e202-bracket-missing")),
                         }
                     }
                 }
@@ -402,20 +403,20 @@ impl P<'_, '_> {
             Tok::Op(">") => { let v = self.unary()?; Ok(Val::int((v.as_int(">")? >> 8) & 0xFF, v.known)) }
             Tok::Op("(") => {
                 let v = self.expr(1)?;
-                if self.t.get(self.i) != Some(&Tok::Op(")")) { return Err("')' fehlt".into()); }
+                if self.t.get(self.i) != Some(&Tok::Op(")")) { return Err(msg!("diag-asm-e202-paren-missing")); }
                 self.i += 1;
                 Ok(v)
             }
-            Tok::Op(o) => Err(format!("unerwarteter Operator '{o}'")),
+            Tok::Op(o) => Err(msg!("diag-asm-e202-unexpected-operator", op = o)),
         }
     }
 }
 
-pub fn eval(s: &str, ctx: &Ctx) -> Result<Val, String> {
+pub fn eval(s: &str, ctx: &Ctx) -> Result<Val, Msg> {
     let t = lex(s)?;
-    if t.is_empty() { return Err("Ausdruck fehlt".into()); }
+    if t.is_empty() { return Err(msg!("diag-asm-e202-empty")); }
     let mut p = P { t, i: 0, ctx };
     let v = p.expr(1)?;
-    if p.i != p.t.len() { return Err("unerwartete Zeichen am Ausdrucksende".into()); }
+    if p.i != p.t.len() { return Err(msg!("diag-asm-e202-trailing")); }
     Ok(v)
 }

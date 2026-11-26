@@ -1,7 +1,7 @@
 {
   "structures": [
     {
-      "id": "einfach",
+      "id": "simple",
       "name": "Einfach",
       "description": "Kleine Programme: keine zusätzlichen Ordner, abgelegte Dateien kommen nach lib/, doc/, data/ und graphics/.",
       "dirs": [],
@@ -36,7 +36,7 @@
       }
     },
     {
-      "id": "gross",
+      "id": "large",
       "name": "Groß, modular",
       "description": "Module in src/, Ressourcen getrennt nach Art, Werkzeuge, Doku und Tests.",
       "dirs": [
@@ -69,7 +69,7 @@
       }
     },
     {
-      "id": "mehrsystem",
+      "id": "multisystem",
       "name": "Mehrere Systeme",
       "description": "Gemeinsamer Code in common/, je Zielsystem eigene Unterordner für Quelltext und Ressourcen.",
       "dirs": [
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "bibliothek",
+      "id": "library",
       "name": "Bibliothek",
       "description": "Wiederverwendbarer Code in lib/ mit Beispielen, Tests und Doku.",
       "dirs": [
@@ -121,7 +121,7 @@
       }
     },
     {
-      "id": "spiel",
+      "id": "game",
       "name": "Spiel mit Levels",
       "description": "Levels, Grafik und Musik nach Art getrennt.",
       "dirs": [

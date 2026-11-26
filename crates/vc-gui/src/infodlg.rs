@@ -57,12 +57,12 @@ impl App {
             InfoAkt::Hinweise => { self.upd.hinweise = !self.upd.hinweise; self.md_grenze = crate::mdansicht::BLOECKE }
             InfoAkt::FeedbackAuf => { let ziel = vc_ide_model::recent::short_name(&self.system_id()).to_string(); let _ = ziel; self.upd.feedback = Some((feedback::current(Some(&self.system_id())), None)) }
             InfoAkt::FeedbackZu => self.upd.feedback = None,
-            InfoAkt::Mail => { if let Some((m, st)) = &mut self.upd.feedback { *st = Some(match aussen::mail_oeffnen(&m.url) { Ok(()) => (true, "Mailprogramm geöffnet. Gesendet wird erst dort.".into()), Err(e) => (false, format!("Mailprogramm nicht gestartet ({e}). Nimm „In Zwischenablage kopieren“.")) }) } }
-            InfoAkt::Kopieren => { if let Some((m, st)) = &mut self.upd.feedback { *st = Some((true, "In die Zwischenablage kopiert.".into())); return iced::clipboard::write(m.clipboard()) } }
+            InfoAkt::Mail => { if let Some((m, st)) = &mut self.upd.feedback { *st = Some(match aussen::mail_oeffnen(&m.url) { Ok(()) => (true, vc_i18n::t!("infodlg-mailprogramm-geoeffnet-gesendet-wird-erst-dort").into()), Err(e) => (false, vc_i18n::t!("infodlg-mailprogramm-nicht-gestartet-e-nimm-in", e = &e)) }) } }
+            InfoAkt::Kopieren => { if let Some((m, st)) = &mut self.upd.feedback { *st = Some((true, vc_i18n::t!("infodlg-in-die-zwischenablage-kopiert").into())); return iced::clipboard::write(m.clipboard()) } }
             InfoAkt::DebugLog(an) => { self.satz.akt(SetAkt::DebugLog(an)) }
             InfoAkt::Pruefen => { self.upd.update_offen = false; return self.update_pruefen() }
             InfoAkt::Ergebnis(r) => {
-                self.upd.laeuft = false; if !cfg!(test) { update::record(&r, &mut self.upd.stand) } else { self.upd.stand.last_result = match &r.result { Ok(e) => e.update.as_ref().map_or("aktuell".to_string(), |u| format!("Version {} verfügbar", u.version)), Err(e) => format!("Fehler: {e}") }; self.upd.stand.last_attempt = r.at }
+                self.upd.laeuft = false; if !cfg!(test) { update::record(&r, &mut self.upd.stand) } else { self.upd.stand.last_result = match &r.result { Ok(e) => e.update.as_ref().map_or(vc_i18n::t!("update-aktuell"), |u| vc_i18n::t!("infodlg-version-p1-verfuegbar", p1 = u.version.to_string())), Err(e) => vc_i18n::t!("infodlg-fehler-e", e = &e) }; self.upd.stand.last_attempt = r.at }
                 if let Ok(ev) = &r.result { self.upd.eval = Some(ev.clone()); if ev.update.is_some() { self.upd.update_offen = true } }
                 self.upd.letzte = Some(*r);
             }
@@ -78,57 +78,57 @@ impl App {
 
     /// Tabelle der mitgelieferten eigenen Zeichensätze: Urheber, Lizenz, Revision, Prüfstand und Freigabe (aus `data/charsets/index.json` und dem `origin` jeder Datei)
     fn herkunft_karte(&self, pal: Pal) -> Element<'_, Msg> {
-        let mut zeilen: Vec<Element<Msg>> = vec![text("Eigene Zeichensätze (VC-Standard)").size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(),
-            klein(pal, "Entwürfe des VintageCoder-Projekts, keine Nachbildung von Original-ROMs. Lizenz CC0-1.0: frei nutzbar und weitergebbar. Jede Datei trägt ihre Herkunft im Block „origin“.")];
+        let mut zeilen: Vec<Element<Msg>> = vec![text(vc_i18n::t!("infodlg-eigene-zeichensaetze-vc-standard")).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(),
+            klein(pal, vc_i18n::t!("infodlg-entwuerfe-des-vintagecoder-projekts-keine-nachbildung"))];
         let saetze = vc_media::project::eigene_saetze(&self.data, "");
-        if saetze.is_empty() { zeilen.push(klein(pal, "Keine eigenen Zeichensätze gefunden (data/charsets/).")) }
+        if saetze.is_empty() { zeilen.push(klein(pal, vc_i18n::t!("infodlg-keine-eigenen-zeichensaetze-gefunden-data-charsets"))) }
         for e in saetze {
             let o: serde_json::Value = std::fs::read_to_string(&e.datei).ok().and_then(|t| serde_json::from_str(&t).ok()).map(|v: serde_json::Value| v["origin"].clone()).unwrap_or_default();
             let (pruef, frei) = (o["check"]["result"].as_str().unwrap_or("offen").to_string(), o["freigabe"].as_str().unwrap_or("offen").to_string());
-            zeilen.push(row![text(e.name.clone()).size(12.5).color(pal.text).width(Length::FillPortion(5)), text(format!("{} · Rev. {}", e.lizenz, e.revision)).size(12).color(pal.mute).width(Length::FillPortion(3)), text(format!("Prüfung: {pruef} · Freigabe: {frei}{}", if pruef != "bestanden" && frei != "offen" { " (Abstandsprüfung nicht bestanden, vom Inhaber akzeptiert)" } else { "" })).size(12).color(if frei == "offen" { pal.warn } else { pal.ok }).width(Length::FillPortion(4))].spacing(8).into());
+            zeilen.push(row![text(e.name.clone()).size(12.5).color(pal.text).width(Length::FillPortion(5)), text(vc_i18n::t!("infodlg-p1-rev-p2", p1 = &e.lizenz, p2 = &e.revision)).size(12).color(pal.mute).width(Length::FillPortion(3)), text(vc_i18n::t!("infodlg-pruefung-pruef-freigabe-frei-p3", pruef = &pruef, frei = &frei, p3 = if pruef != "bestanden" && frei != "offen" { format!(" {}", vc_i18n::t!("infodlg-abstandspruefung-nicht-bestanden-vom-inhaber-akzeptiert")) } else { String::new() })).size(12).color(if frei == "offen" { pal.warn } else { pal.ok }).width(Length::FillPortion(4))].spacing(8).into());
         }
         karte(pal, zeilen)
     }
     pub(crate) fn info_dialog(&self, pal: Pal) -> Option<Element<'_, Msg>> {
         let z = &self.upd;
         if let Some((m, st)) = &z.feedback {
-            let mut c = column![abschnitt(pal, "Feedback senden", &format!("Die Mail geht an {}. Sie wird nur vorbereitet: gesendet wird erst, wenn du in deinem Mailprogramm auf „Senden“ klickst; hier wird nichts ins Netz geschickt.", feedback::ADDRESS)),
-                klein(pal, "Beschreibe den Fehler in deinem Mailprogramm in der leeren Zeile über den Angaben; Screenshots und Dateien hängst du dort selbst an."),
-                text("Betreff").size(12).color(pal.mute), mono(pal, m.subject.clone()), text("Text").size(12).color(pal.mute), scrollable(text(m.body.clone()).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text)).height(Length::Fixed(240.0))].spacing(8);
-            if !m.dropped.is_empty() { c = c.push(text(format!("Gekürzt: wegen der Längengrenze von Mail-Links fehlen {}. „In Zwischenablage kopieren“ enthält alles.", m.dropped.join(", "))).size(11.5).color(pal.warn)) }
-            if m.too_long { c = c.push(text("Der Link ist trotz Kürzung sehr lang; manche Mailprogramme schneiden ihn ab. Nimm dann die Zwischenablage.").size(11.5).color(pal.warn)) }
-            c = c.push(klein(pal, "Pfade in deinem persönlichen Ordner stehen als ~; Projekt- und Dateinamen kommen nicht vor."));
-            c = c.push(klein(pal, "Fehler schwer zu beschreiben? Schalte das Debug-Protokoll ein, wiederhole den Fehler und hänge die Datei an:"));
-            c = c.push(checkbox(self.satz.gespeichert.debug_log).label("Debug-Protokoll schreiben").on_toggle(|b| i(InfoAkt::DebugLog(b))).size(16).text_size(13));
-            c = c.push(row![knopf(pal, "Im Mailprogramm öffnen", Some(i(InfoAkt::Mail)), pal.text, true), knopf(pal, "In Zwischenablage kopieren", Some(i(InfoAkt::Kopieren)), pal.text, false), knopf(pal, "Abbrechen", Some(i(InfoAkt::FeedbackZu)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
+            let mut c = column![abschnitt(pal, vc_i18n::t!("infodlg-feedback-senden"), &vc_i18n::t!("infodlg-die-mail-geht-an-p1-sie", p1 = feedback::ADDRESS)),
+                klein(pal, vc_i18n::t!("infodlg-beschreibe-den-fehler-in-deinem-mailprogramm")),
+                text(vc_i18n::t!("infodlg-betreff")).size(12).color(pal.mute), mono(pal, m.subject.clone()), text(vc_i18n::t!("infodlg-text")).size(12).color(pal.mute), scrollable(text(m.body.clone()).size(11.5).font(vc_gui_ui::fonts::MONO).color(pal.text)).height(Length::Fixed(240.0))].spacing(8);
+            if !m.dropped.is_empty() { c = c.push(text(vc_i18n::t!("infodlg-gekuerzt-wegen-der-laengengrenze-von-mail", p1 = m.dropped.join(", "))).size(11.5).color(pal.warn)) }
+            if m.too_long { c = c.push(text(vc_i18n::t!("infodlg-der-link-ist-trotz-kuerzung-sehr")).size(11.5).color(pal.warn)) }
+            c = c.push(klein(pal, vc_i18n::t!("infodlg-pfade-in-deinem-persoenlichen-ordner-stehen")));
+            c = c.push(klein(pal, vc_i18n::t!("infodlg-fehler-schwer-zu-beschreiben-schalte-das")));
+            c = c.push(checkbox(self.satz.gespeichert.debug_log).label(vc_i18n::t!("infodlg-debug-protokoll-schreiben")).on_toggle(|b| i(InfoAkt::DebugLog(b))).size(16).text_size(13));
+            c = c.push(row![knopf(pal, vc_i18n::t!("infodlg-im-mailprogramm-oeffnen"), Some(i(InfoAkt::Mail)), pal.text, true), knopf(pal, vc_i18n::t!("infodlg-in-zwischenablage-kopieren"), Some(i(InfoAkt::Kopieren)), pal.text, false), knopf(pal, vc_i18n::t!("infodlg-abbrechen"), Some(i(InfoAkt::FeedbackZu)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
             if let Some((ok, t)) = st { c = c.push(text(t.clone()).size(12).color(if *ok { pal.ok } else { pal.warn })) }
             return Some(modal(pal, c.into(), 620.0, i(InfoAkt::FeedbackZu)));
         }
         if z.update_offen {
             if let Some(u) = z.eval.as_ref().and_then(|e| e.update.as_ref()) {
-                let mut c = column![abschnitt(pal, &format!("Neue Version {}", u.version), &format!("Installiert ist {}. VintageCoder lädt und installiert nichts selbst: „Ansehen“ öffnet die Releaseseite im Browser.", Version::installed())), scrollable(text(u.notes.clone()).size(12.5).color(pal.text)).height(Length::Fixed(260.0))].spacing(10);
-                if u.project_format_warning { c = c.push(text("Achtung: Die neue Version schreibt ein neueres Projektformat; ältere Versionen können solche Projekte danach nicht mehr lesen.").size(12).color(pal.warn)) }
-                c = c.push(row![knopf(pal, "Ansehen …", Some(i(InfoAkt::Ansehen)), pal.text, true), knopf(pal, "Später erinnern", Some(i(InfoAkt::Spaeter)), pal.text, false), knopf(pal, "Diese Version überspringen", Some(i(InfoAkt::Ueberspringen)), pal.text, false), knopf(pal, "Schließen", Some(i(InfoAkt::UpdateZu)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
+                let mut c = column![abschnitt(pal, &vc_i18n::t!("infodlg-neue-version-p1", p1 = u.version.to_string()), &vc_i18n::t!("infodlg-installiert-ist-p1-vintagecoder-laedt-und", p1 = Version::installed().to_string())), scrollable(text(u.notes.clone()).size(12.5).color(pal.text)).height(Length::Fixed(260.0))].spacing(10);
+                if u.project_format_warning { c = c.push(text(vc_i18n::t!("infodlg-achtung-die-neue-version-schreibt-ein")).size(12).color(pal.warn)) }
+                c = c.push(row![knopf(pal, vc_i18n::t!("infodlg-ansehen"), Some(i(InfoAkt::Ansehen)), pal.text, true), knopf(pal, vc_i18n::t!("infodlg-spaeter-erinnern"), Some(i(InfoAkt::Spaeter)), pal.text, false), knopf(pal, vc_i18n::t!("infodlg-diese-version-ueberspringen"), Some(i(InfoAkt::Ueberspringen)), pal.text, false), knopf(pal, vc_i18n::t!("infodlg-schliessen"), Some(i(InfoAkt::UpdateZu)), pal.text, false)].spacing(8).wrap().vertical_spacing(6));
                 return Some(modal(pal, c.into(), 600.0, i(InfoAkt::UpdateZu)));
             }
         }
         if z.ueber {
             let upd: Element<Msg> = if vc_ide::features::features().update() {
-                let (inst, gesehen) = (Version::installed(), z.eval.as_ref().map(|e| e.latest.to_string()).unwrap_or_default());
-                karte(pal, vec![text("Updates").size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(), klein(pal, format!("Installiert: {inst}{}", match z.eval.as_ref().and_then(|e| e.update.as_ref()) { Some(u) => format!("   ·   Neuere Version: {}", u.version), None if !gesehen.is_empty() => "   ·   aktuell".to_string(), None => String::new() })),
-                    klein(pal, format!("Zuletzt geprüft: {}{}", if z.stand.last_check == 0 { "noch nie".to_string() } else { update::format_time(z.stand.last_check) + " UTC" }, if z.stand.last_result.is_empty() { String::new() } else { format!(" ({})", z.stand.last_result) })),
-                    row![knopf(pal, if z.laeuft { "Prüfe …" } else { "Jetzt prüfen" }, (!z.laeuft).then(|| i(InfoAkt::Pruefen)), pal.text, false), knopf(pal, "Änderungen ansehen", z.eval.as_ref().is_some_and(|e| e.update.is_some()).then(|| i(InfoAkt::Ansehen)), pal.text, false)].spacing(8).wrap().vertical_spacing(6).into(),
-                    klein(pal, "„Jetzt prüfen“ fragt die Versionsliste (update.json) bei github.com ab: GitHub sieht deine IP-Adresse und den Programmnamen „VintageCoder-update“, ohne Versionsnummer. Ohne deine Zustimmung geht nie etwas ins Netz.")])
+                let (inst, gesehen) = (Version::installed().to_string(), z.eval.as_ref().map(|e| e.latest.to_string()).unwrap_or_default());
+                karte(pal, vec![text(vc_i18n::t!("infodlg-updates")).size(14).font(vc_gui_ui::fonts::UI_FETT).color(pal.text).into(), klein(pal, vc_i18n::t!("infodlg-installiert-inst-p2", inst = &inst, p2 = match z.eval.as_ref().and_then(|e| e.update.as_ref()) { Some(u) => format!("   {}", vc_i18n::t!("infodlg-neuere-version-p1", p1 = &u.version)), None if !gesehen.is_empty() => format!("   {}", vc_i18n::t!("infodlg-aktuell")).to_string(), None => String::new() })),
+                    klein(pal, vc_i18n::t!("infodlg-zuletzt-geprueft-p1-p2", p1 = if z.stand.last_check == 0 { vc_i18n::t!("infodlg-noch-nie").to_string() } else { update::format_time(z.stand.last_check) + " UTC" }, p2 = if z.stand.last_result.is_empty() { String::new() } else { format!(" ({})", z.stand.last_result) })),
+                    row![knopf(pal, if z.laeuft { vc_i18n::t!("infodlg-pruefe") } else { vc_i18n::t!("infodlg-jetzt-pruefen") }, (!z.laeuft).then(|| i(InfoAkt::Pruefen)), pal.text, false), knopf(pal, vc_i18n::t!("infodlg-aenderungen-ansehen"), z.eval.as_ref().is_some_and(|e| e.update.is_some()).then(|| i(InfoAkt::Ansehen)), pal.text, false)].spacing(8).wrap().vertical_spacing(6).into(),
+                    klein(pal, vc_i18n::t!("infodlg-jetzt-pruefen-fragt-die-versionsliste-update"))])
             } else { text("").into() };
-            let mut c = column![row![image(self.logos[2].clone()).height(54), column![text(format!("VintageCoder {}", version())).size(20).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), klein(pal, "Entwicklungsumgebung für Retro-Computer")].spacing(2)].spacing(14).align_y(Alignment::Center),
-                klein(pal, "Assembler, BASIC, Grafik- und Klang-Editoren, Debugger und Emulator-Anbindung für C64, Atari, MEGA65 und weitere Systeme."),
-                text("Alpha-Version: enthält wahrscheinlich noch viele Fehler. Keine Gewährleistung, keine Haftung für Datenverlust (siehe Lizenz).").size(12).color(pal.warn)].spacing(10);
-            c = c.push(klein(pal, vc_ide::license::NOTICE_SHORT));
-            c = c.push(karte(pal, vec![row![text("Lizenz").size(12.5).color(pal.mute).width(90), text(LIZENZ).size(13)].into(), row![text("Autor").size(12.5).color(pal.mute).width(90), text("Christian Drüeke").size(13)].into(), 
-                row![text("Dank").size(12.5).color(pal.mute).width(90), text("an die Community „N3rdroom“ (Discord)").size(13)].into(),
-                row![text("Webseite").size(12.5).color(pal.mute).width(90), knopf(pal, WEBSITE, Some(i(InfoAkt::Web(WEBSITE))), pal.accent, false)].spacing(0).into(), row![text("Quelltext").size(12.5).color(pal.mute).width(90), knopf(pal, REPOSITORY, Some(i(InfoAkt::Web(REPOSITORY))), pal.accent, false)].spacing(0).into()]));
+            let mut c = column![row![image(self.logos[2].clone()).height(54), column![text(vc_i18n::t!("infodlg-vintagecoder-p1", p1 = version())).size(20).font(vc_gui_ui::fonts::UI_FETT).color(pal.text), klein(pal, vc_i18n::t!("infodlg-entwicklungsumgebung-fuer-retro-computer"))].spacing(2)].spacing(14).align_y(Alignment::Center),
+                klein(pal, vc_i18n::t!("infodlg-assembler-basic-grafik-und-klang-editoren")),
+                text(vc_i18n::t!("infodlg-enthaelt-wahrscheinlich-noch-viele-fehler")).size(12).color(pal.warn)].spacing(10);
+            c = c.push(klein(pal, vc_ide::license::notice_short()));
+            c = c.push(karte(pal, vec![row![text(vc_i18n::t!("infodlg-lizenz")).size(12.5).color(pal.mute).width(90), text(LIZENZ).size(13)].into(), row![text(vc_i18n::t!("infodlg-autor")).size(12.5).color(pal.mute).width(90), text(vc_i18n::t!("infodlg-christian-drueeke")).size(13)].into(), 
+                row![text(vc_i18n::t!("infodlg-dank")).size(12.5).color(pal.mute).width(90), text(vc_i18n::t!("infodlg-an-die-community-n3rdroom-discord")).size(13)].into(),
+                row![text(vc_i18n::t!("infodlg-webseite")).size(12.5).color(pal.mute).width(90), knopf(pal, WEBSITE, Some(i(InfoAkt::Web(WEBSITE))), pal.accent, false)].spacing(0).into(), row![text(vc_i18n::t!("infodlg-quelltext")).size(12.5).color(pal.mute).width(90), knopf(pal, REPOSITORY, Some(i(InfoAkt::Web(REPOSITORY))), pal.accent, false)].spacing(0).into()]));
             c = c.push(upd);
-            c = c.push(row![knopf(pal, "Feedback senden …", Some(i(InfoAkt::FeedbackAuf)), pal.text, false), knopf(pal, if z.herkunft { "Herkunft und Lizenzen ausblenden" } else { "Herkunft und Lizenzen" }, Some(i(InfoAkt::Herkunft)), pal.text, false), knopf(pal, if z.hinweise { "Drittanbieter-Hinweise ausblenden" } else { "Drittanbieter-Hinweise" }, Some(i(InfoAkt::Hinweise)), pal.text, false), iced::widget::space::horizontal(), knopf(pal, "Schließen", Some(i(InfoAkt::UeberZu)), pal.text, true)].spacing(8).wrap().vertical_spacing(6));
+            c = c.push(row![knopf(pal, vc_i18n::t!("infodlg-feedback-senden-2"), Some(i(InfoAkt::FeedbackAuf)), pal.text, false), knopf(pal, if z.herkunft { vc_i18n::t!("infodlg-herkunft-und-lizenzen-ausblenden") } else { vc_i18n::t!("infodlg-herkunft-und-lizenzen") }, Some(i(InfoAkt::Herkunft)), pal.text, false), knopf(pal, if z.hinweise { vc_i18n::t!("infodlg-drittanbieter-hinweise-ausblenden") } else { vc_i18n::t!("infodlg-drittanbieter-hinweise") }, Some(i(InfoAkt::Hinweise)), pal.text, false), iced::widget::space::horizontal(), knopf(pal, vc_i18n::t!("infodlg-schliessen"), Some(i(InfoAkt::UeberZu)), pal.text, true)].spacing(8).wrap().vertical_spacing(6));
             if z.herkunft { c = c.push(self.herkunft_karte(pal)) }
             if z.hinweise { let doc = self.md_doc(HINWEISE); c = c.push(container(scrollable(crate::mdansicht::ansicht(pal, &doc, self.md_grenze, Some(Msg::MdMehr))).height(Length::Fixed(260.0))).padding(8).style(move |_| crate::flaeche(pal.bg, pal.line))) }
             return Some(modal(pal, scrollable(c).into(), 640.0, i(InfoAkt::UeberZu)));

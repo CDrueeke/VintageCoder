@@ -10,11 +10,11 @@ referenz: [editor, shortcuts, asm-text]
 
 # Der Code-Editor
 
-**Ziel:** Du schreibst Quelltext im Editor von VintageCoder zügig und mit Hilfe: Du nutzt die Vervollständigung, bekommst zu jedem Wort Hilfe, faltest lange Abschnitte zusammen, suchst und ersetzt Text, springst zu einer Zeile, fügst Sonderzeichen über das Zeichen-Panel ein und erkennst Fehler schon beim Tippen.
+**Ziel:** Du schreibst Quelltext im Editor von VintageCoder zügig und mit Hilfe: Du arbeitest mit mehreren Reitern und einer geteilten Ansicht, nutzt die Vervollständigung, faltest lange Abschnitte zusammen, suchst und ersetzt Text, springst zu einer Zeile oder Definition, setzt Lesezeichen und erkennst Fehler schon beim Tippen.
 
 ## Das brauchst du
 
-- Ein Projekt mit einer geöffneten `.asm`-Datei. Nimm dafür das Programm aus [Dein erstes Projekt](kapitel:erstes-projekt) oder lege eine neue Datei an. Für die Übungen kannst du diesen kleinen Quelltext verwenden (er baut ohne Fehler):
+- Ein geöffnetes Projekt mit einer `.asm`-Datei. Nimm dafür das Programm aus [Dein erstes Projekt](kapitel:erstes-projekt) oder lege eine neue Datei an. Für die Übungen kannst du diesen kleinen Quelltext verwenden (er baut ohne Fehler):
 
 ```asm
 ; Rahmen und Hintergrund färben
@@ -29,246 +29,204 @@ start:  lda #FARBE
         rts
 ```
 
-## Farben im Quelltext
+## Der Editor im Überblick
 
-Der Editor färbt **Assembler** und **BASIC** ein. Befehle, Direktiven (die Anweisungen an den Assembler mit einem Punkt davor, wie `.target`), Zahlen, Zeichenketten, Labels und Kommentare haben verschiedene Farben. So erkennst du auf einen Blick, ob ein Wort als das gilt, was du gemeint hast.
+Den Editor findest du im Hauptbereich **Code**. Oben liegt die **Reiterleiste** mit einem Reiter je geöffneter Datei, darunter der Text mit den Zeilennummern. Links steht die Seitenleiste mit dem Projektbaum, unter dem Text die **Ablage** mit den Seiten Probleme, Ausgabe, Tests, Suche und Gliederung. Die Statuszeile unten nennt die Art der Datei (Assembler, BASIC, Text oder Markdown), das Zeilenende (LF oder CRLF), den Zustand der Probleme sowie Zeile und Spalte des Cursors. Bei laufender Debug-Sitzung steht dort auch der Programmzähler.
 
-![Ein Assembler-Quelltext im Editor mit Zeilennummern, Kommentaren und farbig hervorgehobenen Befehlen, Konstanten und Zahlen; links der Dateibaum](bild:editor-syntax "Syntaxfarben im Assembler-Quelltext")
+![Der Code-Bereich mit der Datei jumprun.asm: links die Seitenleiste mit dem Projektbaum, in der Mitte der Assembler-Quelltext mit Zeilennummern und farbiger Hervorhebung für Kommentare, Befehle, Zahlen und Namen. Unten die Statusleiste mit Zeile und Spalte.](bild:editor-syntax "Der Editor färbt Befehle, Zahlen, Namen und Kommentare unterschiedlich.")
 
-Links neben dem Text stehen die **Zeilennummern**. In diesem Streifen (der „Rinne“) klickst du Haltepunkte an und faltest Abschnitte.
+Der Editor färbt **Assembler** und **BASIC** ein. Befehle, Direktiven (die Anweisungen an den Assembler mit einem Punkt davor, wie `.target`), Zahlen, Zeichenketten, Labels und Kommentare haben verschiedene Farben. So erkennst du auf einen Blick, ob ein Wort als das gilt, was du gemeint hast. Texte bleiben ungefärbt; Markdown-Dateien siehst du als Vorschau.
+
+Neben den Zeilennummern liegt ein schmaler Streifen, der **Rand**. Dort siehst du Haltepunkte, Lesezeichen, Fehlermarken und die Pfeile zum Falten. Hast du das Programm gebaut, steht im Rand außerdem die **Zyklenzahl** je Zeile (wie viele Taktzyklen der Befehl braucht).
+
+## Mit Reitern arbeiten
+
+Jede geöffnete Datei hat einen Reiter. Ein Punkt am Reiter heißt: Die Datei hat ungespeicherte Änderungen.
+
+- **Öffnen:** Klicke eine Datei im Projektbaum an, oder wähle **Datei ▸ Datei öffnen …** (Cmd/Strg+O). Eine Datei, die kein Text ist, öffnet VintageCoder im Standardprogramm deines Systems.
+- **Neuer Reiter ohne Datei:** **Neuer Reiter (unbenannt)** mit Cmd/Strg+N. Beim Speichern fragt VintageCoder nach einem Namen. **Neue Notiz** (Cmd/Strg+Umschalt+T) legt einen Reiter für Markdown-Text an.
+- **Wechseln:** Mit Cmd/Strg+Alt+Rechts und Cmd/Strg+Alt+Links springst du zum nächsten und zum vorherigen Reiter. Mit den Pfeiltasten wechselst du auch, wenn die Reiterleiste den Fokus hat.
+- **Ordnen:** Ziehe einen Reiter mit der Maus an eine andere Stelle, oder nimm im Menü **Ansicht ▸ Reiter und Teilen** die Befehle **Reiter nach links verschieben** und **Reiter nach rechts verschieben**.
+- **Schließen:** Cmd/Strg+W, das kleine ×, der Mittelklick oder die Entf-Taste auf dem Reiter. Hat die Datei ungespeicherte Änderungen, fragt VintageCoder, ob er speichern oder verwerfen soll.
+- **Speichern:** Cmd/Strg+S speichert die Datei im Reiter, Cmd/Strg+Alt+S speichert alle.
+- **Rechtsklick auf einen Reiter** öffnet ein Menü mit Schließen, Andere schließen, Alle schließen, Nach links, Nach rechts, Pfad kopieren und Im Ordner zeigen.
+
+Ändert ein anderes Programm eine offene Datei, liest VintageCoder sie neu ein und sagt es dir. Hast du in der Datei selbst ungespeicherte Änderungen, bekommst du stattdessen eine Warnung: Beim Speichern würde die Datei überschrieben. Die offenen Reiter merkt sich VintageCoder pro Projekt und stellt sie beim nächsten Öffnen wieder her.
+
+Willst du nur schreiben und nichts anderes sehen, schaltest du mit Cmd/Strg+Alt+Z den **Zen-Modus** ein: Es bleiben Reiter und Text. Derselbe Befehl bringt alles zurück.
 
 ## Schritt für Schritt: Mit Vervollständigung schreiben
 
-Beim Tippen schlägt der Editor Wörter vor: Befehle, Direktiven, Chip-Register (zum Beispiel `vic2.border`), Labels, Konstanten und Makros, auch aus eingebundenen Dateien.
+Beim Tippen schlägt der Editor Wörter vor: Befehle, Direktiven, Chip-Register (zum Beispiel `vic2.border`), Labels, Konstanten und Makros, auch aus eingebundenen Dateien. Das gilt für Assembler-Dateien.
 
-1. Setze den Cursor in eine neue Zeile und tippe `st`. Nach zwei Zeichen erscheint eine Liste mit Vorschlägen. (In `vic2.` zählt der Punkt mit: Die Liste zeigt dann gleich die Register des Chips.)
+1. Setze den Cursor in eine neue Zeile und tippe `st`. Nach einem kurzen Moment erscheint eine Liste mit Vorschlägen. (In `vic2.` zählt der Punkt mit: Die Liste zeigt dann gleich die Register des Chips.)
 2. Mit den Pfeiltasten **↑ ↓** wählst du einen Eintrag aus.
 3. **Tab** oder **Enter** übernimmt den markierten Eintrag. **Esc** schließt die Liste, ohne etwas einzufügen.
-4. Die Liste erscheint nur beim Tippen. Ein Kürzel, das sie von Hand öffnet, gibt es nicht: Tippe ein weiteres Zeichen oder lösche eines und tippe es neu.
+4. Ohne zu tippen öffnest du die Liste mit dem Befehl **Vervollständigung öffnen** (Menü **Bearbeiten**, Befehlspalette). Er hat bewusst kein Tastenkürzel.
 
-![Die Vervollständigung im Editor: nach der Eingabe von „sta vic2.b“ zeigt eine Liste vic2.border und vic2.bg0 bis vic2.bg3.](bild:editor-vervollstaendigung "Die Vorschlagsliste beim Tippen")
+![Der Code-Editor mit der Dateiliste links und dem Quelltext jumprun.asm. In der letzten Zeile steht „lda“ und darunter ist eine Vorschlagsliste offen mit „lda“ (Akkumulator laden), Konstanten wie TILE_CYC_LDA und Makros wie tile_draw.](bild:editor-vervollstaendigung "Die Vorschlagsliste erscheint beim Tippen.")
 
-Ohne zu tippen öffnest du die Liste mit dem Befehl **Vervollständigung öffnen** (Bearbeiten ▸ …, Befehlspalette); er hat bewusst kein Tastenkürzel.
+> **Tipp:** Probiere es mit `sta vic2.` : nach dem Punkt zeigt die Liste alle Register des VIC-II, des Grafikchips des C64, zum Beispiel `border` (Rahmenfarbe), `bg0` (Hintergrundfarbe) und `raster` (aktuelle Rasterzeile).
 
-> **Tipp:** Probiere es mit `sta vic2.` – nach dem Punkt zeigt die Liste alle Register des VIC-II, des Grafikchips des C64, zum Beispiel `border` (Rahmenfarbe), `bg0` (Hintergrundfarbe) und `raster` (aktuelle Rasterzeile).
+Tippst du in einer Zeichenkette ein `{`, bietet der Editor die Namen der Steuerzeichen und Farben an, zum Beispiel `{clr}` oder `{red}`. Die Schreibweise `{name}` in Texten beschreibt die Hilfeseite [Texte und Zeichensätze](hilfe:asm-text). Ein eigenes Zeichen-Panel zum Einfügen von Sonderzeichen gibt es in dieser Version noch nicht.
 
-## Schritt für Schritt: Hilfe zum Wort
+## Hinweise beim Daraufzeigen
 
-Du weißt nicht, was `cpx` macht oder was `vic2.border` bedeutet?
+Lässt du die Maus kurz über einem Wort ruhen, erscheint eine Karte mit einer Beschreibung: bei einem Befehl die Adressierungsarten mit Opcode, Bytes und Zyklen, bei einer Direktive die Schreibweise, bei einem Chip-Register die Adresse und die Bedeutung. Über einer Zahl zeigt die Karte die Werte in anderen Schreibweisen (dezimal, hexadezimal, binär), im BASIC bei Adressen auch, was an dieser Adresse im Rechner liegt. In Zeichenketten zeigt sie Code und Wirkung eines Steuerzeichens.
 
-1. Setze den Cursor auf das Wort.
-2. Drücke **F1**. Der Reiter **Hilfe** zeigt den Eintrag: bei einem Befehl alle Adressierungsarten mit Opcode, Bytes und Zyklen, bei einer Direktive die Schreibweise, bei einem Chip-Register die Adresse und die Bedeutung.
-
-![Der Editor mit dem Cursor auf dem Befehl sta; rechts im Panel der Reiter Hilfe mit der Beschreibung des Befehls und seinen Adressierungsarten.](bild:editor-hilfe-f1 "F1 öffnet die Hilfe zum Wort unter dem Cursor")
-
-Die **Hilfe** im rechten Panel zeigt den Eintrag zum Wort; ein eigener Reiter „Referenz“, der live mit dem Cursor mitläuft, ist in dieser Version noch nicht enthalten. Du drückst dafür F1 oder wählst die Hilfe im Panel.
-
-Dasselbe erreichst du mit einem Rechtsklick auf das Wort ▸ **Hilfe zum Wort** (F1). Und wenn du die Maus kurz über einem Befehl, einer Direktive oder einem Register ruhen lässt, erscheint ein kleiner Hinweis mit der Beschreibung.
-
-### Werte im Hover
-
-Hältst du den Mauszeiger über eine **Konstante** (zum Beispiel `FARBE`) oder ein **Zahlenliteral** (`$d020`, `%1010`, `255`, `'A'`), erscheint eine Tabelle mit dem Wert dezimal, hexadezimal und binär, mit Vorzeichen, als Zeichen sowie Low- und High-Byte. Ist die Zahl die Adresse eines Chip-Registers, steht auch dessen Name dabei. Das ist praktisch, wenn du nicht im Kopf zwischen `$d020` und 53280 umrechnen willst.
+Mit **F1** (Befehl **Hilfe**) schlägst du das Wort unter dem Cursor nach, oder den markierten Text. Es öffnet sich die Hilfe mit dem passenden Thema. Gibt es zu dem Wort keinen Eintrag, steht dort „Zu … gibt es keinen Hilfeeintrag.“ und du kannst in der Hilfe suchen. Ohne Wort öffnet F1 die Hilfe mit der Themenliste.
 
 ## Schritt für Schritt: Abschnitte falten
 
 Lange Quelltexte werden unübersichtlich. Mit dem **Falten** blendest du Abschnitte aus.
 
-1. Neben der Zeilennummer erscheinen bei faltbaren Blöcken kleine Pfeile **▾** und **▸**. Gefaltet werden Blöcke wie `.macro`, `.if`, `.repeat`, Label-Abschnitte und Kommentarblöcke.
-2. Klicke auf **▾**, um den Abschnitt einzuklappen. Seine Zeilen sind dann versteckt, in der Rinne steht **▸**. Ein Klick auf **▸** klappt ihn wieder auf.
-3. **Alles falten** und **Alles entfalten** (Menü Bearbeiten, Befehlspalette und Rechtsklick im Editor) klappen alle Abschnitte auf einmal zu oder auf; sie haben kein Tastenkürzel.
-4. Sobald du in einem gefalteten Abschnitt etwas bearbeitest, klappt er automatisch auf.
+1. Neben der Zeilennummer erscheinen bei faltbaren Blöcken kleine Pfeile. Gefaltet werden Blöcke wie `.macro`, `.if`, `.repeat`, Label-Abschnitte und Kommentarblöcke.
+2. Klicke auf den Pfeil neben dem Blockanfang, um den Abschnitt einzuklappen. Seine Zeilen sind dann versteckt, und an der Stelle steht ein Platzhalter. Ein Klick auf den Pfeil oder den Platzhalter klappt ihn wieder auf.
+3. **Alles falten** und **Alles entfalten** (Menü **Bearbeiten ▸ Falten**, Befehlspalette und Rechtsklick im Editor) klappen alle Abschnitte auf einmal zu oder auf; sie haben kein Tastenkürzel.
 
-![Ein Quelltext mit einem eingeklappten Block: neben der Zeilennummer steht der Pfeil zum Falten.](bild:editor-falten "Ein gefalteter Abschnitt: seine Zeilen sind versteckt, der Pfeil ▸ in der Rinne klappt sie wieder auf")
+*[Bild folgt in E13: editor-falten]*
 
 ## Schritt für Schritt: Suchen und Ersetzen
 
 1. Drücke **Cmd/Strg+F** (Menü **Bearbeiten ▸ Suchen und Ersetzen ▸ Suchen …**). Über dem Text erscheint die Suchleiste.
-2. Tippe den Suchbegriff. **Enter** springt zum nächsten Treffer, **Umschalt+Enter** zum vorigen. Mit **Aa** beachtest du Groß- und Kleinschreibung. **Esc** schließt die Leiste.
-3. Zum **Ersetzen** drückst du **Cmd/Strg+Alt+F** (Menü **Bearbeiten ▸ Suchen und Ersetzen ▸ Ersetzen …**). Es erscheint ein zweites Feld. **Ersetzen** tauscht den aktuellen Treffer, **Alle** tauscht alle.
-4. Hast du dich verklickt, hilft **Cmd/Strg+Z** (Rückgängig); **Cmd/Strg+Umschalt+Z** wiederholt.
+2. Tippe den Suchbegriff. Die Treffer sind im Text hervorgehoben. **Enter** springt zum nächsten Treffer, **Umschalt+Enter** zum vorigen; dafür gibt es auch die Knöpfe **Weiter** und **Zurück**. **Esc** schließt die Leiste.
+3. Mit den Schaltern **Groß/Klein**, **Ganzes Wort** und **Regulärer Ausdruck** engst du die Suche ein.
+4. Zum **Ersetzen** drückst du **Cmd/Strg+Alt+F** (Menü **Bearbeiten ▸ Suchen und Ersetzen ▸ Ersetzen …**). Die Leiste hat das zweite Feld **Ersetzen durch**. **Ersetzen** tauscht den aktuellen Treffer, **Alle ersetzen** tauscht alle.
+5. Hast du dich verklickt, hilft **Cmd/Strg+Z** (Rückgängig); **Cmd/Strg+Umschalt+Z** wiederholt.
 
-![Die Suchleiste über dem Text mit dem Suchbegriff „sta“, der Anzeige „1 von 15“ und den Knöpfen für vorigen und nächsten Treffer; die Treffer sind im Text hervorgehoben.](bild:editor-suchen "Suchen mit Cmd/Strg+F")
+![Die Code-Ansicht mit jumprun.asm und geöffneter Suchleiste über dem Text. Das Suchfeld enthält „jsr“, daneben stehen „Weiter“, „Zurück“, „Alle“ und die Optionen „Groß/Klein“, „Regulärer Ausdruck“ und „Ganzes Wort“. Darunter liegt das Feld „Ersetzen durch“ mit „Ersetzen“ und „Alle ersetzen“.](bild:editor-suchen "Die Suchleiste mit Ersetzen über dem Quelltext.")
 
-![Die Suchleiste mit einem zweiten Feld zum Ersetzen und den Knöpfen „Ersetzen“ und „Alle“.](bild:editor-ersetzen "Ersetzen mit Cmd/Strg+Alt+F")
+Möchtest du in **allen** Dateien des Projekts suchen? Drücke **Cmd/Strg+Umschalt+F**. In der Ablage öffnet sich die Seite **Suche** („In allen Dateien suchen …“). Die Treffer erscheinen nach Datei gruppiert, ein Klick springt zur Zeile im Editor.
 
-Möchtest du in **allen** Dateien des Projekts suchen? Drücke **Cmd/Strg+Umschalt+F**. In der linken Spalte erscheint die **Suche** mit den Treffern, nach Datei gruppiert. Ein Klick springt zur Zeile im Editor.
-
-## Schritt für Schritt: Zu einer Zeile springen
+## Schritt für Schritt: Springen
 
 Eine Fehlermeldung nennt oft eine Zeilennummer, zum Beispiel „Zeile 42“.
 
-1. Drücke **Cmd/Strg+L** (Menü **Bearbeiten ▸ Suchen und Ersetzen ▸ Gehe zu Zeile …**).
-2. Tippe die Zeilennummer und bestätige mit Enter. Der Cursor springt dorthin.
+1. Drücke **Cmd/Strg+L** (Menü **Bearbeiten ▸ Suchen und Ersetzen ▸ Gehe zu Zeile …**). Ein kleiner Dialog fragt nach der Zeilennummer.
+2. Tippe die Zahl und bestätige mit Enter (**Gehe zu**). Der Cursor springt dorthin.
 
-![Die Leiste „Gehe zu Zeile“ über dem Text mit der eingetippten Zeilennummer.](bild:editor-gehe-zu "Gehe zu Zeile mit Cmd/Strg+L")
+Zu einer **Definition** springst du mit **F12** (Rechtsklick ▸ **Gehe zu Definition**), wenn der Cursor auf einem Symbol steht, zum Beispiel einem Label oder einer Konstante; die Definition darf auch in einer anderen Datei liegen. Das gilt nur für Assembler-Dateien. Eine eingebundene Datei öffnest du im Projektbaum.
 
-Zu einer **Definition** springst du mit **F12** (Rechtsklick ▸ **Gehe zu Definition**, Menü **Bearbeiten**), wenn der Cursor auf einem Symbol steht, zum Beispiel einem Label oder einer Konstante; die Definition darf auch in einer anderen Datei liegen. Das gilt nur für Assembler-Dateien. Ein Klick mit gedrückter Cmd/Strg-Taste und ein Doppelklick auf einen `.include`-Dateinamen sind in dieser Version noch nicht belegt; einen Doppelklick gibt es nur zum Markieren eines Wortes. Eine eingebundene Datei öffnest du im Projektbaum.
+Die Ablage hat außerdem die Seite **Gliederung**: Sie listet Marken, Konstanten und Makros der Assembler-Datei im Reiter, ein Klick springt zur Stelle. Der Befehl **Zur passenden Klammer springen** (Menü **Bearbeiten ▸ Suchen und Ersetzen**) hat kein Kürzel.
 
-## Schritt für Schritt: Sonderzeichen mit dem Zeichen-Panel einfügen
+## Lesezeichen und Haltepunkte
 
-Die alten Computer haben eigene Zeichensätze mit Grafikzeichen, Farbcodes und Cursorzeichen, die du auf deiner Tastatur nicht findest. Das **Zeichen-Panel** listet sie auf.
+Beides setzt du im Rand:
 
-1. Setze den Cursor an die Stelle, an der das Zeichen stehen soll, zum Beispiel in einen `.petscii "…"`-Text.
-2. Klicke im rechten Panel auf das Symbol **Ω** (ist das Panel zugeklappt, öffnet der Klick es; Cmd/Strg+Alt+B klappt das Panel ein und aus).
-3. Das Panel listet die Steuerzeichen des Zielsystems mit Namen, Code und Wirkung, zum Beispiel `{clr}`, die Farben, Cursor- und Funktionstasten. Im Suchfeld findest du Namen, Zahlen (`$93`, `147`) und getippte Zeichen; bei einer Suche erscheinen auch gewöhnliche Zeichen mit ihrem Code.
-4. Klicke einen Eintrag an. VintageCoder fügt ihn an der Cursorstelle ein, und zwar in der Form, die dort passt: in einer Zeichenkette in geschweiften Klammern (`{clr}HALLO`), im BASIC nach `PRINT` mit Anführungszeichen, in `CHR$(` als Zahl, sonst als Zahlenwert. Passt an der Stelle nichts, steht ein Hinweis im Protokoll und es wird nichts eingefügt.
+- **Haltepunkt:** Ein Klick in den Rand setzt einen roten Punkt, ein zweiter Klick nimmt ihn weg. Dasselbe tut **Haltepunkt umschalten** (F9). Der Haltepunkt wirkt, wenn du das Programm mit dem Debugger startest (siehe [Der Debugger](kapitel:debugger)).
+- **Lesezeichen:** Ein Klick mit gedrückter Umschalt-Taste setzt eine Marke, oder du drückst **Cmd/Strg+Alt+K** (Lesezeichen umschalten). **Cmd/Strg+Alt+J** springt zum nächsten, **Cmd/Strg+Alt+H** zum vorigen Lesezeichen, rundherum. Die Befehle stehen im Menü **Bearbeiten ▸ Suchen und Ersetzen**.
 
-Ein eigenes Zeichenwähler-Fenster mit einem Raster aller 256 Zeichen, eine Ansicht „Meine“ mit zuletzt benutzten Zeichen und das Ziehen von Zeichen in den Editor sind in dieser Version noch nicht enthalten. Das Panel arbeitet auch im BASIC-Editor.
+Haltepunkte und Lesezeichen wandern mit dem Text mit, wenn du Zeilen davor einfügst oder löschst. Schließt du den Reiter, gehen sie verloren.
 
-> **Info:** Die Zeichen stammen aus deinen ROMs. Ohne ROM nimmt VintageCoder einen eigenen Standardsatz (siehe [Installation und Ersteinrichtung](kapitel:installation)). Die Schreibweise `{name}` in Texten beschreibt die Hilfeseite [Texte und Zeichensätze](hilfe:asm-text).
+## Formatieren und Aufräumen
 
-Steht ein Steuerzeichen in einer Zeichenkette, zum Beispiel `print "{clr}{red}hallo"`, hebt der Editor es hervor: Farbcodes erscheinen als Farbfeld, ein unbekannter Name wird rot unterschlängelt, und der Hover zeigt Code und Wirkung. Tippst du ein `{` in der Zeichenkette, bietet der Editor die Namen an. Assembler und BASIC verstehen dieselben Namen, jede Sprache hat ihre eigene Hauptschreibweise (`{orange}` im Assembler, `{orng}` im BASIC), und beide Schreibweisen gelten überall.
+Verlässt du eine **bearbeitete** Zeile (der Cursor wechselt in eine andere Zeile, Enter, Mausklick), richtet VintageCoder sie aus. Beim Assembler steht ein Label in Spalte 0, der Befehl danach, und Kommentare sitzen in einer Spalte. Bei BASIC gibt es ein Leerzeichen hinter der Zeilennummer. Gefällt dir eine Ausrichtung nicht, machst du sie mit **Cmd/Strg+Z** rückgängig wie jede andere Eingabe. Abstellen kannst du das Ausrichten unter **Einstellungen ▸ Editor** mit dem Schalter **Zeile beim Verlassen formatieren**.
 
-## Schritt für Schritt: Dateien per Drag & Drop einbinden
+Auf Befehl formatierst du auch von Hand. Im Menü **Bearbeiten ▸ Formatieren** (und in der Befehlspalette) stehen:
 
-Statt eine `.include`- oder `.incbin`-Zeile selbst zu tippen, ziehst du die Datei aus dem **Projektbaum** in den Quelltext. VintageCoder wählt die passende Zeile und den richtigen Pfad.
+- **Zeile formatieren** (die Zeile oder die markierten Zeilen) und **Datei formatieren** (die ganze Datei). Beide lassen sich in einem Schritt rückgängig machen.
+- **Leerzeichen am Zeilenende entfernen** (Auswahl oder ganze Datei).
+- **Zeilen sortieren** (mehrere Zeilen markieren).
+- **Kommentar umschalten** (Cmd/Strg+Alt+C) setzt oder entfernt das Kommentarzeichen vor den markierten Zeilen.
 
-1. Öffne einen **Assembler-** oder **BASIC-Quelltext**.
-2. Ziehe eine Datei aus dem Projektbaum an eine Stelle im Quelltext. Eine **farbige Linie** zeigt zwischen zwei Zeilen, wo die Zeile entsteht: obere Hälfte einer Zeile heißt davor, untere Hälfte dahinter.
+Formatieren geht nur in Assembler- und BASIC-Reitern; sonst meldet VintageCoder, dass der Reiter nicht formatiert werden kann.
 
-![Eine Datei wird aus dem Projektbaum in den Quelltext gezogen: eine blaue Linie zwischen zwei Zeilen zeigt, wo die Zeile entsteht.](bild:include-ziehen "Beim Ziehen zeigt die Linie, wo die Zeile entsteht")
+## Art, Zeilenende und Umbruch
 
-3. Lass die Maustaste los. Die Zeile wird eingefügt, und die Statusleiste unten nennt sie („Eingebunden: .incbin "data/level.bin"“). Geht es nicht, steht dort der Grund, und es wird nichts eingefügt.
-4. **Cmd/Strg+Z** im Editor nimmt die Zeile als **eine** Aktion wieder heraus.
+Welche Sprache ein Reiter hat, bestimmt die Dateiendung. Willst du sie ändern (zum Beispiel bei einem unbenannten Reiter), wähle **Bearbeiten ▸ Art und Kodierung ▸ Art: Text**, **Art: Assembler** oder **Art: BASIC**. Im selben Untermenü schaltet **Zeilenende umschalten (LF/CRLF)** das Zeilenende der Datei um; die Statuszeile zeigt, welches gilt. Den Befehl **Kodierung umschalten (UTF-8/ISO-8859-1)** gibt es in dieser Version noch nicht.
 
-**Ohne Maus:** Rechtsklick auf die Datei im Projektbaum ▸ **Als Include einfügen**. Die Zeile entsteht unter der Cursorzeile des aktiven Quelltexts. Ist keiner offen, steht ein Hinweis in der Statusleiste.
+Lange Zeilen bricht der Editor um (Voreinstellung: an). Mit **Ansicht ▸ Zeilenumbruch im Editor** schaltest du das ab und wieder an. Die Schriftgröße änderst du mit **Editor-Schrift größer** und **Editor-Schrift kleiner** im Menü **Ansicht ▸ Zoom und Schrift**.
 
-Welche Zeile entsteht, hängt von Datei und Ziel ab (Pfade relativ zur Quelldatei, mit `/`, auch bei Leerzeichen und Umlauten):
+## Fehler siehst du sofort
 
-| Datei | im Assembler | in BASIC (`.bas`) |
-|---|---|---|
-| Assembler-Quelltext (`.asm`, `.inc`, `.s`) | `.include "pfad"`; für „nur einmal einbinden“ tippst du `#include` selbst | nicht möglich |
-| BASIC-Quelltext mit derselben Endung | nicht möglich | `#include "pfad"` |
-| Sprite, Zeichensatz, Bildschirm, Song … | `.include "…/build/export/name.asm"` | `#include "…/build/export/name.data.bas"` |
-| Sonstige Dateien (`.bin`, `.prg`, `.txt` …) | `.incbin "pfad"`; bei `.prg` ohne Ladeadresse hängst du `, 2` selbst an | nicht möglich |
+Du musst nicht bauen, um Fehler zu finden. Nach jeder Änderung prüft VintageCoder den Assembler-Quelltext im Hintergrund. Hat eine Zeile einen Fehler, wird die Stelle mit einer **Wellenlinie** unterstrichen und im Rand markiert. Fährst du mit der Maus darüber, zeigt die Karte die Meldung mit dem Fehlercode. Die Ablage zeigt auf der Seite **Probleme** alle Meldungen (siehe [Bauen und Starten](kapitel:bauen-starten)), die Statuszeile zählt Fehler, Warnungen und Hinweise. Mit **F8** springst du zum nächsten, mit **Umschalt+F8** zum vorigen Problem im Text.
 
-Bei Sprites, Zeichensätzen und Co. bindest du den **Export** ein; den erzeugt der Build bei Bedarf neu.
+Probiere es: Ändere `sta vic2.border` in `sta vic2.bordr`. Die Stelle wird unterstrichen, und die Karte meldet ein unbekanntes Symbol. Stelle den alten Text mit Cmd/Strg+Z wieder her.
 
-### Zwei Möglichkeiten, die du von Hand wählst
+![Die Code-Ansicht mit jumprun.asm, gescrollt bis Zeile 269. In den Zeilen 267 und 268 stehen „lda #$zz“ und „xyz 5“, beide rot unterstrichen und mit einem roten Punkt am Rand. Die Statusleiste unten zeigt „2 Fehler · 2 Meldungen in anderen Dateien“.](bild:editor-fehlerzeile "Fehlerhafte Zeilen sind rot unterstrichen und am Rand markiert, die Statusleiste zählt die Fehler.")
 
-Bei zwei Dateiarten gibt es eine zweite, ebenfalls sinnvolle Zeile. VintageCoder fügt die Standardzeile ein; die andere tippst du selbst, wenn du sie brauchst.
+Für manche Meldungen gibt es einen Vorschlag zur Korrektur. Stelle den Cursor in die Zeile und drücke **Cmd/Strg+Punkt** (**Korrigieren (Quick-Fix) …**): Ein kleines Menü bietet die Korrekturen an, **Enter** wendet eine an. Gibt es keine, sagt VintageCoder das.
 
-**`.include` oder `#include` (Assembler-Quelltext in Assembler).** Beide setzen den Inhalt der anderen Datei an dieser Stelle ein. Der Unterschied liegt im Mehrfach-Einbinden:
-
-- `.include "datei"` setzt die Datei **jedes Mal** neu ein. Bindest du dieselbe Datei an zwei Stellen ein, meldet der Assembler die Namen als doppelt (Fehler **E204**).
-- `#include "datei"` bindet sie **nur einmal** ein, wie ein `#pragma once` in C. Sie kommt beim zweiten Mal nicht mehr dazu.
-
-Wähle `.include`, wenn du den Inhalt wirklich an dieser Stelle haben willst (zum Beispiel Code, der an einer festen Adresse stehen soll). Schreibe `#include`, wenn die Datei eine **Bibliothek** ist, die auch andere Dateien einbinden könnten: Dann dürfen sich Quelltexte gegenseitig einbinden, ohne dass Namen doppelt definiert werden.
-
-**`.prg` mit oder ohne Ladeadresse (`.incbin` einer `.prg`-Datei).** Eine `.prg`-Datei beginnt mit einer **Ladeadresse** aus 2 Bytes; sie sagt dem Rechner, wohin das Programm geladen wird, und gehört nicht zu den eigentlichen Daten.
-
-- `.incbin "x.prg"` (Standard) bindet die Datei **komplett** ein, also einschließlich dieser zwei Bytes.
-- `.incbin "x.prg", 2` überspringt die ersten zwei Bytes. Du bekommst nur die Daten, zum Beispiel ein Bild oder eine Musik, die dein Programm selbst an die richtige Stelle kopiert.
-
-Weißt du nicht, welche Fassung du brauchst: Brauchst du die Datei als reine Daten im Speicher, nimm „ohne Ladeadresse“. Brauchst du sie genau so, wie sie auf Diskette läge, nimm den Standard. Genaueres zu `.incbin` mit Versatz und Länge steht in der Hilfeseite [Assembler: Direktiven](hilfe:asm-directives).
-
-**Was VintageCoder ablehnt** (mit Hinweis in der Statusleiste, es wird nichts eingefügt): eine Datei in sich selbst, Ordner, die Projektdatei und Diskettenimages, Dateien außerhalb des Projekts, Namen mit einem Anführungszeichen `"` (benenne die Datei um), `.sbas`, andere BASIC-Dialekte (andere Endung als das Ziel) und alles, was die Sprache nicht kennt, zum Beispiel `.incbin` in BASIC. Ziele, die weder Assembler- noch BASIC-Quelltext sind, nehmen keine Includes an.
-
-
-**Doppelte Einträge:** Ist die Datei schon eingebunden, fügt VintageCoder nichts ein und setzt den Cursor auf die vorhandene Zeile.
-
-> **Info:** Etwas anderes ist das Ziehen von Dateien aus dem Finder oder Explorer **auf das Fenster**; das legt Dateien ins Projekt (siehe [Projekte und Dateien](kapitel:projekte)).
+> **Info:** Die Sprachdienste (Fehlerprüfung, Vervollständigung, Definition, Gliederung, Korrigieren) arbeiten für Assembler-Dateien. In BASIC- und Text-Reitern bekommst du Färbung und Formatieren, im BASIC außerdem die Karte beim Daraufzeigen.
 
 ## Das Kontextmenü
 
 Ein **Rechtsklick** im Editor setzt den Cursor an die Klickstelle und öffnet ein Menü mit:
 
-- **Ausschneiden**, **Kopieren**, **Einfügen**, **Alles auswählen** (auch Cmd/Strg+A),
-- **Hilfe zum Wort** (F1),
-- **Gehe zu Definition** (F12; siehe oben),
+- **Ausschneiden**, **Kopieren**, **Einfügen**, **Alles auswählen**,
+- **Gehe zu Definition** (F12) und **Korrigieren (Quick-Fix) …** (Cmd/Strg+Punkt),
+- **Kommentar umschalten** (Cmd/Strg+Alt+C) und **Gehe zu Zeile …** (Cmd/Strg+L),
+- **Lesezeichen umschalten** und **Haltepunkt umschalten** (F9),
 - **Alles falten** und **Alles entfalten**,
-- **Haltepunkt umschalten** (F9; siehe [Der Debugger](kapitel:debugger)),
-- **Debuggen: Bis hierher ausführen** (nur in einer Debug-Sitzung wählbar).
+- in einer BASIC-Datei zusätzlich die drei Umwandlungen **BASIC: In Labels umwandeln …**, **BASIC: In Nummern umwandeln …** und **BASIC: Neu nummerieren …** (siehe [BASIC in der IDE](kapitel:basic)).
 
-Das Auskommentieren ganzer Zeilen ist in dieser Version noch nicht enthalten.
-
-![Das Kontextmenü des Editors mit Ausschneiden, Kopieren, Einfügen, Alles auswählen, Hilfe zum Wort, Gehe zu Definition, Alles falten, Alles entfalten, Haltepunkt umschalten und Debuggen: Bis hier ausführen.](bild:editor-kontextmenue "Das Kontextmenü im Editor (Rechtsklick)")
-
-## Markdown-Dateien: Notizen, README und Handbuchtexte
-
-Dateien mit der Endung `.md` (oder `.markdown`) zeigt der Editor als **Markdown**: Überschriften, Fett, Code und Links sind farbig, die Zeichen `#`, `**` und `` ` `` bleiben dabei sichtbar. Du siehst immer den echten Text, es gibt kein „Rich-Text“-Bearbeiten. In der Statuszeile steht dann „Markdown“.
-
-### Schritt für Schritt: Die Vorschau benutzen
-
-1. Öffne eine `.md`-Datei, zum Beispiel die `README.md` deines Projekts.
-2. Eine `.md`-Datei mit Inhalt öffnet zuerst als **gerenderte Seite**. Über ihr steht eine schmale Leiste „Markdown-Vorschau“ mit dem Knopf **Quelltext**. Ein Klick darauf zeigt den Text zum Bearbeiten; dort heißt der Knopf **Vorschau** und führt zurück. Dasselbe tut der Befehl **Ansicht ▸ Markdown: Vorschau / Quelltext umschalten** (er hat kein Kürzel).
-3. Eine Ansicht, die Text und Vorschau nebeneinander zeigt, ist in dieser Version noch nicht enthalten. Du schaltest also um, statt zu beiden Seiten zu schauen. Eine leere Datei öffnet gleich im Editor.
-4. Die Vorschau ist nur zum Lesen. Links auf Hilfethemen (`hilfe:…`) öffnen das Thema; andere Links sind farbig und unterstrichen, öffnen aber nichts von allein.
-
-Welche Ansicht eine Datei hat, merkt sich VintageCoder mit den offenen Reitern.
-
-### Was Markdown hier kann und was nicht
-
-| Geht | Geht nicht |
-|---|---|
-| Überschriften, Absätze, Fett, Kursiv, Durchgestrichen, `Code` und Codeblöcke | Fußnoten, Definitionslisten, Mathe, Diagramme, Emoji-Kürzel wie `:smile:` |
-| Aufzählungen, Nummerierungen, verschachtelt; Aufgabenlisten `- [x]` (in der Vorschau nur Anzeige) | Rohes HTML wird nicht dargestellt, nur als Text gezeigt und nie ausgeführt |
-| Zitate, Trennlinien, Tabellen mit Ausrichtung | Bilder aus dem Internet (aus Datenschutzgründen nicht geladen) |
-| Links werden farbig und unterstrichen gezeigt | Bilder anzeigen; Links auf Webseiten oder Projektdateien öffnen |
-| Bilder `![Alt](pics/bild.png)` erscheinen in der Vorschau nur als Platzhaltertext | Front Matter (`---` … `---` am Anfang) erscheint nicht in der Vorschau |
-
-### Schreibhilfen
-
-Bei einer geöffneten Markdown-Datei findest du unter **Bearbeiten ▸ Markdown ▸ …** (und in der Befehlspalette) die Schreibhilfen: Fett, Kursiv, Code, Durchgestrichen, Link, Bild, Überschrift tiefer/höher, Aufzählung, Nummerierung, Aufgabenliste, Zitat, Aufgabe abhaken, Tabelle einfügen und ausrichten. Kürzel: **Cmd/Strg+I** kursiv, **Cmd/Strg+E** Code, **Cmd/Strg+Umschalt+X** durchgestrichen, **Cmd/Strg+Umschalt+K** Link; Fett hat kein Kürzel (Cmd/Strg+Umschalt+B ist der Zen-Modus). Jeder Befehl ist ein Schritt für Rückgängig. Die **Vorschau** schaltest du mit „Markdown: Vorschau / Quelltext umschalten“ (Menü **Ansicht**) um.
-
-### Die Gliederung
-
-Der Reiter **Gliederung** im rechten Panel zeigt die Überschriften der Markdown-Datei mit ihren Ebenen. Ein Klick springt in die Zeile, der Pfeil klappt Unterpunkte ein. Überschriften in Codeblöcken zählen nicht.
-
-> **Info:** Eine `.txt`-Datei oder ein unbenannter Reiter wird mit Bearbeiten › Markdown › „als Markdown behandeln“ zu Markdown (nur für diesen Reiter, die Datei bleibt unverändert).
-
-## Der Editor räumt auf
-
-Verlässt du eine **bearbeitete** Zeile (der Cursor wechselt in eine andere Zeile, Enter, Mausklick), richtet VintageCoder sie aus. Beim Assembler steht ein Label in Spalte 0, der Befehl danach, und Kommentare sitzen in einer Spalte. Bei BASIC gibt es ein Leerzeichen hinter der Zeilennummer. Gefällt dir eine Ausrichtung nicht, machst du sie mit **Cmd/Strg+Z** rückgängig wie jede andere Eingabe. Bei einer Auswahl, bei offener Vervollständigung und in den Studios passiert nichts von selbst.
-
-Abschalten: **Einstellungen ▸ Editor ▸ Zeile beim Verlassen formatieren**. Auf Befehl, auch bei abgeschalteter Einstellung: **Bearbeiten ▸ Formatieren ▸ Zeile formatieren** und **Datei formatieren** (die ganze Datei, als **eine** Aktion rückgängig zu machen). Beide stehen auch in der Befehlspalette.
-
-## Fehler siehst du sofort
-
-Du musst nicht bauen, um Fehler zu finden. Nach jeder Änderung prüft VintageCoder den Assembler-Quelltext im Hintergrund. Hat eine Zeile einen Fehler, wird sie **rot unterstrichen** und ihre **Zeilennummer wird rot**. Fährst du mit der Maus über die Zeile, zeigt ein Hinweis die Meldung mit dem Fehlercode. In der Schublade zeigt der Reiter **Probleme** alle Meldungen (siehe [Bauen und Starten](kapitel:bauen-starten)).
-
-Probiere es: Ändere `sta vic2.border` in `sta vic2.bordr`. Die Zeile wird rot, und der Hinweis meldet ein unbekanntes Symbol. Stelle den alten Text mit Cmd/Strg+Z wieder her.
-
-![Eine rot hinterlegte Zeile mit rot unterstrichenem Fehler: „jmp ende“ nennt ein Symbol, das es nicht gibt.](bild:editor-fehlerzeile "Ein Fehler wird rot unterstrichen, die Meldung erscheint beim Darüberfahren")
+![Der Code-Editor mit der BASIC-Datei sterne.bas und geöffnetem Kontextmenü an Zeile 4. Die Einträge sind Ausschneiden und Kopieren (ausgegraut), Einfügen (markiert), Alles auswählen, Gehe zu Definition, Korrigieren (Quick-Fix) (ausgegraut), Kommentar umschalten, Gehe zu Zeile, Lesezeichen umschalten, Alles falten, Alles entfalten, Haltepunkt umschalten und die drei BASIC-Einträge zum Umwandeln und Neu nummerieren.](bild:editor-kontextmenue "Das Kontextmenü des Editors in einer BASIC-Datei mit den drei BASIC-Einträgen am Ende.")
 
 ## Der zweite Editorbereich
 
 Manchmal möchtest du zwei Dateien nebeneinander sehen, zum Beispiel einen Quelltext und seine Bibliothek.
 
-1. Öffne mindestens zwei Reiter. Mit nur einem Reiter lässt sich der Editor nicht teilen.
-2. Drücke **Cmd/Strg+Alt+T** (Menü **Ansicht ▸ Reiter und Teilen ▸ Editor teilen / Teilung aufheben**, oder der Knopf ◫ am Reiterstreifen). Der Editorbereich teilt sich in zwei Hälften.
-3. Schicke einen Reiter in die andere Hälfte: Rechtsklick auf den Reiter ▸ **Reiter in die andere Hälfte schicken** (auch im Menü **Ansicht**), oder ziehe den Reiter hinüber.
+1. Öffne mindestens zwei Reiter. Mit nur einem Reiter lässt sich der Editor nicht teilen; VintageCoder sagt dir das.
+2. Drücke **Cmd/Strg+Alt+T** (Menü **Ansicht ▸ Reiter und Teilen ▸ Editor teilen / Teilung aufheben**). Der Editorbereich teilt sich in zwei Hälften mit je eigener Reiterleiste. Du kannst auch einen Reiter mit der Maus an den rechten Rand ziehen („Rechts ablegen (teilt)“).
+3. Schicke einen Reiter in die andere Hälfte: Menü **Ansicht ▸ Reiter und Teilen ▸ Reiter in die andere Hälfte schicken**, oder ziehe den Reiter hinüber.
 4. Derselbe Befehl **Editor teilen / Teilung aufheben** hebt die Teilung wieder auf. Teilen kannst du den Editor nur einmal.
 
-![Der Editor ist geteilt: links music.inc, rechts jumprun.asm, jeweils mit eigener Reiterleiste.](bild:editor-zweiter-bereich "Der zweite Editorbereich: zwei Dateien nebeneinander")
+*[Bild folgt in E13: editor-zweiter-bereich]*
+
+Ist das Fenster schmal, liegen die beiden Hälften untereinander statt nebeneinander.
+
+## Dateien einbinden
+
+Eine Datei in den Quelltext einzubinden geht auf zwei Wegen. Wähle die Datei im Projektbaum, öffne den Assembler-Quelltext und wähle im Kontextmenü der Datei **Als Include einfügen**: VintageCoder schreibt die Zeile mit dem Pfad relativ zur Quelldatei vor die Zeile mit der Schreibmarke (Cmd/Strg+Z nimmt sie zurück; ist die Datei schon eingebunden, fügt er nichts doppelt ein; Projektdateien und Diskettenabbilder lassen sich nicht einbinden). Oder du schreibst die Zeile selbst. Ein Ziehen aus dem Projektbaum in den Quelltext gibt es noch nicht. Die gängigen Zeilen (Pfade relativ zur Quelldatei, mit `/`):
+
+| Zeile | Wirkung |
+|---|---|
+| `.include "pfad/datei.asm"` | setzt den Assembler-Quelltext an dieser Stelle ein, bei jedem Aufruf neu |
+| `#include "pfad/datei.asm"` | setzt ihn **nur einmal** ein (für Bibliotheken) |
+| `.incbin "pfad/datei.bin"` | bindet die Datei unverändert als Bytes ein |
+| `.include "graphics/hero.vcsprite"` | bindet ein Sprite, einen Zeichensatz, einen Bildschirm oder einen Song aus dem Projekt ein; der Assembler wandelt die Mediendatei dabei selbst um |
+
+In BASIC lautet die Zeile für Quelltext und Medien `#include "pfad"`; `.incbin` gibt es dort nicht. Wie das Einbinden von Medien genau funktioniert, steht im Kapitel [Assembler (VCASM) für Einsteiger](kapitel:assembler), die Zeilen der Direktiven in der Hilfeseite [Assembler: Direktiven](hilfe:asm-directives).
+
+> **Info:** Etwas anderes ist das Ziehen von Dateien aus dem Finder oder Explorer **auf das Fenster**; das legt Dateien ins Projekt (siehe [Projekte und Dateien](kapitel:projekte)).
+
+## Markdown-Dateien und Notizen
+
+Dateien mit der Endung `.md` (oder `.markdown`) zeigt der Editor als **Vorschau**: Überschriften, Listen, Tabellen und Code, nur zum Lesen. **Markdown: Vorschau / Quelltext umschalten** (Menü **Ansicht** und Befehlspalette) wechselt zum Quelltext, in dem du schreibst. Notizen für dich (zum Beispiel eine `README.md`) legst du mit **Neue Notiz** oder **Neue Notiz …** an. Beim Schreiben helfen die Befehle im Menü **Bearbeiten ▸ Markdown** (Fett, Kursiv, Code, Link, Listen, Aufgaben, Zitat, Tabelle). Die Kürzel sind Cmd/Strg+I (kursiv), Cmd/Strg+E (Code), Cmd/Strg+Umschalt+X (durchgestrichen) und Cmd/Strg+Umschalt+K (Link). Mehr dazu steht in der Hilfeseite [Markdown](hilfe:markdown). Eine Gliederung der Überschriften gibt es nicht.
 
 ## Zusammenfassung der Kürzel
 
-| Aktion | Mac | Windows |
+| Aktion | Mac | Windows und Linux |
 |---|---|---|
 | Speichern | Cmd+S | Strg+S |
+| Alle speichern | Cmd+Alt+S | Strg+Alt+S |
+| Neuer Reiter | Cmd+N | Strg+N |
+| Datei schließen | Cmd+W | Strg+W |
+| Nächster / voriger Reiter | Cmd+Alt+Rechts / Links | Strg+Alt+Rechts / Links |
 | Rückgängig / Wiederholen | Cmd+Z / Cmd+Umschalt+Z | Strg+Z / Strg+Umschalt+Z |
 | Suchen / Ersetzen | Cmd+F / Cmd+Alt+F | Strg+F / Strg+Alt+F |
-| Gehe zu Zeile | Cmd+L | Strg+L |
-| Include einfügen | Datei aus dem Projektbaum ziehen, oder Rechtsklick ▸ „Als Include einfügen“ | dasselbe |
 | In Projekt suchen | Cmd+Umschalt+F | Strg+Umschalt+F |
-| Hilfe zum Wort | F1 | F1 |
+| Gehe zu Zeile | Cmd+L | Strg+L |
 | Gehe zu Definition | F12 | F12 |
-| Zeichen-Panel | Symbol Ω im rechten Panel | dasselbe |
+| Korrigieren (Quick-Fix) | Cmd+Punkt | Strg+Punkt |
+| Kommentar umschalten | Cmd+Alt+C | Strg+Alt+C |
+| Lesezeichen umschalten / nächstes / voriges | Cmd+Alt+K / J / H | Strg+Alt+K / J / H |
+| Haltepunkt umschalten | F9 | F9 |
+| Nächstes / voriges Problem | F8 / Umschalt+F8 | F8 / Umschalt+F8 |
 | Editor teilen | Cmd+Alt+T | Strg+Alt+T |
-| Datei schließen | Cmd+W | Strg+W |
-| Alle speichern | Cmd+Alt+S | Strg+Alt+S |
+| Zen-Modus | Cmd+Alt+Z | Strg+Alt+Z |
 
 Eine vollständige Tabelle steht in der Hilfeseite [Tastenkürzel](hilfe:shortcuts); die Einzelheiten zum Editor in der Hilfeseite [Editor](hilfe:editor).
 
 ## Häufige Stolpersteine
 
-- **Die Vervollständigung erscheint nicht.** Sie öffnet sich beim Tippen, sobald das Wort zwei Zeichen lang ist (ein Punkt zählt mit). Ein Kürzel zum Öffnen von Hand gibt es nicht. Tippe weiter oder lösche das letzte Zeichen und tippe es neu.
+- **Die Vervollständigung erscheint nicht.** Sie arbeitet in Assembler-Dateien und öffnet sich beim Tippen. Tippe weiter oder öffne sie mit dem Befehl **Vervollständigung öffnen**.
 - **Enter fügt einen Vorschlag ein, obwohl ich eine neue Zeile wollte.** Solange die Liste offen ist, übernimmt Enter den Eintrag. Drücke vorher **Esc**.
-- **F1 zeigt nichts Brauchbares.** Der Cursor muss **auf** einem Wort stehen, zum Beispiel einem Befehl oder einer Direktive.
-- **Die Zeile hat sich nach dem Verlassen verändert.** Das ist das Ausrichten. Das Ausrichten ist gewollt; mit Cmd/Strg+Z machst du es rückgängig.
-- **Ein Klick im Zeichen-Panel fügt nichts ein.** Es ist keine Quelltext-Datei geöffnet, oder an der Cursorstelle passt das Zeichen nicht. Öffne eine Datei und setze den Cursor; ein Hinweis steht im Protokoll.
-- **Ich habe einen gefalteten Abschnitt „verloren“.** Klicke in der Rinne auf den Pfeil **▸** an der Zeile, unter der die Zeilen fehlen.
+- **Die Zeile hat sich nach dem Verlassen verändert.** Das ist das Ausrichten. Es ist gewollt; mit Cmd/Strg+Z machst du es rückgängig.
+- **„Für diesen Reiter gibt es keine Sprachdienste.“** Definition und Korrigieren gehören zu Assembler-Dateien. Prüfe die Art in der Statuszeile.
+- **Ich habe einen gefalteten Abschnitt „verloren“.** Klicke auf den Platzhalter oder den Pfeil neben der Zeile, unter der die Zeilen fehlen.
+- **Der Editor lässt sich nicht teilen.** Öffne zuerst einen zweiten Reiter.
+- **F1 zeigt „Zu … gibt es keinen Hilfeeintrag.“** Zu diesem Wort gibt es keinen Eintrag. Suche in der Hilfe nach einem verwandten Begriff; die Karte beim Daraufzeigen beschreibt oft schon das Wort.
 
 ## Wie geht es weiter?
 

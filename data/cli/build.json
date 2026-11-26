@@ -3,7 +3,8 @@
   "group": "bauen",
   "summary": "Projekt laut .vcprj bauen",
   "description": [
-    "Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und Export von Medien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts."
+    "Baut alle Quellen der Projektdatei in Baureihenfolge (Assembler und BASIC, einschließlich Umwandlung von BASIC in Assembler und von Mediendateien). Beschreibt die Projektdatei eine Diskette, legt der Befehl sie danach an. Die Ergebnisse liegen im Ordner build/ des Projekts.",
+    "Turbo-BASIC-XL-Projekte (Dialekt turbo_basic_xl, Atari) mit einer Diskette im Projekt (Abschnitt turbo, siehe vcc turbo provide) bekommen build/<name>.atr: eine Kopie der Diskette mit dem übersetzten Programm als AUTORUN.BAS. Fehlt die Diskette, bleibt es bei einem Hinweis (Exit-Code 0)."
   ],
   "aliases": [],
   "forms": [
@@ -44,6 +45,18 @@
           "value": "ordner",
           "group": "bau",
           "help": "Ordner der Hardware-Datenbank (data); ersetzt VC_DATA und die automatische Suche.",
+          "choices": [],
+          "default": "",
+          "default_text": "",
+          "repeat": false,
+          "required": false
+        },
+        {
+          "flag": "--strict",
+          "short": "",
+          "value": "",
+          "group": "bau",
+          "help": "Turbo BASIC XL: Fehlt die Diskette des Anwenders (Abschnitt turbo der Projektdatei), ist das ein Fehler (Exit-Code 1) statt eines Hinweises.",
           "choices": [],
           "default": "",
           "default_text": "",

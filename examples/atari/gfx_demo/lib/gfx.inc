@@ -3,7 +3,7 @@
 ; =====================================================================================================================
 ;
 ; ZWECK
-;   Kleine Makrobibliothek, die die Exporte des Editors (vcc media export, build/export/*.asm: Zeichensatz <name>,
+;   Kleine Makrobibliothek, die die Exporte des Editors (vcc media export, oder die Datei direkt einbinden: Zeichensatz <name>,
 ;   Bildschirm <name>_chars, Kachelsatz <name>_c0.., Screen-Bank <bank>_screens_lo/_hi, Farben <bank>_<screen>_bg/_fg) auf den
 ;   Textbildschirm bringt.  Das Betriebssystem bleibt aktiv: Farben, Zeichensatz und Display-Liste werden nur über die
 ;   OS-Schattenregister eingestellt, die das OS im nächsten Vertical Blank in ANTIC/GTIA übernimmt.

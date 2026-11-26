@@ -18,7 +18,7 @@ pub trait Ctx {
     fn reg(&self, name: &str) -> Option<i64>;
     fn peek(&mut self, addr: u16) -> Result<u8, String>;
     /// Größe eines Segments in Bytes (nur bei statischen Prüfungen verfügbar)
-    fn size(&self, _segment: &str) -> Result<i64, String> { Err("size() steht hier nicht zur Verfügung".into()) }
+    fn size(&self, _segment: &str) -> Result<i64, String> { Err(vc_i18n::t!("rest-cond-size-nicht-verfuegbar").into()) }
 }
 
 struct P<'a> { t: Vec<String>, i: usize, syms: &'a HashMap<String, i64> }
@@ -31,7 +31,7 @@ fn tokenize(s: &str) -> Result<Vec<String>, String> {
         if ch == '"' {
             let st = i; i += 1;
             while i < c.len() && c[i] != '"' { i += 1; }
-            if i >= c.len() { return Err("Anführungszeichen nicht geschlossen".into()); }
+            if i >= c.len() { return Err(vc_i18n::t!("rest-cond-anfuehrungszeichen").into()); }
             i += 1; out.push(c[st..i].iter().collect()); continue;
         }
         if ch.is_ascii_alphanumeric() || ch == '_' || ch == '$' || ch == '%' && c.get(i + 1).map_or(false, |d| *d == '0' || *d == '1') && out.last().map_or(true, |t: &String| !t.chars().last().map_or(false, |l| l.is_ascii_alphanumeric() || l == ')' || l == ']')) || ch == '.' {
@@ -84,7 +84,7 @@ impl<'a> P<'a> {
         if (low == "peek" || low == "peekw") && self.peek_tok() == Some("(") { self.i += 1; let e = self.level(0)?; if !self.eat(")") { return Err("')' fehlt".into()); } return Ok(Node::Peek(Box::new(e), low == "peekw")); }
         if low == "size" && self.peek_tok() == Some("(") {
             self.i += 1;
-            let name = match self.t.get(self.i) { Some(n) if n.len() >= 2 && n.starts_with('"') => n[1..n.len() - 1].to_string(), _ => return Err("size() erwartet den Segmentnamen in Anführungszeichen".into()) };
+            let name = match self.t.get(self.i) { Some(n) if n.len() >= 2 && n.starts_with('"') => n[1..n.len() - 1].to_string(), _ => return Err(vc_i18n::t!("rest-cond-size-segmentname").into()) };
             self.i += 1;
             if !self.eat(")") { return Err("')' fehlt".into()); }
             return Ok(Node::Size(name));

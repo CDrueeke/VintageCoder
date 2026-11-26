@@ -53,8 +53,9 @@ impl Ansicht {
     pub fn schieben(&mut self, dx: f32, dy: f32, w: f32, h: f32) { let z = self.zoom_wert(w, h); self.pan = Self::begrenzen(self.platz_groesse(), z, w, h, (self.pan.0 + dx, self.pan.1 + dy)) }
     /// Beschriftung für die Fußzeile: „Einpassen · 16×“ bzw. „16×“
     pub fn zoom_text(&self, w: f32, h: f32) -> String {
-        if self.platz.get().0 < 1.0 { return if self.zoom.is_none() { "Einpassen".into() } else { format!("{}×", self.zoom.unwrap_or(1.0) as i32) } }
-        format!("{}{}×", if self.zoom.is_none() { "Einpassen · " } else { "" }, self.zoom_wert(w, h) as i32)
+        if self.platz.get().0 < 1.0 { return if self.zoom.is_none() { vc_i18n::t!("flaeche-einpassen").into() } else { format!("{}×", self.zoom.unwrap_or(1.0) as i32) } }
+        let z = self.zoom_wert(w, h) as i32;
+        if self.zoom.is_none() { vc_i18n::t!("flaeche-einpassen-zoom", zoom = z) } else { format!("{z}×") }
     }
 }
 

@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-fn vcc() -> Command { let mut c = Command::new(env!("CARGO_BIN_EXE_vcc")); c.env("VC_DATA", PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data")); c }
+fn vcc() -> Command { let mut c = Command::new(env!("CARGO_BIN_EXE_vcc")); c.env("VC_LANG", "de").env("VC_DATA", PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data")); c }
 fn example(rel: &str) -> PathBuf { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../examples").join(rel) }
 fn copy_dir(from: &Path, to: &Path) {
     std::fs::create_dir_all(to).unwrap();
@@ -44,5 +44,21 @@ fn deny_license_option_fails_the_build() {
     assert!(!d.join("build/music_demo.xex").exists());
     // ohne die Sperre geht es
     assert!(vcc().args(["build", d.to_str().unwrap()]).output().unwrap().status.success());
+    std::fs::remove_dir_all(&d).ok();
+}
+
+/// Der Lizenzbericht (Text und Datei `build/LICENSES.txt`) folgt der Sprache
+#[test]
+fn license_report_follows_the_language() {
+    let d = tmp("rep-en");
+    let o = vcc().args(["--lang", "en", "build", d.to_str().unwrap(), "--license-report"]).output().unwrap();
+    let (out, err) = (String::from_utf8_lossy(&o.stdout), String::from_utf8_lossy(&o.stderr));
+    assert!(o.status.success(), "{out}{err}");
+    assert!(out.contains("Licenses of the assembled source code") && out.contains("copyleft") && out.contains("without identifier") && !out.contains("Lizenzen"), "{out}");
+    assert!(err.contains("Note (L001)") && err.contains("GPL-3.0-only") && err.contains("License report: build/LICENSES.txt"), "{err}");
+    let f = std::fs::read_to_string(d.join("build/LICENSES.txt")).unwrap();
+    assert!(f.starts_with("Licenses of the assembled source code"), "{f}");
+    let o = vcc().args(["--lang", "de", "build", d.to_str().unwrap(), "--license-report"]).output().unwrap();
+    assert!(String::from_utf8_lossy(&o.stdout).contains("Lizenzen der übersetzten Quelltexte"));
     std::fs::remove_dir_all(&d).ok();
 }

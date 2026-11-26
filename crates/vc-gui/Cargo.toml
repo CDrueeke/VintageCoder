@@ -21,6 +21,7 @@ vc-asm = { path = "../vc-asm" }
 vc-ide = { path = "../vc-ide" }
 vc-lsp = { path = "../vc-lsp" }
 vc-core = { path = "../vc-core" }
+vc-i18n = { path = "../vc-i18n" }
 vc-media = { path = "../vc-media" }
 vc-roms = { path = "../vc-roms" }
 vc-emu = { path = "../vc-emu" }

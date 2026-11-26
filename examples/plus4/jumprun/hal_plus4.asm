@@ -2,7 +2,7 @@
 ; hal_plus4.asm - Hardware-Schicht (HAL) des Commodore Plus/4 fuer "Hugo & Gumbo"
 ; =====================================================================================================================
 ;
-; Die Spiellogik (common/jumprun/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf den TED,
+; Die Spiellogik (lib/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf den TED,
 ; den einzigen Chip des Plus/4 fuer Bild UND Klang.
 ;
 ; SCHNITTSTELLE (vollstaendig in core.asm beschrieben; hier, was diese HAL dazu liefert und braucht)

@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BEREICHE = ["crates", "tools", "data/sys", "data/templates", "examples", "editors"]
+BEREICHE = ["crates", "tools", "data/sys", "data/templates", "examples", "editors", "ui"]
 KOPFZEILEN = 12
 SPDX = re.compile(r"SPDX-License-Identifier:\s*([A-Za-z0-9.+\-() ]+?)\s*(?:\*/|-->)?\s*$")
 VERMERK = ("LICENSE", "LICENSE.txt")

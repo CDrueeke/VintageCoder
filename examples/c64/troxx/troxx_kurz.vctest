@@ -1,0 +1,3475 @@
+{
+ "kind": "test",
+ "target": "c64",
+ "program": "build/pad.prg",
+ "trap": "$0340",
+ "static": [],
+ "tests": [
+  {
+   "name": "cell_type Ecke (0, 0) = 3",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 0
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Knoten innen (4, 4) = 3",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 4
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Ecke unten rechts (32, 20) = 3",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 20
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht oben (1, 0) = 1",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 0
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type waagerecht Mitte (13, 8) = 1",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 8
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht links (0, 1) = 2",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 1
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type senkrecht Mitte (20, 18) = 2",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 18
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum (1, 1) = 0",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 1
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum unten rechts (31, 19) = 0",
+   "setup": {
+    "mem": {
+     "$5d": 31,
+     "$5e": 19
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "cell_type Innenraum Mitte (5, 2) = 0",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 2
+    }
+   },
+   "call": "pad_cell_type",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 0 H(0,0): unten/rechts 0, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 0",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 1 H(0,1): unten/rechts 1, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 1",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 2 H(0,2): unten/rechts 2, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 2",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 3 H(0,3): unten/rechts 3, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 3",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 4 H(0,4): unten/rechts 4, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 4",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 5 H(0,5): unten/rechts 5, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 5",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 6 H(0,6): unten/rechts 6, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 6",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 7 H(0,7): unten/rechts 7, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 0,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 7",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 8 H(1,0): unten/rechts 8, oben/links 0",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 8",
+    "[$81] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 9 H(1,1): unten/rechts 9, oben/links 1",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 9",
+    "[$81] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 10 H(1,2): unten/rechts 10, oben/links 2",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 10",
+    "[$81] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 11 H(1,3): unten/rechts 11, oben/links 3",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 11",
+    "[$81] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 12 H(1,4): unten/rechts 12, oben/links 4",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 12",
+    "[$81] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 13 H(1,5): unten/rechts 13, oben/links 5",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 13",
+    "[$81] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 14 H(1,6): unten/rechts 14, oben/links 6",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 14",
+    "[$81] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 15 H(1,7): unten/rechts 15, oben/links 7",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 4,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 15",
+    "[$81] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 16 H(2,0): unten/rechts 16, oben/links 8",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 16",
+    "[$81] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 17 H(2,1): unten/rechts 17, oben/links 9",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 17",
+    "[$81] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 18 H(2,2): unten/rechts 18, oben/links 10",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 18",
+    "[$81] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 19 H(2,3): unten/rechts 19, oben/links 11",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 19",
+    "[$81] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 20 H(2,4): unten/rechts 20, oben/links 12",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 20",
+    "[$81] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 21 H(2,5): unten/rechts 21, oben/links 13",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 21",
+    "[$81] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 22 H(2,6): unten/rechts 22, oben/links 14",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 22",
+    "[$81] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 23 H(2,7): unten/rechts 23, oben/links 15",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 8,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 23",
+    "[$81] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 24 H(3,0): unten/rechts 24, oben/links 16",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 24",
+    "[$81] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 25 H(3,1): unten/rechts 25, oben/links 17",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 25",
+    "[$81] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 26 H(3,2): unten/rechts 26, oben/links 18",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 26",
+    "[$81] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 27 H(3,3): unten/rechts 27, oben/links 19",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 27",
+    "[$81] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 28 H(3,4): unten/rechts 28, oben/links 20",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 28",
+    "[$81] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 29 H(3,5): unten/rechts 29, oben/links 21",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 29",
+    "[$81] == 21"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 30 H(3,6): unten/rechts 30, oben/links 22",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 30",
+    "[$81] == 22"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 31 H(3,7): unten/rechts 31, oben/links 23",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 12,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 31",
+    "[$81] == 23"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 32 H(4,0): unten/rechts 32, oben/links 24",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 32",
+    "[$81] == 24"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 33 H(4,1): unten/rechts 33, oben/links 25",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 33",
+    "[$81] == 25"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 34 H(4,2): unten/rechts 34, oben/links 26",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 34",
+    "[$81] == 26"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 35 H(4,3): unten/rechts 35, oben/links 27",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 35",
+    "[$81] == 27"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 36 H(4,4): unten/rechts 36, oben/links 28",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 36",
+    "[$81] == 28"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 37 H(4,5): unten/rechts 37, oben/links 29",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 37",
+    "[$81] == 29"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 38 H(4,6): unten/rechts 38, oben/links 30",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 38",
+    "[$81] == 30"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 39 H(4,7): unten/rechts 39, oben/links 31",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 16,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 39",
+    "[$81] == 31"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 40 H(5,0): unten/rechts -1, oben/links 32",
+   "setup": {
+    "mem": {
+     "$5d": 1,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 32"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 41 H(5,1): unten/rechts -1, oben/links 33",
+   "setup": {
+    "mem": {
+     "$5d": 5,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 33"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 42 H(5,2): unten/rechts -1, oben/links 34",
+   "setup": {
+    "mem": {
+     "$5d": 9,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 34"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 43 H(5,3): unten/rechts -1, oben/links 35",
+   "setup": {
+    "mem": {
+     "$5d": 13,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 35"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 44 H(5,4): unten/rechts -1, oben/links 36",
+   "setup": {
+    "mem": {
+     "$5d": 17,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 36"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 45 H(5,5): unten/rechts -1, oben/links 37",
+   "setup": {
+    "mem": {
+     "$5d": 21,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 37"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 46 H(5,6): unten/rechts -1, oben/links 38",
+   "setup": {
+    "mem": {
+     "$5d": 25,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 38"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 47 H(5,7): unten/rechts -1, oben/links 39",
+   "setup": {
+    "mem": {
+     "$5d": 29,
+     "$5e": 20,
+     "$5f": 1
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 39"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 48 V(0,0): unten/rechts 0, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 0",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 49 V(0,1): unten/rechts 1, oben/links 0",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 1",
+    "[$81] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 50 V(0,2): unten/rechts 2, oben/links 1",
+   "setup": {
+    "mem": {
+     "$5d": 8,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 2",
+    "[$81] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 51 V(0,3): unten/rechts 3, oben/links 2",
+   "setup": {
+    "mem": {
+     "$5d": 12,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 3",
+    "[$81] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 52 V(0,4): unten/rechts 4, oben/links 3",
+   "setup": {
+    "mem": {
+     "$5d": 16,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 4",
+    "[$81] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 53 V(0,5): unten/rechts 5, oben/links 4",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 5",
+    "[$81] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 54 V(0,6): unten/rechts 6, oben/links 5",
+   "setup": {
+    "mem": {
+     "$5d": 24,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 6",
+    "[$81] == 5"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 55 V(0,7): unten/rechts 7, oben/links 6",
+   "setup": {
+    "mem": {
+     "$5d": 28,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 7",
+    "[$81] == 6"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 56 V(0,8): unten/rechts -1, oben/links 7",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 1,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 57 V(1,0): unten/rechts 8, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 8",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 58 V(1,1): unten/rechts 9, oben/links 8",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 9",
+    "[$81] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 59 V(1,2): unten/rechts 10, oben/links 9",
+   "setup": {
+    "mem": {
+     "$5d": 8,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 10",
+    "[$81] == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 60 V(1,3): unten/rechts 11, oben/links 10",
+   "setup": {
+    "mem": {
+     "$5d": 12,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 11",
+    "[$81] == 10"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 61 V(1,4): unten/rechts 12, oben/links 11",
+   "setup": {
+    "mem": {
+     "$5d": 16,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 12",
+    "[$81] == 11"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 62 V(1,5): unten/rechts 13, oben/links 12",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 13",
+    "[$81] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 63 V(1,6): unten/rechts 14, oben/links 13",
+   "setup": {
+    "mem": {
+     "$5d": 24,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 14",
+    "[$81] == 13"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 64 V(1,7): unten/rechts 15, oben/links 14",
+   "setup": {
+    "mem": {
+     "$5d": 28,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 15",
+    "[$81] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 65 V(1,8): unten/rechts -1, oben/links 15",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 5,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 15"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 66 V(2,0): unten/rechts 16, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 16",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 67 V(2,1): unten/rechts 17, oben/links 16",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 17",
+    "[$81] == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 68 V(2,2): unten/rechts 18, oben/links 17",
+   "setup": {
+    "mem": {
+     "$5d": 8,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 18",
+    "[$81] == 17"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 69 V(2,3): unten/rechts 19, oben/links 18",
+   "setup": {
+    "mem": {
+     "$5d": 12,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 19",
+    "[$81] == 18"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 70 V(2,4): unten/rechts 20, oben/links 19",
+   "setup": {
+    "mem": {
+     "$5d": 16,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 20",
+    "[$81] == 19"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 71 V(2,5): unten/rechts 21, oben/links 20",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 21",
+    "[$81] == 20"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 72 V(2,6): unten/rechts 22, oben/links 21",
+   "setup": {
+    "mem": {
+     "$5d": 24,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 22",
+    "[$81] == 21"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 73 V(2,7): unten/rechts 23, oben/links 22",
+   "setup": {
+    "mem": {
+     "$5d": 28,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 23",
+    "[$81] == 22"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 74 V(2,8): unten/rechts -1, oben/links 23",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 9,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 23"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 75 V(3,0): unten/rechts 24, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 24",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 76 V(3,1): unten/rechts 25, oben/links 24",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 25",
+    "[$81] == 24"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 77 V(3,2): unten/rechts 26, oben/links 25",
+   "setup": {
+    "mem": {
+     "$5d": 8,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 26",
+    "[$81] == 25"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 78 V(3,3): unten/rechts 27, oben/links 26",
+   "setup": {
+    "mem": {
+     "$5d": 12,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 27",
+    "[$81] == 26"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 79 V(3,4): unten/rechts 28, oben/links 27",
+   "setup": {
+    "mem": {
+     "$5d": 16,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 28",
+    "[$81] == 27"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 80 V(3,5): unten/rechts 29, oben/links 28",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 29",
+    "[$81] == 28"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 81 V(3,6): unten/rechts 30, oben/links 29",
+   "setup": {
+    "mem": {
+     "$5d": 24,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 30",
+    "[$81] == 29"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 82 V(3,7): unten/rechts 31, oben/links 30",
+   "setup": {
+    "mem": {
+     "$5d": 28,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 31",
+    "[$81] == 30"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 83 V(3,8): unten/rechts -1, oben/links 31",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 13,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 31"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 84 V(4,0): unten/rechts 32, oben/links -1",
+   "setup": {
+    "mem": {
+     "$5d": 0,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 32",
+    "[$81] == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 85 V(4,1): unten/rechts 33, oben/links 32",
+   "setup": {
+    "mem": {
+     "$5d": 4,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 33",
+    "[$81] == 32"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 86 V(4,2): unten/rechts 34, oben/links 33",
+   "setup": {
+    "mem": {
+     "$5d": 8,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 34",
+    "[$81] == 33"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 87 V(4,3): unten/rechts 35, oben/links 34",
+   "setup": {
+    "mem": {
+     "$5d": 12,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 35",
+    "[$81] == 34"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 88 V(4,4): unten/rechts 36, oben/links 35",
+   "setup": {
+    "mem": {
+     "$5d": 16,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 36",
+    "[$81] == 35"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 89 V(4,5): unten/rechts 37, oben/links 36",
+   "setup": {
+    "mem": {
+     "$5d": 20,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 37",
+    "[$81] == 36"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 90 V(4,6): unten/rechts 38, oben/links 37",
+   "setup": {
+    "mem": {
+     "$5d": 24,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 38",
+    "[$81] == 37"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 91 V(4,7): unten/rechts 39, oben/links 38",
+   "setup": {
+    "mem": {
+     "$5d": 28,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 39",
+    "[$81] == 38"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "nb_boxes Segment 92 V(4,8): unten/rechts -1, oben/links 39",
+   "setup": {
+    "mem": {
+     "$5d": 32,
+     "$5e": 17,
+     "$5f": 2
+    }
+   },
+   "call": "pad_nb_boxes",
+   "expect": [
+    "[$82] == 255",
+    "[$81] == 39"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "box_add: dritte Kante: nichts vorgemerkt",
+   "setup": {
+    "x": 7,
+    "mem": {
+     "$43": 0,
+     "$f": 0,
+     "$b": [
+      0,
+      0,
+      0
+     ],
+     "$e": 0,
+     "$a": 3,
+     "$10": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_box_add",
+   "expect": [
+    "[$17] == 3",
+    "[$43] == 0",
+    "[$f] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $01 -> $B8",
+   "setup": {
+    "mem": {
+     "$6": 1
+    }
+   },
+   "call": "pad_rnd",
+   "expect": [
+    "a == $b8",
+    "[$6] == $b8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $B8 -> $5C",
+   "setup": {
+    "mem": {
+     "$6": 184
+    }
+   },
+   "call": "pad_rnd",
+   "expect": [
+    "a == $5c",
+    "[$6] == $5c"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $5C -> $2E",
+   "setup": {
+    "mem": {
+     "$6": 92
+    }
+   },
+   "call": "pad_rnd",
+   "expect": [
+    "a == $2e",
+    "[$6] == $2e"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $80 -> $40",
+   "setup": {
+    "mem": {
+     "$6": 128
+    }
+   },
+   "call": "pad_rnd",
+   "expect": [
+    "a == $40",
+    "[$6] == $40"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "rnd: LFSR $FF -> $C7",
+   "setup": {
+    "mem": {
+     "$6": 255
+    }
+   },
+   "call": "pad_rnd",
+   "expect": [
+    "a == $c7",
+    "[$6] == $c7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 1 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 1,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 2 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 2,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 4 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 4,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 8 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 8,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 6 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 6,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 9 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 9,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "pick_random: Maske 15 liefert eine Richtung aus der Maske",
+   "setup": {
+    "mem": {
+     "$64": 15,
+     "$6": 90
+    }
+   },
+   "call": "pad_pick_random",
+   "expect": [
+    "x < 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $01 -> Index 0",
+   "setup": {
+    "mem": {
+     "$9": 1
+    }
+   },
+   "call": "pad_level_idx",
+   "expect": [
+    "y == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $05 -> Index 4",
+   "setup": {
+    "mem": {
+     "$9": 5
+    }
+   },
+   "call": "pad_level_idx",
+   "expect": [
+    "y == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $09 -> Index 8",
+   "setup": {
+    "mem": {
+     "$9": 9
+    }
+   },
+   "call": "pad_level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $10 -> Index 8",
+   "setup": {
+    "mem": {
+     "$9": 16
+    }
+   },
+   "call": "pad_level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "level_idx: Stufe BCD $25 -> Index 8",
+   "setup": {
+    "mem": {
+     "$9": 37
+    }
+   },
+   "call": "pad_level_idx",
+   "expect": [
+    "y == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 1 PAL -> 12 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 1,
+     "$3": 1
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 12"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 9 PAL -> 3 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 9,
+     "$3": 1
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 5 PAL -> 7 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 5,
+     "$3": 1
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 7"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 1 NTSC -> 14 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 1,
+     "$3": 0
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 14"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 9 NTSC -> 4 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 9,
+     "$3": 0
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "set_tempo: Tempo 5 NTSC -> 8 Bilder",
+   "setup": {
+    "mem": {
+     "$8": 5,
+     "$3": 0
+    }
+   },
+   "call": "pad_set_tempo",
+   "expect": [
+    "[$5] == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "items.check: Figur nicht auf dem Gegenstand: nichts passiert",
+   "setup": {
+    "mem": {
+     "$3b": 10,
+     "$3c": 8,
+     "$c010": 1,
+     "$c011": 9,
+     "$c012": 8,
+     "$c019": 50,
+     "$c000": 0,
+     "$6": 51,
+     "$b": [
+      0,
+      0,
+      0
+     ],
+     "$e": 0,
+     "$a": 3,
+     "$3": 1
+    }
+   },
+   "call": "pad_items_check",
+   "expect": [
+    "[$b] == 0",
+    "[$c010] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "switch_player: anderer Spieler ohne Leben: kein Wechsel",
+   "setup": {
+    "mem": {
+     "$c001": 2,
+     "$7": 0,
+     "$c004": [
+      0,
+      0
+     ],
+     "$a": 2,
+     "$9": 3,
+     "$b": [
+      1,
+      2,
+      3
+     ],
+     "$f": 5,
+     "$c180": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$c1b0": [
+      5,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_switch_player",
+   "expect": [
+    "fc == 0",
+    "[$7] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "switch_player: ein Spieler: kein Wechsel",
+   "setup": {
+    "mem": {
+     "$c001": 1,
+     "$7": 0,
+     "$c004": [
+      0,
+      0
+     ],
+     "$a": 2,
+     "$9": 3,
+     "$b": [
+      1,
+      2,
+      3
+     ],
+     "$f": 5,
+     "$c180": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$c1b0": [
+      5,
+      1,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_switch_player",
+   "expect": [
+    "fc == 0",
+    "[$7] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 keine Taste",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 255
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 hoch",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 254
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 runter",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 253
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 links",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 251
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 4"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 rechts",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 247
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 8"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 Feuer",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 239
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 2 rechts und Feuer",
+   "setup": {
+    "x": 2,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc00": 231
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 24"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 hoch",
+   "setup": {
+    "x": 1,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc01": 254
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 Feuer",
+   "setup": {
+    "x": 1,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc01": 239
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 16"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.read_port: Anschluss 1 keine Taste",
+   "setup": {
+    "x": 1,
+    "mem": {
+     "$dc02": 255,
+     "$dc03": 255,
+     "$dc01": 255
+    }
+   },
+   "call": "pad_read_port",
+   "expect": [
+    "a == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 0, Spieler 1 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$c000": 0,
+     "$7": 0
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 0, Spieler 2 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$c000": 0,
+     "$7": 1
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 1, Spieler 1 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$c000": 1,
+     "$7": 0
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 1, Spieler 2 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$c000": 1,
+     "$7": 1
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 2, Spieler 1 -> Anschluss 1",
+   "setup": {
+    "mem": {
+     "$c000": 2,
+     "$7": 0
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "input.port_of: JOYMODE 2, Spieler 2 -> Anschluss 2",
+   "setup": {
+    "mem": {
+     "$c000": 2,
+     "$7": 1
+    }
+   },
+   "call": "pad_port_of",
+   "expect": [
+    "x == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Spieler 1 -> 2",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$c002": 0,
+     "$c001": 1,
+     "$c000": 0
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c001] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Spieler 2 -> 1 setzt zwei Joysticks zurueck",
+   "setup": {
+    "a": 255,
+    "mem": {
+     "$c002": 0,
+     "$c001": 2,
+     "$c000": 2
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c000] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 0 -> 1 mit einem Spieler",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$c002": 1,
+     "$c001": 1,
+     "$c000": 0
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c000] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 1 -> 2 mit einem Spieler gesperrt",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$c002": 1,
+     "$c001": 1,
+     "$c000": 1
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c000] == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 1 -> 2 mit zwei Spielern",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$c002": 1,
+     "$c001": 2,
+     "$c000": 1
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c000] == 2"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "title_change: Joystick 0 nach links bleibt 0",
+   "setup": {
+    "a": 255,
+    "mem": {
+     "$c002": 1,
+     "$c001": 2,
+     "$c000": 0
+    }
+   },
+   "call": "pad_title_change",
+   "expect": [
+    "[$c000] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand ueber dem ersten Platz (10001) -> Platz 1",
+   "setup": {
+    "mem": {
+     "$c151": [
+      1,
+      0,
+      1
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand zwischen Platz 3 und 4 (7500) -> Platz 4",
+   "setup": {
+    "mem": {
+     "$c151": [
+      0,
+      117,
+      0
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 3"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand genau gleich dem letzten (1000): nicht in der Liste -> Platz keiner",
+   "setup": {
+    "mem": {
+     "$c151": [
+      0,
+      16,
+      0
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand unter dem letzten (500) -> Platz keiner",
+   "setup": {
+    "mem": {
+     "$c151": [
+      0,
+      5,
+      0
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 255"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand gleich Platz 1 (10000): dahinter -> Platz 2",
+   "setup": {
+    "mem": {
+     "$c151": [
+      0,
+      0,
+      1
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "hiscore.place: Endstand knapp ueber dem letzten (1001) -> Platz 10",
+   "setup": {
+    "mem": {
+     "$c151": [
+      1,
+      16,
+      0
+     ],
+     "$c080": [
+      84,
+      88,
+      72,
+      83,
+      1,
+      20,
+      18,
+      24,
+      0,
+      0,
+      1,
+      1,
+      20,
+      18,
+      24,
+      0,
+      144,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      128,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      112,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      96,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      80,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      64,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      48,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      32,
+      0,
+      1,
+      20,
+      18,
+      24,
+      0,
+      16,
+      0,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_place",
+   "expect": [
+    "x == 9"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "sound.play: waehrend der Titelmusik keine Effekte",
+   "setup": {
+    "a": 4,
+    "mem": {
+     "$c040": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "$3": 1
+    }
+   },
+   "call": "pad_sound_play",
+   "expect": [
+    "[$c049 + 2] == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: H(1,1), kein Nachbar gefuellt",
+   "setup": {
+    "mem": {
+     "$5d": 6,
+     "$5e": 4,
+     "$5f": 1,
+     "$10": [
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_seg_is_closed",
+   "expect": [
+    "fc == 0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: H(1,1), unteres Rechteck gefuellt",
+   "setup": {
+    "mem": {
+     "$5d": 6,
+     "$5e": 4,
+     "$5f": 1,
+     "$10": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_seg_is_closed",
+   "expect": [
+    "fc == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: H(1,1), oberes Rechteck gefuellt",
+   "setup": {
+    "mem": {
+     "$5d": 6,
+     "$5e": 4,
+     "$5f": 1,
+     "$10": [
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_seg_is_closed",
+   "expect": [
+    "fc == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "seg_is_closed: Randsegment H(0,0), Rechteck 0 gefuellt",
+   "setup": {
+    "mem": {
+     "$5d": 2,
+     "$5e": 0,
+     "$5f": 1,
+     "$10": [
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_seg_is_closed",
+   "expect": [
+    "fc == 1"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: 100 - 13",
+   "setup": {
+    "a": 19,
+    "mem": {
+     "$b": [
+      0,
+      1,
+      0
+     ]
+    }
+   },
+   "call": "pad_bcd_sub",
+   "expect": [
+    "[$b] == $87",
+    "[$c] == $0",
+    "[$d] == $0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: Borgen ueber alle Stellen",
+   "setup": {
+    "a": 1,
+    "mem": {
+     "$b": [
+      0,
+      0,
+      1
+     ]
+    }
+   },
+   "call": "pad_bcd_sub",
+   "expect": [
+    "[$b] == $99",
+    "[$c] == $99",
+    "[$d] == $0"
+   ],
+   "timeoutMs": 20000
+  },
+  {
+   "name": "bcd_sub: nie unter 0",
+   "setup": {
+    "a": 19,
+    "mem": {
+     "$b": [
+      5,
+      0,
+      0
+     ]
+    }
+   },
+   "call": "pad_bcd_sub",
+   "expect": [
+    "[$b] == $0",
+    "[$c] == $0",
+    "[$d] == $0"
+   ],
+   "timeoutMs": 20000
+  }
+ ]
+}

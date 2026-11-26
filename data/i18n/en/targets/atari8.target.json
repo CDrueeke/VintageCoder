@@ -1,0 +1,280 @@
+{
+ "source": "targets/atari8.target.json",
+ "entries": {
+  "/target/testMailboxNote": {
+   "de": "Postfach der Tests (Postfach-Modus, 8 Byte): Seite 6, für Anwendungen frei",
+   "en": "Mailbox of the tests (mailbox mode, 8 bytes): page 6, free for applications",
+   "status": "geprüft"
+  },
+  "/regions/0/note": {
+   "de": "$00-$7F OS/BASIC, $80-$FF frei (ohne BASIC)",
+   "en": "$00-$7F OS/BASIC, $80-$FF free (without BASIC)",
+   "status": "maschinell"
+  },
+  "/regions/2/note": {
+   "de": "Seite 6: frei für Anwender",
+   "en": "Page 6: free for users",
+   "status": "maschinell"
+  },
+  "/banking/source": {
+   "de": "Atari XL/XE Hardware Manual und OS-Handbuch (PIA PORTB $D301, Speicherplan XL/XE); Bitnamen und Register wie data/chips/pia.chip.json und data/sys/atari8bit/os.asm. Der Atari 800 (OS B) hat kein PORTB-Banking und bekommt keine Presets. Ausgelassen: Presets, bei denen ANTIC (Bit 5 = 0) die Erweiterungsbank sieht, denn der Seitenplan zeigt die Sicht der CPU.",
+   "en": "Atari XL/XE Hardware Manual and OS manual (PIA PORTB $D301, XL/XE memory map); bit names and registers as in data/chips/pia.chip.json and data/sys/atari8bit/os.asm. The Atari 800 (OS B) has no PORTB banking and gets no presets. Omitted: presets where ANTIC (bit 5 = 0) sees the extended bank, because the page map shows the view of the CPU.",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/0/hint": {
+   "de": "1: Betriebssystem-ROM an ($C000-$CFFF, $D800-$FFFF); 0: dort RAM",
+   "en": "1: operating system ROM on ($C000-$CFFF, $D800-$FFFF); 0: RAM there",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/1/hint": {
+   "de": "0: BASIC-ROM bei $A000-$BFFF an; 1: dort RAM",
+   "en": "0: BASIC ROM on at $A000-$BFFF; 1: RAM there",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/2/hint": {
+   "de": "130XE: Bankwahl, niederwertiges Bit",
+   "en": "130XE: bank select, low bit",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/3/hint": {
+   "de": "130XE: Bankwahl, höherwertiges Bit",
+   "en": "130XE: bank select, high bit",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/4/hint": {
+   "de": "130XE: 0 = CPU sieht die gewählte Erweiterungsbank bei $4000-$7FFF",
+   "en": "130XE: 0 = CPU sees the selected extended bank at $4000-$7FFF",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/5/hint": {
+   "de": "130XE: 0 = ANTIC sieht die gewählte Erweiterungsbank bei $4000-$7FFF",
+   "en": "130XE: 0 = ANTIC sees the selected extended bank at $4000-$7FFF",
+   "status": "maschinell"
+  },
+  "/banking/register/bits/6/hint": {
+   "de": "0: Selbsttest-ROM bei $5000-$57FF (nur mit OSROM = 1)",
+   "en": "0: self-test ROM at $5000-$57FF (only with OSROM = 1)",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/name": {
+   "de": "OS an, BASIC aus",
+   "en": "OS on, BASIC off",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/note": {
+   "de": "Normalzustand mit Assembler-Programmen",
+   "en": "Normal state with assembler programs",
+   "status": "geprüft"
+  },
+  "/banking/presets/0/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/0/regions/1/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "geprüft"
+  },
+  "/banking/presets/0/regions/2/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/name": {
+   "de": "OS an, BASIC an",
+   "en": "OS on, BASIC on",
+   "status": "geprüft"
+  },
+  "/banking/presets/1/note": {
+   "de": "Normalzustand mit BASIC-Modul",
+   "en": "Normal state with BASIC cartridge",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/2/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/1/regions/3/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/name": {
+   "de": "OS an, Selbsttest",
+   "en": "OS on, self-test",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/regions/1/note": {
+   "de": "Selbsttest-ROM",
+   "en": "Self-test ROM",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/regions/2/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/2/regions/3/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/name": {
+   "de": "OS aus, BASIC aus (RAM unter dem OS)",
+   "en": "OS off, BASIC off (RAM under the OS)",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/note": {
+   "de": "Nur E/A bleibt sichtbar; Interruptvektoren bei $FFFA liegen im RAM",
+   "en": "Only I/O stays visible; interrupt vectors at $FFFA are in RAM",
+   "status": "maschinell"
+  },
+  "/banking/presets/3/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/4/name": {
+   "de": "OS aus, BASIC an",
+   "en": "OS off, BASIC on",
+   "status": "maschinell"
+  },
+  "/banking/presets/4/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "geprüft"
+  },
+  "/banking/presets/5/name": {
+   "de": "Erweiterungsbank 0 für die CPU",
+   "en": "Extended bank 0 for the CPU",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/note": {
+   "de": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+   "en": "OS on, BASIC off; ANTIC still sees the main memory",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/regions/1/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/5/regions/2/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "geprüft"
+  },
+  "/banking/presets/5/regions/3/note": {
+   "de": "Erweiterungsbank 0 (Zugriff der CPU, Bit 4 = 0)",
+   "en": "Extended bank 0 (CPU access, bit 4 = 0)",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/name": {
+   "de": "Erweiterungsbank 1 für die CPU",
+   "en": "Extended bank 1 for the CPU",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/note": {
+   "de": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+   "en": "OS on, BASIC off; ANTIC still sees the main memory",
+   "status": "geprüft"
+  },
+  "/banking/presets/6/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/regions/1/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/regions/2/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/6/regions/3/note": {
+   "de": "Erweiterungsbank 1 (Zugriff der CPU, Bit 4 = 0)",
+   "en": "Extended bank 1 (CPU access, bit 4 = 0)",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/name": {
+   "de": "Erweiterungsbank 2 für die CPU",
+   "en": "Extended bank 2 for the CPU",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/note": {
+   "de": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+   "en": "OS on, BASIC off; ANTIC still sees the main memory",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "geprüft"
+  },
+  "/banking/presets/7/regions/1/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/regions/2/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/7/regions/3/note": {
+   "de": "Erweiterungsbank 2 (Zugriff der CPU, Bit 4 = 0)",
+   "en": "Extended bank 2 (CPU access, bit 4 = 0)",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/name": {
+   "de": "Erweiterungsbank 3 für die CPU",
+   "en": "Extended bank 3 for the CPU",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/note": {
+   "de": "OS an, BASIC aus; ANTIC sieht weiter den Hauptspeicher",
+   "en": "OS on, BASIC off; ANTIC still sees the main memory",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/regions/0/note": {
+   "de": "GTIA, POKEY, PIA, ANTIC; bei jeder Belegung sichtbar",
+   "en": "GTIA, POKEY, PIA, ANTIC; visible in every configuration",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/regions/1/note": {
+   "de": "Betriebssystem",
+   "en": "Operating system",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/regions/2/note": {
+   "de": "Gleitkomma-ROM $D800-$DFFF, Betriebssystem $E000-$FFFF",
+   "en": "Floating-point ROM $D800-$DFFF, operating system $E000-$FFFF",
+   "status": "maschinell"
+  },
+  "/banking/presets/8/regions/3/note": {
+   "de": "Erweiterungsbank 3 (Zugriff der CPU, Bit 4 = 0)",
+   "en": "Extended bank 3 (CPU access, bit 4 = 0)",
+   "status": "maschinell"
+  }
+ }
+}

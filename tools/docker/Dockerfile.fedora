@@ -1,4 +1,4 @@
-# Bau-Image fuer Linux-Pakete (.rpm) auf Fedora: Rust (rustup), rpmbuild, Python 3 und die Entwicklungsbibliotheken der IDE.
+# Bau-Image fuer Linux-Pakete (.rpm) auf Fedora: Rust (rustup), rpmbuild, Python 3 die Entwicklungsbibliotheken der IDE (egui) und der Tauri-Oberflaeche (WebKitGTK, GTK 3, Node 22).
 # Image: vc-build-fedora   (Aufbau und Aufruf: Makefile, tools/linux-build.sh)
 #   docker build --platform linux/amd64 -t vc-build-fedora -f tools/docker/Dockerfile.fedora tools/docker
 FROM fedora:latest
@@ -9,4 +9,12 @@ RUN dnf install -y gcc gcc-c++ make pkgconf-pkg-config curl git python3 rpm-buil
     && dnf clean all
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable \
     && chmod -R a+rwX /opt/rustup /opt/cargo
+RUN dnf install -y webkit2gtk4.1-devel gtk3-devel libsoup3-devel \
+    && dnf clean all
+# Tauri-Oberflaeche (ui/ mit vite, Programm aus crates/vc-shell): Node 22 (feste Version, Pruefsumme gegen SHASUMS256.txt), WebKitGTK 4.1 und GTK 3.
+ARG NODE_VERSION=22.23.5
+RUN curl -fsSLO https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
+    && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt | grep " node-v${NODE_VERSION}-linux-x64.tar.xz$" | sha256sum -c - \
+    && tar -xJf node-v${NODE_VERSION}-linux-x64.tar.xz -C /usr/local --strip-components=1 --no-same-owner \
+    && rm node-v${NODE_VERSION}-linux-x64.tar.xz && node --version && npm --version
 WORKDIR /src

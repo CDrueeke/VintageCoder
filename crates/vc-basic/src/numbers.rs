@@ -9,7 +9,7 @@
 //! Alle Positionen sind **Zeichenindizes** (nicht Bytes) in der übergebenen Zeile.
 use crate::atari::AtariDialect;
 use crate::dialect::Dialect;
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 
 /// Fähigkeit eines Dialekts (`numberLiterals` in `data/basic/*.dialect.json`); fehlt das Feld, kennt der Dialekt keine Literale.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -85,7 +85,7 @@ impl<'a> Lexicon<'a> {
     /// `DATA` läuft bis zum Zeilenende (Atari) statt bis `:` (CBM)
     fn data_to_eol(&self) -> bool { matches!(self, Lexicon::Atari(_)) }
     /// Länge des Schlüsselworts an Position `i` (in Zeichen)
-    fn keyword_at(&self, ch: &[char], i: usize, whole_words: bool) -> Option<usize> {
+    pub(crate) fn keyword_at(&self, ch: &[char], i: usize, whole_words: bool) -> Option<usize> {
         match self {
             // das ROM sucht an jeder Stelle des Textes (auch mitten in einem Namen)
             Lexicon::Cbm(d) if !whole_words => crate::classic::match_keyword(ch, i, d).map(|(_, n)| n),
@@ -134,13 +134,20 @@ pub struct Lit {
 }
 
 /// Meldung zu einer Stelle der Zeile
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Note {
     pub start: usize,
     pub end: usize,
     pub code: &'static str,
     pub error: bool,
+    /// Text in der Sprache, die beim Entstehen galt (wie `Diagnostic::message`)
     pub message: String,
+    /// Meldung mit Schlüssel und Parametern (der Text in jeder Sprache: `msg.text_in(lang)`)
+    pub msg: Msg,
+}
+
+impl Note {
+    pub fn new(start: usize, end: usize, code: &'static str, error: bool, msg: Msg) -> Note { Note { start, end, code, error, message: msg.text(), msg } }
 }
 
 /// Wozu eine Zahl im Programm dient
@@ -186,38 +193,37 @@ fn is_digit_of(radix: u32, c: char) -> bool { if radix == 16 { c.is_ascii_hexdig
 /// Liest das Literal ab `i` (`ch[i]` ist `$` oder `%`)
 fn parse_lit(ch: &[char], i: usize, o: &NumberOptions, lx: &Lexicon, in_data: bool) -> Parsed {
     let radix = if ch[i] == '$' { 16 } else { 2 };
-    let kind = if radix == 16 { "Hex" } else { "Binär" };
-    let (code_digit, name) = if radix == 16 { ("B130", "Hexziffer") } else { ("B131", "Binärziffer") };
+    let code_digit = if radix == 16 { "B130" } else { "B131" };
     let mut notes = vec![];
     let mut j = i + 1;
     while j < ch.len() && (is_digit_of(radix, ch[j]) || (o.underscore && ch[j] == '_')) { j += 1; }
     let run: String = ch[i + 1..j].iter().collect();
     let digits: String = run.chars().filter(|c| *c != '_').collect();
-    let err = |start, end, code, message: String| Note { start, end, code, error: true, message };
+    let err = |start, end, code, msg: Msg| Note::new(start, end, code, true, msg);
     if run.starts_with('_') || run.ends_with('_') || run.contains("__") {
-        notes.push(err(i, j, code_digit, "Trenner _ nur einzeln zwischen zwei Ziffern".into()));
+        notes.push(err(i, j, code_digit, if radix == 16 { msg!("diag-basic-b130-separator") } else { msg!("diag-basic-b131-separator") }));
     }
     let mut value = None;
     if digits.is_empty() {
         // `$` ohne Ziffern: steht dahinter ein Zeichen, das keine Ziffer ist, wird es genannt
         match ch.get(j) {
-            Some(c) if radix == 2 && c.is_ascii_digit() => notes.push(err(i, j + 1, "B131", format!("'{c}' ist keine Binärziffer (nur 0 und 1)"))),
-            Some(c) if radix == 16 && c.is_ascii_alphabetic() => notes.push(err(i, j + 1, "B130", format!("'{c}' ist keine Hexziffer (0–9, A–F)"))),
-            _ => notes.push(err(i, j.max(i + 1), "B132", format!("{} ohne Ziffern", if radix == 16 { "$" } else { "%" }))),
+            Some(c) if radix == 2 && c.is_ascii_digit() => notes.push(err(i, j + 1, "B131", msg!("diag-basic-b131-not-binary-digit", c = c))),
+            Some(c) if radix == 16 && c.is_ascii_alphabetic() => notes.push(err(i, j + 1, "B130", msg!("diag-basic-b130-not-hex-digit", c = c))),
+            _ => notes.push(err(i, j.max(i + 1), "B132", msg!("diag-basic-b132-no-digits", prefix = if radix == 16 { "$" } else { "%" }))),
         }
     } else {
         // Zeichen direkt hinter der Zahl
         if let Some(&c) = ch.get(j) {
             if radix == 2 && c.is_ascii_digit() {
-                notes.push(err(i, j + 1, "B131", format!("'{c}' ist keine Binärziffer (nur 0 und 1)")));
+                notes.push(err(i, j + 1, "B131", msg!("diag-basic-b131-not-binary-digit", c = c)));
             } else if c.is_ascii_alphabetic() || (radix == 16 && c == '_') {
                 match lx.keyword_at(ch, j, o.whole_words) {
                     Some(n) if radix == 16 => {
                         let kw: String = ch[j..j + n].iter().collect();
-                        notes.push(Note { start: j, end: j + n, code: "B136", error: false, message: format!("Hexzahl grenzt an das Schlüsselwort {kw}: Leerzeichen setzen (Ziffern A–F könnten zum Wort gehören)") });
+                        notes.push(Note::new(j, j + n, "B136", false, msg!("diag-basic-b136-hex-keyword", kw = kw.as_str())));
                     }
                     Some(_) => {}
-                    None => notes.push(err(i, j + 1, code_digit, format!("'{c}' ist keine {name}{}", if radix == 16 { " (vor einem Schlüsselwort ein Leerzeichen setzen)" } else { "" }))),
+                    None => notes.push(err(i, j + 1, code_digit, if radix == 16 { msg!("diag-basic-b130-not-digit-after", c = c) } else { msg!("diag-basic-b131-not-digit-after", c = c) })),
                 }
             }
         }
@@ -228,7 +234,7 @@ fn parse_lit(ch: &[char], i: usize, o: &NumberOptions, lx: &Lexicon, in_data: bo
         let bits = lx.rules().bits as u32;
         let max = if bits >= 32 { u32::MAX as u64 } else { (1u64 << bits) - 1 };
         if over || v > max {
-            notes.push(err(i, j, "B133", format!("{kind}zahl über {bits} Bit (größter Wert {max})")));
+            notes.push(err(i, j, "B133", if radix == 16 { msg!("diag-basic-b133-hex-bits", bits = bits, max = max) } else { msg!("diag-basic-b133-bin-bits", bits = bits, max = max) }));
         } else if !notes.iter().any(|n| n.error) { value = Some(v as u32); }
     }
     let text = format!("{}{}", ch[i], digits.to_ascii_uppercase());
@@ -267,7 +273,7 @@ pub fn scan_line(line: &str, lx: &Lexicon, o: &NumberOptions) -> Scan {
             let mut p = parse_lit(&ch, i, o, lx, false);
             p.lit.jump_target = target;
             if target {
-                p.notes.push(Note { start: i, end: p.lit.end, code: "B138", error: true, message: "Hex/Binär als Sprungziel: Zeilennummern entstehen beim Bauen, Marke verwenden (@name)".into() });
+                p.notes.push(Note::new(i, p.lit.end, "B138", true, msg!("diag-basic-b138-jump-target")));
                 p.lit.value = None;
             }
             i = p.lit.end.max(i + 1);
@@ -281,7 +287,7 @@ pub fn scan_line(line: &str, lx: &Lexicon, o: &NumberOptions) -> Scan {
             if c == '0' && matches!(ch.get(i + 1), Some('x' | 'X')) && ch.get(i + 2).map_or(false, char::is_ascii_hexdigit) {
                 let mut j = i + 2;
                 while j < n && ch[j].is_ascii_hexdigit() { j += 1; }
-                out.notes.push(Note { start: i, end: j, code: "B139", error: false, message: "0x… ist kein BASIC: Hexzahlen schreibt man $FF".into() });
+                out.notes.push(Note::new(i, j, "B139", false, msg!("diag-basic-b139-c-hex")));
                 i = j; continue;
             }
             let st = i;
@@ -385,8 +391,8 @@ fn check_args(ch: &[char], mut i: usize, kw: &str, lx: &Lexicon, o: &NumberOptio
         if ch.get(s) != Some(&'-') { roles_out.push((s, if *role == 'A' { Role::Address } else { Role::Value })); }
         if o.ranges == RangeCheck::Off { if ch.get(next) != Some(&',') { return; } i = next + 1; continue; }
         match role {
-            'A' if !(0..=65535).contains(&v) => out.notes.push(Note { start: s, end: e, code: "B134", error, message: format!("Adresse {v} außerhalb 0–65535") }),
-            'B' if !(0..=255).contains(&v) => out.notes.push(Note { start: s, end: e, code: "B135", error, message: format!("Wert {v} außerhalb 0–255 ({kw} schreibt ein Byte)") }),
+            'A' if !(0..=65535).contains(&v) => out.notes.push(Note::new(s, e, "B134", error, msg!("diag-basic-b134-address-range", v = v))),
+            'B' if !(0..=255).contains(&v) => out.notes.push(Note::new(s, e, "B135", error, msg!("diag-basic-b135-value-range", v = v, kw = kw))),
             _ => {}
         }
         if ch.get(next) != Some(&',') { return; }
@@ -399,7 +405,7 @@ fn check_int_assign(ch: &[char], mut i: usize, o: &NumberOptions, lx: &Lexicon, 
     while i < ch.len() && ch[i] == ' ' { i += 1; }
     if ch.get(i) != Some(&'=') { return; }
     if let Some((s, e, v, _)) = const_arg(ch, i + 1, o, lx) {
-        if !(-32768..=32767).contains(&v) { out.notes.push(Note { start: s, end: e, code: "B137", error: false, message: format!("{v} passt nicht in eine Ganzzahlvariable (−32768 … 32767)") }); }
+        if !(-32768..=32767).contains(&v) { out.notes.push(Note::new(s, e, "B137", false, msg!("diag-basic-b137-int-range", v = v))); }
     }
 }
 
@@ -475,7 +481,7 @@ pub fn convert_numbers(text: &str, lx: &Lexicon, o: &NumberOptions, file: &str) 
         let s = scan_line(line, lx, o);
         for note in &s.notes {
             // Fehlercodes sind 'static: die Meldung trägt der Text
-            let d = if note.error { Diagnostic::error(note.code, file, n + 1, note.message.clone()) } else { Diagnostic::warning(note.code, file, n + 1, note.message.clone()) };
+            let d = if note.error { Diagnostic::error(note.code, file, n + 1, note.msg.clone()) } else { Diagnostic::warning(note.code, file, n + 1, note.msg.clone()) };
             if note.error { errs.push(d) } else { warns.push(d) }
         }
         if s.lits.is_empty() { out.push_str(line); out.push('\n'); continue; }
@@ -508,7 +514,7 @@ pub fn classic_warnings(text: &str, lx: &Lexicon, file: &str) -> Vec<Diagnostic>
         for l in scan_line(line, lx, &o).lits {
             if l.value.is_none() || (l.radix == 16 && r.hex) || (l.radix == 2 && r.bin) { continue; }
             let t: String = line.chars().skip(l.start).take(l.end - l.start).collect();
-            out.push(Diagnostic::warning("B140", file, n + 1, format!("{t} wird im klassischen Weg nicht umgewandelt, der Dialekt kennt keine Hex-/Binärzahlen (als natives BASIC bauen: vcc basic {file}, oder Dezimalzahl schreiben)")));
+            out.push(Diagnostic::warning("B140", file, n + 1, msg!("diag-basic-b140-classic-literal", t = t.as_str(), file = file)));
         }
     }
     out

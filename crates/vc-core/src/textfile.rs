@@ -16,11 +16,11 @@ pub struct Decoded {
 
 impl Decoded {
     /// Hinweise für die Statusleiste; leer, wenn die Datei schon in Normalform war.
-    pub fn notes(&self) -> Vec<&'static str> {
+    pub fn notes(&self) -> Vec<String> {
         let mut v = Vec::new();
-        if self.had_bom { v.push("BOM entfernt"); }
-        if self.was_legacy { v.push("als Windows-1252 gelesen, wird als UTF-8 gespeichert"); }
-        if self.had_crlf { v.push("Zeilenenden CRLF → LF"); }
+        if self.had_bom { v.push(vc_i18n::t!("core-textfile-bom-removed")); }
+        if self.was_legacy { v.push(vc_i18n::t!("core-textfile-legacy")); }
+        if self.had_crlf { v.push(vc_i18n::t!("core-textfile-crlf")); }
         v
     }
     pub fn changed(&self) -> bool { self.had_bom || self.had_crlf || self.was_legacy }
@@ -62,7 +62,7 @@ pub fn encode(text: &str) -> Vec<u8> {
 /// Quelltext aus einer Datei lesen (BOM und CRLF tolerant); Fehlertext wie `std::fs::read_to_string`.
 pub fn read_source(path: impl AsRef<std::path::Path>) -> std::io::Result<String> {
     let bytes = std::fs::read(path.as_ref())?;
-    decode(&bytes).map(|d| d.text).ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, "Binärdatei"))
+    decode(&bytes).map(|d| d.text).ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, vc_i18n::t!("core-textfile-binary")))
 }
 
 #[cfg(test)]
@@ -80,7 +80,7 @@ mod tests {
         let d = decode(b"\xEF\xBB\xBFlda #1\n").unwrap();
         assert_eq!(d.text, "lda #1\n");
         assert!(d.had_bom && !d.had_crlf && !d.was_legacy);
-        assert_eq!(d.notes(), vec!["BOM entfernt"]);
+        assert_eq!(d.notes(), vec!["BOM entfernt".to_string()]);
     }
     #[test]
     fn crlf_and_cr_become_lf() {

@@ -30,13 +30,13 @@ impl Topic {
             Topic::Hardware => "hardware", Topic::StartTarget => "start_target", Topic::Editor => "editor", Topic::Projects => "projects", Topic::Summary => "summary", Topic::Done => "done" }
     }
     pub fn from_id(s: &str) -> Option<Topic> { Topic::ALL.into_iter().find(|t| t.id() == s) }
-    pub fn title(self) -> &'static str {
-        match self { Topic::Welcome => "Willkommen", Topic::Design => "Design", Topic::Systems => "Zielsysteme", Topic::Toolchain => "Toolchain", Topic::Emulators => "Emulatoren", Topic::Roms => "ROMs",
-            Topic::Hardware => "Echte Hardware", Topic::StartTarget => "Startziel F5", Topic::Editor => "Editor", Topic::Projects => "Projekte", Topic::Summary => "Zusammenfassung", Topic::Done => "Fertig" }
+    pub fn title(self) -> String {
+        match self { Topic::Welcome => vc_i18n::t!("setup-willkommen"), Topic::Design => vc_i18n::t!("setup-design"), Topic::Systems => vc_i18n::t!("setup-zielsysteme"), Topic::Toolchain => vc_i18n::t!("setup-toolchain"), Topic::Emulators => vc_i18n::t!("setup-emulatoren"), Topic::Roms => vc_i18n::t!("setup-roms"),
+            Topic::Hardware => vc_i18n::t!("setup-echte-hardware"), Topic::StartTarget => vc_i18n::t!("setup-startziel-f5"), Topic::Editor => vc_i18n::t!("setup-editor"), Topic::Projects => vc_i18n::t!("setup-projekte"), Topic::Summary => vc_i18n::t!("setup-zusammenfassung"), Topic::Done => vc_i18n::t!("setup-fertig") }
     }
-    pub fn group(self) -> &'static str {
-        match self { Topic::Welcome | Topic::Design => "Start", Topic::Systems | Topic::Toolchain | Topic::Emulators | Topic::Roms => "Systeme", Topic::Hardware | Topic::StartTarget => "Maschinen",
-            Topic::Editor | Topic::Projects => "Arbeitsplatz", Topic::Summary | Topic::Done => "Abschluss" }
+    pub fn group(self) -> String {
+        match self { Topic::Welcome | Topic::Design => vc_i18n::t!("setup-start"), Topic::Systems | Topic::Toolchain | Topic::Emulators | Topic::Roms => vc_i18n::t!("setup-systeme"), Topic::Hardware | Topic::StartTarget => vc_i18n::t!("setup-maschinen"),
+            Topic::Editor | Topic::Projects => vc_i18n::t!("setup-arbeitsplatz"), Topic::Summary | Topic::Done => vc_i18n::t!("setup-abschluss") }
     }
 }
 
@@ -281,29 +281,29 @@ fn ch(key: String, area: &'static str, topic: Topic, kind: Kind, label: String, 
     Change { key, area, kind, label, old, new, selected: kind != Kind::Same, sensitive: false, note: String::new(), topic }
 }
 
-fn pw_state(m: &Machine) -> &'static str { if m.password.is_empty() { "nicht gesetzt" } else { "gesetzt" } }
+fn pw_state(m: &Machine) -> String { if m.password.is_empty() { vc_i18n::t!("setup-nicht-gesetzt") } else { vc_i18n::t!("setup-gesetzt") } }
 
 /// Kurzbeschreibung eines Emulators für die Änderungsliste (Pfad oder „automatisch“)
 fn emu_text(e: &EmulatorCfg) -> String {
-    let mut p = vec![if e.path.trim().is_empty() { "Pfad: automatisch".to_string() } else { format!("Pfad: {}", e.path.trim()) }];
-    if e.standard { p.push("Standard".into()); }
-    if !e.args.trim().is_empty() { p.push(format!("Argumente: {}", e.args.trim())); }
-    if !e.opts.is_empty() { p.push(format!("{} Parameter", e.opts.len())); }
-    if !e.rom.trim().is_empty() { p.push(format!("ROM: {}", e.rom.trim())); }
+    let mut p = vec![if e.path.trim().is_empty() { vc_i18n::t!("setup-pfad-automatisch").to_string() } else { vc_i18n::t!("setup-pfad-p1", p1 = e.path.trim()) }];
+    if e.standard { p.push(vc_i18n::t!("setup-standard").into()); }
+    if !e.args.trim().is_empty() { p.push(vc_i18n::t!("setup-argumente-p1", p1 = e.args.trim())); }
+    if !e.opts.is_empty() { p.push(vc_i18n::t!("setup-p1-parameter", p1 = e.opts.len())); }
+    if !e.rom.trim().is_empty() { p.push(vc_i18n::t!("setup-rom-p1", p1 = e.rom.trim())); }
     p.join(", ")
 }
 
 /// Kurzbeschreibung einer Maschine; das Passwort erscheint nie, nur „gesetzt“ / „nicht gesetzt“
 fn machine_text(m: &Machine) -> String {
     let mut p = vec![m.display_name().to_string()];
-    match m.kind.as_str() { "mega65" => { p.push(format!("Schnittstelle: {}", if m.device.is_empty() { "–" } else { &m.device })); if !m.baud.is_empty() { p.push(format!("Baudrate {}", m.baud)); } }
-        _ => { p.push(format!("Adresse: {}", if m.host.is_empty() { "–" } else { &m.host })); p.push(format!("Passwort: {}", pw_state(m))); } }
-    p.push(if m.run_after { "RUN danach".into() } else { "nur laden".into() });
+    match m.kind.as_str() { "mega65" => { p.push(vc_i18n::t!("setup-schnittstelle-p1", p1 = if m.device.is_empty() { "–" } else { &m.device })); if !m.baud.is_empty() { p.push(vc_i18n::t!("setup-baudrate-p1", p1 = &m.baud)); } }
+        _ => { p.push(vc_i18n::t!("setup-adresse-p1", p1 = if m.host.is_empty() { "–" } else { &m.host })); p.push(vc_i18n::t!("setup-passwort-p1", p1 = pw_state(m))); } }
+    p.push(if m.run_after { vc_i18n::t!("setup-run-danach").into() } else { vc_i18n::t!("setup-nur-laden").into() });
     p.join(", ")
 }
 
 fn start_text(s: &Settings, sys: &str) -> String {
-    match s.target(sys).map(|t| t.start_on.as_str()).unwrap_or("") { "" => "Emulator".into(), id => s.machine(id).map_or_else(|| format!("{id} (fehlt)"), |m| m.display_name().to_string()) }
+    match s.target(sys).map(|t| t.start_on.as_str()).unwrap_or("") { "" => vc_i18n::t!("setup-emulator").into(), id => s.machine(id).map_or_else(|| vc_i18n::t!("setup-id-fehlt", id = &id), |m| m.display_name().to_string()) }
 }
 
 /// Verzeichnis der Beispiele zu einem System (`atari8` heißt in `examples/` `atari`)
@@ -333,10 +333,7 @@ pub struct CopyReport { pub copied: Vec<String>, pub files_created: Vec<PathBuf>
 /// Kopiert Beispiele nach `<dest>/<system>/<name>`. Vorhandene Dateien werden nie überschrieben (sie zählen als übersprungen).
 pub fn copy_examples(items: &[ExampleItem], dest: &Path) -> Result<CopyReport, String> {
     let mut rep = CopyReport::default();
-    // Gemeinsame Dateien (`examples/common`, von den Beispielen als `../../common/…` eingebunden) gehören mit: sonst bauen die Kopien nicht
-    if let Some(common) = items.first().and_then(|it| it.src.parent()).and_then(|p| p.parent()).map(|r| r.join("common")).filter(|c| c.is_dir()) {
-        copy_tree(&common, &dest.join("common"), &mut rep).map_err(|e| format!("{}: {e}", dest.join("common").display()))?;
-    }
+    // Jedes Beispielprojekt ist in sich geschlossen (keine Dateien außerhalb des Projektordners): es genügt, die Projektordner zu kopieren
     for it in items {
         let to = dest.join(example_dir_name(&it.system)).join(&it.name);
         let before = rep.files_created.len();
@@ -392,20 +389,20 @@ pub fn effective_projects_dir(s: &Settings) -> String {
 /// Prüft das Basisverzeichnis: nicht leer, kein Systemordner, nicht in der Installation, anlegbar/schreibbar. Fehler = Text für die Oberfläche.
 pub fn check_projects_dir(dir: &str, install_dir: Option<&Path>) -> Result<ProjectsDirState, String> {
     let d = dir.trim();
-    if d.is_empty() { return Err("Der Ordner darf nicht leer sein".into()); }
+    if d.is_empty() { return Err(vc_i18n::t!("setup-der-ordner-darf-nicht-leer-sein").into()); }
     let p = PathBuf::from(expand_home(d));
-    if !p.is_absolute() { return Err("Bitte einen vollständigen Pfad angeben (beginnend mit / oder ~/)".into()); }
+    if !p.is_absolute() { return Err(vc_i18n::t!("setup-bitte-einen-vollstaendigen-pfad-angeben-beginnend").into()); }
     let comps = p.components().count();
-    if comps <= 2 || ["/usr", "/bin", "/etc", "/System", "/Library", "/var/lib", "/var/log", "/opt", "/sbin", "/dev", "/proc"].iter().any(|s| p.starts_with(s)) || (cfg!(windows) && p.to_string_lossy().to_lowercase().contains("\\windows")) { return Err("Das ist ein Systemordner; bitte einen Ordner in deinem Benutzerordner wählen".into()); }
-    if let Some(i) = install_dir { if p.starts_with(i) { return Err("Der Ordner liegt innerhalb der Installation von VintageCoder; sie wird bei Updates ersetzt".into()); } }
+    if comps <= 2 || ["/usr", "/bin", "/etc", "/System", "/Library", "/var/lib", "/var/log", "/opt", "/sbin", "/dev", "/proc"].iter().any(|s| p.starts_with(s)) || (cfg!(windows) && p.to_string_lossy().to_lowercase().contains("\\windows")) { return Err(vc_i18n::t!("setup-das-ist-ein-systemordner-bitte-einen").into()); }
+    if let Some(i) = install_dir { if p.starts_with(i) { return Err(vc_i18n::t!("setup-der-ordner-liegt-innerhalb-der-installation").into()); } }
     if p.is_dir() {
         let probe = p.join(format!(".vc-write-test-{}", std::process::id()));
-        return match std::fs::write(&probe, b"") { Ok(()) => { let _ = std::fs::remove_file(&probe); Ok(ProjectsDirState::Writable) } Err(_) => Err("Der Ordner ist nicht schreibbar".into()) };
+        return match std::fs::write(&probe, b"") { Ok(()) => { let _ = std::fs::remove_file(&probe); Ok(ProjectsDirState::Writable) } Err(_) => Err(vc_i18n::t!("setup-der-ordner-ist-nicht-schreibbar").into()) };
     }
     // anlegbar? der nächste vorhandene Elternordner muss schreibbar sein
     let mut anc = p.parent();
     while let Some(a) = anc { if a.is_dir() { break; } anc = a.parent(); }
-    match anc { Some(a) if std::fs::metadata(a).map_or(false, |m| !m.permissions().readonly()) => Ok(ProjectsDirState::WillCreate), _ => Err("Der Ordner lässt sich hier nicht anlegen".into()) }
+    match anc { Some(a) if std::fs::metadata(a).map_or(false, |m| !m.permissions().readonly()) => Ok(ProjectsDirState::WillCreate), _ => Err(vc_i18n::t!("setup-der-ordner-laesst-sich-hier-nicht").into()) }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -422,28 +419,28 @@ pub fn diff(cur: &Snapshot, d: &Draft) -> Vec<Change> {
         match (ta, tb) {
             (None, Some(t)) => {
                 let restored = a.hidden_targets.iter().any(|h| h.system == info.id);
-                let mut c = ch(key, "SYSTEM", Topic::Systems, Kind::New, format!("Zielsystem {}", info.name), String::new(), t.standard_emulator().map_or("kein Emulator".into(), |e| e.display_name().to_string()));
-                if restored { c.note = "ausgeblendete Einträge werden wiederhergestellt".into(); }
+                let mut c = ch(key, "SYSTEM", Topic::Systems, Kind::New, vc_i18n::t!("setup-zielsystem-p1", p1 = &info.name()), String::new(), t.standard_emulator().map_or(vc_i18n::t!("setup-kein-emulator").into(), |e| e.display_name().to_string()));
+                if restored { c.note = vc_i18n::t!("setup-ausgeblendete-eintraege-werden-wiederhergestellt").into(); }
                 out.push(c);
             }
-            (Some(_), None) => { let mut c = ch(key, "SYSTEM", Topic::Systems, Kind::Removed, format!("Zielsystem {}", info.name), "eingerichtet".into(), "ausgeblendet".into()); c.note = "Emulatoren und Startziel bleiben erhalten; Wiedereinblenden stellt sie her (Sicherung: settings.json.bak)".into(); out.push(c); }
+            (Some(_), None) => { let mut c = ch(key, "SYSTEM", Topic::Systems, Kind::Removed, vc_i18n::t!("setup-zielsystem-p1", p1 = &info.name()), vc_i18n::t!("setup-eingerichtet"), vc_i18n::t!("setup-ausgeblendet")); c.note = vc_i18n::t!("setup-emulatoren-und-startziel-bleiben-erhalten-wiedereinblenden").into(); out.push(c); }
             (Some(x), Some(y)) => {
-                out.push(ch(key, "SYSTEM", Topic::Systems, Kind::Same, format!("Zielsystem {}", info.name), String::new(), String::new()));
+                out.push(ch(key, "SYSTEM", Topic::Systems, Kind::Same, vc_i18n::t!("setup-zielsystem-p1", p1 = &info.name()), String::new(), String::new()));
                 let ids: BTreeSet<&str> = x.emulators.iter().chain(y.emulators.iter()).map(|e| e.id.as_str()).collect();
                 for id in ids {
                     let (ea, eb) = (x.emulators.iter().find(|e| e.id == id), y.emulators.iter().find(|e| e.id == id));
                     let k = format!("emu:{}:{id}", info.id);
                     out.push(match (ea, eb) {
-                        (None, Some(e)) => ch(k, "EMULATOR", Topic::Emulators, Kind::New, format!("{}: {}", info.name, e.display_name()), String::new(), emu_text(e)),
-                        (Some(e), None) => ch(k, "EMULATOR", Topic::Emulators, Kind::Removed, format!("{}: {}", info.name, e.display_name()), emu_text(e), String::new()),
-                        (Some(e), Some(f)) if e != f => ch(k, "EMULATOR", Topic::Emulators, Kind::Changed, format!("{}: {}", info.name, f.display_name()), emu_text(e), emu_text(f)),
-                        (Some(e), Some(_)) => ch(k, "EMULATOR", Topic::Emulators, Kind::Same, format!("{}: {}", info.name, e.display_name()), emu_text(e), String::new()),
+                        (None, Some(e)) => ch(k, "EMULATOR", Topic::Emulators, Kind::New, format!("{}: {}", info.name(), e.display_name()), String::new(), emu_text(e)),
+                        (Some(e), None) => ch(k, "EMULATOR", Topic::Emulators, Kind::Removed, format!("{}: {}", info.name(), e.display_name()), emu_text(e), String::new()),
+                        (Some(e), Some(f)) if e != f => ch(k, "EMULATOR", Topic::Emulators, Kind::Changed, format!("{}: {}", info.name(), f.display_name()), emu_text(e), emu_text(f)),
+                        (Some(e), Some(_)) => ch(k, "EMULATOR", Topic::Emulators, Kind::Same, format!("{}: {}", info.name(), e.display_name()), emu_text(e), String::new()),
                         (None, None) => unreachable!(),
                     });
                 }
                 let (sa, sb) = (start_text(a, info.id), start_text(b, info.id));
                 let kind = if x.start_on != y.start_on { Kind::Changed } else { Kind::Same };
-                out.push(ch(format!("start:{}", info.id), "F5", Topic::StartTarget, kind, format!("{}: F5 startet auf", info.name), sa, sb));
+                out.push(ch(format!("start:{}", info.id), "F5", Topic::StartTarget, kind, vc_i18n::t!("setup-p1-f5-startet-auf", p1 = &info.name()), sa, sb));
             }
             (None, None) => {}
         }
@@ -454,44 +451,44 @@ pub fn diff(cur: &Snapshot, d: &Draft) -> Vec<Change> {
         let (ma, mb) = (a.machine(id), b.machine(id));
         let k = format!("machine:{id}");
         let mut c = match (ma, mb) {
-            (None, Some(m)) => ch(k, "HARDWARE", Topic::Hardware, Kind::New, format!("Maschine {}", m.display_name()), String::new(), machine_text(m)),
-            (Some(m), None) => ch(k, "HARDWARE", Topic::Hardware, Kind::Removed, format!("Maschine {}", m.display_name()), machine_text(m), String::new()),
-            (Some(m), Some(n)) if m != n => ch(k, "HARDWARE", Topic::Hardware, Kind::Changed, format!("Maschine {}", n.display_name()), machine_text(m), machine_text(n)),
-            (Some(m), Some(_)) => ch(k, "HARDWARE", Topic::Hardware, Kind::Same, format!("Maschine {}", m.display_name()), machine_text(m), String::new()),
+            (None, Some(m)) => ch(k, "HARDWARE", Topic::Hardware, Kind::New, vc_i18n::t!("setup-maschine-p1", p1 = m.display_name()), String::new(), machine_text(m)),
+            (Some(m), None) => ch(k, "HARDWARE", Topic::Hardware, Kind::Removed, vc_i18n::t!("setup-maschine-p1", p1 = m.display_name()), machine_text(m), String::new()),
+            (Some(m), Some(n)) if m != n => ch(k, "HARDWARE", Topic::Hardware, Kind::Changed, vc_i18n::t!("setup-maschine-p1", p1 = n.display_name()), machine_text(m), machine_text(n)),
+            (Some(m), Some(_)) => ch(k, "HARDWARE", Topic::Hardware, Kind::Same, vc_i18n::t!("setup-maschine-p1", p1 = m.display_name()), machine_text(m), String::new()),
             (None, None) => unreachable!(),
         };
         // ein geändertes Passwort ist allein schon eine Änderung (die Texte zeigen es nur als „gesetzt“)
-        if ma.zip(mb).map_or(false, |(m, n)| m.password != n.password) { c.sensitive = true; if c.old == c.new { c.new.push_str(" (Passwort geändert)"); } }
+        if ma.zip(mb).map_or(false, |(m, n)| m.password != n.password) { c.sensitive = true; if c.old == c.new { c.new.push_str(&format!(" {}", vc_i18n::t!("setup-passwort-geaendert"))); } }
         if ma.is_some_and(|m| !m.password.is_empty()) || mb.is_some_and(|m| !m.password.is_empty()) { c.sensitive = true; }
         out.push(c);
     }
     // Projektordner und Beispiele
     let (pa, pb) = (effective_projects_dir(a), if b.projects_dir.trim().is_empty() { effective_projects_dir(a) } else { b.projects_dir.trim().to_string() });
     let kind = if a.projects_dir.trim() == b.projects_dir.trim() { Kind::Same } else if a.projects_dir.trim().is_empty() { Kind::New } else { Kind::Changed };
-    let mut c = ch("projects_dir".into(), "PROJEKTE", Topic::Projects, kind, "Projektordner".into(), if a.projects_dir.trim().is_empty() { String::new() } else { pa }, pb);
-    if kind != Kind::Same { c.note = "verschiebt nichts; nur die Voreinstellung für neue Projekte ändert sich".into(); }
+    let mut c = ch("projects_dir".into(), "PROJEKTE", Topic::Projects, kind, vc_i18n::t!("setup-projektordner").into(), if a.projects_dir.trim().is_empty() { String::new() } else { pa }, pb);
+    if kind != Kind::Same { c.note = vc_i18n::t!("setup-verschiebt-nichts-nur-die-voreinstellung-fuer").into(); }
     out.push(c);
     let planned = planned_examples(d);
     if !planned.is_empty() {
         let dest = examples_dest_in(&d.examples.dest, &effective_projects_dir(b));
         let missing = planned.iter().filter(|i| !dest.join(example_dir_name(&i.system)).join(&i.name).exists()).count();
-        if missing > 0 { out.push(ch("examples".into(), "PROJEKTE", Topic::Projects, Kind::New, format!("{} Beispiele kopieren", planned.len()), String::new(), format!("nach {} ({} fehlen noch, vorhandene Dateien bleiben unberührt)", dest.display(), missing))); }
+        if missing > 0 { out.push(ch("examples".into(), "PROJEKTE", Topic::Projects, Kind::New, vc_i18n::t!("setup-p1-beispiele-kopieren", p1 = planned.len()), String::new(), vc_i18n::t!("setup-nach-p1-missing-fehlen-noch-vorhandene", p1 = dest.display(), missing = &missing))); }
     }
     // Darstellung
     let (va, vb) = (&cur.view, &d.view);
-    out.push(ch("view:scheme".into(), "DESIGN", Topic::Design, if va.scheme != vb.scheme { Kind::Changed } else { Kind::Same }, "Farbschema".into(), va.scheme_label().into(), vb.scheme_label().into()));
-    out.push(ch("view:zoom".into(), "DESIGN", Topic::Design, if (va.zoom - vb.zoom).abs() > 0.001 { Kind::Changed } else { Kind::Same }, "Oberfläche".into(), format!("{:.0} %", va.zoom * 100.0), format!("{:.0} %", vb.zoom * 100.0)));
-    out.push(ch("view:font".into(), "DESIGN", Topic::Design, if (va.font - vb.font).abs() > 0.001 { Kind::Changed } else { Kind::Same }, "Editorschrift".into(), format!("{:.0} pt", va.font), format!("{:.0} pt", vb.font)));
+    out.push(ch("view:scheme".into(), "DESIGN", Topic::Design, if va.scheme != vb.scheme { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-farbschema").into(), va.scheme_label().into(), vb.scheme_label().into()));
+    out.push(ch("view:zoom".into(), "DESIGN", Topic::Design, if (va.zoom - vb.zoom).abs() > 0.001 { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-oberflaeche").into(), format!("{:.0} %", va.zoom * 100.0), format!("{:.0} %", vb.zoom * 100.0)));
+    out.push(ch("view:font".into(), "DESIGN", Topic::Design, if (va.font - vb.font).abs() > 0.001 { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-editorschrift").into(), vc_i18n::t!("setup-p1-pt", p1 = vc_i18n::num((va.font) as f64, 0)), vc_i18n::t!("setup-p1-pt", p1 = vc_i18n::num((vb.font) as f64, 0))));
     // übrige Einstellungen
-    out.push(ch("roms:use_foreign".into(), "ROMS", Topic::Roms, if a.roms != b.roms { Kind::Changed } else { Kind::Same }, "ROMs anderer Programme mitbenutzen".into(), yes_no(a.roms.use_foreign).into(), yes_no(b.roms.use_foreign).into()));
-    out.push(ch("assembler".into(), "TOOLCHAIN", Topic::Toolchain, if a.assembler != b.assembler { Kind::Changed } else { Kind::Same }, "Assembler-Optionen".into(), format!("{} Optionen", a.assembler.opts.len()), format!("{} Optionen", b.assembler.opts.len())));
-    out.push(ch("streams".into(), "HARDWARE", Topic::Hardware, if a.streams != b.streams { Kind::Changed } else { Kind::Same }, "Datenströme der Ultimate".into(), String::new(), String::new()));
+    out.push(ch("roms:use_foreign".into(), "ROMS", Topic::Roms, if a.roms != b.roms { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-roms-anderer-programme-mitbenutzen").into(), yes_no(a.roms.use_foreign).into(), yes_no(b.roms.use_foreign).into()));
+    out.push(ch("assembler".into(), "TOOLCHAIN", Topic::Toolchain, if a.assembler != b.assembler { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-assembler-optionen").into(), vc_i18n::t!("setup-p1-optionen", p1 = a.assembler.opts.len()), vc_i18n::t!("setup-p1-optionen", p1 = b.assembler.opts.len())));
+    out.push(ch("streams".into(), "HARDWARE", Topic::Hardware, if a.streams != b.streams { Kind::Changed } else { Kind::Same }, vc_i18n::t!("setup-datenstroeme-der-ultimate").into(), String::new(), String::new()));
     out
 }
 
-fn yes_no(b: bool) -> &'static str { if b { "ja" } else { "nein" } }
+fn yes_no(b: bool) -> String { if b { vc_i18n::t!("setup-ja") } else { vc_i18n::t!("setup-nein") } }
 
-impl ViewPrefs { pub fn scheme_label(&self) -> &'static str { match self.scheme.as_str() { "light" => "Hell", "system" => "System", _ => "Dunkel" } } }
+impl ViewPrefs { pub fn scheme_label(&self) -> String { match self.scheme.as_str() { "light" => vc_i18n::t!("setup-hell"), "system" => vc_i18n::t!("setup-system"), _ => vc_i18n::t!("setup-dunkel") } } }
 
 /// Wählt die Änderungen eines Themas ab (Teil-Assistenten ändern nur ihren Bereich) oder an
 pub fn only_topics(changes: &mut [Change], topics: &[Topic]) { for c in changes { if c.kind != Kind::Same && !topics.contains(&c.topic) { c.selected = false; } } }
@@ -540,7 +537,7 @@ pub fn merge(cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str) -> bool) -> (Set
     if selected("streams") { s.streams = b.streams.clone(); }
     // Abhängigkeiten: Startziel auf eine Maschine, die es nicht gibt
     let machine_ids: Vec<String> = s.machines.iter().map(|m| m.id.clone()).collect();
-    for t in &mut s.targets { if !t.start_on.is_empty() && !machine_ids.contains(&t.start_on) { notes.push(format!("{}: Startziel zeigte auf eine nicht übernommene Maschine; F5 startet wieder im Emulator", targets::system(&t.system).map_or(t.system.as_str(), |i| i.name))); t.start_on.clear(); } }
+    for t in &mut s.targets { if !t.start_on.is_empty() && !machine_ids.contains(&t.start_on) { notes.push(vc_i18n::t!("setup-p1-startziel-zeigte-auf-eine-nicht", p1 = targets::system(&t.system).map_or(t.system.clone(), |i| i.name()))); t.start_on.clear(); } }
     s.schema_version = s.schema_version.max(SCHEMA_VERSION);
     let mut v = cur.view.clone();
     if selected("view:scheme") { v.scheme = d.view.scheme.clone(); }
@@ -569,14 +566,26 @@ fn restore(p: &Path, bytes: &Option<Vec<u8>>) -> Result<(), String> {
     match bytes { Some(b) => write_atomic(p, b), None => match std::fs::remove_file(p) { Ok(()) => Ok(()), Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()), Err(e) => Err(format!("{}: {e}", p.display())) } }
 }
 
-fn remove_created(rep: &CopyReport) { for f in rep.files_created.iter().rev() { let _ = std::fs::remove_file(f); let mut d = f.parent(); for _ in 0..3 { if let Some(x) = d { if std::fs::remove_dir(x).is_err() { break; } d = x.parent(); } } } }
+/// Kopierte Dateien wieder entfernen, danach leere Ordner bis hoch zum Beispielordner (`Beispiele`, nur wenn er leer ist; ein vorhandener, nicht leerer Ordner bleibt)
+fn remove_created(rep: &CopyReport) {
+    for f in rep.files_created.iter().rev() {
+        let _ = std::fs::remove_file(f); let mut d = f.parent();
+        for _ in 0..5 { if let Some(x) = d {
+            let name = x.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+            if std::fs::remove_dir(x).is_err() { break; }
+            if name == example_root_name() { break; }
+            d = x.parent();
+        } }
+    }
+}
+fn example_root_name() -> &'static str { "Beispiele" }
 
 /// Schreibt die gewählten Änderungen. Reihenfolge: (1) Beispiele kopieren (rückholbar), (2) `settings.json` atomar mit Sicherung `.bak`, (3) `view.json`.
 /// Schlägt ein Schritt fehl, ist danach alles wie vorher (aus den im Speicher gehaltenen Dateiinhalten) und der Fehler nennt Pfad und Ursache.
 /// Ist die Einstellungsdatei seit dem Laden von außen geändert worden, wird nichts geschrieben.
 pub fn apply_to(paths: &Paths, cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str) -> bool) -> Result<Applied, String> {
     let before_settings = read_opt(&paths.settings);
-    if before_settings.as_deref().map_or(0, hash_bytes) != cur.disk_hash { return Err("Die Konfiguration hat sich geändert, seit der Assistent sie geladen hat. Bitte den Assistenten neu starten.".into()); }
+    if before_settings.as_deref().map_or(0, hash_bytes) != cur.disk_hash { return Err(vc_i18n::t!("setup-die-konfiguration-hat-sich-geaendert-seit").into()); }
     let before_view = read_opt(&paths.view);
     let (settings, view, notes) = merge(cur, d, selected);
     // (1) Beispiele
@@ -588,7 +597,7 @@ pub fn apply_to(paths: &Paths, cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str
     let fail = |e: String, copy: &CopyReport| -> Result<Applied, String> { remove_created(copy); Err(e) };
     // (2) settings.json mit Sicherung
     let backup = match &before_settings {
-        Some(b) => { let bak = paths.backup(); if let Err(e) = write_atomic(&bak, b) { return fail(format!("Sicherung {}", e), &copy); } Some(bak) }
+        Some(b) => { let bak = paths.backup(); if let Err(e) = write_atomic(&bak, b) { return fail(vc_i18n::t!("setup-sicherung-e", e = e.to_string()), &copy); } Some(bak) }
         None => None,
     };
     if let Err(e) = settings.save_atomic(&paths.settings) { let _ = restore(&paths.settings, &before_settings); return fail(e, &copy); }
@@ -598,7 +607,7 @@ pub fn apply_to(paths: &Paths, cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str
             let r1 = restore(&paths.settings, &before_settings);
             let r2 = restore(&paths.view, &before_view);
             remove_created(&copy);
-            return Err(format!("{e}{}", if r1.is_err() || r2.is_err() { " (Rückbau unvollständig, Sicherung: settings.json.bak)" } else { " (Änderungen zurückgenommen)" }));
+            return Err(format!("{e}{}", if r1.is_err() || r2.is_err() { format!(" {}", vc_i18n::t!("setup-rueckbau-unvollstaendig-sicherung-settings-json-bak")) } else { format!(" {}", vc_i18n::t!("setup-aenderungen-zurueckgenommen")) }));
         }
     }
     Ok(Applied { settings, view, notes, backup, copy, before_settings, before_view })
@@ -606,7 +615,7 @@ pub fn apply_to(paths: &Paths, cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str
 
 /// Übernimmt und macht die Einstellungen im Prozess wirksam (für die Oberfläche)
 pub fn apply(cur: &Snapshot, d: &Draft, selected: &dyn Fn(&str) -> bool) -> Result<Applied, String> {
-    let paths = Paths::current().ok_or("Kein Ordner für die Einstellungen (HOME bzw. unter Windows APPDATA fehlt)")?;
+    let paths = Paths::current().ok_or(vc_i18n::t!("setup-kein-ordner-fuer-die-einstellungen-home"))?;
     let a = apply_to(&paths, cur, d, selected)?;
     crate::settings::replace_in_memory(a.settings.clone());
     Ok(a)
@@ -648,17 +657,17 @@ pub struct Problem { pub topic: Topic, pub text: String }
 pub fn problems(s: &Settings) -> Vec<Problem> {
     let mut v = vec![];
     for t in &s.targets {
-        let sys = targets::system(&t.system).map_or(t.system.as_str(), |i| i.name);
+        let sys = targets::system(&t.system).map_or(t.system.clone(), |i| i.name());
         for e in &t.emulators {
-            if !e.path.trim().is_empty() && crate::settings::check_program(&e.path).is_err() { v.push(Problem { topic: Topic::Emulators, text: format!("{sys}: Pfad von {} existiert nicht mehr", e.display_name()) }); }
-            if !e.rom.trim().is_empty() && !Path::new(&expand_home(e.rom.trim())).exists() { v.push(Problem { topic: Topic::Roms, text: format!("{sys}: ROM-Ort von {} existiert nicht mehr", e.display_name()) }); }
+            if !e.path.trim().is_empty() && crate::settings::check_program(&e.path).is_err() { v.push(Problem { topic: Topic::Emulators, text: vc_i18n::t!("setup-sys-pfad-von-p2-existiert-nicht", sys = &sys, p2 = e.display_name()) }); }
+            if !e.rom.trim().is_empty() && !Path::new(&expand_home(e.rom.trim())).exists() { v.push(Problem { topic: Topic::Roms, text: vc_i18n::t!("setup-sys-rom-ort-von-p2-existiert", sys = &sys, p2 = e.display_name()) }); }
         }
     }
     for m in &s.machines {
         let missing = match m.kind.as_str() { "mega65" => m.device.trim().is_empty(), _ => m.host.trim().is_empty() };
-        if missing { v.push(Problem { topic: Topic::Hardware, text: format!("{}: Adresse bzw. Schnittstelle fehlt", m.display_name()) }); }
+        if missing { v.push(Problem { topic: Topic::Hardware, text: vc_i18n::t!("setup-p1-adresse-bzw-schnittstelle-fehlt", p1 = m.display_name()) }); }
     }
-    if !s.projects_dir.trim().is_empty() && !Path::new(&expand_home(s.projects_dir.trim())).is_dir() { v.push(Problem { topic: Topic::Projects, text: "Projektordner existiert nicht (wird beim ersten Projekt angelegt)".into() }); }
+    if !s.projects_dir.trim().is_empty() && !Path::new(&expand_home(s.projects_dir.trim())).is_dir() { v.push(Problem { topic: Topic::Projects, text: vc_i18n::t!("setup-projektordner-existiert-nicht-wird-beim-ersten").into() }); }
     v
 }
 
@@ -678,7 +687,7 @@ pub fn findings(s: &Settings, w: &WizardState, discover: &dyn Fn(&str) -> Option
             if k.id == "x64" { continue; }
             let id = format!("emu:{}:{}", t.system, k.id);
             if w.dismissed.contains(&id) { continue; }
-            if discover(k.id).is_some() { v.push(Finding { id, topic: Topic::Emulators, text: format!("{}: {} gefunden, noch nicht eingetragen", info.name, k.label), system: t.system.clone(), kind: k.id.into() }); }
+            if discover(k.id).is_some() { v.push(Finding { id, topic: Topic::Emulators, text: vc_i18n::t!("setup-p1-p2-gefunden-noch-nicht-eingetragen", p1 = &info.name(), p2 = &k.label), system: t.system.clone(), kind: k.id.into() }); }
         }
     }
     v
@@ -803,11 +812,11 @@ pub struct Imported { pub draft: Draft, pub path_notes: Vec<String> }
 
 /// Liest eine Exportdatei in einen Entwurf. Ein leeres Passwort in der Datei löscht kein vorhandenes. Pfade, die es hier nicht gibt, werden gemeldet.
 pub fn import_json(text: &str, cur: &Snapshot) -> Result<Imported, String> {
-    let j: Value = serde_json::from_str(text).map_err(|e| format!("Keine gültige Exportdatei: {e}"))?;
-    if j["kind"] != EXPORT_KIND { return Err("Das ist keine Exportdatei von VintageCoder".into()); }
+    let j: Value = serde_json::from_str(text).map_err(|e| vc_i18n::t!("setup-keine-gueltige-exportdatei-e", e = e.to_string()))?;
+    if j["kind"] != EXPORT_KIND { return Err(vc_i18n::t!("setup-das-ist-keine-exportdatei-von-vintagecoder").into()); }
     let ver = j["schema_version"].as_u64().unwrap_or(0) as u32;
-    if ver > SCHEMA_VERSION { return Err(format!("Die Datei stammt aus einer neueren Version (Format {ver}); bitte VintageCoder aktualisieren")); }
-    let mut s: Settings = serde_json::from_value(j["settings"].clone()).map_err(|e| format!("Einstellungen in der Datei unlesbar: {e}"))?;
+    if ver > SCHEMA_VERSION { return Err(vc_i18n::t!("setup-die-datei-stammt-aus-einer-neueren", ver = &ver)); }
+    let mut s: Settings = serde_json::from_value(j["settings"].clone()).map_err(|e| vc_i18n::t!("setup-einstellungen-in-der-datei-unlesbar-e", e = e.to_string()))?;
     migrate(&mut s);
     // Basisverzeichnis: aus der Datei, sonst der hiesige
     s.projects_dir = j["projects_dir"].as_str().map(String::from).unwrap_or_else(|| cur.settings.projects_dir.clone());
@@ -816,8 +825,8 @@ pub fn import_json(text: &str, cur: &Snapshot) -> Result<Imported, String> {
     for m in &mut s.machines { if m.password.is_empty() { if let Some(old) = cur.settings.machine(&m.id) { m.password = old.password.clone(); } } }
     let mut notes = vec![];
     for t in &s.targets { for e in &t.emulators {
-        if !e.path.trim().is_empty() && crate::settings::check_program(&e.path).is_err() { notes.push(format!("{}: Pfad existiert hier nicht, bitte neu suchen: {}", e.display_name(), e.path.trim())); }
-        if !e.rom.trim().is_empty() && !Path::new(&expand_home(e.rom.trim())).exists() { notes.push(format!("{}: ROM-Ort existiert hier nicht: {}", e.display_name(), e.rom.trim())); }
+        if !e.path.trim().is_empty() && crate::settings::check_program(&e.path).is_err() { notes.push(vc_i18n::t!("setup-p1-pfad-existiert-hier-nicht-bitte", p1 = e.display_name(), p2 = e.path.trim())); }
+        if !e.rom.trim().is_empty() && !Path::new(&expand_home(e.rom.trim())).exists() { notes.push(vc_i18n::t!("setup-p1-rom-ort-existiert-hier-nicht", p1 = e.display_name(), p2 = e.rom.trim())); }
     } }
     s.hidden_targets = cur.settings.hidden_targets.clone();
     let mut view = cur.view.clone();
@@ -837,11 +846,11 @@ pub struct ToolRow { pub kind: String, pub name: String, pub used_for: Vec<Strin
 
 /// Programme, die die gewählten Systeme brauchen: eingebauter Assembler, Emulator-Sorten (nur hier angebotene), Java ist nicht nötig
 pub fn toolchain_rows(systems: &[String]) -> Vec<ToolRow> {
-    let mut rows: Vec<ToolRow> = vec![ToolRow { kind: "vcc-asm".into(), name: "Assembler (eingebaut)".into(), used_for: systems.iter().filter_map(|s| targets::system(s).map(|i| i.name.to_string())).collect(), builtin: true }];
+    let mut rows: Vec<ToolRow> = vec![ToolRow { kind: "vcc-asm".into(), name: vc_i18n::t!("setup-assembler-eingebaut").into(), used_for: systems.iter().filter_map(|s| targets::system(s).map(|i| i.name().to_string())).collect(), builtin: true }];
     for sys in systems {
         let Some(info) = targets::system(sys) else { continue };
         for k in info.kinds().iter().filter(|k| kind_offered(k.id) && k.id != "x64") {
-            match rows.iter_mut().find(|r| r.kind == k.id) { Some(r) => r.used_for.push(info.name.into()), None => rows.push(ToolRow { kind: k.id.into(), name: k.label.into(), used_for: vec![info.name.into()], builtin: false }) }
+            match rows.iter_mut().find(|r| r.kind == k.id) { Some(r) => r.used_for.push(info.name().into()), None => rows.push(ToolRow { kind: k.id.into(), name: k.label.into(), used_for: vec![info.name().into()], builtin: false }) }
         }
     }
     rows
@@ -864,7 +873,11 @@ pub struct Hint {
     #[serde(default)] pub note: String,
 }
 
-pub fn load_hints(data_dir: &Path) -> Vec<Hint> { std::fs::read_to_string(data_dir.join("setup/hints.json")).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default() }
+pub fn load_hints(data_dir: &Path) -> Vec<Hint> {
+    let Some(mut v) = std::fs::read_to_string(data_dir.join("setup/hints.json")).ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) else { return vec![] };
+    vc_i18n::localize_json(&mut v, "setup/hints.json");
+    serde_json::from_value(v).unwrap_or_default()
+}
 
 /// Betriebssystem als Kennung der Hinweise
 pub fn os_id() -> &'static str { if cfg!(target_os = "macos") { "macos" } else if cfg!(windows) { "windows" } else { "linux" } }
@@ -889,7 +902,7 @@ pub fn search_places(kind: &str) -> Vec<String> {
         _ => &[],
     };
     v.extend(fixed.iter().map(|s| s.to_string()));
-    v.push("von VintageCoder portabel installierte Programme".into());
+    v.push(vc_i18n::t!("setup-von-vintagecoder-portabel-installierte-programme").into());
     v
 }
 

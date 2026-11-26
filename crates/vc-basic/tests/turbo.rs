@@ -91,7 +91,7 @@ fn turbo_listing_roundtrips_to_the_same_program() {
 #[test]
 fn parameters_for_proc_are_rejected_with_a_clear_message() {
     let e = tokenize_text("10 EXEC a,1\n20 PROC a\n30 ENDPROC\n", &turbo(), "x.lst").unwrap_err();
-    assert!(e[0].message.contains("Parameter"), "{}", e[0].message);
+    assert_eq!((e[0].code, e[0].key), ("B180", "diag-basic-b180-proc-params"), "{}", e[0].message);
 }
 
 #[test]

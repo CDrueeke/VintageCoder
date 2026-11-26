@@ -9,12 +9,12 @@ use std::path::Path;
 pub fn unsupported_reason(profile: &str, chip: &str, channels: usize) -> Option<String> {
     match profile {
         "c64.sid.song" if chip == "sid" && channels == 3 => None,
-        "c64.sid.song" => Some(format!("Für dieses Lied gibt es kein Abspielprogramm ({channels} Stimmen am Chip „{chip}“).")),
-        "atari.pokey.song" => Some("Für POKEY-Lieder (Atari) gibt es noch kein Abspielprogramm für die Ultimate; sie spielen nur über den Synthesizer.".into()),
-        "mega65.sid4.song" => Some("Das Lied hat zwölf Stimmen für den MEGA65; die Ultimate 64 spielt nur C64-Programme mit dem 3-stimmigen SID.".into()),
-        "plus4.ted.song" => Some("Das Lied ist für den TED des Plus/4; die Ultimate 64 hat keinen TED.".into()),
-        "vic20.vic.song" => Some("Das Lied ist für den VIC des VC 20; die Ultimate 64 hat diesen Klangchip nicht.".into()),
-        p => Some(format!("Für das Profil „{p}“ gibt es kein Abspielprogramm.")),
+        "c64.sid.song" => Some(vc_i18n::t!("rest-listen-kein-programm-chip", channels = &channels, chip = &chip).to_string()),
+        "atari.pokey.song" => Some(vc_i18n::t!("rest-listen-pokey").to_string()),
+        "mega65.sid4.song" => Some(vc_i18n::t!("rest-listen-mega65").to_string()),
+        "plus4.ted.song" => Some(vc_i18n::t!("rest-listen-plus4").to_string()),
+        "vic20.vic.song" => Some(vc_i18n::t!("rest-listen-vic20").to_string()),
+        p => Some(vc_i18n::t!("rest-listen-profil", p = &p).to_string()),
     }
 }
 
@@ -42,7 +42,7 @@ pub fn build_player(data: &Path, song_json: &str, ntsc: bool) -> Result<Vec<u8>,
         o.include_dirs.push(tmp.join("build/export")); o.include_dirs.push(dir);
         if ntsc { o.defines.push(("NTSC".into(), 1)); }
         let out = vc_asm::assemble(&src, &cpu, &o).map_err(|d| format!("Abspielprogramm: {}", d.iter().find(|x| x.is_error()).map(|x| x.to_string()).unwrap_or_else(|| "Assemblerfehler".into())))?;
-        vc_asm::to_prg(&out)
+        vc_asm::to_prg(&out).map_err(String::from)
     })();
     let _ = std::fs::remove_dir_all(&tmp);
     result

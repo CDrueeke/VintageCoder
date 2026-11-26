@@ -66,7 +66,7 @@ impl Fujisan {
     /// Verbindet mit Fujisan, ohne ein Programm zu laden (wie `launch`, sonst gleich).
     pub fn open(program: Option<&str>, port: u16) -> Result<Fujisan, String> {
         if let Ok(f) = Self::connect(port, None) { return Ok(f); }
-        let exe = program.filter(|p| !p.is_empty()).map(String::from).or_else(find_exe).ok_or_else(|| format!("Fujisan nicht gefunden ({})", install_hint()))?;
+        let exe = program.filter(|p| !p.is_empty()).map(String::from).or_else(find_exe).ok_or_else(|| vc_i18n::t!("emu-fujisan-nicht-gefunden-p1", p1 = install_hint()))?;
         let dir = std::path::Path::new(&exe).parent().map(|p| p.to_path_buf());
         let mut cmd = Command::new(&exe);
         cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
@@ -77,8 +77,8 @@ impl Fujisan {
             match Self::connect(port, None) {
                 Ok(mut f) => { f.child = Some(child); return Ok(f); }
                 Err(e) => {
-                    if let Ok(Some(st)) = child.try_wait() { return Err(format!("Fujisan wurde beendet ({st}), bevor der TCP-Server antwortete")); }
-                    if Instant::now() > end { let _ = child.kill(); return Err(format!("Fujisan antwortet auf Port {port} nicht: {e}")); }
+                    if let Ok(Some(st)) = child.try_wait() { return Err(vc_i18n::t!("emu-fujisan-wurde-beendet-st-bevor-der", st = st.to_string())); }
+                    if Instant::now() > end { let _ = child.kill(); return Err(vc_i18n::t!("emu-fujisan-antwortet-auf-port-port-nicht", port = &port, e = e.to_string())); }
                     std::thread::sleep(Duration::from_millis(200));
                 }
             }
@@ -87,7 +87,7 @@ impl Fujisan {
 
     /// Verbindung zu einem laufenden TCP-Server; prüft die Begrüßung (`event: connected`, `emulator: Fujisan`).
     pub fn connect(port: u16, child: Option<Child>) -> Result<Fujisan, String> {
-        let addr = ("127.0.0.1", port).to_socket_addrs().map_err(|e| e.to_string())?.next().ok_or("keine Adresse")?;
+        let addr = ("127.0.0.1", port).to_socket_addrs().map_err(|e| e.to_string())?.next().ok_or(vc_i18n::t!("emu-keine-adresse"))?;
         let s = TcpStream::connect_timeout(&addr, Duration::from_millis(500)).map_err(|e| e.to_string())?;
         Self::from_stream(s, child)
     }
@@ -98,7 +98,7 @@ impl Fujisan {
         let wr = s.try_clone().map_err(|e| e.to_string())?;
         let mut f = Fujisan { child, rd: BufReader::new(s), wr, next_id: 0, bps: vec![], running: false };
         let hello = f.read_line()?;
-        if hello["event"] != "connected" || hello["data"]["emulator"] != "Fujisan" { return Err(format!("auf dem Port antwortet kein Fujisan: {hello}")); }
+        if hello["event"] != "connected" || hello["data"]["emulator"] != "Fujisan" { return Err(vc_i18n::t!("emu-auf-dem-port-antwortet-kein-fujisan", hello = hello.to_string())); }
         Ok(f)
     }
 
@@ -107,9 +107,9 @@ impl Fujisan {
         loop {
             line.clear();
             match self.rd.read_line(&mut line) {
-                Ok(0) => return Err("Fujisan hat die Verbindung geschlossen".into()),
-                Ok(_) => { if line.trim().is_empty() { continue; } return serde_json::from_str(line.trim()).map_err(|e| format!("Antwort von Fujisan nicht lesbar: {e}")); }
-                Err(e) => return Err(format!("Fujisan antwortet nicht: {e}")),
+                Ok(0) => return Err(vc_i18n::t!("emu-fujisan-hat-die-verbindung-geschlossen").into()),
+                Ok(_) => { if line.trim().is_empty() { continue; } return serde_json::from_str(line.trim()).map_err(|e| vc_i18n::t!("emu-antwort-von-fujisan-nicht-lesbar-e", e = e.to_string())); }
+                Err(e) => return Err(vc_i18n::t!("emu-fujisan-antwortet-nicht-e", e = &e)),
             }
         }
     }
@@ -126,13 +126,13 @@ impl Fujisan {
             let r = self.read_line()?;
             if r["type"] != "response" || r["id"].as_str() != Some(id.as_str()) { continue; }
             if r["status"] == "success" { return Ok(r["result"].clone()); }
-            return Err(format!("{name}: {}", r["error"].as_str().unwrap_or("Fehler")));
+            return Err(vc_i18n::t!("emu-name-p2", name = &name, p2 = r["error"].as_str().map(String::from).unwrap_or_else(|| vc_i18n::t!("emu-fehler"))));
         }
     }
 
     /// Lädt ein `.xex` und hält am Einsprung an. Vorhandene Haltepunkte der Sitzung werden erneut gesetzt.
     pub fn load(&mut self, xex: &str) -> Result<(), String> {
-        if !xex.to_ascii_lowercase().ends_with(".xex") { return Err("Der Fujisan-Debugger lädt nur .xex-Dateien (Diskettenabbilder und Module bitte mit atari800 debuggen)".into()); }
+        if !xex.to_ascii_lowercase().ends_with(".xex") { return Err(vc_i18n::t!("emu-der-fujisan-debugger-laedt-nur-xex").into()); }
         let abs = std::fs::canonicalize(xex).map(|p| p.to_string_lossy().trim_start_matches(r"\\?\").to_string()).unwrap_or_else(|_| xex.to_string());
         self.cmd("debug.load_xex_for_debug", Some(json!({ "path": abs })))?;
         self.running = false;
@@ -149,18 +149,18 @@ const IDLE_XEX: [u8; 15] = [0xFF, 0xFF, 0x00, 0x06, 0x02, 0x06, 0x4C, 0x00, 0x06
 
 /// Wandelt eine PCX-Datei (8 Bit, eine Ebene, RLE, Palette mit Kennbyte `0x0C` am Ende) in RGBA
 pub fn decode_pcx(d: &[u8]) -> Result<Frame, String> {
-    if d.len() < 128 + 769 || d[0] != 0x0A || d[2] != 1 || d[3] != 8 || d[65] != 1 { return Err("PCX-Datei nicht lesbar (erwartet: 8 Bit, eine Ebene, RLE)".into()); }
+    if d.len() < 128 + 769 || d[0] != 0x0A || d[2] != 1 || d[3] != 8 || d[65] != 1 { return Err(vc_i18n::t!("emu-pcx-datei-nicht-lesbar-erwartet-8").into()); }
     let u16at = |i: usize| u16::from_le_bytes([d[i], d[i + 1]]) as usize;
     let (w, h, bpl) = (u16at(8) + 1 - u16at(4), u16at(10) + 1 - u16at(6), u16at(66));
     let pal = &d[d.len() - 768..];
-    if d[d.len() - 769] != 0x0C || bpl < w { return Err("PCX-Datei: Palette fehlt".into()); }
+    if d[d.len() - 769] != 0x0C || bpl < w { return Err(vc_i18n::t!("emu-pcx-datei-palette-fehlt").into()); }
     let mut idx = Vec::with_capacity(bpl * h);
     let mut i = 128;
     while idx.len() < bpl * h && i < d.len() - 769 {
         let b = d[i]; i += 1;
-        if b >= 0xC0 { let n = (b & 0x3F) as usize; let v = *d.get(i).ok_or("PCX-Datei abgeschnitten")?; i += 1; idx.extend(std::iter::repeat(v).take(n)); } else { idx.push(b); }
+        if b >= 0xC0 { let n = (b & 0x3F) as usize; let v = *d.get(i).ok_or(vc_i18n::t!("emu-pcx-datei-abgeschnitten"))?; i += 1; idx.extend(std::iter::repeat(v).take(n)); } else { idx.push(b); }
     }
-    if idx.len() < bpl * h { return Err("PCX-Datei abgeschnitten".into()); }
+    if idx.len() < bpl * h { return Err(vc_i18n::t!("emu-pcx-datei-abgeschnitten").into()); }
     let mut rgba = Vec::with_capacity(w * h * 4);
     for y in 0..h { for x in 0..w { let c = idx[y * bpl + x] as usize * 3; rgba.extend_from_slice(&[pal[c], pal[c + 1], pal[c + 2], 255]); } }
     Ok(Frame { width: w, height: h, rgba, frame_no: 0 })
@@ -175,7 +175,7 @@ pub fn find_exe() -> Option<String> {
 pub fn installed_exe() -> Option<String> { crate::install::find_exe("fujisan", "Fujisan").map(|p| p.to_string_lossy().into_owned()) }
 
 pub fn install_hint() -> String {
-    "Fujisan von https://github.com/pedgarcia/fujisan/releases installieren oder mit „vcc emulator install fujisan“ laden".into()
+    vc_i18n::t!("emu-fujisan-von-https-github-com-pedgarcia").into()
 }
 
 impl Backend for Fujisan {
@@ -184,9 +184,9 @@ impl Backend for Fujisan {
     /// Alle Register und Flags (über den Vorspann), keine Zyklenzählung
     fn trap_caps(&self) -> TrapCaps { TrapCaps { set_regs: true, cycles: false } }
     fn set_regs(&mut self, r: &Regs) -> Result<(), String> {
-        if self.running { return Err("Emulator läuft – zuerst anhalten".into()); }
+        if self.running { return Err(vc_i18n::t!("emu-emulator-laeuft-zuerst-anhalten").into()); }
         let pc = self.registers()?.pc;
-        if pc > 0xFFF0 { return Err("PC liegt zu nah am Speicherende für den Vorspann".into()); }
+        if pc > 0xFFF0 { return Err(vc_i18n::t!("emu-pc-liegt-zu-nah-am-speicherende").into()); }
         let stub = [0xA2, r.sp, 0x9A, 0xA9, r.flags, 0x48, 0xA9, r.a, 0xA2, r.x, 0xA0, r.y, 0x28, 0x4C, r.pc as u8, (r.pc >> 8) as u8];
         let saved = self.read_mem(pc, stub.len())?;
         self.write_mem(pc, &stub)?;
@@ -194,13 +194,13 @@ impl Backend for Fujisan {
         self.write_mem(pc, &saved)?;
         run?;
         let now = self.registers()?;
-        if now.pc != r.pc { return Err(format!("Register setzen fehlgeschlagen: PC ist ${:04X} statt ${:04X} (Vorspann im ROM?)", now.pc, r.pc)); }
+        if now.pc != r.pc { return Err(vc_i18n::t!("emu-register-setzen-fehlgeschlagen-pc-ist-p1", p1 = format!("{:04X}", now.pc), p2 = format!("{:04X}", r.pc))); }
         Ok(())
     }
     fn can_grab_frame(&self) -> bool { true }
     fn grab_frame(&mut self) -> Result<Frame, String> {
         let res = self.cmd("screen.capture", None)?;
-        let file = res["filename"].as_str().ok_or("screen.capture nennt keine Datei")?.to_string();
+        let file = res["filename"].as_str().ok_or(vc_i18n::t!("emu-screen-capture-nennt-keine-datei"))?.to_string();
         let data = std::fs::read(&file).map_err(|e| format!("{file}: {e}"));
         let _ = std::fs::remove_file(&file);
         decode_pcx(&data?)
@@ -210,7 +210,7 @@ impl Backend for Fujisan {
     }
     fn registers(&mut self) -> Result<Regs, String> {
         let r = self.cmd("debug.get_registers", None)?;
-        let g = |k: &str| hex(&r[k]).ok_or_else(|| format!("Register {k} nicht lesbar"));
+        let g = |k: &str| hex(&r[k]).ok_or_else(|| vc_i18n::t!("emu-register-k-nicht-lesbar", k = &k));
         Ok(Regs { pc: g("pc")? as u16, a: g("a")? as u8, x: g("x")? as u8, y: g("y")? as u8, sp: g("s")? as u8, flags: g("p")? as u8, extra: vec![] })
     }
     fn read_mem(&mut self, addr: u16, len: usize) -> Result<Vec<u8>, String> {
@@ -219,8 +219,8 @@ impl Backend for Fujisan {
         while a < end {
             let n = (end - a).min(READ_CHUNK);
             let r = self.cmd("debug.read_memory", Some(json!({ "address": a, "length": n })))?;
-            let bytes: Vec<u8> = r["data"].as_array().ok_or("Speicher nicht lesbar")?.iter().filter_map(|v| hex(v).map(|x| x as u8)).collect();
-            if bytes.len() != n { return Err(format!("Fujisan lieferte {} statt {n} Byte ab ${a:04X}", bytes.len())); }
+            let bytes: Vec<u8> = r["data"].as_array().ok_or(vc_i18n::t!("emu-speicher-nicht-lesbar"))?.iter().filter_map(|v| hex(v).map(|x| x as u8)).collect();
+            if bytes.len() != n { return Err(vc_i18n::t!("emu-fujisan-short-read", got = bytes.len(), n = n, addr = format!("{a:04X}"))); }
             out.extend(bytes);
             a += n;
         }
@@ -230,7 +230,7 @@ impl Backend for Fujisan {
         // Fujisan schreibt je Aufruf genau ein Byte (Felder `data`/`values` werden ignoriert und als 0 geschrieben) und bearbeitet etwa 50 Befehle
         // je Sekunde, auch gebündelt. Lesen geht in 256-Byte-Stücken (etwa 7 KB/s): bei größeren Blöcken, die der Läufer vor jedem Test neu
         // aufspielt, wird deshalb erst gelesen und nur geschrieben, was sich unterscheidet.
-        if addr as usize + data.len() > 0x10000 { return Err("Schreiben über $FFFF hinaus".into()); }
+        if addr as usize + data.len() > 0x10000 { return Err(vc_i18n::t!("emu-schreiben-ueber-ffff-hinaus").into()); }
         let current = if data.len() > 16 { Some(self.read_mem(addr, data.len())?) } else { None };
         for (i, b) in data.iter().enumerate() {
             if current.as_ref().map_or(false, |c| c[i] == *b) { continue; }

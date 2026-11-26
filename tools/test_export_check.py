@@ -98,6 +98,10 @@ class ScanTests(TreeCase):
         self.put("a.md", "vintagecoder@drueeke.de\n1+x@users.noreply.github.com\nchef@firma.example\n")
         self.assertEqual(self.rules(), [("a.md", 3, "e-mail")])
 
+    def test_bildnamen_mit_at_sind_keine_adressen(self):
+        self.put("a.md", "icons/128x128@2x.png und logo@3x.svg\nchef@firma.example\n")
+        self.assertEqual(self.rules(), [("a.md", 2, "e-mail")])
+
     def test_interne_ips(self):
         self.put("a.md", "192.168.22.107\n10.0.0.5\n172.20.1.1\n172.32.1.1\n192.168.1.50\n192.168.1.64\nVersion 1.10.0.1\n")
         self.assertEqual([r[1] for r in self.rules()], [1, 2, 3])

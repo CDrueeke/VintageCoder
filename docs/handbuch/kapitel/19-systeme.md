@@ -12,7 +12,7 @@ referenz: [overview, c128-plus4, vic20, mega65, mega65-hardware, roms, settings]
 
 **Ziel:** Du erfährst, was die einzelnen Rechner voneinander unterscheidet, und kannst dir das System aussuchen, für das du programmieren willst. Zu jedem System findest du ein Beispielprojekt zum Ausprobieren.
 
-Ein **Zielsystem** ist der Rechner, für den dein Programm gebaut wird. Du wählst es im [Projekt-Assistenten](kapitel:erstes-projekt) aus, und es steht in der Projektdatei. Die Kopfzeile zeigt es in einem Chip zusammen mit dem Ziel, zum Beispiel „C64 · Emulator (VICE x64sc) ▾“. Mit `.target` im Quelltext legst du es für eine Datei fest (zum Beispiel `.target c64`).
+Ein **Zielsystem** ist der Rechner, für den dein Programm gebaut wird. Du wählst es im Dialog **Neues Projekt erstellen** (siehe [Dein erstes Projekt](kapitel:erstes-projekt)) aus, und es steht in der Projektdatei. Die Kopfzeile zeigt es im **Startziel**-Knopf zusammen mit dem Startziel. Mit `.target` im Quelltext legst du es für eine Datei fest (zum Beispiel `.target c64`).
 
 ## Das brauchst du
 
@@ -31,7 +31,7 @@ Ein **Zielsystem** ist der Rechner, für den dein Programm gebaut wird. Du wähl
 | Atari 800 XL / XE | `atari8` | 6502C (Sally) | ANTIC, GTIA | POKEY | atari800, Altirra | atari800: ein Haltepunkt |
 | MEGA65 | `mega65` | 45GS02 | VIC-IV | vier SIDs | Xemu | ein Haltepunkt |
 
-Für alle gilt: Baue mit **F7**, starte das Startprogramm mit **F5**, debugge es mit **F6**. Welcher Emulator startet, steht in den Einstellungen unter **Zielsysteme und Hardware** (Karte **Konfigurierte Emulatoren**). Ein Klick auf den Chip in der Kopfzeile wählt statt des Standard-Emulators ein anderes Gerät, zum Beispiel eine Ultimate 64.
+Für alle gilt: Baue mit **F7**, starte das Startprogramm mit **F5**, debugge es mit **F6**. Welcher Emulator startet, steht in den Einstellungen unter **Ziele und Hardware** (Abschnitt **Emulatoren**). Ein Klick auf den **Startziel**-Knopf in der Kopfzeile wählt statt des Standard-Emulators ein anderes Gerät, zum Beispiel eine Ultimate 64.
 
 ### Takt, Zeilen, Zyklen
 
@@ -60,7 +60,7 @@ Der Klassiker. Programme starten mit einem kleinen BASIC-Vorspann (`.basicstub`)
 - **Echte Hardware:** Die **Ultimate 64 / II+** lässt sich über das Netzwerk anbinden (Starten, Speicher lesen, Postfach-Tests, Zyklenmessung auf der Ultimate 64).
 - **Beispiel:** `examples/c64/border` (Rahmenfarbe), `examples/c64/sprite_demo` (Sprites), `examples/c64/rasterbars` (Rasterbalken), `examples/c64/prallball`.
 
-![Das Beispielprojekt border im Editor: links der Projektbaum, in der Mitte der Quelltext, oben das Zielsystem Commodore 64.](bild:system-vergleich-c64 "Das C64-Beispiel border: Projektbaum, Quelltext und das Zielsystem in der Kopfzeile")
+*[Bild folgt in E13: system-vergleich-c64]*
 
 ## Commodore 128 (`c128`)
 
@@ -69,7 +69,7 @@ Der C128 startet in dieser IDE im **C128-Modus** mit CPU 8502 (derselbe Befehlss
 - **BASIC:** BASIC 7.0 (Dialekt `basic7`); Programme beginnen bei `$1C01`. `.basicstub` erzeugt bei `.org $1c01` den `SYS 7181`.
 - **Chips:** VIC-IIe (mit `$D02F` Tastatur und `$D030` 2-MHz-Modus), SID, zwei CIA, die Speichersteuerung MMU (`$D500`, `$FF00`) und der **VDC** für den 80-Spalten-Bildschirm (`$D600`, `$D601`).
 - **Grafik und Klang:** Die Profile des C64 (Sprites, Zeichensätze, Bildschirme, Kacheln, Tracker) gibt es auch im C128-Projekt. VDC-Grafik und eine MMU-Hilfe im Assembler gibt es noch nicht.
-- **Emulator:** VICE **x128**; der Debugger spricht dessen Binär-Monitor. Im Panel **Bild** (rechtes Panel, nur in einer Debug-Sitzung) wählst du zwischen **VIC-II** (40 Spalten) und **VDC** (80 Spalten).
+- **Emulator:** VICE **x128**; der Debugger spricht dessen Binär-Monitor. Im Bereich **Debug** (nur in einer Debug-Sitzung) wählst du beim Bild des Emulators über **Bildquelle** zwischen **VIC-II** (40 Spalten) und **VDC** (80 Spalten).
 - **Tests:** Postfach bei `$0B00`.
 - **Disketten:** D64, D71 und D81.
 - **Beispiel:** `examples/c128/border`, `examples/c128/prallball`, `examples/c128/prallball_vdc`.
@@ -89,7 +89,7 @@ In Deutschland hieß der VIC-20 „VC-20“.
 
 - **Chips:** VIC-I (Bild und Ton, Rahmen und Hintergrund in `$900F`), zwei VIA.
 - **BASIC:** BASIC V2.
-- **Speicherausbau:** Das ist die Besonderheit dieses Systems. Der Ausbau steht in der Projektdatei; im Projekt-Assistenten und in den Projekt-Einstellungen wählst du ihn. Davon hängen BASIC-Anfang, Bildschirm und Farb-RAM ab:
+- **Speicherausbau:** Das ist die Besonderheit dieses Systems. Der Ausbau steht in der Projektdatei; im Dialog **Neues Projekt erstellen** (Feld **Speicherausbau**) oder von Hand in der Projektdatei wählst du ihn. Davon hängen BASIC-Anfang, Bildschirm und Farb-RAM ab:
 
 | Ausbau | BASIC ab | Bildschirm | Farb-RAM |
 |---|---|---|---|
@@ -111,11 +111,11 @@ Der Atari ist **kein Commodore**: Chips, Speicher und Programmformat sind anders
 - **Grafik:** Der ANTIC arbeitet mit einer **Anzeigeliste**; die Momentaufnahme im Debugger liest sie und die Farb-Schattenregister aus (nur ANTIC-Modus 2 und kein Bitmap). In der IDE gibt es einen Editor für Player/Missiles (PMG), für Zeichensätze, Bildschirme und Kacheln. Bei den Atari-Editoren wählst du rechts die Videonorm PAL oder NTSC.
 - **Klang:** POKEY, im Tracker.
 - **Programmformat:** Ausgabe als **XEX** (Standard), ATR (Diskettenabbild) oder BIN. Anders als beim C64 gibt es keinen BASIC-Vorspann: Du legst den Startpunkt mit `.run start` fest, zum Beispiel `.org $2000` … `.run start`.
-- **BASIC:** Atari BASIC oder Turbo BASIC XL. Die Dateien entstehen im SAVE-Format, das du mit `LOAD` oder `RUN` lädst.
+- **BASIC:** Atari BASIC oder Turbo BASIC XL. Die Dateien entstehen im SAVE-Format, das du mit `LOAD` oder `RUN` lädst. Turbo BASIC XL startet von einer Diskette, die du selbst bereitstellst (nicht im Lieferumfang); VintageCoder schreibt dein Programm als `AUTORUN.BAS` in eine Kopie davon. Siehe [Turbo BASIC XL starten](kapitel:basic).
 - **Modelle:** 800 XL (64 KB), 130 XE (128 KB mit Bankumschaltung über PORTB `$D301`) und 800 (48 KB, anderes Betriebssystem, kein BASIC-ROM).
 - **Speicher:** Seite 6 (`$0600` bis `$06FF`) ist für Anwender frei; im Betriebssystem belegen `$00` bis `$7F` die Zeropage (BASIC und OS), `$80` bis `$FF` sind ohne BASIC frei. Beim Atari 800 XL/XE gibt es Bank-Presets in der Memory Map.
 - **Betriebssystem:** Für Zeichensätze aus dem ROM brauchst du das Betriebssystem-ROM (siehe Hilfe „ROM-Dateien“).
-- **Emulator und Debugger:** **atari800** oder **Altirra**. Zum Debuggen dient atari800; er kennt **nur einen** Haltepunkt zugleich, keine Datenhaltepunkte und lässt sich nicht per Knopf anhalten (**F8 im Emulatorfenster**). Das Panel „Bild“ zeigt für den Atari nichts.
+- **Emulator und Debugger:** **atari800** oder **Altirra**. Zum Debuggen dient atari800; er kennt **nur einen** Haltepunkt zugleich, keine Datenhaltepunkte und lässt sich nicht per Knopf anhalten (**F8 im Emulatorfenster**). Der Abschnitt **Bildschirm** im Bereich **Debug** zeigt für den Atari kein Bild („Dieser Emulator liefert kein Bild.“).
 - **Tests:** Postfach bei `$0600`.
 - **Beispiel:** `examples/atari/colorbars` (Rasterbalken mit `WSYNC`), `examples/atari/pmg_ship`, `examples/atari/prallball`, `examples/atari/music_demo`.
 
@@ -130,32 +130,28 @@ Ein moderner Nachbau im C65-/C64-Stil mit 40 MHz.
 - **Paletten:** 256 Farben mit je 8 Bit je Kanal (siehe [Paletten](kapitel:paletten)).
 - **Format:** PRG, oder als Diskettenabbild **D81**.
 - **Emulator:** **Xemu** (`xmega65`). Dafür brauchst du eine MEGA65-ROM-Datei im ROM-Ordner (Einstellungen ▸ **ROMs**); der Name ist egal. Der Start dauert etwa 15 Sekunden.
-- **Debugger:** Register, Speicher, Pause/Weiter und Einzelschritt sind möglich, aber nur **ein** Haltepunkt je Sitzung. Xemu hält erst *nach* dem Befehl am Haltepunkt an; der Programmzähler steht dann auf dem folgenden Befehl. Datenhaltepunkte gibt es nur als langsame Beobachtung per Einzelschritt. Das Panel „Bild“ zeigt für den MEGA65 nichts.
+- **Debugger:** Register, Speicher, Pause/Weiter und Einzelschritt sind möglich, aber nur **ein** Haltepunkt je Sitzung. Xemu hält erst *nach* dem Befehl am Haltepunkt an; der Programmzähler steht dann auf dem folgenden Befehl. Datenhaltepunkte gibt es nur als langsame Beobachtung per Einzelschritt. Der Abschnitt **Bildschirm** im Bereich **Debug** zeigt für den MEGA65 kein Bild.
 - **Echte Hardware:** Die Anbindung per USB oder Ethernet ist eingebaut, ist aber noch nicht am echten Gerät geprüft.
 - **Beispiel:** `examples/mega65/hello`, `examples/mega65/pal_demo`, `examples/mega65/play_demo`, `examples/mega65/music_demo`.
 
 > **Achtung:** Der MEGA65 hat in diesem Kapitel die meisten Stolpersteine: ROM-Datei nötig, VIC-IV muss freigeschaltet werden, nur ein Haltepunkt. Beginne am besten mit `examples/mega65/hello`.
 
-## PET/CBM und CBM-II
+## PET/CBM
 
-Der **Commodore PET / CBM** und der **CBM-II** sind in dieser Version **nicht enthalten**: kein Eintrag im Projekt-Assistenten, keine Emulator-Einstellung, kein Start mit F5 und kein Debugger. Beschrieben sind hier nur die Systeme, die du auswählen kannst.
+Der **Commodore PET / CBM** ist in dieser Version **nicht enthalten**: kein Eintrag im Dialog **Neues Projekt erstellen**, keine Emulator-Einstellung, kein Start mit F5 und kein Debugger. Beschrieben sind hier nur die Systeme, die du auswählen kannst.
 
 ## Ein Beispiel für jedes System ausprobieren
 
 1. Öffne ein Beispielprojekt aus dem Ordner `examples/` über die Startseite oder **Datei ▸ Projekt öffnen …** (**Cmd/Strg+Umschalt+O**), zum Beispiel `c64/border`.
-2. Drücke **F7** (Bauen). Im Reiter **Protokoll** der Schublade siehst du das Ergebnis, zum Beispiel `border.asm -> build/border.prg (36 Bytes)`.
+2. Drücke **F7** (Bauen). Im Reiter **Ausgabe** der Ablage unter dem Editor siehst du das Ergebnis, zum Beispiel `border.asm -> build/border.prg (36 Bytes)`.
 3. Drücke **F5**, um das Programm im Emulator zu starten, oder **F6**, um es zu debuggen.
 4. Wiederhole das mit `c128/border`, `plus4/border`, `atari/colorbars`, `mega65/hello` und `vic20/tiles_demo`. Diese Beispiele bauen fehlerfrei.
-
-![Das Atari-Beispielprojekt colorbars im Editor, oben das Zielsystem Atari 800 XL/XE.](bild:system-vergleich-atari "Das Atari-Beispiel colorbars: Quelltext mit ANTIC und GTIA, oben das Zielsystem")
-
-![Das MEGA65-Beispielprojekt hello im Editor, oben das Zielsystem MEGA65.](bild:system-vergleich-mega65 "Das MEGA65-Beispiel hello: Quelltext mit dem Makro zum Freischalten des VIC-IV")
 
 ## Häufige Stolpersteine
 
 | Problem | Ursache und Lösung |
 |---|---|
-| Der Emulator startet nicht | Pfad prüfen: Einstellungen ▸ **Zielsysteme und Hardware**, Karte **Konfigurierte Emulatoren**. Bleibt das Feld leer, sucht die IDE selbst. Unter Linux siehe den Abschnitt „Emulatoren unter Linux“ unten. |
+| Der Emulator startet nicht | Pfad prüfen: Einstellungen ▸ **Ziele und Hardware**, Abschnitt **Emulatoren**. Bleibt das Feld leer, sucht die IDE selbst. Unter Linux siehe den Abschnitt „Emulatoren unter Linux“ unten. |
 | Beim MEGA65 meldet die IDE eine fehlende ROM | Lege die ROM-Datei in den ROM-Ordner (Einstellungen ▸ **ROMs**, Hilfe „ROM-Dateien“). |
 | Das VIC-IV-Register tut nichts | Der VIC-IV ist gesperrt: `mega65_enable_vic4` am Programmanfang aufrufen. |
 | Das VC-20-Programm läuft nur auf dem Grundgerät | Eine feste Adresse (`.org $1001`) gilt nur dort. Nimm `.org BASIC_START`. |
@@ -300,7 +296,7 @@ Dann holst du den Emulator beim Hersteller.
 | **Fujisan** | github.com/pedgarcia/fujisan/releases | Optional, nur für den Atari-Debugger. Für Linux nennt der Katalog Archive (`.tar.gz`) für x86_64 und aarch64. |
 | **Altirra** | nur Windows | unter Linux atari800 oder Fujisan nehmen |
 
-**Portabel installieren.** Auf der Seite **Einstellungen ▸ Zielsysteme und Hardware** zeigt die Emulator-Karte, wo es ein festes Paket gibt, einen Knopf **Portabel installieren …**. Nach einer Rückfrage („Jetzt laden“) lädt VintageCoder das Paket von der Seite des Projekts, prüft die SHA-256-Summe und legt es in einem eigenen Ordner unterhalb des Konfigurationsordners ab. Außerhalb dieses Ordners ändert es nichts, und ohne deinen Klick lädt es nichts. Unter Linux gibt es dieses Angebot nach dem Katalog für **atari800** (AppImage, es wird nur gespeichert und ausführbar gemacht) und für **Fujisan** (Archiv, wird ausgepackt). Für VICE und Xemu steht in der Karte stattdessen ein Hinweis mit der Download-Seite oder dem Weg über die Paketverwaltung.
+**Portabel installieren.** Auf der Seite **Einstellungen ▸ Ziele und Hardware** zeigt die Emulator-Karte, wo es ein festes Paket gibt, einen Knopf **Portabel installieren (Version) …**. Nach einer Rückfrage („Jetzt laden“) lädt VintageCoder das Paket von der Seite des Projekts, prüft die SHA-256-Summe und legt es in einem eigenen Ordner unterhalb des Konfigurationsordners ab. Außerhalb dieses Ordners ändert es nichts, und ohne deinen Klick lädt es nichts. Unter Linux gibt es dieses Angebot nach dem Katalog für **atari800** (AppImage, es wird nur gespeichert und ausführbar gemacht) und für **Fujisan** (Archiv, wird ausgepackt). Für VICE und Xemu steht in der Karte stattdessen ein Hinweis mit der Download-Seite oder dem Weg über die Paketverwaltung.
 
 **Flatpak und Snap.** **Ungeprüft:** ob es VICE, atari800, Xemu oder Fujisan als Flatpak oder Snap gibt und ob VintageCoder damit zurechtkommt. Flatpak-Programme heißen nach ihrer Kennung und werden nicht automatisch gefunden: Du müsstest den Pfad eines Skripts eintragen, das zum Beispiel `flatpak run <Kennung> "$@"` ausführt. Snap-Programme liegen unter `/snap/bin`; dort sucht VintageCoder.
 
@@ -308,22 +304,22 @@ Dann holst du den Emulator beim Hersteller.
 
 Es gibt zwei Wege, beide ändern am Ende dasselbe.
 
-**Weg 1: Konfigurationsassistent.** Beim ersten Start öffnet er sich von selbst; sonst startest du ihn mit **Einstellungen ▸ Allgemein ▸ Assistent starten** oder mit **Hilfe ▸ Konfigurationsassistent: nur Emulatoren …**. Im Schritt **Toolchain** zeigt die Liste je Emulator „bereit“ oder „nicht gefunden“. Der Assistent installiert nichts: Fehlende Emulatoren installierst du selbst (siehe oben) oder trägst sie unter **Einstellungen ▸ Zielsysteme und Hardware** ein; dort gibt es auch die portable Installation.
+**Weg 1: Konfigurationsassistent.** Beim ersten Start öffnet er sich von selbst; sonst startest du ihn auf der Seite **Einstellungen ▸ Allgemein** im Abschnitt **Einrichtung** (**Schnelleinrichtung** oder **Alles selbst einstellen**, auch nur **Emulatoren …**) oder mit **Hilfe ▸ Konfigurationsassistent: nur Emulatoren …**. Im Schritt **Toolchain** zeigt die Liste je Emulator „bereit“ oder „nicht gefunden“. Der Assistent installiert nichts: Fehlende Emulatoren installierst du selbst (siehe oben) oder trägst sie unter **Einstellungen ▸ Ziele und Hardware** ein; dort gibt es auch die portable Installation.
 
 **Weg 2: Von Hand in den Einstellungen.**
 
 1. Öffne die Einstellungen: **Ansicht ▸ Einstellungen** oder **Strg+Komma**.
-2. Wechsle zur Seite **Zielsysteme und Hardware** und wähle links dein System.
-3. In der Karte **Konfigurierte Emulatoren** steht beim Emulator ein Chip **Gefunden**, **Automatisch erkannt** oder **Fehlt**. Das Feld **Pfad** kannst du leer lassen: Dann sucht VintageCoder selbst. **Automatisch suchen** trägt den gefundenen Pfad ein. Ein eigener Pfad geht auch.
-4. Fehlt der Emulator in der Liste, bieten die Knöpfe **+ …** über den Karten die Sorten an, die es für das System gibt.
-5. **Als Standard setzen** macht ihn zum Emulator für **F5** und **F6** (es sei denn, du hast ein anderes Startziel gewählt).
+2. Wechsle zur Seite **Ziele und Hardware** und wähle links dein System in der Liste **Zielsysteme**.
+3. Beim Emulator zeigt eine Zeile, ob er gefunden wurde („Gefunden: …“ oder „Nicht gefunden. Pfad von Hand eintragen.“). Das Feld **Programm (leer = automatisch suchen)** kannst du leer lassen: Dann sucht VintageCoder selbst. **Suchen** trägt den gefundenen Pfad ein. Ein eigener Pfad geht auch.
+4. Fehlt der Emulator in der Liste, wählst du unter **Emulator hinzufügen …** die Sorte aus, die es für das System gibt.
+5. Das Auswahlfeld **Standard** macht ihn zum Emulator für **F5** und **F6** (es sei denn, du hast ein anderes Startziel gewählt).
 6. Beim MEGA65 legst du die ROM-Datei im ROM-Ordner ab (**Einstellungen ▸ ROMs**; unter Linux `~/.config/vintagecoder/roms`, falls `XDG_CONFIG_HOME` nicht gesetzt ist). Ohne MEGA65-ROM startet Xemu nicht.
 7. Klicke auf **Speichern**.
 
 ### Die Einrichtung prüfen
 
-1. **Chip:** Bei deinem System steht „Emulator bereit“, bei der Emulator-Karte **Gefunden** oder **Automatisch erkannt**.
-2. **Test-Start:** **▶ Test-Start** in der Emulator-Karte öffnet den Emulator kurz zur Probe; die Meldung daneben zeigt, ob es geklappt hat.
+1. **Fundstelle:** Bei der Emulator-Karte steht „Gefunden: …“.
+2. **Testen:** **Testen** in der Emulator-Karte probiert den Emulator aus; die Meldung darunter zeigt, ob es geklappt hat.
 3. **Hello World:** Öffne ein Beispielprojekt, drücke **F7** (Bauen) und **F5** (Starten).
 4. **Im Terminal (optional):** `command -v x64sc`, `command -v atari800`, `command -v xmega65`. Eine leere Ausgabe heißt: nicht im `PATH`. Unter Debian und Ubuntu liegt `atari800` meist in `/usr/games`; VintageCoder sucht dort mit, im Terminal ist der Ordner nicht immer im `PATH`.
 
@@ -333,7 +329,7 @@ Es gibt zwei Wege, beide ändern am Ende dasselbe.
 |---|---|
 | `E: Unable to locate package vice` (Debian, Ubuntu) | `contrib` beziehungsweise `multiverse` ist nicht eingeschaltet, oder `sudo apt update` fehlt nach dem Ändern. |
 | „Unable to find a match“ (`dnf`) oder „Kein Treffer“ (`zypper`) | Das Paket steht in deinen Quellen nicht (siehe Tabelle oben). Weiter mit „Wenn das Paket fehlt oder zu alt ist“. |
-| Chip bleibt **Fehlt**, obwohl installiert | Programm im `PATH` prüfen (`command -v …`), sonst den Pfad in der Emulator-Karte eintragen. |
+| „Nicht gefunden“, obwohl installiert | Programm im `PATH` prüfen (`command -v …`), sonst den Pfad in der Emulator-Karte eintragen. |
 | Debugger startet nicht oder meldet eine zu alte Version | VICE ist älter als 3.9 (zum Beispiel Ubuntu 24.04 mit 3.7.1). Neueres VICE beim Hersteller besorgen. |
 | Xemu startet nicht | MEGA65-ROM (genau 131072 Byte) fehlt: **Einstellungen ▸ ROMs**. |
 | Du hast das Paket `xemu` aus openSUSE installiert | Das ist ein Xbox-Emulator. Entfernen (`sudo zypper remove xemu`) und Xemu für den MEGA65 beim Hersteller laden. |

@@ -1,26 +1,23 @@
 # VintageCoder: Überblick
 
-VintageCoder ist eine Entwicklungsumgebung für 6502-Systeme: **C64**, **C128**, **C16** und **Plus/4**, **VC-20**, **Atari 8-Bit** und **MEGA65**, mit eigenem Assembler, BASIC, Emulator-Anbindung und Studios für Grafik und Klang.
+VintageCoder ist eine Entwicklungsumgebung für 6502-Systeme: **C64**, **C128**, **C16** und **Plus/4**, **VC-20**, **Atari 8-Bit** und **MEGA65**, mit eigenem Assembler, BASIC, Emulator-Anbindung und Editoren für Grafik und Klang.
 
 ## Der schnelle Einstieg
-1. Auf der **Startseite** (Reiter **Start**) ein Projekt öffnen, ein Beispiel öffnen (Liste aus dem Ordner `examples/`) oder mit **Neues Projekt** den [Projekt-Assistenten](help:wizard) starten. Danach zeigt der Projektbaum, was das Projekt enthält; die [Projekt-Übersicht](help:overview) fasst den Zustand zusammen.
+1. Auf der **Startseite** (Bereich **Code**, solange kein Projekt offen ist) ein Projekt aus der Liste **Zuletzt geöffnete Projekte** öffnen, **Projekt öffnen** oder **Beispiel öffnen** wählen (Liste aus dem Ordner `examples/`) oder mit **Neues Projekt** den Dialog **Neues Projekt erstellen** öffnen (siehe [Startseite, Konfigurationsassistent und neues Projekt](help:wizard)). Danach zeigt der Projektbaum, was das Projekt enthält; die [Projekt-Übersicht](help:overview) fasst den Zustand zusammen.
 2. Im Projektbaum eine `.asm`- oder `.bas`-Datei öffnen.
-3. **F7** baut, **F5** baut und startet das Startprogramm auf dem Startziel (Emulator oder eingetragene Hardware, siehe [Einstellungen](help:settings)), **F6** startet den Debugger.
-4. **F1** öffnet diese Hilfe; steht der Cursor im Editor auf einem Wort, zeigt sie dazu den Eintrag (Befehl, Direktive, Register, BASIC-Wort). Im Hilfe-Panel führen das Inhaltsverzeichnis und die Suche zu den Themen.
+3. **F7** baut, **F5** baut und startet das Startprogramm auf dem Startziel (Emulator, siehe [Einstellungen](help:settings)). **F6** startet das Programm mit einer Debug-Sitzung im Bereich **Debug** (siehe [Debugger](help:debugger)).
+4. **Cmd/Strg+K** öffnet die Befehlspalette: Sie findet alle Befehle und Dateien des Projekts.
 
 ## Wo finde ich was?
 - Quelltext schreiben: [Editor](help:editor), [Assembler](help:assembler), [BASIC](help:basic)
 - Bauen und starten: [Bauen und Starten](help:build)
 - Fehler suchen: [Debugger](help:debugger), [Haltepunkte](help:breakpoints), [Memory Map](help:memmap), [Tests](help:tests)
 - Grafik und Klang: [Sprites, Zeichensätze und Songs](help:graphics), [Export](help:export), [Tracker](help:tracker), [Hüllkurve](help:envelope)
-- Module und Disketten: [Segmente, Bänke, Module](help:cartridges), [Disk-Studio](help:disks)
+- Module und Disketten: [Segmente, Bänke, Module](help:cartridges), [Disk-Editor](help:disks)
 - Neues System: [MEGA65](help:mega65)
 - Fehler melden: [Feedback senden](help:feedback)
 - Neue Version suchen: [Nach Updates suchen](help:updates)
-- Neu in der Oberfläche: [Pfadfelder](help:paths), [Markdown](help:markdown), [Zahlenwerkzeuge](help:numbers), [BASIC in Assembler](help:basic2asm), [Konfiguration sichern](help:config), [Takt-Anzeige](help:clock)
-- Bedienung: [Einstellungen](help:settings), [Projekt-Übersicht](help:overview), [Tastenkürzel](help:shortcuts), [Oberfläche anpassen](help:layout), [Dateibaum](help:filetree)
+- Weitere Themen: [Pfadfelder](help:paths), [Markdown](help:markdown), [Zahlenwerkzeuge](help:numbers), [BASIC in Assembler](help:basic2asm), [Konfiguration sichern](help:config)
+- Bedienung: [Einstellungen](help:settings), [Takt in der Statusleiste](help:clock), [Projekt-Übersicht](help:overview), [Tastenkürzel](help:shortcuts), [Oberfläche anpassen](help:layout), [Dateibaum](help:filetree)
 
-Tipp: Die Suche oben im Hilfe-Panel findet Themen, Befehle, Direktiven und Chip-Register.
-
-
-**Projekt bauen:** F7 baut alle Programme laut Projektdatei, F5/F6 starten bzw. debuggen das Startprogramm (★ im Projektbaum); mit **Alt+Umschalt+F7**, **Alt+Umschalt+F5** und **Alt+Umschalt+F6** gilt die aktive Datei. Die Projekt-Einstellungen (Menü **Projekt ▸ Projekt-Einstellungen …**) bearbeiten Quellen, Startprogramm und Diskette grafisch.
+**Projekt bauen:** F7 baut alle Programme laut Projektdatei, F5 startet das Startprogramm; mit **Alt+Umschalt+F7** und **Alt+Umschalt+F5** gilt die aktive Datei. Quellen, Startprogramm und Zielsysteme siehst und änderst du im Hauptbereich **Projekt** (Cmd/Strg+Alt+0).

@@ -1,0 +1,320 @@
+{
+ "groups": {
+  "Erste Schritte": "Getting started",
+  "Programmieren": "Programming",
+  "Testen": "Testing",
+  "Grafik und Klang": "Graphics and sound",
+  "Systeme und Formate": "Systems and formats",
+  "Für Entwickler": "For developers",
+  "Handbuch": "Manual"
+ },
+ "titles": {
+  "start": "Overview",
+  "shortcuts": "Keyboard shortcuts",
+  "filetree": "File tree: marks and colors",
+  "layout": "Customize the interface",
+  "paths": "Path fields and \"Choose ...\"",
+  "markdown": "Markdown files and preview",
+  "numbers": "Number tools",
+  "basic2asm": "Convert BASIC to assembler",
+  "config": "Back up and reset the configuration",
+  "clock": "Clock in the status bar",
+  "settings": "Settings",
+  "linux": "Linux",
+  "overview": "Project overview",
+  "about": "About VintageCoder",
+  "license": "License and acknowledgements",
+  "feedback": "Send feedback",
+  "updates": "Check for updates",
+  "editor": "Editor",
+  "assembler": "Assembler",
+  "asm-expr": "Assembler: expressions and functions",
+  "asm-directives": "Assembler: directives",
+  "asm-text": "Assembler: text and character sets",
+  "asm-macros": "Assembler: labels, macros, scopes",
+  "asm-library": "Assembler: system library",
+  "asm-index": "Assembler: cheat sheet and error codes",
+  "basic": "BASIC",
+  "basic-labels": "BASIC: labels and line numbers",
+  "basic-names": "BASIC: long variable names",
+  "basic-directives": "BASIC: directives, files and assets",
+  "basic-dialects": "BASIC: dialects and target systems",
+  "basic-tools": "BASIC: tools and debugging",
+  "basic-index": "BASIC: cheat sheet and error codes",
+  "license-build": "License notice when building",
+  "build": "Build and run",
+  "cli": "Command line (vcc)",
+  "debugger": "Debugger",
+  "breakpoints": "Breakpoints",
+  "memmap": "Memory map",
+  "tests": "Tests with vcc test",
+  "graphics": "Sprites, character sets, songs",
+  "export": "Export",
+  "sprite": "Sprite/PMG editor",
+  "charset": "Character set editor",
+  "screen": "Screen editor",
+  "tiles": "Tile editor",
+  "tracker": "Tracker",
+  "envelope": "Envelope",
+  "cartridges": "Segments, banks, cartridges",
+  "disks": "Disk editor",
+  "play": "PLAY tracker (MEGA65)",
+  "wizard": "Start page and project wizard",
+  "vic20": "VIC-20",
+  "c128-plus4": "C128 and Plus/4",
+  "pet": "PET/CBM (spike)",
+  "mega65": "MEGA65 (45GS02)",
+  "emulators": "Emulators (home page, portable installation)",
+  "roms": "ROM files",
+  "mega65-hardware": "MEGA65 on the device (USB, Ethernet; untested)",
+  "release-auswahl": "Release selection (FEATURES.md, release.py)",
+  "turbo-disk": "Turbo BASIC XL: disk",
+  "extensions": "Extensions: security and rights"
+ },
+ "files": {
+  "start.md": {
+   "status": "maschinell",
+   "source_hash": "364f61130929"
+  },
+  "shortcuts.md": {
+   "status": "maschinell",
+   "source_hash": "e127df630398"
+  },
+  "dateibaum.md": {
+   "status": "maschinell",
+   "source_hash": "f463b9ed1e5f"
+  },
+  "layout.md": {
+   "status": "maschinell",
+   "source_hash": "579c04fcc644"
+  },
+  "pfadfelder.md": {
+   "status": "maschinell",
+   "source_hash": "bbdf69f7ffed"
+  },
+  "markdown.md": {
+   "status": "geprüft",
+   "source_hash": "cc4f2ae8ab5a"
+  },
+  "zahlenwerkzeuge.md": {
+   "status": "geprüft",
+   "source_hash": "1e97c264ff2d"
+  },
+  "basic-nach-asm.md": {
+   "status": "maschinell",
+   "source_hash": "bb817c3c65b2"
+  },
+  "konfiguration.md": {
+   "status": "maschinell",
+   "source_hash": "340b804c80df"
+  },
+  "takt-anzeige.md": {
+   "status": "maschinell",
+   "source_hash": "1a0a0f8760db"
+  },
+  "settings.md": {
+   "status": "maschinell",
+   "source_hash": "036e50603e8c"
+  },
+  "linux.md": {
+   "status": "maschinell",
+   "source_hash": "e86dc3a64745"
+  },
+  "overview.md": {
+   "status": "maschinell",
+   "source_hash": "ccf309b84b74"
+  },
+  "about.md": {
+   "status": "maschinell",
+   "source_hash": "565c15ba6298"
+  },
+  "license.md": {
+   "status": "maschinell",
+   "source_hash": "b0c385ab8e2a"
+  },
+  "feedback.md": {
+   "status": "maschinell",
+   "source_hash": "3d018288dce0"
+  },
+  "updates.md": {
+   "status": "maschinell",
+   "source_hash": "a631cea995a3"
+  },
+  "editor.md": {
+   "status": "maschinell",
+   "source_hash": "6010b1fed888"
+  },
+  "assembler.md": {
+   "status": "maschinell",
+   "source_hash": "2d8b09dd1cf9"
+  },
+  "asm-expr.md": {
+   "status": "geprüft",
+   "source_hash": "580a4e0f0884"
+  },
+  "asm-directives.md": {
+   "status": "maschinell",
+   "source_hash": "08365d20cda0"
+  },
+  "asm-text.md": {
+   "status": "maschinell",
+   "source_hash": "a066276a063a"
+  },
+  "asm-macros.md": {
+   "status": "geprüft",
+   "source_hash": "c480c195abd8"
+  },
+  "asm-library.md": {
+   "status": "maschinell",
+   "source_hash": "4b64741926ab"
+  },
+  "asm-index.md": {
+   "status": "maschinell",
+   "source_hash": "42d850603ff2"
+  },
+  "basic.md": {
+   "status": "maschinell",
+   "source_hash": "b0108adfb8e7"
+  },
+  "basic-labels.md": {
+   "status": "maschinell",
+   "source_hash": "e6cf3fad3550"
+  },
+  "basic-names.md": {
+   "status": "maschinell",
+   "source_hash": "4ca5fbc4f322"
+  },
+  "basic-directives.md": {
+   "status": "maschinell",
+   "source_hash": "c2e75eb13d8c"
+  },
+  "basic-dialects.md": {
+   "status": "maschinell",
+   "source_hash": "38db39f869b1"
+  },
+  "basic-tools.md": {
+   "status": "maschinell",
+   "source_hash": "d2ac034a7f94"
+  },
+  "basic-index.md": {
+   "status": "maschinell",
+   "source_hash": "0264ff9e4676"
+  },
+  "license-build.md": {
+   "status": "maschinell",
+   "source_hash": "e994499ca5ec"
+  },
+  "build.md": {
+   "status": "maschinell",
+   "source_hash": "ca02b05791de"
+  },
+  "cli.md": {
+   "status": "maschinell",
+   "source_hash": "dfab2befa33d"
+  },
+  "debugger.md": {
+   "status": "maschinell",
+   "source_hash": "a86a740ff9ca"
+  },
+  "breakpoints.md": {
+   "status": "maschinell",
+   "source_hash": "37d9e554f10c"
+  },
+  "memmap.md": {
+   "status": "maschinell",
+   "source_hash": "f53451715577"
+  },
+  "tests.md": {
+   "status": "maschinell",
+   "source_hash": "939bd27d3b53"
+  },
+  "graphics.md": {
+   "status": "maschinell",
+   "source_hash": "601033504749"
+  },
+  "export.md": {
+   "status": "maschinell",
+   "source_hash": "284e168c9c9c"
+  },
+  "sprite.md": {
+   "status": "geprüft",
+   "source_hash": "378e2348f82b"
+  },
+  "charset.md": {
+   "status": "maschinell",
+   "source_hash": "3e2514953bc1"
+  },
+  "screen.md": {
+   "status": "maschinell",
+   "source_hash": "595ffa11b5dc"
+  },
+  "tiles.md": {
+   "status": "maschinell",
+   "source_hash": "fcdf94cc87be"
+  },
+  "tracker.md": {
+   "status": "maschinell",
+   "source_hash": "b01bb7dcc2cd"
+  },
+  "envelope.md": {
+   "status": "maschinell",
+   "source_hash": "d4f9af343f90"
+  },
+  "cartridges.md": {
+   "status": "geprüft",
+   "source_hash": "c1406c83e912"
+  },
+  "disks.md": {
+   "status": "maschinell",
+   "source_hash": "a9166fe54124"
+  },
+  "play.md": {
+   "status": "maschinell",
+   "source_hash": "eb0c9a6facd1"
+  },
+  "wizard.md": {
+   "status": "maschinell",
+   "source_hash": "b9354f23b959"
+  },
+  "vic20.md": {
+   "status": "maschinell",
+   "source_hash": "62a0cd86ca02"
+  },
+  "c128-plus4.md": {
+   "status": "maschinell",
+   "source_hash": "e71db2a734bc"
+  },
+  "pet.md": {
+   "status": "geprüft",
+   "source_hash": "9f1d8e5b6720"
+  },
+  "mega65.md": {
+   "status": "maschinell",
+   "source_hash": "7e0031134088"
+  },
+  "emulators.md": {
+   "status": "maschinell",
+   "source_hash": "fbb5a83b73fd"
+  },
+  "roms.md": {
+   "status": "maschinell",
+   "source_hash": "0c90618bb8bf"
+  },
+  "mega65-hardware.md": {
+   "status": "maschinell",
+   "source_hash": "a419aafaa134"
+  },
+  "release-auswahl.md": {
+   "status": "geprüft",
+   "source_hash": "9e2ca5b2afce"
+  },
+  "turbo-basic-diskette.md": {
+   "status": "maschinell",
+   "source_hash": "e051aa4f9dd6"
+  },
+  "extensions-security.md": {
+   "status": "maschinell",
+   "source_hash": "e4fe3b861b16"
+  }
+ }
+}

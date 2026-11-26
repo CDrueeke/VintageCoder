@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 fn data() -> PathBuf { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data") }
-fn vcc(dir: &Path, args: &[&str]) -> Output { Command::new(env!("CARGO_BIN_EXE_vcc")).args(args).env("VC_DATA", data()).current_dir(dir).output().unwrap() }
+fn vcc(dir: &Path, args: &[&str]) -> Output { Command::new(env!("CARGO_BIN_EXE_vcc")).args(args).env("VC_LANG", "de").env("VC_DATA", data()).current_dir(dir).output().unwrap() }
 fn text(o: &Output) -> String { String::from_utf8_lossy(&o.stdout).into_owned() + &String::from_utf8_lossy(&o.stderr) }
 
 #[test]

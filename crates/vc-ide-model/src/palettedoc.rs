@@ -16,8 +16,8 @@ pub fn rgb_zu_hex(c: [u8; 3]) -> String { format!("#{:02x}{:02x}{:02x}", c[0], c
 impl PaletteDoc {
     pub fn open(root: &Path, rel: &str) -> Result<PaletteDoc, String> {
         let abs = root.join(rel);
-        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
-        if media["kind"] != "palette" || media["entries"].as_array().map_or(true, |a| a.is_empty()) { return Err(format!("{rel}: keine Palettenwerte")); }
+        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("palettedoc-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("palettedoc-rel-e", rel = &rel, e = e.to_string()))?;
+        if media["kind"] != "palette" || media["entries"].as_array().map_or(true, |a| a.is_empty()) { return Err(vc_i18n::t!("palettedoc-rel-keine-palettenwerte", rel = &rel)); }
         Ok(PaletteDoc { rel: rel.into(), abs, saved: media.to_string(), media, sel: 0, undo: vec![], redo: vec![], coalesce: None, status: String::new() })
     }
     pub fn anzahl(&self) -> usize { self.media["entries"].as_array().map_or(0, |a| a.len()) }
@@ -42,7 +42,7 @@ impl PaletteDoc {
     pub fn standard(&mut self) { self.push_undo(); self.media["entries"] = json!(vc_media::default_palette()); }
     pub fn media_text(&self) -> String { vc_media::project::format_media(&self.media) }
     pub fn save(&mut self) -> Result<(), String> {
-        std::fs::write(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = "gespeichert".into(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = vc_i18n::t!("palettedoc-gespeichert"); Ok(())
     }
 }
 

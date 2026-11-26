@@ -1,0 +1,310 @@
+{
+ "source": "sys/vic20/hardware.asm",
+ "entries": {
+  "/L7": {
+   "de": "Speicherbereiche",
+   "en": "Memory areas",
+   "status": "maschinell"
+  },
+  "/L11": {
+   "de": "Bildschirmspeicher (Grundgerät und +3 KB: $1E00, ab +8 KB: $1000)",
+   "en": "Screen memory (unexpanded and +3 KB: $1E00, +8 KB and more: $1000)",
+   "status": "maschinell"
+  },
+  "/L16": {
+   "de": "Farb-RAM (nur Bit 0-3; Grundgerät und +3 KB: $9600, ab +8 KB: $9400)",
+   "en": "Color RAM (bits 0-3 only; unexpanded and +3 KB: $9600, +8 KB and more: $9400)",
+   "status": "maschinell"
+  },
+  "/L21": {
+   "de": "BASIC-Programmanfang (Grundgerät $1001, +3 KB $0401, ab +8 KB $1201)",
+   "en": "BASIC program start (unexpanded $1001, +3 KB $0401, +8 KB and more $1201)",
+   "status": "maschinell"
+  },
+  "/L23": {
+   "de": "Zeichen-ROM (Groß/Grafik, dann Klein/Groß)",
+   "en": "Character ROM (uppercase/graphics, then lowercase/uppercase)",
+   "status": "maschinell"
+  },
+  "/L24": {
+   "de": "Erweiterungsblock 1 (8 KB)",
+   "en": "Expansion block 1 (8 KB)",
+   "status": "maschinell"
+  },
+  "/L25": {
+   "de": "Erweiterungsblock 2 (8 KB)",
+   "en": "Expansion block 2 (8 KB)",
+   "status": "maschinell"
+  },
+  "/L26": {
+   "de": "Erweiterungsblock 3 (8 KB)",
+   "en": "Expansion block 3 (8 KB)",
+   "status": "maschinell"
+  },
+  "/L27": {
+   "de": "Steckmodul (Autostart-Kennung A0CBM bei $A004)",
+   "en": "Cartridge (autostart signature A0CBM at $A004)",
+   "status": "maschinell"
+  },
+  "/L29": {
+   "de": "VIC-I",
+   "en": "VIC-I",
+   "status": "unverändert"
+  },
+  "/L30": {
+   "de": "Horizontaler Bildursprung (Bit 0-6), Bit 7 = Interlace",
+   "en": "Horizontal screen origin (bits 0-6), bit 7 = interlace",
+   "status": "maschinell"
+  },
+  "/L31": {
+   "de": "Vertikaler Bildursprung",
+   "en": "Vertical screen origin",
+   "status": "maschinell"
+  },
+  "/L32": {
+   "de": "Spaltenzahl (Bit 0-6), Bit 7 = Bildschirmadresse Bit 9",
+   "en": "Number of columns (bits 0-6), bit 7 = screen address bit 9",
+   "status": "maschinell"
+  },
+  "/L33": {
+   "de": "Zeilenzahl (Bit 1-6), Bit 0 = 8×16-Zeichen, Bit 7 = Rasterzeile Bit 0",
+   "en": "Number of rows (bits 1-6), bit 0 = 8x16 characters, bit 7 = raster line bit 0",
+   "status": "maschinell"
+  },
+  "/L34": {
+   "de": "Rasterzeile (Bit 8-1, nur lesen)",
+   "en": "Raster line (bits 8-1, read only)",
+   "status": "maschinell"
+  },
+  "/L35": {
+   "de": "Speicherzeiger: Bit 4-7 Bildschirm, Bit 0-3 Zeichensatz",
+   "en": "Memory pointer: bits 4-7 screen, bits 0-3 character set",
+   "status": "maschinell"
+  },
+  "/L36": {
+   "de": "Lichtgriffel X",
+   "en": "Light pen X",
+   "status": "maschinell"
+  },
+  "/L37": {
+   "de": "Lichtgriffel Y",
+   "en": "Light pen Y",
+   "status": "maschinell"
+  },
+  "/L38": {
+   "de": "Paddle X",
+   "en": "Paddle X",
+   "status": "unverändert"
+  },
+  "/L39": {
+   "de": "Paddle Y",
+   "en": "Paddle Y",
+   "status": "unverändert"
+  },
+  "/L40": {
+   "de": "Bassstimme (Bit 7 = ein)",
+   "en": "Bass voice (bit 7 = on)",
+   "status": "maschinell"
+  },
+  "/L41": {
+   "de": "Altstimme (Bit 7 = ein)",
+   "en": "Alto voice (bit 7 = on)",
+   "status": "maschinell"
+  },
+  "/L42": {
+   "de": "Sopranstimme (Bit 7 = ein)",
+   "en": "Soprano voice (bit 7 = on)",
+   "status": "maschinell"
+  },
+  "/L43": {
+   "de": "Rauschen (Bit 7 = ein)",
+   "en": "Noise (bit 7 = on)",
+   "status": "maschinell"
+  },
+  "/L44": {
+   "de": "Lautstärke (Bit 0-3), Hilfsfarbe (Bit 4-7)",
+   "en": "Volume (bits 0-3), auxiliary color (bits 4-7)",
+   "status": "maschinell"
+  },
+  "/L45": {
+   "de": "Hintergrund (Bit 4-7), Normal/Invers (Bit 3), Rahmen (Bit 0-2)",
+   "en": "Background (bits 4-7), normal/inverse (bit 3), border (bits 0-2)",
+   "status": "maschinell"
+  },
+  "/L47": {
+   "de": "VIA 1 (NMI, Userport, Joystick, serieller Bus)",
+   "en": "VIA 1 (NMI, user port, joystick, serial bus)",
+   "status": "maschinell"
+  },
+  "/L48": {
+   "de": "Port B",
+   "en": "Port B",
+   "status": "unverändert"
+  },
+  "/L49": {
+   "de": "Port A",
+   "en": "Port A",
+   "status": "unverändert"
+  },
+  "/L50": {
+   "de": "Datenrichtung B",
+   "en": "Data direction B",
+   "status": "maschinell"
+  },
+  "/L51": {
+   "de": "Datenrichtung A",
+   "en": "Data direction A",
+   "status": "maschinell"
+  },
+  "/L52": {
+   "de": "Timer 1 Zähler niedrig",
+   "en": "Timer 1 counter low",
+   "status": "maschinell"
+  },
+  "/L53": {
+   "de": "Timer 1 Zähler hoch",
+   "en": "Timer 1 counter high",
+   "status": "maschinell"
+  },
+  "/L54": {
+   "de": "Timer 1 Latch niedrig",
+   "en": "Timer 1 latch low",
+   "status": "maschinell"
+  },
+  "/L55": {
+   "de": "Timer 1 Latch hoch",
+   "en": "Timer 1 latch high",
+   "status": "maschinell"
+  },
+  "/L56": {
+   "de": "Timer 2 Zähler niedrig",
+   "en": "Timer 2 counter low",
+   "status": "maschinell"
+  },
+  "/L57": {
+   "de": "Timer 2 Zähler hoch",
+   "en": "Timer 2 counter high",
+   "status": "maschinell"
+  },
+  "/L58": {
+   "de": "Schieberegister",
+   "en": "Shift register",
+   "status": "maschinell"
+  },
+  "/L59": {
+   "de": "Hilfssteuerregister",
+   "en": "Auxiliary control register",
+   "status": "maschinell"
+  },
+  "/L60": {
+   "de": "Peripherie-Steuerregister",
+   "en": "Peripheral control register",
+   "status": "maschinell"
+  },
+  "/L61": {
+   "de": "Interrupt-Flags",
+   "en": "Interrupt flags",
+   "status": "maschinell"
+  },
+  "/L62": {
+   "de": "Interrupt-Freigabe",
+   "en": "Interrupt enable",
+   "status": "maschinell"
+  },
+  "/L63": {
+   "de": "Port A ohne Handshake",
+   "en": "Port A without handshake",
+   "status": "maschinell"
+  },
+  "/L65": {
+   "de": "VIA 2 (IRQ-Timer, Tastatur)",
+   "en": "VIA 2 (IRQ timer, keyboard)",
+   "status": "maschinell"
+  },
+  "/L66": {
+   "de": "Port B",
+   "en": "Port B",
+   "status": "unverändert"
+  },
+  "/L67": {
+   "de": "Port A",
+   "en": "Port A",
+   "status": "unverändert"
+  },
+  "/L68": {
+   "de": "Datenrichtung B",
+   "en": "Data direction B",
+   "status": "maschinell"
+  },
+  "/L69": {
+   "de": "Datenrichtung A",
+   "en": "Data direction A",
+   "status": "maschinell"
+  },
+  "/L70": {
+   "de": "Timer 1 Zähler niedrig",
+   "en": "Timer 1 counter low",
+   "status": "maschinell"
+  },
+  "/L71": {
+   "de": "Timer 1 Zähler hoch",
+   "en": "Timer 1 counter high",
+   "status": "maschinell"
+  },
+  "/L72": {
+   "de": "Timer 1 Latch niedrig",
+   "en": "Timer 1 latch low",
+   "status": "maschinell"
+  },
+  "/L73": {
+   "de": "Timer 1 Latch hoch",
+   "en": "Timer 1 latch high",
+   "status": "maschinell"
+  },
+  "/L74": {
+   "de": "Timer 2 Zähler niedrig",
+   "en": "Timer 2 counter low",
+   "status": "maschinell"
+  },
+  "/L75": {
+   "de": "Timer 2 Zähler hoch",
+   "en": "Timer 2 counter high",
+   "status": "maschinell"
+  },
+  "/L76": {
+   "de": "Schieberegister",
+   "en": "Shift register",
+   "status": "maschinell"
+  },
+  "/L77": {
+   "de": "Hilfssteuerregister",
+   "en": "Auxiliary control register",
+   "status": "maschinell"
+  },
+  "/L78": {
+   "de": "Peripherie-Steuerregister",
+   "en": "Peripheral control register",
+   "status": "maschinell"
+  },
+  "/L79": {
+   "de": "Interrupt-Flags",
+   "en": "Interrupt flags",
+   "status": "maschinell"
+  },
+  "/L80": {
+   "de": "Interrupt-Freigabe",
+   "en": "Interrupt enable",
+   "status": "maschinell"
+  },
+  "/L81": {
+   "de": "Port A ohne Handshake",
+   "en": "Port A without handshake",
+   "status": "maschinell"
+  },
+  "/L83": {
+   "de": "Farben (Zeichenfarbe 0-7; Hintergrund und Hilfsfarbe 0-15)",
+   "en": "Colors (character color 0-7; background and auxiliary color 0-15)",
+   "status": "maschinell"
+  }
+ }
+}

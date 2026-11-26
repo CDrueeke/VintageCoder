@@ -43,15 +43,15 @@ fn de_u16<'de, D: Deserializer<'de>>(d: D) -> Result<u16, D::Error> {
     #[serde(untagged)]
     enum N { S(String), I(u64) }
     let n = match N::deserialize(d)? {
-        N::S(s) => parse_num(&s).ok_or_else(|| serde::de::Error::custom(format!("ungültige Zahl »{s}«")))?,
+        N::S(s) => parse_num(&s).ok_or_else(|| serde::de::Error::custom(vc_i18n::t!("target-bank-invalid-number", s = s.as_str())))?,
         N::I(i) => i as i64,
     };
-    u16::try_from(n).map_err(|_| serde::de::Error::custom(format!("Wert {n} außerhalb 0..65535")))
+    u16::try_from(n).map_err(|_| serde::de::Error::custom(vc_i18n::t!("target-bank-out-of-range-u16", n = n)))
 }
 
 fn de_u8<'de, D: Deserializer<'de>>(d: D) -> Result<u8, D::Error> {
     let n = de_u16(d)?;
-    u8::try_from(n).map_err(|_| serde::de::Error::custom(format!("Wert {n} außerhalb 0..255")))
+    u8::try_from(n).map_err(|_| serde::de::Error::custom(vc_i18n::t!("target-bank-out-of-range-u8", n = n)))
 }
 
 /// Ein Bit des Banking-Registers
@@ -156,14 +156,14 @@ impl Banking {
     }
     /// Prüft Bereiche und Kennungen; Fehlertext nennt die Stelle
     pub fn validate(&self) -> Result<(), String> {
-        let check = |what: &str, r: &BankRegion| if r.start > r.end { Err(format!("{what}: Anfang ${:04X} hinter Ende ${:04X}", r.start, r.end)) } else { Ok(()) };
+        let check = |what: &str, r: &BankRegion| if r.start > r.end { Err(vc_i18n::t!("target-bank-start-after-end", what = what, start = format!("{:04X}", r.start), end = format!("{:04X}", r.end))) } else { Ok(()) };
         for r in &self.base { check("base", r)?; }
         for (i, p) in self.presets.iter().enumerate() {
-            if self.presets[..i].iter().any(|q| q.id == p.id) { return Err(format!("Preset-Kennung »{}« doppelt", p.id)); }
-            for r in &p.regions { check(&format!("Preset {}", p.id), r)?; }
+            if self.presets[..i].iter().any(|q| q.id == p.id) { return Err(vc_i18n::t!("target-bank-duplicate-preset", id = p.id.as_str())); }
+            for r in &p.regions { check(&vc_i18n::t!("target-bank-preset-label", id = p.id.as_str()), r)?; }
         }
-        if let Some(d) = &self.default { if self.preset(d).is_none() { return Err(format!("Standard-Preset »{d}« fehlt")); } }
-        for b in &self.register.bits { if b.bit > 7 { return Err(format!("Bit {} außerhalb 0..7", b.bit)); } }
+        if let Some(d) = &self.default { if self.preset(d).is_none() { return Err(vc_i18n::t!("target-bank-default-preset-missing", d = d.as_str())); } }
+        for b in &self.register.bits { if b.bit > 7 { return Err(vc_i18n::t!("target-bank-bit-out-of-range", bit = b.bit)); } }
         Ok(())
     }
 }

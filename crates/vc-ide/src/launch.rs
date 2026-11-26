@@ -6,7 +6,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 
 /// Es läuft höchstens ein per F5 gestarteter Emulator; ein neuer Start beendet den alten.
-static RUNNING: Mutex<Option<Child>> = Mutex::new(None);
+static RUNNING: Mutex<Option<Run>> = Mutex::new(None);
 static GENERATION: AtomicU64 = AtomicU64::new(0);
 /// Fehler aus Starts, die im Hintergrund laufen (MEGA65/Xemu: Programm wird erst nach dem Hochfahren geladen); die Oberfläche holt sie ab
 static ASYNC_ERRORS: Mutex<Vec<String>> = Mutex::new(Vec::new());
@@ -17,7 +17,83 @@ pub fn take_errors() -> Vec<String> { std::mem::take(&mut *ASYNC_ERRORS.lock().u
 /// Windows: Pfade mit dem Präfix `\\?\` (aus `canonicalize`) versteht kein Emulator (VICE: „Cannot open file“), deshalb ohne Präfix übergeben.
 fn ohne_praefix(p: &Path) -> std::path::PathBuf { let t = p.to_string_lossy(); match t.strip_prefix(r"\\?\") { Some(r) if !r.starts_with("UNC\\") => std::path::PathBuf::from(r), _ => p.to_path_buf() } }
 
-fn kill(mut c: Child) { let _ = c.kill(); let _ = c.wait(); }
+/// Ein gestarteter Emulator samt seiner Prozessgruppe. Unter macOS/Linux ist `x64sc` oft eine Kette von Shell-Wrappern (`x64sc` → `VICE.sh` → das eigentliche VICE);
+/// beendet man nur den ersten Prozess, bleibt VICE offen. Darum gehört zum Emulator der ganze Nachkommenbaum.
+struct Run { child: Child, /** Prozessgruppe, wenn der Emulator ihr Anführer ist (siehe [`isolate`]) */ grp: Option<i32>, done: Option<std::process::ExitStatus> }
+
+impl Run {
+    fn new(child: Child) -> Run { let grp = own_group(child.id()); Run { child, grp, done: None } }
+    fn id(&self) -> u32 { self.child.id() }
+    /// Wie `Child::try_wait`, meldet das Ende aber erst, wenn auch alle Nachkommen weg sind (ein Wrapper darf nicht vor dem Emulator „enden“)
+    fn try_wait(&mut self) -> std::io::Result<Option<std::process::ExitStatus>> {
+        if self.done.is_none() { self.done = self.child.try_wait()?; }
+        match self.done { Some(st) if !self.group_alive() => Ok(Some(st)), _ => Ok(None) }
+    }
+    fn group_alive(&self) -> bool { self.grp.map_or(false, group_alive) }
+}
+
+/// Setzt den Prozess beim Start in eine eigene Prozessgruppe (Unix), damit sich der ganze Baum gezielt beenden lässt, ohne die Gruppe der IDE zu treffen
+pub fn isolate(cmd: &mut std::process::Command) -> &mut std::process::Command {
+    #[cfg(unix)] { use std::os::unix::process::CommandExt; cmd.process_group(0); }
+    cmd
+}
+
+#[cfg(unix)]
+fn own_group(pid: u32) -> Option<i32> { let p = pid as i32; (unsafe { libc::getpgid(p) } == p).then_some(p) }
+#[cfg(not(unix))]
+fn own_group(_pid: u32) -> Option<i32> { None }
+
+#[cfg(unix)]
+fn group_alive(g: i32) -> bool {
+    // kill(-g, 0) gelingt, solange irgendein Mitglied (auch ein Zombie) da ist; Zombies zählen nicht als lebendig
+    if unsafe { libc::kill(-g, 0) } != 0 { return false; }
+    members(g).iter().any(|(_, st)| !st.starts_with('Z'))
+}
+#[cfg(not(unix))]
+fn group_alive(_g: i32) -> bool { false }
+
+/// `(pid, ppid, pgid, state)` aller Prozesse (`ps`)
+#[cfg(unix)]
+fn ps_all() -> Vec<(i32, i32, i32, String)> {
+    let Ok(o) = std::process::Command::new("ps").args(["-A", "-o", "pid=,ppid=,pgid=,stat="]).stdin(std::process::Stdio::null()).stderr(std::process::Stdio::null()).output() else { return vec![] };
+    String::from_utf8_lossy(&o.stdout).lines().filter_map(|l| { let mut f = l.split_whitespace(); Some((f.next()?.parse().ok()?, f.next()?.parse().ok()?, f.next()?.parse().ok()?, f.next()?.to_string())) }).collect()
+}
+#[cfg(unix)]
+fn members(g: i32) -> Vec<(i32, String)> { ps_all().into_iter().filter(|p| p.2 == g).map(|p| (p.0, p.3)).collect() }
+
+/// Alle Nachkommen von `root` (ohne `root`) und, falls `grp` gesetzt ist, alle Mitglieder der Gruppe
+#[cfg(unix)]
+fn tree(root: i32, grp: Option<i32>) -> Vec<i32> {
+    let all = ps_all();
+    let mut out: Vec<i32> = vec![root];
+    let mut i = 0;
+    while i < out.len() { let p = out[i]; for q in &all { if q.1 == p && !out.contains(&q.0) { out.push(q.0); } } i += 1; }
+    if let Some(g) = grp { for q in &all { if q.2 == g && !out.contains(&q.0) { out.push(q.0); } } }
+    out
+}
+
+/// Beendet den Emulator samt aller Nachkommen: erst SIGTERM, nach kurzer Frist SIGKILL
+fn kill(mut r: Run) {
+    #[cfg(unix)]
+    {
+        // Baum merken, solange die Eltern-Kind-Kette noch besteht (ein beendeter Wrapper hängt seine Kinder an Prozess 1)
+        let pids = tree(r.child.id() as i32, r.grp);
+        for p in &pids { unsafe { libc::kill(*p, libc::SIGTERM); } }
+        let t0 = std::time::Instant::now();
+        while t0.elapsed() < std::time::Duration::from_millis(1500) {
+            let _ = r.child.try_wait();
+            if pids.iter().all(|p| unsafe { libc::kill(*p, 0) } != 0 || zombie(*p)) { break; }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        for p in &pids { unsafe { libc::kill(*p, libc::SIGKILL); } }
+        if let Some(g) = r.grp { unsafe { libc::kill(-g, libc::SIGKILL); } }
+    }
+    #[cfg(windows)]
+    { let _ = std::process::Command::new("taskkill").args(["/T", "/F", "/PID", &r.child.id().to_string()]).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null()).status(); }
+    let _ = r.child.kill(); let _ = r.child.wait();
+}
+#[cfg(unix)]
+fn zombie(p: i32) -> bool { ps_all().iter().any(|q| q.0 == p && q.3.starts_with('Z')) }
 
 /// Beendet den zuletzt gestarteten Emulator (falls er noch läuft); liefert, ob einer beendet wurde.
 pub fn stop_running() -> bool {
@@ -56,8 +132,8 @@ fn pump(mut r: impl std::io::Read + Send + 'static, tail: std::sync::Arc<Mutex<s
 fn spawn_watched(cmd: &str, args: &[String]) -> Result<(), String> { spawn_watched_in(cmd, args, EARLY_EXIT) }
 
 fn spawn_watched_in(cmd: &str, args: &[String], window: std::time::Duration) -> Result<(), String> {
-    let mut child = std::process::Command::new(cmd).args(args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped())
-        .spawn().map_err(|e| format!("{cmd}: {e}"))?;
+    let mut child = isolate(std::process::Command::new(cmd).args(args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped()))
+        .spawn().map_err(|e| vc_i18n::t!("launch-cmd-e", cmd = &cmd, e = &e))?;
     let tail = std::sync::Arc::new(Mutex::new(std::collections::VecDeque::new()));
     if let Some(o) = child.stdout.take() { pump(o, tail.clone()); }
     if let Some(e) = child.stderr.take() { pump(e, tail.clone()); }
@@ -74,10 +150,10 @@ fn spawn_watched_in(cmd: &str, args: &[String], window: std::time::Duration) -> 
                 Ok(Some(st)) => {
                     if st.success() { return; }
                     std::thread::sleep(std::time::Duration::from_millis(200));      // die Lesefäden die letzten Zeilen holen lassen
-                    let code = st.code().map(|c| format!(", Rückgabewert {c}")).unwrap_or_default();
-                    let mut m = format!("Der Emulator hat sich sofort beendet{code}. Fehlende ROM-Dateien? Siehe Einstellungen ▸ ROMs.");
+                    let code = st.code().map(|c| vc_i18n::t!("launch-rueckgabewert-c", c = &c)).unwrap_or_default();
+                    let mut m = vc_i18n::t!("launch-der-emulator-hat-sich-sofort-beendet", code = &code);
                     let lines: Vec<String> = tail.lock().map(|t| t.iter().cloned().collect()).unwrap_or_default();
-                    if !lines.is_empty() { m.push_str("\nAusgabe des Emulators:"); for l in lines { m.push_str(&format!("\n  {}", l.chars().take(300).collect::<String>())); } }
+                    if !lines.is_empty() { m.push_str(&format!("\n{}", vc_i18n::t!("launch-ausgabe-des-emulators"))); for l in lines { m.push_str(&format!("\n  {}", l.chars().take(300).collect::<String>())); } }
                     ASYNC_ERRORS.lock().unwrap_or_else(|e| e.into_inner()).push(m);
                     return;
                 }
@@ -99,7 +175,26 @@ pub fn wait_early_exit(timeout: std::time::Duration) -> Vec<String> {
     }
 }
 
-fn register(c: Child) { if let Ok(mut g) = RUNNING.lock() { *g = Some(c); } else { kill(c); } }
+/// Merkt sich den gestarteten Emulator; ein noch laufender vorheriger wird beendet (sonst bliebe er ohne Handle zurück und ließe sich nicht mehr beenden)
+fn register(c: Child) { let r = Run::new(c); if let Ok(mut g) = RUNNING.lock() { if let Some(old) = g.take() { kill(old); } *g = Some(r); } else { kill(r); } }
+
+/// Für Tests und Prüfbrücke: einen fremden Prozess als „laufenden Emulator“ anmelden
+pub fn adopt(c: Child) { register(c); }
+
+/// Läuft der zuletzt gestartete Emulator noch?
+pub fn is_running() -> bool {
+    let Ok(mut g) = RUNNING.lock() else { return false };
+    match g.as_mut() { Some(c) => matches!(c.try_wait(), Ok(None)), None => false }
+}
+
+/// Ist der zuletzt gestartete Emulator von selbst zu Ende gegangen (vom Nutzer beendet, abgestürzt)? Dann wird er abgemeldet und der Rückgabewert geliefert
+/// (`Some(Some(code))`, `Some(None)` bei Beendigung durch ein Signal); `None`: läuft noch oder es gibt keinen.
+pub fn poll_exit() -> Option<Option<i32>> {
+    let mut g = RUNNING.lock().ok()?;
+    let st = match g.as_mut()?.try_wait() { Ok(Some(st)) => st, _ => return None };
+    *g = None;
+    Some(st.code())
+}
 
 fn which(name: &str, extra: &[&str]) -> Option<String> { vc_emu::find_program(name, extra) }
 
@@ -192,18 +287,18 @@ pub fn spawn(path: &Path, target: &str, atari_variant: &str, extra: &[String]) -
                 }
                 (altirra.clone().unwrap_or_default(), a)
             }
-            "atari8" => (resolve(&settings.emulator_of_kind("atari8", "atari800"), &[]).ok_or_else(|| format!("atari800 nicht gefunden ({} oder Pfad unter Einstellungen eintragen)", vc_emu::install_hint("atari800")))?,
+            "atari8" => (resolve(&settings.emulator_of_kind("atari8", "atari800"), &[]).ok_or_else(|| vc_i18n::t!("launch-atari800-nicht-gefunden-p1-oder-pfad", p1 = vc_emu::install_hint("atari800")))?,
                          if path.extension().map_or(false, |e| e.eq_ignore_ascii_case("car") || e.eq_ignore_ascii_case("rom")) { vec!["-xl".into(), (if atari_variant.to_string() == "ntsc" { "-ntsc" } else { "-pal" }).into(), "-nobasic".into(), "-cart".into(), path.to_string_lossy().into_owned()] } else { vec!["-xl".into(), (if atari_variant.to_string() == "ntsc" { "-ntsc" } else { "-pal" }).into(), "-nobasic".into(), "-run".into(), path.to_string_lossy().into_owned()] }),
             "mega65" => {
                 // Open-ROMs-BASIC versteht `RUN"*"` nicht (Autoload von Diskette scheitert): Xemu starten, das Programm über den Monitor laden
                 // und am SYS-Ziel losrennen lassen; der Monitor-Thread beendet sich danach, Xemu läuft weiter.
                 // unter Windows nur zur Prüfung gelesen (Xemu lädt das Programm selbst)
                 #[cfg_attr(windows, allow(unused_variables))]
-                let prg = std::fs::read(path).map_err(|e| format!("{rel}: {e}"))?;
+                let prg = std::fs::read(path).map_err(|e| vc_i18n::t!("launch-rel-e", rel = &rel, e = &e))?;
                 let xemu = settings.emulator_for("mega65");
                 let rplan = crate::roms::plan("xemu", &crate::roms::store(Some(&project_root_of(path)), Some(&xemu)), &[]);
                 if let Some(e) = rplan.error.clone() { return Err(e); }
-                let rom = rplan.xemu_rom.clone().map(|p| p.to_string_lossy().into_owned()).ok_or("MEGA65-ROM nicht gefunden")?;
+                let rom = rplan.xemu_rom.clone().map(|p| p.to_string_lossy().into_owned()).ok_or(vc_i18n::t!("launch-mega65-rom-nicht-gefunden"))?;
                 let rom_lines = rplan.lines();
                 // Windows: Das Laden über den Monitor startet mit dem Original-ROM nicht (bei $2000-$7FFF liegt das ROM-BASIC darüber); Xemu lädt das PRG selbst und startet es (`-prg`, C65-Modus)
                 #[cfg(windows)]
@@ -220,18 +315,18 @@ pub fn spawn(path: &Path, target: &str, atari_variant: &str, extra: &[String]) -
                     let r = vc_emu::Mega65::launch_xemu_rom(xexe.as_deref(), &rom, &xargs).and_then(|mut m| { #[cfg(not(windows))] { use vc_emu::Backend; m.load_prg(&prg, entry)?; m.cont()?; } let child = m.take_child(); std::mem::forget(m); Ok(child) });   // forget: Drop würde den Monitor-Dialog stören
                     match r {
                         // Wurde inzwischen ein anderer Emulator gestartet oder beendet, verfällt dieser Xemu
-                        Ok(Some(c)) if GENERATION.load(Ordering::SeqCst) != generation => kill(c),
+                        Ok(Some(c)) if GENERATION.load(Ordering::SeqCst) != generation => kill(Run::new(c)),
                         Ok(Some(c)) => register(c),
                         Ok(None) => {}
-                        Err(e) => { eprintln!("MEGA65-Start: {e}"); ASYNC_ERRORS.lock().unwrap_or_else(|x| x.into_inner()).push(format!("MEGA65-Start fehlgeschlagen: {e}")); }
+                        Err(e) => { eprintln!("MEGA65-Start: {e}"); ASYNC_ERRORS.lock().unwrap_or_else(|x| x.into_inner()).push(vc_i18n::t!("launch-mega65-start-fehlgeschlagen-e", e = &e)); }
                     }
                 });
                 #[cfg(windows)]
-                return Ok(with_lines("Xemu (Programm wird mit -prg im C65-Modus geladen und gestartet)".to_string(), &rom_lines));
+                return Ok(with_lines(vc_i18n::t!("launch-xemu-programm-wird-mit-prg-im").to_string(), &rom_lines));
                 #[cfg(not(windows))]
-                return Ok(with_lines(format!("Xemu (Programm wird über den Monitor geladen, Start bei ${entry:04X}; dauert ca. 15 s)"), &rom_lines));
+                return Ok(with_lines(vc_i18n::t!("launch-xemu-programm-wird-ueber-den-monitor", entry = format!("{:04X}", entry)), &rom_lines));
             }
-            _ => { let prog = vice.kind.as_str(); (resolve(&vice, &crate::emulators::search_dirs(&vice.kind).iter().map(String::as_str).collect::<Vec<_>>()).ok_or(format!("{prog} (VICE) nicht gefunden"))?,
+            _ => { let prog = vice.kind.as_str(); (resolve(&vice, &crate::emulators::search_dirs(&vice.kind).iter().map(String::as_str).collect::<Vec<_>>()).ok_or(vc_i18n::t!("launch-prog-vice-nicht-gefunden", prog = &prog))?,
                   if let Some(a) = vic20_cart_arg(path).filter(|_| target == "vic20") { a.to_vec() } else if path.extension().map_or(false, |e| e.eq_ignore_ascii_case("crt")) { vec!["-cartcrt".into(), path.to_string_lossy().into_owned()] } else { vec!["-autostart".into(), path.to_string_lossy().into_owned()] }) }
         };
         // zusätzliche Argumente und ROM aus den Einstellungen
@@ -251,7 +346,7 @@ pub fn spawn(path: &Path, target: &str, atari_variant: &str, extra: &[String]) -
             args.extend(rp.args); args.extend(extra.iter().cloned()); args.extend(user);
         }
         spawn_watched(&cmd, &args)?;
-    Ok(with_lines(format!("{cmd} {}", args.join(" ")), &rom_lines))
+    Ok(with_lines(vc_i18n::t!("launch-cmd-p2", cmd = &cmd, p2 = args.join(" ")), &rom_lines))
 }
 
 /// Meldung des Starts um die ROM-Zeilen (gewählte ROMs mit Herkunft, Warnungen) ergänzen
@@ -262,9 +357,19 @@ fn with_lines(head: String, lines: &[String]) -> String {
 /// Legt ein Diskettenimage im Standard-Emulator des Systems ein (Laufwerk 8 bei VICE, Laufwerk 1 bei atari800/Altirra) und startet ihn; ein
 /// früher gestarteter Emulator wird beendet. Es wird nichts geladen: bei Commodore tippt man `LOAD"*",8,1`, der Atari bootet die Diskette selbst.
 pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<String, String> {
-    let image = &ohne_praefix(image);
-    if target == "mega65" { return Err("MEGA65: Einlegen im Emulator ist noch nicht umgesetzt".into()); }
+    if target == "mega65" { return Err(vc_i18n::t!("launch-mega65-einlegen-im-emulator-ist-noch").into()); }
+    let (cmd, args) = insert_disk_command(image, target, atari_variant)?;
     stop_running();
+    spawn_watched(&cmd, &args)?;
+    Ok(vc_i18n::t!("launch-cmd-p2", cmd = &cmd, p2 = args.join(" ")))
+}
+
+/// Programm und Argumente, mit denen [`insert_disk`] den Emulator startet (ohne ihn zu starten; für Tests und Anzeige).
+/// Atari: atari800 mit `-xl -pal|-ntsc -nobasic` und dem Abbild als Laufwerk 1; Altirra (Windows, wenn gewählt): `/nobasic /disk <Abbild>`.
+/// Der Altirra-Start mit einer Turbo-BASIC-Diskette ist noch nicht gemessen (zu prüfen in einer Windows-Sitzung).
+pub fn insert_disk_command(image: &Path, target: &str, atari_variant: &str) -> Result<(String, Vec<String>), String> {
+    let image = &ohne_praefix(image);
+    if target == "mega65" { return Err(vc_i18n::t!("launch-mega65-einlegen-im-emulator-ist-noch").into()); }
     let settings = crate::settings::effective();
     let img = image.to_string_lossy().into_owned();
     let ctx = crate::args::ArgCtx::from_launch(&project_root_of(image), image, target, atari_variant);
@@ -276,7 +381,7 @@ pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<St
         } else {
             crate::emulators::require("atari800")?;
             let a8 = settings.emulator_of_kind("atari8", "atari800");
-            let prog = resolve(&a8, &[]).ok_or_else(|| format!("atari800 nicht gefunden ({} oder Pfad unter Einstellungen eintragen)", vc_emu::install_hint("atari800")))?;
+            let prog = resolve(&a8, &[]).ok_or_else(|| vc_i18n::t!("launch-atari800-nicht-gefunden-p1-oder-pfad", p1 = vc_emu::install_hint("atari800")))?;
             let mut v: Vec<String> = vec!["-xl".into(), (if atari_variant == "ntsc" { "-ntsc" } else { "-pal" }).into(), "-nobasic".into()];
             let user = a8.launch_args(&ctx)?;
             v.extend(crate::roms::plan("atari800", &crate::roms::store(Some(&project_root_of(image)), Some(&a8)), &user).args);
@@ -287,7 +392,7 @@ pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<St
     } else {
         let vice = settings.vice_for(target);
         crate::emulators::require(&vice.kind)?;
-        let prog = resolve(&vice, &crate::emulators::search_dirs(&vice.kind).iter().map(String::as_str).collect::<Vec<_>>()).ok_or(format!("{} (VICE) nicht gefunden", vice.kind))?;
+        let prog = resolve(&vice, &crate::emulators::search_dirs(&vice.kind).iter().map(String::as_str).collect::<Vec<_>>()).ok_or(vc_i18n::t!("launch-p1-vice-nicht-gefunden", p1 = &vice.kind))?;
         let mut v: Vec<String> = vec!["-8".into(), img];
         let user = vice.launch_args(&ctx)?;
         v.extend(crate::roms::plan(&vice.kind, &crate::roms::store(Some(&project_root_of(image)), Some(&vice)), &user).args);
@@ -295,8 +400,7 @@ pub fn insert_disk(image: &Path, target: &str, atari_variant: &str) -> Result<St
         (prog, v)
     };
     args.retain(|a| !a.is_empty());
-    spawn_watched(&cmd, &args)?;
-    Ok(format!("{cmd} {}", args.join(" ")))
+    Ok((cmd, args))
 }
 
 /// Startet `path` auf einer echten Maschine aus den Einstellungen: Ultimate 64 (REST: Reset, Laden, RUN) bzw. MEGA65 (Monitor über die serielle Schnittstelle).
@@ -307,22 +411,22 @@ pub fn run_on_machine(m: &crate::settings::Machine, path: &Path, target: &str) -
     let prg = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
     match m.kind.as_str() {
         "ultimate64" => {
-            if target != "c64" { return Err("Die Ultimate-Hardware spielt nur C64-Programme".into()); }
+            if target != "c64" { return Err(vc_i18n::t!("launch-die-ultimate-hardware-spielt-nur-c64").into()); }
             let ext = path.extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
-            if ext != "prg" && ext != "crt" { return Err("Auf der Ultimate lassen sich nur .prg-Programme und .crt-Module starten (keine Diskette)".into()); }
+            if ext != "prg" && ext != "crt" { return Err(vc_i18n::t!("launch-auf-der-ultimate-lassen-sich-nur").into()); }
             let mut u = vc_emu::Ultimate64::connect(m.host.trim(), Some(m.password.as_str()))?;
             let who = if m.name.is_empty() { &m.host } else { &m.name };
             if ext == "crt" {
                 // Ein Modul startet immer mit Reset und läuft sofort (run_crt); „nur laden“ gibt es dafür nicht
                 u.run_crt(&prg)?;
-                return Ok(format!("{who}: Modul gestartet ({} Bytes)", prg.len()));
+                return Ok(vc_i18n::t!("launch-who-modul-gestartet-p2-bytes", who = &who, p2 = prg.len()));
             }
             if m.reset_before { u.reset()?; }
             if m.run_after { u.run_prg(&prg)?; } else { u.load_prg(&prg)?; }
-            Ok(format!("{who}: Programm gestartet ({} Bytes)", prg.len()))
+            Ok(vc_i18n::t!("launch-who-programm-gestartet-p2-bytes", who = &who, p2 = prg.len()))
         }
         "mega65" => {
-            if target != "mega65" { return Err("Die MEGA65-Hardware spielt nur MEGA65-Programme".into()); }
+            if target != "mega65" { return Err(vc_i18n::t!("launch-die-mega65-hardware-spielt-nur-mega65").into()); }
             // Ethernet (etherload / mega65_ftp), UNGEPRÜFT: eine Diskette wird kopiert und eingebunden, ein Programm geladen und gestartet
             if m.link_for(crate::mega65net::Action::Start) == crate::mega65net::Link::Eth {
                 let ext = path.extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
@@ -334,9 +438,9 @@ pub fn run_on_machine(m: &crate::settings::Machine, path: &Path, target: &str) -
             let entry = crate::debug::sys_target(&prg).unwrap_or(load);
             { use vc_emu::Backend; mm.load_prg(&prg, entry)?; if m.run_after { mm.cont()?; } }
             std::mem::forget(mm);   // wie beim Xemu: Drop würde den Monitor-Dialog stören
-            Ok(format!("{}: Programm gestartet, Start bei ${entry:04X}", if m.name.is_empty() { &m.device } else { &m.name }))
+            Ok(vc_i18n::t!("launch-p1-programm-gestartet-start-bei-entry", p1 = if m.name.is_empty() { &m.device } else { &m.name }, entry = format!("{:04X}", entry)))
         }
-        k => Err(format!("unbekannter Maschinentyp '{k}'")),
+        k => Err(vc_i18n::t!("launch-unbekannter-maschinentyp-k", k = &k)),
     }
 }
 
@@ -345,8 +449,8 @@ pub fn run_on_machine(m: &crate::settings::Machine, path: &Path, target: &str) -
 pub fn run_disk_on_machine(m: &crate::settings::Machine, disk: &Path, prg: &Path, target: &str) -> Result<String, String> {
     let (disk, prg) = (&ohne_praefix(disk), &ohne_praefix(prg));
     crate::emulators::require_device(&m.kind)?;
-    if m.kind != "mega65" || target != "mega65" { return Err("Diskette auf Hardware starten gibt es nur für den MEGA65".into()); }
-    if m.link_for(crate::mega65net::Action::Start) != crate::mega65net::Link::Eth { return Err("Eine Diskette lässt sich nur über Ethernet auf den MEGA65 bringen (Einstellungen → Hardware, Verbindung „Starten“)".into()); }
+    if m.kind != "mega65" || target != "mega65" { return Err(vc_i18n::t!("launch-diskette-auf-hardware-starten-gibt-es").into()); }
+    if m.link_for(crate::mega65net::Action::Start) != crate::mega65net::Link::Eth { return Err(vc_i18n::t!("launch-eine-diskette-laesst-sich-nur-ueber").into()); }
     stop_running();
     crate::mega65net::start_disk(m, disk, prg)
 }
@@ -367,6 +471,7 @@ mod early_exit_tests {
     /// Die Tests teilen die Meldungsliste und das laufende Programm; deshalb nacheinander
     #[test]
     fn immediate_exit_reports_last_output_and_hint_others_stay_silent() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         take_errors();
         spawn_watched_in("sh", &sh("echo \"Couldn't load kernal ROM\" >&2; echo zweite zeile; exit 1"), Duration::from_secs(3)).unwrap();
         let v = wait_early_exit(Duration::from_secs(6));
@@ -383,5 +488,87 @@ mod early_exit_tests {
         // später Abbruch (nach dem Fenster): still
         spawn_watched_in("sh", &sh("sleep 1.5; exit 3"), Duration::from_millis(500)).unwrap();
         assert!(wait_early_exit(Duration::from_millis(2500)).is_empty());
+    }
+}
+
+/// Die Tests teilen das laufende Programm und die Meldungsliste und laufen deshalb nacheinander
+#[cfg(test)]
+static TEST_LOCK: Mutex<()> = Mutex::new(());
+
+#[cfg(all(test, unix))]
+mod ende_tests {
+    use super::*;
+    #[test] fn poll_exit_meldet_das_ende_eines_selbst_beendeten_prozesses_und_register_beendet_den_alten() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        stop_running();
+        adopt(std::process::Command::new("sh").args(["-c", "exit 3"]).spawn().unwrap());
+        let t0 = std::time::Instant::now(); let mut r = None;
+        while t0.elapsed().as_secs() < 5 { r = poll_exit(); if r.is_some() { break; } std::thread::sleep(std::time::Duration::from_millis(50)); }
+        assert_eq!(r, Some(Some(3)), "Rückgabewert kommt an"); assert!(!is_running() && poll_exit().is_none(), "danach abgemeldet");
+        // zweiter Start ersetzt den ersten: der erste wird beendet, nicht vergessen
+        let a = std::process::Command::new("sleep").arg("30").spawn().unwrap(); let pid_a = a.id(); adopt(a);
+        adopt(std::process::Command::new("sleep").arg("30").spawn().unwrap());
+        std::thread::sleep(std::time::Duration::from_millis(200));
+        let lebt = std::process::Command::new("kill").args(["-0", &pid_a.to_string()]).status().map(|s| s.success()).unwrap_or(false);
+        assert!(!lebt, "der ersetzte Prozess läuft nicht mehr");
+        assert!(is_running() && stop_running() && !is_running());
+    }
+
+    fn lebt(pid: i32) -> bool { let a = unsafe { libc::kill(pid, 0) } == 0; a && !zombie(pid) }
+    fn pid_aus(c: &mut std::process::Child) -> i32 {
+        // die Prozess-ID des innersten `sleep` aus der Ausgabe des Platzhalters lesen
+        use std::io::BufRead; let mut l = String::new(); std::io::BufReader::new(c.stdout.take().unwrap()).read_line(&mut l).unwrap(); l.trim().parse().unwrap()
+    }
+    fn kette() -> std::process::Child {
+        // wie VICE unter macOS: Wrapper → Wrapper → eigentlicher Prozess; der innerste meldet seine Nummer
+        let mut cmd = std::process::Command::new("sh");
+        cmd.args(["-c", "sh -c 'sh -c \"echo \\$\\$; sleep 30; true\"; true'; true"]).stdout(std::process::Stdio::piped()).stdin(std::process::Stdio::null());
+        isolate(&mut cmd).spawn().unwrap()
+    }
+
+    #[test] fn beenden_trifft_die_ganze_wrapper_kette() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        stop_running();
+        let mut c = kette(); let innen = pid_aus(&mut c); adopt(c);
+        assert!(lebt(innen) && is_running());
+        assert!(stop_running());
+        std::thread::sleep(std::time::Duration::from_millis(200));
+        assert!(!lebt(innen), "der innerste Prozess ist beendet");
+        assert!(!is_running());
+    }
+
+    #[test] fn ein_neuer_start_beendet_die_ganze_alte_kette() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        stop_running();
+        let mut a = kette(); let innen = pid_aus(&mut a); adopt(a);
+        adopt(std::process::Command::new("sleep").arg("30").spawn().unwrap());
+        std::thread::sleep(std::time::Duration::from_millis(200));
+        assert!(!lebt(innen), "der alte innerste Prozess ist beendet");
+        assert!(stop_running());
+    }
+
+    #[test] fn ohne_eigene_gruppe_wird_der_baum_ueber_die_eltern_kette_beendet() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        stop_running();
+        let mut cmd = std::process::Command::new("sh");
+        cmd.args(["-c", "sh -c \"echo \\$\\$; sleep 30; true\"; true"]).stdout(std::process::Stdio::piped()).stdin(std::process::Stdio::null());
+        let mut c = cmd.spawn().unwrap(); let innen = pid_aus(&mut c); adopt(c);
+        assert!(stop_running());
+        std::thread::sleep(std::time::Duration::from_millis(200));
+        assert!(!lebt(innen));
+    }
+
+    #[test] fn ende_wird_erst_gemeldet_wenn_auch_die_nachkommen_weg_sind() {
+        let _l = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        stop_running();
+        // der Wrapper endet sofort, der eigentliche Prozess läuft weiter
+        let mut cmd = std::process::Command::new("sh");
+        cmd.args(["-c", "sleep 1.5 & exit 0"]).stdin(std::process::Stdio::null());
+        adopt(isolate(&mut cmd).spawn().unwrap());
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        assert!(poll_exit().is_none() && is_running(), "läuft, solange ein Nachkomme lebt");
+        let t0 = std::time::Instant::now(); let mut r = None;
+        while t0.elapsed().as_secs() < 6 { r = poll_exit(); if r.is_some() { break; } std::thread::sleep(std::time::Duration::from_millis(100)); }
+        assert_eq!(r, Some(Some(0)));
     }
 }

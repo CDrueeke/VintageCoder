@@ -1,8 +1,8 @@
 ; gfx_demo.asm – Zeichensatz, Bildschirm und Kachelkarte aus den Editor-Exporten laden (C64)
 ;
 ; Zweck: zeigt, wie Grafikdaten aus den Editoren (Zeichensatz-, Bildschirm- und Kachel-Editor) in ein Programm kommen: Die Daten
-;   liegen als Projektdateien in graphics/ (font.vcchar, title.vcscreen, level_tiles.vctiles, level.vcscreen); beim Bauen entstehen
-;   daraus Assemblerquelltexte build/export/*.asm, die dieses Programm einbindet. Die Hilfsmakros stehen in lib/gfx.inc.
+;   liegen als Projektdateien in graphics/ (font.vcchar, title.vcscreen, level_tiles.vctiles, level.vcscreen); beim Bauen wandelt der
+;   Assembler sie dort, wo dieses Programm sie einbindet, selbst in Assemblertext um. Die Hilfsmakros stehen in lib/gfx.inc.
 ;
 ; Vorbereitung: `vcc build examples/c64/gfx_demo` erledigt den Export selbst. Von Hand: im Editor exportieren oder
 ;   `vcc media export graphics/<name>.vc<art>` (title, level_tiles = Kachelsatz, level = Screen-Bank). Dann PRG laden, RUN.
@@ -46,9 +46,9 @@ start:  sei
 done:   jmp done                ; Endlosschleife: das Bild bleibt stehen
 
 gfx_runtime                     ; Unterprogramm gfx_memcpy der Kopier-Makros (hinter dem Hauptprogramm, wird nicht ausgeführt)
-.include "build/export/title.asm"       ; Daten: title_chars, title_attrs (je 1000 Bytes) und Konstanten title_border, title_bg
-.include "build/export/level_tiles.asm" ; Kachelsatz level_tiles (2x2): Tabellen _c0.._c3, _col, _props, level_tiles_chars (2048 Bytes)
-.include "build/export/level.asm"       ; Screen-Bank level: Kartenfeld, Adresstabellen level_screens_lo/_hi und Konstanten level_*
+.include "graphics/title.vcscreen"       ; Daten: title_chars, title_attrs (je 1000 Bytes) und Konstanten title_border, title_bg
+.include "graphics/level_tiles.vctiles" ; Kachelsatz level_tiles (2x2): Tabellen _c0.._c3, _col, _props, level_tiles_chars (2048 Bytes)
+.include "graphics/level.vcscreen"       ; Screen-Bank level: Kartenfeld, Adresstabellen level_screens_lo/_hi und Konstanten level_*
 
 ; Kachel-Bibliothek: Satz level_tiles (2x2) und Screen-Bank level binden, dann die Unterprogramme
         tiles_use level_tiles_c0, level_tiles_col, level_tiles_props, level_tiles_tw, level_tiles_th, level_tiles_count, level_screens_lo, level_screens_hi, level_level_tiles_w, level_level_tiles_h

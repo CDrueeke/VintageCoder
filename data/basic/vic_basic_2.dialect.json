@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vintagecoder.dev/schema/basic-dialect-1.json",
+  "id": "vic_basic_2",
+  "name": "VIC-BASIC 2.0",
+  "family": "cbm",
+  "kind": "builtin",
+  "base": "cbm_v2",
+  "systems": ["vic20"],
+  "backend": "linked_lines",
+  "loadAddr": "$1001",
+  "maxLineLen": 88,
+  "provenance": {"source": "Wörter wie cbm_v2 (petcat 3.10 -k2: Basic v2.0 C64/VIC20/PET); Zeilenlänge 4 x 22 Zeichen des VC-20-Bildschirms; Ladeadresse je Speicherausbau steht im Target (vic20)", "checked": "2026-11-22"},
+  "tokens": []
+}

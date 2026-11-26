@@ -30,9 +30,30 @@ pub struct KnownRom {
     pub sets: serde_json::Map<String, serde_json::Value>,
 }
 
+/// Teil eines kombinierten Abbilds: Bytebereich und Ziel (System + Rolle)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Part { pub offset: usize, pub size: usize, pub system: String, pub role: String }
+
+/// Kombiniertes Abbild: mehrere ROM-Chips in einer Datei (z. B. C64C: BASIC + KERNAL). Wird beim Import in seine Teile geteilt;
+/// steht nicht in `roms`, ist also selbst nie eine Rolle.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Combined {
+    pub id: String,
+    pub label: String,
+    pub size: usize,
+    pub crc32: String,
+    pub sha1: String,
+    pub parts: Vec<Part>,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub note: String,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct KnownTable {
     pub format: u32,
+    /// kombinierte Abbilder, am Ende der Datei
+    #[serde(default)]
+    pub combined: Vec<Combined>,
     pub roms: Vec<KnownRom>,
 }
 
@@ -43,9 +64,12 @@ impl KnownTable {
     pub fn builtin() -> KnownTable { Self::parse(BUILTIN).expect("data/roms/known.json ist gültig") }
 
     pub fn parse(text: &str) -> Result<KnownTable, String> {
-        let t: KnownTable = serde_json::from_str(text).map_err(|e| format!("known.json: {e}"))?;
-        if t.format != 1 { return Err(format!("known.json: Format {} wird nicht unterstützt", t.format)); }
-        if let Some(k) = t.roms.iter().find(|k| k.uses.is_empty()) { return Err(format!("known.json: {} ohne \"uses\"", k.id)); }
+        let mut v: serde_json::Value = serde_json::from_str(text).map_err(|e| format!("known.json: {e}"))?;
+        vc_i18n::localize_json(&mut v, "roms/known.json");
+        let t: KnownTable = serde_json::from_value(v).map_err(|e| format!("known.json: {e}"))?;
+        if t.format != 1 { return Err(vc_i18n::t!("roms-known-format", format = t.format)); }
+        if let Some(k) = t.roms.iter().find(|k| k.uses.is_empty()) { return Err(vc_i18n::t!("roms-known-no-uses", id = &k.id)); }
+        if let Some(c) = t.combined.iter().find(|c| c.parts.is_empty() || c.parts.iter().any(|p| p.size == 0 || p.offset + p.size > c.size)) { return Err(vc_i18n::t!("roms-known-bad-parts", id = &c.id)); }
         Ok(t)
     }
 
@@ -57,6 +81,12 @@ impl KnownTable {
     pub fn find(&self, size: usize, crc32: u32, sha1: &str) -> Option<&KnownRom> {
         let crc = format!("{crc32:08X}");
         self.roms.iter().find(|k| k.size == size && k.crc32.eq_ignore_ascii_case(&crc) && k.sha1.eq_ignore_ascii_case(sha1))
+    }
+
+    /// Kombiniertes Abbild mit dieser Größe und Prüfsumme
+    pub fn find_combined(&self, size: usize, crc32: u32, sha1: &str) -> Option<&Combined> {
+        let crc = format!("{crc32:08X}");
+        self.combined.iter().find(|k| k.size == size && k.crc32.eq_ignore_ascii_case(&crc) && k.sha1.eq_ignore_ascii_case(sha1))
     }
 
     /// Eintrag hinzufügen oder (gleiche Prüfsumme) um weitere Verwendungen ergänzen
@@ -77,7 +107,15 @@ impl KnownTable {
             s.push_str(&serde_json::to_string(r).unwrap());
             s.push_str(if i + 1 < roms.len() { ",\n" } else { "\n" });
         }
-        s.push_str("  ] }\n");
+        if self.combined.is_empty() { s.push_str("  ] }\n"); } else {
+            s.push_str("  ],\n  \"combined\": [\n");
+            for (i, c) in self.combined.iter().enumerate() {
+                s.push_str("    ");
+                s.push_str(&serde_json::to_string(c).unwrap());
+                s.push_str(if i + 1 < self.combined.len() { ",\n" } else { "\n" });
+            }
+            s.push_str("  ] }\n");
+        }
         s
     }
 }
@@ -103,7 +141,7 @@ mod tests {
 
     #[test]
     fn roundtrip_und_zusammenfuehren() {
-        let mut t = KnownTable { format: 1, roms: vec![] };
+        let mut t = KnownTable { format: 1, combined: vec![], roms: vec![] };
         let k = KnownRom { id: "a".into(), label: "A".into(), size: 8192, crc32: "DBE3E7C7".into(), sha1: "x".repeat(40), uses: vec![Use { system: "c64".into(), role: "kernal".into() }], default: true, free: false, note: String::new(), sets: Default::default() };
         t.merge(k.clone());
         t.merge(KnownRom { uses: vec![Use { system: "c128".into(), role: "kernal64".into() }], ..k });
@@ -113,6 +151,15 @@ mod tests {
         assert_eq!(back.roms, t.roms);
         assert_eq!(back.roms[0].use_for(Some("c128")).role, "kernal64");
         assert_eq!(back.roms[0].use_for(Some("vic20")).role, "kernal");
+    }
+
+    #[test]
+    fn kombinierte_abbilder_bleiben_beim_schreiben_erhalten_und_ungueltige_teile_werden_abgelehnt() {
+        let c = Combined { id: "c".into(), label: "C".into(), size: 16384, crc32: "00000000".into(), sha1: "y".repeat(40), note: String::new(), parts: vec![Part { offset: 8192, size: 8192, system: "c64".into(), role: "kernal".into() }] };
+        let t = KnownTable { format: 1, roms: vec![], combined: vec![c.clone()] };
+        assert_eq!(KnownTable::parse(&t.to_json()).unwrap().combined, vec![c.clone()]);
+        let bad = Combined { parts: vec![Part { offset: 8193, size: 8192, ..c.parts[0].clone() }], ..c };
+        assert!(KnownTable::parse(&KnownTable { format: 1, roms: vec![], combined: vec![bad] }.to_json()).is_err());
     }
 
     #[test]

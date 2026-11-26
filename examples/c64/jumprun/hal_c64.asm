@@ -2,7 +2,7 @@
 ; hal_c64.asm - Hardware-Schicht (HAL) des C64 fuer "Hugo & Gumbo"
 ; =====================================================================================================================
 ;
-; Die Spiellogik (common/jumprun/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
+; Die Spiellogik (lib/core.asm) kennt keine Hardware. Diese Datei uebersetzt ihre Wuensche in Zugriffe auf
 ; die C64-Chips.
 ;
 ; SCHNITTSTELLE (vollstaendig in core.asm beschrieben; hier, was diese HAL dazu liefert und braucht)
@@ -60,7 +60,6 @@
 .const ENEMY_BASE_PTR = $bc      ; $2f00 / 64
 .const ENEMY_OVER_PTR = $c2      ; $3080 / 64
 
-; ---------------------------------------------------------------- Start
 ; ---------------------------------------------------------------- Start
 ; hal_init: richtet den VIC, den Interrupt und die Sprites einmal beim Programmstart ein.  Gibt den Interrupt noch NICHT frei
 ;           (das macht das Hauptprogramm mit cli, nachdem auch die Musik initialisiert ist).

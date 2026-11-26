@@ -5,8 +5,10 @@ Zu VintageCoder gehört ein Sprachserver, `vc-lsp`. Er spricht das Language Serv
 ## Was er kann
 
 - Fehler und Warnungen des Assemblers beim Tippen (Diagnosen)
-- Hover: bei Zahlen der Wert in mehreren Schreibweisen und, wenn die Zahl eine Chip-Adresse ist, das passende Register; bei Befehlen die Erklärung mit Flags und Opcodes; bei Direktiven ihre Beschreibung
-- Vervollständigung (auch nach `.` und `$`)
+- Hover: bei Zahlen der Wert in mehreren Schreibweisen und, wenn die Zahl eine Chip-Adresse ist, das passende Register; bei Befehlen die Erklärung mit Flags und Opcodes; bei Direktiven ihre Beschreibung (auch auf einem alten Namen; darunter „Auch: …“)
+- Vervollständigung (auch nach `.` und `$`); Direktiven stehen mit dem kanonischen Namen oben, alte Namen (`.pseudopc`, `.rta` …) danach mit dem Hinweis auf den neuen
+- Quick-Fix „Kanonischen Namen verwenden“ (`textDocument/codeAction`): ersetzt alte Direktivennamen je Zeile oder in der ganzen Datei; es gibt keine Diagnose dafür, die alten Namen bleiben gleichwertig
+- Namenstabelle der Direktiven: `data/asm/directives.json` (eine Quelle für Assembler, Sprachserver, Faltung und Hilfe)
 - Gehe zu Definition
 - Gliederung der Datei (Symbole)
 

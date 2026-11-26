@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Wird von Tauri in die Info.plist der macOS-App eingemischt. Ohne diese Angaben gilt die App als „English“-only: VoiceOver und das System behandeln sie dann als englische Anwendung. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleDevelopmentRegion</key><string>de</string>
+  <key>CFBundleLocalizations</key><array><string>de</string><string>en</string></array>
+</dict></plist>

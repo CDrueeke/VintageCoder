@@ -147,7 +147,7 @@ impl App {
         let Some(s) = self.banken.get_mut(rel) else { return }; let d = &mut s.doc;
         match a {
             BAkt::Undo => d.rueckgaengig(), BAkt::Redo => d.wiederholen(),
-            BAkt::Speichern => match d.speichern() { Ok(()) => self.log.push(format!("Gespeichert: {rel}")), Err(e) => self.log.push(e) },
+            BAkt::Speichern => match d.speichern() { Ok(()) => self.log.push(vc_i18n::t!("bankstudio-gespeichert-rel", rel = &rel)), Err(e) => self.log.push(e) },
             BAkt::Modus(m) => d.modus_waehlen(m), BAkt::Werkzeug(w) => d.werkzeug_waehlen(w), BAkt::Gefuellt(b) => d.gefuellt = b,
             BAkt::Screen(i) => d.screen_waehlen(i), BAkt::ScreenNeu => d.screen_neu(), BAkt::ScreenDupl => d.screen_duplizieren(), BAkt::ScreenLoeschen => d.screen_loeschen(), BAkt::ScreenVor(x) => d.screen_verschieben(x), BAkt::ScreenName(n) => d.screen_umbenennen(&n, false),
             BAkt::Groesse(w, h, ox, oy, e) => d.screen_groesse(w, h, ox, oy, e), BAkt::Farbe(r, i) => d.screen_farbe(r, i), BAkt::Satz(p) => d.satz_waehlen(&p),
@@ -193,7 +193,7 @@ impl App {
 
     pub(crate) fn bank_a11y(&self) -> Option<(String, String)> {
         let n = self.name()?; let s = self.banken.get(&n)?; let d = &s.doc; let sc = d.screen()?;
-        Some((format!("Screen-Bank {n}"), format!("Screen {} von {} „{}“, {}×{} Zellen, {} Patches, Modus {:?}, Werkzeug {:?}, Kachelsatz {}", d.cur + 1, d.bank.screens.len(), sc.name, sc.w, sc.h, sc.patches.len(), d.modus, d.werkzeug, d.bank.tilesets.first().cloned().unwrap_or_default())))
+        Some((vc_i18n::t!("bankstudio-screen-bank-n", n = &n), vc_i18n::t!("bankstudio-beschreibung", cur = d.cur + 1, n = d.bank.screens.len(), name = &sc.name, w = sc.w, h = sc.h, patches = sc.patches.len(), modus = d.modus.label(), werkzeug = d.werkzeug.label(), satz = d.bank.tilesets.first().cloned().unwrap_or_default())))
     }
 
     pub(crate) fn bank_ansicht(&self, pal: Pal, rel: &str) -> Element<'_, Msg> {
@@ -204,15 +204,15 @@ impl App {
     fn bank_ansicht_k(&self, pal: Pal, rel: &str, klasse: muster::Klasse, breite: f32) -> Element<'_, Msg> {
         let Some(s) = self.banken.get(rel) else { return text("").into() }; let d = &s.doc; let r = rel.to_string();
         let norm = self.norm_fuer(&d.target, s.ansicht); let farben: &Farben = &self.farben; let rgb = |i: usize| farben.rgb(&d.target, norm, i);
-        let tb = |name: &str, tipp: &str, an: bool, a: BAkt, aktiv: bool| -> Element<Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::BankAkt(r.clone(), a)), aktiv, false) };
+        let tb = |name: &str, tipp: &str, an: bool, a: BAkt, aktiv: bool| -> Element<'static, Msg> { muster::knopf(pal, name, tipp, an.then(|| Msg::BankAkt(r.clone(), a)), aktiv, false) };
         let kopf = |t: &str| text(t.to_string()).size(muster::schrift::HINWEIS).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute);
         // Zone 2: genau eine Leistenreihe: Modus · Werkzeuge · Bearbeiten · Ansicht; bei weniger Breite stehen Werkzeuge und Ansicht im ⋯-Menü
-        let modus = iced::widget::row![tb("Kacheln", "Kachelmodus (Tab wechselt)", true, BAkt::Modus(Modus::Kachel), d.modus == Modus::Kachel), tb("Zeichen", "Zeichenmodus: freie Zellen über den Kacheln (Tab wechselt)", true, BAkt::Modus(Modus::Zelle), d.modus == Modus::Zelle)].spacing(4);
-        let werkzeuge = || { let mut z = iced::widget::row![].spacing(4).align_y(Alignment::Center); for (w, n) in d.werkzeuge() { z = z.push(tb(n, &format!("{n}{}", werkzeug_taste(*w).map(|k| format!(" ({k})")).unwrap_or_default()), true, BAkt::Werkzeug(*w), d.werkzeug == *w)) } z };
-        let bearbeiten = iced::widget::row![tb("↶", "Rückgängig (Cmd+Z)", d.kann_undo(), BAkt::Undo, false), tb("↷", "Wiederholen (Cmd+Umschalt+Z)", d.kann_redo(), BAkt::Redo, false)].spacing(4);
-        let ansicht = || iced::widget::row![tb("−", "Verkleinern (−, Cmd+Mausrad)", true, BAkt::Zoom(-1), false), tb("+", "Vergrößern (+, Cmd+Mausrad)", true, BAkt::Zoom(1), false), tb("Einpassen", "Fläche einpassen (0)", true, BAkt::Einpassen, s.zoomansicht.zoom.is_none()),
-            tb("▦", "Kachelgrenzen zeigen", true, BAkt::Kachelgrenzen(!s.kachelgrenzen), s.kachelgrenzen), tb("▤", "Zellgitter zeigen", true, BAkt::Gitter(!s.zellgitter), s.zellgitter)].spacing(4).align_y(Alignment::Center);
-        let mehr_knopf = tb("⋯", "Werkzeuge und Ansicht · alle Aktionen: Menü-Taste oder Umschalt+F10", true, BAkt::Mehr, s.mehr);
+        let modus = iced::widget::row![tb(&vc_i18n::t!("bankstudio-kacheln"), &vc_i18n::t!("bankstudio-kachelmodus-tab-wechselt"), true, BAkt::Modus(Modus::Kachel), d.modus == Modus::Kachel), tb(&vc_i18n::t!("bankstudio-zeichen"), &vc_i18n::t!("bankstudio-zeichenmodus-freie-zellen-ueber-den-kacheln"), true, BAkt::Modus(Modus::Zelle), d.modus == Modus::Zelle)].spacing(4);
+        let werkzeuge = || { let mut z = iced::widget::row![].spacing(4).align_y(Alignment::Center); for (w, n) in d.werkzeuge().iter() { z = z.push(tb(n, &format!("{n}{}", werkzeug_taste(*w).map(|k| format!(" ({k})")).unwrap_or_default()), true, BAkt::Werkzeug(*w), d.werkzeug == *w)) } z };
+        let bearbeiten = iced::widget::row![tb("↶", &vc_i18n::t!("bankstudio-rueckgaengig-cmd-z"), d.kann_undo(), BAkt::Undo, false), tb("↷", &vc_i18n::t!("bankstudio-wiederholen-cmd-umschalt-z"), d.kann_redo(), BAkt::Redo, false)].spacing(4);
+        let ansicht = || iced::widget::row![tb("−", &vc_i18n::t!("bankstudio-verkleinern-cmd-mausrad"), true, BAkt::Zoom(-1), false), tb("+", &vc_i18n::t!("bankstudio-vergroessern-cmd-mausrad"), true, BAkt::Zoom(1), false), tb(&vc_i18n::t!("bankstudio-einpassen"), &vc_i18n::t!("bankstudio-flaeche-einpassen-0"), true, BAkt::Einpassen, s.zoomansicht.zoom.is_none()),
+            tb("▦", &vc_i18n::t!("bankstudio-kachelgrenzen-zeigen"), true, BAkt::Kachelgrenzen(!s.kachelgrenzen), s.kachelgrenzen), tb("▤", &vc_i18n::t!("bankstudio-zellgitter-zeigen"), true, BAkt::Gitter(!s.zellgitter), s.zellgitter)].spacing(4).align_y(Alignment::Center);
+        let mehr_knopf = tb("⋯", &vc_i18n::t!("bankstudio-werkzeuge-und-ansicht-alle-aktionen-menue"), true, BAkt::Mehr, s.mehr);
         // zu schmal für acht Werkzeuge in der Leiste (auch „mittel“ unter ~780 px): Werkzeuge und Ansicht im ⋯-Menü
         let kompakt = klasse == muster::Klasse::Schmal || (klasse == muster::Klasse::Mittel && breite < 780.0) || (klasse == muster::Klasse::Breit && breite < 1180.0);
         let leiste_inhalt: Element<Msg> = match klasse {
@@ -224,41 +224,41 @@ impl App {
         };
         let leiste = muster::leiste(pal, leiste_inhalt);
         // Zone 3: Liste der Screens (Name, Reihenfolge, Neu/Duplizieren/Löschen)
-        let mut liste = iced::widget::column![text(format!("Screens · {}", d.bank.screens.len())).size(muster::schrift::KARTE).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute)].spacing(4);
-        liste = liste.push(iced::widget::row![tb("Neu", "Leerer Screen in Größe und Farben des aktuellen", true, BAkt::ScreenNeu, false), tb("Dupl.", "Screen kopieren", true, BAkt::ScreenDupl, false), tb("Löschen", "Screen entfernen (Rückgängig stellt ihn wieder her)", d.bank.screens.len() > 1, BAkt::ScreenLoeschen, false)].spacing(4));
+        let mut liste = iced::widget::column![text(vc_i18n::t!("bankstudio-screens-p1", p1 = d.bank.screens.len())).size(muster::schrift::KARTE).font(vc_gui_ui::fonts::UI_FETT).color(pal.mute)].spacing(4);
+        liste = liste.push(iced::widget::row![tb(&vc_i18n::t!("bankstudio-neu"), &vc_i18n::t!("bankstudio-leerer-screen-in-groesse-und-farben"), true, BAkt::ScreenNeu, false), tb(&vc_i18n::t!("bankstudio-dupl"), &vc_i18n::t!("bankstudio-screen-kopieren"), true, BAkt::ScreenDupl, false), tb(&vc_i18n::t!("bankstudio-loeschen"), &vc_i18n::t!("bankstudio-screen-entfernen-rueckgaengig-stellt-ihn-wieder"), d.bank.screens.len() > 1, BAkt::ScreenLoeschen, false)].spacing(4));
         // Miniaturen der Screens (nur neu gerechnet, wenn sich der Inhalt ändert)
         { let stand = d.stand(); let mut m = s.minis.borrow_mut(); if m.0 != stand || m.1.len() != d.bank.screens.len() { m.1 = (0..d.bank.screens.len()).map(|i| handle(&d.bild_screen(i, 1, &rgb, 1.0, 1.0))).collect(); m.0 = stand; } }
         for (i, sc) in d.bank.screens.iter().enumerate() {
             let an = d.cur == i; let mini = s.minis.borrow().1.get(i).cloned();
             let inhalt: Element<Msg> = iced::widget::column![mini.map_or_else(|| Element::from(space::vertical().height(0)), |h| container(iced::widget::image(h).filter_method(iced::widget::image::FilterMethod::Linear).width(Length::Fill)).style(move |_| flaeche(pal.editor, pal.line)).into()), text(format!("{i} {}", sc.name)).size(muster::schrift::TEXT).color(pal.text)].spacing(4).into();
-            liste = liste.push(iced::widget::tooltip(button(inhalt).width(Length::Fill).padding(6).on_press(Msg::BankAkt(r.clone(), BAkt::Screen(i))).style(move |_, st| button::Style { background: Some(if an { pal.sel.into() } else if matches!(st, button::Status::Hovered) { pal.line.into() } else { pal.panel2.into() }), border: Border { color: if an { pal.accent } else { pal.line }, width: if an { 2.0 } else { 1.0 }, radius: muster::RADIUS_KNOPF.into() }, text_color: pal.text, ..Default::default() }), container(text("Nummer = Auswahlnummer für screen_select").size(muster::schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Right).gap(4))
+            liste = liste.push(iced::widget::tooltip(button(inhalt).width(Length::Fill).padding(6).on_press(Msg::BankAkt(r.clone(), BAkt::Screen(i))).style(move |_, st| button::Style { background: Some(if an { pal.sel.into() } else if matches!(st, button::Status::Hovered) { pal.line.into() } else { pal.panel2.into() }), border: Border { color: if an { pal.accent } else { pal.line }, width: if an { 2.0 } else { 1.0 }, radius: muster::RADIUS_KNOPF.into() }, text_color: pal.text, ..Default::default() }), container(text(vc_i18n::t!("bankstudio-nummer-auswahlnummer-fuer-screen-select")).size(muster::schrift::HINWEIS).color(pal.text)).padding([3, 7]).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Right).gap(4))
         }
-        liste = liste.push(iced::widget::row![tb("←", "Nach vorn", d.cur > 0, BAkt::ScreenVor(-1), false), tb("→", "Nach hinten", d.cur + 1 < d.bank.screens.len(), BAkt::ScreenVor(1), false)].spacing(4));
-        if let Some(sc) = d.screen() { let r2 = r.clone(); liste = liste.push(text_input("Name", &sc.name).on_input(move |n| Msg::BankAkt(r2.clone(), BAkt::ScreenName(n))).size(12).padding(3)) }
+        liste = liste.push(iced::widget::row![tb("←", &vc_i18n::t!("bankstudio-nach-vorn"), d.cur > 0, BAkt::ScreenVor(-1), false), tb("→", &vc_i18n::t!("bankstudio-nach-hinten"), d.cur + 1 < d.bank.screens.len(), BAkt::ScreenVor(1), false)].spacing(4));
+        if let Some(sc) = d.screen() { let r2 = r.clone(); liste = liste.push(text_input(&vc_i18n::t!("bankstudio-name"), &sc.name).on_input(move |n| Msg::BankAkt(r2.clone(), BAkt::ScreenName(n))).size(12).padding(3)) }
         let liste_el: Element<Msg> = if klasse == muster::Klasse::Breit { scrollable(liste).into() } else { liste.into() };
         // Karte Werkzeug: Kachelpalette (Kachelmodus) bzw. Zeichen (Zellebene); nicht in der Datei
         let mut werkzeug = iced::widget::column![].spacing(6);
         let ts = d.ts.as_ref();
         match (ts, d.modus) {
             (Some(ts), Modus::Kachel) => {
-                werkzeug = werkzeug.push(kopf("Kacheln"));
+                werkzeug = werkzeug.push(kopf(&vc_i18n::t!("bankstudio-kacheln")));
                 let spalten = 4usize; let (kw, kh) = ((ts.tw * 8 * 2) as f32, (ts.th * 8 * 2) as f32); let zeilen = ts.tiles.len().div_ceil(spalten);
                 let mut atlas = Bild::neu(spalten * ts.tw * 16, zeilen.max(1) * ts.th * 16, rgb(0)); for i in 0..ts.tiles.len() { let b = d.kachel_bild(i, 2, &rgb); for y in 0..b.h { for x in 0..b.w { let o = (y * b.w + x) * 4; atlas.setze((i % spalten) * ts.tw * 16 + x, (i / spalten) * ts.th * 16 + y, [b.rgba[o], b.rgba[o + 1], b.rgba[o + 2]]) } } }
                 werkzeug = werkzeug.push(canvas::Canvas::new(Tafel { bild: handle(&atlas), kw, kh, spalten, anzahl: ts.tiles.len(), gewaehlt: Some(d.pinsel), kachel: true, pal, rel: rel.to_string() }).width(kw * spalten as f32).height(kh * zeilen as f32));
-                werkzeug = werkzeug.push(text(format!("Kachel {} {}", d.pinsel, ts.tiles.get(d.pinsel).map(|t| t.name.clone()).unwrap_or_default())).size(11.5).color(pal.text));
-                if !d.zuletzt.is_empty() { werkzeug = werkzeug.push(text(format!("zuletzt: {}", d.zuletzt.iter().map(|t| t.to_string()).collect::<Vec<_>>().join(" "))).size(11).color(pal.mute)) }
+                werkzeug = werkzeug.push(text(vc_i18n::t!("bankstudio-kachel-p1-p2", p1 = &d.pinsel, p2 = ts.tiles.get(d.pinsel).map(|t| t.name.clone()).unwrap_or_default())).size(11.5).color(pal.text));
+                if !d.zuletzt.is_empty() { werkzeug = werkzeug.push(text(vc_i18n::t!("bankstudio-zuletzt-p1", p1 = d.zuletzt.iter().map(|t| t.to_string()).collect::<Vec<_>>().join(" "))).size(11).color(pal.mute)) }
             }
-            (Some(_), Modus::Zelle) => { werkzeug = werkzeug.push(kopf("Zellebene")).push(text("Einzelne Zeichen über den Kacheln (Patches, bis 255 je Screen). Zeichen rechts wählen.").size(11.5).color(pal.mute)) }
-            _ => { werkzeug = werkzeug.push(text("Kein Kachelsatz").size(12).color(pal.mute)) }
+            (Some(_), Modus::Zelle) => { werkzeug = werkzeug.push(kopf(&vc_i18n::t!("bankstudio-zellebene"))).push(text(vc_i18n::t!("bankstudio-einzelne-zeichen-ueber-den-kacheln-patches")).size(11.5).color(pal.mute)) }
+            _ => { werkzeug = werkzeug.push(text(vc_i18n::t!("bankstudio-kein-kachelsatz")).size(12).color(pal.mute)) }
         }
         let mut nk_dialog: Option<Element<Msg>> = None;
         if let Some(nt) = &d.neue_kachel {
             let r2 = r.clone();
-            let mut zeilen = iced::widget::column![text(format!("Neue Kachel aus den Zellen ab {},{}", nt.at.0, nt.at.1)).size(13).font(vc_gui_ui::fonts::UI_FETT).color(pal.text)].spacing(6);
-            if let Some(dp) = nt.dup { zeilen = zeilen.push(text(format!("Es gibt schon Kachel {dp} mit gleichem Inhalt: sie wird benutzt, es entsteht keine neue.")).size(12).color(pal.warn)) } else { zeilen = zeilen.push(text_input("Name", &nt.name).on_input(move |n| Msg::BankAkt(r2.clone(), BAkt::NKName(n))).size(12).padding(3).width(160)) }
-            let r3 = r.clone(); zeilen = zeilen.push(iced::widget::checkbox(nt.ersetzen).label("Zellen im Screen durch den Kachelverweis ersetzen").on_toggle_maybe(nt.ausgerichtet.then(|| move |b| Msg::BankAkt(r3.clone(), BAkt::NKErsetzen(b)))).size(14).text_size(12));
-            if !nt.ausgerichtet { zeilen = zeilen.push(text("Ausgegraut: Die Zellen liegen nicht auf dem Kachelraster. Die Kachel entsteht trotzdem, der Screen bleibt unverändert.").size(11).color(pal.mute)) }
-            zeilen = zeilen.push(iced::widget::row![knopf(pal, if nt.dup.is_some() { "Benutzen" } else { "Anlegen" }, Some(Msg::BankAkt(r.clone(), BAkt::NKOk)), pal.text, true), knopf(pal, "Abbrechen", Some(Msg::BankAkt(r.clone(), BAkt::NKAbbruch)), pal.text, false)].spacing(8));
+            let mut zeilen = iced::widget::column![text(vc_i18n::t!("bankstudio-neue-kachel-aus-den-zellen-ab", p1 = nt.at.0, p2 = nt.at.1)).size(13).font(vc_gui_ui::fonts::UI_FETT).color(pal.text)].spacing(6);
+            if let Some(dp) = nt.dup { zeilen = zeilen.push(text(vc_i18n::t!("bankstudio-es-gibt-schon-kachel-dp-mit", dp = &dp)).size(12).color(pal.warn)) } else { zeilen = zeilen.push(text_input(&vc_i18n::t!("bankstudio-name"), &nt.name).on_input(move |n| Msg::BankAkt(r2.clone(), BAkt::NKName(n))).size(12).padding(3).width(160)) }
+            let r3 = r.clone(); zeilen = zeilen.push(iced::widget::checkbox(nt.ersetzen).label(vc_i18n::t!("bankstudio-zellen-im-screen-durch-den-kachelverweis")).on_toggle_maybe(nt.ausgerichtet.then(|| move |b| Msg::BankAkt(r3.clone(), BAkt::NKErsetzen(b)))).size(14).text_size(12));
+            if !nt.ausgerichtet { zeilen = zeilen.push(text(vc_i18n::t!("bankstudio-ausgegraut-die-zellen-liegen-nicht-auf")).size(11).color(pal.mute)) }
+            zeilen = zeilen.push(iced::widget::row![knopf(pal, if nt.dup.is_some() { vc_i18n::t!("bankstudio-benutzen") } else { vc_i18n::t!("bankstudio-anlegen") }, Some(Msg::BankAkt(r.clone(), BAkt::NKOk)), pal.text, true), knopf(pal, vc_i18n::t!("bankstudio-abbrechen"), Some(Msg::BankAkt(r.clone(), BAkt::NKAbbruch)), pal.text, false)].spacing(8));
             nk_dialog = Some(container(zeilen).padding(muster::abstand::KARTE).max_width(420).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.accent, width: 2.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() }).into());
         }
         // Zone 4: der Screen als Bild, eingepasst in ganzen Stufen; Bild und Zeichenebene getrennt
@@ -268,72 +268,72 @@ impl App {
             skala_zuletzt.set(z); s.zoomansicht.platz.set((size.width, size.height));
             let (ta, ca) = if d.modus == Modus::Kachel { (1.0, 0.45) } else { (0.4, 1.0) }; let bild = d.bild(z, &rgb, ta, ca); let (bw, bh) = (bild.w as f32, bild.h as f32);
             iced::widget::stack![canvas::Canvas::new(BildEbene { s, bild: handle(&bild), bw, bh }).width(Length::Fill).height(Length::Fill), canvas::Canvas::new(Flaeche { s, skala: z, bw, bh, pal, rel: rel_c.clone() }).width(Length::Fill).height(Length::Fill)].into()
-        }).into() } else { container(text(d.ts_fehler.clone().unwrap_or_else(|| "Kein Kachelsatz.".into())).size(13).color(pal.err)).center(Length::Fill).into() };
-        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> BAkt>| -> Element<Msg> {
+        }).into() } else { container(text(d.ts_fehler.clone().unwrap_or_else(|| vc_i18n::t!("bankstudio-kein-kachelsatz-2").into())).size(13).color(pal.err)).center(Length::Fill).into() };
+        let farbfeld = |wahl: usize, mach: Box<dyn Fn(usize) -> BAkt>| -> Element<'static, Msg> {
             let eintr = farben.eintraege(&d.target, norm); let mut raster = iced::widget::column![].spacing(2); let mut zeile = iced::widget::row![].spacing(2);
             for (kk, (idx, c)) in eintr.iter().enumerate() { let (idx, c, gew) = (*idx as usize, *c, *idx as usize == wahl); let a = mach(idx);
                 zeile = zeile.push(button(space::vertical()).width(16).height(16).padding(0).on_press(Msg::BankAkt(r.clone(), a)).style(move |_, _| button::Style { background: Some(c.into()), border: Border { color: if gew { pal.accent } else { pal.line }, width: if gew { 2.0 } else { 1.0 }, radius: 3.0.into() }, ..Default::default() }));
                 if (kk + 1) % 8 == 0 { raster = raster.push(zeile); zeile = iced::widget::row![].spacing(2) } }
             raster.push(zeile).into()
         };
-        let mut dokument = iced::widget::column![kopf("Kachelsatz")].spacing(6);
+        let mut dokument = iced::widget::column![kopf(&vc_i18n::t!("bankstudio-kachelsatz"))].spacing(6);
         let cur = d.bank.tilesets.first().cloned().unwrap_or_default();
         for sz in &d.saetze { let on = &cur == sz; dokument = dokument.push(button(text(format!("{} {}", if on { "●" } else { "○" }, sz.rsplit('/').next().unwrap_or(sz))).size(12).color(pal.text)).padding([2, 6]).on_press(Msg::BankAkt(r.clone(), BAkt::Satz(sz.clone()))).style(move |_, _| button::Style { background: None, text_color: pal.text, ..Default::default() })) }
-        if d.saetze.is_empty() { dokument = dokument.push(text("Keine Kachelsätze für dieses System im Projekt").size(11).color(pal.mute)) }
+        if d.saetze.is_empty() { dokument = dokument.push(text(vc_i18n::t!("bankstudio-keine-kachelsaetze-fuer-dieses-system-im")).size(11).color(pal.mute)) }
         if let (Some(ts), Some(sc)) = (d.ts.as_ref(), d.screen()) {
-            dokument = dokument.push(kopf("Screen"));
+            dokument = dokument.push(kopf(&vc_i18n::t!("bankstudio-screen")));
             let (w, h, ox, oy) = (sc.w, sc.h, sc.origin.0, sc.origin.1);
-            dokument = dokument.push(iced::widget::row![text(format!("Breite {w}")).size(11.5).color(pal.mute).width(80), tb("−", "schmaler", w > 1, BAkt::Groesse(w.saturating_sub(1), h, ox, oy, true), false), tb("+", "breiter", w < 255, BAkt::Groesse(w + 1, h, ox, oy, true), false), text(format!("Höhe {h}")).size(11.5).color(pal.mute).width(70), tb("−", "niedriger", h > 1, BAkt::Groesse(w, h.saturating_sub(1), ox, oy, true), false), tb("+", "höher", h < 255, BAkt::Groesse(w, h + 1, ox, oy, true), false)].spacing(4).align_y(Alignment::Center).wrap().vertical_spacing(4));
-            dokument = dokument.push(iced::widget::row![text(format!("Ursprung {ox},{oy}")).size(11.5).color(pal.mute).width(110), tb("←", "Ursprung nach links", ox > 0, BAkt::Groesse(w, h, ox.saturating_sub(1), oy, true), false), tb("→", "Ursprung nach rechts", ox + 1 < w, BAkt::Groesse(w, h, ox + 1, oy, true), false), tb("↑", "Ursprung nach oben", oy > 0, BAkt::Groesse(w, h, ox, oy.saturating_sub(1), true), false), tb("↓", "Ursprung nach unten", oy + 1 < h, BAkt::Groesse(w, h, ox, oy + 1, true), false)].spacing(4).align_y(Alignment::Center).wrap().vertical_spacing(4));
-            let (cols, rows) = grid_dims(sc, ts); dokument = dokument.push(text(format!("Kachelraster {cols}×{rows}{}", if w.saturating_sub(ox) % ts.tw > 0 || h.saturating_sub(oy) % ts.th > 0 || ox > 0 || oy > 0 { " · Restzellen in der Zellebene" } else { "" })).size(11).color(pal.mute));
-            dokument = dokument.push(kopf("Hintergrund")).push(farbfeld(sc.colors["bg"].as_u64().map_or(6, |v| v as usize), Box::new(|i| BAkt::Farbe("bg", i))));
-            if matches!(d.target.as_str(), "c64" | "vic20") { dokument = dokument.push(kopf("Rahmen")).push(farbfeld(sc.colors["border"].as_u64().map_or(14, |v| v as usize), Box::new(|i| BAkt::Farbe("border", i)))) }
-            else if ts.color_mode == ColorMode::None { dokument = dokument.push(kopf("Vordergrund (Helligkeit)")).push(farbfeld(sc.colors["fg"].as_u64().map_or(14, |v| v as usize), Box::new(|i| BAkt::Farbe("fg", i)))) }
+            dokument = dokument.push(iced::widget::row![text(vc_i18n::t!("bankstudio-breite-w", w = &w)).size(11.5).color(pal.mute).width(80), tb("−", &vc_i18n::t!("bankstudio-schmaler"), w > 1, BAkt::Groesse(w.saturating_sub(1), h, ox, oy, true), false), tb("+", &vc_i18n::t!("bankstudio-breiter"), w < 255, BAkt::Groesse(w + 1, h, ox, oy, true), false), text(vc_i18n::t!("bankstudio-hoehe-h", h = &h)).size(11.5).color(pal.mute).width(70), tb("−", &vc_i18n::t!("bankstudio-niedriger"), h > 1, BAkt::Groesse(w, h.saturating_sub(1), ox, oy, true), false), tb("+", &vc_i18n::t!("bankstudio-hoeher"), h < 255, BAkt::Groesse(w, h + 1, ox, oy, true), false)].spacing(4).align_y(Alignment::Center).wrap().vertical_spacing(4));
+            dokument = dokument.push(iced::widget::row![text(vc_i18n::t!("bankstudio-ursprung-ox-oy", ox = &ox, oy = &oy)).size(11.5).color(pal.mute).width(110), tb("←", &vc_i18n::t!("bankstudio-ursprung-nach-links"), ox > 0, BAkt::Groesse(w, h, ox.saturating_sub(1), oy, true), false), tb("→", &vc_i18n::t!("bankstudio-ursprung-nach-rechts"), ox + 1 < w, BAkt::Groesse(w, h, ox + 1, oy, true), false), tb("↑", &vc_i18n::t!("bankstudio-ursprung-nach-oben"), oy > 0, BAkt::Groesse(w, h, ox, oy.saturating_sub(1), true), false), tb("↓", &vc_i18n::t!("bankstudio-ursprung-nach-unten"), oy + 1 < h, BAkt::Groesse(w, h, ox, oy + 1, true), false)].spacing(4).align_y(Alignment::Center).wrap().vertical_spacing(4));
+            let (cols, rows) = grid_dims(sc, ts); dokument = dokument.push(text(vc_i18n::t!("bankstudio-kachelraster-cols-rows-p3", cols = &cols, rows = &rows, p3 = if w.saturating_sub(ox) % ts.tw > 0 || h.saturating_sub(oy) % ts.th > 0 || ox > 0 || oy > 0 { format!(" {}", vc_i18n::t!("bankstudio-restzellen-in-der-zellebene")) } else { String::new() })).size(11).color(pal.mute));
+            dokument = dokument.push(kopf(&vc_i18n::t!("bankstudio-hintergrund"))).push(farbfeld(sc.colors["bg"].as_u64().map_or(6, |v| v as usize), Box::new(|i| BAkt::Farbe("bg", i))));
+            if matches!(d.target.as_str(), "c64" | "vic20") { dokument = dokument.push(kopf(&vc_i18n::t!("bankstudio-rahmen"))).push(farbfeld(sc.colors["border"].as_u64().map_or(14, |v| v as usize), Box::new(|i| BAkt::Farbe("border", i)))) }
+            else if ts.color_mode == ColorMode::None { dokument = dokument.push(kopf(&vc_i18n::t!("bankstudio-vordergrund-helligkeit"))).push(farbfeld(sc.colors["fg"].as_u64().map_or(14, |v| v as usize), Box::new(|i| BAkt::Farbe("fg", i)))) }
             if d.modus == Modus::Zelle {
-                werkzeug = werkzeug.push(kopf("Zeichen (Zellebene)"));
-                if ts.charsets.is_empty() { werkzeug = werkzeug.push(text("Der Kachelsatz hat keinen Zeichensatz.").size(11).color(pal.mute)) } else {
+                werkzeug = werkzeug.push(kopf(&vc_i18n::t!("bankstudio-zeichen-zellebene")));
+                if ts.charsets.is_empty() { werkzeug = werkzeug.push(text(vc_i18n::t!("bankstudio-der-kachelsatz-hat-keinen-zeichensatz")).size(11).color(pal.mute)) } else {
                     let mut tabs = iced::widget::row![].spacing(4); for (i, p) in ts.charsets.iter().enumerate() { tabs = tabs.push(tb(&format!("{} {}", (b'A' + (i % 26) as u8) as char, vc_media::naming::stem(p)), p, true, BAkt::Reiter(i), d.reiter == i)) } werkzeug = werkzeug.push(tabs.wrap());
                     let n = if d.target == "atari8" { 128 } else { 256 };
                     werkzeug = werkzeug.push(canvas::Canvas::new(Tafel { bild: handle(&d.tafel_bild(2, &rgb)), kw: 16.0, kh: 16.0, spalten: 16, anzahl: n, gewaehlt: (d.zell_pinsel.cs == d.reiter).then_some(d.zell_pinsel.code as usize), kachel: false, pal, rel: rel.to_string() }).width(256).height((n / 16) as f32 * 16.0));
-                    werkzeug = werkzeug.push(text(format!("Zeichen {} (${:02X})", d.zell_pinsel.code, d.zell_pinsel.code)).size(11.5).color(pal.mute));
-                    if ts.color_mode != ColorMode::None { werkzeug = werkzeug.push(kopf("Zeichenfarbe")).push(farbfeld(d.farbe, Box::new(BAkt::Pinselfarbe))) }
-                    if d.target == "atari8" { let r2 = r.clone(); werkzeug = werkzeug.push(iced::widget::checkbox(d.zell_pinsel.sel).label("Farbwahl (Zeichenbit 7)").on_toggle(move |b| Msg::BankAkt(r2.clone(), BAkt::Bit7(b))).size(14).text_size(12)) }
+                    werkzeug = werkzeug.push(text(vc_i18n::t!("bankstudio-zeichen-p1-p2", p1 = &d.zell_pinsel.code, p2 = format!("{:02X}", d.zell_pinsel.code))).size(11.5).color(pal.mute));
+                    if ts.color_mode != ColorMode::None { werkzeug = werkzeug.push(kopf(&vc_i18n::t!("bankstudio-zeichenfarbe"))).push(farbfeld(d.farbe, Box::new(BAkt::Pinselfarbe))) }
+                    if d.target == "atari8" { let r2 = r.clone(); werkzeug = werkzeug.push(iced::widget::checkbox(d.zell_pinsel.sel).label(vc_i18n::t!("bankstudio-farbwahl-zeichenbit-7")).on_toggle(move |b| Msg::BankAkt(r2.clone(), BAkt::Bit7(b))).size(14).text_size(12)) }
                 }
             }
             if !ts.prop_defs.is_empty() {
-                dokument = dokument.push(kopf("Eigenschaften-Ebene")); let mut z = iced::widget::row![tb("aus", "Ebene ausblenden", true, BAkt::Eigenschaft(None), d.eigenschaft.is_none())].spacing(4);
-                for (n, bit) in &ts.prop_defs { z = z.push(tb(n, "Kacheln mit dieser Eigenschaft einfärben", true, BAkt::Eigenschaft(Some(*bit)), d.eigenschaft == Some(*bit))) } dokument = dokument.push(z.wrap());
+                dokument = dokument.push(kopf(&vc_i18n::t!("bankstudio-eigenschaften-ebene"))); let mut z = iced::widget::row![tb(&vc_i18n::t!("setui-aus-klein"), &vc_i18n::t!("bankstudio-ebene-ausblenden"), true, BAkt::Eigenschaft(None), d.eigenschaft.is_none())].spacing(4);
+                for (n, bit) in &ts.prop_defs { z = z.push(tb(n, &vc_i18n::t!("bankstudio-kacheln-mit-dieser-eigenschaft-einfaerben"), true, BAkt::Eigenschaft(Some(*bit)), d.eigenschaft == Some(*bit))) } dokument = dokument.push(z.wrap());
             }
         }
         dokument = dokument.push(text(self.palettenzeile(&d.target, s.ansicht)).size(10.5).color(pal.mute));
         if self.farben.hat_varianten(&d.target) { let r3 = r.clone(); dokument = dokument.push(self.ansicht_wahl_mit(pal, s.ansicht, move |a| Msg::BankAkt(r3.clone(), BAkt::Ansicht(a)))) }
         // Karten: Werkzeug (fürs Zeichnen) · Dokument (Kachelsatz, Screen, Farben, Eigenschaften-Ebene) · Info
         let karte_zu = |k: &'static str| -> Option<(bool, Msg)> { Some((!s.karten_zu.contains(k), Msg::BankAkt(r.clone(), BAkt::Karte(k)))) };
-        if d.werkzeug == Werkzeug::Rechteck { werkzeug = werkzeug.push(tb("gefüllt", "Rechteck füllen", true, BAkt::Gefuellt(!d.gefuellt), d.gefuellt)) }
+        if d.werkzeug == Werkzeug::Rechteck { werkzeug = werkzeug.push(tb(&vc_i18n::t!("bankstudio-gefuellt"), &vc_i18n::t!("bankstudio-rechteck-fuellen"), true, BAkt::Gefuellt(!d.gefuellt), d.gefuellt)) }
         if d.auswahl.is_some() {
-            werkzeug = werkzeug.push(tb("Als Kachel anlegen …", "Die Zellen ab der linken oberen Ecke der Auswahl werden eine Kachel", d.ts.as_ref().is_some_and(|t| t.tiles.len() < vc_media::tiles::MAX_TILES), BAkt::AlsKachel, false));
-            if d.modus == Modus::Kachel { werkzeug = werkzeug.push(tb("Kopieren (Stempel)", "Auswahl als Stempel merken", true, BAkt::AuswahlKopieren, false)) }
-            werkzeug = werkzeug.push(tb("Leeren", "Auswahl leeren (Entf)", true, BAkt::AuswahlLeeren, false));
+            werkzeug = werkzeug.push(tb(&vc_i18n::t!("bankstudio-als-kachel-anlegen"), &vc_i18n::t!("bankstudio-die-zellen-ab-der-linken-oberen"), d.ts.as_ref().is_some_and(|t| t.tiles.len() < vc_media::tiles::MAX_TILES), BAkt::AlsKachel, false));
+            if d.modus == Modus::Kachel { werkzeug = werkzeug.push(tb(&vc_i18n::t!("bankstudio-kopieren-stempel"), &vc_i18n::t!("bankstudio-auswahl-als-stempel-merken"), true, BAkt::AuswahlKopieren, false)) }
+            werkzeug = werkzeug.push(tb(&vc_i18n::t!("bankstudio-leeren"), &vc_i18n::t!("bankstudio-auswahl-leeren-entf"), true, BAkt::AuswahlLeeren, false));
         }
-        let at = s.ueber.and_then(|(fx, fy)| d.einheit_bei(fx, fy, false)).map(|u| match d.modus { Modus::Kachel => format!("Kachel {},{} → {}", u.0, u.1, d.screen().and_then(|sc| sc.grid.get(u.1)).and_then(|r| r.get(u.0)).map_or("-".into(), |t| t.to_string())), Modus::Zelle => format!("Zelle {},{}", u.0, u.1) }).unwrap_or_default();
-        let info = iced::widget::column![text(d.screen().map_or(String::new(), |sc| format!("{}×{} Zellen · {} Patches", sc.w, sc.h, sc.patches.len()))).size(muster::schrift::TEXT).color(pal.text), text(if d.modus == Modus::Kachel { "Kachelmodus (Tab wechselt)" } else { "Zeichenmodus (Tab wechselt)" }).size(muster::schrift::HINWEIS).color(pal.mute)].spacing(muster::abstand::ENG);
+        let at = s.ueber.and_then(|(fx, fy)| d.einheit_bei(fx, fy, false)).map(|u| match d.modus { Modus::Kachel => vc_i18n::t!("bankstudio-kachel-p1-p2-p3", p1 = u.0, p2 = u.1, p3 = d.screen().and_then(|sc| sc.grid.get(u.1)).and_then(|r| r.get(u.0)).map_or("-".into(), |t| t.to_string())), Modus::Zelle => vc_i18n::t!("bankstudio-zelle-p1-p2", p1 = u.0, p2 = u.1) }).unwrap_or_default();
+        let info = iced::widget::column![text(d.screen().map_or(String::new(), |sc| vc_i18n::t!("bankstudio-p1-p2-zellen-p3-patches", p1 = &sc.w, p2 = &sc.h, p3 = sc.patches.len()))).size(muster::schrift::TEXT).color(pal.text), text(if d.modus == Modus::Kachel { vc_i18n::t!("bankstudio-kachelmodus-tab-wechselt") } else { vc_i18n::t!("bankstudio-zeichenmodus-tab-wechselt") }).size(muster::schrift::HINWEIS).color(pal.mute)].spacing(muster::abstand::ENG);
         let karten: Vec<Element<Msg>> = vec![
-            muster::karte(pal, "Werkzeug", "✎", "fürs Zeichnen · nicht in der Datei", karte_zu("werkzeug"), werkzeug.into()),
-            muster::karte(pal, "Dokument", "▤", "Kachelsatz, Screen, Farben · wird gespeichert", karte_zu("dokument"), dokument.into()),
-            muster::karte(pal, "Info", "ⓘ", "", karte_zu("info"), info.into())];
+            muster::karte(pal, &vc_i18n::t!("bankstudio-werkzeug"), "✎", &vc_i18n::t!("bankstudio-fuers-zeichnen-nicht-in-der-datei"), karte_zu("werkzeug"), werkzeug.into()),
+            muster::karte(pal, &vc_i18n::t!("bankstudio-dokument"), "▤", &vc_i18n::t!("bankstudio-kachelsatz-screen-farben-wird-gespeichert"), karte_zu("dokument"), dokument.into()),
+            muster::karte(pal, &vc_i18n::t!("bankstudio-info"), "ⓘ", "", karte_zu("info"), info.into())];
         let seite = muster::seitenspalte(klasse, karten);
         // Zone 1: Kopfzeile
         let name = rel.rsplit('/').next().unwrap_or(rel).to_string();
-        let kopf_z = muster::kopfzeile(pal, klasse, "BNK", &name, d.dirty(), &d.screen().map_or(String::new(), |sc| format!("Screen {} von {} · {}×{} Zellen", d.cur + 1, d.bank.screens.len(), sc.w, sc.h)), vec![
-            tb("Exportieren …", "Export-Dialog (Cmd+Umschalt+E)", true, BAkt::Exportieren, false), tb("Speichern", "Speichern (Cmd+S)", d.dirty(), BAkt::Speichern, false)]);
+        let kopf_z = muster::kopfzeile(pal, klasse, "BNK", &name, d.dirty(), &d.screen().map_or(String::new(), |sc| vc_i18n::t!("bankstudio-screen-p1-von-p2-p3-p4", p1 = d.cur + 1, p2 = d.bank.screens.len(), p3 = &sc.w, p4 = &sc.h)), vec![
+            tb(&vc_i18n::t!("bankstudio-exportieren"), &vc_i18n::t!("bankstudio-export-dialog-cmd-umschalt-e"), true, BAkt::Exportieren, false), tb(&vc_i18n::t!("bankstudio-speichern"), &vc_i18n::t!("bankstudio-speichern-cmd-s"), d.dirty(), BAkt::Speichern, false)]);
         let status = if d.status.is_empty() { String::new() } else { format!(" · {}", d.status) };
-        let fuss = muster::fusszeile(pal, &format!("{at}{}Zoom {}{status}", if at.is_empty() { "" } else { " · " }, if s.zoomansicht.platz.get().0 < 1.0 { "Einpassen".to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { "Einpassen · " } else { "" }, s.skala.get()) }),
-            iced::widget::tooltip(text("? Tasten").size(muster::schrift::HINWEIS).color(pal.mute), container(text("Tab wechselt den Modus · D L R F I A S Werkzeuge · Text: tippen, Entf/Rücktaste, Enter, Esc · Esc bricht Linie/Rechteck ab · + − Zoom · 0 Einpassen · Leertaste+Ziehen verschiebt · Cmd+Mausrad zoomt").size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into());
+        let fuss = muster::fusszeile(pal, &vc_i18n::t!("bankstudio-at-p2-zoom-p3-status", at = &at, p2 = if at.is_empty() { "" } else { " · " }, p3 = if s.zoomansicht.platz.get().0 < 1.0 { vc_i18n::t!("bankstudio-einpassen").to_string() } else { format!("{}{}×", if s.zoomansicht.zoom.is_none() { format!("{} ", vc_i18n::t!("bankstudio-einpassen-2")) } else { String::new() }, s.skala.get()) }, status = &status),
+            iced::widget::tooltip(text(vc_i18n::t!("bankstudio-tasten")).size(muster::schrift::HINWEIS).color(pal.mute), container(text(vc_i18n::t!("bankstudio-tab-wechselt-den-modus-d-l")).size(11.5).color(pal.text)).padding([4, 8]).max_width(420).style(move |_| flaeche(pal.panel2, pal.line)), iced::widget::tooltip::Position::Top).into());
         // Überlagerungen über der Fläche: Dialog „Neue Kachel“ und ⋯-Karte
         let mut flaeche_el = flaeche_roh;
         if let Some(dlg) = nk_dialog { flaeche_el = iced::widget::stack![flaeche_el, container(dlg).padding(muster::abstand::BEREICH).center(Length::Fill)].into(); }
         if s.mehr {
-            let karte_mehr = container(iced::widget::column![if kompakt { Element::from(iced::widget::column![text("Werkzeuge").size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge().wrap().vertical_spacing(4)].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text("Ansicht").size(muster::schrift::HINWEIS).color(pal.mute), ansicht().wrap().vertical_spacing(4)].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(360).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
+            let karte_mehr = container(iced::widget::column![if kompakt { Element::from(iced::widget::column![text(vc_i18n::t!("bankstudio-werkzeuge")).size(muster::schrift::HINWEIS).color(pal.mute), werkzeuge().wrap().vertical_spacing(4)].spacing(muster::abstand::ENG)) } else { space::vertical().height(0).into() }, text(vc_i18n::t!("bankstudio-ansicht")).size(muster::schrift::HINWEIS).color(pal.mute), ansicht().wrap().vertical_spacing(4)].spacing(muster::abstand::GRUPPE)).padding(muster::abstand::KARTE).max_width(360).style(move |_| container::Style { background: Some(pal.panel.into()), border: Border { color: pal.line, width: 1.0, radius: muster::RADIUS_KARTE.into() }, ..Default::default() });
             flaeche_el = iced::widget::stack![flaeche_el, container(karte_mehr).padding(muster::abstand::GRUPPE).align_right(Length::Fill)].into();
         }
         let flaeche_el: Element<Msg> = container(flaeche_el).width(Length::Fill).height(Length::Fill).style(move |_| container::Style { background: Some(pal.editor.into()), ..Default::default() }).into();

@@ -8,20 +8,20 @@ pub struct Parsed { pub load_addr: u16, pub lines: Vec<(u16, Vec<u8>)> }
 
 /// Liest die verkettete Zeilenliste eines BASIC-PRG.
 pub fn parse_prg(data: &[u8]) -> Result<Parsed, String> {
-    if data.len() < 4 { return Err("Datei zu kurz".into()); }
+    if data.len() < 4 { return Err(vc_i18n::t!("basic-prg-too-short")); }
     let load = data[0] as u16 | (data[1] as u16) << 8;
     let body = &data[2..];
     let (mut off, mut lines) = (0usize, vec![]);
     loop {
-        if off + 2 > body.len() { return Err("Programmende ($0000) fehlt".into()); }
+        if off + 2 > body.len() { return Err(vc_i18n::t!("basic-prg-end-missing")); }
         let next = body[off] as usize | (body[off + 1] as usize) << 8;
         if next == 0 { break; }
-        if off + 5 > body.len() { return Err("abgeschnittene Zeile".into()); }
+        if off + 5 > body.len() { return Err(vc_i18n::t!("basic-prg-line-truncated")); }
         let num = body[off + 2] as u16 | (body[off + 3] as u16) << 8;
-        let end = body[off + 4..].iter().position(|b| *b == 0).ok_or("Zeilenende (0) fehlt")? + off + 4;
+        let end = body[off + 4..].iter().position(|b| *b == 0).ok_or_else(|| vc_i18n::t!("basic-prg-line-end-missing"))? + off + 4;
         lines.push((num, body[off + 4..end].to_vec()));
         let expect = load as usize + end + 1;
-        if next != expect { return Err(format!("Link-Zeiger in Zeile {num} stimmt nicht (${next:04X}, erwartet ${expect:04X})")); }
+        if next != expect { return Err(vc_i18n::t!("basic-prg-link-mismatch", num = num, next = format!("{next:04X}"), expect = format!("{expect:04X}"))); }
         off = end + 1;
     }
     Ok(Parsed { load_addr: load, lines })
@@ -95,7 +95,7 @@ fn targets(bytes: &[u8], d: &Dialect) -> Vec<(usize, usize, u16)> {
 pub fn to_structured_text(p: &Parsed, d: &Dialect) -> String {
     let mut wanted = BTreeSet::new();
     for (_, b) in &p.lines { for (_, _, n) in targets(b, d) { wanted.insert(n); } }
-    let mut out = String::from("' Aus PRG zurückgewandelt (vcc basic --detokenize --structured)\n");
+    let mut out = vc_i18n::t!("basic-detok-structured-header") + "\n";
     for (num, bytes) in &p.lines {
         if wanted.contains(num) { out.push_str(&format!("@L{num}:\n")); }
         let tg = targets(bytes, d);

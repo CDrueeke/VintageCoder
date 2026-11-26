@@ -53,6 +53,7 @@ Die Hilfe nennt je Befehl den Aufruf, alle Argumente und Optionen mit Standardwe
 | `vcc emulator` | Emulatoren anzeigen, finden und portabel installieren |
 | `vcc streams` | Bild-, Ton- und Debug-Ströme der Ultimate 64 empfangen |
 | `vcc test` | Tests aus *.vctest prüfen und im Emulator oder auf Hardware ausführen |
+| `vcc turbo` | Turbo-BASIC-XL-Diskette prüfen, bereitstellen und das Projekt starten |
 
 ### Hilfe und Rückmeldung
 
@@ -111,4 +112,4 @@ Alle diese Ausgaben entstehen aus denselben Beschreibungen unter `data/cli`; Tes
 
 ## Siehe auch
 
-[Bauen und Starten](help:build) · [Tests mit vcc test](help:tests) · [ROM-Dateien](help:roms) · [Disk-Studio](help:disks) · [Linux](help:linux)
+[Bauen und Starten](help:build) · [Tests mit vcc test](help:tests) · [ROM-Dateien](help:roms) · [Disk-Editor](help:disks) · [Linux](help:linux)

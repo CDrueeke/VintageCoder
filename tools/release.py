@@ -480,6 +480,18 @@ def repo_file_issues(rows):
     return out
 
 
+def check_i18n_fehler():
+    """Kataloge gegen den Code (tools/check_i18n.py): Schlüssel in de und en, gleiche Parameter, keine ungenutzten Schlüssel."""
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    try:
+        import check_i18n
+        import check_i18n_data
+        import examples_en
+        return check_i18n.pruefe() + check_i18n_data.pruefe() + examples_en.funde()
+    finally:
+        sys.path.pop(0)
+
+
 def check_repo_files_fehler():
     """Rechte und Zeilenenden der Skripte laut Git (ohne Git oder außerhalb eines Repositorys: keine Prüfung)."""
     try:
@@ -504,12 +516,60 @@ def check_repo_files_fehler():
     return out
 
 
+def check_ui_fehler():
+    """Neue Oberfläche (Tauri, ui/): Prüfbrücke nicht im Auslieferungsbau, strenge Inhaltsrichtlinie, kein Updater, Lizenzen und Paketzahl der npm-Pakete,
+    gebautes Frontend (falls vorhanden) ohne Fremdadressen und ohne Brückencode."""
+    out = []
+    shell = os.path.join(ROOT, "crates", "vc-shell")
+    if not os.path.isdir(shell):
+        return out
+    try:
+        cargo = open(os.path.join(shell, "Cargo.toml"), encoding="utf-8").read()
+        if re.search(r"^default\s*=.*testbridge", cargo, re.M):
+            out.append("vc-shell: Feature testbridge darf nicht zu den Standard-Features gehören")
+        if "updater" in cargo.lower():
+            out.append("vc-shell: Updater-Plugin ist nicht erlaubt (keine Netzverbindung der Oberfläche)")
+        conf = json.loads(open(os.path.join(shell, "tauri.conf.json"), encoding="utf-8").read())
+        csp = (conf.get("app", {}).get("security", {}) or {}).get("csp")
+        if not csp or "default-src 'self'" not in csp:
+            out.append("vc-shell/tauri.conf.json: csp fehlt oder ohne default-src 'self'")
+        elif re.search(r"(https?|wss?)://(?!ipc\.localhost)", csp):
+            out.append("vc-shell/tauri.conf.json: csp erlaubt Fremdadressen")
+    except (OSError, ValueError) as e:
+        out.append(f"vc-shell: {e}")
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    try:
+        import ui_notices
+        if os.path.exists(ui_notices.LOCK):
+            out += ["ui: " + m for m in ui_notices.fehler(ui_notices.pakete())]
+    finally:
+        sys.path.pop(0)
+    dist = os.path.join(ROOT, "ui", "dist")
+    if os.path.isdir(dist):
+        for d, _, files in os.walk(dist):
+            for f in files:
+                if not f.endswith((".js", ".css", ".html")):
+                    continue
+                t = open(os.path.join(d, f), encoding="utf-8", errors="replace").read()
+                for u in set(re.findall(r"(?:https?|wss?)://[A-Za-z0-9.\-]+", t)):
+                    if not re.match(r"(https?://(www\.w3\.org|svelte\.dev))$", u):
+                        out.append(f"ui/dist/{f}: Fremdadresse {u}")
+                for marke in (r"__vc[^A-Za-z]", "test bridge"):
+                    if re.search(marke, t):
+                        out.append(f"ui/dist/{f}: Brückencode ({marke}) im Auslieferungsbau")
+    return out
+
+
 def cmd_check(args):
     reg, rows, eff, skipped, res = run_check(args)
     for m in check_spdx_fehler():
         res.errors.append("SPDX: " + m)
     for m in check_repo_files_fehler():
         res.errors.append("Repository: " + m)
+    for m in check_i18n_fehler():
+        res.errors.append("i18n: " + m)
+    for m in check_ui_fehler():
+        res.errors.append("ui: " + m)
     print_result(res, args.verbose)
     n_sel = sum(1 for r in rows if r["checked"])
     print("%d Zeilen in FEATURES.md, %d angehakt, %d Fehler, %d Warnungen" % (len(rows), n_sel, len(res.errors), len(res.warnings)))
@@ -534,6 +594,14 @@ def example_files(reg, proj):
     return walk("examples/" + proj, exclude_dirs=ex)
 
 
+def example_files_en(reg, proj):
+    """Englischer Spiegel eines Beispiels (examples/en/<ordner>/<projekt>, nur die Dateien mit englischem Text); leer, wenn es keinen gibt"""
+    rel = "examples/en/" + proj
+    if not os.path.isdir(os.path.join(ROOT, rel)):
+        return []
+    return walk(rel, exclude_dirs=set(reg.get("examples_exclude_dirs", [])))
+
+
 def build_plan(reg, rows, eff, skipped):
     data, unclaimed = data_files_to_ship(eff, reg)
     ex = examples_to_ship(eff, reg)
@@ -547,6 +615,7 @@ def build_plan(reg, rows, eff, skipped):
     ex_files = []
     for proj, pkg in ex:
         ex_files += example_files(reg, proj)
+        ex_files += example_files_en(reg, proj)
     ex_files += shared
     return {"data": data, "examples": ex, "example_files": sorted(set(ex_files)), "unclaimed": unclaimed}
 
@@ -729,9 +798,44 @@ def path_leaks(files, home=None, user=None, extra=(), root=None):
     return out
 
 
-def build_pakete(ide):
-    """Cargo-Pakete fuer `stage --build`: vcc (vc-cli) und vc-lsp immer, die Oberflaeche (vc-gui, Programm `vintagecoder`) nur bei IDE-APP."""
-    return ["-p", "vc-cli", "-p", "vc-lsp"] + (["-p", "vc-gui"] if ide else [])
+def build_pakete(ide, oberflaeche="tauri"):
+    """Cargo-Pakete fuer `stage --build`: vcc (vc-cli) und vc-lsp immer, die Oberflaeche nur bei IDE-APP: `egui` = vc-gui, `tauri` = vc-shell
+    (beide heissen als Programm `vintagecoder`; darum wird immer nur eines gebaut). vc-shell braucht aber einen eigenen Aufruf, siehe `bau_tauri`."""
+    return ["-p", "vc-cli", "-p", "vc-lsp"] + (["-p", "vc-gui"] if ide and oberflaeche == "egui" else [])
+
+
+def bau_tauri():
+    """Tauri-Oberflaeche bauen: erst das Frontend (ui/, vite -> ui/dist), dann vc-shell mit `tauri/custom-protocol` (ohne dieses Feature laedt das Programm
+    die Entwicklungs-URL localhost:1420 statt der eingebetteten Seiten). Kein postinstall (`--ignore-scripts`), Pakete laut package-lock.json (`npm ci`)."""
+    ui = os.path.join(ROOT, "ui")
+    if not os.path.isfile(os.path.join(ui, "package-lock.json")):
+        raise SystemExit("FEHLER:  ui/package-lock.json fehlt (npm ci braucht es)")
+    env = dict(os.environ)
+    env.setdefault("SOURCE_DATE_EPOCH", "1767225600")
+    npm = shutil.which("npm") or shutil.which("npm.cmd")   # Windows: npm ist npm.cmd, CreateProcess findet es ohne Endung nicht
+    if not npm:
+        raise SystemExit("FEHLER:  npm nicht gefunden (Node.js installieren: die Tauri-Oberflaeche baut ui/ mit npm)")
+    print("npm ci --ignore-scripts (ui/)")
+    subprocess.run([npm, "ci", "--ignore-scripts", "--no-audit", "--no-fund"], cwd=ui, check=True, env=env)
+    print("npm run build (ui/)")
+    subprocess.run([npm, "run", "build"], cwd=ui, check=True, env=env)
+    if not os.path.isdir(os.path.join(ui, "dist")):
+        raise SystemExit("FEHLER:  ui/dist fehlt nach dem Bau der Oberflaeche")
+    print("cargo build --release -p vc-shell --features tauri/custom-protocol")
+    subprocess.run(["cargo", "build", "--release", "-p", "vc-shell", "--features", "tauri/custom-protocol"], cwd=ROOT, check=True, env=release_env())
+
+
+def pruefe_tauri_binaer(pfad):
+    """Das Tauri-Programm muss das gebaute Frontend eingebettet haben (custom-protocol): Pfade wie `/assets/index-<hash>.js` stehen dann im Programm.
+    Liefert eine Fehlermeldung oder None."""
+    try:
+        with open(pfad, "rb") as f:
+            daten = f.read()
+    except OSError as e:
+        return "Programm nicht lesbar: %s" % e
+    if daten.count(b"assets/index-") == 0:
+        return "%s enthaelt kein eingebettetes Frontend (assets/index-...): ohne `tauri/custom-protocol` gebaut oder ui/dist leer" % os.path.basename(pfad)
+    return None
 
 
 def cargo_version():
@@ -837,9 +941,12 @@ def cmd_stage(args):
     # 1. Programme
     names = ["vcc", "vc-lsp"] + (["vintagecoder"] if ide else [])
     if args.build:
-        pkgs = build_pakete(ide)
+        ober = getattr(args, "oberflaeche", "tauri")
+        pkgs = build_pakete(ide, ober)
         print("cargo build --release " + " ".join(pkgs))
         subprocess.run(["cargo", "build", "--release"] + pkgs, cwd=ROOT, check=True, env=release_env())
+        if ide and ober == "tauri":
+            bau_tauri()
     bin_dir = args.bin_dir or (cargo_bin_dir() if args.build else os.path.join(ROOT, "target", "release"))
     lay = stage_layout(os_name, out)
     bin_sub = BIN_SUB[os_name]
@@ -860,6 +967,12 @@ def cmd_stage(args):
         shutil.copyfile(src, dst)
         os.chmod(dst, 0o755)
         bins.append(exe_name(n, os_name))
+        if n == "vintagecoder" and getattr(args, "oberflaeche", "tauri") == "tauri":
+            fehler = pruefe_tauri_binaer(dst)
+            if fehler:
+                shutil.rmtree(out, ignore_errors=True)
+                print("FEHLER:  " + fehler)
+                return 1
 
     # 2. data/ und Beispiele
     for p in plan["data"]:
@@ -966,7 +1079,7 @@ def verify_examples(out, examples, reg, os_name):
         try:
             dst = os.path.join(tmp, "p")
             shutil.copytree(os.path.join(lay["share"], "examples", proj), dst)
-            # Gemeinsame Dateien (../../common, ../prallball) relativ zum Projekt: Beispiele-Ordner nachbilden
+            # Beispiele-Ordner nachbilden (die Projekte sind in sich geschlossen; der Ordner schadet nicht)
             tree = os.path.join(tmp, "examples")
             shutil.copytree(os.path.join(lay["share"], "examples"), tree)
             r = subprocess.run([vcc, "build", os.path.join(tree, proj)], capture_output=True, text=True, timeout=300, stdin=subprocess.DEVNULL)
@@ -1007,9 +1120,12 @@ def os_stage(os_name, out, ide, has_examples, version, args):
                 continue
             copy_file("installer/linux/man/" + f, out, dest_rel="usr/share/man/man1/" + f)
         if ide:
-            copy_file("installer/linux/vintagecoder.desktop", out, dest_rel="usr/share/applications/vintagecoder.desktop")
-            # Symbol: PNG in 16 bis 512 px (tools/gen_icon.py) und das SVG aus branding/ (scalable)
-            for size in (16, 32, 64, 128, 256, 512):
+            tauri = getattr(args, "oberflaeche", "tauri") == "tauri"
+            copy_file("installer/linux/vintagecoder-tauri.desktop" if tauri else "installer/linux/vintagecoder.desktop", out, dest_rel="usr/share/applications/vintagecoder.desktop")
+            if tauri:
+                copy_file("installer/linux/vintagecoder-mime.xml", out, dest_rel="usr/share/mime/packages/vintagecoder.xml")
+            # Symbol: PNG in 16 bis 512 px (16, 32, 48, 64, 128, 256, 512) (tools/gen_icon.py) und das SVG aus branding/ (scalable)
+            for size in (16, 32, 48, 64, 128, 256, 512):
                 rel = "usr/share/icons/hicolor/%dx%d/apps/vintagecoder.png" % (size, size)
                 copy_file("installer/linux/icons/hicolor/%dx%d/apps/vintagecoder.png" % (size, size), out, dest_rel=rel)
             copy_file("branding/vintagecoder-icon.svg", out, dest_rel="usr/share/icons/hicolor/scalable/apps/vintagecoder.svg")
@@ -1040,7 +1156,8 @@ def cmd_package(args):
         print("Distribution erkannt: " + distro)
     version = cargo_version()
     try:
-        res = linux_pkg.package(args.stage, args.out, args.format, distro, version, arch=args.arch, cfg=cfg, reproducible=args.reproducible)
+        res = linux_pkg.package(args.stage, args.out, args.format, distro, version, arch=args.arch, cfg=cfg, reproducible=args.reproducible,
+                                oberflaeche=getattr(args, "oberflaeche", "tauri"))
     except linux_pkg.PackageError as e:
         raise ReleaseError(str(e))
     for name, kind in res:
@@ -1078,10 +1195,10 @@ def cmd_bootstrap(args):
         f = feats.setdefault(key, {"kind": "link", "id": "vice" if n.startswith("vice-") else n, "needs": [], "files": []})
         f["files"].append("data/args/vice-*.json" if n.startswith("vice-") else p)
         f["files"] = sorted(set(f["files"]))
-    pk = {"EX-HELLO": [], "EX-JUMPRUN": [], "EX-PRALLBALL": [], "EX-DEMOS": []}
+    pk = {"EX-HELLO": [], "EX-JUMPRUN": [], "EX-PRALLBALL": [], "EX-TROXX": [], "EX-DEMOS": []}
     for proj in example_projects({"examples_ignore": []}):
         name = proj.split("/")[1]
-        key = "EX-JUMPRUN" if name == "jumprun" else "EX-PRALLBALL" if name.startswith("prallball") else \
+        key = "EX-JUMPRUN" if name == "jumprun" else "EX-PRALLBALL" if name.startswith("prallball") else "EX-TROXX" if name == "troxx" else \
               "EX-HELLO" if re.search(r"hello|basic_native|border", name) else "EX-DEMOS"
         pk[key].append(proj)
     for k, v in pk.items():
@@ -1327,6 +1444,7 @@ Include-Pruefung der Systemdateien und Beispiele.""")
     st.add_argument("--out", required=True, metavar="ORDNER", help="Ausgabeordner des Staging (muss leer sein oder fehlen)")
     st.add_argument("--build", action="store_true", help="vorher cargo build --release (vc-cli, vc-lsp, bei IDE-APP vc-gui); ein Bau je Betriebssystem")
     st.add_argument("--bin-dir", metavar="ORDNER", help="Ordner mit den gebauten Programmen (Standard: target/release; mit --build der Zielordner von Cargo)")
+    st.add_argument("--oberflaeche", choices=["egui", "tauri"], default="tauri", help="welche Oberflaeche als Programm `vintagecoder` ausgeliefert wird: tauri (Standard; vc-shell mit ui/; --build baut zuerst ui/ mit npm, dann vc-shell mit tauri/custom-protocol) oder egui (vc-gui, alte Oberflaeche, nur noch auf Wunsch bis zum Wegfall)")
     st.add_argument("--no-bin", action="store_true", help="fehlende Programme nicht als Fehler behandeln (nur Daten stagen, z. B. fuer Tests)")
     st.add_argument("--force", action="store_true", help="vorhandenen Ausgabeordner zuerst loeschen")
     st.add_argument("--dry-run", action="store_true", help="nur pruefen und planen, nichts schreiben")
@@ -1349,6 +1467,7 @@ Neben jedes Paket kommt <datei>.files (erwartete Dateiliste fuer die Pruefung im
     pk.add_argument("--out", required=True, metavar="ORDNER", help="Ausgabeordner der Pakete")
     pk.add_argument("--arch", metavar="ARCH", help="Architektur der Pakete (Standard: dieser Rechner, z. B. amd64/x86_64)")
     pk.add_argument("--packages", metavar="DATEI", help="Paketmetadaten (Standard: release/linux-packages.json)")
+    pk.add_argument("--oberflaeche", choices=["egui", "tauri"], default="tauri", help="Abhaengigkeiten der IDE: tauri (Standard; WebKitGTK, GTK 3; Eintrag ide_tauri in release/linux-packages.json) oder egui (alte Oberflaeche); muss zum Staging passen")
     pk.add_argument("--reproducible", action="store_true", help="feste Zeitstempel (SOURCE_DATE_EPOCH), gleiche Eingabe ergibt gleiche Pruefsummen (soweit dpkg/rpm es erlauben)")
     mf = sub.add_parser("manifest", help="update.json fuer den Release 'update-feed' erzeugen", formatter_class=argparse.RawDescriptionHelpFormatter,
                         description="""Erzeugt update.json (Versionsliste fuer die Update-Pruefung der IDE) aus release/CHANGELOG.public.md: die neuesten Abschnitte '## X.Y.Z (Zusatz)'

@@ -5,7 +5,7 @@ use crate::atari::{tokenize_text, AtariDialect, AtariProgram};
 use crate::structured::{expand, BlobReq, Env, first_word, is_word, proc_head, split_args};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::PathBuf;
-use vc_core::Diagnostic;
+use vc_core::{msg, Diagnostic, Msg};
 
 #[derive(Clone)]
 pub struct AtariOptions {
@@ -45,7 +45,7 @@ struct GLine { src: (String, usize), labels: Vec<String>, text: String }
 const MARK: char = '\u{1}';
 
 /// Wandelt eine Anweisungszeile um: Kommentare entfernen, Konstanten ersetzen, `$hex`/`%bin` → dezimal, `@label` → Platzhalter.
-fn transform(s: &str, consts: &HashMap<String, String>) -> Result<String, String> {
+fn transform(s: &str, consts: &HashMap<String, String>) -> Result<String, Msg> {
     let ch: Vec<char> = s.chars().collect();
     let (mut out, mut i) = (String::new(), 0);
     while i < ch.len() {
@@ -60,7 +60,7 @@ fn transform(s: &str, consts: &HashMap<String, String>) -> Result<String, String
             let st = i + 1;
             i = st;
             while i < ch.len() && is_word(ch[i]) { i += 1; }
-            if st == i { return Err("Label-Name nach '@' fehlt".into()); }
+            if st == i { return Err(msg!("diag-basic-b100-label-name-missing")); }
             out.push(MARK);
             out.push_str(&ch[st..i].iter().collect::<String>().to_ascii_lowercase());
             out.push(MARK);
@@ -68,12 +68,12 @@ fn transform(s: &str, consts: &HashMap<String, String>) -> Result<String, String
             let st = i + 1;
             i = st;
             while i < ch.len() && ch[i].is_ascii_hexdigit() { i += 1; }
-            out.push_str(&i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 16).map_err(|e| e.to_string())?.to_string());
+            out.push_str(&i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 16).map_err(|_| msg!("diag-basic-b100-hex-too-big"))?.to_string());
         } else if c == '%' && ch.get(i + 1).map_or(false, |x| *x == '0' || *x == '1') {
             let st = i + 1;
             i = st;
             while i < ch.len() && (ch[i] == '0' || ch[i] == '1') { i += 1; }
-            out.push_str(&i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 2).map_err(|e| e.to_string())?.to_string());
+            out.push_str(&i64::from_str_radix(&ch[st..i].iter().collect::<String>(), 2).map_err(|_| msg!("diag-basic-b100-bin-too-big"))?.to_string());
         } else if c.is_ascii_alphabetic() {
             let st = i;
             while i < ch.len() && is_word(ch[i]) { i += 1; }
@@ -116,24 +116,24 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
         }
         if t.is_empty() || t.starts_with('\'') { continue; }
         let word = first_word(t);
-        let tr = |x: &str, errs: &mut Vec<Diagnostic>| -> Option<String> { match transform(x, &consts) { Ok(v) => Some(v), Err(e) => { errs.push(Diagnostic::error("B100", &at.0, at.1, e)); None } } };
+        let tr = |x: &str, errs: &mut Vec<Diagnostic>| -> Option<String> { match transform(x, &consts) { Ok(v) => Some(v), Err(e) => { errs.push(Diagnostic::error(crate::atari::code_of(e.key), &at.0, at.1, e)); None } } };
         let mut emit = |text: String, pending: &mut Vec<String>| glines.push(GLine { src: at.clone(), labels: std::mem::take(pending), text });
         let low = t.to_ascii_lowercase();
         match word.as_str() {
             "const" => {
-                let Some((n, v)) = t[5..].trim().split_once('=') else { errs.push(Diagnostic::error("B108", &at.0, at.1, "const erwartet NAME = Wert")); continue };
+                let Some((n, v)) = t[5..].trim().split_once('=') else { errs.push(Diagnostic::error("B108", &at.0, at.1, msg!("diag-basic-b108-const-syntax"))); continue };
                 if let Some(v) = tr(v.trim(), &mut errs) {
-                    if v.is_empty() || v.contains(MARK) || (!v.starts_with('"') && v.parse::<f64>().is_err()) { errs.push(Diagnostic::error("B108", &at.0, at.1, "const erwartet eine einzelne Zahl oder Zeichenkette")); }
+                    if v.is_empty() || v.contains(MARK) || (!v.starts_with('"') && v.parse::<f64>().is_err()) { errs.push(Diagnostic::error("B108", &at.0, at.1, msg!("diag-basic-b108-const-value"))); }
                     else { consts.insert(n.trim().to_ascii_lowercase(), v); }
                 }
             }
             "else" if low == "else" => match blocks.last_mut() {
                 Some(Block::If { els, end, has_else, .. }) if !*has_else => { *has_else = true; emit(format!("GOTO {MARK}{end}{MARK}"), &mut pending); pending.push(els.clone()); }
-                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "else ohne passendes mehrzeiliges if")),
+                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-else-without-if"))),
             },
             "endif" if low == "endif" => match blocks.pop() {
                 Some(Block::If { els, end, has_else, .. }) => { if !has_else { pending.push(els); } pending.push(end); }
-                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "endif ohne if")),
+                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-endif-without-if"))),
             },
             "while" => if let Some(c) = tr(t[5..].trim(), &mut errs) {
                 counter += 1;
@@ -144,18 +144,18 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
             },
             "wend" if low == "wend" => match blocks.pop() {
                 Some(Block::While { top, end, .. }) => { emit(format!("GOTO {MARK}{top}{MARK}"), &mut pending); pending.push(end); }
-                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "wend ohne while")),
+                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-wend-without-while"))),
             },
             "repeat" if low == "repeat" => { counter += 1; let (top, end) = (format!("__r{counter}_top"), format!("__r{counter}_end")); pending.push(top.clone()); blocks.push(Block::Repeat { top, end, at: at.clone() }); }
             "until" => match (blocks.pop(), tr(t[5..].trim(), &mut errs)) {
                 (Some(Block::Repeat { top, end, .. }), Some(c)) => { emit(format!("IF NOT ({c}) THEN {MARK}{top}{MARK}"), &mut pending); if used_ends.contains(&end) { pending.push(end); } }
-                (None, _) | (Some(_), _) => errs.push(Diagnostic::error("B106", &at.0, at.1, "until ohne repeat")),
+                (None, _) | (Some(_), _) => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-until-without-repeat"))),
             },
             "blob" => {
                 let strs: Vec<&str> = t[4..].split('"').enumerate().filter(|(i, _)| i % 2 == 1).map(|(_, x)| x).collect();
                 let ok = t[4..].trim_start().starts_with('"') && !strs.is_empty() && (strs.len() == 1 || t[4..].to_ascii_lowercase().contains(" with "));
                 if ok { blobs.push(BlobReq { file: strs[0].to_string(), with: strs[1..].iter().map(|x| x.to_string()).collect(), src: at.clone() }); }
-                else { errs.push(Diagnostic::error("B113", &at.0, at.1, "blob erwartet: blob \"datei.asm\" [with \"song.asm\"]")); }
+                else { errs.push(Diagnostic::error("B113", &at.0, at.1, msg!("diag-basic-b113-blob-syntax"))); }
             }
             "elseif" => match blocks.last_mut() {
                 Some(Block::If { els, end, has_else, .. }) if !*has_else => {
@@ -169,7 +169,7 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
                         emit(format!("IF NOT ({c}) THEN {MARK}{next_els}{MARK}"), &mut pending);
                     }
                 }
-                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "elseif ohne passendes mehrzeiliges if (oder nach else)")),
+                _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-elseif-without-if"))),
             },
             "do" => {
                 let rest = t[2..].trim();
@@ -181,7 +181,7 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
                     "" => {}
                     "while" => if let Some(c) = tr(cond, &mut errs) { used_ends.insert(end.clone()); emit(format!("IF NOT ({c}) THEN {MARK}{end}{MARK}"), &mut pending); },
                     "until" => if let Some(c) = tr(cond, &mut errs) { used_ends.insert(end.clone()); emit(format!("IF {c} THEN {MARK}{end}{MARK}"), &mut pending); },
-                    _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "do erwartet nichts, 'while Bedingung' oder 'until Bedingung'")),
+                    _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-do-syntax"))),
                 }
                 blocks.push(Block::Do { top, end, at: at.clone() });
             }
@@ -193,23 +193,23 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
                         "" => emit(format!("GOTO {MARK}{top}{MARK}"), &mut pending),
                         "while" => if let Some(c) = tr(cond, &mut errs) { emit(format!("IF {c} THEN {MARK}{top}{MARK}"), &mut pending); },
                         "until" => if let Some(c) = tr(cond, &mut errs) { emit(format!("IF NOT ({c}) THEN {MARK}{top}{MARK}"), &mut pending); },
-                        _ => errs.push(Diagnostic::error("B106", &at.0, at.1, "loop erwartet nichts, 'while Bedingung' oder 'until Bedingung'")),
+                        _ => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-loop-syntax"))),
                     }
                     if used_ends.contains(&end) { pending.push(end); }
                 }
-                other => { if let Some(b) = other { blocks.push(b); } errs.push(Diagnostic::error("B106", &at.0, at.1, "loop ohne do")); }
+                other => { if let Some(b) = other { blocks.push(b); } errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-loop-without-do"))); }
             },
             "exit" if low == "exit" => {
                 let target = blocks.iter().rev().take_while(|b| !matches!(b, Block::Proc { .. }))
                     .find_map(|b| match b { Block::While { end, .. } | Block::Repeat { end, .. } | Block::Do { end, .. } => Some(end.clone()), _ => None });
                 match target {
                     Some(end) => { used_ends.insert(end.clone()); emit(format!("GOTO {MARK}{end}{MARK}"), &mut pending); }
-                    None => errs.push(Diagnostic::error("B106", &at.0, at.1, "exit außerhalb von while, repeat oder do")),
+                    None => errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-exit-outside"))),
                 }
             }
             "proc" => match proc_head(&t[4..]) {
                 Ok((name, _)) => {
-                    if blocks.iter().any(|b| matches!(b, Block::Proc { .. })) { errs.push(Diagnostic::error("B109", &at.0, at.1, "proc darf nicht in einer anderen proc stehen")); continue; }
+                    if blocks.iter().any(|b| matches!(b, Block::Proc { .. })) { errs.push(Diagnostic::error("B109", &at.0, at.1, msg!("diag-basic-b109-proc-nested"))); continue; }
                     counter += 1;
                     let skip = format!("__p{counter}_skip");
                     emit(format!("GOTO {MARK}{skip}{MARK}"), &mut pending);
@@ -220,16 +220,16 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
             },
             "endproc" if low == "endproc" => match blocks.pop() {
                 Some(Block::Proc { skip, .. }) => { emit("RETURN".into(), &mut pending); pending.push(skip); }
-                other => { if let Some(b) = other { blocks.push(b); } errs.push(Diagnostic::error("B106", &at.0, at.1, "endproc ohne proc")); }
+                other => { if let Some(b) = other { blocks.push(b); } errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-endproc-without-proc"))); }
             },
             "call" => {
                 let rest = t[4..].trim();
                 let name: String = rest.chars().take_while(|c| is_word(*c)).collect::<String>().to_ascii_lowercase();
-                if name.is_empty() { errs.push(Diagnostic::error("B109", &at.0, at.1, "Prozedurname fehlt")); continue; }
-                let Some(params) = procs.get(&name) else { errs.push(Diagnostic::error("B109", &at.0, at.1, format!("Prozedur '{name}' ist nicht definiert"))); continue };
+                if name.is_empty() { errs.push(Diagnostic::error("B109", &at.0, at.1, msg!("diag-basic-b109-proc-name-missing"))); continue; }
+                let Some(params) = procs.get(&name) else { errs.push(Diagnostic::error("B109", &at.0, at.1, msg!("diag-basic-b109-proc-undefined", name = name))); continue };
                 let tail = rest[name.len()..].trim();
                 let args = if tail.is_empty() { vec![] } else { split_args(tail.strip_prefix('(').and_then(|x| x.strip_suffix(')')).unwrap_or(tail)) };
-                if args.len() != params.len() { errs.push(Diagnostic::error("B109", &at.0, at.1, format!("Prozedur '{name}' erwartet {} Argument(e), übergeben: {}", params.len(), args.len()))); continue; }
+                if args.len() != params.len() { errs.push(Diagnostic::error("B109", &at.0, at.1, msg!("diag-basic-b109-proc-arg-count", name = name, expected = params.len(), given = args.len()))); continue; }
                 let mut text = String::new();
                 for (p, a) in params.iter().zip(&args) { if let Some(v) = tr(a, &mut errs) { text.push_str(&format!("{p}={v}:")); } }
                 text.push_str(&format!("GOSUB {MARK}{name}{MARK}"));
@@ -249,7 +249,7 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
     }
     for b in &blocks {
         let at = match b { Block::If { at, .. } | Block::While { at, .. } | Block::Repeat { at, .. } | Block::Do { at, .. } | Block::Proc { at, .. } => at };
-        errs.push(Diagnostic::error("B106", &at.0, at.1, "Block nicht geschlossen"));
+        errs.push(Diagnostic::error("B106", &at.0, at.1, msg!("diag-basic-b106-block-not-closed")));
     }
     if !opts.blob_chunks.is_empty() {
         // Maschinencode als DATA-Zeilen hinten anhängen (der Ablauf kommt nie hierher; `restore @blob_data` + `read` holt sie)
@@ -269,8 +269,8 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
     let mut labels: BTreeMap<String, u32> = BTreeMap::new();
     for (i, l) in glines.iter().enumerate() {
         let num = opts.start + i as u32 * opts.step;
-        if num > 32767 { errs.push(Diagnostic::error("B105", &l.src.0, l.src.1, "Zeilennummern über 32767 – step verkleinern")); break; }
-        for n in &l.labels { if labels.insert(n.clone(), num).is_some() { errs.push(Diagnostic::error("B104", &l.src.0, l.src.1, format!("Label '{n}' doppelt definiert"))); } }
+        if num > 32767 { errs.push(Diagnostic::error("B105", &l.src.0, l.src.1, msg!("diag-basic-b105-line-numbers-atari"))); break; }
+        for n in &l.labels { if labels.insert(n.clone(), num).is_some() { errs.push(Diagnostic::error("B104", &l.src.0, l.src.1, msg!("diag-basic-b104-label-duplicate", name = n.as_str()))); } }
     }
     let mut text = String::new();
     for (i, l) in glines.iter().enumerate() {
@@ -278,7 +278,7 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
         let mut parts = l.text.split(MARK);
         line.push_str(parts.next().unwrap_or(""));
         while let (Some(name), Some(rest)) = (parts.next(), parts.next()) {
-            match labels.get(name) { Some(n) => line.push_str(&n.to_string()), None if name.starts_with("__") => {}, None => errs.push(Diagnostic::error("B107", &l.src.0, l.src.1, format!("Label '@{name}' nicht definiert"))) }
+            match labels.get(name) { Some(n) => line.push_str(&n.to_string()), None if name.starts_with("__") => {}, None => errs.push(Diagnostic::error("B107", &l.src.0, l.src.1, msg!("diag-basic-b107-label-undefined", name = name))) }
             line.push_str(rest);
         }
         text.push_str(&format!("{} {}\n", opts.start + i as u32 * opts.step, line));
@@ -290,6 +290,6 @@ pub fn compile_atari(src: &str, d: &AtariDialect, opts: &AtariOptions) -> Result
             let listing = program.listing(d);
             Ok(AtariCompiled { blobs, program, file, listing, labels })
         }
-        Err(es) => Err(es.into_iter().map(|e| { let g = &glines[e.line.saturating_sub(1).min(glines.len().saturating_sub(1))]; Diagnostic::error(e.code, &g.src.0, g.src.1, e.message) }).collect()),
+        Err(es) => Err(es.into_iter().map(|e| { let g = &glines[e.line.saturating_sub(1).min(glines.len().saturating_sub(1))]; Diagnostic::error(e.code, &g.src.0, g.src.1, e.msg()) }).collect()),
     }
 }

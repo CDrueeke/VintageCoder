@@ -50,7 +50,7 @@ levels_map2:  .byte $02,$00,$00,$02,$01,$02,$00,$01,$05,$03,$04,$02,$02,$03,$01
               .byte $05,$05,$02,$01,$02,$04,$04,$00,$02,$05,$04,$04,$01,$03,$03
               .byte $00,$01,$01,$03,$01,$02,$03,$03,$05,$01,$04,$01,$04,$04,$04
               .byte $01,$00,$03,$02,$03,$04,$03,$00,$00,$01,$02,$01,$04,$01,$01
-levels_screens: .lohifill 3, levels_map0 + 150 * i
+levels_screens: .lohitable 3, levels_map0 + 150 * i
 levels_screens_lo = levels_screens
 levels_screens_hi = levels_screens + 3
 .const levels_count = 3

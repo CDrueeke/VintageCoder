@@ -50,7 +50,7 @@ impl StreamKind {
 pub enum PacketError {
     /// Falsche Länge
     Length { got: usize, want: usize },
-    /// Kopf unplausibel (Beschreibung des Feldes)
+    /// Kopf unplausibel (Katalogschlüssel der Beschreibung des Feldes)
     Header(&'static str),
     /// Steuerpaket ohne Nutzdaten (2 Byte beim Start jedes Stroms); kein Fehler, wird nicht weitergereicht
     Control,
@@ -59,8 +59,8 @@ pub enum PacketError {
 impl fmt::Display for PacketError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PacketError::Length { got, want } => write!(f, "Paketlänge {got} statt {want}"),
-            PacketError::Header(w) => write!(f, "Paketkopf unplausibel: {w}"),
+            PacketError::Length { got, want } => write!(f, "{}", vc_i18n::t!("emu-paketlaenge-got-statt-want", got = got, want = want)),
+            PacketError::Header(w) => write!(f, "{}", vc_i18n::t!("emu-paketkopf-unplausibel-w", w = vc_i18n::translate(w, &[]))),
             PacketError::Control => write!(f, "Steuerpaket"),
         }
     }

@@ -157,11 +157,11 @@ pub struct Decomp { pub set: Value, pub bank: Value, pub tiles: usize, pub patch
 /// Zerlegt einen alten Textbildschirm (`chars`, `attrs`) in Kacheln `tw`×`th` ab `origin`; gleiche Blöcke werden eine Kachel.
 /// Zellen im Rest (rechts, unten, vor dem Ursprung) und Zellen, die ein Patch brauchen, landen in der Zellebene.
 pub fn decompose(old: &Value, p: &vc_media::Profile, tileset_profile: &str, tw: usize, th: usize, origin: (usize, usize), name: &str) -> Result<Decomp, String> {
-    if old["kind"] != "screen" || old["screens"].is_array() { return Err("alter Zeichen-Screen erwartet".into()); }
-    if !(1..=tiles::MAX_SIDE).contains(&tw) || !(1..=tiles::MAX_SIDE).contains(&th) { return Err("Kachelgröße 1..16".into()); }
-    let rows = old["chars"].as_array().ok_or("chars fehlt")?;
+    if old["kind"] != "screen" || old["screens"].is_array() { return Err(vc_i18n::t!("bankdoc-alter-zeichen-screen-erwartet").into()); }
+    if !(1..=tiles::MAX_SIDE).contains(&tw) || !(1..=tiles::MAX_SIDE).contains(&th) { return Err(vc_i18n::t!("bankdoc-kachelgroesse-1-16").into()); }
+    let rows = old["chars"].as_array().ok_or(vc_i18n::t!("bankdoc-chars-fehlt"))?;
     let (h, w) = (rows.len(), rows.first().and_then(|r| r.as_array()).map_or(0, |r| r.len()));
-    if w == 0 || h == 0 { return Err("leerer Bildschirm".into()); }
+    if w == 0 || h == 0 { return Err(vc_i18n::t!("bankdoc-leerer-bildschirm").into()); }
     let color_ram = p.raw["colorRam"].as_bool().unwrap_or(false);
     let blank = bildschirmcode(&p.target, ' ');
     let code = |x: usize, y: usize| old["chars"][y][x].as_u64().unwrap_or(blank as u64) as u8;
@@ -186,13 +186,13 @@ pub fn decompose(old: &Value, p: &vc_media::Profile, tileset_profile: &str, tw: 
         };
         grid[gy][gx] = idx;
     } }
-    if tiles_v.len() > tiles::MAX_TILES { return Err(format!("{} verschiedene Kacheln: mit 8-Bit-Index sind höchstens {} möglich; größere Kacheln wählen", tiles_v.len(), tiles::MAX_TILES)); }
+    if tiles_v.len() > tiles::MAX_TILES { return Err(vc_i18n::t!("bankdoc-p1-verschiedene-kacheln-mit-8-bit", p1 = tiles_v.len(), p2 = tiles::MAX_TILES)); }
     let mut patches = vec![];
     for y in 0..h { for x in 0..w {
         let covered = x >= origin.0 && y >= origin.1 && (x - origin.0) / tw < cols && (y - origin.1) / th < nrows;
         if !covered && code(x, y) != blank { patches.push(Patch { x, y, cell: Cell { code: code(x, y), cs: 0, col: color_ram.then(|| attr(x, y)), sel: false } }); }
     } }
-    if patches.len() > MAX_PATCHES { return Err(format!("{} Zellen außerhalb des Kachelrasters: mehr als {MAX_PATCHES} Patches; anderen Ursprung oder andere Größe wählen", patches.len())); }
+    if patches.len() > MAX_PATCHES { return Err(vc_i18n::t!("bankdoc-p1-zellen-ausserhalb-des-kachelrasters-mehr", p1 = patches.len(), MAX_PATCHES = MAX_PATCHES)); }
     let charsets: Vec<String> = old["charset"].as_str().map(|c| vec![c.to_string()]).unwrap_or_default();
     let ts = TileSet { name: name.into(), tw, th, color_mode: mode, charsets, tiles: tiles_v, prop_defs: vec![("solid".into(), 0)], pins: vec![] };
     let set = tiles::tileset_json(&ts, &json!({ "format": 1, "kind": "tileset", "profile": tileset_profile, "name": name }));
@@ -209,10 +209,10 @@ pub fn write_decomp(root: &Path, rel_old: &str, d: &mut Decomp) -> Result<(Strin
     let (dir, stem) = (rel_old.rsplit_once('/').map_or("", |x| x.0), vc_media::naming::stem(rel_old).to_string());
     let join = |f: String| if dir.is_empty() { f } else { format!("{dir}/{f}") };
     let (set_rel, bank_rel) = (join(format!("{stem}_tiles.vctiles")), join(format!("{stem}_bank.vcscreen")));
-    for r in [&set_rel, &bank_rel] { if root.join(r).exists() { return Err(format!("{r} gibt es schon; bitte erst umbenennen oder entfernen")); } }
+    for r in [&set_rel, &bank_rel] { if root.join(r).exists() { return Err(vc_i18n::t!("bankdoc-r-gibt-es-schon-bitte-erst", r = &r)); } }
     d.bank["tilesets"] = json!([set_rel]);
-    std::fs::write(root.join(&set_rel), vc_media::project::format_media(&d.set)).map_err(|e| format!("{set_rel}: {e}"))?;
-    std::fs::write(root.join(&bank_rel), vc_media::project::format_media(&d.bank)).map_err(|e| format!("{bank_rel}: {e}"))?;
+    vc_core::atomar::schreiben(root.join(&set_rel), vc_media::project::format_media(&d.set)).map_err(|e| vc_i18n::t!("bankdoc-set-rel-e", set_rel = &set_rel, e = &e))?;
+    vc_core::atomar::schreiben(root.join(&bank_rel), vc_media::project::format_media(&d.bank)).map_err(|e| vc_i18n::t!("bankdoc-bank-rel-e", bank_rel = &bank_rel, e = &e))?;
     Ok((set_rel, bank_rel))
 }
 
@@ -220,6 +220,20 @@ pub fn write_decomp(root: &Path, rel_old: &str, d: &mut Decomp) -> Result<(Strin
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum Modus { Kachel, Zelle }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum Werkzeug { Stift, Linie, Rechteck, Fuellen, Pipette, Auswahl, Stempel, Text, Loeschen }
+impl Modus {
+    /// Bezeichnung in der gewählten Sprache
+    pub fn label(self) -> String { match self { Modus::Kachel => vc_i18n::t!("bankdoc-modus-kachel"), Modus::Zelle => vc_i18n::t!("bankdoc-modus-zelle") } }
+}
+impl Werkzeug {
+    /// Bezeichnung in der gewählten Sprache (Kachel-Modus; im Zellen-Modus heißt der Stift „Zeichen“)
+    pub fn label(self) -> String {
+        match self {
+            Werkzeug::Stift => vc_i18n::t!("bankdoc-stift"), Werkzeug::Linie => vc_i18n::t!("bankdoc-linie"), Werkzeug::Rechteck => vc_i18n::t!("bankdoc-rechteck"),
+            Werkzeug::Fuellen => vc_i18n::t!("bankdoc-fuellen"), Werkzeug::Pipette => vc_i18n::t!("bankdoc-pipette"), Werkzeug::Auswahl => vc_i18n::t!("bankdoc-auswahl"),
+            Werkzeug::Stempel => vc_i18n::t!("bankdoc-stempel"), Werkzeug::Text => vc_i18n::t!("bankdoc-text"), Werkzeug::Loeschen => vc_i18n::t!("bankdoc-loeschen"),
+        }
+    }
+}
 
 /// Rückfrage „Auswahl → Kachel anlegen“
 #[derive(Clone, Debug, PartialEq)]
@@ -245,9 +259,9 @@ pub struct BankDoc {
 impl BankDoc {
     pub fn oeffnen(root: &Path, rel: &str, data: &Path) -> Result<BankDoc, String> {
         let abs = root.join(rel);
-        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| format!("{rel}: {e}"))?).map_err(|e| format!("{rel}: {e}"))?;
+        let media: Value = serde_json::from_str(&std::fs::read_to_string(&abs).map_err(|e| vc_i18n::t!("bankdoc-rel-e", rel = &rel, e = e.to_string()))?).map_err(|e| vc_i18n::t!("bankdoc-rel-e", rel = &rel, e = e.to_string()))?;
         let profiles = vc_media::load_profiles(data)?; let p = vc_media::profile(&profiles, media["profile"].as_str().unwrap_or(""))?;
-        let bank = tiles::parse_bank(&media).map_err(|e| format!("{rel}: {e}"))?;
+        let bank = tiles::parse_bank(&media).map_err(|e| vc_i18n::t!("bankdoc-rel-e", rel = &rel, e = &e))?;
         let saetze = Self::saetze_suchen(root, &p.target, &profiles);
         let mut d = BankDoc { rel: rel.into(), abs, root: root.into(), dim: (p.width, p.height), target: p.target.clone(), profiles, saved: media.to_string(), media, bank, ts: None, ts_base: Value::Null, ts_fehler: None, ts_dirty: false, saetze,
             glyphs: vec![], undo: vec![], redo: vec![], status: String::new(), cur: 0, modus: Modus::Kachel, werkzeug: Werkzeug::Stift, pinsel: 0, stempel: None, zuletzt: vec![], zell_pinsel: Cell { code: 1, cs: 0, col: None, sel: false }, reiter: 0, farbe: 1,
@@ -269,11 +283,11 @@ impl BankDoc {
     /// Kachelsatz der Bank (erster Eintrag von `tilesets`) von der Platte lesen
     pub fn satz_laden(&mut self) {
         self.ts = None; self.ts_fehler = None; self.glyphs.clear();
-        let Some(rel) = self.bank.tilesets.first().cloned() else { self.ts_fehler = Some("Die Bank nennt noch keinen Kachelsatz: rechts einen wählen.".into()); return };
+        let Some(rel) = self.bank.tilesets.first().cloned() else { self.ts_fehler = Some(vc_i18n::t!("bankdoc-die-bank-nennt-noch-keinen-kachelsatz").into()); return };
         let r = std::fs::read_to_string(self.root.join(&rel)).map_err(|e| e.to_string()).and_then(|t| serde_json::from_str::<Value>(&t).map_err(|e| e.to_string())).and_then(|v| { let ts = tiles::parse_tileset(&v)?; Ok((v, ts)) });
         match r {
             Ok((v, ts)) => { self.glyphs = ts.charsets.iter().map(|p| Glyphs::laden(&self.root, p)).collect(); self.reiter = self.reiter.min(ts.charsets.len().saturating_sub(1)); self.pinsel = self.pinsel.min(ts.tiles.len().saturating_sub(1)); self.ts_base = v; self.ts = Some(ts); self.ts_dirty = false }
-            Err(e) => self.ts_fehler = Some(format!("{rel}: {e}")),
+            Err(e) => self.ts_fehler = Some(vc_i18n::t!("bankdoc-rel-e", rel = &rel, e = &e)),
         }
     }
 
@@ -298,11 +312,11 @@ impl BankDoc {
         if self.ts_dirty {
             if let (Some(ts), Some(rel)) = (&self.ts, self.bank.tilesets.first()) {
                 let v = tiles::tileset_json(ts, &self.ts_base);
-                std::fs::write(self.root.join(rel), vc_media::project::format_media(&v)).map_err(|e| format!("{rel}: {e}"))?; self.ts_base = v; self.ts_dirty = false;
+                vc_core::atomar::schreiben(self.root.join(rel), vc_media::project::format_media(&v)).map_err(|e| vc_i18n::t!("bankdoc-rel-e", rel = &rel, e = &e))?; self.ts_base = v; self.ts_dirty = false;
             }
         }
         self.uebernehmen();
-        std::fs::write(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = "gespeichert".into(); Ok(())
+        vc_core::atomar::schreiben(&self.abs, self.media_text()).map_err(|e| format!("{}: {e}", self.rel))?; self.saved = self.media.to_string(); self.status = vc_i18n::t!("bankdoc-gespeichert"); Ok(())
     }
 
     // -- Screens --------------------------------------------------------------------------------------------------------
@@ -329,6 +343,11 @@ impl BankDoc {
         let nach = self.cur as i32 + d; if nach < 0 || nach as usize >= self.bank.screens.len() { return }
         self.undo_punkt(); self.bank.screens.swap(self.cur, nach as usize); self.cur = nach as usize; self.uebernehmen()
     }
+    /// Karte `von` an die Stelle `nach` setzen (Ziehen in der Levels-Leiste); ein Rückgängig-Schritt, die verschobene Karte bleibt gewählt
+    pub fn screen_ordnen(&mut self, von: usize, nach: usize) {
+        let n = self.bank.screens.len(); if von >= n || nach >= n || von == nach { return }
+        self.undo_punkt(); let sc = self.bank.screens.remove(von); self.bank.screens.insert(nach, sc); self.cur = nach; self.auswahl = None; self.neue_kachel = None; self.uebernehmen()
+    }
     pub fn screen_waehlen(&mut self, i: usize) { if i < self.bank.screens.len() { self.cur = i; self.auswahl = None; self.neue_kachel = None } }
     pub fn screen_umbenennen(&mut self, name: &str, erster: bool) { if erster { self.undo_punkt() } if let Some(s) = self.screen_mut() { s.name = name.to_string() } self.uebernehmen() }
     /// Größe und Ursprung des Kachelrasters; `erster` = Rückgängig-Punkt
@@ -347,10 +366,10 @@ impl BankDoc {
     }
 
     // -- Werkzeuge ------------------------------------------------------------------------------------------------------
-    pub fn werkzeuge(&self) -> &'static [(Werkzeug, &'static str)] {
+    pub fn werkzeuge(&self) -> Vec<(Werkzeug, String)> {
         match self.modus {
-            Modus::Kachel => &[(Werkzeug::Stift, "Stift"), (Werkzeug::Linie, "Linie"), (Werkzeug::Rechteck, "Rechteck"), (Werkzeug::Fuellen, "Füllen"), (Werkzeug::Pipette, "Pipette"), (Werkzeug::Auswahl, "Auswahl"), (Werkzeug::Stempel, "Stempel"), (Werkzeug::Loeschen, "Löschen")],
-            Modus::Zelle => &[(Werkzeug::Stift, "Zeichen"), (Werkzeug::Linie, "Linie"), (Werkzeug::Rechteck, "Rechteck"), (Werkzeug::Pipette, "Pipette"), (Werkzeug::Auswahl, "Auswahl"), (Werkzeug::Text, "Text"), (Werkzeug::Loeschen, "Löschen")],
+            Modus::Kachel => vec![(Werkzeug::Stift, vc_i18n::t!("bankdoc-stift")), (Werkzeug::Linie, vc_i18n::t!("bankdoc-linie")), (Werkzeug::Rechteck, vc_i18n::t!("bankdoc-rechteck")), (Werkzeug::Fuellen, vc_i18n::t!("bankdoc-fuellen")), (Werkzeug::Pipette, vc_i18n::t!("bankdoc-pipette")), (Werkzeug::Auswahl, vc_i18n::t!("bankdoc-auswahl")), (Werkzeug::Stempel, vc_i18n::t!("bankdoc-stempel")), (Werkzeug::Loeschen, vc_i18n::t!("bankdoc-loeschen"))],
+            Modus::Zelle => vec![(Werkzeug::Stift, vc_i18n::t!("bankdoc-zeichen")), (Werkzeug::Linie, vc_i18n::t!("bankdoc-linie")), (Werkzeug::Rechteck, vc_i18n::t!("bankdoc-rechteck")), (Werkzeug::Pipette, vc_i18n::t!("bankdoc-pipette")), (Werkzeug::Auswahl, vc_i18n::t!("bankdoc-auswahl")), (Werkzeug::Text, vc_i18n::t!("bankdoc-text")), (Werkzeug::Loeschen, vc_i18n::t!("bankdoc-loeschen"))],
         }
     }
     pub fn modus_waehlen(&mut self, m: Modus) {
@@ -383,7 +402,7 @@ impl BankDoc {
             Modus::Zelle => {
                 let zelle = self.gemalt();
                 let voll = match self.screen_mut() { Some(s) => if loeschen { remove_patch(s, u.0, u.1); false } else { !set_patch(s, u.0, u.1, zelle) }, None => false };
-                if voll { self.status = format!("Höchstens {MAX_PATCHES} Zellen-Patches je Screen") }
+                if voll { self.status = vc_i18n::t!("bankdoc-hoechstens-max-patches-zellen-patches-je", MAX_PATCHES = MAX_PATCHES) }
             }
         }
         self.uebernehmen()
@@ -439,7 +458,7 @@ impl BankDoc {
         let (w, h) = self.screen().map_or((1, 1), |s| (s.w, s.h));
         for ch in text.chars() {
             let (x, y) = self.text_pos; let zelle = Cell { code: bildschirmcode(&self.target, ch), ..self.gemalt() };
-            if let Some(s) = self.screen_mut() { if !set_patch(s, x, y, zelle) { self.status = format!("Höchstens {MAX_PATCHES} Zellen-Patches je Screen"); break } }
+            if let Some(s) = self.screen_mut() { if !set_patch(s, x, y, zelle) { self.status = vc_i18n::t!("bankdoc-hoechstens-max-patches-zellen-patches-je", MAX_PATCHES = MAX_PATCHES); break } }
             self.text_pos = if x + 1 < w { (x + 1, y) } else { (0, (y + 1).min(h - 1)) };
         }
         self.uebernehmen()
@@ -452,11 +471,11 @@ impl BankDoc {
     pub fn text_zeilenwechsel(&mut self) { let h = self.screen().map_or(1, |s| s.h); self.text_pos = (0, (self.text_pos.1 + 1).min(h - 1)) }
 
     // -- Auswahl ------------------------------------------------------------------------------------------------------
-    /// Auswahl als Stempel merken (Kachelmodus)
+    /// Auswahl als Stempel merken (Kachelmodus); das Werkzeug bleibt, wie es ist (Stempel wählt der Nutzer bewusst oder setzt mit Cmd/Strg+V einmal ein)
     pub fn auswahl_kopieren(&mut self) {
         let (Some(((x0, y0), (x1, y1))), Some(s)) = (self.auswahl, self.screen()) else { return }; if self.modus != Modus::Kachel { return }
         let clip: Vec<Vec<usize>> = (y0..=y1).map(|y| (x0..=x1).map(|x| s.grid.get(y).and_then(|r| r.get(x)).copied().unwrap_or(HOLE)).collect()).collect();
-        self.stempel = Some(clip); self.werkzeug = Werkzeug::Stempel
+        self.stempel = Some(clip)
     }
     /// Auswahl leeren: Kacheln → 0 (Kachelmodus), Patches entfernen (Zeichenmodus)
     pub fn auswahl_leeren(&mut self) {
@@ -491,14 +510,14 @@ impl BankDoc {
         let (Some(bit), Some(t)) = (self.eigenschaft, self.screen().and_then(|s| s.grid.get(u.1)).and_then(|r| r.get(u.0)).copied()) else { return };
         self.undo_punkt(); let mut ok = false;
         if let Some(ts) = &mut self.ts { if let Some(k) = ts.tiles.get_mut(t) { k.props ^= 1u8 << bit; ok = true } }
-        if ok { self.ts_dirty = true; self.status = "Eigenschaft der Kachel umgeschaltet (gilt für alle ihre Stellen)".into() }
+        if ok { self.ts_dirty = true; self.status = vc_i18n::t!("bankdoc-eigenschaft-der-kachel-umgeschaltet-gilt-fuer").into() }
     }
 
     // -- Kachel aus Auswahl ---------------------------------------------------------------------------------------------
     /// „Als Kachel anlegen“ ab der linken oberen Ecke `at` (Zellkoordinaten)
     pub fn neue_kachel_anfragen(&mut self, at: (usize, usize)) {
         let (Some(s), Some(ts)) = (self.screen(), self.ts.clone()) else { return };
-        let Some((cells, col)) = block_cells(s, &ts, at.0, at.1) else { self.status = format!("Ab {},{} passt keine {}×{}-Kachel mehr in den Screen", at.0, at.1, ts.tw, ts.th); return };
+        let Some((cells, col)) = block_cells(s, &ts, at.0, at.1) else { self.status = vc_i18n::t!("bankdoc-ab-p1-p2-passt-keine-p3", p1 = at.0, p2 = at.1, p3 = &ts.tw, p4 = &ts.th); return };
         let (ox, oy) = s.origin; let (gx, gy) = (at.0.wrapping_sub(ox) / ts.tw, at.1.wrapping_sub(oy) / ts.th);
         let ausgerichtet = at.0 >= ox && at.1 >= oy && (at.0 - ox) % ts.tw == 0 && (at.1 - oy) % ts.th == 0 && s.grid.get(gy).is_some_and(|r| gx < r.len());
         let dup = find_dup(&ts, &cells, col);
@@ -510,7 +529,7 @@ impl BankDoc {
         let idx = match nt.dup { Some(d) => d, None => { ts.tiles.push(Tile { name: nt.name.clone(), cells: nt.cells.clone(), col: nt.col, props: 0 }); self.ts_dirty = true; ts.tiles.len() - 1 } };
         self.undo_punkt();
         if nt.ersetzen { let at = nt.at; if let Some(s) = self.screen_mut() { replace_block(s, &ts, at.0, at.1, idx); } }
-        self.status = format!("Kachel {idx} {}", if nt.dup.is_some() { "benutzt" } else { "angelegt" }); self.kachel_pinsel(idx); self.ts = Some(ts); self.auswahl = None; self.uebernehmen()
+        self.status = vc_i18n::t!("bankdoc-kachel-idx-p2", idx = &idx, p2 = if nt.dup.is_some() { vc_i18n::t!("bankdoc-benutzt") } else { vc_i18n::t!("bankdoc-angelegt") }); self.kachel_pinsel(idx); self.ts = Some(ts); self.auswahl = None; self.uebernehmen()
     }
 
     // -- Bild -----------------------------------------------------------------------------------------------------------
@@ -682,7 +701,7 @@ mod tests {
         e.werkzeug_waehlen(Werkzeug::Linie); e.maus_unten(Some((0, 0)), Some((0, 0)), false); e.maus_los(Some((3, 0))); assert_eq!(g(&e)[0], vec![1, 1, 1, 1]);
         e.werkzeug_waehlen(Werkzeug::Fuellen); e.kachel_pinsel(2); e.werkzeug_waehlen(Werkzeug::Fuellen); e.maus_unten(Some((0, 1)), Some((0, 1)), false); assert_eq!(g(&e)[1], vec![2, 2, 2, 2]); assert_eq!(g(&e)[0], vec![1, 1, 1, 1], "Füllen bleibt in der Fläche");
         // Auswahl → Stempel → stempeln
-        e.werkzeug_waehlen(Werkzeug::Auswahl); e.maus_unten(Some((0, 0)), Some((0, 0)), false); e.maus_los(Some((1, 1))); assert_eq!(e.auswahl, Some(((0, 0), (1, 1)))); e.auswahl_kopieren(); assert_eq!(e.werkzeug, Werkzeug::Stempel);
+        e.werkzeug_waehlen(Werkzeug::Auswahl); e.maus_unten(Some((0, 0)), Some((0, 0)), false); e.maus_los(Some((1, 1))); assert_eq!(e.auswahl, Some(((0, 0), (1, 1)))); e.auswahl_kopieren(); assert_eq!(e.werkzeug, Werkzeug::Auswahl, "Kopieren wechselt das Werkzeug nicht"); e.werkzeug_waehlen(Werkzeug::Stempel);
         e.maus_unten(Some((2, 0)), Some((2, 0)), false); assert_eq!((g(&e)[0][2], g(&e)[0][3], g(&e)[1][2], g(&e)[1][3]), (1, 1, 2, 2), "Stempel setzt den kopierten Block");
         e.werkzeug_waehlen(Werkzeug::Auswahl); e.auswahl = Some(((0, 0), (3, 1))); e.auswahl_leeren(); assert!(g(&e).iter().flatten().all(|&t| t == 0), "Auswahl leeren: Kachel 0");
         // Zellebene: Text tippen

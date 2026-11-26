@@ -137,7 +137,7 @@ def stage_files(stage):
 def is_ide_file(rel):
     """Gehoert die Datei zum Paket 'vintagecoder' (IDE) statt zu 'vintagecoder-cli'?"""
     return (rel == "usr/bin/vintagecoder" or rel == "usr/share/man/man1/vintagecoder.1"
-            or rel.startswith(("usr/share/applications/", "usr/share/icons/")) or rel in IDE_LICENSE_FILES)
+            or rel.startswith(("usr/share/applications/", "usr/share/icons/", "usr/share/mime/")) or rel in IDE_LICENSE_FILES)
 
 
 def split_components(files, ide):
@@ -454,9 +454,21 @@ def forbidden_in(paths):
 
 # ---------------------------------------------------------------- Hauptfunktion
 
-def package(stage, out, fmt, distro, version, arch=None, cfg=None, reproducible=False, machine=None):
+def cfg_fuer_oberflaeche(cfg, oberflaeche):
+    """Bei `tauri` gelten je Distribution die Abhaengigkeiten aus `ide_tauri` (WebKitGTK, GTK 3 ...) statt `ide` (egui); sonst bleibt alles wie es ist."""
+    if oberflaeche != "tauri":
+        return cfg
+    out = json.loads(json.dumps(cfg))
+    for name, dc in out["distros"].items():
+        if "ide_tauri" not in dc:
+            raise PackageError("release/linux-packages.json: '%s' hat keinen Eintrag 'ide_tauri'" % name)
+        dc["ide"] = dc["ide_tauri"]
+    return out
+
+
+def package(stage, out, fmt, distro, version, arch=None, cfg=None, reproducible=False, machine=None, oberflaeche="tauri"):
     """Baut die Pakete; gibt eine Liste (Dateiname, Art) zurueck und schreibt neben jedes Paket <datei>.files (erwartete Dateiliste)."""
-    cfg = cfg or load_config()
+    cfg = cfg_fuer_oberflaeche(cfg or load_config(), oberflaeche)
     stage = os.path.abspath(stage)
     out = os.path.abspath(out)
     machine = machine or (os.uname().machine if hasattr(os, "uname") else "x86_64")

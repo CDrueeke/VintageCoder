@@ -1,6 +1,6 @@
 .\" Erzeugt von "vcc man"; nicht von Hand ändern (Quelle: data/cli/*.json).
 .\" -*- coding: UTF-8 -*-
-.TH VCC\-DISK 1 "" "VintageCoder 0.2.1" "VintageCoder Handbuch"
+.TH VCC\-DISK 1 "" "VintageCoder 0.3.0" "VintageCoder Handbuch"
 .SH NAME
 vcc\-disk \- Diskettenimages anlegen, auflisten und Dateien herausholen
 .SH ÜBERSICHT
@@ -13,6 +13,8 @@ vcc\-disk \- Diskettenimages anlegen, auflisten und Dateien herausholen
 .B vcc disk atr \-o <out.atr> [\-\-add <datei[:NAME.EXT]>]...
 .br
 .B vcc disk atr \-o <out.atr> \-\-boot <prog.xex>
+.br
+.B vcc disk atr \-o <out.atr> \-\-base <in.atr> [\-\-put <datei[:NAME.EXT]>]... [\-\-delete <NAME.EXT>]... [\-\-add <datei[:NAME.EXT]>]... [\-\-force]
 .br
 .B vcc disk list <image.d64|d71|d81|atr>
 .br
@@ -141,6 +143,34 @@ XEX\-Programm, das die Diskette beim Einschalten lädt (Boot\-Lader aus der Hard
 .TP
 \fB\-\-data\-dir\fR \fIpfad\fR
 Ordner der Hardware\-Datenbank; sie liefert den Boot\-Lader.
+.SS Form atr\-edit
+bestehendes ATR\-Image ändern (Dateien ersetzen, löschen, anlegen)
+.PP
+.PP
+\fBImage\fR
+.TP
+\fB\-o\fR \fIdatei\fR
+Ausgabedatei des Images (nicht das Ausgangsabbild). Erforderlich.
+.TP
+\fB\-\-base\fR \fIin.atr\fR
+Ausgangsabbild (ATR, DOS 2); es bleibt unverändert, das Ergebnis geht in die Ausgabedatei. Erforderlich.
+.TP
+\fB\-\-put\fR \fIdatei[:NAME.EXT]\fR
+Datei anlegen oder ersetzen, optional unter anderem Namen. Mehrfach möglich.
+.TP
+\fB\-\-delete\fR \fINAME.EXT\fR
+Datei von der Diskette löschen (ihre Sektoren werden frei). Mehrfach möglich.
+.TP
+\fB\-\-add\fR \fIdatei[:NAME.EXT]\fR
+Datei anlegen; gibt es den Namen schon, ist das ein Fehler. Mehrfach möglich.
+.PP
+\fBAllgemein\fR
+.TP
+\fB\-\-force\fR
+Geschützte Dateien dürfen mit \-\-delete gelöscht werden.
+.TP
+\fB\-\-data\-dir\fR \fIpfad\fR
+Wird angenommen und ignoriert.
 .SS Form list
 Verzeichnis eines Images zeigen und prüfen
 .PP
@@ -195,6 +225,13 @@ bootbare Diskette:
 vcc disk atr \-o jumprun.atr \-\-boot jumprun.xex
 .fi
 .RE
+Ausgangsabbild verkleinern:
+.PP
+.RS 8
+.nf
+vcc disk atr \-o neu.atr \-\-base turbo.atr \-\-delete COMPILER.COM \-\-delete RUNTIME.COM \-\-force
+.fi
+.RE
 Verzeichnis anzeigen:
 .PP
 .RS 8
@@ -232,6 +269,10 @@ Das Image ist 90 KB groß (720 Sektoren zu 128 Byte). Eine bootbare Diskette ohn
 .PP
 Eine Datei ohne XEX\-Kennung ($FFFF am Anfang) führt zu einem Fehler.
 .PP
+Schreibgeschützte Dateien (`*` bei vcc disk list) lassen sich nur mit \-\-force löschen und werden von \-\-put nie überschrieben. Danach wird das Image geprüft; bei Fehlern entsteht keine Ausgabedatei.
+.PP
+Die Ausgabe nennt Größe und freie Sektoren. Für Turbo\-BASIC\-XL\-Projekte siehe vcc turbo.
+.PP
 Commodore: Blockzahl, Name, Dateiart und freie Blöcke. Atari: Name, Sektoren, Startsektor, `*` für geschützte Dateien und freie Sektoren.
 .PP
 Die Prüfung (BAM bzw. VTOC, Verzeichnis, Dateiketten) meldet Abweichungen als „Problem:“ auf stderr.
@@ -239,4 +280,4 @@ Die Prüfung (BAM bzw. VTOC, Verzeichnis, Dateiketten) meldet Abweichungen als �
 .SH RÜCKGABEWERT
 0 = fehlerfrei, 1 = Datei nicht lesbar oder Problem im Image gefunden, 2 = falscher Aufruf
 .SH SIEHE AUCH
-vcc(1), vcc\-import(1), vcc\-build(1)
+vcc(1), vcc\-import(1), vcc\-build(1), vcc\-turbo(1)

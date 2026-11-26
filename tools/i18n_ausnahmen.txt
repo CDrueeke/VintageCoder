@@ -1,0 +1,175 @@
+# Feste deutsche Texte in den Anzeige-Crates, die bewusst nicht im Katalog stehen (Prüfung: tools/check_i18n.py).
+# Format: <Pfad><TAB><Teilzeichenkette des Literals>; `*` als Muster = ganze Datei. Jede Gruppe hat eine Begründung.
+# Neue Einträge nur mit Begründung; Anzeigetexte gehören in den Katalog (t!).
+
+# befehle.rs: Quelltabelle der Befehle (deutscher Quelltext); die Anzeige läuft über die Schlüssel cmd-<id> und submenu-<slug>, die die Prüfung gegen die Tabelle kontrolliert
+crates/vc-gui-ui/src/befehle.rs	*
+
+# handbuchbilder.rs: Beispielinhalt der Handbuchbilder (Etappe I5: Handbuch und Bilder)
+crates/vc-gui/src/handbuchbilder.rs	*
+
+# technischer Vergleich, Protokoll- oder Vorlagentext (kein Anzeigetext der Oberfläche)
+crates/vc-gui/src/argsui.rs	nicht geprüft
+crates/vc-gui/src/audio.rs	Audio-Fehler: {e}
+crates/vc-gui/src/main.rs	Kürzel: 
+crates/vc-gui/src/main.rs	**Fehler**
+crates/vc-gui/src/main.rs	**Warnung**
+crates/vc-gui/src/main.rs	Kürzel: Taste={k:?} physisch={p:?} Cmd={} Umschalt={} Alt={}
+crates/vc-gui/src/main.rs	Schlüssel fehlt: {k}
+crates/vc-gui/src/native.rs	[a11y] Aktion angefragt: {:?} auf {:?}
+crates/vc-gui/src/neuprojekt.rs	# {}\n\nProjekt für {} ({}), angelegt mit VintageCoder.\n\n- Bau
+
+# Dateinamen-, Pfad- und Kennungsmuster (technisch, nie angezeigt)
+crates/vc-gui/src/assistent.rs	neu
+crates/vc-gui/src/basic2asm.rs	{ordner}/{n}
+crates/vc-gui/src/diskstudio.rs	neu.{f}
+crates/vc-gui/src/main.rs	{ordner}/{name}
+crates/vc-gui/src/main.rs	{ordner}/{}
+crates/vc-gui/src/main.rs	{ziel_ordner}/{name}
+crates/vc-gui/src/main.rs	{neu}/{r}
+crates/vc-gui/src/main.rs	neu.asm
+crates/vc-gui/src/main.rs	{ordner}/{n}
+crates/vc-gui/src/setui.rs	aus
+crates/vc-ide-model/src/bankdoc.rs	neu{}
+crates/vc-ide-model/src/diskdoc.rs	neu.{}
+crates/vc-ide-model/src/songdoc.rs	neu{n}
+crates/vc-ide-model/src/songimport.rs	{ordner}/{name}.vcsong
+crates/vc-ide-model/src/tilesetdoc.rs	neu{n}
+crates/vc-ide/src/snapshot.rs	leer
+crates/vc-ide/src/diskimage.rs	datei
+crates/vc-ide/src/settings.rs	datei
+
+# Fehlertext-Muster des Betriebssystems und der Gegenstelle (Vergleich, nicht Anzeige)
+crates/vc-gui/src/debug.rs	weder Register noch Symbol
+crates/vc-gui/src/debug.rs	nicht erlaubt
+crates/vc-gui/src/debug.rs	Anführungszeichen
+crates/vc-gui/src/debug.rs	zeitüberschreitung
+
+# deutsche Vorgabewerte der Seitentabelle; Anzeige über seite_titel() und Katalog
+crates/vc-gui/src/setui.rs	Zielsysteme und Hardware
+crates/vc-gui/src/setui.rs	Tastenkürzel
+
+# Tastenkennungen des Trackers (Vergleich, nicht Anzeige)
+crates/vc-gui/src/songstudio.rs	Rückschritt
+crates/vc-gui/src/songstudio.rs	Bild auf
+
+# deutsche Vorgabewerte der Tabelle; Anzeige über Methode/Funktion und Katalog
+crates/vc-ide-model/src/exportfacts.rs	Binär
+crates/vc-ide-model/src/studios.rs	Zeichensätze
+
+# unbenutzte Tabelle (SPRITE_FLAGS), später beim Sprite-Studio-Umbau entfernen
+crates/vc-ide-model/src/pixel.rs	Hoch: doppelte Höhe ($D017)
+crates/vc-ide-model/src/pixel.rs	Hinter dem Hintergrund ($D01B)
+
+# Ausgabedatei/Bericht von vcc: Text bleibt sprachunabhängig (Diagnose- und Ausgabetexte: Etappe I2)
+crates/vc-ide/src/build.rs	; Quelltext nach dem Einsetzen der Includes (erzeugt von Vin
+crates/vc-ide/src/license.rs	Lizenzen der übersetzten Quelltexte (erzeugt von VintageCode
+
+# Mail an den Entwickler: Feldnamen und Hinweise bleiben deutsch (Entscheidung I1, siehe Bericht)
+crates/vc-ide/src/feedback.rs	vollständig (keine Auswahl)
+crates/vc-ide/src/feedback.rs	kein Projekt offen
+crates/vc-ide/src/feedback.rs	\n\nAngaben zur Installation (automatisch eingetragen, bitte s
+crates/vc-ide/src/feedback.rs	Hinweis: wegen der Längengrenze von Mail-Links fehlen: {}.\n
+# ui/ (E0): technische Tabellen
+ui/src/lib/pseudo.ts	*
+
+
+# vc-core: Entwicklerfehler beim Laden der eingebetteten Datentabellen (panic!, nie Anzeige)
+crates/vc-core/src/chars.rs	data/chars/
+
+# vc-emu: Ablaufprotokoll des VICE-Monitors (eprintln, nur bei Fehlersuche, Entwicklerausgabe)
+crates/vc-emu/src/vice.rs	VICE <- Typ
+# vc-emu: Meldungen von assert! in Tests
+crates/vc-emu/src/vice.rs	Probeprozess läuft nicht
+crates/vc-emu/src/vice.rs	Kindprozess des Startskripts läuft noch
+
+# vc-media: JSON-Schlüssel der index.json der eigenen Zeichensätze (Kennung, kein Anzeigetext)
+crates/vc-media/src/project.rs	=datei
+# vc-media: Schlüsselwort der Kommandozeile/Konfiguration (Zeichensatz-Auswahl "keine")
+crates/vc-media/src/wizard.rs	=keine
+# vc-cli: Kategorie des Debug-Protokolls (Kennung der Protokollzeile, kein Anzeigetext)
+crates/vc-cli/src/main.rs	fehler
+# vc-cli: Vergleichsmuster gegen die Fehlermeldung von vc-target/vc-ide (setzt Exit-Code 2), kein Anzeigetext
+crates/vc-cli/src/main.rs	in diesem Release nicht enthalten
+# vc-cli: Eingabe der Rückfrage: akzeptierte Antworten in beiden Sprachen (n, nein, no), kein Anzeigetext
+crates/vc-cli/src/main.rs	nein
+# vc-cli: Vorgabe-Dateiname beim Übernehmen von Disketteninhalt (Dateiname, kein Anzeigetext)
+crates/vc-cli/src/main.rs	datei
+# vc-basic: Kennzeile der erzeugten Assemblerdatei; vc-ide erkennt damit erzeugte Dateien (b2a::MARK), muss in jeder Sprache gleich bleiben
+crates/vc-basic/src/b2a/gen.rs	Erzeugt von VintageCoder
+# vc-cli: deutscher Titel des Lizenzberichts von vc-ide, nur als Erkennungsmuster (Ersatz durch den Katalog)
+crates/vc-cli/src/main.rs	Lizenzen der übersetzten Quelltexte
+
+# vc-ide: Kennzeile der erzeugten Datei, vom Programm wiedererkannt (MARK), bleibt deutsch
+crates/vc-ide/src/b2a.rs	; Erzeugt von VintageCoder (basic2asm)
+
+# ui/ (E1.1): Befehlskennungen der Tabelle vc-commands (keine Anzeige)
+ui/src/lib/commands.ts	speichern
+# ui/ (E1.1): Vorschlag für einen Dateinamen (technischer Name)
+ui/src/lib/editor.svelte.ts	neu.asm
+# ui/ (E1.3): Befehlskennungen der Tabelle vc-commands (keine Anzeige)
+ui/src/lib/commands.ts	bauen
+ui/src/lib/commands.ts	starten
+# ui/ (E1.4): Befehlskennungen der Tabelle vc-commands (keine Anzeige)
+ui/src/views/StartView.svelte	bauen
+ui/src/views/StartView.svelte	starten
+ui/src/views/StartView.svelte	speichern
+# Rollenname der Vorlage in einer ROM-Referenz (Datenwert, kein Anzeigetext)
+crates/vc-media/src/project.rs	=vorlage
+# vc-target: Mode::erklaerung() bleibt als deutsche, stabile Altfunktion bestehen; die Anzeige nutzt erklaerung_l() (Katalog target.ftl)
+crates/vc-target/src/lib.rs	=kein Operand
+crates/vc-target/src/lib.rs	=wirkt auf den Akkumulator
+crates/vc-target/src/lib.rs	=der Wert steht direkt im Befehl
+crates/vc-target/src/lib.rs	=Adresse in den ersten 256 Bytes
+crates/vc-target/src/lib.rs	=Adresse steht in einem Zeiger
+crates/vc-target/src/lib.rs	=Zeiger in der Zeropage, X wird vorher zur Zeigeradresse addiert
+crates/vc-target/src/lib.rs	=Zeiger in der Zeropage, Y wird danach zur Zieladresse addiert
+crates/vc-target/src/lib.rs	=Sprungweite relativ zum Befehl
+crates/vc-target/src/lib.rs	=16-Bit-Sprungweite relativ zum Befehl
+crates/vc-target/src/lib.rs	=Zeiger in der Zeropage, Z wird danach addiert
+crates/vc-target/src/lib.rs	=Zeiger auf dem Stack, Y wird danach addiert
+crates/vc-target/src/lib.rs	=Zeropage-Adresse prüfen und relativ springen
+
+# I3b: feste interne Kennung der Namensart (auch im JSON); Anzeige ueber NameEntry::kind_l
+crates/vc-basic/src/longnames.rs	=Zahl
+# I3b: Vermerk im erzeugten Datensatz data/roms/known.json (Entwicklerwerkzeug), keine Anzeige
+crates/vc-roms/src/emit.rs	=Revision aus dem Dateinamen der Quelle (VICE)
+# Panikmeldung für Entwickler (Tabelle muss gültig sein), keine Anzeige für Anwender
+crates/vc-roms/src/known.rs	=data/roms/known.json ist gültig
+# Deutsche Anzeigetexte der unveränderten öffentlichen API (Stage::label, Status::label, RoleDef.label); die Oberfläche nutzt label_l/Katalog roms-*
+crates/vc-roms/src/env.rs	=Projekt
+crates/vc-roms/src/store.rs	=Unbekannte Revision
+crates/vc-roms/src/store.rs	=Ersatz (frei)
+crates/vc-roms/src/store.rs	=Fehlt
+crates/vc-roms/src/store.rs	=Nicht benutzbar
+crates/vc-roms/src/systems.rs	=Zeichensatz
+crates/vc-roms/src/systems.rs	=Laufwerk 1541
+crates/vc-roms/src/systems.rs	=Laufwerk 1571
+crates/vc-roms/src/systems.rs	=Laufwerk 1581
+crates/vc-roms/src/systems.rs	=Bildschirm-Editor
+# Beibehaltene deutsche Konstante STATIC_TITLE (pub, additive Signatur); die Anzeige nutzt static_title() aus dem Katalog
+crates/vc-ide/src/tests/suite.rs	=Statische Prüfungen
+
+# App.svelte: Befehlskennungen (Tabelle cmd-<id>, keine Anzeigetexte): Speichern läuft auch von der Oberfläche, falls das native Menü die Taste nicht auslöst
+ui/src/App.svelte	speichern
+
+# Oberfläche: interne Kennungen von Bereichen und Seiten (Navigation, Speicher, Prüfungen), keine Anzeigetexte; angezeigt wird der Katalogschlüssel nav-main-… und nav-projekt-…
+ui/src/App.svelte	projekt
+ui/src/lib/commands.ts	projekt
+ui/src/lib/nav.ts	projekt
+ui/src/lib/nav.ts	bauen
+ui/src/lib/state.svelte.ts	projekt
+ui/src/views/ProjektView.svelte	projekt
+ui/src/views/ProjektView.svelte	leer
+ui/src/views/projekt/Uebersicht.svelte	projekt
+ui/src/views/projekt/Ziele.svelte	projekt
+ui/src/views/projekt/Allgemein.svelte	projekt
+ui/src/views/ProjektView.svelte	projekt
+ui/src/views/projekt/Bauen.svelte	projekt
+ui/src/views/projekt/Bauen.svelte	bauen
+ui/src/views/projekt/Quellen.svelte	projekt
+ui/src/views/projekt/Weitergeben.svelte	projekt
+ui/src/views/ProjektView.svelte	bauen
+ui/src/lib/palette.svelte.ts	fertig
+ui/src/lib/components/ArgsEditor.svelte	nicht geprüft
+ui/src/views/SpeicherView.svelte	bauen

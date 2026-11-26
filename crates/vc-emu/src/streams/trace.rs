@@ -272,10 +272,10 @@ impl MeasureResult {
     /// Text für Hardware-Läufe: der Wert ist eine Messung, kein Urteil
     pub fn hint(&self) -> String {
         match (self.last, self.invalid) {
-            (Some(v), 0) => format!("Hardware-Messung: {v} Zyklen von ${:04X} bis ${:04X} (Hinweis, kein Urteil)", self.spec.from, self.spec.to),
-            (Some(v), n) => format!("Hardware-Messung: {v} Zyklen von ${:04X} bis ${:04X} (Hinweis, kein Urteil; {n} Messung(en) ungültig wegen Paketverlust)", self.spec.from, self.spec.to),
-            (None, 0) => format!("Hardware-Messung: ${:04X} bis ${:04X} noch nicht durchlaufen", self.spec.from, self.spec.to),
-            (None, n) => format!("Hardware-Messung: ungültig (Paketverlust), {n} Messung(en) verworfen"),
+            (Some(v), 0) => vc_i18n::t!("emu-hardware-messung-v-zyklen-von-p2", v = &v, p2 = format!("{:04X}", self.spec.from), p3 = format!("{:04X}", self.spec.to)),
+            (Some(v), n) => vc_i18n::t!("emu-hardware-messung-v-zyklen-von-p2-2", v = &v, p2 = format!("{:04X}", self.spec.from), p3 = format!("{:04X}", self.spec.to), n = &n),
+            (None, 0) => vc_i18n::t!("emu-hardware-messung-p1-bis-p2-noch", p1 = format!("{:04X}", self.spec.from), p2 = format!("{:04X}", self.spec.to)),
+            (None, n) => vc_i18n::t!("emu-hardware-messung-ungueltig-paketverlust-n-messung", n = &n),
         }
     }
 }
@@ -417,7 +417,7 @@ impl Analyzer {
         self.sum.packets += 1;
         if self.sum.unsupported.is_some() { return; }
         if p.entries().any(|e| !BusCycle(e).phi2()) {
-            self.sum.unsupported = Some("Der Debug-Strom enthält Zyklen mit PHI2 = 0: Er läuft nicht im Modus „6510 Only“. Modi mit VIC- oder 1541-Zyklen werden nicht ausgewertet; bitte in der Ultimate unter Data Streams → Debug Stream Mode „6510 Only“ wählen.".into());
+            self.sum.unsupported = Some(vc_i18n::t!("emu-der-debug-strom-enthaelt-zyklen-mit").into());
             return;
         }
         for e in p.entries() { self.cycle(BusCycle(e)); }

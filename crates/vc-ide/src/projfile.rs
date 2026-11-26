@@ -11,6 +11,7 @@
 //!   "assets": [{"file": "data/font.bin", "category": "charset", "description": "Zeichensatz-Rohdaten"}] }   // optional: weitere Dateien
 //! ```
 use crate::build::Ctx;
+pub use vc_basic::numbering::Numbering;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::collections::BTreeMap;
@@ -86,6 +87,26 @@ pub struct DiskSpec {
     #[serde(default, skip_serializing_if = "Vec::is_empty")] pub files: Vec<String>,
 }
 
+/// Turbo BASIC XL (Atari): Diskette des Anwenders im Projekt (Kopie unter `turbo/`), auf die beim Bauen das Programm als `AUTORUN.BAS` kommt.
+/// Siehe `crate::turbo`; das Feld ist optional, ältere Fassungen ignorieren es.
+///
+/// ```json
+/// "turbo": { "disk": "turbo/Turbo_Basic_XL.atr", "sha256": "…", "program": "AUTORUN.BAS", "files": ["daten/hallo.dat:HALLO.DAT"] }
+/// ```
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurboSpec {
+    /// Kopie der Diskette relativ zum Projekt (leer: keine bereitgestellt)
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub disk: String,
+    /// SHA-256 der Kopie bei der Bereitstellung (erkennt eine veränderte oder ausgetauschte Datei)
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub sha256: String,
+    /// Name des Programms auf der Diskette (Turbo BASIC XL startet nur `AUTORUN.BAS` selbst; leer = `AUTORUN.BAS`)
+    #[serde(default, skip_serializing_if = "String::is_empty")] pub program: String,
+    /// Weitere Dateien auf die Diskette: `Quelle[:NAME]` (8.3-Name, Großbuchstaben)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")] pub files: Vec<String>,
+    /// Die Kopie wurde auf `DOS.SYS`, `DUP.SYS`, `AUTORUN.SYS` verkleinert
+    #[serde(default, skip_serializing_if = "is_false")] pub reduced: bool,
+}
+
 /// Zusätzliche Datei des Projekts (Quelltext-Bibliothek, Text, Binärdaten, Grafikrohdaten …), z. B. per Drag and Drop abgelegt.
 /// Der Assembler bindet Binärdaten mit `.incbin "pfad"` ein; die Kategorie bestimmt die Art-Marke im Projektbaum.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -109,6 +130,14 @@ pub struct FolderDef {
 /// Bekannte Ordnerrollen: (Kennung, Beschriftung)
 pub const ROLES: [(&str, &str); 6] = [("source", "Quelltext"), ("resources", "Ressourcen"), ("data", "Daten"), ("docs", "Doku"), ("tests", "Tests"), ("tools", "Werkzeuge")];
 pub fn role_label(id: &str) -> Option<&'static str> { ROLES.iter().find(|r| r.0 == id).map(|r| r.1) }
+/// Bezeichnung einer Ordnerrolle in der gewählten Sprache
+pub fn role_text(id: &str) -> Option<String> {
+    Some(match id {
+        "source" => vc_i18n::t!("projfile-rolle-quelltext"), "resources" => vc_i18n::t!("projfile-rolle-ressourcen"), "data" => vc_i18n::t!("projfile-rolle-daten"),
+        "docs" => vc_i18n::t!("projfile-rolle-doku"), "tests" => vc_i18n::t!("projfile-rolle-tests"), "tools" => vc_i18n::t!("projfile-rolle-werkzeuge"),
+        _ => return None,
+    })
+}
 
 /// Regel für abgelegte Dateien: passt der Dateiname auf `match` (Glob mit `*` und `?`, ohne Groß-/Kleinschreibung),
 /// gelten `category` und `dir` statt des Vorschlags aus Art und `layout`
@@ -127,6 +156,8 @@ pub struct ProjectFile {
     #[serde(default)] pub sources: Vec<Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")] pub main: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")] pub disk: Option<DiskSpec>,
+    /// Turbo BASIC XL: Diskette des Anwenders (Abschnitt `turbo`, siehe [`TurboSpec`])
+    #[serde(default, skip_serializing_if = "Option::is_none")] pub turbo: Option<TurboSpec>,
     /// Beim Öffnen die zuletzt geöffneten Dateien wiederherstellen (Standard: nein)
     #[serde(default, skip_serializing_if = "is_false")] pub restore_tabs: bool,
     /// Kein Projektbild (`projektbild.png`) anlegen und anzeigen (Standard: es gibt eines)
@@ -158,7 +189,7 @@ impl ProjectFile {
     }
     pub fn save(&self, file: &Path) -> Result<(), String> {
         let mut t = serde_json::to_string_pretty(self).map_err(|e| e.to_string())?; t.push('\n');
-        std::fs::write(file, t).map_err(|e| format!("{}: {e}", file.display()))
+        vc_core::atomar::schreiben(file, t).map_err(|e| format!("{}: {e}", file.display()))
     }
     /// Überschreibungen der globalen Einstellungen, die dieses Projekt je Target festlegt (nur Targets mit mindestens einer Angabe)
     pub fn overrides(&self) -> Vec<crate::targets::ProjectOverride> {
@@ -273,7 +304,21 @@ impl ProjectFile {
         if !ok { return None; }
         let first = self.source_files().into_iter().map(|s| s.0).find(|f| d.files.is_empty() || d.files.contains(f))?;
         if first != main { return None; }
-        Some(root.join(disk_file(root, d)))
+        crate::safepath::resolve(root, &disk_file(root, d)).ok()
+    }
+
+    /// Meldungen zu allen Pfaden der Projektdatei, die nicht im Projektordner bleiben (siehe [`crate::safepath`]); leer = alles in Ordnung.
+    /// Betrifft Quellen, `main`, Diskette (`file`, `files`), `convert.out`, Turbo (`disk`, `files`) und `assets`.
+    pub fn unsafe_paths(&self, root: &Path) -> Vec<String> {
+        let mut v: Vec<String> = vec![];
+        let mut chk = |p: &str| { if !p.is_empty() { if let Err(e) = crate::safepath::resolve(root, p) { if !v.contains(&e) { v.push(e); } } } };
+        for (f, _, _) in self.source_files() { chk(&f); }
+        for s in &self.sources { if let Some(c) = &s.convert { chk(&c.out); } }
+        if let Some(m) = &self.main { chk(m); }
+        for a in &self.assets { chk(&a.file); }
+        if let Some(d) = &self.disk { chk(&d.file); for f in &d.files { chk(f); } }
+        if let Some(t) = &self.turbo { chk(&t.disk); for f in &t.files { chk(crate::turbo::spec_path(f)); } }
+        v
     }
 
     /// Probleme der Projektdatei (fehlende Dateien, unbekannte Targets, ungültige Diskette)
@@ -282,39 +327,41 @@ impl ProjectFile {
     /// Warnungen sind behebbar (fehlende Dateien) und sperren nichts
     pub fn validate_getrennt(&self, root: &Path) -> (Vec<String>, Vec<String>) {
         let mut v = vec![]; let mut w = vec![];
-        if self.project.name.trim().is_empty() { v.push("Projektname fehlt: bitte einen Namen eingeben".into()); }
-        if self.targets.is_empty() { v.push("Kein Target: mindestens ein Zielsystem eintragen".into()); }
+        if self.project.name.trim().is_empty() { v.push(vc_i18n::t!("projfile-projektname-fehlt-bitte-einen-namen-eingeben").into()); }
+        if self.targets.is_empty() { v.push(vc_i18n::t!("projfile-kein-target-mindestens-ein-zielsystem-eintragen").into()); }
+        v.extend(self.unsafe_paths(root));
         let ids: Vec<&str> = self.targets.iter().map(|t| t.id.as_str()).collect();
         let mut seen = std::collections::HashSet::new();
         for (f, kind, _) in self.source_files() {
-            if !root.join(&f).is_file() { w.push(format!("{f}: Datei fehlt")); }
-            if !seen.insert(f.clone()) { v.push(format!("{f}: mehrfach als Quelle eingetragen")); }
-            if !matches!(kind.as_str(), "asm" | "basic") { v.push(format!("{f}: unbekannte Art '{kind}' (asm oder basic)")); }
+            if !root.join(&f).is_file() { w.push(vc_i18n::t!("projfile-f-datei-fehlt", f = &f)); }
+            if !seen.insert(f.clone()) { v.push(vc_i18n::t!("projfile-f-mehrfach-als-quelle-eingetragen", f = &f)); }
+            if !matches!(kind.as_str(), "asm" | "basic") { v.push(vc_i18n::t!("projfile-f-unbekannte-art-kind-asm-oder", f = &f, kind = &kind)); }
         }
-        for s in &self.sources { for t in &s.targets { if !ids.contains(&t.as_str()) { v.push(format!("Quellgruppe {:?}: Target '{t}' ist nicht definiert", s.files.first().map(String::as_str).unwrap_or(""))); } } }
-        for a in &self.assets { if !root.join(&a.file).is_file() { w.push(format!("{}: Datei fehlt (Abschnitt assets)", a.file)); } }
+        for s in &self.sources { for t in &s.targets { if !ids.contains(&t.as_str()) { v.push(vc_i18n::t!("projfile-quellgruppe-f-target-t-ist-nicht-definiert", f = format!("{:?}", s.files.first().map(String::as_str).unwrap_or("")), t = &t)); } } }
+        for a in &self.assets { if !root.join(&a.file).is_file() { w.push(vc_i18n::t!("projfile-p1-datei-fehlt-abschnitt-assets", p1 = &a.file)); } }
         for (k, d) in &self.layout {
-            if crate::importfiles::Category::from_id(k).is_none() { v.push(format!("layout: unbekannte Kategorie '{k}'")); }
-            if !d.is_empty() && !crate::importfiles::valid_dir(d) { v.push(format!("layout: '{d}' ist kein gültiger Ordner (relativ, ohne ..)")); }
+            if crate::importfiles::Category::from_id(k).is_none() { v.push(vc_i18n::t!("projfile-layout-unbekannte-kategorie-k", k = &k)); }
+            if !d.is_empty() && !crate::importfiles::valid_dir(d) { v.push(vc_i18n::t!("projfile-layout-d-ist-kein-gueltiger-ordner", d = &d)); }
         }
         for f in &self.folders {
-            if !crate::importfiles::valid_dir(&f.dir) || f.dir.is_empty() { v.push(format!("folders: '{}' ist kein gültiger Ordner", f.dir)); }
-            if !f.role.is_empty() && role_label(&f.role).is_none() { v.push(format!("folders: unbekannte Rolle '{}' bei '{}'", f.role, f.dir)); }
-            for t in &f.targets { if !ids.contains(&t.as_str()) && !self.targets.iter().any(|x| x.system == *t) { v.push(format!("folders: Target '{t}' bei '{}' ist nicht definiert", f.dir)); } }
+            if !crate::importfiles::valid_dir(&f.dir) || f.dir.is_empty() { v.push(vc_i18n::t!("projfile-folders-p1-ist-kein-gueltiger-ordner", p1 = &f.dir)); }
+            if !f.role.is_empty() && role_label(&f.role).is_none() { v.push(vc_i18n::t!("projfile-folders-unbekannte-rolle-p1-bei-p2", p1 = &f.role, p2 = &f.dir)); }
+            for t in &f.targets { if !ids.contains(&t.as_str()) && !self.targets.iter().any(|x| x.system == *t) { v.push(vc_i18n::t!("projfile-folders-target-t-bei-p2-ist", t = &t, p2 = &f.dir)); } }
         }
         for r in &self.rules {
-            if r.pattern.trim().is_empty() { v.push("rules: Muster fehlt".into()); }
-            if !r.category.is_empty() && crate::importfiles::Category::from_id(&r.category).is_none() { v.push(format!("rules: unbekannte Kategorie '{}' bei '{}'", r.category, r.pattern)); }
-            if !r.dir.is_empty() && !crate::importfiles::valid_dir(&r.dir) { v.push(format!("rules: '{}' ist kein gültiger Ordner (bei '{}')", r.dir, r.pattern)); }
+            if r.pattern.trim().is_empty() { v.push(vc_i18n::t!("projfile-rules-muster-fehlt").into()); }
+            if !r.category.is_empty() && crate::importfiles::Category::from_id(&r.category).is_none() { v.push(vc_i18n::t!("projfile-rules-unbekannte-kategorie-p1-bei-p2", p1 = &r.category, p2 = &r.pattern)); }
+            if !r.dir.is_empty() && !crate::importfiles::valid_dir(&r.dir) { v.push(vc_i18n::t!("projfile-rules-p1-ist-kein-gueltiger-ordner", p1 = &r.dir, p2 = &r.pattern)); }
         }
         let srcs: Vec<String> = self.source_files().into_iter().map(|s| s.0).collect();
-        if let Some(m) = &self.main { if !m.is_empty() && !srcs.contains(m) { v.push(format!("main: '{m}' ist keine Quelldatei des Projekts")); } }
+        if let Some(m) = &self.main { if !m.is_empty() && !srcs.contains(m) { v.push(vc_i18n::t!("projfile-main-m-ist-keine-quelldatei-des", m = &m)); } }
         let mut stems = std::collections::HashMap::new();
-        for f in &srcs { if let Some(s) = Path::new(f).file_stem() { if let Some(o) = stems.insert(s.to_string_lossy().into_owned(), f.clone()) { v.push(format!("{o} und {f} erzeugen dieselbe Ausgabedatei (gleicher Dateiname)")); } } }
+        for f in &srcs { if let Some(s) = Path::new(f).file_stem() { if let Some(o) = stems.insert(s.to_string_lossy().into_owned(), f.clone()) { v.push(vc_i18n::t!("projfile-o-und-f-erzeugen-dieselbe-ausgabedatei", o = &o, f = &f)); } } }
         if let Some(d) = &self.disk {
-            if !matches!(d.format.as_str(), "d64" | "d71" | "d81" | "atr") { v.push(format!("disk: unbekanntes Format '{}' (d64, d71, d81, atr)", d.format)); }
-            for f in &d.files { if !srcs.contains(f) { v.push(format!("disk: '{f}' ist keine Quelldatei des Projekts")); } }
+            if !matches!(d.format.as_str(), "d64" | "d71" | "d81" | "atr") { v.push(vc_i18n::t!("projfile-disk-unbekanntes-format-p1-d64-d71", p1 = &d.format)); }
+            for f in &d.files { if !srcs.contains(f) { v.push(vc_i18n::t!("projfile-disk-f-ist-keine-quelldatei-des", f = &f)); } }
         }
+        if let Some(t) = &self.turbo { let (e, ww) = crate::turbo::spec_problems(t, root); v.extend(e); w.extend(ww); }
         (v, w)
     }
 }
@@ -328,7 +375,7 @@ pub fn disk_file(root: &Path, spec: &DiskSpec) -> String {
 fn disk_name(format: &str, stem: &str, ext: &str) -> String {
     if format == "atr" {
         let b: String = stem.to_ascii_uppercase().chars().map(|c| if c.is_ascii_alphanumeric() || c == '_' { c } else { '_' }).take(8).collect();
-        let b = if b.chars().next().map_or(true, |c| !c.is_ascii_alphabetic()) { format!("P{b}").chars().take(8).collect() } else { b };
+        let b = if b.chars().next().map_or(true, |c| !c.is_ascii_alphabetic()) { vc_i18n::t!("projfile-p-b", b = &b).chars().take(8).collect() } else { b };
         format!("{b}.{}", ext.to_ascii_uppercase().chars().take(3).collect::<String>())
     } else { stem.to_ascii_uppercase().chars().take(16).collect() }
 }
@@ -336,8 +383,10 @@ fn disk_name(format: &str, stem: &str, ext: &str) -> String {
 /// Packt die gebauten Programme auf einen Datenträger. `artifacts`: (Quelldatei, Artefakt relativ zum Projekt)
 pub fn make_disk(root: &Path, pf: &ProjectFile, spec: &DiskSpec, artifacts: &[(String, String)]) -> Result<Value, String> {
     let chosen: Vec<&(String, String)> = artifacts.iter().filter(|(f, _)| spec.files.is_empty() || spec.files.contains(f)).collect();
-    if chosen.is_empty() { return Err("Diskette: keine Programme ausgewählt".into()); }
+    for (_, art) in &chosen { crate::safepath::resolve(root, art)?; }
+    if chosen.is_empty() { return Err(vc_i18n::t!("projfile-diskette-keine-programme-ausgewaehlt").into()); }
     let out_rel = disk_file(root, spec);
+    let out = crate::safepath::resolve(root, &out_rel)?;
     let title = if spec.name.is_empty() { pf.project.name.to_ascii_uppercase().chars().filter(|c| c.is_ascii_alphanumeric() || *c == ' ').take(16).collect::<String>() } else { spec.name.clone() };
     let title = if title.is_empty() { "VINTAGECODER".to_string() } else { title };
     let mut names = vec![];
@@ -346,25 +395,24 @@ pub fn make_disk(root: &Path, pf: &ProjectFile, spec: &DiskSpec, artifacts: &[(S
             let mut a = vc_disk::Atr::new_dos2();
             for (_, art) in &chosen {
                 let p = Path::new(art); let n = disk_name("atr", &p.file_stem().unwrap_or_default().to_string_lossy(), &p.extension().unwrap_or_default().to_string_lossy());
-                a.dos2_add(&n, &std::fs::read(root.join(art)).map_err(|e| format!("{art}: {e}"))?)?; names.push(n);
+                a.dos2_add(&n, &std::fs::read(root.join(art)).map_err(|e| vc_i18n::t!("projfile-art-e", art = &art, e = &e))?)?; names.push(n);
             }
             a.to_bytes()
         }
         "d64" => {
             let mut d = vc_disk::D64::blank(&title, "VC")?;
-            for (_, art) in &chosen { let n = disk_name("d64", &Path::new(art).file_stem().unwrap_or_default().to_string_lossy(), ""); d.add_prg(&n, &std::fs::read(root.join(art)).map_err(|e| format!("{art}: {e}"))?)?; names.push(n); }
+            for (_, art) in &chosen { let n = disk_name("d64", &Path::new(art).file_stem().unwrap_or_default().to_string_lossy(), ""); d.add_prg(&n, &std::fs::read(root.join(art)).map_err(|e| vc_i18n::t!("projfile-art-e", art = &art, e = &e))?)?; names.push(n); }
             d.to_bytes()
         }
         "d71" | "d81" => {
             let mut d = vc_disk::Disk::blank(if spec.format == "d71" { vc_disk::Kind::D71 } else { vc_disk::Kind::D81 }, &title, "VC")?;
-            for (_, art) in &chosen { let n = disk_name(&spec.format, &Path::new(art).file_stem().unwrap_or_default().to_string_lossy(), ""); d.add_prg(&n, &std::fs::read(root.join(art)).map_err(|e| format!("{art}: {e}"))?)?; names.push(n); }
+            for (_, art) in &chosen { let n = disk_name(&spec.format, &Path::new(art).file_stem().unwrap_or_default().to_string_lossy(), ""); d.add_prg(&n, &std::fs::read(root.join(art)).map_err(|e| vc_i18n::t!("projfile-art-e", art = &art, e = &e))?)?; names.push(n); }
             d.to_bytes()
         }
-        f => return Err(format!("Diskettenformat '{f}' unbekannt (d64, d71, d81, atr)")),
+        f => return Err(vc_i18n::t!("projfile-diskettenformat-f-unbekannt-d64-d71-d81", f = &f)),
     };
-    let out = root.join(&out_rel);
     if let Some(p) = out.parent() { std::fs::create_dir_all(p).map_err(|e| e.to_string())?; }
-    std::fs::write(&out, &bytes).map_err(|e| format!("{out_rel}: {e}"))?;
+    vc_core::atomar::schreiben(&out, &bytes).map_err(|e| vc_i18n::t!("projfile-out-rel-e", out_rel = &out_rel, e = &e))?;
     Ok(json!({ "file": out_rel, "size": bytes.len(), "programs": names }))
 }
 
@@ -372,6 +420,8 @@ pub fn make_disk(root: &Path, pf: &ProjectFile, spec: &DiskSpec, artifacts: &[(S
 /// Ergebnis: `ok`, `results` (je Quelle das Ergebnis von [`build`] samt `file`/`target`), `main`, `main_artifact`, `main_target`, `disk`.
 /// `only`: nur diese Quelle bauen (zum Starten des Hauptprogramms).
 pub fn build_project(c: &Ctx, pf: &ProjectFile, only: Option<&str>) -> Value {
+    let bad = pf.unsafe_paths(c.root);
+    if !bad.is_empty() { let ds: Vec<Value> = bad.iter().map(|m| json!({ "file": "", "line": 0, "severity": "error", "code": "PATH", "message": m })).collect(); return json!({ "ok": false, "results": [{ "ok": false, "file": "", "diagnostics": ds }], "main": pf.main_file() }); }
     let mut results = vec![]; let mut arts: Vec<(String, String)> = vec![]; let mut all_ok = true;
     for (f, _kind, _) in pf.source_files() {
         if only.map_or(false, |o| o != f) { continue; }
@@ -407,6 +457,16 @@ pub fn build_project(c: &Ctx, pf: &ProjectFile, only: Option<&str>) -> Value {
             match make_disk(c.root, pf, d, &arts) { Ok(v) => out["disk"] = v, Err(e) => { out["ok"] = json!(false); out["disk_error"] = json!(e); } }
         }
     }
+    // Turbo BASIC XL: Diskette des Anwenders + übersetztes Hauptprogramm als AUTORUN.BAS → build/<name>.atr (auch beim Bau nur des Hauptprogramms, das der Start braucht)
+    if all_ok && crate::turbo::is_turbo_project(pf) {
+        if let (Some(m), Some(a)) = (&main, &main_art) {
+            match crate::turbo::make_turbo_disk(c.root, pf, m, a) {
+                Ok(b) => { let mut j = b.to_json(); j["line"] = json!(b.line()); out["turbo"] = j; }
+                Err(crate::turbo::TurboErr::Missing(msg)) => out["turbo_missing"] = json!(msg),
+                Err(crate::turbo::TurboErr::Fail(msg)) => { out["ok"] = json!(false); out["turbo_error"] = json!(msg); }
+            }
+        }
+    }
     out
 }
 
@@ -418,7 +478,7 @@ pub fn build_gui(c: &Ctx, pf: Option<&ProjectFile>, rel: &str) -> Result<Value, 
     let mut v = match all["results"].as_array().and_then(|a| a.iter().find(|x| x["file"] == rel)) { Some(x) => x.clone(), None => crate::build::build(c, rel, None)? };
     if let Some(d) = all.get("disk") { v["disk"] = d.clone(); }
     if let Some(e) = all.get("disk_error") { v["disk_error"] = e.clone(); }
-    else if all["disk"].is_null() { v["disk_skipped"] = json!("Diskette nicht erstellt: nicht alle Programme des Projekts wurden gebaut"); }
+    else if all["disk"].is_null() { v["disk_skipped"] = json!(vc_i18n::t!("projfile-diskette-nicht-erstellt-nicht-alle-programme")); }
     Ok(v)
 }
 
@@ -427,6 +487,52 @@ pub fn target_setting(root: &Path, tid: &str, key: &str) -> Option<String> {
     let file = std::fs::read_dir(root).ok()?.flatten().map(|e| e.path()).find(|p| p.extension().map_or(false, |e| e == "vcprj"))?;
     let v: Value = serde_json::from_str(&vc_core::textfile::read_source(file).ok()?).ok()?;
     v["targets"].as_array()?.iter().find(|t| t["id"] == tid || t["system"] == tid).and_then(|t| t[key].as_str().map(String::from))
+}
+
+/// Einstellungen des Abschnitts `basic` der Projektdatei (natives BASIC): Nummerierung, Bauoption „kompakt“, Syntaxprüfung.
+/// ```json
+/// "basic": { "start": 100, "step": 10, "compact": true, "check": false, "disabled": ["B152"] }
+/// ```
+#[derive(Clone, Debug, PartialEq)]
+pub struct BasicSettings {
+    pub numbering: vc_basic::numbering::Numbering,
+    /// Bauoption „kompakt“ (Leerzeichen innerhalb der Anweisungen entfernen; nur Commodore)
+    pub compact: bool,
+    /// Syntaxprüfung ganz auslassen (`"check": false`)
+    pub check_off: bool,
+    /// abgeschaltete Prüfcodes (Warnungen und Hinweise)
+    pub disabled: Vec<String>,
+}
+impl Default for BasicSettings { fn default() -> Self { BasicSettings { numbering: Default::default(), compact: false, check_off: false, disabled: vec![] } } }
+impl BasicSettings {
+    /// Aus dem Objekt `basic` (fehlende oder unlesbare Werte bleiben beim Standard)
+    pub fn from_json(v: &Value) -> BasicSettings {
+        BasicSettings {
+            numbering: vc_basic::numbering::Numbering::from_json(v),
+            compact: v["compact"].as_bool().unwrap_or(false),
+            check_off: v["check"].as_bool() == Some(false),
+            disabled: v["disabled"].as_array().map(|a| a.iter().filter_map(|c| c.as_str()).map(|c| c.trim().to_ascii_uppercase()).filter(|c| !c.is_empty()).collect()).unwrap_or_default(),
+        }
+    }
+    /// Für das Objekt `basic`; nur abweichende Werte (Standard: leeres Objekt)
+    pub fn to_json(&self) -> Value {
+        let mut m = Map::new();
+        let d = vc_basic::numbering::Numbering::default();
+        if self.numbering.start != d.start { m.insert("start".into(), json!(self.numbering.start)); }
+        if self.numbering.step != d.step { m.insert("step".into(), json!(self.numbering.step)); }
+        if self.compact { m.insert("compact".into(), json!(true)); }
+        if self.check_off { m.insert("check".into(), json!(false)); }
+        if !self.disabled.is_empty() { m.insert("disabled".into(), json!(self.disabled)); }
+        Value::Object(m)
+    }
+    pub fn check_options(&self) -> vc_basic::check::CheckOptions { vc_basic::check::CheckOptions { disabled: self.disabled.clone(), off: self.check_off } }
+}
+
+/// Die BASIC-Einstellungen des Projekts im Ordner `root` (ohne Projektdatei: Standard)
+pub fn basic_settings(root: &Path) -> BasicSettings {
+    let Some(file) = find(root) else { return BasicSettings::default() };
+    let Some(v) = vc_core::textfile::read_source(file).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()) else { return BasicSettings::default() };
+    BasicSettings::from_json(&v["basic"])
 }
 
 #[cfg(test)]
@@ -521,5 +627,19 @@ mod restore_tabs_tests {
         let mut p = p; p.restore_tabs = true;
         let back: ProjectFile = serde_json::from_str(&serde_json::to_string(&p).unwrap()).unwrap();
         assert!(back.restore_tabs);
+    }
+}
+
+#[cfg(test)]
+mod basic_settings_tests {
+    use super::*;
+    #[test]
+    fn basic_einstellungen_hin_und_zurueck() {
+        assert_eq!(BasicSettings::default().to_json(), json!({}));
+        let v = json!({ "start": 100, "step": 5, "compact": true, "check": false, "disabled": ["b152", " "] });
+        let s = BasicSettings::from_json(&v);
+        assert_eq!((s.numbering.start, s.numbering.step, s.compact, s.check_off), (100, 5, true, true));
+        assert_eq!(s.disabled, vec!["B152".to_string()]);
+        assert_eq!(BasicSettings::from_json(&s.to_json()), s);
     }
 }

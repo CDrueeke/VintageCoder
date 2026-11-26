@@ -6,6 +6,8 @@ use crate::hash;
 /// Größte Datei im Archiv, die gelesen wird (ROM-Abbilder sind höchstens 128 KiB)
 const MAX_ENTRY: usize = 1 << 20;
 const MAX_ENTRIES: usize = 4000;
+/// Summe aller ausgepackten Einträge je Archiv (Schutz vor vielen mittelgroßen Einträgen); darüber wird der Rest übergangen
+const MAX_TOTAL: usize = 16 << 20;
 
 fn u16le(b: &[u8], o: usize) -> Option<usize> { Some(u16::from_le_bytes(b.get(o..o + 2)?.try_into().ok()?) as usize) }
 fn u32le(b: &[u8], o: usize) -> Option<usize> { Some(u32::from_le_bytes(b.get(o..o + 4)?.try_into().ok()?) as usize) }
@@ -20,22 +22,25 @@ pub fn safe_name(name: &str) -> String {
 /// Dateien des Archivs (Name, Inhalt); zu große, verschlüsselte oder anders gepackte Einträge werden übergangen
 pub fn read(data: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
     let start = data.len().saturating_sub(65_557);
-    let eocd = (start..data.len().saturating_sub(21)).rev().find(|&i| data[i..].starts_with(&[0x50, 0x4B, 0x05, 0x06])).ok_or("kein ZIP-Archiv")?;
-    let n = u16le(data, eocd + 10).ok_or("ZIP: Verzeichnis beschädigt")?;
-    let mut p = u32le(data, eocd + 16).ok_or("ZIP: Verzeichnis beschädigt")?;
-    if n > MAX_ENTRIES { return Err(format!("ZIP: zu viele Einträge ({n})")); }
+    let eocd = (start..data.len().saturating_sub(21)).rev().find(|&i| data[i..].starts_with(&[0x50, 0x4B, 0x05, 0x06])).ok_or_else(|| vc_i18n::t!("romsio-zip-not-zip"))?;
+    let n = u16le(data, eocd + 10).ok_or_else(|| vc_i18n::t!("romsio-zip-dir-damaged"))?;
+    let mut p = u32le(data, eocd + 16).ok_or_else(|| vc_i18n::t!("romsio-zip-dir-damaged"))?;
+    if n > MAX_ENTRIES { return Err(vc_i18n::t!("romsio-zip-too-many", n = n)); }
     let mut out = vec![];
+    let mut total = 0usize;
     for _ in 0..n {
-        if data.get(p..p + 4) != Some(&[0x50, 0x4B, 0x01, 0x02]) { return Err("ZIP: Verzeichnis beschädigt".into()); }
+        if data.get(p..p + 4) != Some(&[0x50, 0x4B, 0x01, 0x02]) { return Err(vc_i18n::t!("romsio-zip-dir-damaged")); }
         let (flags, method, crc, csize, usize_, nlen, elen, clen, lh) = (u16le(data, p + 8).ok_or("ZIP")?, u16le(data, p + 10).ok_or("ZIP")?, u32le(data, p + 16).ok_or("ZIP")?, u32le(data, p + 20).ok_or("ZIP")?, u32le(data, p + 24).ok_or("ZIP")?, u16le(data, p + 28).ok_or("ZIP")?, u16le(data, p + 30).ok_or("ZIP")?, u16le(data, p + 32).ok_or("ZIP")?, u32le(data, p + 42).ok_or("ZIP")?);
-        let name = String::from_utf8_lossy(data.get(p + 46..p + 46 + nlen).ok_or("ZIP: Name fehlt")?).into_owned();
+        let name = String::from_utf8_lossy(data.get(p + 46..p + 46 + nlen).ok_or_else(|| vc_i18n::t!("romsio-zip-name-missing"))?).into_owned();
         p += 46 + nlen + elen + clen;
         if name.ends_with('/') || flags & 1 != 0 || usize_ > MAX_ENTRY || !(method == 0 || method == 8) { continue; }
         if data.get(lh..lh + 4) != Some(&[0x50, 0x4B, 0x03, 0x04]) { continue; }
         let (ln, le) = (u16le(data, lh + 26).ok_or("ZIP")?, u16le(data, lh + 28).ok_or("ZIP")?);
-        let raw = data.get(lh + 30 + ln + le..lh + 30 + ln + le + csize).ok_or("ZIP: Daten fehlen")?;
+        if total + usize_ > MAX_TOTAL { continue; }
+        let raw = data.get(lh + 30 + ln + le..lh + 30 + ln + le + csize).ok_or_else(|| vc_i18n::t!("romsio-zip-data-missing"))?;
         let bytes = if method == 0 { raw.to_vec() } else { match miniz_oxide::inflate::decompress_to_vec_with_limit(raw, MAX_ENTRY) { Ok(v) => v, Err(_) => continue } };
         if bytes.len() != usize_ || hash::crc32(&bytes) as usize != crc { continue; }
+        total += bytes.len();
         let safe = safe_name(&name);
         if !safe.is_empty() { out.push((safe, bytes)); }
     }
@@ -79,10 +84,32 @@ mod tests {
     }
 
     #[test]
+    fn grosse_eintraege_und_gesamtmenge_sind_begrenzt() {
+        let big = vec![7u8; 2 << 20];   // über MAX_ENTRY: wird gar nicht erst entpackt
+        let mid: Vec<u8> = (0..(900 << 10)).map(|i| (i % 253) as u8).collect();
+        let mut files: Vec<(String, &[u8], bool)> = vec![("riesig.bin".into(), &big, true)];
+        let names: Vec<String> = (0..30).map(|i| format!("m{i}.bin")).collect();
+        for n in &names { files.push((n.clone(), &mid, true)); }
+        let refs: Vec<(&str, &[u8], bool)> = files.iter().map(|(n, d, c)| (n.as_str(), *d, *c)).collect();
+        let v = read(&zip_of(&refs)).unwrap();
+        assert!(v.iter().all(|(n, _)| n != "riesig.bin"));
+        assert!(v.len() < 30 && v.iter().map(|(_, d)| d.len()).sum::<usize>() <= MAX_TOTAL);
+    }
+
+    #[test]
     fn namen_sind_nie_pfade() {
         assert_eq!(safe_name("../../etc/passwd"), "passwd");
         assert_eq!(safe_name(r"C:\x\y.bin"), "y.bin");
         assert_eq!(safe_name("a:b*c.bin"), "a_b_c.bin");
         assert_eq!(safe_name(".."), "");
+    }
+
+    #[test]
+    fn meldungen_englisch() {
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::En));
+        let e = read(b"kein zip").unwrap_err();
+        vc_i18n::set_thread_language(Some(vc_i18n::Lang::De));
+        assert_eq!(e, "not a ZIP archive");
+        assert_eq!(read(b"kein zip").unwrap_err(), "kein ZIP-Archiv");
     }
 }

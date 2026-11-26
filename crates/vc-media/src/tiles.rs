@@ -30,12 +30,12 @@ pub struct TileSet {
 }
 
 fn parse_cell(v: &Value) -> Result<Cell, String> {
-    let code = |x: &Value| x.as_u64().filter(|n| *n <= 255).map(|n| n as u8).ok_or_else(|| "Zeichencode außerhalb 0..255".to_string());
+    let code = |x: &Value| x.as_u64().filter(|n| *n <= 255).map(|n| n as u8).ok_or_else(|| vc_i18n::t!("media-zeichencode-ausserhalb-0-255").to_string());
     match v {
         Value::Number(_) => Ok(Cell { code: code(v)?, cs: 0, col: None, sel: false }),
         Value::Array(a) => Ok(Cell { code: code(a.first().ok_or("leere Zelle")?)?, cs: a.get(1).and_then(|x| x.as_u64()).unwrap_or(0) as usize, col: a.get(2).and_then(|x| x.as_u64()).map(|n| n as u8), sel: false }),
         Value::Object(_) => Ok(Cell { code: code(&v["c"])?, cs: v["s"].as_u64().unwrap_or(0) as usize, col: v["col"].as_u64().map(|n| n as u8), sel: v["sel"].as_bool().unwrap_or(false) }),
-        _ => Err("Zelle: Zahl, Liste oder Objekt erwartet".into()),
+        _ => Err(vc_i18n::t!("media-zelle-zahl-liste-oder-objekt-erwartet").into()),
     }
 }
 
@@ -53,25 +53,25 @@ pub fn parse_tileset(v: &Value) -> Result<TileSet, String> { parse_tileset_max(v
 
 /// Wie [`parse_tileset`] mit ausdrücklicher Obergrenze der Kachelzahl (16-Bit-Index: 65535)
 pub fn parse_tileset_max(v: &Value, max: usize) -> Result<TileSet, String> {
-    if v["kind"] != "tileset" { return Err(format!("Kachelsatz erwartet (kind 'tileset'), gefunden '{}'", v["kind"].as_str().unwrap_or("?"))); }
+    if v["kind"] != "tileset" { return Err(vc_i18n::t!("media-kachelsatz-erwartet-kind-tileset-gefunden-p1", p1 = v["kind"].as_str().unwrap_or("?"))); }
     let (tw, th) = (v["size"]["w"].as_u64().unwrap_or(0) as usize, v["size"]["h"].as_u64().unwrap_or(0) as usize);
-    if !(1..=MAX_SIDE).contains(&tw) || !(1..=MAX_SIDE).contains(&th) { return Err(format!("Kachelgröße {tw}×{th}: Breite und Höhe müssen 1..{MAX_SIDE} sein")); }
-    let color_mode = match v["colorMode"].as_str().unwrap_or("tile") { "tile" => ColorMode::Tile, "cell" => ColorMode::Cell, "none" => ColorMode::None, m => return Err(format!("colorMode '{m}' unbekannt (tile, cell, none)")) };
+    if !(1..=MAX_SIDE).contains(&tw) || !(1..=MAX_SIDE).contains(&th) { return Err(vc_i18n::t!("media-kachelgroesse-tw-th-breite-und-hoehe", tw = &tw, th = &th, max_side = MAX_SIDE)); }
+    let color_mode = match v["colorMode"].as_str().unwrap_or("tile") { "tile" => ColorMode::Tile, "cell" => ColorMode::Cell, "none" => ColorMode::None, m => return Err(vc_i18n::t!("media-colormode-unbekannt", m = &m)) };
     let charsets: Vec<String> = v["charsets"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
     let prop_defs: Vec<(String, u8)> = v["propDefs"].as_array().map(|a| a.iter().filter_map(|d| Some((d["name"].as_str()?.to_string(), d["bit"].as_u64()? as u8))).collect()).unwrap_or_default();
-    if let Some((n, _)) = prop_defs.iter().find(|(_, b)| *b > 7) { return Err(format!("Eigenschaft '{n}': Bit muss 0..7 sein")); }
+    if let Some((n, _)) = prop_defs.iter().find(|(_, b)| *b > 7) { return Err(vc_i18n::t!("media-eigenschaft-n-bit-muss-0-7", n = &n)); }
     let pins = v["pins"].as_array().map(|a| a.iter().filter_map(|p| Some((p["cs"].as_u64().unwrap_or(0) as usize, p["from"].as_u64()? as u8, p["to"].as_u64()? as u8))).collect()).unwrap_or_default();
-    let arr = v["tiles"].as_array().ok_or("tiles fehlt")?;
-    if arr.len() > max { return Err(format!("{} Kacheln: mit {}-Bit-Index sind höchstens {max} möglich", arr.len(), if max > MAX_TILES { 16 } else { 8 })); }
+    let arr = v["tiles"].as_array().ok_or(vc_i18n::t!("media-tiles-fehlt"))?;
+    if arr.len() > max { return Err(vc_i18n::t!("media-p1-kacheln-mit-p2-bit-index", p1 = arr.len(), p2 = if max > MAX_TILES { 16 } else { 8 }, max = &max)); }
     let mut tiles = vec![];
     for (i, t) in arr.iter().enumerate() {
-        let cells: Vec<Cell> = t["cells"].as_array().ok_or(format!("Kachel {i}: cells fehlt"))?.iter().map(parse_cell).collect::<Result<_, _>>().map_err(|e| format!("Kachel {i}: {e}"))?;
-        if cells.len() != tw * th { return Err(format!("Kachel {i}: {} statt {} Zellen", cells.len(), tw * th)); }
-        if let Some(c) = cells.iter().find(|c| !charsets.is_empty() && c.cs >= charsets.len()) { return Err(format!("Kachel {i}: Zeichensatz {} gibt es nicht (charsets hat {})", c.cs, charsets.len())); }
+        let cells: Vec<Cell> = t["cells"].as_array().ok_or(vc_i18n::t!("media-kachel-i-cells-fehlt", i = &i))?.iter().map(parse_cell).collect::<Result<_, _>>().map_err(|e| vc_i18n::t!("media-kachel-i-e", i = &i, e = &e))?;
+        if cells.len() != tw * th { return Err(vc_i18n::t!("media-kachel-i-zellen-anzahl", i = &i, p1 = cells.len(), p2 = tw * th)); }
+        if let Some(c) = cells.iter().find(|c| !charsets.is_empty() && c.cs >= charsets.len()) { return Err(vc_i18n::t!("media-kachel-i-zeichensatz-p2-gibt-es", i = &i, p2 = &c.cs, p3 = charsets.len())); }
         let mut props = 0u8;
         for p in t["props"].as_array().map(|a| a.as_slice()).unwrap_or(&[]) {
-            let n = p.as_str().ok_or(format!("Kachel {i}: props enthält keinen Namen"))?;
-            let (_, bit) = prop_defs.iter().find(|(d, _)| d == n).ok_or(format!("Kachel {i}: Eigenschaft '{n}' ist in propDefs nicht definiert"))?;
+            let n = p.as_str().ok_or(vc_i18n::t!("media-kachel-i-props-enthaelt-keinen-namen", i = &i))?;
+            let (_, bit) = prop_defs.iter().find(|(d, _)| d == n).ok_or(vc_i18n::t!("media-kachel-i-eigenschaft-n-ist-in", i = &i, n = &n))?;
             props |= 1 << bit;
         }
         tiles.push(Tile { name: t["name"].as_str().unwrap_or("").into(), cells, col: t["col"].as_u64().unwrap_or(1) as u8, props });
@@ -109,15 +109,15 @@ pub type Frames = Vec<Vec<String>>;
 
 /// Lädt die Zeichensätze eines Kachelsatzes (Pfade relativ zum Projektordner); alle müssen dasselbe Profil haben.
 pub fn load_charsets(root: &Path, paths: &[String]) -> Result<(Vec<Frames>, String), String> {
-    if paths.is_empty() { return Err("Kachelsatz hat keinen Zeichensatz (charsets ist leer)".into()); }
+    if paths.is_empty() { return Err(vc_i18n::t!("media-kachelsatz-hat-keinen-zeichensatz-charsets-ist").into()); }
     let (mut all, mut prof) = (vec![], String::new());
     for p in paths {
-        let text = std::fs::read_to_string(root.join(p)).map_err(|e| format!("Zeichensatz {p}: {e}"))?;
-        let v: Value = serde_json::from_str(&text).map_err(|e| format!("Zeichensatz {p}: {e}"))?;
-        if v["kind"] != "charset" { return Err(format!("{p} ist kein Zeichensatz")); }
+        let text = std::fs::read_to_string(root.join(p)).map_err(|e| vc_i18n::t!("media-zeichensatz-p-e", p = &p, e = e.to_string()))?;
+        let v: Value = serde_json::from_str(&text).map_err(|e| vc_i18n::t!("media-zeichensatz-p-e", p = &p, e = e.to_string()))?;
+        if v["kind"] != "charset" { return Err(vc_i18n::t!("media-p-ist-kein-zeichensatz", p = &p)); }
         let id = v["profile"].as_str().unwrap_or("").to_string();
-        if prof.is_empty() { prof = id; } else if prof != id { return Err(format!("Zeichensätze mit verschiedenen Profilen ('{prof}' und '{id}') lassen sich nicht zusammenführen")); }
-        let frames = v["frames"].as_array().ok_or(format!("{p}: frames fehlt"))?;
+        if prof.is_empty() { prof = id; } else if prof != id { return Err(vc_i18n::t!("media-zeichensaetze-mit-verschiedenen-profilen-prof-und", prof = &prof, id = &id)); }
+        let frames = v["frames"].as_array().ok_or(vc_i18n::t!("media-p-frames-fehlt", p = &p))?;
         all.push(frames.iter().map(|f| f["rows"].as_array().map(|r| r.iter().filter_map(|s| s.as_str().map(String::from)).collect()).unwrap_or_default()).collect());
     }
     Ok((all, prof))
@@ -129,7 +129,7 @@ pub fn merge_glyphs(cells: &[(usize, u8)], sets: &[Frames], pins: &[(usize, u8, 
     let max = cp.count;
     let blank: Vec<String> = (0..cp.height).map(|_| "0".repeat(cp.width * cp.raw["digits"].as_u64().unwrap_or(1) as usize)).collect();
     let rows_of = |cs: usize, code: u8| -> Result<Vec<String>, String> {
-        sets.get(cs).ok_or(format!("Zeichensatz {cs} gibt es nicht"))?.get(code as usize).cloned().ok_or(format!("Zeichensatz {cs} hat kein Zeichen {code}"))
+        sets.get(cs).ok_or(vc_i18n::t!("media-zeichensatz-cs-gibt-es-nicht", cs = &cs))?.get(code as usize).cloned().ok_or(vc_i18n::t!("media-zeichensatz-cs-hat-kein-zeichen-code", cs = &cs, code = &code))
     };
     let mut by_rows: HashMap<Vec<String>, u8> = HashMap::new();
     let mut slots: Vec<Option<Vec<String>>> = vec![None; max];
@@ -137,9 +137,9 @@ pub fn merge_glyphs(cells: &[(usize, u8)], sets: &[Frames], pins: &[(usize, u8, 
     // 1. Pins
     for &(cs, from, to) in pins {
         for code in from..=to {
-            if code as usize >= max { return Err(format!("Pin {code}: Ziel hat nur {max} Zeichen")); }
+            if code as usize >= max { return Err(vc_i18n::t!("media-pin-code-ziel-hat-nur-max", code = &code, max = &max)); }
             let r = rows_of(cs, code)?;
-            match &slots[code as usize] { Some(x) if *x != r => return Err(format!("Pin-Konflikt bei Code {code}: zwei verschiedene Glyphen")), _ => {} }
+            match &slots[code as usize] { Some(x) if *x != r => return Err(vc_i18n::t!("media-pin-konflikt-bei-code-code-zwei", code = &code)), _ => {} }
             slots[code as usize] = Some(r.clone()); by_rows.entry(r).or_insert(code); remap.insert((cs, code), code);
         }
     }
@@ -155,7 +155,7 @@ pub fn merge_glyphs(cells: &[(usize, u8)], sets: &[Frames], pins: &[(usize, u8, 
         let r = rows_of(cs, code)?;
         if let Some(&t) = by_rows.get(&r) { remap.insert((cs, code), t); continue; }
         while next < max && slots[next].is_some() { next += 1; }
-        if next >= max { return Err(format!("Zeichensatz-Überlauf: mehr als {max} verschiedene Glyphen (Ziel fasst {max})")); }
+        if next >= max { return Err(vc_i18n::t!("media-zeichensatz-ueberlauf-mehr-als-max-verschiedene", max = &max)); }
         slots[next] = Some(r.clone()); by_rows.insert(r, next as u8); remap.insert((cs, code), next as u8);
     }
     let used = slots.iter().filter(|s| s.is_some()).count();
@@ -167,8 +167,8 @@ pub fn merge_glyphs(cells: &[(usize, u8)], sets: &[Frames], pins: &[(usize, u8, 
 impl Merge {
     /// Zielcode einer Zelle, bei `sel` mit gesetztem Bit 7 (nur zulässig, wenn der Zielzeichensatz höchstens 128 Zeichen hat)
     pub fn code(&self, c: &Cell) -> Result<u8, String> {
-        let t = *self.remap.get(&(c.cs, c.code)).ok_or(format!("Zeichen {}:{} fehlt in der Zusammenführung", c.cs, c.code))?;
-        if c.sel { if self.max > 128 { return Err("Farbwahl-Bit (sel) braucht einen Zielzeichensatz mit höchstens 128 Zeichen (Atari)".into()); } Ok(t | 0x80) } else { Ok(t) }
+        let t = *self.remap.get(&(c.cs, c.code)).ok_or(vc_i18n::t!("media-zeichen-p1-p2-fehlt-in-der", p1 = &c.cs, p2 = &c.code))?;
+        if c.sel { if self.max > 128 { return Err(vc_i18n::t!("media-farbwahl-bit-sel-braucht-einen-zielzeichensatz").into()); } Ok(t | 0x80) } else { Ok(t) }
     }
     fn charset_bytes(&self, cp: &Profile) -> Result<Vec<u8>, String> {
         let frames: Vec<Value> = self.frames.iter().map(|r| json!({ "rows": r })).collect();
@@ -194,24 +194,24 @@ pub struct Bank { pub name: String, pub tilesets: Vec<String>, pub screens: Vec<
 pub fn is_bank(v: &Value) -> bool { v["kind"] == "screen" && v["screens"].is_array() }
 
 pub fn parse_bank(v: &Value) -> Result<Bank, String> {
-    if !is_bank(v) { return Err("Screen-Bank erwartet (kind 'screen' mit 'screens')".into()); }
+    if !is_bank(v) { return Err(vc_i18n::t!("media-screen-bank-erwartet-kind-screen-mit").into()); }
     let tilesets: Vec<String> = v["tilesets"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
     let mut screens = vec![];
     for (i, s) in v["screens"].as_array().unwrap().iter().enumerate() {
         let name = s["name"].as_str().unwrap_or("").to_string();
         let (w, h) = (s["w"].as_u64().unwrap_or(0) as usize, s["h"].as_u64().unwrap_or(0) as usize);
-        if w == 0 || h == 0 || w > 255 || h > 255 { return Err(format!("Screen {i} '{name}': Größe {w}×{h} ungültig (1..255)")); }
+        if w == 0 || h == 0 || w > 255 || h > 255 { return Err(vc_i18n::t!("media-screen-i-name-groesse-w-h", i = &i, name = &name, w = &w, h = &h)); }
         let t = &s["tiles"];
         let set = t["set"].as_u64().unwrap_or(0) as usize;
         let origin = (t["origin"][0].as_u64().unwrap_or(0) as usize, t["origin"][1].as_u64().unwrap_or(0) as usize);
         let grid: Vec<Vec<usize>> = t["grid"].as_array().map(|rows| rows.iter().map(|r| r.as_array().map(|c| c.iter().map(|x| x.as_u64().unwrap_or(0) as usize).collect()).unwrap_or_default()).collect()).unwrap_or_default();
-        if let Some(r) = grid.iter().find(|r| r.len() != grid[0].len()) { return Err(format!("Screen {i} '{name}': Kartenzeilen verschieden lang ({} und {})", grid[0].len(), r.len())); }
+        if let Some(r) = grid.iter().find(|r| r.len() != grid[0].len()) { return Err(vc_i18n::t!("media-screen-i-name-kartenzeilen-verschieden-lang", i = &i, name = &name, p3 = grid[0].len(), p4 = r.len())); }
         let mut patches = vec![];
         for p in s["cells"]["patches"].as_array().map(|a| a.as_slice()).unwrap_or(&[]) {
-            let a = p.as_array().ok_or(format!("Screen {i}: Patch ist keine Liste [x, y, zelle]"))?;
+            let a = p.as_array().ok_or(vc_i18n::t!("media-screen-i-patch-ist-keine-liste", i = &i))?;
             if a.len() < 3 { return Err(format!("Screen {i}: Patch braucht [x, y, zelle]")); }
             let (x, y) = (a[0].as_u64().unwrap_or(u64::MAX) as usize, a[1].as_u64().unwrap_or(u64::MAX) as usize);
-            if x >= w || y >= h { return Err(format!("Screen {i} '{name}': Patch ({x}, {y}) liegt außerhalb {w}×{h}")); }
+            if x >= w || y >= h { return Err(vc_i18n::t!("media-screen-i-name-patch-x-y", i = &i, name = &name, x = &x, y = &y, w = &w, h = &h)); }
             patches.push(Patch { x, y, cell: parse_cell(&a[2]).map_err(|e| format!("Screen {i}: {e}"))? });
         }
         screens.push(Screen { name, w, h, colors: s["colors"].clone(), set, origin, grid, patches });
@@ -222,9 +222,9 @@ pub fn parse_bank(v: &Value) -> Result<Bank, String> {
 fn validate_screen(i: usize, s: &Screen, ts: &TileSet) -> Result<(), String> {
     let (rows, cols) = (s.grid.len(), s.grid.first().map_or(0, |r| r.len()));
     if s.origin.0 + cols * ts.tw > s.w || s.origin.1 + rows * ts.th > s.h {
-        return Err(format!("Screen {i} '{}': Kachelraster {cols}×{rows} ab ({}, {}) mit {}×{}-Kacheln passt nicht in {}×{} Zellen", s.name, s.origin.0, s.origin.1, ts.tw, ts.th, s.w, s.h));
+        return Err(vc_i18n::t!("media-screen-i-p2-kachelraster-cols-rows", i = &i, p2 = &s.name, cols = &cols, rows = &rows, p5 = s.origin.0, p6 = s.origin.1, p7 = &ts.tw, p8 = &ts.th, p9 = &s.w, p10 = &s.h));
     }
-    for (y, r) in s.grid.iter().enumerate() { for (x, &t) in r.iter().enumerate() { if t >= ts.tiles.len() { return Err(format!("Screen {i} '{}': Karte ({x}, {y}) verweist auf Kachel {t}, der Satz hat nur {}", s.name, ts.tiles.len())); } } }
+    for (y, r) in s.grid.iter().enumerate() { for (x, &t) in r.iter().enumerate() { if t >= ts.tiles.len() { return Err(vc_i18n::t!("media-screen-i-p2-karte-x-y", i = &i, p2 = &s.name, x = &x, y = &y, t = &t, p6 = ts.tiles.len())); } } }
     Ok(())
 }
 
@@ -271,10 +271,10 @@ pub fn rle_encode(map: &[u8]) -> Vec<u8> {
 pub fn rle_decode(data: &[u8], len: usize) -> Result<Vec<u8>, String> {
     let mut out = Vec::with_capacity(len);
     for p in data.chunks(2) {
-        if p.len() != 2 || p[1] == 0 { return Err("RLE-Daten: Paar unvollständig oder Anzahl 0".into()); }
+        if p.len() != 2 || p[1] == 0 { return Err(vc_i18n::t!("media-rle-daten-paar-unvollstaendig-oder-anzahl").into()); }
         out.extend(std::iter::repeat(p[0]).take(p[1] as usize));
     }
-    if out.len() != len { return Err(format!("RLE-Daten ergeben {} statt {len} Kacheln", out.len())); }
+    if out.len() != len { return Err(vc_i18n::t!("media-rle-daten-ergeben-anzahl", p1 = out.len(), len = &len)); }
     Ok(out)
 }
 
@@ -320,23 +320,23 @@ pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label:
         let m = merge_glyphs(&ordered_cells(&ts, &[]), &sets, &ts.pins, cp)?;
         let mut parts = tileset_tables(&ts, &m, lay)?;
         parts.push(("chars".into(), m.charset_bytes(cp)?));
-        let report = format!("{} Kacheln {}×{}, Zeichensatz-Füllstand {} von {} Glyphen, {} Doppelte zusammengelegt", ts.tiles.len(), ts.tw, ts.th, m.used, m.max, m.doubles);
+        let report = vc_i18n::t!("media-p1-kacheln-p2-p3-zeichensatz-fuellstand", p1 = ts.tiles.len(), p2 = &ts.tw, p3 = &ts.th, p4 = &m.used, p5 = &m.max, p6 = &m.doubles);
         return Ok(TilesOut { parts, consts: tileset_consts(label, &ts, &m, false, lay), consts_sbas: tileset_consts(label, &ts, &m, true, lay), tail_asm: String::new(), report, tiles_use: String::new() });
     }
     let bank = parse_bank(media)?;
-    if bank.tilesets.is_empty() { return Err("Screen-Bank braucht mindestens einen Kachelsatz in 'tilesets'".into()); }
+    if bank.tilesets.is_empty() { return Err(vc_i18n::t!("media-screen-bank-braucht-mindestens-einen-kachelsatz").into()); }
     // Alle Kachelsätze der Bank: Zeichensatzlisten aneinanderhängen (cs-Nummern je Satz verschieben), damit EIN Zielzeichensatz entsteht (Konzept 3.2)
     let (mut tss, mut alle_zs, mut offs, mut cpid): (Vec<TileSet>, Vec<Frames>, Vec<usize>, String) = (vec![], vec![], vec![], String::new());
     for rel in &bank.tilesets {
         let ts_text = std::fs::read_to_string(root.join(rel)).map_err(|e| format!("Kachelsatz {rel} (gesucht in {}): {e}", root.display()))?;
         let mut ts = parse_tileset_max(&serde_json::from_str(&ts_text).map_err(|e| format!("Kachelsatz {rel}: {e}"))?, if lay.index16 { 65535 } else { MAX_TILES })?;
         let (zs, id) = load_charsets(root, &ts.charsets)?;
-        if cpid.is_empty() { cpid = id } else if cpid != id { return Err(format!("Kachelsatz {rel}: Zeichensatzprofil '{id}' passt nicht zu '{cpid}' der übrigen Sätze")) }
+        if cpid.is_empty() { cpid = id } else if cpid != id { return Err(vc_i18n::t!("media-kachelsatz-rel-zeichensatzprofil-id-passt-nicht", rel = &rel, id = &id, cpid = &cpid)) }
         let off = alle_zs.len(); offs.push(off); alle_zs.extend(zs);
         for t in &mut ts.tiles { for c in &mut t.cells { c.cs += off } } for p in &mut ts.pins { p.0 += off }
         tss.push(ts);
     }
-    if let Some(sc) = bank.screens.iter().find(|s| s.set >= tss.len()) { return Err(format!("Screen '{}': Kachelsatz {} gibt es nicht (die Bank hat {})", sc.name, sc.set, tss.len())) }
+    if let Some(sc) = bank.screens.iter().find(|s| s.set >= tss.len()) { return Err(vc_i18n::t!("media-screen-p1-kachelsatz-p2-gibt-es", p1 = &sc.name, p2 = &sc.set, p3 = tss.len())) }
     let cp = charset_profile(profiles, &cpid)?; let sets = alle_zs;
     for (i, s) in bank.screens.iter().enumerate() { validate_screen(i, s, &tss[s.set])?; }
     let sh = |c: &Cell, k: usize| Cell { cs: c.cs + offs[k], ..c.clone() };
@@ -349,7 +349,7 @@ pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label:
     let (mut map_labels, mut cell_labels, mut hi_labels, mut row_labels): (Vec<String>, Vec<Option<String>>, Vec<String>, Vec<(usize, String)>) = (vec![], vec![], vec![], vec![]);
     for (i, s) in bank.screens.iter().enumerate() {
         let ts = &tss[s.set];
-        if !lay.index16 { if let Some(t) = s.grid.iter().flatten().find(|&&t| t > 255) { return Err(format!("Screen '{}': Kachel {t} passt nicht in einen 8-Bit-Index (höchstens 256 Kacheln); 16-Bit-Index im Layout wählen", s.name)) } }
+        if !lay.index16 { if let Some(t) = s.grid.iter().flatten().find(|&&t| t > 255) { return Err(vc_i18n::t!("media-screen-p1-kachel-t-passt-nicht", p1 = &s.name, t = &t)) } }
         let reihenfolge: Vec<usize> = if lay.map_columns { let (rows, cols) = (s.grid.len(), s.grid.first().map_or(0, |r| r.len())); (0..cols).flat_map(|x| (0..rows).map(move |y| s.grid[y][x])).collect() } else { s.grid.iter().flatten().copied().collect() };
         let raw: Vec<u8> = reihenfolge.iter().map(|&t| (t & 0xFF) as u8).collect();
         parts.push((format!("map{i}"), if rle { rle_encode(&raw) } else { raw }));
@@ -360,7 +360,7 @@ pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label:
                 // volle Zeilen statt Patches: jede betroffene Zeile als Ganzes (Kachelebene eingerechnet, Patches darüber); Zeile = y, w Codes, bei Farbe w Farben
                 let mut ys: Vec<usize> = s.patches.iter().map(|p| p.y).collect(); ys.sort_unstable(); ys.dedup();
                 let farbig = ts.color_mode != ColorMode::None; let mut b = vec![ys.len() as u8];
-                if ys.len() > 255 { return Err(format!("Screen '{}': mehr als 255 Zeilen mit eigenen Zellen", s.name)) }
+                if ys.len() > 255 { return Err(vc_i18n::t!("media-screen-p1-mehr-als-255-zeilen", p1 = &s.name)) }
                 for &y in &ys {
                     b.push(y as u8); let (mut codes, mut cols) = (Vec::with_capacity(s.w), Vec::with_capacity(s.w));
                     for x in 0..s.w {
@@ -411,7 +411,7 @@ pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label:
     }
     if lay.map_columns { consts.push_str(&format!(".const {label}_map_columns = 1\n")); sb.push_str(&format!("const {label}_map_columns = 1\n")); }
     if lay.index16 { consts.push_str(&format!(".const {label}_index16 = 1\n")); sb.push_str(&format!("const {label}_index16 = 1\n")); }
-    let report = format!("{} Screens, Zeichensatz-Füllstand {} von {} Glyphen{}", bank.screens.len(), m.used, m.max, if lay.ist_vorgabe() { String::new() } else { format!(", Layout {}", lay.text()) });
+    let report = vc_i18n::t!("media-p1-screens-zeichensatz-fuellstand-p2-von", p1 = bank.screens.len(), p2 = &m.used, p3 = &m.max, p4 = if lay.ist_vorgabe() { String::new() } else { format!(", Layout {}", lay.text()) });
     let ts = &tss[0]; let satz = if tss.len() > 1 { format!("{label}_s0") } else { ident(ts.name.as_str()) }; let erste = bank.screens.first().map(|s| { let n = ident(&s.name); if n.is_empty() { "s0".to_string() } else { n } }).unwrap_or_default();
     let (c0, col, props) = (if lay.interleaved { format!("{satz}_t") } else { format!("{satz}_c0") }, if ts.color_mode == ColorMode::None { "0".to_string() } else if ts.color_mode == ColorMode::Cell { if lay.interleaved { format!("{satz}_colt") } else { format!("{satz}_col0") } } else { format!("{satz}_col") }, if ts.prop_defs.is_empty() { "0".to_string() } else { format!("{satz}_props") });
     let tiles_use = format!("tiles_use {c0}, {col}, {props}, {satz}_tw, {satz}_th, {satz}_count, {label}_screens_lo, {label}_screens_hi, {label}_{erste}_tiles_w, {label}_{erste}_tiles_h");
@@ -423,8 +423,8 @@ pub fn export_parts_mit(root: &Path, media: &Value, profiles: &[Profile], label:
 /// Wandelt eine alte Kachelkarte (`kind: tilemap`, Kacheln mit `chars`/`color`/`solid`, `map`) in einen Kachelsatz und einen Screen um.
 /// `tw`/`th` stammen aus dem alten Profil (`tileWidth`/`tileHeight`), `color_ram` aus `colorRam`.
 pub fn migrate_tilemap(old: &Value, tw: usize, th: usize, color_ram: bool, set_name: &str) -> Result<(Value, Value), String> {
-    if old["kind"] != "tilemap" { return Err("alte Kachelkarte (kind 'tilemap') erwartet".into()); }
-    let tiles: Vec<Value> = old["tiles"].as_array().ok_or("tiles fehlt")?.iter().map(|t| {
+    if old["kind"] != "tilemap" { return Err(vc_i18n::t!("media-alte-kachelkarte-erwartet").into()); }
+    let tiles: Vec<Value> = old["tiles"].as_array().ok_or(vc_i18n::t!("media-tiles-fehlt"))?.iter().map(|t| {
         let mut o = json!({ "name": t["name"], "cells": t["chars"].as_array().map(|a| a.iter().map(|c| json!(c)).collect::<Vec<_>>()).unwrap_or_default() });
         if color_ram { o["col"] = t["color"].clone(); }
         if t["solid"].as_bool().unwrap_or(false) { o["props"] = json!(["solid"]); }

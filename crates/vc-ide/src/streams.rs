@@ -113,7 +113,7 @@ pub fn no_packets_hint_os(kind: StreamKind, local: Option<SocketAddrV4>, multica
 1. {} \
 2. Netz: Liegt die Ultimate im selben Netz wie diese Adresse? Bei mehreren Netzen die Schnittstelle in den Einstellungen festlegen. \
 3. Ultimate: Hängt sie per LAN-Kabel am Netz (WLAN genügt nicht)? \
-{}", kind.rest_name(), firewall_advice(&prog, windows), if multicast { "4. Multicast: Manche Switches und WLAN-Zugangspunkte leiten Multicast nicht weiter; im Zweifel Multicast in den Einstellungen abschalten." } else { "4. Hilft nichts: Multicast in den Einstellungen als Ausweg versuchen." })
+{}", kind.rest_name(), firewall_advice(&prog, windows), if multicast { vc_i18n::t!("rest-streams-multicast-an").to_string() } else { vc_i18n::t!("rest-streams-multicast-aus").to_string() })
 }
 
 impl StreamService {
@@ -176,7 +176,7 @@ impl StreamService {
         // Keine Filterung nach Absenderadresse: Die Ultimate sendet bei mehreren Schnittstellen (LAN und WLAN) mit wechselnder Absenderadresse.
         // Fremde Pakete scheitern ohnehin an der Prüfung von Länge und Kopf und werden gezählt.
         let source = None;
-        let sink = self.slots[idx(kind)].sink.clone().ok_or("kein Empfänger für die Pakete angegeben")?;
+        let sink = self.slots[idx(kind)].sink.clone().ok_or_else(|| vc_i18n::t!("rest-streams-kein-empfaenger").to_string())?;
         let rx = StreamReceiver::start(ReceiverConfig { kind, delivery, source, rcvbuf: 0 }, sink)?;
         let target = SocketAddrV4::new(ip, if port == 0 { rx.local_addr().port() } else { port });
         let started = self.dev.as_ref().ok_or("keine Verbindung")?.stream_start(kind, *target.ip(), target.port());
@@ -212,7 +212,7 @@ impl StreamService {
                     if let Some(d) = &self.dev { let _ = d.stream_stop(kind); }
                     if let Err(e) = self.open(kind) { self.fail(kind, format!("Strom ausgefallen, Neustart gescheitert: {e}")); }
                 } else {
-                    self.fail(kind, "Strom ausgefallen: Seit mehr als 2 Sekunden kommt kein Paket mehr an (Gerät aus, Kabel gezogen oder Strom in der Ultimate beendet).".into());
+                    self.fail(kind, vc_i18n::t!("rest-streams-ausgefallen").to_string());
                 }
                 continue;
             }

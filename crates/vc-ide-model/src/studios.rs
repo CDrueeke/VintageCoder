@@ -10,7 +10,8 @@ use vc_ide::features::{features, Features};
 pub struct StudioDef {
     /// Kennung in der Registry (`STU-SPRITE` ↔ `sprite`)
     pub id: &'static str,
-    pub title: &'static str,
+    /// Deutscher Quelltext (Schlüssel für `title()`)
+    pub title0: &'static str,
     /// Gruppe der Dateien im Projektbaum; `None` bei Studios ohne eigene Dateiart (Disk-Studio, Memory Map)
     pub group: Option<Group>,
     /// Dateiarten (`kind` in den Media-Dateien), die das Studio bearbeitet
@@ -20,17 +21,29 @@ pub struct StudioDef {
     pub help: &'static [&'static str],
 }
 
+impl StudioDef {
+    /// Titel in der gewählten Sprache
+    pub fn title(&self) -> String {
+        match self.id {
+            "sprite" => vc_i18n::t!("studios-sprites-pmg"), "char" => vc_i18n::t!("studios-zeichensaetze"), "screen" => vc_i18n::t!("studios-bildschirme"),
+            "tiles" => vc_i18n::t!("studios-kacheln"), "palette" => vc_i18n::t!("studios-paletten"), "tracker" => vc_i18n::t!("studios-tracker"),
+            "play" => vc_i18n::t!("studios-play-tracker"), "disk" => vc_i18n::t!("studios-disk-studio"), "memmap" => vc_i18n::t!("studios-memory-map"),
+            "extract" => vc_i18n::t!("studios-extraktor"), _ => self.title0.to_string(),
+        }
+    }
+}
+
 pub const STUDIOS: &[StudioDef] = &[
-    StudioDef { id: "sprite", title: "Sprites / PMG", group: Some(Group::Sprite), kinds: &["sprite", "pmg"], help: &["sprite", "sprites"] },
-    StudioDef { id: "char", title: "Zeichensätze", group: Some(Group::Charset), kinds: &["charset"], help: &["charset", "zeichensatz"] },
-    StudioDef { id: "screen", title: "Bildschirme", group: Some(Group::Screen), kinds: &["screen"], help: &["screen", "bildschirm-kacheln"] },
-    StudioDef { id: "tiles", title: "Kacheln", group: Some(Group::Tiles), kinds: &["tilemap", "tileset"], help: &["tiles", "bildschirm-kacheln"] },
-    StudioDef { id: "palette", title: "Paletten", group: Some(Group::Palette), kinds: &["palette"], help: &["paletten"] },
-    StudioDef { id: "tracker", title: "Tracker", group: Some(Group::Song), kinds: &["song"], help: &["tracker", "envelope"] },
-    StudioDef { id: "play", title: "PLAY-Tracker", group: Some(Group::Play), kinds: &["play"], help: &["play", "play-tracker"] },
-    StudioDef { id: "disk", title: "Disk-Studio", group: None, kinds: &[], help: &["disks", "disk-studio"] },
-    StudioDef { id: "memmap", title: "Memory Map", group: None, kinds: &[], help: &["memmap"] },
-    StudioDef { id: "extract", title: "Extraktor", group: None, kinds: &[], help: &[] },
+    StudioDef { id: "sprite", title0: "Sprites / PMG", group: Some(Group::Sprite), kinds: &["sprite", "pmg"], help: &["sprite", "sprites"] },
+    StudioDef { id: "char", title0: "Zeichensätze", group: Some(Group::Charset), kinds: &["charset"], help: &["charset", "zeichensatz"] },
+    StudioDef { id: "screen", title0: "Bildschirme", group: Some(Group::Screen), kinds: &["screen"], help: &["screen", "bildschirm-kacheln"] },
+    StudioDef { id: "tiles", title0: "Kacheln", group: Some(Group::Tiles), kinds: &["tilemap", "tileset"], help: &["tiles", "bildschirm-kacheln"] },
+    StudioDef { id: "palette", title0: "Paletten", group: Some(Group::Palette), kinds: &["palette"], help: &["paletten"] },
+    StudioDef { id: "tracker", title0: "Tracker", group: Some(Group::Song), kinds: &["song"], help: &["tracker", "envelope"] },
+    StudioDef { id: "play", title0: "PLAY-Tracker", group: Some(Group::Play), kinds: &["play"], help: &["play", "play-tracker"] },
+    StudioDef { id: "disk", title0: "Disk-Studio", group: None, kinds: &[], help: &["disks", "disk-studio"] },
+    StudioDef { id: "memmap", title0: "Memory Map", group: None, kinds: &[], help: &["memmap"] },
+    StudioDef { id: "extract", title0: "Extraktor", group: None, kinds: &[], help: &[] },
 ];
 
 #[cfg(test)]

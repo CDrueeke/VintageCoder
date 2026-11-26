@@ -21,16 +21,20 @@
         { "id": "alt", "label": "Nur für Quelltext mit anderer Endung (strukturiertes BASIC)" }
       ],
       "options": [
-        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet, cbm2 oder atari8.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets), z. B. c64, c128, plus4, mega65, vic20, pet oder atari8.", "default": "c64", "default_text": "", "repeat": false, "required": false },
         { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC-Dialekt (Datei in data/basic): cbm_v2, basic7, basic35, basic65, atari_basic oder turbo_basic_xl.", "default": "", "default_text": "Dialekt des Zielsystems", "repeat": false, "required": false },
         { "flag": "--memory", "short": "", "value": "ausbau", "group": "ziel", "help": "Speicherausbau des Ziels; bestimmt die BASIC-Startadresse. Gibt es nur beim VC-20 (unexpanded, 3k, 8k, 16k, 24k, 35k); andere Ziele ignorieren die Angabe.", "default": "", "default_text": "Vorgabe des Ziels (VC-20: unexpanded)", "repeat": false, "required": false },
         { "flag": "--plain", "short": "", "value": "", "group": "ziel", "help": "Quelltext als natives BASIC lesen, auch bei einer anderen Endung als .bas, .lst und .tur.", "default": "", "default_text": "", "repeat": false, "required": false },
         { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false },
         { "flag": "-o", "short": "", "value": "ausgabe", "group": "ausgabe", "help": "Ausgabedatei. Bei natives BASIC darf sie nicht die Quelldatei sein.", "default": "", "default_text": "Quellname mit .prg (Commodore) bzw. .bas (Atari)", "repeat": false, "required": false },
-        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt.", "default": "10", "default_text": "", "repeat": false, "required": false },
-        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "Nummer der ersten Zeile ohne eigene Zeilennummer. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Schrittweite der automatischen Zeilennummern. Eine ungültige Zahl wird still durch den Standard ersetzt. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--check", "short": "", "value": "", "group": "ausgabe", "help": "Nur prüfen: Warnungen (B150–B159, B167) ausgeben, keine Datei schreiben.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--compact", "short": "", "value": "", "group": "ausgabe", "help": "Leerzeichen innerhalb der Anweisungen entfernen, wo es nichts ändert (nur Commodore; spart Speicher und Laufzeit). Zeichenketten, REM und DATA bleiben.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--no-check", "short": "", "value": "", "group": "ausgabe", "help": "Die Syntaxprüfung beim Übersetzen auslassen.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--disable", "short": "", "value": "codes", "group": "ausgabe", "help": "Einzelne Warnungen abschalten, Codes durch Komma getrennt (z. B. B150,B154). Fehler lassen sich nicht abschalten.", "default": "", "default_text": "", "repeat": false, "required": false },
         { "flag": "-I", "short": "", "value": "ordner", "group": "alt", "help": "Suchordner für eingebundene Dateien; der erste ist auch die Wurzel für Maschinencode-Einbindungen.", "default": "", "default_text": "Arbeitsordner (Wurzel)", "repeat": true, "required": false },
-        { "flag": "-D", "short": "", "value": "NAME=zahl", "group": "alt", "help": "Konstante für den Quelltext setzen.", "default": "", "default_text": "", "repeat": true, "required": false },
+        { "flag": "-D", "short": "", "value": "NAME=zahl", "group": "alt", "help": "Konstante für den Quelltext setzen (natives BASIC: wirkt wie ein #define NAME zahl).", "default": "", "default_text": "", "repeat": true, "required": false },
         { "flag": "--pack", "short": "", "value": "", "group": "alt", "help": "Zeilen zusammenfassen (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false },
         { "flag": "--map", "short": "", "value": "datei", "group": "alt", "help": "Zuordnung Quellname zu BASIC-Name und Marke zu Zeile in eine Textdatei schreiben (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false },
         { "flag": "--labels", "short": "", "value": "datei", "group": "alt", "help": "VICE-Labeldatei lesen; ihre Adressen stehen im Quelltext als Konstanten asm.name (nur Commodore).", "default": "", "default_text": "", "repeat": false, "required": false }
@@ -42,8 +46,10 @@
         { "title": "VC-20 mit 8-KB-Erweiterung", "cmd": "vcc basic examples/c64/basic_native/sterne.bas --target vic20 --memory 8k -o sterne.prg" }
       ],
       "notes": [
+        "#include bindet Dateien und Medien ein (z. B. #include \"graphics/hero.vcsprite\" als DATA, Projektordner = nächster Ordner mit Projektdatei); Medien werden bei der Umwandlung (--to-labels, --to-numbers, --renumber) mitgelesen, aber nie zurückgeschrieben.",
+        "Direktiven im nativen BASIC: #define NAME wert (Ersetzung vor der Nummerierung), #if SYSTEM_C64 / #else / #endif, #dialect <id> (Dialekt dieser Datei) und #asm \"datei.asm\" [with \"song.asm\"] (Maschinencode hinter dem BASIC-Text bzw. als DATA-Zeilen; die Marken stehen im Programm als asm.name).",
         "Es werden die Marken (@name = Zeile n) und bei #longnames die Zuordnung der langen Namen ausgegeben. Eine .sbas-Datei wird abgelehnt.",
-        "Die Optionen -I, -D, --pack, --map und --labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne --plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt."
+        "Die Optionen -I, --pack, --map und --labels wirken nur beim Übersetzen von Quelltext mit anderer Endung als .bas, .lst und .tur ohne --plain; beim nativen BASIC werden sie angenommen, aber nicht benutzt. Die Option -D wirkt auch beim nativen BASIC (wie ein #define)."
       ],
       "see_also": ["basic2asm", "import", "build"]
     },
@@ -208,6 +214,44 @@
       "see_also": [
         "basic"
       ]
+    },
+    {
+      "id": "convert",
+      "usage": "vcc basic (--to-labels | --to-numbers | --renumber) <datei.bas|datei.lst|datei.tur> [optionen]",
+      "summary": "Zeilennummern in Labels umwandeln, Labels in Zeilennummern umwandeln oder neu nummerieren",
+      "args": [
+        { "name": "datei.bas", "required": true, "repeat": false, "help": "BASIC-Quelltext; eingebundene Dateien (#include) werden mitumgewandelt." }
+      ],
+      "option_groups": [
+        { "id": "art", "label": "Art der Umwandlung" },
+        { "id": "ausgabe", "label": "Ausgabe und Nummerierung" },
+        { "id": "ziel", "label": "Zielsystem und Dialekt" }
+      ],
+      "options": [
+        { "flag": "--to-labels", "short": "", "value": "", "group": "art", "help": "Zeilennummern in Labels umwandeln: nur angesprungene Zeilen bekommen ein Label, vorhandene Namen bleiben. Berechnete Sprungziele (GOTO A*10) brechen die Umwandlung ab (B162).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--to-numbers", "short": "", "value": "", "group": "art", "help": "Labels in Zeilennummern umwandeln: immer neu nummeriert; die Namen bleiben als Markerzeilen ;@name erhalten.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--renumber", "short": "", "value": "", "group": "art", "help": "Zeilen neu nummerieren und alle Sprungziele anpassen.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--range", "short": "", "value": "a-b", "group": "art", "help": "Nur Zeilen mit alter Nummer von a bis b neu nummerieren (mit --renumber, nur im Nummernmodus).", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--start", "short": "", "value": "n", "group": "ausgabe", "help": "Erste Zeilennummer. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--step", "short": "", "value": "n", "group": "ausgabe", "help": "Schritt der Zeilennummern. Eine Zeile #numbering start=N step=N in der Datei hat Vorrang; Schrittweite mindestens 1, bei Überlauf schlägt B192 eine kleinere vor.", "default": "10", "default_text": "", "repeat": false, "required": false },
+        { "flag": "-o", "short": "", "value": "datei", "group": "ausgabe", "help": "Ergebnis (nur die Hauptdatei) in diese Datei schreiben.", "default": "", "default_text": "Standardausgabe", "repeat": false, "required": false },
+        { "flag": "--write", "short": "", "value": "", "group": "ausgabe", "help": "Alle geänderten Dateien an Ort und Stelle überschreiben.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--preview", "short": "", "value": "", "group": "ausgabe", "help": "Nur die geänderten Zeilen (alt → neu) auflisten, nichts schreiben.", "default": "", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--target", "short": "", "value": "system", "group": "ziel", "help": "Zielsystem (Datei in data/targets); bestimmt den Dialekt.", "default": "c64", "default_text": "", "repeat": false, "required": false },
+        { "flag": "--dialect", "short": "", "value": "id", "group": "ziel", "help": "BASIC-Dialekt (Datei in data/basic); eine Zeile #dialect <id> in der Datei hat Vorrang.", "default": "", "default_text": "Dialekt des Zielsystems", "repeat": false, "required": false },
+        { "flag": "--data-dir", "short": "", "value": "ordner", "group": "ziel", "help": "Ordner mit der Hardware-Datenbank (data).", "default": "", "default_text": "VC_DATA oder neben dem Programm", "repeat": false, "required": false }
+      ],
+      "examples": [
+        { "title": "Vorschau der Umwandlung in Labels", "cmd": "vcc basic --to-labels spiel.bas --preview" },
+        { "title": "In Zeilennummern umwandeln und die Datei überschreiben", "cmd": "vcc basic --to-numbers spiel.bas --write" },
+        { "title": "Neu nummerieren ab 100 in Fünferschritten", "cmd": "vcc basic --renumber spiel.bas --start 100 --step 5 -o neu.bas" }
+      ],
+      "notes": [
+        "Der Modus einer Datei ergibt sich aus ihrem Inhalt; eine Mischung aus Nummern und Labels (B160) lässt sich mit jeder der beiden Umwandlungen auflösen.",
+        "Die Namen manuell vergebener Labels bleiben als Zeile ;@name vor der Anweisung erhalten und werden bei der Rückumwandlung wiederverwendet."
+      ],
+      "exit": { "0": "Umwandlung erfolgreich", "1": "Umwandlung nicht möglich (Fehler B1xx)" },
+      "see_also": ["basic"]
     },
     {
       "id": "ast",

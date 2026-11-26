@@ -33,7 +33,7 @@ impl Atari800 {
     pub fn launch_bare(program: Option<&str>, os_rom: Option<&str>, extra: &[String]) -> Result<Atari800, String> { Self::start(None, program, os_rom, extra) }
 
     fn start(file: Option<&str>, program: Option<&str>, os_rom: Option<&str>, extra: &[String]) -> Result<Atari800, String> {
-        let exe = program.map(String::from).or_else(|| find_program("atari800", &["/opt/homebrew/bin", "/usr/local/bin"])).ok_or_else(|| format!("atari800 nicht gefunden ({})", crate::install_hint("atari800")))?;
+        let exe = program.map(String::from).or_else(|| find_program("atari800", &["/opt/homebrew/bin", "/usr/local/bin"])).ok_or_else(|| vc_i18n::t!("emu-atari800-nicht-gefunden-p1", p1 = crate::install_hint("atari800")))?;
         let mut args: Vec<String> = ["-xl", "-pal", "-no-autosave-config", "-nobasic", "-monitor"].iter().map(|s| s.to_string()).collect();
         if let Some(r) = os_rom.filter(|r| !r.is_empty()) { args.push("-xlxe_rom".into()); args.push(r.into()); }
         args.extend(extra.iter().cloned());
@@ -65,14 +65,14 @@ impl Atari800 {
         let end = Instant::now() + Duration::from_secs(15);
         loop {
             if a.sh.lines.lock().unwrap().iter().any(|l| l.contains(" PC=") && l.contains("A=")) { break; }
-            if Instant::now() > end { let _ = a.child.kill(); return Err("atari800-Monitor meldet sich nicht".into()); }
+            if Instant::now() > end { let _ = a.child.kill(); return Err(vc_i18n::t!("emu-atari800-monitor-meldet-sich-nicht").into()); }
             std::thread::sleep(Duration::from_millis(50));
         }
         Ok(a)
     }
 
     fn exec(&mut self, cmd: &str) -> Result<Vec<String>, String> {
-        if self.sh.running.load(Ordering::SeqCst) { return Err("Emulator läuft – zuerst anhalten (Haltepunkt oder F8 im Emulatorfenster)".into()); }
+        if self.sh.running.load(Ordering::SeqCst) { return Err(vc_i18n::t!("emu-emulator-laeuft-zuerst-anhalten-haltepunkt-oder").into()); }
         self.sh.lines.lock().unwrap().clear();
         write!(self.stdin, "{cmd}\ndec 7f7f\n").and_then(|_| self.stdin.flush()).map_err(|e| e.to_string())?;
         let end = Instant::now() + Duration::from_secs(8);
@@ -80,7 +80,7 @@ impl Atari800 {
         loop {
             if let Some(i) = g.iter().position(|l| l.contains(SENTINEL)) { return Ok(g[..i].to_vec()); }
             let left = end.saturating_duration_since(Instant::now());
-            if left.is_zero() { return Err(format!("atari800 antwortet nicht auf '{cmd}'")); }
+            if left.is_zero() { return Err(vc_i18n::t!("emu-atari800-antwortet-nicht-auf-cmd", cmd = &cmd)); }
             g = self.sh.cv.wait_timeout(g, left).unwrap().0;
         }
     }
@@ -111,7 +111,7 @@ const LINES: u32 = 312;
 /// Strahlposition aus den Zusatzwerten `LIN`/`CYC` der Registerzeile
 pub fn beam(r: &Regs) -> Result<Cycles, String> {
     let get = |n: &str| r.extra.iter().find(|(k, _)| k == n).map(|(_, v)| *v);
-    match (get("LIN"), get("CYC")) { (Some(line), Some(cycle)) => Ok(Cycles { line, cycle, per_line: PER_LINE, lines: LINES }), _ => Err("atari800 meldet Zeile und Zyklus nicht".into()) }
+    match (get("LIN"), get("CYC")) { (Some(line), Some(cycle)) => Ok(Cycles { line, cycle, per_line: PER_LINE, lines: LINES }), _ => Err(vc_i18n::t!("emu-atari800-meldet-zeile-und-zyklus-nicht").into()) }
 }
 
 impl Backend for Atari800 {
@@ -124,7 +124,7 @@ impl Backend for Atari800 {
     fn state(&mut self) -> RunState { if self.sh.running.load(Ordering::SeqCst) { RunState::Running } else { RunState::Stopped } }
     fn registers(&mut self) -> Result<Regs, String> {
         let lines = self.exec("show")?;
-        lines.iter().find_map(|l| Self::parse_regs(l)).ok_or_else(|| format!("Register nicht lesbar: {lines:?}"))
+        lines.iter().find_map(|l| Self::parse_regs(l)).ok_or_else(|| vc_i18n::t!("emu-register-nicht-lesbar-roh", raw = format!("{lines:?}")))
     }
     fn read_mem(&mut self, addr: u16, len: usize) -> Result<Vec<u8>, String> {
         let (mut out, mut a) = (Vec::with_capacity(len), addr as usize);
@@ -136,7 +136,7 @@ impl Backend for Atari800 {
                 if head.len() != 4 || u16::from_str_radix(head, 16).is_err() { continue; }
                 got.extend(rest.split_whitespace().take(16).filter_map(|h| u8::from_str_radix(h, 16).ok()));
             }
-            if got.is_empty() { return Err("Speicher nicht lesbar".into()); }
+            if got.is_empty() { return Err(vc_i18n::t!("emu-speicher-nicht-lesbar").into()); }
             let take = got.len().min(len - out.len()).min(0x10000 - a);
             out.extend_from_slice(&got[..take]);
             a += got.len();
@@ -158,7 +158,7 @@ impl Backend for Atari800 {
         writeln!(self.stdin, "cont").and_then(|_| self.stdin.flush()).map_err(|e| e.to_string())
     }
     fn can_pause(&self) -> bool { false }
-    fn pause(&mut self) -> Result<(), String> { Err("atari800 lässt sich nicht per Befehl anhalten – im Emulatorfenster F8 drücken".into()) }
+    fn pause(&mut self) -> Result<(), String> { Err(vc_i18n::t!("emu-atari800-laesst-sich-nicht-per-befehl").into()) }
     fn set_breakpoint(&mut self, addr: u16) -> Result<(), String> {
         self.exec(&format!("bpc {addr:04x}"))?;
         self.bp = Some(addr);
